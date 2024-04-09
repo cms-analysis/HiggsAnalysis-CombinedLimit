@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../settinguptheanalysis/">
+        <link rel="prev" href="../physicsmodels/">
       
       
-        <link rel="next" href="../higgscouplings/">
+        <link rel="next" href="../bsm-higgs-models/">
       
       
       <link rel="icon" href="../../logo.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Introduction - Combine</title>
+        <title>SM Higgs coupling models - Combine</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#introduction-to-physics-models" class="md-skip">
+        <a href="#physics-models-for-sm-higgs-boson-couplings" class="md-skip">
           Skip to content
         </a>
       
@@ -117,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Introduction
+              SM Higgs coupling models
             
           </span>
         </div>
@@ -640,6 +640,27 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../physicsmodels/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -656,7 +677,7 @@
           
   
   <span class="md-ellipsis">
-    Introduction
+    SM Higgs coupling models
   </span>
   
 
@@ -667,7 +688,7 @@
         
   
   <span class="md-ellipsis">
-    Introduction
+    SM Higgs coupling models
   </span>
   
 
@@ -689,53 +710,20 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#model-building" class="md-nav__link">
+  <a href="#lhc-hcg-models" class="md-nav__link">
     <span class="md-ellipsis">
-      Model building
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Model building">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#multisignalmodel-ready-made-model-for-multiple-signal-processes" class="md-nav__link">
-    <span class="md-ellipsis">
-      MultiSignalModel ready made model for multiple signal processes
+      LHC HCG Models
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#two-hypothesis-testing" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#outdated-couplings-modifer-models" class="md-nav__link">
     <span class="md-ellipsis">
-      Two Hypothesis testing
+      Outdated couplings modifer models
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#signal-background-interference" class="md-nav__link">
-    <span class="md-ellipsis">
-      Signal-background interference
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#multi-process-interference" class="md-nav__link">
-    <span class="md-ellipsis">
-      Multi-process interference
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -743,27 +731,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../higgscouplings/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    SM Higgs coupling models
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -1299,53 +1266,20 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#model-building" class="md-nav__link">
+  <a href="#lhc-hcg-models" class="md-nav__link">
     <span class="md-ellipsis">
-      Model building
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Model building">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#multisignalmodel-ready-made-model-for-multiple-signal-processes" class="md-nav__link">
-    <span class="md-ellipsis">
-      MultiSignalModel ready made model for multiple signal processes
+      LHC HCG Models
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#two-hypothesis-testing" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#outdated-couplings-modifer-models" class="md-nav__link">
     <span class="md-ellipsis">
-      Two Hypothesis testing
+      Outdated couplings modifer models
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#signal-background-interference" class="md-nav__link">
-    <span class="md-ellipsis">
-      Signal-background interference
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#multi-process-interference" class="md-nav__link">
-    <span class="md-ellipsis">
-      Multi-process interference
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1367,294 +1301,183 @@
   
 
 
-<h1 id="introduction-to-physics-models">Introduction to Physics Models</h1>
-<p><span style="font-variant:small-caps;">Combine</span> can be run directly on the text-based datacard. However, for more advanced physics models, the internal step to convert the datacard to a binary workspace should be performed by the user. To create a binary workspace starting from a <code>datacard.txt</code>, you can run</p>
-<pre><code class="language-sh">text2workspace.py datacard.txt -o workspace.root
-</code></pre>
-<p>By default (without the <code>-o</code> option), the binary workspace will be named <code>datacard.root</code> - i.e the <strong>.txt</strong> suffix will be replaced by <strong>.root</strong>.</p>
-<p>A full set of options for <code>text2workspace</code> can be found by running <code>text2workspace.py --help</code>.</p>
-<p>The default model that will be produced when running <code>text2workspace</code> is one in which all processes identified as signal are multiplied by a common multiplier <strong>r</strong>. This is all that is needed for simply setting limits or calculating significances.</p>
-<p><code>text2workspace</code> will convert the datacard into a PDF that summarizes the analysis.
-For example, let's take a look at the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/simple-counting-experiment.txt">data/tutorials/counting/simple-counting-experiment.txt</a> datacard.</p>
-<pre><code class="language-nohighlight"># Simple counting experiment, with one signal and one background process
-# Extremely simplified version of the 35/pb H-&gt;WW analysis for mH = 200 GeV,
-# for 4th generation exclusion (EWK-10-009, arxiv:1102.5429v1)
-imax 1  number of channels
-jmax 1  number of backgrounds
-kmax 2  number of nuisance parameters (sources of systematical uncertainties)
-------------
-# we have just one channel, in which we observe 0 events
-bin         1
-observation 0
-------------
-# now we list the expected events for signal and all backgrounds in that bin
-# the second 'process' line must have a positive number for backgrounds, and 0 for signal
-# then we list the independent sources of uncertainties, and give their effect (syst. error)
-# on each process and bin
-bin             1      1
-process       ggh4G  Bckg
-process         0      1
-rate           4.76  1.47
-------------
-deltaS  lnN    1.20    -    20% uncertainty on signal
-deltaB  lnN      -   1.50   50% uncertainty on background
-</code></pre>
-<p>If we run <code>text2workspace.py</code> on this datacard and take a look at the workspace (<code>w</code>) inside the <code>.root</code> file produced, we will find a number of different objects representing the signal, background, and observed event rates, as well as the nuisance parameters and signal strength <span class="arithmatex">\(r\)</span>. Note that often in the statistics literature, this parameter is referred to as <span class="arithmatex">\(\mu\)</span>.</p>
-<p>From these objects, the necessary PDF has been constructed (named <code>model_s</code>). For this counting experiment we will expect a simple PDF of the form</p>
-<div class="arithmatex">\[
-p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
-\dfrac{[r\cdot n_{S}(\nu_{S})+n_{B}(\nu_{B})]^{n_{\mathrm{obs}}} }
-{n_{\mathrm{obs}}!}e^{-[r\cdot n_{S}(\nu_{S})+n_{B}(\nu_{B})]}
-\cdot e^{-\frac{1}{2}(\nu_{S}- y_{S})^{2}}
-\cdot e^{-\frac{1}{2}(\nu_{B}- y_{B})^{2}}
-\]</div>
-<p>where the expected signal and background rates are expressed as functions of the nuisance parameters, <span class="arithmatex">\(n_{S}(\nu_{S}) = 4.76(1+0.2)^{\nu_{S}}~\)</span> and <span class="arithmatex">\(~n_{B}(\nu_{B}) = 1.47(1+0.5)^{\nu_{B}}\)</span>. The <span class="arithmatex">\(y_{S},~y_{B}\)</span> are the auxiliary observables. In the code, these will have the same name as the corresponding nuisance parameter, with the extension <code>_In</code>.</p>
-<p>The first term represents the usual Poisson expression for observing <span class="arithmatex">\(n_{\mathrm{obs}}\)</span> events, while the second two are the Gaussian constraint terms for the nuisance parameters. In this case <span class="arithmatex">\({y_S}={y_B}=0\)</span>, and the widths of both Gaussians are 1.</p>
-<p>A combination of counting experiments (or a binned shape datacard) will look like a product of PDFs of this kind. For parametric/unbinned analyses, the PDF for each process in each channel is provided instead of the using the Poisson terms and a product runs over the bin counts/events.</p>
-<h2 id="model-building">Model building</h2>
-<p>For more complex models, <code>PhysicsModels</code> can be produced. To use a different physics model instead of the default one, use the option <code>-P</code> as in</p>
-<pre><code class="language-sh">text2workspace.py datacard -P HiggsAnalysis.CombinedLimit.PythonFile:modelName
-</code></pre>
-<p>Generic models can be implemented by writing a python class that:</p>
-<ul>
-<li>defines the model parameters (by default it is just the signal strength modifier <strong><code>r</code></strong>)</li>
-<li>defines how signal and background yields depend on the parameters (by default, the signal scales linearly with <strong><code>r</code></strong>, backgrounds are constant)</li>
-<li>potentially also modifies the systematic uncertainties (e.g. switch off theory uncertainties on cross section when measuring the cross section itself)</li>
-</ul>
-<p>In the case of SM-like Higgs boson measurements, the class should inherit from <strong><code>SMLikeHiggsModel</code></strong> (redefining <strong><code>getHiggsSignalYieldScale</code></strong>), while beyond that one can inherit from <strong><code>PhysicsModel</code></strong>. You can find some examples in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/PhysicsModel.py">PhysicsModel.py</a>.</p>
-<p>In the 4-process model (<code>PhysicsModel:floatingXSHiggs</code>, you will see that each of the 4 dominant Higgs boson production modes get separate scaling parameters, <strong><code>r_ggH</code></strong>, <strong><code>r_qqH</code></strong>, <strong><code>r_ttH</code></strong> and <strong><code>r_VH</code></strong> (or <strong><code>r_ZH</code></strong> and <strong><code>r_WH</code></strong>) as defined in,</p>
-<pre><code class="language-python">def doParametersOfInterest(self):
-  &quot;&quot;&quot;Create POI and other parameters, and define the POI set.&quot;&quot;&quot;
-  # --- Signal Strength as only POI ---
-  if &quot;ggH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_ggH[1,%s,%s]&quot; % (self.ggHRange[0], self.ggHRange[1]))
-  if &quot;qqH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_qqH[1,%s,%s]&quot; % (self.qqHRange[0], self.qqHRange[1]))
-  if &quot;VH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_VH[1,%s,%s]&quot;  % (self.VHRange [0], self.VHRange [1]))
-  if &quot;WH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_WH[1,%s,%s]&quot;  % (self.WHRange [0], self.WHRange [1]))
-  if &quot;ZH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_ZH[1,%s,%s]&quot;  % (self.ZHRange [0], self.ZHRange [1]))
-  if &quot;ttH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_ttH[1,%s,%s]&quot; % (self.ttHRange[0], self.ttHRange[1]))
-  poi = &quot;,&quot;.join([&quot;r_&quot;+m for m in self.modes])
-  if self.pois: poi = self.pois
-  ...
-</code></pre>
-<p>The mapping of which POI scales which process is handled via the following function,</p>
-<pre><code class="language-python">def getHiggsSignalYieldScale(self,production,decay, energy):
-  if production == &quot;ggH&quot;: return (&quot;r_ggH&quot; if &quot;ggH&quot; in self.modes else 1)
-  if production == &quot;qqH&quot;: return (&quot;r_qqH&quot; if &quot;qqH&quot; in self.modes else 1)
-  if production == &quot;ttH&quot;: return (&quot;r_ttH&quot; if &quot;ttH&quot; in self.modes else (&quot;r_ggH&quot; if self.ttHasggH else 1))
-  if production in [ &quot;WH&quot;, &quot;ZH&quot;, &quot;VH&quot; ]: return (&quot;r_VH&quot; if &quot;VH&quot; in self.modes else 1)
-  raise RuntimeError, &quot;Unknown production mode '%s'&quot; % production
-</code></pre>
-<p>You should note that <code>text2workspace</code> will look for the python module in <code>PYTHONPATH</code>. If you want to keep your model local, you'll need to add the location of the python file to <code>PYTHONPATH</code>.</p>
-<p>A number of models used in the LHC Higgs combination paper can be found in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/LHCHCGModels.py">LHCHCGModels.py</a>.</p>
-<p>The models can be applied to the datacard by using the <code>-P</code> option, for example <code>-P HiggsAnalysis.CombinedLimit.HiggsCouplings:c7</code>, and others that are defined in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsCouplings.py">HiggsCouplings.py</a>.</p>
-<p>Below are some (more generic) example models that also exist in GitHub.</p>
-<h3 id="multisignalmodel-ready-made-model-for-multiple-signal-processes">MultiSignalModel ready made model for multiple signal processes</h3>
-<p><span style="font-variant:small-caps;">Combine</span> already contains a model <strong><code>HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel</code></strong> that can be used to assign different signal strengths to multiple processes in a datacard, configurable from the command line.</p>
-<p>The model is configured by passing one or more mappings in the form <strong><code>--PO 'map=bin/process:parameter'</code></strong> to text2workspace:</p>
-<ul>
-<li><strong><code>bin</code></strong> and <strong><code>process</code></strong> can be arbitrary regular expressions matching the bin names and process names in the datacard.
-    Note that mappings are applied both to signals and to background processes; if a line matches multiple mappings, precedence is given to the last one in the order they are in the command line.
-    It is suggested to put quotes around the argument of <strong><code>--PO</code></strong> so that the shell does not try to expand any <strong><code>*</code></strong> signs in the patterns.</li>
-<li><strong><code>parameter</code></strong> is the POI to use to scale that process (<code>name[starting_value,min,max]</code> the first time a parameter is defined, then just <code>name</code> if used more than once).
-    Special values are <strong><code>1</code></strong> and <strong><code>0==; ==0</code></strong> means "drop the process completely from the model", while <strong><code>1</code></strong> means to "keep the yield as is in the card with no scaling" (as normally done for backgrounds); <strong><code>1</code></strong> is the default that is applied to processes that have no mappings. Therefore it is normally not needed, but it may be used to override a previous more generic match in the same command line (e.g. <code>--PO 'map=.*/ggH:r[1,0,5]' --PO 'map=bin37/ggH:1'</code> would treat ggH as signal in general, but count it as background in the channel <code>bin37</code>).</li>
-</ul>
-<p>Passing the additional option <strong><code>--PO verbose</code></strong> will set the code to verbose mode, printing out the scaling factors for each process; we encourage the use this option to make sure that the processes are being scaled correctly.</p>
-<p>The MultiSignalModel will define all parameters as parameters of interest, but that can be then changed from the command line, as described in the following subsection.</p>
-<p>Some examples, taking as reference the toy datacard <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/toy-hgg-125.txt">test/multiDim/toy-hgg-125.txt</a>:</p>
-<ul>
-<li>Scale both <code>ggH</code> and <code>qqH</code> with the same signal strength <code>r</code> (that is what the default physics model of <span style="font-variant:small-caps;">Combine</span> does for all signals; if they all have the same systematic uncertainties, it is also equivalent to adding up their yields and writing them as a single column in the card)</li>
-</ul>
-<pre><code class="language-nohighlight">  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:r[1,0,10]' --PO 'map=.*/qqH:r' toy-hgg-125.txt -o toy-1d.root
-  [...]
-  Will create a POI  r  with factory  r[1,0,10]
-  Mapping  r  to  ['.*/ggH']  patterns
-  Mapping  r  to  ['.*/qqH']  patterns
-  [...]
-  Will scale  incl/bkg  by  1
-  Will scale  incl/ggH  by  r
-  Will scale  incl/qqH  by  r
-  Will scale  dijet/bkg  by  1
-  Will scale  dijet/ggH  by  r
-  Will scale  dijet/qqH  by  r
-</code></pre>
-<ul>
-<li>Define two independent parameters of interest <code>r_ggH</code> and <code>r_qqH</code></li>
-</ul>
-<pre><code class="language-nohighlight">  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:r_ggH[1,0,10]' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-2d.root
-  [...]
-  Will create a POI  r_ggH  with factory  r_ggH[1,0,10]
-  Mapping  r_ggH  to  ['.*/ggH']  patterns
-  Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
-  Mapping  r_qqH  to  ['.*/qqH']  patterns
-  [...]
-  Will scale  incl/bkg  by  1
-  Will scale  incl/ggH  by  r_ggH
-  Will scale  incl/qqH  by  r_qqH
-  Will scale  dijet/bkg  by  1
-  Will scale  dijet/ggH  by  r_ggH
-  Will scale  dijet/qqH  by  r_qqH
-</code></pre>
-<ul>
-<li>Fix <strong><code>ggH</code></strong> to SM, define only <strong><code>qqH</code></strong> as parameter</li>
-</ul>
-<pre><code class="language-nohighlight">  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:1' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-1d-qqH.root
-  [...]
-  Mapping  1  to  ['.*/ggH']  patterns
-  Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
-  Mapping  r_qqH  to  ['.*/qqH']  patterns
-  [...]
-  Will scale  incl/bkg  by  1
-  Will scale  incl/ggH  by  1
-  Will scale  incl/qqH  by  r_qqH
-  Will scale  dijet/bkg  by  1
-  Will scale  dijet/ggH  by  1
-  Will scale  dijet/qqH  by  r_qqH
-</code></pre>
-<ul>
-<li>Drop <strong><code>ggH</code></strong> , and define only <strong><code>qqH</code></strong> as parameter</li>
-</ul>
-<pre><code class="language-nohighlight"> $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:0' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-1d-qqH0-only.root
- [...]
- Mapping  0  to  ['.*/ggH']  patterns
- Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
- Mapping  r_qqH  to  ['.*/qqH']  patterns
- [...]
- Will scale  incl/bkg  by  1
- Will scale  incl/ggH  by  0
- Will scale  incl/qqH  by  r_qqH
- Will scale  dijet/bkg  by  1
- Will scale  dijet/ggH  by  0
- Will scale  dijet/qqH  by  r_qqH
-</code></pre>
-<h3 id="two-hypothesis-testing">Two Hypothesis testing</h3>
-<p>The <code>PhysicsModel</code> that encodes the signal model above is the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsJPC.py">twoHypothesisHiggs</a>, which assumes signal processes with suffix <strong>_ALT</strong> will exist in the datacard. An example of such a datacard can be found under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt">data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt</a></p>
-<pre><code class="language-nohighlight"> $ text2workspace.py twoSignals-3bin-bigBSyst.txt -P HiggsAnalysis.CombinedLimit.HiggsJPC:twoHypothesisHiggs -m 125.7 --PO verbose -o jcp_hww.root
+<h1 id="physics-models-for-sm-higgs-boson-couplings">Physics Models for SM Higgs Boson Couplings</h1>
+<p>This page lists the physics models that can be used to perform measurements of the Higgs Boson couplings in the Standard Model (SM). These models follow the recommendations of the LHC Higgs Cross Section Working Group <a href="https://arxiv.org/abs/1307.1347">LHCHXSWG YR3</a> and have been used in the combination of the <a href="https://arxiv.org/abs/1606.02266">ATLAS and CMS measurements of the Higgs boson properties</a>.</p>
+<h2 id="lhc-hcg-models">LHC HCG Models</h2>
+<p>The following models are used in the LHC Higgs Combination Group (LHC HCG) to perform measurements of the Higgs boson couplings. They are well defined only for a SM Higgs boson mass of a few GeV around the measured value <span class="arithmatex">\(m_H \approx 125\)</span> GeV. The models are implemented in the python file  <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/LHCHCGModels.py"><code>LHCHCGModels.py</code></a>.</p>
+<p>You can produce the model by including the  following option in the <code>text2workspace.py</code> command:</p>
+<pre><code class="language-sh">-P HiggsAnalysis.CombinedLimit.LHCHCGModels:model
 
- MH (not there before) will be assumed to be 125.7
- Process  S  will get norm  not_x
- Process  S_ALT  will get norm  x
- Process  S  will get norm  not_x
- Process  S_ALT  will get norm  x
- Process  S  will get norm  not_x
- Process  S_ALT  will get norm  x
 </code></pre>
-<p>The two processes (S and S_ALT) will get different scaling parameters. The LEP-style likelihood for hypothesis testing can now be used by setting <strong>x</strong> or <strong>not_x</strong> to 1 and 0 and comparing the two likelihood evaluations.</p>
-<h3 id="signal-background-interference">Signal-background interference</h3>
-<p>Since negative probability distribution functions do not exist, the recommended way to implement this is to start from the expression for the individual amplitudes <span class="arithmatex">\(A\)</span> and the parameter of interest <span class="arithmatex">\(k\)</span>,</p>
-<div class="arithmatex">\[
-\mathrm{Yield} = |k * A_{s} + A_{b}|^2
-= k^2 * |A_{s}|^2 + k * 2 \Re(A_{s}^* A_{b}) + |A_{b}|^2
-= \mu * S + \sqrt{\mu} * I + B
-\]</div>
-<p>where</p>
-<p><span class="arithmatex">\(\mu = k^2, ~S = |A_{s}|^2,~B = |A_b|^2\)</span> and <span class="arithmatex">\(S+B+I = |A_s + A_b|^2\)</span>.</p>
-<p>With some algebra you can work out that,</p>
-<p><span class="arithmatex">\(\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]\)</span></p>
-<p>where square brackets represent the input (histograms as <code>TH1</code> or <code>RooDataHists</code>) that one needs to provide.</p>
-<p>An example of this scheme is implemented in a <a href="https://gitlab.cern.ch/cms-hcg/cadi/hig-17-012/-/blob/master/2l2nu/HiggsWidth.py">HiggsWidth</a> and is completely general, since all of the three components above are strictly positive. In this example, the POI is <code>CMS_zz4l_mu</code> and the equations for the three components are scaled (separately for the <strong>qqH</strong> and <strong>ggH</strong> processes) as,</p>
-<pre><code class="language-python"> self.modelBuilder.factory_( &quot;expr::ggH_s_func(\&quot;@0-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
- self.modelBuilder.factory_(  &quot;expr::ggH_b_func(\&quot;1-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
- self.modelBuilder.factory_(  &quot;expr::ggH_sbi_func(\&quot;sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>model</code></th>
+<th><div style="width:160px"><code>--PO</code></div></th>
+<th><div style="width:160px">POIs</div></th>
+<th><div style="width:590px">Description</div></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Couplings with resolved loops</td>
+<td><code>K1</code></td>
+<td><code>--PO dohmm</code>, <code>--PO dohzg</code> <code>--PO dohcchgluglu</code> <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
+<td><code>kappa_W</code>,<code>kappa_Z</code>,<code>kappa_b</code>, <code>kappa_t</code>, <code>kappa_tau</code>,<code>kappa_mu</code></td>
+<td>Higgs boson couplings to fermions and bosons in loops such as the <span class="arithmatex">\(gg\to H\)</span> and <span class="arithmatex">\(H\to\gamma\gamma\)</span> loops are scaled using the appropriate SM Higgs couplings. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, <span class="arithmatex">\(H\to Z\gamma\)</span> are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+<tr>
+<td>Couplings with effective loops</td>
+<td><code>K2</code></td>
+<td><code>--PO dohmm</code>, <code>--PO dohzg</code> <code>--PO dohcchgluglu</code> <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
+<td><code>kappa_g</code>,<code>kapppa_gam</code>,<code>kappa_Zgam</code>,<code>kappa_W</code>,<code>kappa_Z</code>, <code>kappa_b</code>, <code>kappa_t</code>, <code>kappa_tau</code>,<code>kappa_mu</code>,<code>kappa_Zg</code></td>
+<td>Higgs boson couplings to fermions and bosons in which the <span class="arithmatex">\(gg\to H\)</span>, <span class="arithmatex">\(H\to\gamma\gamma\)</span> and <span class="arithmatex">\(H\to Z\gamma\)</span> loops are scaled by their own effective couplings <span class="arithmatex">\(\kappa_{g}^{2}\)</span>, <span class="arithmatex">\(\kappa_{\gamma}^{2}\)</span> and <span class="arithmatex">\(\kappa_{Z\gamma}^{2}\)</span>. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+<tr>
+<td>Couplings with effective loops and total width</td>
+<td><code>K2Width</code></td>
+<td><code>--PO dohmm</code>, <code>--PO dohzg</code> <code>--PO dohcchgluglu</code> <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
+<td><code>kappa_g</code>,<code>kapppa_gam</code>,<code>kappa_Zgam</code>,<code>kappa_W</code>,<code>kappa_Z</code>,<code>c7_Gscal_tot</code>, <code>kappa_t</code>, <code>kappa_tau</code>,<code>kappa_mu</code>,<code>kappa_Zg</code></td>
+<td>Higgs boson couplings to fermions and bosons in which the <span class="arithmatex">\(gg\to H\)</span>, <span class="arithmatex">\(H\to\gamma\gamma\)</span> and <span class="arithmatex">\(H\to Z\gamma\)</span> loops are scaled by their own effective couplings <span class="arithmatex">\(\kappa_{g}^{2}\)</span>, <span class="arithmatex">\(\kappa_{\gamma}^{2}\)</span> and <span class="arithmatex">\(\kappa_{Z\gamma}^{2}\)</span>. In tis model, the total Higgs width is allowed to float by effectively replacing the coupling <span class="arithmatex">\(\kappa_{b}\)</span> as a parameter of interest. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+<tr>
+<td>Couplings with effective loops and invisible width</td>
+<td><code>K2Inv</code></td>
+<td><code>--PO dohmm</code>, <code>--PO dohzg</code> <code>--PO dohcchgluglu</code> <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
+<td><code>kappa_g</code>,<code>kapppa_gam</code>,<code>kappa_Zgam</code>,<code>kappa_W</code>,<code>kappa_Z</code>,<code>kappa_b</code>, <code>kappa_t</code>,  <code>kappa_tau</code>,<code>kappa_mu</code>,<code>kappa_Zg</code>,<code>BRinv</code></td>
+<td>Higgs boson couplings to fermions and bosons in which the <span class="arithmatex">\(gg\to H\)</span>, <span class="arithmatex">\(H\to\gamma\gamma\)</span> and <span class="arithmatex">\(H\to Z\gamma\)</span> loops are scaled by their own effective couplings <span class="arithmatex">\(\kappa_{g}^{2}\)</span>, <span class="arithmatex">\(\kappa_{\gamma}^{2}\)</span> and <span class="arithmatex">\(\kappa_{Z\gamma}^{2}\)</span> and the branching ratio to invisible particles (any process with decay string <code>hinv</code> is scaled by this). The total width is modified accordingly. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+<tr>
+<td>Couplings with effective loops and invisible width and c-quark coupling modified</td>
+<td><code>K2InvC</code></td>
+<td><code>--PO dohmm</code>, <code>--PO dohzg</code>, <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
+<td><code>kappa_g</code>,<code>kapppa_gam</code>,<code>kappa_Zgam</code>,<code>kappa_W</code>,<code>kappa_Z</code>, <code>kappa_b</code>, <code>kappa_t</code>,  <code>kappa_tau</code>,<code>kappa_mu</code>,<code>kappa_Zg</code>,<code>BRinv</code>,<code>kappa_c</code></td>
+<td>Higgs boson couplings to fermions and bosons in which the <span class="arithmatex">\(gg\to H\)</span>, <span class="arithmatex">\(H\to\gamma\gamma\)</span> and <span class="arithmatex">\(H\to Z\gamma\)</span> loops are scaled by their own effective couplings <span class="arithmatex">\(\kappa_{g}^{2}\)</span>, <span class="arithmatex">\(\kappa_{\gamma}^{2}\)</span> and <span class="arithmatex">\(\kappa_{Z\gamma}^{2}\)</span> and the branching ratio to invisible particles (any process with decay string <code>hinv</code> is scaled by this), and the coupling to charm quarks is included as a parameter of interest.  The total width is modified accordingly. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+<tr>
+<td>Couplings with effective loops and invisible width and c-quark coupling modified</td>
+<td><code>K2Undet</code></td>
+<td><code>--PO dohmm</code>, <code>--PO dohzg</code>, <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
+<td><code>kappa_g</code>,<code>kapppa_gam</code>,<code>kappa_Zgam</code>,<code>kappa_W</code>,<code>kappa_Z</code>, <code>kappa_b</code>, <code>kappa_t</code>,  <code>kappa_tau</code>,<code>kappa_mu</code>,<code>kappa_Zg</code>,<code>BRinv</code>,<code>BRundet</code></td>
+<td>Higgs boson couplings to fermions and bosons in which the <span class="arithmatex">\(gg\to H\)</span>, <span class="arithmatex">\(H\to\gamma\gamma\)</span> and <span class="arithmatex">\(H\to Z\gamma\)</span> loops are scaled by their own effective couplings <span class="arithmatex">\(\kappa_{g}^{2}\)</span>, <span class="arithmatex">\(\kappa_{\gamma}^{2}\)</span> and <span class="arithmatex">\(\kappa_{Z\gamma}^{2}\)</span> and the branching ratio to invisible particles (any process with decay string <code>hinv</code> is scaled by this), and the undetected decay modes are scaled by <code>BRundet</code>.  The total width is modified accordingly. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+<tr>
+<td>Couplings with effective loops and invisible width and c-quark coupling modified</td>
+<td><code>K2UndetWidth</code></td>
+<td><code>--PO dohmm</code>, <code>--PO dohzg</code>, <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
+<td><code>kappa_g</code>,<code>kapppa_gam</code>,<code>kappa_Zgam</code>,<code>kappa_W</code>,<code>kappa_Z</code>, <code>c7_Gscal_tot</code>, <code>kappa_t</code>,  <code>kappa_tau</code>,<code>kappa_mu</code>,<code>kappa_Zg</code>,<code>BRinv</code>,<code>BRundet</code></td>
+<td>Higgs boson couplings to fermions and bosons in which the <span class="arithmatex">\(gg\to H\)</span>, <span class="arithmatex">\(H\to\gamma\gamma\)</span> and <span class="arithmatex">\(H\to Z\gamma\)</span> loops are scaled by their own effective couplings <span class="arithmatex">\(\kappa_{g}^{2}\)</span>, <span class="arithmatex">\(\kappa_{\gamma}^{2}\)</span> and <span class="arithmatex">\(\kappa_{Z\gamma}^{2}\)</span> and the branching ratio to invisible particles (any process with decay string <code>hinv</code> is scaled by this), and the undetected decay modes are scaled by <code>BRundet</code>.  The total width Higgs width is allowed to float by effectively replacing the coupling <span class="arithmatex">\(\kappa_{b}\)</span> as a parameter of interest. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+<tr>
+<td>Couplings to vector bosons and fermions</td>
+<td><code>K3</code></td>
+<td><code>--PO dohmm</code>, <code>--PO dohzg</code> <code>--PO dohcchgluglu</code> <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
+<td><code>kappa_V</code>,<code>kappa_F</code></td>
+<td>Higgs boson couplings to bosons and fermions. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, <span class="arithmatex">\(H\to Z\gamma\)</span> are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+<tr>
+<td>Couplings vector bosons and fermions and invisible width</td>
+<td><code>K3Inv</code></td>
+<td><code>--PO dohmm</code>, <code>--PO dohzg</code> <code>--PO dohcchgluglu</code> <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
+<td><code>kappa_V</code>,<code>kappa_F</code>, <code>BRinv</code></td>
+<td>Higgs boson couplings to bosons and fermions and free floating branching ratio to invisible particles (any process with decay string <code>hinv</code> is scaled by this). By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, <span class="arithmatex">\(H\to Z\gamma\)</span> are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+<tr>
+<td>Ratios of coupling modifiers</td>
+<td><code>L1</code></td>
+<td><code>--PO dohmm</code>, <code>--PO dohzg</code> <code>--PO dohcchgluglu</code> <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
+<td><code>lambda_WZ</code>,<code>lambda_Zg</code>, <code>lambda_bZ</code>,<code>lambda_gamZ</code>,<code>lambda_tauZ</code>,<code>lambda_muZ</code>,<code>lambda_tg</code>,<code>kappa_gZ</code></td>
+<td>Ratios of coupling modifiers <span class="arithmatex">\(\lambda_{WZ}=\kappa_W/\kappa_Z\)</span>, <span class="arithmatex">\(\lambda_{Zg}=\kappa_Z/\kappa_{g}\)</span>, <span class="arithmatex">\(\lambda_{bZ}=\kappa_b/\kappa_{Z}\)</span>, <span class="arithmatex">\(\lambda_{\gamma Z}=\kappa_{\gamma}/\kappa_{Z}\)</span>, <span class="arithmatex">\(\lambda_{\tau Z}=\kappa_{\tau}/\kappa_{Z}\)</span>, <span class="arithmatex">\(\lambda_{\mu Z}=\kappa_{\mu}/\kappa_{Z}\)</span>, <span class="arithmatex">\(\lambda_{tg}=\kappa_{t}/\kappa_{g}\)</span>, <span class="arithmatex">\(\kappa_{gZ}=\kappa_{g} \kappa_{Z}/\kappa_H\)</span>, where <span class="arithmatex">\(\kappa_{H}\)</span> is the total width modifier. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>  are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+</tbody>
+</table>
+<p>The next models are constrained models to study a limited set of ratios of couplings. These are particularly useful to study models such as 2HDM that modify the SM Higgs couplings in a specific way. The models are implemented in the python file  <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsCouplings.py"><code>HiggsCouplings.py</code></a>.</p>
+<p>You can produce the model by including the  following option in the <code>text2workspace.py</code> command:</p>
+<pre><code class="language-sh">-P HiggsAnalysis.CombinedLimit.HiggsCouplings:model
 
- self.modelBuilder.factory_( &quot;expr::qqH_s_func(\&quot;@0-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
- self.modelBuilder.factory_(  &quot;expr::qqH_b_func(\&quot;1-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
- self.modelBuilder.factory_(  &quot;expr::qqH_sbi_func(\&quot;sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
 </code></pre>
-<h3 id="multi-process-interference">Multi-process interference</h3>
-<p>The above formulation can be extended to multiple parameters of interest
-(POIs). See
-<a href="https://github.com/amassiro/AnalyticAnomalousCoupling">AnalyticAnomalousCoupling</a>
-for an example. However, the computational performance scales quadratically
-with the number of POIs, and can get extremely expensive for 10 or more, as may
-be encountered often with EFT analyses. To alleviate this issue, an accelerated
-interference modeling technique is implemented for template-based analyses via
-the <code>interferenceModel</code> physics model. In this model, each bin yield <span class="arithmatex">\(y\)</span> is parameterized</p>
-<div class="arithmatex">\[
-y(\vec{\mu}) = y_0 (\vec{\mu}^\top M \vec{\mu})
-\]</div>
-<p>as a function of the POI vector <span class="arithmatex">\(\vec{\mu}\)</span>, a nominal template <span class="arithmatex">\(y_0\)</span>, and a scaling matrix <span class="arithmatex">\(M\)</span>.
-To see how this parameterization relates to that of the previous section, we can define:</p>
-<div class="arithmatex">\[
-y_0 = A_b^2, \qquad
-M = \frac{1}{A_b^2} \begin{bmatrix}
- |A_s|^2 &amp; \Re(A_s^* A_b) \\
- \Re(A_s A_b^*) &amp; |A_b|^2
- \end{bmatrix}, \qquad \vec{\mu} = \begin{bmatrix}
- \sqrt{\mu} \\
- 1
- \end{bmatrix}
-\]</div>
-<p>which leads to the same parameterization. At present, this technique only works with
-<code>CMSHistFunc</code>-based workspaces, as these are the most common workspace types
-encountered and the default when using
-<a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/bin-wise-stats">autoMCStats</a>.
-To use this model, for each bin find <span class="arithmatex">\(y_0\)</span> and put it into the datacard as a signal process, then find <span class="arithmatex">\(M\)</span> and
-save the lower triangular component as an array in a <code>scaling.json</code> file with a
-syntax as follows:</p>
-<pre><code class="language-json">[
-  {
-    &quot;channel&quot;: &quot;my_channel&quot;,
-    &quot;process&quot;: &quot;my_nominal_process&quot;,
-    &quot;parameters&quot;: [&quot;sqrt_mu[1,0,2]&quot;, &quot;Bscaling[1]&quot;],
-    &quot;scaling&quot;: [
-      [0.5, 0.1, 1.0],
-      [0.6, 0.2, 1.0],
-      [0.7, 0.3, 1.0]
-    ]
-  }
-]
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>model</code></th>
+<th><div style="width:160px"><code>--PO</code></div></th>
+<th><div style="width:160px">POIs</div></th>
+<th><div style="width:590px">Description</div></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ratios of up/down fermion couplings</td>
+<td><code>lambdadu</code></td>
+<td><code>--PO dohmm</code>, <code>--PO dohzg</code> <code>--PO dohcchgluglu</code> <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
+<td><code>lambda_du</code>,<code>lambda_Vu</code>,<code>kappa_uu</code></td>
+<td>Ratios of coupling modifiers <span class="arithmatex">\(\lambda_{du}=\kappa_d/\kappa_u\)</span>, <span class="arithmatex">\(\lambda_{Vu}=\kappa_{V}/\kappa_{u}\)</span>, <span class="arithmatex">\(\kappa_{uu}=\kappa_{u}^{2}/\kappa_H\)</span>, where <span class="arithmatex">\(\kappa_{H}\)</span> is the total width modifier. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>  are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+<tr>
+<td>Ratios of lepton to quark couplings</td>
+<td><code>lambdalq</code></td>
+<td><code>--PO dohmm</code>, <code>--PO dohzg</code> <code>--PO dohcchgluglu</code> <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
+<td><code>lambda_lq</code>,<code>lambda_Vq</code>,<code>kappa_qq</code></td>
+<td>Ratios of coupling modifiers <span class="arithmatex">\(\lambda_{lq}=\kappa_l/\kappa_q\)</span>, <span class="arithmatex">\(\lambda_{Vq}=\kappa_{V}/\kappa_{q}\)</span>, <span class="arithmatex">\(\kappa_{qq}=\kappa_{q}^{2}/\kappa_H\)</span>, where <span class="arithmatex">\(\kappa_{H}\)</span> is the total width modifier. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>  are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+<tr>
+<td>Ratios of fermion to vector boson couplings</td>
+<td><code>lambdafv</code></td>
+<td><code>--PO dohmm</code>, <code>--PO dohzg</code> <code>--PO dohcchgluglu</code> <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
+<td><code>lambda_FV</code>,<code>kappa_VV</code></td>
+<td>Ratios of coupling modifiers <span class="arithmatex">\(\lambda_{fV}=\kappa_f/\kappa_V\)</span> <span class="arithmatex">\(\kappa_{VV}=\kappa_{V}^{2}/\kappa_H\)</span>, where <span class="arithmatex">\(\kappa_{H}\)</span> is the total width modifier. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>  are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="outdated-couplings-modifer-models">Outdated couplings modifer models</h2>
+<p>These models were used early in the Higgs discovery, but are now considered outdated. They are still available for backward compatibility and for simple studies, but are generally not recommended. The models are implemented in the python file  <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsCouplings_ICHEP2012.py"><code>HiggsCouplings.py</code></a>.</p>
+<p>You can produce the model by including the  following option in the <code>text2workspace.py</code> command:</p>
+<pre><code class="language-sh">-P HiggsAnalysis.CombinedLimit.HiggsCouplings:model
+
 </code></pre>
-<p>where the parameters are declared using RooFit's <a href="https://root.cern.ch/doc/v622/classRooWorkspace.html#a0ddded1d65f5c6c4732a7a3daa8d16b0">factory
-syntax</a>
-and each row of the <code>scaling</code> field represents the scaling information of a bin, e.g. if <span class="arithmatex">\(y_0 = |A_b|^2\)</span>
-then each row would contain three entries:</p>
-<div class="arithmatex">\[
-|A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1
-\]</div>
-<p>For several coefficients, one would enumerate as follows:</p>
-<pre><code class="language-python">scaling = []
-for ibin in range(nbins):
-    binscaling = []
-    for icoef in range(ncoef):
-        for jcoef in range(icoef + 1):
-            binscaling.append(amplitude_squared_for(ibin, icoef, jcoef))
-    scaling.append(binscaling)
-</code></pre>
-<p>Then, to construct the workspace, run</p>
-<pre><code class="language-bash">text2workspace.py card.txt -P HiggsAnalysis.CombinedLimit.InterferenceModels:interferenceModel \
-    --PO verbose --PO scalingData=scaling.json
-</code></pre>
-<p>For large amounts of scaling data, you can optionally use gzipped json (<code>.json.gz</code>) or pickle (<code>.pkl.gz</code>)
-files with 2D numpy arrays for the scaling coefficients instead of lists. The function <code>numpy.tril_indices(ncoef)</code>
-is helpful for extracting the lower triangle of a square matrix.</p>
-<p>You could pick any
-nominal template, and adjust the scaling as appropriate. Generally it is
-advisable to use a nominal template corresponding to near where you expect the
-best-fit values of the POIs to be so that the shape systematic effects are well-modeled in that
-region.</p>
-<p>It may be the case that the relative contributions of the terms are themselves
-a function of the POIs. For example, in VBF di-Higgs production, BSM
-modifications to the production rate can be parameterized in the "kappa"
-framework via three diagrams, with scaling coefficients <span class="arithmatex">\(\kappa_V \kappa_\lambda\)</span>,
-<span class="arithmatex">\(\kappa_V^2\)</span>, and <span class="arithmatex">\(\kappa_{2V}\)</span>, respectively, that interfere.  In
-that case, you can declare formulas with the factory syntax to represent each
-amplitude as follows:</p>
-<pre><code class="language-json">[
-  {
-    &quot;channel&quot;: &quot;a_vbf_channel&quot;,
-    &quot;process&quot;: &quot;VBFHH&quot;,
-    &quot;parameters&quot;: [&quot;expr::a0('@0*@1', kv[1,0,2], kl[1,0,2])&quot;, &quot;expr::a1('@0*@0', kv[1,0,2])&quot;, &quot;k2v[1,0,2]&quot;],
-    &quot;scaling&quot;: [
-      [3.30353674666415, -8.54170982038222, 22.96464188467882, 4.2353483207128, -11.07996258835088, 5.504469544697623],
-      [2.20644332142891, -7.076836641962523, 23.50989689214267, 4.053185685866683, -13.08569222837996, 7.502346155380032]
-    ]
-  }
-]
-</code></pre>
-<p>However, you will need to manually specify what the POIs should be when creating the workspace using the <code>POIs=</code> physics option, e.g.</p>
-<pre><code class="language-bash">text2workspace.py card.txt -P HiggsAnalysis.CombinedLimit.InterferenceModels:interferenceModel \
-  --PO scalingData=scaling.json --PO 'POIs=kl[1,0,2]:kv[1,0,2]:k2v[1,0,2]'
-</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>model</code></th>
+<th><div style="width:160px"><code>--PO</code></div></th>
+<th><div style="width:160px">POIs</div></th>
+<th><div style="width:590px">Description</div></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Custodial Symmetry Model</td>
+<td><code>cWZ</code></td>
+<td><code>--PO higgsMassRange=x,y</code></td>
+<td><code>Cwz</code></td>
+<td>Ratio of couplings to W bosons and Z bosons. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+<tr>
+<td>Coupling to vector bosons and fermions</td>
+<td><code>cVcF</code></td>
+<td><code>--PO higgsMassRange=x,y</code></td>
+<td><code>Cv</code>,<code>Cf</code></td>
+<td>Couplings to W bosons and Z bosons. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+<tr>
+<td>Couplings with universal up or down-type fermion couplings</td>
+<td><code>c5udHiggs</code></td>
+<td><code>--PO universalCF</code>, <code>--PO higgsMassRange=x,y</code></td>
+<td><code>Cg</code>,<code>Cv</code>,<code>Cglu</code>,<code>Cu</code>,<code>Cd</code></td>
+<td>Treat photon, vector-boson and gluon coupling as independent couplings. Up-type and down-type fermions have independent couplings. include <code>universalCF</code> to replace <code>Cu</code> and <code>Cd</code> with universal fermion coupling <code>Cf</code>. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+<tr>
+<td>Couplings with universal lepton or quark couplings</td>
+<td><code>c5qlHiggs</code></td>
+<td><code>--PO universalCF</code>, <code>--PO higgsMassRange=x,y</code></td>
+<td><code>Cg</code>,<code>Cv</code>,<code>Cglu</code>,<code>Cq</code>,<code>Cl</code></td>
+<td>Treat photon, vector-boson and gluon coupling as independent couplings. quark and lepton fermions have independent couplings. include <code>universalCF</code> to replace <code>Cq</code> and <code>Cl</code> with universal fermion coupling <code>Cf</code>. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -1690,7 +1513,7 @@ amplitude as follows:</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../settinguptheanalysis/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Preparing the datacard">
+          <a href="../physicsmodels/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Introduction">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -1700,20 +1523,20 @@ amplitude as follows:</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Preparing the datacard
+                Introduction
               </div>
             </div>
           </a>
         
         
           
-          <a href="../higgscouplings/" class="md-footer__link md-footer__link--next" aria-label="Next: SM Higgs coupling models">
+          <a href="../bsm-higgs-models/" class="md-footer__link md-footer__link--next" aria-label="Next: BSM Higgs models">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                SM Higgs coupling models
+                BSM Higgs models
               </div>
             </div>
             <div class="md-footer__button md-icon">
