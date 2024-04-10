@@ -1312,7 +1312,7 @@
 <table>
 <thead>
 <tr>
-<th></th>
+<th><div style="width:160px"></div></th>
 <th><code>model</code></th>
 <th><div style="width:160px"><code>--PO</code></div></th>
 <th><div style="width:160px">POIs</div></th>
@@ -1335,35 +1335,35 @@
 <td>Higgs boson couplings to fermions and bosons in which the <span class="arithmatex">\(gg\to H\)</span>, <span class="arithmatex">\(H\to\gamma\gamma\)</span> and <span class="arithmatex">\(H\to Z\gamma\)</span> loops are scaled by their own effective couplings <span class="arithmatex">\(\kappa_{g}^{2}\)</span>, <span class="arithmatex">\(\kappa_{\gamma}^{2}\)</span> and <span class="arithmatex">\(\kappa_{Z\gamma}^{2}\)</span>. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
 </tr>
 <tr>
-<td>Couplings with effective loops and total width</td>
+<td></td>
 <td><code>K2Width</code></td>
 <td><code>--PO dohmm</code>, <code>--PO dohzg</code> <code>--PO dohcchgluglu</code> <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
 <td><code>kappa_g</code>,<code>kapppa_gam</code>,<code>kappa_Zgam</code>,<code>kappa_W</code>,<code>kappa_Z</code>,<code>c7_Gscal_tot</code>, <code>kappa_t</code>, <code>kappa_tau</code>,<code>kappa_mu</code>,<code>kappa_Zg</code></td>
-<td>Higgs boson couplings to fermions and bosons in which the <span class="arithmatex">\(gg\to H\)</span>, <span class="arithmatex">\(H\to\gamma\gamma\)</span> and <span class="arithmatex">\(H\to Z\gamma\)</span> loops are scaled by their own effective couplings <span class="arithmatex">\(\kappa_{g}^{2}\)</span>, <span class="arithmatex">\(\kappa_{\gamma}^{2}\)</span> and <span class="arithmatex">\(\kappa_{Z\gamma}^{2}\)</span>. In tis model, the total Higgs width is allowed to float by effectively replacing the coupling <span class="arithmatex">\(\kappa_{b}\)</span> as a parameter of interest. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
+<td>Higgs boson couplings to fermions and bosons in which the <span class="arithmatex">\(gg\to H\)</span>, <span class="arithmatex">\(H\to\gamma\gamma\)</span> and <span class="arithmatex">\(H\to Z\gamma\)</span> loops are scaled by their own effective couplings <span class="arithmatex">\(\kappa_{g}^{2}\)</span>, <span class="arithmatex">\(\kappa_{\gamma}^{2}\)</span> and <span class="arithmatex">\(\kappa_{Z\gamma}^{2}\)</span>. In this model, the total Higgs width is allowed to float by effectively replacing the coupling <span class="arithmatex">\(\kappa_{b}\)</span> as a parameter of interest. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
 </tr>
 <tr>
-<td>Couplings with effective loops and invisible width</td>
+<td></td>
 <td><code>K2Inv</code></td>
 <td><code>--PO dohmm</code>, <code>--PO dohzg</code> <code>--PO dohcchgluglu</code> <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
 <td><code>kappa_g</code>,<code>kapppa_gam</code>,<code>kappa_Zgam</code>,<code>kappa_W</code>,<code>kappa_Z</code>,<code>kappa_b</code>, <code>kappa_t</code>,  <code>kappa_tau</code>,<code>kappa_mu</code>,<code>kappa_Zg</code>,<code>BRinv</code></td>
 <td>Higgs boson couplings to fermions and bosons in which the <span class="arithmatex">\(gg\to H\)</span>, <span class="arithmatex">\(H\to\gamma\gamma\)</span> and <span class="arithmatex">\(H\to Z\gamma\)</span> loops are scaled by their own effective couplings <span class="arithmatex">\(\kappa_{g}^{2}\)</span>, <span class="arithmatex">\(\kappa_{\gamma}^{2}\)</span> and <span class="arithmatex">\(\kappa_{Z\gamma}^{2}\)</span> and the branching ratio to invisible particles (any process with decay string <code>hinv</code> is scaled by this). The total width is modified accordingly. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
 </tr>
 <tr>
-<td>Couplings with effective loops and invisible width and c-quark coupling modified</td>
+<td></td>
 <td><code>K2InvC</code></td>
 <td><code>--PO dohmm</code>, <code>--PO dohzg</code>, <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
 <td><code>kappa_g</code>,<code>kapppa_gam</code>,<code>kappa_Zgam</code>,<code>kappa_W</code>,<code>kappa_Z</code>, <code>kappa_b</code>, <code>kappa_t</code>,  <code>kappa_tau</code>,<code>kappa_mu</code>,<code>kappa_Zg</code>,<code>BRinv</code>,<code>kappa_c</code></td>
 <td>Higgs boson couplings to fermions and bosons in which the <span class="arithmatex">\(gg\to H\)</span>, <span class="arithmatex">\(H\to\gamma\gamma\)</span> and <span class="arithmatex">\(H\to Z\gamma\)</span> loops are scaled by their own effective couplings <span class="arithmatex">\(\kappa_{g}^{2}\)</span>, <span class="arithmatex">\(\kappa_{\gamma}^{2}\)</span> and <span class="arithmatex">\(\kappa_{Z\gamma}^{2}\)</span> and the branching ratio to invisible particles (any process with decay string <code>hinv</code> is scaled by this), and the coupling to charm quarks is included as a parameter of interest.  The total width is modified accordingly. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
 </tr>
 <tr>
-<td>Couplings with effective loops and invisible width and c-quark coupling modified</td>
+<td></td>
 <td><code>K2Undet</code></td>
 <td><code>--PO dohmm</code>, <code>--PO dohzg</code>, <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
 <td><code>kappa_g</code>,<code>kapppa_gam</code>,<code>kappa_Zgam</code>,<code>kappa_W</code>,<code>kappa_Z</code>, <code>kappa_b</code>, <code>kappa_t</code>,  <code>kappa_tau</code>,<code>kappa_mu</code>,<code>kappa_Zg</code>,<code>BRinv</code>,<code>BRundet</code></td>
 <td>Higgs boson couplings to fermions and bosons in which the <span class="arithmatex">\(gg\to H\)</span>, <span class="arithmatex">\(H\to\gamma\gamma\)</span> and <span class="arithmatex">\(H\to Z\gamma\)</span> loops are scaled by their own effective couplings <span class="arithmatex">\(\kappa_{g}^{2}\)</span>, <span class="arithmatex">\(\kappa_{\gamma}^{2}\)</span> and <span class="arithmatex">\(\kappa_{Z\gamma}^{2}\)</span> and the branching ratio to invisible particles (any process with decay string <code>hinv</code> is scaled by this), and the undetected decay modes are scaled by <code>BRundet</code>.  The total width is modified accordingly. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
 </tr>
 <tr>
-<td>Couplings with effective loops and invisible width and c-quark coupling modified</td>
+<td></td>
 <td><code>K2UndetWidth</code></td>
 <td><code>--PO dohmm</code>, <code>--PO dohzg</code>, <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
 <td><code>kappa_g</code>,<code>kapppa_gam</code>,<code>kappa_Zgam</code>,<code>kappa_W</code>,<code>kappa_Z</code>, <code>c7_Gscal_tot</code>, <code>kappa_t</code>,  <code>kappa_tau</code>,<code>kappa_mu</code>,<code>kappa_Zg</code>,<code>BRinv</code>,<code>BRundet</code></td>
@@ -1377,7 +1377,7 @@
 <td>Higgs boson couplings to bosons and fermions. By setting the options <code>doX=1</code>, the process specified will be included as its own process and scaled by the appropriate coupling modifiers. By default, the <span class="arithmatex">\(H\to\mu\mu\)</span>, <span class="arithmatex">\(H\to cc\)</span>, <span class="arithmatex">\(H\to Z\gamma\)</span> are tied to other processes or fixed to their SM values. Set <code>BRU=1</code> to include the Higgs branching ratio uncertainties directly into the calculation of the partial widths, instead of just using the uncertainties in the datacard. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
 </tr>
 <tr>
-<td>Couplings vector bosons and fermions and invisible width</td>
+<td></td>
 <td><code>K3Inv</code></td>
 <td><code>--PO dohmm</code>, <code>--PO dohzg</code> <code>--PO dohcchgluglu</code> <code>--PO BRU</code> <code>--PO higgsMassRange=x,y</code></td>
 <td><code>kappa_V</code>,<code>kappa_F</code>, <code>BRinv</code></td>
@@ -1400,7 +1400,7 @@
 <table>
 <thead>
 <tr>
-<th></th>
+<th><div style="width:160px"></div></th>
 <th><code>model</code></th>
 <th><div style="width:160px"><code>--PO</code></div></th>
 <th><div style="width:160px">POIs</div></th>
@@ -1440,7 +1440,7 @@
 <table>
 <thead>
 <tr>
-<th></th>
+<th><div style="width:160px"></div></th>
 <th><code>model</code></th>
 <th><div style="width:160px"><code>--PO</code></div></th>
 <th><div style="width:160px">POIs</div></th>
@@ -1452,15 +1452,8 @@
 <td>Custodial Symmetry Model</td>
 <td><code>cWZ</code></td>
 <td><code>--PO higgsMassRange=x,y</code></td>
-<td><code>Cwz</code></td>
+<td><code>Cz</code>,<code>Cwz</code></td>
 <td>Ratio of couplings to W bosons and Z bosons. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
-</tr>
-<tr>
-<td>Coupling to vector bosons and fermions</td>
-<td><code>cVcF</code></td>
-<td><code>--PO higgsMassRange=x,y</code></td>
-<td><code>Cv</code>,<code>Cf</code></td>
-<td>Couplings to W bosons and Z bosons. Include the <code>higgsMassRange</code> option with range <span class="arithmatex">\(x&lt;m_{H}&lt;y\)</span> to allow the Higgs boson mass to float in this range.</td>
 </tr>
 <tr>
 <td>Couplings with universal up or down-type fermion couplings</td>
