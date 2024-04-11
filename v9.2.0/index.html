@@ -1615,10 +1615,10 @@ cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 </code></pre>
-<p>Update to a recommended tag - currently the recommended tag is <strong>v9.2.0</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.2.0">see release notes</a></p>
+<p>Update to a recommended tag - currently the recommended tag is <strong>v9.2.1</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.2.1">see release notes</a></p>
 <pre><code class="language-sh">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v9.2.0
+git checkout v9.2.1
 scramv1 b clean; scramv1 b # always make a clean build
 </code></pre>
 <h4 id="combine-v8-cmssw_10_2_x-release-series">Combine v8: <code>CMSSW_10_2_X</code> release series</h4>
@@ -1659,7 +1659,7 @@ scramv1 b clean; scramv1 b # always make a clean build
 <p>Pre-compiled versions of the tool are available as container images from the <a href="https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235">CMS cloud</a>. These containers can be downloaded and run using <a href="https://cms-opendata-guide.web.cern.ch/tools/docker/">Docker</a>. If you have docker running you can pull and run the image using, </p>
 <pre><code class="language-sh">docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:&lt;tag&gt;
 </code></pre>
-<p>where you must replace <code>&lt;tag&gt;</code> with a particular version of the tool - eg - <code>v9.2.0</code>. See the top of this page for the latest recommended versions. </p>
+<p>where you must replace <code>&lt;tag&gt;</code> with a particular version of the tool - eg - <code>v9.2.1</code>. See the top of this page for the latest recommended versions. </p>
 <p>You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool. 
 The container can be re-started using <code>docker start -i combine</code>. </p>
 <h4 id="standalone-compilation">Standalone compilation</h4>
@@ -1744,8 +1744,8 @@ At least 2GB of disk space should be reserved on the virtual machine for <span s
 </ol>
 <p>Installation through CernVM is maintained on a best-effort basis and these instructions may not be up to date. </p>
 <h2 id="what-has-changed-between-tags">What has changed between tags?</h2>
-<p>You can generate a diff of any two tags (eg for <code>v9.1.0</code> and <code>v9.0.0</code>) by using the following url:</p>
-<p><a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v9.0.0...v9.1.0">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v9.0.0...v9.1.0</a></p>
+<p>You can generate a diff of any two tags (eg for <code>v9.2.1</code> and <code>v9.2.0</code>) by using the following url:</p>
+<p><a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v9.2.0...v9.2.1">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v9.2.0...v9.2.1</a></p>
 <p>Replace the tag names in the url to any tags you would like to compare.</p>
 <h2 id="for-developers">For developers</h2>
 <p>We use the <em>Fork and Pull</em> model for development: each user creates a copy of the repository on GitHub, commits their requests there, and then sends pull requests for the administrators to merge.</p>
