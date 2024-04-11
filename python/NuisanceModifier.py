@@ -6,6 +6,7 @@ from math import exp, hypot, log
 
 from collections import OrderedDict
 
+
 def appendMap(tmap, k, thing):
     if k in list(tmap.keys()):
         if thing not in tmap[k]:
