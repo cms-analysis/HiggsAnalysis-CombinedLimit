@@ -10,6 +10,8 @@ from sys import exit, stderr, stdout
 import six
 from six.moves import range
 
+from collections import OrderedDict
+
 import ROOT
 
 ROOFIT_EXPR = "expr"
@@ -54,7 +56,7 @@ class ModelBuilderBase:
             self.out = ROOT.RooWorkspace("w", "w")
             # self.out.safe_import = getattr(self.out,"import") # workaround: import is a python keyword
             self.out.safe_import = SafeWorkspaceImporter(self.out)
-            self.objstore = {}
+            self.objstore = OrderedDict()
             self.out.dont_delete = []
             if options.verbose == 0:
                 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
@@ -221,7 +223,7 @@ class ModelBuilder(ModelBuilderBase):
             self.out.arg(n).setConstant(True)
 
     def doExtArgs(self):
-        open_files = {}
+        open_files = OrderedDict()
         for rp in self.DC.extArgs.keys():
             if self.out.arg(rp):
                 continue
@@ -277,7 +279,7 @@ class ModelBuilder(ModelBuilderBase):
     def doRateParams(self):
         # First support external functions/parameters
         # keep a map of open files/workspaces
-        open_files = {}
+        open_files = OrderedDict()
 
         for rp in self.DC.rateParams.keys():
             for rk in range(len(self.DC.rateParams[rp])):
@@ -808,7 +810,7 @@ class ModelBuilder(ModelBuilderBase):
                 if p != "constr":
                     nuisVars.add(self.out.var(c_param_name))
                 setNuisPdf.append(c_param_name)
-            setNuisPdf = set(setNuisPdf)
+            setNuisPdf = list(dict.fromkeys((setNuisPdf)))
             for n in setNuisPdf:
                 nuisPdfs.add(self.out.pdf(n + "_Pdf"))
             self.out.defineSet("nuisances", nuisVars)
@@ -821,7 +823,7 @@ class ModelBuilder(ModelBuilderBase):
             self.out.defineSet("globalObservables", gobsVars)
         else:  # doesn't work for too many nuisances :-(
             # avoid duplicating  _Pdf in list
-            setNuisPdf = set([self.getSafeNormName(n) for (n, nf, p, a, e) in self.DC.systs])
+            setNuisPdf = list(dict.fromkeys(keywords([self.getSafeNormName(n) for (n, nf, p, a, e) in self.DC.systs])))
             self.doSet("nuisances", ",".join(["%s" % self.getSafeNormName(n) for (n, nf, p, a, e) in self.DC.systs]))
             self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for n in setNuisPdf]))
             self.doSet("globalObservables", ",".join(self.globalobs))
@@ -846,7 +848,7 @@ class ModelBuilder(ModelBuilderBase):
 
     def doNuisancesGroups(self):
         # Prepare a dictionary of which group a certain nuisance belongs to
-        groupsFor = {}
+        groupsFor = OrderedDict()
         # existingNuisanceNames = tuple(set([syst[0] for syst in self.DC.systs]+self.DC.flatParamNuisances.keys()+self.DC.rateParams.keys()+self.DC.extArgs.keys()+self.DC.discretes))
         existingNuisanceNames = self.DC.getAllVariables()
         for groupName, nuisanceNames in six.iteritems(self.DC.groups):
