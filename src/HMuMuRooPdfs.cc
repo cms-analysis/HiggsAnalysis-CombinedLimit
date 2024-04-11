@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/HMuMuRooPdfs.h"
+#include "../interface/HMuMuRooPdfs.h"
 //#include "HMuMuRooPdfs.h"
 #include "RooRealVar.h"
 #include "TMath.h"
@@ -16,10 +16,10 @@ RooModZPdf::RooModZPdf(const char *name, const char *title, RooAbsReal& _x, RooA
 RooAbsPdf(name, title),
   x("x", "x", this, _x),
   a("a", "a", this, _a),
-  b("b", "b", this, 0.),
-  c("c", "c", this, 2.),
-  m("m", "m", this, 91.2),
-  w("w", "w", this, 2.5),
+  b{"b", "b", this},
+  c{"c", "c", this},
+  m{"m", "m", this},
+  w{"w", "w", this},
   bernCoef("coefficients", "List of Bernstein coefficients", this)
 {
 }
@@ -30,8 +30,8 @@ RooModZPdf::RooModZPdf(const char *name, const char *title, RooAbsReal& _x, RooA
   a("a", "a", this, _a),
   b("b", "b", this, _b),
   c("c", "c", this, _c),
-  m("m", "m", this, 91.2),
-  w("w", "w", this, 2.5),
+  m{"m", "m", this},
+  w{"w", "w", this},
   bernCoef("coefficients", "List of Bernstein coefficients", this)
 {
 }
@@ -40,10 +40,10 @@ RooModZPdf::RooModZPdf(const char *name, const char *title, RooAbsReal& _x, RooA
   RooAbsPdf(name, title),
   x("x", "x", this, _x),
   a("a", "a", this, _a),
-  b("b", "b", this, 0),
+  b{"b", "b", this},
   c("c", "c", this, _c),
-  m("m", "m", this, 91.2),
-  w("w", "w", this, 2.5),
+  m{"m", "m", this},
+  w{"w", "w", this},
   bernCoef("coefficients", "List of Bernstein coefficients", this)
 {
 }
@@ -52,10 +52,10 @@ RooModZPdf::RooModZPdf(const char *name, const char *title, RooAbsReal& _x, RooA
   RooAbsPdf(name, title),
   x("x", "x", this, _x),
   a("a", "a", this, _a),
-  b("b", "b", this, 0.),
-  c("c", "c", this, 2.),
-  m("m", "m", this, 91.2),
-  w("w", "w", this, 2.5),
+  b{"b", "b", this},
+  c{"c", "c", this},
+  m{"m", "m", this},
+  w{"w", "w", this},
   bernCoef("coefficients", "List of Bernstein coefficients", this)
 {
   TIterator* coefIter = _coef.createIterator() ;
@@ -76,8 +76,8 @@ RooModZPdf::RooModZPdf(const char *name, const char *title, RooAbsReal& _x, RooA
   a("a", "a", this, _a),
   b("b", "b", this, _b),
   c("c", "c", this, _c),
-  m("m", "m", this, 91.2),
-  w("w", "w", this, 2.5),
+  m{"m", "m", this},
+  w{"w", "w", this},
   bernCoef("coefficients", "List of Bernstein coefficients", this)
 {
   TIterator* coefIter = _coef.createIterator() ;
@@ -99,7 +99,7 @@ RooModZPdf::RooModZPdf(const char *name, const char *title, RooAbsReal& _x, RooA
   b("b", "b", this, _b),
   c("c", "c", this, _c),
   m("m", "m", this, _m),
-  w("w", "w", this, 2.5),
+  w{"w", "w", this},
   bernCoef("coefficients", "List of Bernstein coefficients", this)
 {
 }
@@ -174,7 +174,7 @@ RooExpPdf::RooExpPdf(const char *name, const char *title, RooAbsReal& _x, RooAbs
 RooAbsPdf(name, title),
   x ("x" , "x" , this, _x),
   a1("a1", "a1", this, _a1),
-  m ("m" , "m" , this, 91.2),
+  m {"m" , "m" , this},
   offset(_offset)
 {
 }
@@ -260,7 +260,7 @@ RooAbsPdf(name, title),
   a1("a1", "a1", this, _a1),
   a2("a2", "a2", this, _a2),
   f ("f" , "f" , this, _f ),
-  m ("m" , "m" , this, 91.2),
+  m {"m" , "m" , this},
   offset(_offset)
 {
 }
@@ -363,7 +363,7 @@ RooPowerLawPdf::RooPowerLawPdf(const char *name, const char *title, RooAbsReal& 
 RooAbsPdf(name, title),
   x ("x" , "x" , this, _x),
   a1("a1", "a1", this, _a1),
-  m("m", "m", this, 91.2),
+  m{"m", "m", this},
   offset(_offset)
 {}
 
@@ -445,7 +445,7 @@ RooAbsPdf(name, title),
   a1("a1", "a1", this, _a1),
   a2("a2", "a2", this, _a2),
   f("f", "f", this, _f),
-  m("m", "m", this, 91.2),
+  m{"m", "m", this},
   offset(_offset)
 {
 }
