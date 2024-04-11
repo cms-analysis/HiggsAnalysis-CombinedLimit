@@ -48,12 +48,12 @@ cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 ```
-Update to a recommended tag - currently the recommended tag is **v9.2.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.2.0)
+Update to a recommended tag - currently the recommended tag is **v9.2.1**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.2.1)
 
 ```sh
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v9.2.0
+git checkout v9.2.1
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
@@ -110,7 +110,7 @@ Pre-compiled versions of the tool are available as container images from the [CM
 ```sh
 docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:<tag>
 ```
-where you must replace `<tag>` with a particular version of the tool - eg - `v9.2.0`. See the top of this page for the latest recommended versions. 
+where you must replace `<tag>` with a particular version of the tool - eg - `v9.2.1`. See the top of this page for the latest recommended versions. 
 
 You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool. 
 The container can be re-started using `docker start -i combine`. 
@@ -214,9 +214,9 @@ Installation through CernVM is maintained on a best-effort basis and these instr
 
 ## What has changed between tags? 
 
-You can generate a diff of any two tags (eg for `v9.1.0` and `v9.0.0`) by using the following url:
+You can generate a diff of any two tags (eg for `v9.2.1` and `v9.2.0`) by using the following url:
 
-[https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v9.0.0...v9.1.0](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v9.0.0...v9.1.0)
+[https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v9.2.0...v9.2.1](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v9.2.0...v9.2.1)
 
 Replace the tag names in the url to any tags you would like to compare.
 
