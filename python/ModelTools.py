@@ -823,7 +823,7 @@ class ModelBuilder(ModelBuilderBase):
             self.out.defineSet("globalObservables", gobsVars)
         else:  # doesn't work for too many nuisances :-(
             # avoid duplicating  _Pdf in list
-            setNuisPdf =  list(dict.fromkeys(keywords([self.getSafeNormName(n) for (n, nf, p, a, e) in self.DC.systs])))
+            setNuisPdf = list(dict.fromkeys(keywords([self.getSafeNormName(n) for (n, nf, p, a, e) in self.DC.systs])))
             self.doSet("nuisances", ",".join(["%s" % self.getSafeNormName(n) for (n, nf, p, a, e) in self.DC.systs]))
             self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for n in setNuisPdf]))
             self.doSet("globalObservables", ",".join(self.globalobs))
