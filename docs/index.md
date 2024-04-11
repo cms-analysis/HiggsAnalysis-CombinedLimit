@@ -256,3 +256,7 @@ bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/m
 make sure to run `scram`  to compile the `CombineTools` package.
 
 See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation pages for more details on using this tool and additional features available in the full package.
+
+## Citation 
+
+If you use <span style="font-variant:small-caps;">Combine</span>, please cite the following CMS publication [here](https://arxiv.org/abs/2404.06614).
