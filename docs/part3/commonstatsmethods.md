@@ -758,7 +758,7 @@ where the former gives the result for the S+B model, while the latter gives the 
 
 ### Making a plot of the GoF test statistic distribution
 
-If you have also checked out the [combineTool](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool), you can use this to run batch jobs or on the grid (see [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)) and produce a plot of the results. Once the jobs have completed, you can hadd them together and run (e.g for the saturated model),
+If you have also checked out the [combineTool](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combineharvestercombinetools), you can use this to run batch jobs or on the grid (see [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)) and produce a plot of the results. Once the jobs have completed, you can hadd them together and run (e.g for the saturated model),
 
 ```sh
 combineTool.py -M CollectGoodnessOfFit --input data_run.root toys_run.root -m 125.0 -o gof.json
@@ -840,6 +840,18 @@ A number of different algorithms can be used with the option `--algo <algo>`,
 -   **`random`**: Scan N random points and compute the probability out of the profile likelihood ratio `combine -M MultiDimFit toy-hgg-125.root --algo random --points=20 --cl=0.68`. Again, the best fit will have `quantileExpected` set to -1, while each random point will have `quantileExpected` set to the probability given by the profile likelihood ratio at that point.
 
 -   **`fixed`**: Compare the log-likelihood at a fixed point compared to the best fit. `combine -M MultiDimFit toy-hgg-125.root --algo fixed --fixedPointPOIs r=r_fixed,MH=MH_fixed`. The output tree will contain the difference in the negative log-likelihood between the points ($\hat{r},\hat{m}_{H}$) and ($\hat{r}_{fixed},\hat{m}_{H,fixed}$) in the branch `deltaNLL`.
+
+	If you have also checked out the [combineTool](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combineharvestercombinetools), you can use this to run multiple fixed points from a `.csv` file. For example, if `fixed.csv` contains
+
+	```csv
+	r_ggH,r_qqH
+	1.0,1.0
+	1.0,2.0
+	2.0,1.0
+	2.0,2.0
+	```
+
+	then `combineTool.py -M MultiDimFit toy-hgg-125.root --algo fixed --fromfile fixed.csv` will run `--algo fixed` at each of the points in the file.
 
 -  **`grid`**:  Scan a fixed grid of points with approximately N points in total. `combine -M MultiDimFit toy-hgg-125.root --algo grid --points=10000`.
     * You can partition the job in multiple tasks by using the options `--firstPoint` and `--lastPoint`. For complicated scans, the points can be split as described in the [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission) section. The output file will contain a column `deltaNLL` with the difference in negative log-likelihood with respect to the best fit point. Ranges/contours can be evaluated by filling TGraphs or TH2 histograms with these points.
