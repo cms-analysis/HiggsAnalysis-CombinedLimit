@@ -257,6 +257,23 @@ make sure to run `scram`  to compile the `CombineTools` package.
 
 See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation pages for more details on using this tool and additional features available in the full package.
 
-## Citation 
+## Citation 
 
-If you use <span style="font-variant:small-caps;">Combine</span>, please cite the following CMS publication [here](https://arxiv.org/abs/2404.06614).
+If you use <span style="font-variant:small-caps;">Combine</span>, please cite the following CMS publication [here](https://arxiv.org/abs/2404.06614). 
+
+<details>
+<summary><b>Show BibTex Entry</b></summary>
+<code><pre>
+    @unpublished{CMS:2024onh,
+    author = "Hayrapetyan, Aram and others",
+    collaboration = "CMS",
+    title = "The {CMS} statistical analysis and combination tool: {\textsc{Combine}}",
+    eprint = "2404.06614",
+    archivePrefix = "arXiv",
+    primaryClass = "physics.data-an",
+    reportNumber = "CMS-CAT-23-001, CERN-EP-2024-078",
+    year = "2024",
+    note = "Submitted to \textit{Comput. Softw. Big Sci.}"
+}
+</pre></code>
+</details>
