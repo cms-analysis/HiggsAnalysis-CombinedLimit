@@ -384,8 +384,12 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
                 std::cout << "Will have to re-run points for which the test statistic was set to zero" << std::endl;
                 updateGridDataFC(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
             } else {
-                std::cout << "Will use the test statistic that had already been computed" << std::endl;
-            }
+		if (expectedFromGrid_) { // in this case, we will have to update since we need a new value for the "data" test stat
+                    updateGridData(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
+		} else {
+		    if (verbose > 0) CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string("Will use the test statistic values that has already been computed when producing grid file - "+gridFile_),__func__);
+		}
+	    }
         } else {
             updateGridData(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
         }
