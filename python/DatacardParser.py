@@ -9,8 +9,6 @@ from six.moves import zip
 from HiggsAnalysis.CombinedLimit.Datacard import Datacard
 from HiggsAnalysis.CombinedLimit.NuisanceModifier import doEditNuisance
 
-from collections import OrderedDict
-
 globalNuisances = re.compile("(lumi|pdf_(qqbar|gg|qg)|QCDscale_(ggH|qqH|VH|ggH1in|ggH2in|VV)|UEPS|FakeRate|CMS_(eff|fake|trigger|scale|res)_([gemtjb]|met))")
 
 
@@ -352,7 +350,7 @@ def parseCard(file, options):
 
     # resetting these here to defaults, parseCard will fill them up
     ret.discretes = []
-    ret.groups = OrderedDict()
+    ret.groups = {}
 
     #
     nbins = -1
@@ -388,7 +386,7 @@ def parseCard(file, options):
                 if len(f) < 4:
                     raise RuntimeError("Malformed shapes line")
                 if f[2] not in ret.shapeMap:
-                    ret.shapeMap[f[2]] = OrderedDict()
+                    ret.shapeMap[f[2]] = {}
                 if f[1] in ret.shapeMap[f[2]]:
                     raise RuntimeError("Duplicate definition for process '%s', channel '%s'" % (f[1], f[2]))
                 ret.shapeMap[f[2]][f[1]] = f[3:]
@@ -406,7 +404,7 @@ def parseCard(file, options):
                     if len(binline) != len(ret.obs):
                         raise RuntimeError("Found %d bins (%s) but %d bins have been declared" % (len(ret.bins), ret.bins, nbins))
                     ret.bins = binline
-                    ret.obs = OrderedDict([(b, ret.obs[i]) for i, b in enumerate(ret.bins)])
+                    ret.obs = dict([(b, ret.obs[i]) for i, b in enumerate(ret.bins)])
                     binline = []
             if f[0] == "bin":
                 binline = []
@@ -447,10 +445,10 @@ def parseCard(file, options):
                         raise RuntimeError("Found %d processes (%s), declared jmax = %d" % (len(ret.processes), ret.processes, nprocesses))
                 if nbins != len(ret.bins):
                     raise RuntimeError("Found %d bins (%s), declared imax = %d" % (len(ret.bins), ret.bins, nbins))
-                ret.exp = OrderedDict([(b, OrderedDict()) for b in ret.bins])
-                ret.isSignal = OrderedDict([(p, None) for p in ret.processes])
+                ret.exp = dict([(b, {}) for b in ret.bins])
+                ret.isSignal = dict([(p, None) for p in ret.processes])
                 if ret.obs != [] and type(ret.obs) == list:  # still as list, must change into map with bin names
-                    ret.obs = OrderedDict([(b, ret.obs[i]) for i, b in enumerate(ret.bins)])
+                    ret.obs = dict([(b, ret.obs[i]) for i, b in enumerate(ret.bins)])
                 for b, p, s in ret.keyline:
                     if ret.isSignal[p] == None:
                         ret.isSignal[p] = s
@@ -633,7 +631,7 @@ def parseCard(file, options):
                 raise RuntimeError(
                     "Malformed systematics line %s of length %d: while bins and process lines have length %d" % (lsyst, len(numbers), len(ret.keyline))
                 )
-            errline = OrderedDict([(b, OrderedDict()) for b in ret.bins])
+            errline = dict([(b, {}) for b in ret.bins])
             nonNullEntries = 0
             for (b, p, s), r in zip(ret.keyline, numbers):
                 if "/" in r:  # "number/number"

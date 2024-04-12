@@ -4,8 +4,6 @@ import re
 import sys
 from math import exp, hypot, log
 
-from collections import OrderedDict
-
 
 def appendMap(tmap, k, thing):
     if k in list(tmap.keys()):
@@ -79,7 +77,7 @@ def doAddNuisance(datacard, args):
         cchannel = re.compile(channel.replace("+", r"\+"))
     opts = args[5:]
     found = False
-    errline = OrderedDict([(b, OrderedDict([(p, 0) for p in datacard.exp[b]])) for b in datacard.bins])
+    errline = dict([(b, dict([(p, 0) for p in datacard.exp[b]])) for b in datacard.bins])
     for lsyst, nofloat, pdf0, args0, errline0 in datacard.systs:
         if lsyst == name:
             if pdf != pdf0:
@@ -228,7 +226,7 @@ def doRenameNuisance(datacard, args):
                 if pdf0 == "param":
                     continue
                 # for dcs in datacard.systs: print " --> ", dcs
-                errline2 = OrderedDict([(b, OrderedDict([(p, 0) for p in datacard.exp[b]])) for b in datacard.bins])
+                errline2 = dict([(b, dict([(p, 0) for p in datacard.exp[b]])) for b in datacard.bins])
                 found = False
                 if newname in list(datacard.systIDMap.keys()):
                     for id2 in datacard.systIDMap[newname]:
