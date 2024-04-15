@@ -274,7 +274,7 @@ If you use <span style="font-variant:small-caps;">Combine</span>, please cite th
     primaryClass = "physics.data-an",
     reportNumber = "CMS-CAT-23-001, CERN-EP-2024-078",
     year = "2024",
-    note = "Submitted to \textit{Comput. Softw. Big Sci.
-}"
+    note = "Submitted to \textit{Comput. Softw. Big Sci.}"
+}
 ```
 </details>
