@@ -263,8 +263,9 @@ If you use <span style="font-variant:small-caps;">Combine</span>, please cite th
 
 <details>
 <summary><b>Show BibTex Entry</b></summary>
-<code><pre>
-    @unpublished{CMS:2024onh,
+```
+@unpublished{
+    CMS:2024onh,
     author = "Hayrapetyan, Aram and others",
     collaboration = "CMS",
     title = "The {CMS} statistical analysis and combination tool: {\textsc{Combine}}",
@@ -273,7 +274,7 @@ If you use <span style="font-variant:small-caps;">Combine</span>, please cite th
     primaryClass = "physics.data-an",
     reportNumber = "CMS-CAT-23-001, CERN-EP-2024-078",
     year = "2024",
-    note = "Submitted to \textit{Comput. Softw. Big Sci.}"
-}
-</pre></code>
+    note = "Submitted to \textit{Comput. Softw. Big Sci.
+}"
+```
 </details>
