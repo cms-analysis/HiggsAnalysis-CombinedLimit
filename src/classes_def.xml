@@ -213,7 +213,17 @@
   <class name="CMSHggFormulaD1" />
   <class name="CMSHggFormulaD2" />
   <class name="SimpleProdPdf" />
+
   <class name="CMSExternalMorph" />
   <class name="CMSInterferenceFunc" />
   <class name="RooEFTScalingFunction" />
+
+  <class name="PolinomialExponent_1p" />
+  <class name="PolinomialExponent_2p" />
+  <class name="PolinomialExponent_3p" />
+  <class name="PolinomialExponent_4p" />
+  <class name="PolinomialExponent_6p" />
+  <class name="PolinomialExponent_5p" />
+  <class name="ExpGaussExp" />
+
 </lcgdict>
