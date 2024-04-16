@@ -2,6 +2,13 @@ cmake_minimum_required( VERSION 3.11 FATAL_ERROR )
 set(CMAKE_CXX_STANDARD 17)
 project(CMSCombine VERSION 0.0.1)
 
+# Can build with CMake after e.g. setting up StatAnalysis release like this:
+# export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+# source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh; asetup StatAnalysis,0.3.2
+# mkdir build; cd build
+# cmake path/to/source # change this path to where-ever you cloned Combine repo to
+# make -j4
+
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 find_package( ROOT REQUIRED COMPONENTS Core MathMore RooFitCore RooFit RooStats Minuit HistFactory )
 find_package(Eigen3 REQUIRED)
