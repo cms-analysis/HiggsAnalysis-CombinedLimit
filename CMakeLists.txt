@@ -81,7 +81,7 @@ install(DIRECTORY scripts/ DESTINATION bin)
 ## The the Python library installation directory relative to the install prefix.
 #file(RELATIVE_PATH Python_SITELIB_IN_PREFIX ${CMAKE_INSTALL_PREFIX} ${Python_SITELIB})
 
-set(Python_SITLIB_IN_PREFIX "python")
+set(Python_SITELIB_IN_PREFIX "python")
 
 
 message (STATUS "Using Python install location:" ${Python_SITELIB_IN_PREFIX})
