@@ -16,15 +16,15 @@ class RooScaleLOSM: public RooAbsReal
   public:
     RooScaleLOSM(){};
     RooScaleLOSM(const char *name, const char *title, RooAbsReal &mH);
-    ~RooScaleLOSM(){};
+    ~RooScaleLOSM() override{};
 
-    virtual TObject* clone(const char *newname) const = 0;
+    TObject* clone(const char *newname) const override = 0;
 
   protected:
     complexD f(double tau) const;
     inline complexD AmpSpinOneHalf(double tau) const;
     inline complexD AmpSpinOne(double tau) const;
-    virtual Double_t evaluate() const = 0;
+    Double_t evaluate() const override = 0;
 
     RooRealProxy mH_;
     static const double mt_, mW_;
@@ -34,7 +34,7 @@ class RooScaleLOSM: public RooAbsReal
 
   private:
 
-    ClassDef(RooScaleLOSM,1)
+    ClassDefOverride(RooScaleLOSM,1)
 };
 
 class RooScaleHGamGamLOSM: public RooScaleLOSM
@@ -43,17 +43,17 @@ class RooScaleHGamGamLOSM: public RooScaleLOSM
     RooScaleHGamGamLOSM(){};
     RooScaleHGamGamLOSM(const char *name, const char *title,
     		RooAbsReal &mH, RooAbsReal &ct, RooAbsReal &cW, RooAbsReal &mb, RooAbsReal &cb);
-    ~RooScaleHGamGamLOSM(){};
+    ~RooScaleHGamGamLOSM() override{};
 
-    TObject* clone(const char *newname) const;
+    TObject* clone(const char *newname) const override;
 
   protected:
-      Double_t evaluate() const;
+      Double_t evaluate() const override;
       RooRealProxy ct_, cW_, mb_, cb_;
 
   private:
 
-    ClassDef(RooScaleHGamGamLOSM,1)
+    ClassDefOverride(RooScaleHGamGamLOSM,1)
 };
 
 class RooScaleHGluGluLOSM: public RooScaleLOSM
@@ -62,17 +62,17 @@ class RooScaleHGluGluLOSM: public RooScaleLOSM
     RooScaleHGluGluLOSM(){};
     RooScaleHGluGluLOSM(const char *name, const char *title,
     		RooAbsReal &mH, RooAbsReal &ct, RooAbsReal &mb, RooAbsReal &cb);
-    ~RooScaleHGluGluLOSM(){};
+    ~RooScaleHGluGluLOSM() override{};
 
-    TObject* clone(const char *newname) const;
+    TObject* clone(const char *newname) const override;
 
   protected:
-      Double_t evaluate() const;
+      Double_t evaluate() const override;
       RooRealProxy ct_, mb_, cb_;
 
   private:
 
-    ClassDef(RooScaleHGluGluLOSM,1)
+    ClassDefOverride(RooScaleHGluGluLOSM,1)
 };
 
 class RooScaleHGamGamLOSMPlusX: public RooScaleHGamGamLOSM
@@ -81,17 +81,17 @@ class RooScaleHGamGamLOSMPlusX: public RooScaleHGamGamLOSM
     RooScaleHGamGamLOSMPlusX(){};
     RooScaleHGamGamLOSMPlusX(const char *name, const char *title,
     		RooAbsReal &mH, RooAbsReal &ct, RooAbsReal &cW, RooAbsReal &mb, RooAbsReal &cb, RooAbsReal &X);
-    ~RooScaleHGamGamLOSMPlusX(){};
+    ~RooScaleHGamGamLOSMPlusX() override{};
 
-    TObject* clone(const char *newname) const;
+    TObject* clone(const char *newname) const override;
 
   protected:
-      Double_t evaluate() const;
+      Double_t evaluate() const override;
       RooRealProxy X_;
 
   private:
 
-    ClassDef(RooScaleHGamGamLOSMPlusX,1)
+    ClassDefOverride(RooScaleHGamGamLOSMPlusX,1)
 };
 
 class RooScaleHGluGluLOSMPlusX: public RooScaleHGluGluLOSM
@@ -100,17 +100,17 @@ class RooScaleHGluGluLOSMPlusX: public RooScaleHGluGluLOSM
     RooScaleHGluGluLOSMPlusX(){};
     RooScaleHGluGluLOSMPlusX(const char *name, const char *title,
     		RooAbsReal &mH, RooAbsReal &ct, RooAbsReal &mb, RooAbsReal &cb, RooAbsReal &X);
-    ~RooScaleHGluGluLOSMPlusX(){};
+    ~RooScaleHGluGluLOSMPlusX() override{};
 
-    TObject* clone(const char *newname) const;
+    TObject* clone(const char *newname) const override;
 
   protected:
-      Double_t evaluate() const;
+      Double_t evaluate() const override;
       RooRealProxy X_;
 
   private:
 
-    ClassDef(RooScaleHGluGluLOSMPlusX,1)
+    ClassDefOverride(RooScaleHGluGluLOSMPlusX,1)
 };
 
 #endif

@@ -22,7 +22,7 @@ class CMSExternalMorph : public RooAbsReal {
         const std::vector<double>& edges
     );
     CMSExternalMorph(CMSExternalMorph const& other, const char* name = 0);
-    virtual ~CMSExternalMorph();
+    ~CMSExternalMorph() override;
 
     /* Batch accessor for CMSHistFunc / CMSHistSum, to be overriden by concrete
      * implementations. hasChanged() should indicate whether or not
@@ -36,10 +36,10 @@ class CMSExternalMorph : public RooAbsReal {
     RooRealProxy x_;
     std::vector<double> edges_;
 
-    double evaluate() const;
+    double evaluate() const override;
 
   private:
-    ClassDef(CMSExternalMorph, 1)
+    ClassDefOverride(CMSExternalMorph, 1)
 };
 
 #endif // CMSExternalMorph_h

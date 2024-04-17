@@ -26,16 +26,16 @@ public:
     );
 
   VVHZZ4L_RooSpinZeroPdf_1D_fast(const VVHZZ4L_RooSpinZeroPdf_1D_fast& other, const char* name=0);
-  virtual TObject* clone(const char* newname) const { return new VVHZZ4L_RooSpinZeroPdf_1D_fast(*this, newname); }
-  inline virtual ~VVHZZ4L_RooSpinZeroPdf_1D_fast(){}
+  TObject* clone(const char* newname) const override { return new VVHZZ4L_RooSpinZeroPdf_1D_fast(*this, newname); }
+  inline ~VVHZZ4L_RooSpinZeroPdf_1D_fast() override{}
 
   Float_t interpolateFcn(Int_t code, const char* rangeName=0) const;
-  Double_t evaluate() const;
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const;
+  Double_t evaluate() const override;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override;
 
 protected:
-  ClassDef(VVHZZ4L_RooSpinZeroPdf_1D_fast, 1)
+  ClassDefOverride(VVHZZ4L_RooSpinZeroPdf_1D_fast, 1)
 
 };
  
