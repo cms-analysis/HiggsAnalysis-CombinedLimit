@@ -1858,9 +1858,8 @@ RooDataSet::data_obs(j)
 </code></pre>
 <p>meaning there is a parameter in the input workspace called <strong><code>sigma</code></strong>, that should be <em>constrained</em> with a Gaussian centered at 1.0 with a width of 0.1. Note that the exact interpretation of these parameters is left to the user since the signal PDF is constructed externally by you. All <span style="font-variant:small-caps;">Combine</span> knows is that 1.0 should be the most likely value and 0.1 is its 1σ uncertainy. Asymmetric uncertainties are written using the syntax <strong>-1σ/+1σ</strong> in the datacard, as is the case for <code>lnN</code> uncertainties. </p>
 <p>If one wants to specify a parameter that is freely floating across its given range, and not Gaussian constrained, the following syntax is used:</p>
-<ul>
-<li><em><em>name </em>flatParam</em> **</li>
-</ul>
+<pre><code>name flatParam
+</code></pre>
 <p>Though this is <em>not strictly necessary</em> in frequentist methods using profiled likelihoods, as <span style="font-variant:small-caps;">Combine</span> will still profile these nuisances when performing fits (as is the case for the <code>simple-shapes-parametric.txt</code> datacard).</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
