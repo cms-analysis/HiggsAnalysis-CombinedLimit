@@ -108,6 +108,7 @@ ws = file_in.Get("w")
 if ws.var("MH"):
     ws.var("MH").setVal(options.massVal)
 
+
 def find_chan_proc(name):
     chan = norm_name[norm_name.find("_bin") + len("_bin") : norm_name.find("_proc")]
     if "proc" not in name:
