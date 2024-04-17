@@ -32,7 +32,7 @@ protected:
   RooRealProxy a1, ai;
   RooListProxy _coefList ;  //  List of funcficients
 //  TIterator* _coefIter ;    //! Iterator over funcficient lis
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 public:
   VBFHZZ4L_RooSpinZeroPdf() {} ;
   VBFHZZ4L_RooSpinZeroPdf(const char *name, const char *title,
@@ -44,11 +44,11 @@ public:
                        const RooArgList& inCoefList);
 
   VBFHZZ4L_RooSpinZeroPdf(const VBFHZZ4L_RooSpinZeroPdf& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new VBFHZZ4L_RooSpinZeroPdf(*this,newname); }
-  inline virtual ~VBFHZZ4L_RooSpinZeroPdf() {}
+  TObject* clone(const char* newname) const override { return new VBFHZZ4L_RooSpinZeroPdf(*this,newname); }
+  inline ~VBFHZZ4L_RooSpinZeroPdf() override {}
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
   const RooArgList& coefList() const { return _coefList ; }
 
   double Integral_T1;
@@ -59,7 +59,7 @@ public:
 
 private:
 
-        ClassDef(VBFHZZ4L_RooSpinZeroPdf,1) // Your description goes here...
+        ClassDefOverride(VBFHZZ4L_RooSpinZeroPdf,1) // Your description goes here...
 
 };
 

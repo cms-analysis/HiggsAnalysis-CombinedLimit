@@ -10,11 +10,11 @@ namespace cacheutils {
     class VectorizedHistFunc : public CachingPdfBase {
         public:
             VectorizedHistFunc(const RooHistFunc &pdf, bool includeZeroWeights=false) ;
-            virtual ~VectorizedHistFunc() {}
-            virtual const std::vector<Double_t> & eval(const RooAbsData &data) ;
-            virtual const RooAbsReal *pdf() const { return pdf_; };
-            virtual void  setDataDirty() { data_ = 0; }
-            virtual void  setIncludeZeroWeights(bool includeZeroWeights) { includeZeroWeights_ = includeZeroWeights; }
+            ~VectorizedHistFunc() override {}
+            const std::vector<Double_t> & eval(const RooAbsData &data) override ;
+            const RooAbsReal *pdf() const override { return pdf_; };
+            void  setDataDirty() override { data_ = 0; }
+            void  setIncludeZeroWeights(bool includeZeroWeights) override { includeZeroWeights_ = includeZeroWeights; }
         private:
             const RooHistFunc * pdf_;
             const RooAbsData * data_;
@@ -34,11 +34,11 @@ namespace cacheutils {
     class CachingPiecewiseInterpolation : public CachingPdfBase {
         public:
             CachingPiecewiseInterpolation(const PiecewiseInterpolation &pdf, const RooArgSet &obs) ;
-            ~CachingPiecewiseInterpolation() ;
-            virtual const std::vector<Double_t> & eval(const RooAbsData &data) ;
-            const RooAbsReal *pdf() const { return pdf_; }
-            virtual void  setDataDirty() ;
-            virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
+            ~CachingPiecewiseInterpolation() override ;
+            const std::vector<Double_t> & eval(const RooAbsData &data) override ;
+            const RooAbsReal *pdf() const override { return pdf_; }
+            void  setDataDirty() override ;
+            void  setIncludeZeroWeights(bool includeZeroWeights) override ;
         protected:
             const PiecewiseInterpolation * pdf_;
             std::vector<const RooAbsReal *> coeffs_;

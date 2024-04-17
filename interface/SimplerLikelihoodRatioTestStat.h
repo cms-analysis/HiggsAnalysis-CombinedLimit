@@ -19,7 +19,7 @@ class SimplerLikelihoodRatioTestStat : public RooStats::TestStatistic {
             snapAlt_.addClone(paramsAlt);
         }
 
-        virtual Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) 
+        Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) override 
         {
             if (data.numEntries() != 1) throw std::invalid_argument("HybridNew::TestSimpleStatistics: dataset doesn't have exactly 1 entry.");
             const RooArgSet *entry = data.get(0);
@@ -35,7 +35,7 @@ class SimplerLikelihoodRatioTestStat : public RooStats::TestStatistic {
             return -log(nullNLL/altNLL);
         }
 
-        virtual const TString GetVarName() const {
+        const TString GetVarName() const override {
             return TString::Format("-log(%s/%s)", pdfNull_->GetName(), pdfAlt_->GetName()); 
         }
 

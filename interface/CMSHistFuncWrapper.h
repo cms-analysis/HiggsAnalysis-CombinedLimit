@@ -24,20 +24,20 @@ class CMSHistFuncWrapper : public RooAbsReal {
 
   CMSHistFuncWrapper(CMSHistFuncWrapper const& other, const char* name = 0);
 
-  virtual TObject* clone(const char* newname) const {
+  TObject* clone(const char* newname) const override {
     return new CMSHistFuncWrapper(*this, newname);
   }
-  virtual ~CMSHistFuncWrapper() {}
+  ~CMSHistFuncWrapper() override {}
 
-  Double_t evaluate() const;
+  Double_t evaluate() const override;
 
   void printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
-                      TString indent) const;
+                      TString indent) const override;
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
-                              const char* rangeName = 0) const;
+                              const char* rangeName = 0) const override;
 
-  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const override;
 
   void updateCache() const;
 
@@ -55,7 +55,7 @@ class CMSHistFuncWrapper : public RooAbsReal {
   mutable SimpleCacheSentry sentry_; //!
 
  private:
-  ClassDef(CMSHistFuncWrapper, 1)
+  ClassDefOverride(CMSHistFuncWrapper, 1)
   mutable CMSHistFunc const* pfunc_;
   mutable CMSHistErrorPropagator * perr_;
   mutable bool initialized_; //! not to be serialized

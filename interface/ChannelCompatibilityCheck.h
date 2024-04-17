@@ -13,11 +13,11 @@
 class ChannelCompatibilityCheck : public FitterAlgoBase {
 public:
   ChannelCompatibilityCheck() ;
-  virtual const std::string & name() const {
+  const std::string & name() const override {
     static const std::string name("ChannelCompatibilityCheck");
     return name;
   }
-  virtual void applyOptions(const boost::program_options::variables_map &vm) ;
+  void applyOptions(const boost::program_options::variables_map &vm) override ;
 
 protected:
   std::string nameForLabel(const char *label) ;
@@ -31,7 +31,7 @@ protected:
   static std::vector<std::string> groups_;
   static std::map<TString,std::pair<double,double>> groupRanges_;
 
-  virtual bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) override;
 };
 
 

@@ -45,12 +45,12 @@ namespace cacheutils {
                 RooAbsReal(other, name),
                 list_("deps",this,other.list_),
                 terms_(other.terms_) {} 
-            ~ReminderSum() {}
-            virtual TObject* clone(const char* newname) const { return new ReminderSum(*this,newname); }
+            ~ReminderSum() override {}
+            TObject* clone(const char* newname) const override { return new ReminderSum(*this,newname); }
         private:
             RooListProxy list_;
             std::vector<const RooAbsReal *> terms_;
-            Double_t evaluate() const;
+            Double_t evaluate() const override;
     };
 }
 
