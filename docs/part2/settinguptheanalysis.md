@@ -278,7 +278,9 @@ meaning there is a parameter in the input workspace called **`sigma`**, that sho
 
 If one wants to specify a parameter that is freely floating across its given range, and not Gaussian constrained, the following syntax is used:
 
- - **name *flatParam* **
+```
+name flatParam
+```
 
 Though this is *not strictly necessary* in frequentist methods using profiled likelihoods, as <span style="font-variant:small-caps;">Combine</span> will still profile these nuisances when performing fits (as is the case for the `simple-shapes-parametric.txt` datacard).
 
