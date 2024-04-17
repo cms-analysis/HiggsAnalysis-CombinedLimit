@@ -276,7 +276,7 @@ where $e_{cbp}$ is the uncertainty in the bin content for the histogram defining
 Alternatively, one parameter is assigned per process, which may be modelled with either a Poisson or Gaussian constraint pdf:
 
 $$
-    E_{cb}(\vec{\mu},\vec{\nu},\vec{\nu}_{\alpha},\vec{\nu}_{\beta}) = \sum_{\alpha}^{\text{Poisson}} \left(\frac{\nu_{\alpha}}{\omega_{\alpha}} - 1\right)\omega_{c\alpha b}N_{c\alpha}(\vec{\nu})M_{c\alpha}(\vec{\mu},\vec{nu}) + \sum_{\beta}^{\text{Gaussian}} \nu_{\beta}e_{c\beta b}N_{c\beta}(\vec{\nu})M_{c\beta}(\vec{\mu},\vec{\nu}),
+    E_{cb}(\vec{\mu},\vec{\nu},\vec{\nu}_{\alpha},\vec{\nu}_{\beta}) = \sum_{\alpha}^{\text{Poisson}} \left(\frac{\nu_{\alpha}}{\omega_{\alpha}} - 1\right)\omega_{c\alpha b}N_{c\alpha}(\vec{\nu})M_{c\alpha}(\vec{\mu},\vec{\nu}) + \sum_{\beta}^{\text{Gaussian}} \nu_{\beta}e_{c\beta b}N_{c\beta}(\vec{\nu})M_{c\beta}(\vec{\mu},\vec{\nu}),
 $$
 
 where the indices $\alpha$ and $\beta$ runs over the Poisson- and Gaussian-constrained processes, respectively. The parameters $\omega_{\alpha}$ represent the nominal unweighted numbers of events, and are treated as the external measurements and $N_{cp}$ and $\omega_{c\alpha b}$ are defined as above.
