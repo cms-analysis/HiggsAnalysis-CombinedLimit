@@ -29,7 +29,7 @@ ToyMCSamplerOpt::ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAb
 }
 
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,24,0)
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,22,9)
 // A private std::unique_ptr was introduced in RooStats::ToyMCSampler, disallowing copy construction
 ToyMCSamplerOpt::ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) :
     ToyMCSampler(base),
