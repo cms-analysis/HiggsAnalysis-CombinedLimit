@@ -111,53 +111,53 @@ namespace cmsmath {
             SequentialMinimizer(const char *name=0) : ROOT::Math::Minimizer() {}
 
             /// reset for consecutive minimizations - implement if needed 
-            virtual void Clear() ;
+            void Clear() override ;
 
             /// set the function to minimize
-            virtual void SetFunction(const ROOT::Math::IMultiGenFunction & func) ; 
+            void SetFunction(const ROOT::Math::IMultiGenFunction & func) override ; 
 
             /// set free variable 
-            virtual bool SetVariable(unsigned int ivar, const std::string & name, double val, double step) ; 
+            bool SetVariable(unsigned int ivar, const std::string & name, double val, double step) override ; 
 
             /// set upper/lower limited variable (override if minimizer supports them )
-            virtual bool SetLimitedVariable(unsigned int ivar, const std::string & name, double val, double  step, double  lower, double  upper) ; 
+            bool SetLimitedVariable(unsigned int ivar, const std::string & name, double val, double  step, double  lower, double  upper) override ; 
 
             /// set fixed variable (override if minimizer supports them )
-            virtual bool SetFixedVariable(unsigned int ivar, const std::string & name, double val) ; 
+            bool SetFixedVariable(unsigned int ivar, const std::string & name, double val) override ; 
 
             /// method to perform the minimization
-            virtual  bool Minimize() ; 
+             bool Minimize() override ; 
 
             /// return minimum function value
-            virtual double MinValue() const { return minValue_;  }
+            double MinValue() const override { return minValue_;  }
 
             /// return expected distance reached from the minimum
-            virtual double Edm() const { return edm_; }
+            double Edm() const override { return edm_; }
 
             /// return  pointer to X values at the minimum 
-            virtual const double *  X() const { return & func_->x[0]; }
+            const double *  X() const override { return & func_->x[0]; }
 
             /// return pointer to gradient values at the minimum 
-            virtual const double *  MinGradient() const { return 0; }  
+            const double *  MinGradient() const override { return 0; }  
 
             /// number of function calls to reach the minimum 
-            virtual unsigned int NCalls() const { return func_->nCalls; }    
+            unsigned int NCalls() const override { return func_->nCalls; }    
 
             /// this is <= Function().NDim() which is the total 
             /// number of variables (free+ constrained ones) 
-            virtual unsigned int NDim() const { return nDim_; }
+            unsigned int NDim() const override { return nDim_; }
 
             /// number of free variables (real dimension of the problem) 
             /// this is <= Function().NDim() which is the total 
-            virtual unsigned int NFree() const { return nFree_;   }
+            unsigned int NFree() const override { return nFree_;   }
 
             /// minimizer provides error and error matrix
-            virtual bool ProvidesError() const { return false; } 
+            bool ProvidesError() const override { return false; } 
 
             /// return errors at the minimum 
-            virtual const double * Errors() const { return 0; }
+            const double * Errors() const override { return 0; }
 
-            virtual double CovMatrix(unsigned int i, unsigned int j) const { return 0; }
+            double CovMatrix(unsigned int i, unsigned int j) const override { return 0; }
 
             // these have to be public for ROOT to handle
             enum State { Cleared, Ready, Active, Done, Fixed, Unknown };

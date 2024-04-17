@@ -17,8 +17,8 @@ class RooCB : public RooAbsPdf {
         RooAbsReal& _theta
 	);
   RooCB(const RooCB& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooCB(*this,newname); }
-  inline virtual ~RooCB() { }
+  TObject* clone(const char* newname) const override { return new RooCB(*this,newname); }
+  inline ~RooCB() override { }
 
  protected:
 
@@ -29,11 +29,11 @@ class RooCB : public RooAbsPdf {
   RooRealProxy n;
   RooRealProxy theta;
 
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 
  private:
 
-  ClassDef(RooCB,1)
+  ClassDefOverride(RooCB,1)
     };
 
  
@@ -60,10 +60,10 @@ public:
         RooAbsReal& _n2
   );
   RooDoubleCB(const RooDoubleCB& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooDoubleCB(*this,newname); }
-  inline virtual ~RooDoubleCB() { }
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
+  TObject* clone(const char* newname) const override { return new RooDoubleCB(*this,newname); }
+  inline ~RooDoubleCB() override { }
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
 
 protected:
 
@@ -76,11 +76,11 @@ protected:
   RooRealProxy alpha2;
   RooRealProxy n2;
   
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 
 private:
 
-  ClassDef(RooDoubleCB,2)
+  ClassDefOverride(RooDoubleCB,2)
 };
  
 class RooFermi : public RooAbsPdf {
@@ -92,8 +92,8 @@ public:
 	   RooAbsReal& _beta
 	   );
   RooFermi(const RooFermi& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooFermi(*this,newname); }
-  inline virtual ~RooFermi() { }
+  TObject* clone(const char* newname) const override { return new RooFermi(*this,newname); }
+  inline ~RooFermi() override { }
 
 protected:
 
@@ -101,11 +101,11 @@ protected:
   RooRealProxy cutOff ;
   RooRealProxy beta ;
   
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 
 private:
 
-  ClassDef(RooFermi,1) 
+  ClassDefOverride(RooFermi,1) 
 };
   
 class RooRelBW : public RooAbsPdf {
@@ -118,8 +118,8 @@ public:
 	   RooAbsReal& _n
 	   );
   RooRelBW(const RooRelBW& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooRelBW(*this,newname); }
-  inline virtual ~RooRelBW() { }
+  TObject* clone(const char* newname) const override { return new RooRelBW(*this,newname); }
+  inline ~RooRelBW() override { }
 
 protected:
 
@@ -128,11 +128,11 @@ protected:
   RooRealProxy width ;
   RooRealProxy n ;
   
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 
 private:
 
-  ClassDef(RooRelBW,1)
+  ClassDefOverride(RooRelBW,1)
 };
  
 
@@ -147,12 +147,12 @@ public:
 	   );	
   
   Triangle(const Triangle& other, const char* name = 0);
-  virtual TObject* clone(const char* newname) const { 
+  TObject* clone(const char* newname) const override { 
     return new Triangle(*this,newname); }
 
-  inline virtual ~Triangle() { }
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
+  inline ~Triangle() override { }
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
 
 protected:
 
@@ -161,11 +161,11 @@ protected:
   RooRealProxy turn;
   RooRealProxy stop;
   
-  Double_t evaluate() const;
+  Double_t evaluate() const override;
 
 private:
   
-  ClassDef(Triangle,1)
+  ClassDefOverride(Triangle,1)
 };
 
 
@@ -182,8 +182,8 @@ class RooLevelledExp : public RooAbsPdf {
 		);
 
   RooLevelledExp(const RooLevelledExp& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooLevelledExp(*this,newname); }
-  inline virtual ~RooLevelledExp() { }
+  TObject* clone(const char* newname) const override { return new RooLevelledExp(*this,newname); }
+  inline ~RooLevelledExp() override { }
 
  protected:
 
@@ -195,11 +195,11 @@ class RooLevelledExp : public RooAbsPdf {
   RooRealProxy theta;
   
 
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 
  private:
 
-  ClassDef(RooLevelledExp,1)
+  ClassDefOverride(RooLevelledExp,1)
     };
 
 

@@ -15,8 +15,8 @@ class RooEFTScalingFunction : public RooAbsReal {
         RooEFTScalingFunction() {}
         RooEFTScalingFunction(const char *name, const char *title, const std::map<std::string,double> &coeffs, const RooArgList &terms);
         RooEFTScalingFunction(const RooEFTScalingFunction& other, const char* name=0);
-        virtual ~RooEFTScalingFunction() {}
-        virtual TObject *clone(const char *newname) const { return new RooEFTScalingFunction(*this,newname); } 
+        ~RooEFTScalingFunction() override {}
+        TObject *clone(const char *newname) const override { return new RooEFTScalingFunction(*this,newname); } 
         const std::map<std::string,double> & coeffs() const { return coeffs_; }
         const RooArgList & terms() const { return terms_; }
     protected:
@@ -24,9 +24,9 @@ class RooEFTScalingFunction : public RooAbsReal {
         RooListProxy terms_;
         std::map< std::vector<RooAbsReal *>, double> vcomponents_;
         double offset_;
-        virtual Double_t evaluate() const ;
+        Double_t evaluate() const override ;
     private:
-        ClassDef(RooEFTScalingFunction,1)
+        ClassDefOverride(RooEFTScalingFunction,1)
 };
 
 #endif

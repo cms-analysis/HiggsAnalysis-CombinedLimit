@@ -15,12 +15,12 @@ class RooAbsPdf; class RooRealVar; class RooAbsData; class RooArgSet;
 class GenerateOnly : public LimitAlgo {
 public:
   GenerateOnly() ;
-  virtual bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
-  virtual const std::string & name() const {
+  bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) override;
+  const std::string & name() const override {
     static const std::string name("GenerateOnly");
     return name;
   }
-  virtual void applyOptions(const boost::program_options::variables_map &vm) ;
+  void applyOptions(const boost::program_options::variables_map &vm) override ;
 };
 
 #endif

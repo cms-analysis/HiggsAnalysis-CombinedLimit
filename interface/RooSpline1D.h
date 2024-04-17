@@ -23,12 +23,12 @@ class RooSpline1D : public RooAbsReal {
       RooSpline1D(const char *name, const char *title, RooAbsReal &xvar, unsigned int npoints, const double *xvals, const double *yvals, const char *algo="CSPLINE") ;
       RooSpline1D(const char *name, const char *title, RooAbsReal &xar, unsigned int npoints, const float *xvals, const float *yvals, const char *algo="CSPLINE") ;
       RooSpline1D(const RooSpline1D &other, const char *newname=0) ;
-      ~RooSpline1D() ;
+      ~RooSpline1D() override ;
 
-      TObject * clone(const char *newname) const ;
+      TObject * clone(const char *newname) const override ;
 
     protected:
-        Double_t evaluate() const;
+        Double_t evaluate() const override;
 
     private:
         RooRealProxy xvar_;
@@ -38,7 +38,7 @@ class RooSpline1D : public RooAbsReal {
         mutable ROOT::Math::Interpolator *interp_; //! not to be serialized        
         void init() const ;
 
-  ClassDef(RooSpline1D,1) // Smooth interpolation	
+  ClassDefOverride(RooSpline1D,1) // Smooth interpolation	
 };
 
 #endif

@@ -17,16 +17,16 @@
 class MultiDimFit : public FitterAlgoBase {
 public:
   MultiDimFit() ;
-  virtual const std::string & name() const {
+  const std::string & name() const override {
     static const std::string name("MultiDimFit");
     return name;
   }
-  virtual void applyOptions(const boost::program_options::variables_map &vm) ;
+  void applyOptions(const boost::program_options::variables_map &vm) override ;
 
   enum GridType { G1x1, G3x3 };
 
 protected:
-  virtual bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) override;
 
   enum Algo { None, Singles, Cross, Grid, RandomPoints, Contour2D, Stitch2D, FixedPoint, Impact };
   static Algo algo_;

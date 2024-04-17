@@ -13,8 +13,8 @@ class SimpleGaussianConstraint : public RooGaussian {
             RooGaussian(other, name) { init(); }
         SimpleGaussianConstraint(const RooGaussian &g) : RooGaussian(g, "") { init(); }
 
-        virtual TObject* clone(const char* newname) const { return new SimpleGaussianConstraint(*this,newname); }
-        inline virtual ~SimpleGaussianConstraint() { }
+        TObject* clone(const char* newname) const override { return new SimpleGaussianConstraint(*this,newname); }
+        inline ~SimpleGaussianConstraint() override { }
 
         const RooAbsReal & getX() const { return x.arg(); }
 
@@ -34,7 +34,7 @@ class SimpleGaussianConstraint : public RooGaussian {
         double scale_;
         void init() ;
 
-        ClassDef(SimpleGaussianConstraint,1) // Gaussian PDF with fast log
+        ClassDefOverride(SimpleGaussianConstraint,1) // Gaussian PDF with fast log
 };
 
 #endif
