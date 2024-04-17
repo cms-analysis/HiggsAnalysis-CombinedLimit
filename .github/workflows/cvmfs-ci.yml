@@ -1,0 +1,42 @@
+name: CI with CVMFS
+
+env:
+  IMAGE: cmscloud/cc7-cms
+  CMSSW_VERSION: CMSSW_11_3_4
+  SCRAM_ARCH: slc7_amd64_gcc900
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test_workflow:
+    runs-on: ubuntu-latest
+    name: Test with CMSSW
+    steps:
+      # checkout the files of this repository
+      - uses: actions/checkout@v4
+      - uses: cvmfs-contrib/github-action-cvmfs@v4
+        with:
+          cvmfs_repositories: 'cms.cern.ch'
+      - uses: rhaschke/docker-run-action@v5
+        with:
+          image: ${{ env.IMAGE }}
+          shell: bash
+          options: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit -w /home/cmsusr -e CMSSW_VERSION=${{ env.CMSSW_VERSION }} -e SCRAM_ARCH=${{ env.SCRAM_ARCH }}
+          run: | 
+            ls /work/CombinedLimit
+            ls /cvmfs/cms.cern.ch | grep common
+            source /cvmfs/cms.cern.ch/cmsset_default.sh
+            scram project ${CMSSW_VERSION}
+            source /cvmfs/cms.cern.ch/cmsset_default.sh
+            cd ${CMSSW_VERSION}/src
+            cmsenv
+            mkdir -p HiggsAnalysis
+            cp -r /work/CombinedLimit HiggsAnalysis/
+            scramv1 b -j$(nproc)
+            echo ${PATH}
+            combine --help
