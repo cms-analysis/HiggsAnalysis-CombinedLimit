@@ -49,7 +49,7 @@ RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, c
 
 //_____________________________________________________________________________
 RooMultiPdf::RooMultiPdf(const RooMultiPdf& other, const char* name) :
- RooAbsPdf(other, name),c("_pdfs",this,RooListProxy()), corr("_corrs",this,RooListProxy()),x("_index",this,other.x)
+ RooAbsPdf(other, name),c("_pdfs",this,other.c), corr("_corrs",this,other.corr),x("_index",this,other.x)
 {
 
  fIndex=other.fIndex;
