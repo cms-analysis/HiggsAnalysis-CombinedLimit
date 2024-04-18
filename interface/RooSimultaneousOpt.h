@@ -30,7 +30,11 @@ public:
 
   ~RooSimultaneousOpt() override ;
 
-  virtual RooAbsReal* createNLL(RooAbsData& data, const RooLinkedList& cmdList) ;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,30,0)
+  RooAbsReal* createNLL(RooAbsData& data, const RooLinkedList& cmdList) override;
+#else
+  std::unique_ptr<RooAbsReal> createNLLImpl(RooAbsData& data, const RooLinkedList& cmdList) override;
+#endif
 
   const RooArgList & extraConstraints() const { return _extraConstraints; }
   const RooArgList & channelMasks() const { return _channelMasks; }
