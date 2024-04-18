@@ -22,7 +22,7 @@ ClassImp(RooMultiPdf)
 RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, const RooArgList& _c) : 
   RooAbsPdf(name, title),  //Why is this here? just to use the names to be used? 
   c("_pdfs","The list of pdfs",this),
-  corr("_corrs","The list of pdfs",this),
+  corr("_corrs","The list of correction factors",this),
   x("_index","the pdf index",this,_x) 
 {
   int count=0;
