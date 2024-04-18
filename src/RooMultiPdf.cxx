@@ -22,6 +22,7 @@ ClassImp(RooMultiPdf)
 RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, const RooArgList& _c) : 
   RooAbsPdf(name, title),  //Why is this here? just to use the names to be used? 
   c("_pdfs","The list of pdfs",this),
+  corr("_corr","The list of const",this),
   x("_index","the pdf index",this,_x) 
 {
   TIterator *pdfIter=_c.createIterator(); 
@@ -48,7 +49,7 @@ RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, c
 
 //_____________________________________________________________________________
 RooMultiPdf::RooMultiPdf(const RooMultiPdf& other, const char* name) :
- RooAbsPdf(other, name),c("_pdfs",this,RooListProxy()),x("_index",this,other.x)
+ RooAbsPdf(other, name),c("_pdfs",this,other.c),corr("_corrs",this,other.corr),x("_index",this,other.x)
 {
 
  fIndex=other.fIndex;
