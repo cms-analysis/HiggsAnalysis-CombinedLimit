@@ -2838,6 +2838,7 @@ void plot2D_LHScan(){
 <p>In <span style="font-variant:small-caps;">Combine</span>, you can perform this test on each individual point (<strong>param1, param2,...</strong>) = (<strong>value1,value2,...</strong>) by doing,</p>
 <pre><code class="language-sh">combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint  param1=value1,param2=value2,param3=value3,... --saveHybridResult [Other options for toys, iterations etc as with limits]
 </code></pre>
+<p>Note that you can also split this calculationg into several separate runs (remembering to set a random seed <code>-s -1</code> each time the above command is run) and <code>hadd</code> the resulting <code>.root</code> output files into a single file <code>toys.root</code>. This can then be read in and used to calculate <span class="arithmatex">\(p_{\vec{\mu}}\)</span> by using the same command as above but replacing the option <code>--saveHybridResult</code> with <code>--readHybridResult --toysFile toys.root</code>.  </p>
 <p>The point belongs to your confidence region if <span class="arithmatex">\(p_{\vec{\mu}}\)</span> is larger than <span class="arithmatex">\(\alpha\)</span> (e.g. 0.3173 for a 1σ region, <span class="arithmatex">\(1-\alpha=0.6827\)</span>).</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
