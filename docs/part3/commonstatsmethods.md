@@ -997,6 +997,8 @@ In <span style="font-variant:small-caps;">Combine</span>, you can perform this t
 combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint  param1=value1,param2=value2,param3=value3,... --saveHybridResult [Other options for toys, iterations etc as with limits]
 ```
 
+Note that you can also split this calculationg into several separate runs (remembering to set a random seed `-s -1` each time the above command is run) and `hadd` the resulting `.root` output files into a single file `toys.root`. This can then be read in and used to calculate $p_{\vec{\mu}}$ by using the same command as above but replacing the option `--saveHybridResult` with `--readHybridResult --toysFile toys.root`.  
+
 The point belongs to your confidence region if $p_{\vec{\mu}}$ is larger than $\alpha$ (e.g. 0.3173 for a 1σ region, $1-\alpha=0.6827$).
 
 !!! warning
