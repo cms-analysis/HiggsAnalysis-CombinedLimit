@@ -639,6 +639,37 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
         # print "Scaling for ", processSource, decay, energy
         production = processSource.split("_")[0]
 
+        m = {
+            "ZH_lep": "ZH",
+            "WH_lep": "WH",
+            "ZH_PTV_0_75": "ZH_lep_PTV_0_75",
+            "ZH_PTV_75_150": "ZH_lep_PTV_75_150",
+            "ZH_PTV_150_250_0J": "ZH_lep_PTV_150_250_0J",
+            "ZH_PTV_150_250_GE1J": "ZH_lep_PTV_150_250_GE1J",
+            "ZH_PTV_GT250": "ZH_lep_PTV_GT250",
+            "WH_PTV_0_75": "WH_lep_PTV_0_75",
+            "WH_PTV_75_150": "WH_lep_PTV_75_150",
+            "WH_PTV_150_250_0J": "WH_lep_PTV_150_250_0J",
+            "WH_PTV_150_250_GE1J": "WH_lep_PTV_150_250_GE1J",
+            "WH_PTV_GT250": "WH_lep_PTV_GT250",
+            "ttH_PTH_fwd": "ttH_FWDH",
+            "WH_FWDH": "WH_lep_FWDH",
+            "ZH_FWDH": "ZH_lep_FWDH",
+            "qqH_QQ2HQQ_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25": "qqH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25",
+            "qqH_QQ2HQQ_0J": "qqH_0J",
+            "qqH_QQ2HQQ_1J": "qqH_1J",
+            "qqH_QQ2HQQ_GE2J_MJJ_0_60": "qqH_GE2J_MJJ_0_60",
+            "qqH_QQ2HQQ_GE2J_MJJ_120_350": "qqH_GE2J_MJJ_120_350",
+            "qqH_QQ2HQQ_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25": "qqH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_0_25",
+            "qqH_QQ2HQQ_GE2J_MJJ_60_120": "qqH_GE2J_MJJ_60_120",
+            "qqH_QQ2HQQ_GE2J_MJJ_GT350_PTH_GT200": "qqH_GE2J_MJJ_GT350_PTH_GT200",
+            "qqH_QQ2HQQ_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25": "qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25",
+            "qqH_QQ2HQQ_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25": "qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25",
+        }
+
+        if processSource in list(m.keys()):
+            processSource = m[processSource]
+
         if production in ["ggZH", "tHq", "tHW", "ggH", "bbH"]:  # scale the inclusive XS
             XSscal = self.STXSScalingFunctions[production]
         elif production in ["ZH", "WH", "ttH", "qqH"]:  # scale the specific STXS bin

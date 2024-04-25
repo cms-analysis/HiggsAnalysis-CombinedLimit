@@ -9,14 +9,14 @@ fixed_procs = ["ggZH_lep", "tHq", "tHW", "bbH"]
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 stage0_procs = {
-    "ggH": ["ggH"],
+    "ggH": ["ggH","bbH","ggZH_had"],
     "qqH": ["qqH"],
     "WH_lep": ["WH_lep"],
     "ZH_lep": ["ZH_lep"],
-    #'ggZH_lep':['ggZH_lep']
+    'ggZH_lep':['ggZH_lep'],
     "VH_had": ["WH_had", "ZH_had"],
-    "ttH": ["ttH"],  # ,
-    #'other':['tHq','tHW','bbH']
+    "ttH": ["ttH"],
+    'other':['tHq','tHW','bbH',"WH","ZH"]
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -177,7 +177,7 @@ stage1_2_fine_procs = {  # Hopefully temporary while VH(bb) haven't provided cor
     "ZH_lep_PTV_GT250": ["ZH_lep_PTV_250_400", "ZH_lep_PTV_GT400"],
     "ttH_PTH_GT300": ["ttH_PTH_300_450", "ttH_PTH_GT450"],
     "ggZH_lep_PTV_75_150": ["ggZH_ll_PTV_75_150", "ggZH_nunu_PTV_75_150"],
-    "ggZH_lep_PTV_150_250_GE1J": ["ggZH_ll_PTV_150_250_GE1J", "ggZH_nunu_PTV_150_250_GE1J"],
+    "ggZH_lep_PTV_150_250_GE1J": ["ggZH_ll_PTV_150_250_GE1J", "ggZH_nunu_PTV_150_250_GE1J", "ggZH_lep_PTV_250_400", "ggZH_lep_PTV_GT400"],
     "ggZH_lep_PTV_GT250": ["ggZH_ll_PTV_GT250", "ggZH_nunu_PTV_GT250"],
     "ggH_PTH_200_300": ["ggZH_had_PTH_200_300"],
     "ggH_PTH_300_450": ["ggZH_had_PTH_300_450"],
@@ -197,8 +197,8 @@ stage1_2_fine_procs = {  # Hopefully temporary while VH(bb) haven't provided cor
     "ggH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25": ["ggZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25"],
     "WH_lep_PTV_0_75": ["WH_lep_PTV_LT150"],
     "ZH_lep_PTV_0_75": ["ZH_lep_PTV_LT150"],
-    "ggZH_lep_PTV_0_75": ["ggZH_lep_PTV_LT150"],
+    "ggZH_lep_PTV_0_75": ["ggZH_lep_PTV_LT150", "ggZH_ll_PTV_0_75", "ggZH_nunu_PTV_0_75"],
     "WH_lep_PTV_150_250_0J": ["WH_lep_PTV_GT150"],
     "ZH_lep_PTV_150_250_0J": ["ZH_lep_PTV_GT150"],
-    "ggZH_lep_PTV_150_250_0J": ["ggZH_lep_PTV_GT150"],
+    "ggZH_lep_PTV_150_250_0J": ["ggZH_lep_PTV_GT150", "ggZH_ll_PTV_150_250_0J", "ggZH_nunu_PTV_150_250_0J"],
 }

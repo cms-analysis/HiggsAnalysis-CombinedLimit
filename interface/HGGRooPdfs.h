@@ -22,14 +22,14 @@
 class RooRealVar;
 class RooAbsReal;
 
-class RooPower : public RooAbsPdf {
+class RooPowerCMS : public RooAbsPdf {
 public:
-  RooPower() {} ;
-  RooPower(const char *name, const char *title,
+  RooPowerCMS() {} ;
+  RooPowerCMS(const char *name, const char *title,
 		 RooAbsReal& _x, RooAbsReal& _c);
-  RooPower(const RooPower& other, const char* name=0);
-  virtual TObject* clone(const char* newname) const { return new RooPower(*this,newname); }
-  inline virtual ~RooPower() { }
+  RooPowerCMS(const RooPowerCMS& other, const char* name=0);
+  virtual TObject* clone(const char* newname) const { return new RooPowerCMS(*this,newname); }
+  inline virtual ~RooPowerCMS() { }
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
   Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
@@ -43,7 +43,7 @@ protected:
   Double_t evaluate() const;
 
 private:
-  ClassDef(RooPower,1) // Exponential PDF
+  ClassDef(RooPowerCMS,1) // Exponential PDF
 };
 
 #endif

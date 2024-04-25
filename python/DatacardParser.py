@@ -298,6 +298,14 @@ def strip(l):
     return l.rstrip()
 
 
+def strip(l):
+    """Strip comments and whitespace from end of line"""
+    idx = l.find("#")
+    if idx > 0:
+        return l[:idx].rstrip()
+    return l.rstrip()
+
+
 def isVetoed(name, vetoList):
     for pattern in vetoList:
         if not pattern:

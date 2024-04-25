@@ -12,3 +12,4 @@
 <export>
    <lib name="1"/>
 </export>
+<lib name="RooFitHS3"/>

@@ -35,7 +35,7 @@ namespace cacheutils {
     typedef OptimizedCachingPdfT<RooGaussian,VectorizedGaussian> CachingGaussPdf;
     typedef OptimizedCachingPdfT<RooCBShape,VectorizedCBShape> CachingCBPdf;
     typedef OptimizedCachingPdfT<RooExponential,VectorizedExponential> CachingExpoPdf;
-    typedef OptimizedCachingPdfT<RooPower,VectorizedPower> CachingPowerPdf;
+    typedef OptimizedCachingPdfT<RooPowerCMS,VectorizedPower> CachingPowerPdf;
 
     class ReminderSum : public RooAbsReal {
         public:
@@ -492,7 +492,7 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
 	std::unique_ptr<RooArgSet> params(pdf->getParameters(obs));
 	if(params->getSize()!=1) {return new CachingPdf(pdf,obs);}
         return new CachingExpoPdf(pdf, obs);
-    } else if (gaussNll && typeid(*pdf) == typeid(RooPower)) {
+    } else if (gaussNll && typeid(*pdf) == typeid(RooPowerCMS)) {
         return new CachingPowerPdf(pdf, obs);
     } else if (multiNll && typeid(*pdf) == typeid(RooMultiPdf)) {
         return new CachingMultiPdf(static_cast<RooMultiPdf&>(*pdf), *obs);

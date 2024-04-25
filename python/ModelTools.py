@@ -46,6 +46,7 @@ class ModelBuilderBase:
     def __init__(self, options):
         self.options = options
         self.out = stdout
+        self.stringout = ""
         self.discrete_param_set = []
         if options.bin:
             if options.out == None:
@@ -1065,6 +1066,10 @@ class ModelBuilder(ModelBuilderBase):
             discparams.add(self.out.cat(cpar))
         self.out.safe_import(discparams, discparams.GetName())
         self.out.writeToFile(self.options.out)
+        mystr = ROOT.TNamed("myname", self.stringout)
+        fileout = ROOT.TFile("./" + self.options.out, "UPDATE")
+        mystr.Write()
+        fileout.Close()
 
     def isShapeSystematic(self, channel, process, syst):
         return False

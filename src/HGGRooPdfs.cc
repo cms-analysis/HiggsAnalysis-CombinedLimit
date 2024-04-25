@@ -30,11 +30,11 @@
 #include "../interface/HGGRooPdfs.h"
 #include "RooRealVar.h"
 
-ClassImp(RooPower)
+ClassImp(RooPowerCMS)
 
 
 //_____________________________________________________________________________
-RooPower::RooPower(const char *name, const char *title,
+RooPowerCMS::RooPowerCMS(const char *name, const char *title,
 			       RooAbsReal& _x, RooAbsReal& _c) :
   RooAbsPdf(name, title), 
   x("x","Dependent",this,_x),
@@ -44,21 +44,21 @@ RooPower::RooPower(const char *name, const char *title,
 
 
 //_____________________________________________________________________________
-RooPower::RooPower(const RooPower& other, const char* name) :
+RooPowerCMS::RooPowerCMS(const RooPowerCMS& other, const char* name) :
   RooAbsPdf(other, name), x("x",this,other.x), c("c",this,other.c)
 {
 }
 
 
 //_____________________________________________________________________________
-Double_t RooPower::evaluate() const{
+Double_t RooPowerCMS::evaluate() const{
   //cout << "pow(x=" << x << ",c=" << c << ")=" << pow(x,c) << endl ;
   return pow(x,c);
 }
 
 
 //_____________________________________________________________________________
-Int_t RooPower::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* /*rangeName*/) const 
+Int_t RooPowerCMS::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* /*rangeName*/) const 
 {
   if (matchArgs(allVars,analVars,x)) return 1 ;
   return 0 ;
@@ -66,7 +66,7 @@ Int_t RooPower::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, c
 
 
 //_____________________________________________________________________________
-Double_t RooPower::analyticalIntegral(Int_t code, const char* rangeName) const 
+Double_t RooPowerCMS::analyticalIntegral(Int_t code, const char* rangeName) const 
 {
   switch(code) {
   case 1: 

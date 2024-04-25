@@ -127,7 +127,6 @@
 	<class name="RooErfPowExpPdf" />
 	<class name="RooErfPowPdf" />
 	<class name="RooExpNPdf" />
-	<class name="RooExpPoly" />
 	<class name="RooExpTailPdf" />
 	<class name="RooFermi" />
 	<class name="RooFourEMassRes" />
@@ -141,10 +140,10 @@
 	<class name="RooParamKeysPdf" />
 	<class name="RooPow2Pdf" />
 	<class name="RooPowPdf" />
-	<class name="RooPower" />
 	<class name="RooPowerExpPdf" />
 	<class name="RooPowerFunction" />
 	<class name="RooPowerLaw" />
+	<class name="RooPowerCMS" />
 	<class name="RooQCDPdf" />
 	<class name="RooRelBW" />
 	<class name="RooRelBW1" />
@@ -164,6 +163,8 @@
 	<class name="RooSplineND" />
 	<class name="map<vector<int>,int>"/>
 	<class name="RooStarMomentMorph" />
+	<class name="RooTwoSidedCBShape" />
+	<class name="ResponseFunction" />
 	<class name="RooStats::HistFactory::RooBSpline" />
 	<class name="RooStats::HistFactory::RooBSplineBases" />
 	<class name="RooStepBernstein" />
@@ -213,6 +214,11 @@
   <class name="CMSHggFormulaD1" />
   <class name="CMSHggFormulaD2" />
   <class name="SimpleProdPdf" />
+  <class name="RooModZPdf" />
+  <class name="RooExpPdf" />
+  <class name="RooSumTwoExpPdf" />
+  <class name="RooPowerLawPdf" />
+  <class name="RooSumTwoPowerLawPdf" />
   <class name="CMSExternalMorph" />
   <class name="CMSInterferenceFunc" />
   <class name="RooEFTScalingFunction" />
