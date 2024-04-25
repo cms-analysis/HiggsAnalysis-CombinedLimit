@@ -19,6 +19,8 @@
 #include "../interface/utils.h"
 #include "../interface/RobustHesse.h"
 #include "../interface/ProfilingTools.h"
+#include "../interface/RandStartPt.h"
+#include "../interface/CombineLogger.h"
 
 #include <Math/Minimizer.h>
 #include <Math/MinimizerOptions.h>
@@ -60,6 +62,9 @@ float MultiDimFit::centeredRange_ = -1.0;
 bool        MultiDimFit::robustHesse_ = false;
 std::string MultiDimFit::robustHesseLoad_ = "";
 std::string MultiDimFit::robustHesseSave_ = "";
+int MultiDimFit::pointsRandProf_ = 0;
+int MultiDimFit::randPointsSeed_ = 0;
+std::string MultiDimFit::setParameterRandomInitialValueRanges_;
 
 
 std::string MultiDimFit::saveSpecifiedFuncs_;
@@ -79,6 +84,7 @@ std::vector<RooRealVar *> MultiDimFit::specifiedVars_;
 std::vector<float>        MultiDimFit::specifiedVals_;
 RooArgList                MultiDimFit::specifiedList_;
 bool MultiDimFit::saveInactivePOI_= false;
+bool MultiDimFit::skipDefaultStart_ = false;
 
 MultiDimFit::MultiDimFit() :
     FitterAlgoBase("MultiDimFit specific options")
@@ -102,15 +108,19 @@ MultiDimFit::MultiDimFit() :
 	("saveSpecifiedFunc",   boost::program_options::value<std::string>(&saveSpecifiedFuncs_)->default_value(""), "Save specified function values (default = none)")
 	("saveSpecifiedIndex",   boost::program_options::value<std::string>(&saveSpecifiedIndex_)->default_value(""), "Save specified indexes/discretes (default = none)")
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
+	("skipDefaultStart",   boost::program_options::value<bool>(&skipDefaultStart_)->default_value(skipDefaultStart_), "Do not include the default start point in list of points to fit")
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
-    ("alignEdges",   boost::program_options::value<bool>(&alignEdges_)->default_value(alignEdges_), "Align the grid points such that the endpoints of the ranges are included")
-    ("setParametersForGrid", boost::program_options::value<std::string>(&setParametersForGrid_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")
-	("saveFitResult",  "Save RooFitResult to multidimfit.root")
-    ("out", boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put the diagnostics output file in")
-    ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
-    ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
-    ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
-      ;
+        ("alignEdges",   boost::program_options::value<bool>(&alignEdges_)->default_value(alignEdges_), "Align the grid points such that the endpoints of the ranges are included")
+        ("setParametersForGrid", boost::program_options::value<std::string>(&setParametersForGrid_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")
+        ("saveFitResult",  "Save RooFitResult to multidimfit.root")
+        ("out", boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put the diagnostics output file in")
+        ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
+        ("robustHesseLoad",  boost::program_options::value<std::string>(&robustHesseLoad_)->default_value(robustHesseLoad_),  "Load the pre-calculated Hessian")
+        ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
+        ("pointsRandProf",  boost::program_options::value<int>(&pointsRandProf_)->default_value(pointsRandProf_),  "Number of random start points to try for the profiled POIs")
+        ("randPointsSeed",  boost::program_options::value<int>(&randPointsSeed_)->default_value(randPointsSeed_),  "Seed to use when generating random start points to try for the profiled POIs")
+        ("setParameterRandomInitialValueRanges",  boost::program_options::value<std::string>(&setParameterRandomInitialValueRanges_)->default_value(""),  "Range from which to draw random start points for the profiled POIs. This range should be equal to or smaller than the max and min values for the profiled POIs. Does not override max/min ranges for the given POIs. E.g. usage: c1=-5,5:c2=-1,1")
+        ;
 }
 
 void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm) 
@@ -139,6 +149,11 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
         if (vm["floatOtherPOIs"].defaulted()) floatOtherPOIs_ = true;
         if (vm["saveInactivePOI"].defaulted()) saveInactivePOI_ = true;
     } else throw std::invalid_argument(std::string("Unknown algorithm: "+algo));
+    if (pointsRandProf_ > 0) {
+        // Probably not the best way of doing this
+        // But right now the pointsRandProf_ option relies on saveInactivePOI_ being true to include the profiled POIs in specifiedVars_
+        saveInactivePOI_ = true;
+    }
     fastScan_ = (vm.count("fastScan") > 0);
     squareDistPoiStep_ = (vm.count("squareDistPoiStep") > 0);
     skipInitialFit_ = (vm.count("skipInitialFit") > 0);
@@ -165,9 +180,8 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     nOtherFloatingPoi_ = 0;
     deltaNLL_ = 0;
     int nConstPoi=0;
-    RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
     std::string setConstPOI;
-    for (RooAbsArg *a = (RooAbsArg*) iterP.Next(); a != 0; a = (RooAbsArg*) iterP.Next()) {
+    for (RooAbsArg *a : *mc_s->GetParametersOfInterest()) {
         if (poiList_.contains(*a)) continue;
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
         if (rrv == 0) { std::cerr << "MultiDimFit: Parameter of interest " << a->GetName() << " which is not a RooRealVar will be ignored" << std::endl; continue; }
@@ -186,6 +200,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     if (verbose <= 3) RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
     bool doHesse = (algo_ == Singles || algo_ == Impact) || (saveFitResult_) ;
     if ( !skipInitialFit_){
+        std::cout << "Doing initial fit: " << std::endl;
         res.reset(doFit(pdf, data, (doHesse ? poiList_ : RooArgList()), constrainCmdArg, (saveFitResult_ && !robustHesse_), 1, true, false));
         if (!res.get()) {
             std::cout << "\n " <<std::endl;
@@ -254,22 +269,23 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     if (savingSnapshot_) w->saveSnapshot("MultiDimFit",utils::returnAllVars(w));
     
     if (autoRange_ > 0) {
-        std::cout << "Adjusting range of POIs to +/- " << autoRange_ << " standard deviations" << std::endl;
+        CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Adjusting range of POIs to +/- %.3f standard deviations",autoRange_)),__func__);
         for (int i = 0, n = poi_.size(); i < n; ++i) {
             double val = poiVars_[i]->getVal(), err = poiVars_[i]->getError(), min0 = poiVars_[i]->getMin(), max0 = poiVars_[i]->getMax();
             double min1 = std::max(min0, val - autoRange_ * err);
             double max1 = std::min(max0, val + autoRange_ * err);
-            std::cout << poi_[i] << ": " << val << " +/- " << err << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
+            CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("%s: %.3f +/- %.3f [%.5f,%.5f] ==> [%.5f,%.5f] ",poi_[i].c_str(), val, err, min0, max0, min1, max1)),__func__);
             poiVars_[i]->setRange(min1, max1);
         }
     }
     if (centeredRange_ > 0) {
-        std::cout << "Adjusting range of POIs to +/- " << centeredRange_ << std::endl;
+        CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Adjusting range of POIs to +/- %f",centeredRange_)),__func__);
         for (int i = 0, n = poi_.size(); i < n; ++i) {
             double val = poiVars_[i]->getVal(), min0 = poiVars_[i]->getMin(), max0 = poiVars_[i]->getMax();
             double min1 = std::max(min0, val - centeredRange_);
             double max1 = std::min(max0, val + centeredRange_);
-            std::cout << poi_[i] << ": " << val << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
+            CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("%s: %.3f [%.5f,%.5f] ==> [%.5f,%.5f] ",poi_[i].c_str(), val, min0, max0, min1, max1)),__func__);
+            //std::cout << poi_[i] << ": " << val << " [ " << min0 << " , " << max0 << " ] ==> [ " << min1 << " , " << max1 << " ]" << std::endl;
             poiVars_[i]->setRange(min1, max1);
         }
     }
@@ -309,8 +325,7 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 
     RooArgSet mcPoi(*mc_s->GetParametersOfInterest());
     if (poi_.empty()) {
-        RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
-        for (RooAbsArg *a = (RooAbsArg*) iterP.Next(); a != 0; a = (RooAbsArg*) iterP.Next()) {
+        for (RooAbsArg *a : *mc_s->GetParametersOfInterest()) {
             poi_.push_back(a->GetName());
         }
     }
@@ -370,8 +385,7 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 	    RooArgSet mcNuis(*mc_s->GetNuisanceParameters());
 	    if(saveSpecifiedNuis_=="all"){
 		    specifiedNuis_.clear();
-		    RooLinkedListIter iterN = mc_s->GetNuisanceParameters()->iterator();
-		    for (RooAbsArg *a = (RooAbsArg*) iterN.Next(); a != 0; a = (RooAbsArg*) iterN.Next()) {
+            for (RooAbsArg *a : *mc_s->GetNuisanceParameters()) {
 			    if (poiList_.contains(*a)) continue;
 			    specifiedNuis_.push_back(a->GetName());
 		    }
@@ -382,8 +396,7 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 		    while(token) {
 			    const RooArgSet* group = mc_s->GetWS()->set((std::string("group_") + token).data());
 			    if (group){
-				    RooLinkedListIter iterN = group->iterator();
-				    for (RooAbsArg *a = (RooAbsArg*) iterN.Next(); a != 0; a = (RooAbsArg*) iterN.Next()) {
+                    for (RooAbsArg *a : *group) {
 					    specifiedNuis_.push_back(a->GetName());
 				    }
 			    }else if (!poiList_.find(token)){
@@ -394,18 +407,17 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 	    }
 	    for (std::vector<std::string>::const_iterator it = specifiedNuis_.begin(), ed = specifiedNuis_.end(); it != ed; ++it) {
 		    RooAbsArg *a = mcNuis.find(it->c_str());
-		    if (a == 0) throw std::invalid_argument(std::string("Nuisance Parameter ")+*it+" not in model.");
+		    if (a == 0) throw std::invalid_argument(std::string("Nuisance parameter ")+*it+" not in model.");
 		    if (poiList_.contains(*a)) continue;
 		    RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-		    if (rrv == 0) throw std::invalid_argument(std::string("Nuisance Parameter ")+*it+" not a RooRealVar.");
+		    if (rrv == 0) throw std::invalid_argument(std::string("Nuisance parameter ")+*it+" not a RooRealVar.");
 		    specifiedVars_.push_back(rrv);
 		    specifiedVals_.push_back(rrv->getVal());
 		    specifiedList_.add(*rrv);
 	    }
     }
     if(saveInactivePOI_){
-	    RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
-	    for (RooAbsArg *a = (RooAbsArg*) iterP.Next(); a != 0; a = (RooAbsArg*) iterP.Next()) {
+        for (RooAbsArg *a : *mc_s->GetParametersOfInterest()) {
 		    if (poiList_.contains(*a)) continue;
 		    if (specifiedList_.contains(*a)) continue;
 		    RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
@@ -582,7 +594,6 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     unsigned int n = poi_.size();
     //if (poi_.size() > 2) throw std::logic_error("Don't know how to do a grid with more than 2 POIs.");
     double nll0 = nll.getVal();
-
     if (setParametersForGrid_ != "") {
        RooArgSet allParams(w->allVars());
        allParams.add(w->allCats());
@@ -607,7 +618,10 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     //minim.setStrategy(minimizerStrategy_);
     std::unique_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
     RooArgSet snap; params->snapshot(snap);
-    //snap.Print("V");
+    if (verbose > 1) {
+        std::cout << "Print snap: " << std::endl;
+        snap.Print("V");
+    }
 
     // check if gridPoints are defined
     std::vector<unsigned int> pointsPerPoi;
@@ -618,17 +632,28 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
                 + std::to_string(pointsPerPoi.size()) + " does not match number of POIs "
                 + std::to_string(n));
         }
-        std::cout << "Parsed number of points per POI: ";
-        for (unsigned int i = 0; i < n; i++) {
-            std::cout << poi_[i] << " -> " << pointsPerPoi[i];
-            if (i < n - 1) std::cout << ", ";
-        }
-        std::cout << std::endl;
+        CombineLogger::instance().log("MultiDimFit.cc",__LINE__,"Parsed number of points per POI: ",__func__);
+        for (unsigned int i = 0; i < n; i++) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("  %d/%d) %s -> %d",i+1,n,poi_[i].c_str(),pointsPerPoi[i])),__func__);
     }
 
     if (n == 1) {
+        if (verbose > 1){
+            std::cout << "\nStarting n==1. The nll0 from initial fit: " << nll0 << std::endl;
+        }
         unsigned int points = pointsPerPoi.size() == 0 ? points_ : pointsPerPoi[0];
-
+        // Set seed for random points
+        if (pointsRandProf_ > 0) {
+            std::cout<<"\n************************************************************************************"<<std::endl;
+            std::cout<<"* Random starting point set to non-zero value. This will take some time to complete. *"<<std::endl;
+            std::cout<<"************************************************************************************\n"<<std::endl;
+	    CombineLogger::instance().log("MultiDimFit.cc",__LINE__,"Random starting point set to non-zero value. This will take some time to complete.",__func__);
+            srand(randPointsSeed_);
+        }
+        //else {
+        //    std::cout<<"\n**********************************************************************************"<<std::endl;
+        //    std::cout<<"* Random starting point set to zero. Only default starting point will be used. *"<<std::endl;
+        //    std::cout<<"**********************************************************************************\n"<<std::endl;
+        //}
         double xspacing = (pmax[0]-pmin[0]) / points;
         double xspacingOffset = 0.5;
         if (alignEdges_) {
@@ -641,6 +666,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
         if (lastPoint_ == std::numeric_limits<unsigned int>::max()) {
           lastPoint_ = points - 1;
         }
+
         for (unsigned int i = 0; i < points; ++i) {
           if (i < firstPoint_) continue;
           if (i > lastPoint_)  break;
@@ -666,46 +692,57 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
           }
 
             //if (verbose > 1) std::cout << "Point " << i << "/" << points << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
-             std::cout << "Point " << i << "/" << points << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
+            //I suggest keeping this message on terminal as well, to let users monitor the progress
+            std::cout << "Point " << i << "/" << points << " " << poiVars_[0]->GetName() << " = " << x << std::endl; 
+            if (verbose > 1) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Point (%d/%d) %s = %f",i,points,poiVars_[0]->GetName(),x)),__func__);
             *params = snap;
             poiVals_[0] = x;
             poiVars_[0]->setVal(x);
-            // now we minimize
-            nll.clearEvalErrorLog();
-            deltaNLL_ = nll.getVal() - nll0;
-            if (nll.numEvalErrors() > 0) {
-                deltaNLL_ = 9990;
-		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-			specifiedVals_[j]=specifiedVars_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-		}
-                Combine::commitPoint(true, /*quantile=*/0);
-                continue;
-            }
-            bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) || utils::countFloating(*params)==0 ? 
-                        true : 
-                        minim.minimize(verbose-1);
-            if (ok) {
-                deltaNLL_ = nll.getVal() - nll0;
-                double qN = 2*(deltaNLL_);
-                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
-		for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-			specifiedVals_[j]=specifiedVars_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-			specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-		}
-		for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-			specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-		}
-                Combine::commitPoint(true, /*quantile=*/prob);
-            }
-        }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ////////////////// Rand starting points for each profiled POI to get best nll ////////////////////////////////////////////////////////////////////////////
+            /////////////////  The default behavior (i.e. no random start point) is incorporated within the function below ////////////////////////////////////////////
+            ///////////////// To retrieve only default start point usage, set _ to 0 or leave it unspecified. /////////////////////////////////////////
+            RandStartPt randStartPt(
+		    nll,
+		    specifiedVars_,
+		    specifiedVals_,
+		    skipDefaultStart_,
+		    setParameterRandomInitialValueRanges_,
+		    pointsRandProf_,
+		    verbose,
+		    fastScan_,
+		    hasMaxDeltaNLLForProf_,
+		    maxDeltaNLLForProf_,
+		    specifiedNuis_,
+		    specifiedFuncNames_,
+		    specifiedFunc_,
+		    specifiedFuncVals_,
+		    specifiedCatNames_,
+		    specifiedCat_,
+		    specifiedCatVals_,
+		    nOtherFloatingPoi_);
+            randStartPt.doRandomStartPt1DGridScan(x, n, poiVals_, poiVars_, params, snap, deltaNLL_, nll0, minim);
+
+        } // End of the loop over scan points
     } else if (n == 2) {
+        if (verbose > 1){
+            std::cout << "\nStarting n==2. The nll0 from initial fit: " << nll0 << std::endl;
+        }
         RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
-        CloseCoutSentry sentry(verbose < 2);
+        //Set seed for random points
+        if (pointsRandProf_ > 0) {
+            std::cout<<"\n************************************************************************************"<<std::endl;
+            std::cout<<"* Random starting point set to non-zero value. This will take some time to complete. *"<<std::endl;
+            std::cout<<"************************************************************************************\n"<<std::endl;
+	    CombineLogger::instance().log("MultiDimFit.cc",__LINE__,"Random starting point set to non-zero value. This will take some time to complete.",__func__);
+            srand(randPointsSeed_);
+        }
+        //else {
+        //    std::cout<<"\n**********************************************************************************"<<std::endl;
+        //    std::cout<<"* Random starting point set to zero. Only default starting point will be used. *"<<std::endl;
+        //    std::cout<<"**********************************************************************************\n"<<std::endl;
+        //}
 
         // get number of points per axis
         unsigned int nX, nY;
@@ -752,113 +789,45 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
                 *params = snap;
                 double x =  pmin[0] + (i + spacingOffsetX) * deltaX;
                 double y =  pmin[1] + (j + spacingOffsetY) * deltaY;
-                if (verbose && (ipoint % nprint == 0)) {
-                         fprintf(sentry.trueStdOut(), "Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
-                                        ipoint,nTotal, i,j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);
-                }
+                //if (verbose && (ipoint % nprint == 0)) {
+                         //fprintf(sentry.trueStdOut(), "Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
+                //         fprintf("Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
+                //                        ipoint,nTotal, i,j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);
+                //}
+                //Explicitly printing this out to allow users to monitor the progress
+                std::cout << "Point " << ipoint << "/" << nTotal << " " <<"(i,j)= "<<"("<<i<<","<<j<<") "<<poiVars_[0]->GetName() << " = " << x <<" "<<poiVars_[1]->GetName() << " = " <<y<<std::endl;
                 poiVals_[0] = x;
                 poiVals_[1] = y;
                 poiVars_[0]->setVal(x);
                 poiVars_[1]->setVal(y);
-                nll.clearEvalErrorLog(); nll.getVal();
-                if (nll.numEvalErrors() > 0) { 
-			for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-				specifiedVals_[j]=specifiedVars_[j]->getVal();
-			}
-			for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-				specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-			}
-			for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-				specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-			}
-                    deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
-                    if (gridType_ == G3x3) {
-                        for (int i2 = -1; i2 <= +1; ++i2) {
-                            for (int j2 = -1; j2 <= +1; ++j2) {
-                                if (i2 == 0 && j2 == 0) continue;
-                                poiVals_[0] = x + 0.33333333*i2*deltaX;
-                                poiVals_[1] = y + 0.33333333*j2*deltaY;
-				for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-					specifiedVals_[j]=specifiedVars_[j]->getVal();
-				}
-				for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-					specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-				}
-				for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-					specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-				}
-                                deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
-                            }
-                        }
-                    }
-                    continue;
-                }
-                // now we minimize
-                bool skipme = hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_;
-                bool ok = fastScan_ || skipme ? true :  minim.minimize(verbose-1);
-                if (ok) {
-                    deltaNLL_ = nll.getVal() - nll0;
-                    double qN = 2*(deltaNLL_);
-                    double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
-		    for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-			    specifiedVals_[j]=specifiedVars_[j]->getVal();
-		    }
-		    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-			    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-		    }
-		    for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-			    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-		    }
-                    Combine::commitPoint(true, /*quantile=*/prob);
-                }
-                if (gridType_ == G3x3) {
-                    bool forceProfile = !fastScan_ && std::min(fabs(deltaNLL_ - 1.15), fabs(deltaNLL_ - 2.995)) < 0.5;
-                    utils::CheapValueSnapshot center(*params);
-                    double x0 = x, y0 = y;
-                    for (int i2 = -1; i2 <= +1; ++i2) {
-                        for (int j2 = -1; j2 <= +1; ++j2) {
-                            if (i2 == 0 && j2 == 0) continue;
-                            center.writeTo(*params);
-                            x = x0 + 0.33333333*i2*deltaX;
-                            y = y0 + 0.33333333*j2*deltaY;
-                            poiVals_[0] = x; poiVars_[0]->setVal(x);
-                            poiVals_[1] = y; poiVars_[1]->setVal(y);
-                            nll.clearEvalErrorLog(); nll.getVal();
-                            if (nll.numEvalErrors() > 0) { 
-				    for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-					    specifiedVals_[j]=specifiedVars_[j]->getVal();
-				    }
-				    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-					    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-				    }
-				    for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-					    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-				    }
-                                deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
-                                continue;
-                            }
-                            deltaNLL_ = nll.getVal() - nll0;
-                            if (forceProfile || (!fastScan_ && std::min(fabs(deltaNLL_ - 1.15), fabs(deltaNLL_ - 2.995)) < 0.5)) {
-                                minim.minimize(verbose-1);
-                                deltaNLL_ = nll.getVal() - nll0;
-                            }
-                            double qN = 2*(deltaNLL_);
-                            double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
-			    for(unsigned int j=0; j<specifiedNuis_.size(); j++){
-				    specifiedVals_[j]=specifiedVars_[j]->getVal();
-			    }
-			    for(unsigned int j=0; j<specifiedFuncNames_.size(); j++){
-				    specifiedFuncVals_[j]=specifiedFunc_[j]->getVal();
-			    }
-			    for(unsigned int j=0; j<specifiedCatNames_.size(); j++){
-				    specifiedCatVals_[j]=specifiedCat_[j]->getIndex();
-			    }
-                            Combine::commitPoint(true, /*quantile=*/prob);
-                        }
-                    }
-                }
-            }
-        }
+
+                //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                ///////////////////////////////// Rand starting points for each profiled POI to get best nll /////////////////////////////////////////////////////////////////////////
+                //////////////////  The default behavior (i.e. no random start pt) is incorporated within the function below ////////////////////////////////////////////
+                ///////////////// To retrieve only default start point usage, set pointsRandProf_ to 0 or leave it unspecified. /////////////////////////////////
+
+                RandStartPt randStartPt(
+			nll,
+			specifiedVars_,
+			specifiedVals_,
+			skipDefaultStart_,
+			setParameterRandomInitialValueRanges_,
+			pointsRandProf_,
+			verbose,
+			fastScan_,
+			hasMaxDeltaNLLForProf_,
+			maxDeltaNLLForProf_,
+			specifiedNuis_,
+			specifiedFuncNames_,
+			specifiedFunc_,
+			specifiedFuncVals_,
+			specifiedCatNames_,
+			specifiedCat_,
+			specifiedCatVals_,
+			nOtherFloatingPoi_);
+                randStartPt.doRandomStartPt2DGridScan(x, y, n, poiVals_, poiVars_, params, snap, deltaNLL_, nll0, gridType_, deltaX, deltaY, minim);
+            } //End of loop over y scan points
+        } //End of loop over x scan points
 
     } else { // Use utils routine if n > 2
         RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
@@ -1056,7 +1025,7 @@ void MultiDimFit::doContour2D(RooWorkspace *, RooAbsReal &nll)
     RooRealVar *yv = poiVars_[1]; double y0 = poiVals_[1]; float &y = poiVals_[1];
 
     double threshold = nll.getVal() + 0.5*ROOT::Math::chisquared_quantile_c(1-cl,2+nOtherFloatingPoi_);
-    if (verbose>0) std::cout << "Best fit point is for " << xv->GetName() << ", "  << yv->GetName() << " =  " << x0 << ", " << y0 << std::endl;
+    if (verbose>0) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Best fit point is for %s, %s, = %.4f,%.4f",xv->GetName(),yv->GetName(),x0,y0)),__func__);
 
     // make a box
     doBox(nll, cl, "box");
@@ -1083,7 +1052,7 @@ void MultiDimFit::doContour2D(RooWorkspace *, RooAbsReal &nll)
             minimXI.minimize(verbose-1);
         }
         double xc = xv->getVal(); xv->setConstant(true);
-        if (verbose>-1) std::cout << "Best fit " << xv->GetName() << " for  " << yv->GetName() << " = " << yv->getVal() << " is at " << xc << std::endl;
+        if (verbose>-1) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Best fit %s for %s = %.4f is at %.4f",xv->GetName(),yv->GetName(),yv->getVal(),xc)),__func__);
         // ===== Then get the range =====
         CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
         if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
@@ -1091,13 +1060,13 @@ void MultiDimFit::doContour2D(RooWorkspace *, RooAbsReal &nll)
         double xup = findCrossing(minim, nll, *xv, threshold, xc, xMax);
         if (!std::isnan(xup)) { 
             x = xup; y = yv->getVal(); Combine::commitPoint(true, /*quantile=*/1-cl);
-            if (verbose>-1) std::cout << "Minimum of " << xv->GetName() << " at " << cl << " CL for " << yv->GetName() << " = " << y << " is " << x << std::endl;
+            if (verbose>-1) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Minimum of %s at %.4f CL for %s = %.3f is %.3f",xv->GetName(),cl,yv->GetName(),y,x)),__func__);
         }
         
         double xdn = findCrossing(minim, nll, *xv, threshold, xc, xMin);
         if (!std::isnan(xdn)) { 
             x = xdn; y = yv->getVal(); Combine::commitPoint(true, /*quantile=*/1-cl);
-            if (verbose>-1) std::cout << "Maximum of " << xv->GetName() << " at " << cl << " CL for " << yv->GetName() << " = " << y << " is " << x << std::endl;
+            if (verbose>-1) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Maximum of %s at %.4f CL for %s = %.3f is %.3f",xv->GetName(),cl,yv->GetName(),y,x)),__func__);
         }
     }
 
@@ -1178,7 +1147,7 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
         for (unsigned int j = 0; j < n; ++j) poiVars_[j]->setVal(p0[j]);
         double xMin = findCrossing(minimX, nll, *xv, threshold, p0[i], xv->getMin()); 
         if (!std::isnan(xMin)) { 
-            if (verbose > -1) std::cout << "Minimum of " << xv->GetName() << " at " << cl << " CL for all others floating is " << xMin << std::endl;
+            if (verbose > -1) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Minimum of %s at %.4f CL for all others floating is %.3f",xv->GetName(),cl,xMin)),__func__);
             for (unsigned int j = 0; j < n; ++j) poiVals_[j] = poiVars_[j]->getVal();
             if (commitPoints) Combine::commitPoint(true, /*quantile=*/1-cl);
         } else {
@@ -1186,13 +1155,13 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
             for (unsigned int j = 0; j < n; ++j) poiVals_[j] = poiVars_[j]->getVal();
             double prob = ROOT::Math::chisquared_cdf_c(2*(nll.getVal() - nll0), n+nOtherFloatingPoi_);
             if (commitPoints) Combine::commitPoint(true, /*quantile=*/prob);
-            if (verbose > -1) std::cout << "Minimum of " << xv->GetName() << " at " << cl << " CL for all others floating is " << xMin << " (on the boundary, p-val " << prob << ")" << std::endl;
+            if (verbose > -1) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Minimum of %s at %.4f CL for all others floating is %.3f  (on the boundary, p-val %f)",xv->GetName(),cl,xMin,prob)),__func__);
         }
         
         for (unsigned int j = 0; j < n; ++j) poiVars_[j]->setVal(p0[j]);
         double xMax = findCrossing(minimX, nll, *xv, threshold, p0[i], xv->getMax()); 
         if (!std::isnan(xMax)) { 
-            if (verbose > -1) std::cout << "Maximum of " << xv->GetName() << " at " << cl << " CL for all others floating is " << xMax << std::endl;
+            if (verbose > -1) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Maximum of %s at %.4f CL for all others floating is %.3f",xv->GetName(),cl,xMax)),__func__);
             for (unsigned int j = 0; j < n; ++j) poiVals_[j] = poiVars_[j]->getVal();
             if (commitPoints) Combine::commitPoint(true, /*quantile=*/1-cl);
         } else {
@@ -1200,7 +1169,7 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
             double prob = ROOT::Math::chisquared_cdf_c(2*(nll.getVal() - nll0), n+nOtherFloatingPoi_);
             for (unsigned int j = 0; j < n; ++j) poiVals_[j] = poiVars_[j]->getVal();
             if (commitPoints) Combine::commitPoint(true, /*quantile=*/prob);
-            if (verbose > -1) std::cout << "Maximum of " << xv->GetName() << " at " << cl << " CL for all others floating is " << xMax << " (on the boundary, p-val " << prob << ")" << std::endl;
+            if (verbose > -1) CombineLogger::instance().log("MultiDimFit.cc",__LINE__,std::string(Form("Maximum of %s at %.4f CL for all others floating is %.3f  (on the boundary, p-val %f)",xv->GetName(),cl,xMax,prob)),__func__);
         }
 
         xv->setRange(name, xMin, xMax);
@@ -1234,3 +1203,24 @@ void MultiDimFit::splitGridPoints(const std::string& s, std::vector<unsigned int
         points.push_back(std::stoul(strPoint));
     }
 }
+
+// Extract the ranges map from the input string
+// Assumes the string is formatted with colons like "poi_name1=lo_lim,hi_lim:poi_name2=lo_lim,hi_lim"
+std::map<std::string, std::vector<float>> MultiDimFit::getRangesDictFromInString(std::string params_ranges_string_in) {
+    std::map<std::string, std::vector<float>> out_range_dict;
+    std::vector<std::string> params_ranges_string_lst;
+    boost::split(params_ranges_string_lst, params_ranges_string_in, boost::is_any_of(":"));
+    for (UInt_t p = 0; p < params_ranges_string_lst.size(); ++p) {
+        std::vector<std::string> params_ranges_string;
+        boost::split(params_ranges_string, params_ranges_string_lst[p], boost::is_any_of("=,"));
+        if (params_ranges_string.size() != 3) {
+            std::cout << "Error parsing expression : " << params_ranges_string_lst[p] << std::endl;
+        }
+        std::string wc_name =params_ranges_string[0];
+        float lim_lo = atof(params_ranges_string[1].c_str());
+        float lim_hi = atof(params_ranges_string[2].c_str());
+        out_range_dict.insert({wc_name,{lim_lo,lim_hi}});
+    }
+    return out_range_dict;
+}
+

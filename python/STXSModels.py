@@ -95,17 +95,16 @@ class STXSBaseModel(PhysicsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=", "").split(",")
-                print("The Higgs mass range:", self.mHRange)
+                print("The Higgs boson mass range:", self.mHRange)
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
+                    raise RuntimeError("Extremes for Higgs mass range defined with inverted order. Second must be larger the first")
             if po.startswith("mergejson="):
                 self.mergeBins = True
                 self.mergeJson = po.replace("mergejson=", "")
             if po.startswith("addStage0="):
                 self.addStage0 = po.replace("addStage0=", "") in ["yes", "1", "Yes", "True", "true"]
-
 
     def doMH(self):
         if self.floatMass:

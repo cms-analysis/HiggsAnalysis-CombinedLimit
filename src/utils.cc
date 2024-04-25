@@ -13,7 +13,6 @@
 #include <typeinfo>
 #include <stdexcept>
 
-#include <TIterator.h>
 #include <TString.h>
 
 #include <RooAbsData.h>
@@ -38,12 +37,18 @@
 
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/ProfilingTools.h"
-#include "../interface/Logger.h"
+#include "../interface/CombineLogger.h"
 #include "../interface/RooMultiPdf.h"
 
 using namespace std;
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,28,0)
+
 // This is needed to be able to factorize products in factorizeFunc, since RooProduct::components() strips duplicates
+//
+// Note: since ROOT 6.28.00, this workaround is not necessary more, because
+// there is direct public access to the _compRSet via
+// RooProduct::realComponents().
 namespace {
     class RooProductWithAccessors : public RooProduct {
         public:
@@ -51,28 +56,28 @@ namespace {
                 RooProduct(other) {}
             RooArgList realTerms() const { 
                 RooArgList ret;
-                RooFIter compRIter = _compRSet.fwdIterator() ;
-                RooAbsReal* rcomp;
-                while((rcomp=(RooAbsReal*)compRIter.next())) {
-                   ret.add(*rcomp); 
-                }
+                ret.add(_compRSet);
                 return ret;
             }
     };
 }
 
+RooArgList utils::factors(const RooProduct &prod) {
+    return ::RooProductWithAccessors(prod).realTerms();
+}
+
+#endif
+
 void utils::printRDH(RooAbsData *data) {
   std::vector<std::string> varnames, catnames;
   const RooArgSet *b0 = data->get();
-  TIterator *iter = b0->createIterator();
-  for (RooAbsArg *a = 0; (a = (RooAbsArg *)iter->Next()) != 0; ) {
+  for (RooAbsArg *a : *b0) {
     if (a->InheritsFrom("RooRealVar")) {
       varnames.push_back(a->GetName());
     } else if (a->InheritsFrom("RooCategory")) {
       catnames.push_back(a->GetName());
     }
   }
-  delete iter;
   size_t nv = varnames.size(), nc = catnames.size();
   printf(" bin  ");
   for (size_t j = 0; j < nv; ++j) { printf("%16.16s  ", varnames[j].c_str()); }
@@ -155,9 +160,8 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
         }
         if (id == typeid(RooSimultaneousOpt)) {
             RooSimultaneousOpt &o = dynamic_cast<RooSimultaneousOpt &>(pdf);
-            RooLinkedListIter iter = o.extraConstraints().iterator();
             if (o.extraConstraints().getSize() > 0) needNew = true;
-            for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+            for (RooAbsArg *a : o.extraConstraints()) {
                 if (!constraints.contains(*a) && (!a->getAttribute("ignoreConstraint")) ) constraints.add(*a);
             }
         }
@@ -203,8 +207,7 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
     } else if (id == typeid(RooSimultaneous) || id == typeid(RooSimultaneousOpt)) {
         if (id == typeid(RooSimultaneousOpt)) {
             RooSimultaneousOpt &o = dynamic_cast<RooSimultaneousOpt &>(pdf);
-            RooLinkedListIter iter = o.extraConstraints().iterator();
-            for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+            for (RooAbsArg *a : o.extraConstraints()) {
                 if (!constraints.contains(*a) && (!a->getAttribute("ignoreConstraint"))) constraints.add(*a);
             }
         }
@@ -224,9 +227,6 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
 }
 
 
-RooArgList utils::factors(const RooProduct &prod) {
-    return ::RooProductWithAccessors(prod).realTerms();
-}
 void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArgList &obsTerms, RooArgList &constraints, bool keepDuplicate, bool debug) {
     RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(&func);
     if (pdf != 0) { 
@@ -236,12 +236,15 @@ void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArg
     const std::type_info & id = typeid(func);
     if (id == typeid(RooProduct)) {
         RooProduct *prod = dynamic_cast<RooProduct *>(&func);
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,28,0)
         RooArgList components(utils::factors(*prod));
+#else
+        RooArgList components(prod->realComponents());
+#endif
         //std::cout << "Function " << func.GetName() << " is a RooProduct with " << components.getSize() << " components." << std::endl;
-        std::unique_ptr<TIterator> iter(components.createIterator());
-        for (RooAbsReal *funci = (RooAbsReal *) iter->Next(); funci != 0; funci = (RooAbsReal *) iter->Next()) {
+        for (RooAbsArg * funci : components) {
             //std::cout << "  component " << funci->GetName() << " of type " << funci->ClassName() << "(dep obs? " << funci->dependsOn(observables) << ")" << std::endl;
-            factorizeFunc(observables, *funci, obsTerms, constraints, true);
+            factorizeFunc(observables, static_cast<RooAbsReal&>(*funci), obsTerms, constraints, true);
         }
     } else if (func.dependsOn(observables)) {
         if (!obsTerms.contains(func) || keepDuplicate) obsTerms.add(func);
@@ -290,8 +293,7 @@ RooAbsReal *utils::fullCloneFunc(const RooAbsReal *pdf, const RooArgSet &obs, Ro
   RooArgSet tmp("RealBranchNodeList"), toClone;
   pdf->branchNodeServerList(&tmp);
   unsigned int nitems = tmp.getSize();
-  RooFIter iter = tmp.fwdIterator();
-  for (RooAbsArg *a = iter.next(); a != 0; a = iter.next()) {
+  for (RooAbsArg *a : tmp) {
       if (a == pdf) toClone.add(*a);
       else if (a->dependsOn(obs)) toClone.add(*a);
   }
@@ -306,12 +308,9 @@ RooAbsReal *utils::fullCloneFunc(const RooAbsReal *pdf, const RooArgSet &obs, Ro
 
 
 void utils::getClients(const RooAbsCollection &values, const RooAbsCollection &allObjects, RooAbsCollection &clients) {
-    std::unique_ptr<TIterator> iterAll(allObjects.createIterator());
-    std::unique_ptr<TIterator> iterVal(values.createIterator());
-    for (RooAbsArg *v = (RooAbsArg *) iterVal->Next(); v != 0; v = (RooAbsArg *) iterVal->Next()) {
+    for (RooAbsArg *v : values) {
         if (typeid(*v) != typeid(RooRealVar) && typeid(*v) != typeid(RooCategory)) continue;
-        std::unique_ptr<TIterator> clientIter(v->clientIterator());
-        for (RooAbsArg *a = (RooAbsArg *) clientIter->Next(); a != 0; a = (RooAbsArg *) clientIter->Next()) {
+        for (RooAbsArg *a : v->clients()) {
             if (allObjects.containsInstance(*a) && !clients.containsInstance(*a)) clients.add(*a);
         }
     }
@@ -319,8 +318,7 @@ void utils::getClients(const RooAbsCollection &values, const RooAbsCollection &a
 
 bool utils::setAllConstant(const RooAbsCollection &coll, bool constant) {
     bool changed = false;
-    std::unique_ptr<TIterator> iter(coll.createIterator());
-    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+    for (RooAbsArg *a : coll) {
         RooRealVar *v = dynamic_cast<RooRealVar *>(a);
         RooCategory *cv = dynamic_cast<RooCategory *>(a);
         if (v && (v->isConstant() != constant)) {
@@ -363,8 +361,7 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
     if (model.GetParametersOfInterest() == 0) { 
         ok = false; errors << "ERROR: model does not define parameters of interest.\n";  
     } else {
-        iter.reset(model.GetParametersOfInterest()->createIterator());
-        for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+        for (RooAbsArg *a : *model.GetParametersOfInterest()) {
             RooRealVar *v = dynamic_cast<RooRealVar *>(a);
             if (!v) { ok = false; errors << "ERROR: parameter of interest " << a->GetName() << " is a " << a->ClassName() << " and not a RooRealVar\n"; continue; }
             if (v->isConstant()) { ok = false; errors << "ERROR: parameter of interest " << a->GetName() << " is constant\n"; continue; }
@@ -373,8 +370,7 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
         }
     }
     if (model.GetNuisanceParameters() != 0) { 
-        iter.reset(model.GetNuisanceParameters()->createIterator());
-        for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+        for (RooAbsArg *a : *model.GetNuisanceParameters()) {
             RooRealVar *v = dynamic_cast<RooRealVar *>(a);
             if (!v) { ok = false; errors << "ERROR: nuisance parameter " << a->GetName() << " is a " << a->ClassName() << " and not a RooRealVar\n"; continue; }
             if (v->isConstant()) { ok = false; errors << "ERROR: nuisance parameter " << a->GetName() << " is constant\n"; continue; }
@@ -383,17 +379,16 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
         }
     }
     if (model.GetGlobalObservables() != 0) { 
-        iter.reset(model.GetGlobalObservables()->createIterator());
-        for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+        for (RooAbsArg *a : *model.GetGlobalObservables()) {
             RooRealVar *v = dynamic_cast<RooRealVar *>(a);
             if (!v) { ok = false; errors << "ERROR: global observable " << a->GetName() << " is a " << a->ClassName() << " and not a RooRealVar\n"; continue; }
             if (!v->isConstant()) { ok = false; errors << "ERROR: global observable " << a->GetName() << " is not constant\n"; continue; }
             if (!pdf->dependsOn(*v)) { errors << "WARNING: pdf does not depend on global observable " << a->GetName() << "\n"; continue; }
         }
     }
-    std::unique_ptr<RooArgSet> params(pdf->getParameters(*model.GetObservables()));
-    iter.reset(params->createIterator());
-    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+    ;
+    std::unique_ptr<RooArgSet> params{pdf->getParameters(*model.GetObservables())};
+    for (RooAbsArg *a : *params) {
         if (a->getAttribute("flatParam") && a->isConstant()) {
             ok = false; errors << "ERROR: parameter " << a->GetName() << " is declared as flatParam but is constant.\n";
         }
@@ -422,8 +417,7 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
             ok = false; errors << "ERROR: have nuisance parameters, but can't factorize the pdf\n";
         }
         std::unique_ptr<RooArgSet> obsParams(factorizedPdf->getParameters(*model.GetObservables()));
-        iter.reset(model.GetNuisanceParameters()->createIterator());
-        for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+        for (RooAbsArg *a : *model.GetNuisanceParameters()) {
             if (!obsParams->contains(*a))  {
                 errors << "WARNING: model pdf does not depend on nuisace parameter " << a->GetName() << "\n";
             }
@@ -598,14 +592,7 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
             RooAbsPdf *pdfi  = sim->getPdf(ds->GetName());
             std::unique_ptr<RooArgSet> obs(pdfi->getObservables(ds));
             if (obs->getSize() == 0) break;
-	    TIterator *obs_iter = obs->createIterator();
-	    //std::cout << " PDF CHECKING " << std::endl; 
-	    //pdfi->Print("v");
-	    //ds->Print("v");
-	    //std::cout << " ------------ " << std::endl; 
-
-	    //for (int iobs=0;iobs<obs->getSize();iobs++){
-  	    for (RooAbsArg *a = 0; (a = (RooAbsArg *)obs_iter->Next()) != 0; ) {
+        for (RooAbsArg *a : *obs) {
 	      RooRealVar *x = dynamic_cast<RooRealVar *>(a);
 	      if (x == 0) continue;
 	      int nbins = x->numBins(); if (nbins == 0) nbins = 100;
@@ -629,9 +616,7 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
     } else if (pdf.canBeExtended()) {
         std::unique_ptr<RooArgSet> obs(pdf.getObservables(&data));
 
-	//for (int iobs=0;iobs<obs->getSize();iobs++){
-	TIterator *obs_iter = obs->createIterator();
-  	for (RooAbsArg *a = 0; (a = (RooAbsArg *)obs_iter->Next()) != 0; ) {
+    for (RooAbsArg *a : *obs) {
           RooRealVar *x = dynamic_cast<RooRealVar *>(a);
 	  if (x != 0) {
 	      ret.push_back(x->frame());
@@ -656,8 +641,8 @@ void utils::CheapValueSnapshot::readFrom(const RooAbsCollection &src) {
         src_ = &src;
         values_.resize(src.getSize());
     }
-    RooLinkedListIter iter = src.iterator(); int i = 0;
-    for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+    for (int i = 0; i < src.getSize(); ++i) {
+        RooAbsArg *a = src[i];
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
         if (rrv == 0) {
           RooCategory *rc = dynamic_cast<RooCategory *>(a);
@@ -673,8 +658,8 @@ void utils::CheapValueSnapshot::readFrom(const RooAbsCollection &src) {
 
 void utils::CheapValueSnapshot::writeTo(const RooAbsCollection &src) const {
     if (&src == src_) {
-        RooLinkedListIter iter = src.iterator();  int i = 0;
-        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+        for (int i = 0; i < src.getSize(); ++i) {
+            RooAbsArg *a = src[i];
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
 	    if (rrv!=0) rrv->setVal(values_[i]);
 	    else {
@@ -683,8 +668,8 @@ void utils::CheapValueSnapshot::writeTo(const RooAbsCollection &src) const {
 	    }
         }
     } else {
-        RooLinkedListIter iter = src_->iterator();  int i = 0;
-        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+        for (int i = 0; i < src_->getSize(); ++i) {
+            RooAbsArg *a = (*src_)[i];
             RooAbsArg *a2 = src.find(a->GetName()); if (a2 == 0) continue;
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a2);
             if (rrv!=0) rrv->setVal(values_[i]);
@@ -699,8 +684,8 @@ void utils::CheapValueSnapshot::writeTo(const RooAbsCollection &src) const {
 void utils::CheapValueSnapshot::Print(const char *fmt) const {
     if (src_ == 0) { printf("<NIL>\n"); return; }
     if (fmt[0] == 'V') {
-        RooLinkedListIter iter = src_->iterator(); int i = 0;
-        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+        for (int i = 0; i < src_->getSize(); ++i) {
+            RooAbsArg *a = (*src_)[i];
             printf(" %3d) %-30s = %9.6g\n", i, a->GetName(), values_[i]);
         }
         printf("\n");
@@ -751,8 +736,7 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
         std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
         std::regex rgx( reg_esp, std::regex::ECMAScript);
 
-        std::unique_ptr<TIterator> iter(params.createIterator());
-        for (RooAbsArg *tmp = (RooAbsArg*) iter->Next(); tmp != 0; tmp = (RooAbsArg*) iter->Next()) {
+        for (RooAbsArg *tmp : params) {
 
             bool isrvar = tmp->IsA()->InheritsFrom(RooRealVar::Class());  // check its type    
 
@@ -835,7 +819,7 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
                string newline=line.substr(0,line.find(" = "));
                size_t pos1=line.find("=")+1, pos2=line.find(" +/- ");
                float value=std::atof(line.substr(pos1, pos2-pos1).c_str());
-               std::cout<<"->Obtainig value from:"<<pos1<<","<<pos2<<":"<<line.substr(pos1, pos2-pos1).c_str()<<std::endl;
+               std::cout<<"->Obtaining value from:"<<pos1<<","<<pos2<<":"<<line.substr(pos1, pos2-pos1).c_str()<<std::endl;
                size_t pos3=line.find(" ",pos2+5);
                float err = std::atof(line.substr(pos2+5,pos3-(pos2+5)).c_str());
                float mult=7; // arbitrary number
@@ -873,8 +857,7 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
           std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
           std::regex rgx( reg_esp, std::regex::ECMAScript);
 
-          std::unique_ptr<TIterator> iter(params.createIterator());
-          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
+          for (RooAbsArg *a : params) {
               RooRealVar *tmpParameter = dynamic_cast<RooRealVar *>(a);
               const std::string &target = tmpParameter->GetName();
               std::smatch match;
@@ -915,7 +898,7 @@ void utils::createSnapshotFromString( const std::string expression, const RooArg
             eqidx   = expression.find("=", colidx);
             colidx2 = expression.find(",", colidx+1);
             if (eqidx == std::string::npos || (colidx2 != std::string::npos && colidx2 < eqidx)) {
-                throw std::invalid_argument(std::string("Error: the argument to ")+context+" is not in the forms 'value' or 'name1=value1,name2=value2,...'\n");
+                throw std::invalid_argument(std::string("Error: the argument to ")+context+" is not in the form 'value' or 'name1=value1,name2=value2,...'\n");
             }
             std::string poiName = expression.substr(colidx, eqidx-colidx);
             std::string poiVal  = expression.substr(eqidx+1, (colidx2 == std::string::npos ? std::string::npos : colidx2 - eqidx - 1));
@@ -1022,21 +1005,16 @@ bool utils::anyParameterAtBoundaries( const RooArgSet &params, int verbosity ){
     static std::unordered_map<std::string, unsigned char> timesFoundAtBoundary;
     bool isAnyBad = false;
 
-    RooLinkedListIter iter = params.iterator(); int i = 0;
-    for (RooRealVar *a = (RooRealVar *) iter.Next(); a != 0; a = (RooRealVar *) iter.Next(), ++i) {
+    for (RooAbsArg *aAbsArg : params) {
+        RooRealVar *a = static_cast<RooRealVar*>(aAbsArg);
 
         bool isBad = isParameterAtBoundary(*a);
 
         if(isBad){
             std::string varName((*a).GetName());
-
-            if( verbosity >= 9 || (timesFoundAtBoundary[varName] < 3 && verbosity > -1) ){
-                fprintf(CloseCoutSentry::trueStdOutGlobal(),"  [WARNING] Found [%s] at boundary. \n", (*a).GetName());
-                std::cout << "       "; (*a).Print();
-            }
 	    
             if( verbosity > 0 ){
-            	Logger::instance().log(std::string(Form("utils.cc: %d -- Found parameter %s at boundary (within ~1sigma): %g+/-%g",__LINE__,(*a).GetName(),(*a).getVal(),(*a).getError())),Logger::kLogLevelInfo,__func__);
+            	CombineLogger::instance().log("utils.cc",__LINE__,std::string(Form("[WARNING] Found parameter %s at boundary (within ~1sigma): %g+/-%g",(*a).GetName(),(*a).getVal(),(*a).getError())),__func__);
 	    }
 
             timesFoundAtBoundary[varName]++;
@@ -1054,8 +1032,7 @@ bool utils::anyParameterAtBoundaries( const RooArgSet &params, int verbosity ){
 
 int utils::countFloating(const RooArgSet &params){
 	int count=0;
-        RooLinkedListIter iter = params.iterator(); int i = 0;
-        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+        for (RooAbsArg *a : params) {
 		if (!a->isConstant()) count++;
         }
 	return count;
@@ -1076,8 +1053,7 @@ bool utils::freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiP
 	// For each multiPdf, get the active pdf and remove its parameters 
 	// from this list of params and then freeze the remaining ones 
 	
-        RooLinkedListIter iter = multiPdfs.iterator();
-        for (RooAbsArg *P = (RooAbsArg *) iter.Next(); P != 0; P = (RooAbsArg *) iter.Next()) {
+        for (RooAbsArg *P : multiPdfs) {
 	  RooMultiPdf *mpdf = dynamic_cast<RooMultiPdf *>(P);
 	  RooAbsPdf *pdf = (RooAbsPdf*)mpdf->getCurrentPdf();
 	  if (freezeDisassParams_verb) std::cout << " Current active PDF - " << pdf->GetName() <<std::endl;

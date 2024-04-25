@@ -4,7 +4,6 @@
 #include "RooFit.h"
 #include "Riostream.h"
 
-#include "TIterator.h"
 #include "TList.h"
 #include "RooRealProxy.h"
 #include "RooPlot.h"
@@ -25,8 +24,6 @@ VerticalInterpPdf::VerticalInterpPdf()
 {
   // Default constructor
   // coverity[UNINIT_CTOR]
-  _funcIter  = _funcList.createIterator() ;
-  _coefIter  = _coefList.createIterator() ;
   _quadraticRegion = 0;
   _pdfFloorVal = 1e-15;
   _integralFloorVal = 1e-10;
@@ -51,30 +48,21 @@ VerticalInterpPdf::VerticalInterpPdf(const char *name, const char *title, const 
     assert(0);
   }
 
-  TIterator* funcIter = inFuncList.createIterator() ;
-  RooAbsArg* func;
-  while((func = (RooAbsArg*)funcIter->Next())) {
+  for (RooAbsArg *func : inFuncList) {
     if (!dynamic_cast<RooAbsReal*>(func)) {
       coutE(InputArguments) << "ERROR: VerticalInterpPdf::VerticalInterpPdf(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _funcList.add(*func) ;
   }
-  delete funcIter;
 
-  TIterator* coefIter = inCoefList.createIterator() ;
-  RooAbsArg* coef;
-  while((coef = (RooAbsArg*)coefIter->Next())) {
+  for (RooAbsArg *coef : inCoefList) {
     if (!dynamic_cast<RooAbsReal*>(coef)) {
       coutE(InputArguments) << "ERROR: VerticalInterpPdf::VerticalInterpPdf(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _coefList.add(*coef) ;    
   }
-  delete coefIter;
-
-  _funcIter  = _funcList.createIterator() ;
-  _coefIter = _coefList.createIterator() ;
 
   if (_quadraticAlgo == -1) { 
     // multiplicative morphing: no way to do analytical integrals.
@@ -100,50 +88,37 @@ VerticalInterpPdf::VerticalInterpPdf(const VerticalInterpPdf& other, const char*
   _integralFloorVal(other._integralFloorVal)
 {
   // Copy constructor
-
-  _funcIter  = _funcList.createIterator() ;
-  _coefIter = _coefList.createIterator() ;
 }
 
 
 
 //_____________________________________________________________________________
-VerticalInterpPdf::~VerticalInterpPdf()
-{
-  // Destructor
-  delete _funcIter ;
-  delete _coefIter ;
-}
+VerticalInterpPdf::~VerticalInterpPdf() = default;
 
 //_____________________________________________________________________________
 Double_t VerticalInterpPdf::evaluate() const 
 {
-  // Calculate the current value
-  Double_t value(0) ;
-
   // Do running sum of coef/func pairs, calculate lastCoef.
-  _funcIter->Reset() ;
-  _coefIter->Reset() ;
-  RooAbsReal* coef ;
-  RooAbsReal* func = (RooAbsReal*)_funcIter->Next();
+  RooAbsReal* func = &(RooAbsReal&)_funcList[0];
 
+  // Calculate the current value
   Double_t central = func->getVal();
-  value = central;
+  Double_t value = central;
 
   if (_quadraticAlgo >= 0) {
       // additive interpolation
-      while((coef=(RooAbsReal*)_coefIter->Next())) {
-          Double_t coefVal = coef->getVal() ;
-          RooAbsReal* funcUp = (RooAbsReal*)_funcIter->Next() ;
-          RooAbsReal* funcDn = (RooAbsReal*)_funcIter->Next() ;
+      for (int iCoef = 0; iCoef < _coefList.getSize(); ++iCoef) {
+          Double_t coefVal = static_cast<RooAbsReal&>(_coefList[iCoef]).getVal() ;
+          RooAbsReal* funcUp = &(RooAbsReal&)_funcList[2 * iCoef + 1];
+          RooAbsReal* funcDn = &(RooAbsReal&)_funcList[2 * iCoef + 2];
           value += interpolate(coefVal, central, funcUp, funcDn);
       }
   } else {
       // multiplicative interpolation
-      while((coef=(RooAbsReal*)_coefIter->Next())) {
-          Double_t coefVal = coef->getVal() ;
-          RooAbsReal* funcUp = (RooAbsReal*)_funcIter->Next() ;
-          RooAbsReal* funcDn = (RooAbsReal*)_funcIter->Next() ;
+      for (int iCoef = 0; iCoef < _coefList.getSize(); ++iCoef) {
+          Double_t coefVal = static_cast<RooAbsReal&>(_coefList[iCoef]).getVal() ;
+          RooAbsReal* funcUp = &(RooAbsReal&)_funcList[2 * iCoef + 1];
+          RooAbsReal* funcDn = &(RooAbsReal&)_funcList[2 * iCoef + 2];
           value *= interpolate(coefVal, central, funcUp, funcDn);
       }
   }
@@ -166,9 +141,7 @@ Bool_t VerticalInterpPdf::checkObservables(const RooArgSet* nset) const
   if (_quadraticAlgo == -1) return false; // multiplicative morphing. we don't care.
   
 
-  _coefIter->Reset() ;
-  RooAbsReal* coef ;
-  while((coef=(RooAbsReal*)_coefIter->Next())) {
+  for (RooAbsArg *coef : _coefList) {
     if (coef->dependsOn(*nset)) {
       coutE(InputArguments) << "RooRealPdf::checkObservables(" << GetName() << "): ERROR coefficient " << coef->GetName() 
 			    << " depends on one or more of the following observables" ; nset->Print("1") ;
@@ -176,12 +149,10 @@ Bool_t VerticalInterpPdf::checkObservables(const RooArgSet* nset) const
     }
   }
 
-  _funcIter->Reset() ;
-  _coefIter->Reset() ;
-  RooAbsReal* func ;
-  unsigned int ifunc = 0;
-  while((func = (RooAbsReal*)_funcIter->Next())) { 
-    if (ifunc % 2 == 0) coef = (RooAbsReal*)_coefIter->Next(); 
+  RooAbsReal * coef = nullptr;
+  for (int ifunc = 0; ifunc < _funcList.getSize(); ++ifunc) {
+    RooAbsReal* func = &(RooAbsReal&)_funcList[ifunc];
+    if (ifunc % 2 == 0) coef = &(RooAbsReal&)_coefList[ifunc];
     if (coef && func->observableOverlaps(nset,*coef)) {
       coutE(InputArguments) << "VerticalInterpPdf::checkObservables(" << GetName() << "): ERROR: coefficient " << coef->GetName() 
 			    << " and FUNC " << func->GetName() << " have one or more observables in common" << std::endl;
@@ -222,9 +193,8 @@ Int_t VerticalInterpPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& 
   cache = new CacheElem ;
 
   // Make list of function projection and normalization integrals 
-  _funcIter->Reset() ;
-  RooAbsReal *func ;
-  while((func=(RooAbsReal*)_funcIter->Next())) {
+  for (RooAbsArg *funcAbsArg : _funcList) {
+    auto func = static_cast<RooAbsReal*>(funcAbsArg);
     RooAbsReal* funcInt = nullptr;
     if (isConditionalProdPdf(func)) {
       RooProdPdf *prod = static_cast<RooProdPdf*>(func);
@@ -310,44 +280,33 @@ Double_t VerticalInterpPdf::analyticalIntegralWN(Int_t code, const RooArgSet* no
   // Handle trivial passthrough scenario
   if (code==0) return getVal(normSet2) ;
 
-  RooAbsReal *coef;
   Double_t value = 0;
 
   // WVE needs adaptation for rangeName feature
   CacheElem* cache = (CacheElem*) _normIntMgr.getObjByIndex(code-1) ;
 
-  TIterator* funcIntIter = cache->_funcIntList.createIterator() ;
-  RooAbsReal *funcInt = (RooAbsReal *) funcIntIter->Next();
-  Double_t central = funcInt->getVal();
+  Double_t central = static_cast<RooAbsReal&>(_funcList[0]).getVal();
   value += central;
 
-  _coefIter->Reset() ;
-  while((coef=(RooAbsReal*)_coefIter->Next())) {
-    Double_t coefVal = coef->getVal(normSet2) ;
-    RooAbsReal * funcIntUp = (RooAbsReal*)funcIntIter->Next() ;
-    RooAbsReal * funcIntDn = (RooAbsReal*)funcIntIter->Next() ;
+  for (int iCoef = 0; iCoef < _coefList.getSize(); ++iCoef) {
+    Double_t coefVal = static_cast<RooAbsReal&>(_coefList[iCoef]).getVal(normSet2) ;
+    RooAbsReal * funcIntUp = &(RooAbsReal&)_funcList[2 * iCoef + 1];
+    RooAbsReal * funcIntDn = &(RooAbsReal&)_funcList[2 * iCoef + 2];
     value += interpolate(coefVal, central, funcIntUp, funcIntDn);
   }
   
-  delete funcIntIter ;
-  
   Double_t normVal(1) ;
   if (normSet2) {
-    TIterator* funcNormIter = cache->_funcNormList.createIterator() ;
-
-    RooAbsReal* funcNorm = (RooAbsReal*) funcNormIter->Next();
-    central = funcNorm->getVal(normSet2) ;
+    RooArgList& fnl = cache->_funcNormList;
+    central = static_cast<RooAbsReal&>(fnl[0]).getVal(normSet2) ;
     normVal = central;
 
-    _coefIter->Reset() ;
-    while((coef=(RooAbsReal*)_coefIter->Next())) {
-      RooAbsReal *funcNormUp = (RooAbsReal*)funcNormIter->Next() ;
-      RooAbsReal *funcNormDn = (RooAbsReal*)funcNormIter->Next() ;
-      Double_t coefVal = coef->getVal(normSet2) ;
+    for (int iCoef = 0; iCoef < _coefList.getSize(); ++iCoef) {
+      RooAbsReal *funcNormUp = &(RooAbsReal&)fnl[2 * iCoef + 1];
+      RooAbsReal *funcNormDn = &(RooAbsReal&)fnl[2 * iCoef + 2];
+      Double_t coefVal = static_cast<RooAbsReal&>(_coefList[iCoef]).getVal(normSet2) ;
       normVal += interpolate(coefVal, central, funcNormUp, funcNormDn);
     }
-
-    delete funcNormIter ;      
   }
 
   Double_t result = 0;

@@ -62,7 +62,7 @@ Significance::Significance() :
         ("plot",   boost::program_options::value<std::string>(&plot_)->default_value(plot_), "Save a plot of the negative log of the profiled likelihood into the specified file")
         ("pvalue", "Report p-value instead of significance")
         ("uncapped", boost::program_options::value<bool>(&uncapped_)->default_value(uncapped_), "Report uncapped significances or p-value (i.e. negative in case of deficits)")
-        ("preFit", "Attept a fit before running the ProfileLikelihoodCalculator")
+        ("preFit", "Attempt a fit before running the ProfileLikelihoodCalculator")
         ("usePLC",   "Compute PL limit using the ProfileLikelihoodCalculator (not default)")
         ("useMinos", "Compute PL limit using Minos directly, bypassing the ProfileLikelihoodCalculator (default)")
         ("bruteForce", "Compute PL limit by brute force, bypassing the ProfileLikelihoodCalculator and Minos")
@@ -352,7 +352,7 @@ std::pair<double,double> Significance::upperLimitBruteForce(RooAbsPdf &pdf, RooA
         minim.setStrategy(0);
         bool success = nllutils::robustMinimize(*nll, minim, verbose-2);
         if (success == false) {
-            std::cerr << "Minimization failed at " << poi.getVal() <<". exiting the bisection loop" << std::endl;
+            std::cerr << "Minimization failed at " << poi.getVal() <<". Exiting the bisection loop" << std::endl;
             fail = true; 
             break;
         }
@@ -379,7 +379,7 @@ std::pair<double,double> Significance::upperLimitBruteForce(RooAbsPdf &pdf, RooA
             minim.setStrategy(0);
             bool success = nllutils::robustMinimize(*nll, minim, verbose-2);
             if (success == false) {
-                std::cerr << "Minimization failed at " << poi.getVal() <<". exiting the stepping loop" << std::endl;
+                std::cerr << "Minimization failed at " << poi.getVal() <<". Exiting the stepping loop" << std::endl;
                 return std::pair<double,double>(poi.getVal(), fabs(rhigh - rlow)*0.5);
             }
             double nllthis = nll->getVal();
@@ -441,7 +441,7 @@ double Significance::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &data, Ro
         lastnll = thisnll;
         thisnll = nll->getVal();
         if (success == false) {
-            std::cerr << "Minimization failed at " << poi.getVal() <<". exiting the loop" << std::endl;
+            std::cerr << "Minimization failed at " << poi.getVal() <<". Exiting the loop" << std::endl;
             return -1;
         } 
         if (verbose) {  

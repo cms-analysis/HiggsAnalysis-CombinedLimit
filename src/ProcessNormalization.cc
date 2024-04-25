@@ -59,26 +59,23 @@ void ProcessNormalization::addOtherFactor(RooAbsReal &factor) {
 Double_t ProcessNormalization::evaluate() const {
     double logVal = 0.0;
     if (thetaListVec_.empty()) {
-        RooFIter iterTheta = thetaList_.fwdIterator();
         std::vector<RooAbsReal *> & thetaListVec = const_cast<std::vector<RooAbsReal *>&>(thetaListVec_);
         thetaListVec.reserve(thetaList_.getSize());
-        for (RooAbsArg *a = iterTheta.next(); a != 0; a = iterTheta.next()) {
+        for (RooAbsArg *a : thetaList_) {
             thetaListVec.push_back(dynamic_cast<RooAbsReal *>(a));
         }
     }
     if (asymmThetaListVec_.empty()) {
-        RooFIter iterTheta = asymmThetaList_.fwdIterator();
         std::vector<RooAbsReal *> & asymmThetaListVec = const_cast<std::vector<RooAbsReal *>&>(asymmThetaListVec_);
         asymmThetaListVec.reserve(asymmThetaList_.getSize());
-        for (RooAbsArg *a = iterTheta.next(); a != 0; a = iterTheta.next()) {
+        for (RooAbsArg *a : asymmThetaList_) {
             asymmThetaListVec.push_back(dynamic_cast<RooAbsReal *>(a));
         }
     }
     if (otherFactorListVec_.empty()) {
-        RooFIter iterOther = otherFactorList_.fwdIterator();
         std::vector<RooAbsReal *> & otherFactorListVec = const_cast<std::vector<RooAbsReal *>&>(otherFactorListVec_);
         otherFactorListVec.reserve(otherFactorList_.getSize());
-        for (RooAbsArg *a = iterOther.next(); a != 0; a = iterOther.next()) {
+        for (RooAbsArg *a : otherFactorList_) {
             otherFactorListVec.push_back(dynamic_cast<RooAbsReal *>(a));
         }
     }

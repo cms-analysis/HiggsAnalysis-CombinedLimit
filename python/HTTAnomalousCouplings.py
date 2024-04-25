@@ -284,11 +284,11 @@ class Anomalous_Interference_JHU_rw_HTTHZZ(Anomalous_Interference_JHU_rw, MultiS
     def processPhysicsOptions(self, physOptions):
         result = super(Anomalous_Interference_JHU_rw_HTTHZZ, self).processPhysicsOptions(physOptions)
         if self.scaledifferentsqrtsseparately:
-            raise ValueError("Can't scaledifferentsqrtsseparately for HZZ+HTT combination")
+            raise ValueError("Can't scale different sqrts separately for HZZ+HTT combination")
         if not self.scalemuvfseparately:
-            raise ValueError("Can't scalemuvmuftogether for HZZ+HTT combination")
+            raise ValueError("Can't scale muv muf together for HZZ+HTT combination")
         if self.uservoverrf:
-            raise ValueError("Can't uservoverrf for HZZ+HTT combination")
+            raise ValueError("Can't use rv over rf for HZZ+HTT combination")
         return result
 
     def getPOIList(self):

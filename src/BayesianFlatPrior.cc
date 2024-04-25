@@ -36,7 +36,7 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooSta
                  "             N(params) = " << dim << ", maxDim = " << maxDim_ << "\n" <<
                  "       Please use MarkovChainMC or BayesianToyMC method to compute Bayesian limits instead of BayesianSimple.\n" <<
                  "       If you really want to run BayesianSimple, change the value of the 'maxDim' option, \n" 
-                 "       but note that it's really not supposed to work for N(params) above 5 or so " << std::endl;
+                 "       but note that it is not expected to work for N(params) above O(5). " << std::endl;
     throw std::logic_error("Too many parameters for BayesianSimple method. Use MarkovChainMC or BayesianToyMC method to compute Bayesian limits instead.");
   }
 
@@ -66,7 +66,7 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooSta
     }
     if (verbose > -1) {
         std::cout << "\n -- BayesianSimple -- " << "\n";
-        std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+        std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% credibility" << std::endl;
     }
     if (verbose > 200) {
       // FIXME!!!!!

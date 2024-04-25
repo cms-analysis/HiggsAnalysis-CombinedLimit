@@ -56,7 +56,7 @@ void CMSHistErrorPropagator::initialize() const {
   sentry_.SetName(TString(this->GetName()) + "_sentry");
   binsentry_.SetName(TString(this->GetName()) + "_binsentry");
 #if HFVERBOSE > 0
-  std::cout << "Initialising vectors\n";
+  std::cout << "Initializing vectors\n";
 #endif
   unsigned nf = funcs_.getSize();
   vfuncs_.resize(nf);
@@ -249,9 +249,7 @@ void CMSHistErrorPropagator::setAnalyticBarlowBeeston(bool flag) const {
       if (bintypes_[j][0] == 1 && !vbinpars_[j][0]->isConstant()) {
         bb_.use.push_back(j);
         double gobs_val = 0.;
-        RooFIter iter = vbinpars_[j][0]->valueClientMIterator();
-        RooAbsArg *arg = nullptr;
-        while((arg = iter.next())) {
+        for (RooAbsArg * arg : vbinpars_[j][0]->valueClients()) {
           if (arg == this || arg == &binsentry_) {
             // std::cout << "Skipping " << this << " " << this->GetName() << "\n";
           } else {
@@ -301,7 +299,7 @@ RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
 
 
   std::cout << std::string(60, '=') << "\n";
-  std::cout << "Analysing bin errors for: " << this->GetName() << "\n";
+  std::cout << "Analyzing bin errors for: " << this->GetName() << "\n";
   std::cout << "Poisson cut-off: " << poissonThreshold << "\n";
   std::set<unsigned> skip_idx;
   std::vector<std::string> skipped_procs;
@@ -350,7 +348,7 @@ RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
         TString::Format("Unweighted events, alpha=%f", alpha).Data());
 
     if (n <= poissonThreshold) {
-      std::cout << TString::Format("  %-30s\n", "=> Number of weighted events is below poisson threshold");
+      std::cout << TString::Format("  %-30s\n", "=> Number of weighted events is below Poisson threshold");
 
       bintypes_[j].resize(vfuncs_.size(), 4);
 
@@ -393,13 +391,13 @@ RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
             binpars_.add(*prod);
 
             std::cout << TString::Format(
-                "      => Product of %s[%.2f,%.2f,%.2f] and const [%.4f] to be poisson constrained\n",
+                "      => Product of %s[%.2f,%.2f,%.2f] and const [%.4f] to be Poisson constrained\n",
                 var->GetName(), var->getVal(), var->getMin(), var->getMax(), cvar->getVal());
             bintypes_[j][i] = 2;
           } else {
             RooRealVar *var = new RooRealVar(TString::Format("%s_bin%i_%s", this->GetName(), j, proc.c_str()), "", 0, -7, 7);
             std::cout << TString::Format(
-                "      => Parameter %s[%.2f,%.2f,%.2f] to be gaussian constrained\n",
+                "      => Parameter %s[%.2f,%.2f,%.2f] to be Gaussian constrained\n",
                 var->GetName(), var->getVal(), var->getMin(), var->getMax());
             var->setAttribute("createGaussianConstraint");
             res->addOwned(*var);
@@ -409,7 +407,7 @@ RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
         } else if (v_p >= 0 && e_p > v_p) {
           RooRealVar *var = new RooRealVar(TString::Format("%s_bin%i_%s", this->GetName(), j, proc.c_str()), "", 0, -7, 7);
           std::cout << TString::Format(
-              "      => Poisson not viable, %s[%.2f,%.2f,%.2f] to be gaussian constrained\n",
+              "      => Poisson not viable, %s[%.2f,%.2f,%.2f] to be Gaussian constrained\n",
               var->GetName(), var->getVal(), var->getMin(), var->getMax());
           var->setAttribute("createGaussianConstraint");
           res->addOwned(*var);
@@ -425,7 +423,7 @@ RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
       bintypes_[j][0] = 1;
       RooRealVar *var = new RooRealVar(TString::Format("%s_bin%i", this->GetName(), j), "", 0, -7, 7);
       std::cout << TString::Format(
-          "  => Total parameter %s[%.2f,%.2f,%.2f] to be gaussian constrained\n",
+          "  => Total parameter %s[%.2f,%.2f,%.2f] to be Gaussian constrained\n",
           var->GetName(), var->getVal(), var->getMin(), var->getMax());
       var->setAttribute("createGaussianConstraint");
       var->setAttribute("forBarlowBeeston");

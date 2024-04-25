@@ -1,6 +1,6 @@
 #include "../interface/ToyMCSamplerOpt.h"
 #include "../interface/utils.h"
-#include "../interface/Logger.h"
+#include "../interface/CombineLogger.h"
 #include <memory>
 #include <stdexcept>
 #include <TH1.h>
@@ -22,7 +22,7 @@ ToyMCSamplerOpt::ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAb
     ToyMCSampler(ts, ntoys),
     globalObsPdf_(globalObsPdf),
     globalObsValues_(0), globalObsIndex_(-1),
-    nuisValues_(0), nuisIndex_(-1),
+    nuisValues_(0), nuisIndex_(-1), genNuis_(generateNuisances),
     weightVar_(0)
 {
     if (!generateNuisances) fPriorNuisance = 0; // set things straight from the beginning
@@ -63,9 +63,10 @@ ToyMCSamplerOpt::~ToyMCSamplerOpt()
 }
 
 
-toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
+toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents, bool canUseSpec) :
    mode_(pdf.canBeExtended() ? (preferBinned ? Binned : Unbinned) : Counting),
    pdf_(&pdf),
+   canUseSpec_(canUseSpec),
    spec_(0),histoSpec_(0),keepHistoSpec_(0),weightVar_(0)
 {
    if (pdf.canBeExtended()) {
@@ -104,7 +105,7 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
     RooAbsData *ret = 0;
     switch (mode_) {
         case Unbinned:
-            if (spec_ == 0) spec_ = protoData ? pdf_->prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
+            if (spec_ == 0 && canUseSpec_) spec_ = protoData ? pdf_->prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
                                               : pdf_->prepareMultiGen(observables_, RooFit::Extended());
             if (spec_) ret = pdf_->generate(*spec_);
             else ret = pdf_->generate(observables_, RooFit::Extended());
@@ -142,10 +143,9 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double w
     int nPA = runtimedef::get("TMCSO_PseudoAsimov");  // Will trigger the use of weighted data 
     int boostAPA = runtimedef::get("TMCSO_AdaptivePseudoAsimov");
     if (boostAPA>0) {  // trigger adaptive PA (setting boostAPA=1 will just use internal logic)
-        if ( verbose > 0 ) Logger::instance().log(std::string(Form("ToyMCSamplerOpt.cc: %d -- Using internal logic for binned/unbinned Asimov dataset generation",__LINE__)),Logger::kLogLevelInfo,__func__);
+        if ( verbose > 0 ) CombineLogger::instance().log("ToyMCSamplerOpt.cc",__LINE__, "Using internal logic for binned/unbinned Asimov dataset generation",__func__);
         int nbins = 1;
-        RooLinkedListIter iter = observables_.iterator(); 
-        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+        for (RooAbsArg *a : observables_) {
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a); 
             int mybins = rrv->getBins();
             nbins *= (mybins ? mybins : 100);
@@ -170,8 +170,8 @@ RooDataSet *
 toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, int nPoints, double weightScale,int verbose) 
 {
     if (mode_ == Unbinned) {
-        if ( verbose > 2 ) printf("  ToyMCSamplerOpt -- Generating PseudoAsimov dataset for pdf %s: with %d weighted events\n", pdf_->GetName(), nPoints);
-        if ( verbose > 0 ) Logger::instance().log(std::string(Form("ToyMCSamplerOpt.cc: %d -- Generating PseudoAsimov dataset for pdf %s: with %d weighted events",__LINE__,pdf_->GetName(),nPoints)),Logger::kLogLevelInfo,__func__);
+        //if ( verbose > 2 ) printf("  ToyMCSamplerOpt -- Generating PseudoAsimov dataset for pdf %s: with %d weighted events\n", pdf_->GetName(), nPoints);
+        if ( verbose > 0 ) CombineLogger::instance().log("ToyMCSamplerOpt.cc",__LINE__,std::string(Form("Generating PseudoAsimov dataset for pdf %s: with %d weighted events",pdf_->GetName(),nPoints)),__func__);
         double expEvents = pdf_->expectedEvents(observables_);
         std::unique_ptr<RooDataSet> data(pdf_->generate(observables_, nPoints));
         if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
@@ -209,17 +209,11 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
         histoSpec_->SetDirectory(0);
     }
 
-    if ( verbose > 2 ){
-      printf("  ToyMCSampleOpt  -- Generating Asimov with histogram for pdf %s: in %d x-bins ", pdf_->GetName(), histoSpec_->GetNbinsX() );
-      if (y)  printf(", %d y-bins ",histoSpec_->GetNbinsY() );
-      if (z)  printf(", %d z-bins ",histoSpec_->GetNbinsZ() );
-      printf("\n");
-    }
 
     if ( verbose >0 ) { 
-    	Logger::instance().log(std::string(Form("ToyMCSamplerOpt.cc: %d -- Generating asimov with histogram for pdf %s: in %d x-bins",__LINE__,pdf_->GetName(),histoSpec_->GetNbinsX())),Logger::kLogLevelInfo,__func__);
-	if (y)  Logger::instance().log(std::string(Form("ToyMCSamplerOpt.cc: %d -- , in %d y-bins",__LINE__,histoSpec_->GetNbinsY())),Logger::kLogLevelInfo,__func__);
-	if (z)  Logger::instance().log(std::string(Form("ToyMCSamplerOpt.cc: %d -- , in %d z-bins",__LINE__,histoSpec_->GetNbinsZ())),Logger::kLogLevelInfo,__func__);
+    	CombineLogger::instance().log("ToyMCSamplerOpt.cc",__LINE__,std::string(Form("Generating asimov with histogram for pdf %s: in %d x-bins",pdf_->GetName(),histoSpec_->GetNbinsX())),__func__);
+	if (y)  CombineLogger::instance().log("ToyMCSamplerOpt.cc",__LINE__,std::string(Form(" , in %d y-bins",histoSpec_->GetNbinsY())),__func__);
+	if (z)  CombineLogger::instance().log("ToyMCSamplerOpt.cc",__LINE__,std::string(Form(" , in %d z-bins",histoSpec_->GetNbinsZ())),__func__);
     }
 
     double expectedEvents = pdf_->expectedEvents(observables_);
@@ -288,8 +282,7 @@ toymcoptutils::SinglePdfGenInfo::generateCountingAsimov()
 void
 toymcoptutils::SinglePdfGenInfo::setToExpected(RooProdPdf &prod, RooArgSet &obs) 
 {
-    std::unique_ptr<TIterator> iter(prod.pdfList().createIterator());
-    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+    for (RooAbsArg *a : prod.pdfList()) {
         if (!a->dependsOn(obs)) continue;
         RooPoisson *pois = 0;
         if ((pois = dynamic_cast<RooPoisson *>(a)) != 0) {
@@ -307,16 +300,15 @@ toymcoptutils::SinglePdfGenInfo::setToExpected(RooPoisson &pois, RooArgSet &obs)
 {
     RooRealVar *myobs = 0;
     RooAbsReal *myexp = 0;
-    std::unique_ptr<TIterator> iter(pois.serverIterator());
-    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+    for (RooAbsArg *a : pois.servers()) {
         if (obs.contains(*a)) {
-            assert(myobs == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two observables??");
+            assert(myobs == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two observables?");
             myobs = dynamic_cast<RooRealVar *>(a);
-            assert(myobs != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Observables is not a RooRealVar??");
+            assert(myobs != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Observable is not a RooRealVar?");
         } else {
-            assert(myexp == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two expecteds??");
+            assert(myexp == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two expecteds?");
             myexp = dynamic_cast<RooAbsReal *>(a);
-            assert(myexp != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Expectedis not a RooAbsReal??");
+            assert(myexp != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Expected is not a RooAbsReal?");
         }
     }
     assert(myobs != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): No observable?");
@@ -324,13 +316,13 @@ toymcoptutils::SinglePdfGenInfo::setToExpected(RooPoisson &pois, RooArgSet &obs)
     myobs->setVal(myexp->getVal());
 }
 
-toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
+toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents, bool canUseSpec) :
     pdf_(&pdf),
     cat_(0),
     observables_(observables),
     copyData_(true)
 {
-    assert(forceEvents == 0 && "SimPdfGenInfo: forceEvents must be zero at least for now");
+    assert(forceEvents == 0 && "SimPdfGenInfo: forceEvents must be zero.");
     RooSimultaneous *simPdf = dynamic_cast<RooSimultaneous *>(&pdf);
     if (simPdf) {
         cat_ = const_cast<RooAbsCategoryLValue *>(&simPdf->indexCat());
@@ -342,13 +334,13 @@ toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& obs
             RooAbsPdf *pdfi = simPdf->getPdf(cat_->getLabel());
             if (pdfi == 0) throw std::logic_error(std::string("Unmapped category state: ") + cat_->getLabel());
             RooAbsPdf *newpdf = utils::factorizePdf(observables, *pdfi, dummy);
-            pdfs_[ic] = new SinglePdfGenInfo(*newpdf, observables, preferBinned);
+            pdfs_[ic] = new SinglePdfGenInfo(*newpdf, observables, preferBinned, NULL, 0, canUseSpec);
             if (newpdf != 0 && newpdf != pdfi) {
                 ownedCrap_.addOwned(*newpdf); 
             }
         }
     } else {
-        pdfs_.push_back(new SinglePdfGenInfo(pdf, observables, preferBinned, protoData, forceEvents));
+        pdfs_.push_back(new SinglePdfGenInfo(pdf, observables, preferBinned, protoData, forceEvents, canUseSpec));
     }
 }
 
@@ -705,7 +697,7 @@ ToyMCSamplerOpt::Generate(RooAbsPdf& pdf, RooArgSet& observables, const RooDataS
    //utils::printPdf(&pdf);
    toymcoptutils::SimPdfGenInfo *& info = genCache_[&pdf];
    if (info == 0) { 
-       info = new toymcoptutils::SimPdfGenInfo(pdf, observables, fGenerateBinned, protoData, forceEvents);
+       info = new toymcoptutils::SimPdfGenInfo(pdf, observables, fGenerateBinned, protoData, forceEvents, !genNuis_);
        info->setCopyData(false);
        if (!fPriorNuisance && importanceSnapshots_.empty()) info->setCacheTemplates(true);
    }

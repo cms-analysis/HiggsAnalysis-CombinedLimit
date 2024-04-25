@@ -16,7 +16,7 @@ LHCHCG_DecSimple_to_CMS = dict(list(zip(list(CMS_to_LHCHCG_DecSimple.values()), 
 
 
 class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
-    "assume the SM coupling but let the Higgs mass to float"
+    "Assume the SM coupling but leave the Higgs boson mass floating."
 
     def __init__(self, BRU=True):
         LHCHCGBaseModel.__init__(self)
@@ -396,7 +396,7 @@ class TrilinearHiggsDifferential(PhysicsModel):
 
 
 class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
-    "assume the SM coupling but let the Higgs mass to float"
+    "Assume the SM coupling but leave the Higgs boson mass floating"
 
     def __init__(self, BRU=False):
         LHCHCGBaseModel.__init__(self)

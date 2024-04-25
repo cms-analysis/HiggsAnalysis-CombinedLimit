@@ -179,10 +179,10 @@ bool MarkovChainMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
       std::cout << "\n -- MarkovChainMC -- " << "\n";
       RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
       if (num > 1) {
-          std::cout << "Limit: " << r->GetName() <<" < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL (" << num << " tries)" << std::endl;
+          std::cout << "Limit: " << r->GetName() <<" < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% credibility (" << num << " tries)" << std::endl;
           if (verbose > 0 && !readChains_) std::cout << "Average chain acceptance: " << suma << std::endl;
       } else {
-          std::cout << "Limit: " << r->GetName() <<" < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+          std::cout << "Limit: " << r->GetName() <<" < " << limit << " @ " << cl * 100 << "% credibility" << std::endl;
       }
   }
   return true;
@@ -196,7 +196,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   }
 
   if (withSystematics && (mc_s->GetNuisanceParameters() == 0)) {
-    throw std::logic_error("MarkovChainMC: running with systematics enabled, but nuisances not defined.");
+    throw std::logic_error("MarkovChainMC: running with systematics enabled, but nuisance parameters not defined.");
   }
   
   w->loadSnapshot("clean");
@@ -262,8 +262,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
                 if (verbose > 1) { std::cout << "\nDiscrete model point " << (i+1) << std::endl; discreteModelPointSets_[i].Print("V"); }
             }
             RooArgSet discretePOI;
-            RooLinkedListIter iter = poi.iterator();
-            for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+            for (RooAbsArg *a : poi) {
                 if (discreteModelPointSets_[0].find(a->GetName())) discretePOI.add(*a);
             }
             if (verbose > 1) { std::cout << "Discrete POI: " ; discretePOI.Print(""); }
@@ -367,7 +366,7 @@ void MarkovChainMC::limitAndError(double &limit, double &limitErr, const std::ve
       std::pair<double,double> qj = qc.quantileAndError(0.5, QuantileCalculator::Jacknife);
       std::cout << "Median of limits (simple):     " << qn.first << " +/- " << qn.second << std::endl;
       std::cout << "Median of limits (sectioning): " << qs.first << " +/- " << qs.second << std::endl;
-      std::cout << "Median of limits (jacknife):   " << qj.first << " +/- " << qj.second << std::endl;
+      std::cout << "Median of limits (jackknife):   " << qj.first << " +/- " << qj.second << std::endl;
 #endif
   } else {
       int noutl = floor(truncatedMeanFraction_ * num);

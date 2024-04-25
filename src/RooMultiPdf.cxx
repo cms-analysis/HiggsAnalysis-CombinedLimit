@@ -25,11 +25,9 @@ RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, c
   corr("_corrs","The list of corrs",this),
   x("_index","the pdf index",this,_x) 
 {
-  TIterator *pdfIter=_c.createIterator(); 
   int count=0;
 
-  RooAbsPdf *fPdf;
-  while ( (fPdf = (RooAbsPdf*) pdfIter->Next()) ){
+  for (RooAbsArg *fPdf : _c) {
 	c.add(*fPdf);
 	// This is done by the user BUT is there a way to do it at construction?
 	_x.defineType(Form("_pdf%d",count),count);//(fPdf->getParameters())->getSize());
@@ -55,10 +53,7 @@ RooMultiPdf::RooMultiPdf(const RooMultiPdf& other, const char* name) :
  fIndex=other.fIndex;
  nPdfs=other.nPdfs;
 
- TIterator *pdfIter=(other.c).createIterator();
-
- RooAbsPdf *fPdf;
- while ( (fPdf = (RooAbsPdf*) pdfIter->Next()) ){
+ for (RooAbsArg *fPdf : other.c) {
 	c.add(*fPdf);
   std::unique_ptr<RooArgSet> variables(fPdf->getVariables());
   std::unique_ptr<RooAbsCollection> nonConstVariables(variables->selectByAttrib("Constant", false));

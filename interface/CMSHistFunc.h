@@ -15,6 +15,7 @@
 #include "CMSHistV.h"
 #include "FastTemplate_Old.h"
 #include "SimpleCacheSentry.h"
+#include "CMSExternalMorph.h"
 
 class CMSHistFuncWrapper;
 
@@ -85,7 +86,7 @@ class CMSHistFunc : public RooAbsReal {
   virtual TObject* clone(const char* newname) const {
     return new CMSHistFunc(*this, newname);
   }
-  virtual ~CMSHistFunc() {}
+  virtual ~CMSHistFunc();
 
   void addHorizontalMorph(RooAbsReal& hvar, TVectorD hpoints);
 
@@ -148,6 +149,7 @@ class CMSHistFunc : public RooAbsReal {
   friend class CMSHistV<CMSHistFunc>;
   friend class CMSHistSum;
 
+  void injectExternalMorph(CMSExternalMorph& morph);
   /*
 
   – RooAbsArg::setVerboseEval(Int_t level) • Level 0 – No messages
@@ -190,6 +192,9 @@ class CMSHistFunc : public RooAbsReal {
 
   static bool enable_fast_vertical_; //! not to be serialized
 
+  // This is an "optional proxy", i.e. a list with either zero or one entry
+  RooListProxy external_morph_;
+
  private:
   void initialize() const;
   void setGlobalCache() const;
@@ -214,7 +219,7 @@ class CMSHistFunc : public RooAbsReal {
 
   void applyRebin() const;
 
-  ClassDef(CMSHistFunc, 1)
+  ClassDef(CMSHistFunc, 2)
 };
 
 

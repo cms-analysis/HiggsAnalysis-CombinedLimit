@@ -372,9 +372,6 @@ protected:
   mutable std::vector<int> _nnuis; 
   mutable std::vector<double> _nref;
 
-  TIterator* _parItr ;  //! do not persist
-  TIterator* _obsItr ;  //! do not persist
-  TIterator* _pdfItr ;  //!
   mutable TMatrixD* _M; //!
 
   Setting _setting;

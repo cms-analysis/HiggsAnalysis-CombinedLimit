@@ -5,9 +5,17 @@ edit_uri: edit/main/docs
 
 nav:
         - Home: index.md
+        - What Combine Does:
+            - Introduction: what_combine_does/introduction.md
+            - Model and Likelihood: what_combine_does/model_and_likelihood.md
+            - Fitting Concepts: what_combine_does/fitting_concepts.md
+            - Statistical Tests: what_combine_does/statistical_tests.md
         - Setting up the analysis:
           - "Preparing the datacard": part2/settinguptheanalysis.md
-          - "Physics models": part2/physicsmodels.md
+          - "Physics models":
+              - "Introduction": part2/physicsmodels.md
+              - "SM Higgs coupling models": part2/higgscouplings.md
+              - "BSM Higgs models": part2/bsm-higgs-models.md
           - "Automatic MC statistical uncertainties": part2/bin-wise-stats.md
         - Running combine:
           - "Running the tool":           part3/runningthetool.md
@@ -17,25 +25,52 @@ nav:
           - "Unfolding & regularization": part3/regularisation.md
           - "Validating datacards":       part3/validation.md
           - "Debugging fit failures":     part3/debugging.md
-        - Links & FAQ: part4/usefullinks.md
         - Tutorials:
           - "RooFit Basics":              part5/roofit.md
-          - "Exercise: main features":    part5/longexercise.md
-          - "Solutions to long exercise": part5/longexerciseanswers.md
-          - "Exercise: parametric fit":   tutorial2023/parametric_exercise.md
+          - "Main Features":
+            - "Exercises":                part5/longexercise.md
+            - "Solutions":                part5/longexerciseanswers.md
+          - "Parametric Models":          tutorial2023/parametric_exercise.md
+          - "Likelihood Based Unfolding": tutorial2023_unfolding/unfolding_exercise.md
+        - Links & FAQ: part4/usefullinks.md
 
 theme:
-        name: cinder
-        include_sidebar: true
-        highlightjs: true
+        name: material
+        logo: logo.png
+        favicon: logo.png
+        custom_dir: docs/overrides
+        features:
+            - content.code.copy
+            - navigation.footer
+            - navigation.indexes
+            - navigation.expand
+            - navigation.tracking
+            - navigation.tabs
+            - navigation.tabs.sticky
+            - navigation.top
+            - search.highlight
+            - search.suggest
+            - toc.follow
+
+plugins:
+    - mike
+    - search
+
+extra:
+    version:
+        provider: mike
 
 extra_css:
   - "mystyle.css"
 
 extra_javascript:
-  - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 markdown_extensions:
-        - pymdownx.arithmatex
-        - pymdownx.details
-        - admonition
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.blocks.details
+  - admonition

@@ -9,6 +9,8 @@ from six.moves import zip
 from HiggsAnalysis.CombinedLimit.Datacard import Datacard
 from HiggsAnalysis.CombinedLimit.NuisanceModifier import doEditNuisance
 
+from collections import OrderedDict
+
 globalNuisances = re.compile("(lumi|pdf_(qqbar|gg|qg)|QCDscale_(ggH|qqH|VH|ggH1in|ggH2in|VV)|UEPS|FakeRate|CMS_(eff|fake|trigger|scale|res)_([gemtjb]|met))")
 
 
@@ -19,7 +21,7 @@ def addDatacardParserOptions(parser):
         dest="stat",
         default=False,
         action="store_true",
-        help="keep only statistical uncertainties, no systematics",
+        help="Keep only statistical uncertainties, no systematics",
     )
     parser.add_option(
         "-f",
@@ -27,7 +29,7 @@ def addDatacardParserOptions(parser):
         dest="fixpars",
         default=False,
         action="store_true",
-        help="fix all floating parameters of the pdfs except for the POI",
+        help="Fix all floating parameters of the pdfs except for the POI",
     )
     parser.add_option(
         "-c",
@@ -35,7 +37,7 @@ def addDatacardParserOptions(parser):
         dest="cexpr",
         default=False,
         action="store_true",
-        help="use compiled expressions (not suggested)",
+        help="Use compiled expressions (not suggested)",
     )
     parser.add_option(
         "-a",
@@ -43,7 +45,7 @@ def addDatacardParserOptions(parser):
         dest="bin",
         default=True,
         action="store_false",
-        help="produce a Workspace in a rootfile in an HLF file (legacy, unsupported)",
+        help="Produce a workspace in a rootfile in an HLF file (legacy, unsupported)",
     )
     parser.add_option(
         "-b",
@@ -51,7 +53,7 @@ def addDatacardParserOptions(parser):
         dest="bin",
         default=True,
         action="store_true",
-        help="produce a Workspace in a rootfile (default)",
+        help="Produce a workspace in a rootfile (default)",
     )
     parser.add_option(
         "-o",
@@ -59,7 +61,7 @@ def addDatacardParserOptions(parser):
         dest="out",
         default=None,
         type="string",
-        help="output file (if none, it will print to stdout). Required for binary mode.",
+        help="Output file (if none, it will print to stdout). Required for binary mode.",
     )
     parser.add_option(
         "-v",
@@ -75,7 +77,7 @@ def addDatacardParserOptions(parser):
         dest="mass",
         default=0,
         type="float",
-        help="Higgs mass to use. Will also be written in the Workspace as RooRealVar 'MH'.",
+        help="Mass to use. Will also be written in the workspace as RooRealVar 'MH'.",
     )
     parser.add_option(
         "--dataMapName",
@@ -106,7 +108,7 @@ def addDatacardParserOptions(parser):
         dest="poisson",
         default=0,
         type="int",
-        help="If set to a positive number, binned datasets wih more than this number of entries will be generated using poissonians",
+        help="If set to a positive number, binned datasets wih more than this number of entries will be generated using Poissonians",
     )
     parser.add_option(
         "--default-morphing",
@@ -353,12 +355,12 @@ def addRateParam(lsyst, f, ret):
 
 def parseCard(file, options):
     if isinstance(file, str):
-        raise RuntimeError("You should pass as argument to parseCards a file object, stream or a list of lines, not a string")
+        raise RuntimeError("Argument to parseCards should be a file object, stream or a list of lines, not a string")
     ret = Datacard()
 
     # resetting these here to defaults, parseCard will fill them up
     ret.discretes = []
-    ret.groups = {}
+    ret.groups = OrderedDict()
 
     #
     nbins = -1
@@ -394,7 +396,7 @@ def parseCard(file, options):
                 if len(f) < 4:
                     raise RuntimeError("Malformed shapes line")
                 if f[2] not in ret.shapeMap:
-                    ret.shapeMap[f[2]] = {}
+                    ret.shapeMap[f[2]] = OrderedDict()
                 if f[1] in ret.shapeMap[f[2]]:
                     raise RuntimeError("Duplicate definition for process '%s', channel '%s'" % (f[1], f[2]))
                 ret.shapeMap[f[2]][f[1]] = f[3:]
@@ -412,7 +414,7 @@ def parseCard(file, options):
                     if len(binline) != len(ret.obs):
                         raise RuntimeError("Found %d bins (%s) but %d bins have been declared" % (len(ret.bins), ret.bins, nbins))
                     ret.bins = binline
-                    ret.obs = dict([(b, ret.obs[i]) for i, b in enumerate(ret.bins)])
+                    ret.obs = OrderedDict([(b, ret.obs[i]) for i, b in enumerate(ret.bins)])
                     binline = []
             if f[0] == "bin":
                 binline = []
@@ -453,15 +455,15 @@ def parseCard(file, options):
                         raise RuntimeError("Found %d processes (%s), declared jmax = %d" % (len(ret.processes), ret.processes, nprocesses))
                 if nbins != len(ret.bins):
                     raise RuntimeError("Found %d bins (%s), declared imax = %d" % (len(ret.bins), ret.bins, nbins))
-                ret.exp = dict([(b, {}) for b in ret.bins])
-                ret.isSignal = dict([(p, None) for p in ret.processes])
+                ret.exp = OrderedDict([(b, OrderedDict()) for b in ret.bins])
+                ret.isSignal = OrderedDict([(p, None) for p in ret.processes])
                 if ret.obs != [] and type(ret.obs) == list:  # still as list, must change into map with bin names
-                    ret.obs = dict([(b, ret.obs[i]) for i, b in enumerate(ret.bins)])
+                    ret.obs = OrderedDict([(b, ret.obs[i]) for i, b in enumerate(ret.bins)])
                 for b, p, s in ret.keyline:
                     if ret.isSignal[p] == None:
                         ret.isSignal[p] = s
                     elif ret.isSignal[p] != s:
-                        raise RuntimeError("Process %s is declared as signal in some bin and as background in some other bin" % p)
+                        raise RuntimeError("Process %s is declared as signal in some bins and as background in other bins" % p)
                 ret.signals = [p for p, s in ret.isSignal.items() if s]
                 if len(ret.signals) == 0 and not options.allowNoSignal:
                     raise RuntimeError("You must have at least one signal process (id <= 0)")
@@ -611,7 +613,7 @@ def parseCard(file, options):
                         ret.groups[groupName].update(set(groupNuisances))
                     else:
                         raise RuntimeError(
-                            "Will not redefine group '%s'. It previously contained '%s' and you now wanted it to contain '%s'."
+                            "Will not redefine group '%s'. It previously contained '%s' and you now want it to contain '%s'."
                             % (groupName, ret.groups[groupName], groupNuisances)
                         )
 
@@ -639,7 +641,7 @@ def parseCard(file, options):
                 raise RuntimeError(
                     "Malformed systematics line %s of length %d: while bins and process lines have length %d" % (lsyst, len(numbers), len(ret.keyline))
                 )
-            errline = dict([(b, {}) for b in ret.bins])
+            errline = OrderedDict([(b, OrderedDict()) for b in ret.bins])
             nonNullEntries = 0
             for (b, p, s), r in zip(ret.keyline, numbers):
                 if "/" in r:  # "number/number"

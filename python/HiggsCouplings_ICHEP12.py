@@ -8,7 +8,7 @@ from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 
 
 class CvCfHiggs(SMLikeHiggsModel):
-    "assume the SM coupling but let the Higgs mass to float"
+    "assume the SM coupling but leave the Higgs mass to float"
 
     def __init__(self):
         SMLikeHiggsModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
@@ -23,7 +23,7 @@ class CvCfHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -128,7 +128,7 @@ class C5qlHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -245,7 +245,7 @@ class C5udHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -356,7 +356,7 @@ class RzwHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -408,7 +408,7 @@ class RwzHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -460,7 +460,7 @@ class CzwHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -542,7 +542,7 @@ class CwzHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""

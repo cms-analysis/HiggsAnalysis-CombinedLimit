@@ -4,7 +4,7 @@ from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 
 class FloatingHiggsWidth(SMLikeHiggsModel):
-    "assume the SM coupling but let the Higgs Total Width to float, i.e. allowing invisible decay"
+    "assume the SM coupling but leave the Higgs total width to float, i.e. allowing invisible decay"
 
     def __init__(self):
         SMLikeHiggsModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
@@ -17,11 +17,11 @@ class FloatingHiggsWidth(SMLikeHiggsModel):
         for po in physOptions:
             if po.startswith("higgsWidthRange="):
                 self.widthRange = po.replace("higgsWidthRange=", "").split(",")
-                print("The Higgs Width range:", self.widthRange)
+                print("The Higgs width range:", self.widthRange)
                 if len(self.widthRange) != 2:
-                    raise RuntimeError("Higgs Width range definition requires two extrema")
+                    raise RuntimeError("Higgs width range definition requires two extrema")
                 elif float(self.widthRange[0]) >= float(self.widthRange[1]):
-                    raise RuntimeError("Extrama for Higgs Width range defined with inverterd order. Second must be larger the first")
+                    raise RuntimeError("Extrema for Higgs width range defined with inverterd order. Second must be larger than the first")
             if po.startswith("signalStrengthMode="):
                 self.rMode = po.replace("signalStrengthMode=", "")
             if po.startswith("higgsMassRange="):
@@ -31,7 +31,7 @@ class FloatingHiggsWidth(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and Width"""

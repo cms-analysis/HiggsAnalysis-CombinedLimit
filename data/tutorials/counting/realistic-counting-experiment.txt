@@ -15,7 +15,7 @@ observation 0
 bin             bin1 bin1  bin1  bin1
 process         ggH  qqWW  ggWW  others
 process          0     1     2     3
-rate           1.47  0.63  0.06  0.22
+rate           1.47  0.64  0.06  0.22
 ------------
 lumi    lnN    1.11    -   1.11    -    lumi affects both signal and gg->WW (mc-driven). lnN = lognormal
 xs_ggH  lnN    1.16    -     -     -    gg->H cross section + signal efficiency + other minor ones.

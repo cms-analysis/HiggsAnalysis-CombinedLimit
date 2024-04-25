@@ -50,7 +50,7 @@ stage1_procs = {
         "ZH_had_REST",
         "ZH_had_PTJET1_GT200",
     ],
-    "ttH": ["ttH"]  # ,
+    "ttH": ["ttH"],  # ,
     #'other':['tHq','tHW','bbH']
 }
 
@@ -108,7 +108,7 @@ stage1_1_procs = {
         "ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25",
         "ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25",
     ],
-    "ttH": ["ttH"]  # ,
+    "ttH": ["ttH"],  # ,
     #'other':['tHq','tHW','bbH']
 }
 

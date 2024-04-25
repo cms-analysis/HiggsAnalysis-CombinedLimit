@@ -9,6 +9,8 @@ from sys import exit, stderr, stdout
 import six
 from six.moves import range
 
+from collections import OrderedDict
+
 import ROOT
 from HiggsAnalysis.CombinedLimit.ModelTools import ModelBuilder
 
@@ -31,7 +33,7 @@ class FileCache:
     def __init__(self, basedir, maxsize=250):
         self._basedir = basedir
         self._maxsize = maxsize
-        self._files = {}
+        self._files = OrderedDict()
         self._hits = defaultdict(int)
         self._total = 0
 
@@ -67,14 +69,14 @@ class ShapeBuilder(ModelBuilder):
     def __init__(self, datacard, options):
         ModelBuilder.__init__(self, datacard, options)
         if not datacard.hasShapes:
-            raise RuntimeError("You're using a ShapeBuilder for a model that has no shapes")
+            raise RuntimeError("You are using a ShapeBuilder for a model that has no shapes.")
         if options.libs:
             for lib in options.libs:
                 ROOT.gSystem.Load(lib)
-        self.wspnames = {}
+        self.wspnames = OrderedDict()
         self.wsp = None
         self.extraImports = []
-        self.norm_rename_map = {}
+        self.norm_rename_map = OrderedDict()
         self._fileCache = FileCache(self.options.baseDir)
 
     ## ------------------------------------------
@@ -82,7 +84,7 @@ class ShapeBuilder(ModelBuilder):
     ## ------------------------------------------
     def doObservables(self):
         if self.options.verbose > 2:
-            stderr.write("Using shapes: qui si parra' la tua nobilitate\n")
+            stderr.write("Using shapes. \n")
         self.prepareAllShapes()
         if len(self.DC.bins) > 1 or not self.options.forceNonSimPdf:
             ## start with just a few channels
@@ -468,12 +470,12 @@ class ShapeBuilder(ModelBuilder):
     ## --------------------------------------
     def prepareAllShapes(self):
         shapeTypes = []
-        shapeBins = {}
-        shapeObs = {}
-        self.pdfModes = {}
+        shapeBins = OrderedDict()
+        shapeObs = OrderedDict()
+        self.pdfModes = OrderedDict()
         for ib, b in enumerate(self.DC.bins):
-            databins = {}
-            bgbins = {}
+            databins = OrderedDict()
+            bgbins = OrderedDict()
             channelBinParFlag = b in list(self.DC.binParFlags.keys())
             for p in [self.options.dataname] + list(self.DC.exp[b].keys()):
                 if len(self.DC.obs) == 0 and p == self.options.dataname:
@@ -538,7 +540,7 @@ class ShapeBuilder(ModelBuilder):
                 elif shape.InheritsFrom("CMSHistFunc"):
                     shapeTypes.append("CMSHistFunc")
                 else:
-                    raise RuntimeError("Currently supporting only TH1s, RooDataHist and RooAbsPdfs")
+                    raise RuntimeError("This method currently supports only TH1s, RooDataHists and RooAbsPdfs")
                 if norm != 0:
                     if p == self.options.dataname:
                         if len(self.DC.obs):
@@ -559,9 +561,9 @@ class ShapeBuilder(ModelBuilder):
             if len(databins) > 0:
                 for i in six.iterkeys(databins):
                     if i not in bgbins:
-                        stderr.write("Channel %s has bin %d fill in data but empty in all backgrounds\n" % (b, i))
+                        stderr.write("Channel %s has bin %d filled in data but empty in all backgrounds\n" % (b, i))
         if shapeTypes.count("TH1"):
-            self.TH1Observables = {}
+            self.TH1Observables = OrderedDict()
             self.out.binVars = ROOT.RooArgSet()
             self.out.maxbins = max([shapeBins[k] for k in shapeBins.keys()])
             if self.options.optimizeTemplateBins:
@@ -662,7 +664,7 @@ class ShapeBuilder(ModelBuilder):
     ## -------------------------------------
     ## -------- Low level helpers ----------
     ## -------------------------------------
-    def getShape(self, channel, process, syst="", _cache={}, allowNoSyst=False):
+    def getShape(self, channel, process, syst="", _cache=OrderedDict(), allowNoSyst=False):
         if (channel, process, syst) in _cache:
             if self.options.verbose > 2:
                 print(
@@ -700,7 +702,7 @@ class ShapeBuilder(ModelBuilder):
             if len(names) == 2:
                 if allowNoSyst:
                     return None
-                raise RuntimeError("Can't find systematic " + syst + " for process '%s', channel '%s'" % (process, channel))
+                raise RuntimeError("Cannot find systematic " + syst + " for process '%s', channel '%s'" % (process, channel))
             names = [names[0], names[2]]
         else:
             names = [names[0], names[1]]
@@ -736,7 +738,9 @@ class ShapeBuilder(ModelBuilder):
                 if not ret:
                     if allowNoSyst:
                         return None
-                    raise RuntimeError("Object %s in workspace %s in file %s does not exist or it's neither a data nor a pdf" % (oname, wname, finalNames[0]))
+                    raise RuntimeError(
+                        "Object %s in workspace %s in file %s does not exist, or it is neither a dataset nor a pdf" % (oname, wname, finalNames[0])
+                    )
                 # Fix the fact that more than one entry can refer to the same object
                 ret = ret.Clone("shape%s_%s_%s%s" % (postFix, process, channel, "_" + syst if syst else ""))
                 if self.options.removeMultiPdf and ret.InheritsFrom("RooMultiPdf"):
@@ -849,10 +853,10 @@ class ShapeBuilder(ModelBuilder):
             _cache[(channel, process, syst)] = ret
             return ret
 
-    def getData(self, channel, process, syst="", _cache={}):
+    def getData(self, channel, process, syst="", _cache=OrderedDict()):
         return self.shape2Data(self.getShape(channel, process, syst), channel, process)
 
-    def getPdf(self, channel, process, _cache={}):
+    def getPdf(self, channel, process, _cache=OrderedDict()):
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         if (channel, process) in _cache:
             return _cache[(channel, process)]
@@ -940,7 +944,7 @@ class ShapeBuilder(ModelBuilder):
         if shapeAlgo == "shape":
             shapeAlgo = self.options.defMorph
         if "shapeL" in shapeAlgo:
-            raise RuntimeError("No algorithm shapeL - this mode is depricated")
+            raise RuntimeError("No algorithm shapeL - this mode is deprecated")
             # qrange = 0;
         elif "shapeN" in shapeAlgo:
             qalgo = -1
@@ -1052,9 +1056,9 @@ class ShapeBuilder(ModelBuilder):
 
         if "2a" in shapeAlgo:  # old shape2
             if not nominalPdf.InheritsFrom("RooHistPdf"):
-                raise RuntimeError("Algorithms 'shape2',  'shapeN2' only work with histogram templates")
+                raise RuntimeError("Algorithms 'shape2' and 'shapeN2' only work with histogram templates")
             if nominalPdf.dataHist().get().getSize() != 1:
-                raise RuntimeError("Algorithms 'shape2',  'shapeN2' only work in one dimension")
+                raise RuntimeError("Algorithms 'shape2' and 'shapeN2' only work in one dimension")
             xvar = nominalPdf.dataHist().get().first()
             _cache[(channel, process)] = ROOT.VerticalInterpHistPdf(
                 "shape%s_%s_%s_morph" % (postFix, channel, process),
@@ -1067,9 +1071,9 @@ class ShapeBuilder(ModelBuilder):
             )
         elif "2" in shapeAlgo:  # new faster shape2
             if not nominalPdf.InheritsFrom("RooHistPdf"):
-                raise RuntimeError("Algorithms 'shape2',  'shapeN2' only work with histogram templates")
+                raise RuntimeError("Algorithms 'shape2' and 'shapeN2' only work with histogram templates")
             if nominalPdf.dataHist().get().getSize() != 1:
-                raise RuntimeError("Algorithms 'shape2',  'shapeN2' only work in one dimension")
+                raise RuntimeError("Algorithms 'shape2' and 'shapeN2' only work in one dimension")
             xvar = nominalPdf.dataHist().get().first()
             _cache[(channel, process)] = ROOT.FastVerticalInterpHistPdf(
                 "shape%s_%s_%s_morph" % (postFix, channel, process),
@@ -1210,7 +1214,7 @@ class ShapeBuilder(ModelBuilder):
             rebinh1._original_bins = shapeNbins
         return rebinh1
 
-    def shape2Data(self, shape, channel, process, _cache={}):
+    def shape2Data(self, shape, channel, process, _cache=OrderedDict()):
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         if shape == None:
             name = "shape%s_%s_%s" % (postFix, channel, process)
@@ -1246,7 +1250,7 @@ class ShapeBuilder(ModelBuilder):
                 raise RuntimeError("shape2Data not implemented for %s" % shape.ClassName())
         return _cache[shape.GetName()]
 
-    def shape2Pdf(self, shape, channel, process, _cache={}):
+    def shape2Pdf(self, shape, channel, process, _cache=OrderedDict()):
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         channelBinParFlag = channel in list(self.DC.binParFlags.keys())
         if shape == None:
@@ -1324,7 +1328,7 @@ class ShapeBuilder(ModelBuilder):
             sum += coeflist.at(i).getVal()
         if abs(sum - 1.0) > 1e-4:
             raise RuntimeError(
-                "Error in channel %s, process %s: RooAddPdf %s has coefficients that sum up to %g, and not to unity. This is not supported (but it could be supported on request).\n"
+                "Error in channel %s, process %s: RooAddPdf %s has coefficients that sum up to %g, and not to unity. This is not supported.\n"
                 % (channel, process, pdf.GetName(), sum)
             )
 
