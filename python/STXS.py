@@ -9,14 +9,14 @@ fixed_procs = ["ggZH_lep", "tHq", "tHW", "bbH"]
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 stage0_procs = {
-    "ggH": ["ggH","bbH","ggZH_had"],
+    "ggH": ["ggH", "bbH", "ggZH_had"],
     "qqH": ["qqH"],
     "WH_lep": ["WH_lep"],
     "ZH_lep": ["ZH_lep"],
-    'ggZH_lep':['ggZH_lep'],
+    "ggZH_lep": ["ggZH_lep"],
     "VH_had": ["WH_had", "ZH_had"],
     "ttH": ["ttH"],
-    'other':['tHq','tHW','bbH',"WH","ZH"]
+    "other": ["tHq", "tHW", "bbH", "WH", "ZH"],
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

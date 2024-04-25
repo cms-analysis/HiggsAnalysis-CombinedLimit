@@ -221,6 +221,7 @@ class StageOnePTwo(STXSBaseModel):
         STXSBaseModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
         self.POIs = "mu"
         from HiggsAnalysis.CombinedLimit.STXS import stage1_2_procs, stage1_2_fine_procs
+
         self.stage1_2_fine_procs = stage1_2_fine_procs
         self.PROCESSES = [x for v in six.itervalues(stage1_2_procs) for x in v]
         self.FINEPROCESSES = [x for v in six.itervalues(stage1_2_fine_procs) for x in v]
@@ -246,10 +247,11 @@ class StageOnePTwo(STXSBaseModel):
         # Add stage 0 processes
         if self.addStage0:
             from HiggsAnalysis.CombinedLimit.STXS import stage0_procs
+
             PROCESSES_STAGE0 = [x for v in six.itervalues(stage0_procs) for x in v]
             for proc_stage0 in PROCESSES_STAGE0:
-                if proc_stage0 not in self.PROCESSES: self.PROCESSES.append(proc_stage0)
-
+                if proc_stage0 not in self.PROCESSES:
+                    self.PROCESSES.append(proc_stage0)
 
         allProds = []
         for registered_proc in self.PROCESSES:
@@ -350,6 +352,7 @@ class StageOnePTwoRatio(STXSBaseModel):
         self.denominator = denominator
         self.POIs = "mu"
         from HiggsAnalysis.CombinedLimit.STXS import stage1_2_procs, stage1_2_fine_procs
+
         self.stage1_2_fine_procs = stage1_2_fine_procs
         self.PROCESSES = [x for v in six.itervalues(stage1_2_procs) for x in v]
         self.FINEPROCESSES = [x for v in six.itervalues(stage1_2_fine_procs) for x in v]
@@ -413,7 +416,7 @@ class StageOnePTwoRatio(STXSBaseModel):
                 if D in allDecs:
                     continue
                 allDecs.append(D)
-                terms = ["mu_XS_%s_x_BR_%s"% (P, self.denominator)] 
+                terms = ["mu_XS_%s_x_BR_%s" % (P, self.denominator)]
                 for merged_proddec_bin in self.mergeSchemes["prod_times_dec"]:
                     if P in self.mergeSchemes["prod_times_dec"][merged_proddec_bin]:
                         terms += ["mu_XS_%s_x_BR_%s" % (merged_proddec_bin, self.denominator)]

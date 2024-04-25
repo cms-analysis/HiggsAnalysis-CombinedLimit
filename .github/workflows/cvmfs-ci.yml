@@ -1,9 +1,9 @@
 name: CI with CVMFS
 
 env:
-  IMAGE: cmscloud/cc7-cms
-  CMSSW_VERSION: CMSSW_11_3_4
-  SCRAM_ARCH: slc7_amd64_gcc900
+  IMAGE: cmscloud/c8-cms
+  CMSSW_VERSION: CMSSW_14_1_0_pre2
+  SCRAM_ARCH: el9_amd64_gcc12
 
 on:
   workflow_dispatch:
