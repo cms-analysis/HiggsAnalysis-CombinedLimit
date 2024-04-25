@@ -1,6 +1,8 @@
 HiggsAnalysis-CombinedLimit
 ===========================
 
+Branch for merging ROOT 6.30 compatibility.
+
 ### Official documentation
 
 All documentation, including installation instructions, is hosted at
