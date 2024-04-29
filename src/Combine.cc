@@ -1018,7 +1018,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     allFloatingParameters.remove(*mc->GetParametersOfInterest());
     int nFloatingNonPoiParameters = utils::countFloating(allFloatingParameters); 
     if (nFloatingNonPoiParameters && !toysNoSystematics_ && (readToysFromHere == 0)) {
-      if (nuisances == 0) throw std::logic_error("Running with systematic variation in toys enabled, but I found floating parameters (which are not POIs) and no constraint terms have been defined in the datacard.");
+      if (nuisances == 0) throw std::logic_error("Running with systematic variation in toys (either generating nuisance parameters or generating auxiliary observables) enabled, but I found floating parameters (which are not POIs) and no constraint terms have been defined in the datacard. If this is fine, run again with --toysNoSystematics.");
       nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? *mc : *mc_bonly));
       if (toysFrequentist_) {
           if (mc->GetGlobalObservables() == 0) throw std::logic_error("Cannot use toysFrequentist without global observables");
