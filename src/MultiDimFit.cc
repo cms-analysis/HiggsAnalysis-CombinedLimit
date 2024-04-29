@@ -66,6 +66,7 @@ std::string MultiDimFit::saveSpecifiedFuncs_;
 std::string MultiDimFit::saveSpecifiedIndex_;
 std::string MultiDimFit::saveSpecifiedNuis_;
 std::string MultiDimFit::setParametersForGrid_;
+std::string MultiDimFit::setParameterRangesForGrid_;
 std::vector<std::string>  MultiDimFit::specifiedFuncNames_;
 std::vector<RooAbsReal*> MultiDimFit::specifiedFunc_;
 std::vector<float>        MultiDimFit::specifiedFuncVals_;
@@ -104,7 +105,8 @@ MultiDimFit::MultiDimFit() :
 	("saveInactivePOI",   boost::program_options::value<bool>(&saveInactivePOI_)->default_value(saveInactivePOI_), "Save inactive POIs in output (1) or not (0, default)")
 	("startFromPreFit",   boost::program_options::value<bool>(&startFromPreFit_)->default_value(startFromPreFit_), "Start each point of the likelihood scan from the pre-fit values")
     ("alignEdges",   boost::program_options::value<bool>(&alignEdges_)->default_value(alignEdges_), "Align the grid points such that the endpoints of the ranges are included")
-    ("setParametersForGrid", boost::program_options::value<std::string>(&setParametersForGrid_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")
+    ("setParametersForGrid", boost::program_options::value<std::string>(&setParametersForGrid_)->default_value(""), "Set the values of relevant physics model parameters for grid points. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")
+    ("setParameterRangesForGrid", boost::program_options::value<std::string>(&setParameterRangesForGrid_)->default_value(""), "Set the range of relevant physics model parameters for grid points. Give a colon separated list of parameter ranges. Example: CV=0.0,2.0:CF=0.0,5.0")
 	("saveFitResult",  "Save RooFitResult to multidimfit.root")
     ("out", boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put the diagnostics output file in")
     ("robustHesse",  boost::program_options::value<bool>(&robustHesse_)->default_value(robustHesse_),  "Use a more robust calculation of the hessian/covariance matrix")
@@ -587,6 +589,12 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
        RooArgSet allParams(w->allVars());
        allParams.add(w->allCats());
        utils::setModelParameters( setParametersForGrid_, allParams);
+    }
+
+    if (setParameterRangesForGrid_ != "") {
+       RooArgSet allParams(w->allVars());
+       allParams.add(w->allCats());
+       utils::setModelParameterRanges( setParameterRangesForGrid_, allParams);
     }
 
     if (startFromPreFit_) w->loadSnapshot("clean");
