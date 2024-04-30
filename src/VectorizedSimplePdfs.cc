@@ -29,7 +29,7 @@ void VectorizedExponential::fill(std::vector<Double_t> &out) const {
     vectorized::exponentials(xvals_.size(), lambda, norm, &xvals_[0], &out[0], &work_[0]);
 }
 
-VectorizedPower::VectorizedPower(const RooPowerCMS &pdf, const RooAbsData &data, bool includeZeroWeights)
+VectorizedPower::VectorizedPower(const RooPower &pdf, const RooAbsData &data, bool includeZeroWeights)
 {
     RooArgSet obs(*data.get());
     if (obs.find(pdf.base()) == 0) throw std::invalid_argument("Dataset does not depend on the base of the power");
