@@ -97,7 +97,7 @@ RooAbsReal* SimpleProdPdf::createIntegral(const RooArgSet& iset, const RooArgSet
           RooAbsReal *iInt = pdfVec.at(i)->createIntegral(*iVarsVec.at(i), nset, cfg, rangeName);
           iInt->SetName(intName);
           if (dynamic_cast<RooHistPdf*>(pdfVec.at(i))) {
-            pdfVec.at(i)->addOwnedComponents(RooArgSet(*iInt));
+            pdfVec.at(i)->addOwnedComponents(*iInt);
           }
           terms.add(*iInt);
         }

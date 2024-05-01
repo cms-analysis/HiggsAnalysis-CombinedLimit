@@ -25,6 +25,7 @@ SimpleCacheSentry::SimpleCacheSentry(const RooAbsArg &func, const RooArgSet *obs
 }
 
 SimpleCacheSentry::SimpleCacheSentry(const SimpleCacheSentry &other, const char *newname) :
+    RooAbsArg{other, newname},
     _deps("deps",this,other._deps)   
 {
 }
