@@ -95,7 +95,7 @@ ClassImp(VBFHZZ4L_RooSpinZeroPdf)
 Int_t VBFHZZ4L_RooSpinZeroPdf::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* /*rangeName*/) const
 {
 
-  if (matchArgs(allVars,analVars,RooArgSet(*kd.absArg(), *kdint.absArg(), *ksmd.absArg()))) return 4 ;
+  if (matchArgs(allVars,analVars,kd, kdint, ksmd)) return 4 ;
 
   return 0 ;
 
