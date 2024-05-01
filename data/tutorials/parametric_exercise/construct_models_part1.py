@@ -104,7 +104,7 @@ print("Plotting directory: %s" % plot_dir)
 # # Calculate the total yield and print output
 # lumi = 138000
 # N = xs_ggH*br_gamgam*eff*lumi
-# print("For 138fb^-1, total normalisation of signal is:
+# print("For 138fb^-1, total normalisation of signal is: \
 #     N = xs * br * eff * lumi = %.2f events"%N
 #     )
 
@@ -115,7 +115,7 @@ print("Plotting directory: %s" % plot_dir)
 #
 # # Convert TTree to a RooDataSet
 # data = ROOT.RooDataSet("data_Tag0", "data_Tag0",
-#     t, ROOT.RooArgSet(mass), "", "weight"
+#     t, ROOT.RooArgSet(mass, weight), "", "weight"
 #     )
 #
 # # Define mass sideband ranges on the mass variable
