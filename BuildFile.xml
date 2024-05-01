@@ -9,6 +9,7 @@
 <lib name="Smatrix"/>
 <use   name="boost_program_options"/>
 <use   name="boost_filesystem"/>
+<flags CXXFLAGS="-DBOOST_BIND_GLOBAL_PLACEHOLDERS -Wno-free-nonheap-object"/>
 <export>
    <lib name="1"/>
 </export>

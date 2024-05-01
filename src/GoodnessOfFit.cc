@@ -146,11 +146,11 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
           if (constraints.getSize() > 0) {
             RooArgList terms(constraints); terms.add(*saturatedPdfi);
             RooProdPdf *prodpdf = new RooProdPdf(TString::Format("%s_constr", saturatedPdfi->GetName()), "", terms);
-            prodpdf->addOwnedComponents(RooArgSet(*saturatedPdfi));
+            prodpdf->addOwnedComponents(*saturatedPdfi);
             saturatedPdfi = prodpdf;
           }
           satsim->addPdf(*saturatedPdfi, cat->getLabel());
-          satsim->addOwnedComponents(RooArgSet(*saturatedPdfi));
+          satsim->addOwnedComponents(*saturatedPdfi);
       }
       // Transfer the channel masks manually
       RooSimultaneousOpt* satsimopt = dynamic_cast<RooSimultaneousOpt*>(satsim);
@@ -164,7 +164,7 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
       if (constraints.getSize() > 0) {
           RooArgList terms(constraints); terms.add(*saturatedPdfi);
           RooProdPdf *prodpdf = new RooProdPdf(TString::Format("%s_constr", saturatedPdfi->GetName()), "", terms);
-          prodpdf->addOwnedComponents(RooArgSet(*saturatedPdfi));
+          prodpdf->addOwnedComponents(*saturatedPdfi);
           saturatedPdfi = prodpdf;
       }
       saturated.reset(saturatedPdfi);
@@ -426,8 +426,8 @@ RooAbsPdf * GoodnessOfFit::makeSaturatedPdf(RooAbsData &data) {
   RooConstVar *norm = new RooConstVar(TString::Format("%s_norm", data.GetName()), "", data.sumEntries());
   // we use RooAddPdf because this works with CachingNLL
   RooAddPdf *ret = new RooAddPdf(TString::Format("%s_saturated", data.GetName()), "", RooArgList(*hpdf), RooArgList(*norm));
-  ret->addOwnedComponents(RooArgSet(*norm));
-  ret->addOwnedComponents(RooArgSet(*hpdf));
+  ret->addOwnedComponents(*norm);
+  ret->addOwnedComponents(*hpdf);
   return ret;
 }
 

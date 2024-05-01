@@ -864,6 +864,7 @@ cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data,
 }
 
 cacheutils::CachingSimNLL::CachingSimNLL(const CachingSimNLL &other, const char *name) :
+    RooAbsReal{other, name},
     pdfOriginal_(other.pdfOriginal_),
     dataOriginal_(other.dataOriginal_),
     nuis_(other.nuis_),

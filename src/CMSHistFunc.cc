@@ -692,6 +692,7 @@ void CMSHistFunc::updateMomentFractions(double m) const {
 
     case SineLinear:
       mfrac = TMath::Sin(TMath::PiOver2() * mfrac);
+      [[fallthrough]];
     // now fall through to Linear case
 
     case Linear:
