@@ -41,6 +41,9 @@ jobs:
             scramv1 b -j$(nproc)
             echo ${PATH}
             combine --help
+            CAT23001=env.CAT23001
+            echo ${CAT23001}
+            ls ${CAT23001}
             combine ${CAT23001}/datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01
             combine ${CAT23001}/datacard-3-parametric-analysis.txt -M HybridNew --LHCmode LHC-significance -T 100 --mass 125
             combine ${CAT23001}/datacard-3-parametric-analysis.txt -M Significance --mass 125
