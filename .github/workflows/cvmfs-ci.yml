@@ -4,6 +4,7 @@ env:
   IMAGE: cmscloud/cc7-cms
   CMSSW_VERSION: CMSSW_11_3_4
   SCRAM_ARCH: slc7_amd64_gcc900
+  CAT23001: HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001
 
 on:
   workflow_dispatch:
@@ -40,3 +41,13 @@ jobs:
             scramv1 b -j$(nproc)
             echo ${PATH}
             combine --help
+            combine ${CAT23001}/datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01
+            combine ${CAT23001}/datacard-3-parametric-analysis.txt -M HybridNew --LHCmode LHC-significance -T 100 --mass 125
+            combine ${CAT23001}/datacard-3-parametric-analysis.txt -M Significance --mass 125
+            combine ${CAT23001}/datacard-1-counting-experiment.txt -M MarkovChainMC --tries 100
+            text2workspace.py {CAT23001}/datacard-5-multi-signal.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o datacard-5-multi-signal.root --mass 125
+            combine datacard-5-multi-signal.root -M MultiDimFit --algo singles --mass 125
+            combine ${CAT23001}/datacard-5-multi-signal.txt -M ChannelCompatibilityCheck --mass 125
+
+
+
