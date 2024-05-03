@@ -12,6 +12,7 @@
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/Logger.h"
+#include "../interface/ProfilingTools.h"
 
 RooAbsData *asimovutils::asimovDatasetNominal(RooStats::ModelConfig *mc, double poiValue, int verbose) {
         RooArgSet  poi(*mc->GetParametersOfInterest());
@@ -38,6 +39,7 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
         RooArgSet  poi(*mc->GetParametersOfInterest());
         RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
         r->setConstant(true); r->setVal(poiValue);
+        bool mvg_gen_obs = runtimedef::get("ASIMOV_MULTIVAR_GAUSS_GEN");
         {
             CloseCoutSentry sentry(verbose < 3);
             if (mc->GetNuisanceParameters()) {
@@ -96,6 +98,47 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
             for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
                 RooAbsPdf *cterm = dynamic_cast<RooAbsPdf *>(a); 
                 if (!cterm) throw std::logic_error("AsimovUtils: a factor of the nuisance pdf is not a Pdf!");
+                if (mvg_gen_obs && cterm->InheritsFrom("RooMultiVarGaussian")) {
+                    std::unique_ptr<RooArgSet> comps(cterm->getComponents());
+                    std::unique_ptr<RooArgSet> vars(cterm->getParameters(poi));
+                    auto iter = vars->fwdIterator();
+                    for (RooAbsArg *a = iter.next(); a != nullptr; a = iter.next()) {
+                        RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+                        if (rrv == nullptr) continue;
+                        if (verbose > 1)
+                            std::cout << "var: " << a->GetName() <<
+                                     ", constant? " << rrv->isConstant() <<
+                                     ", comp? " << (comps->find(*rrv) != nullptr) << 
+                                     ", gobs? " << (gobs.find(*rrv) != nullptr) <<
+                                     ", poi? " << (poi.find(*rrv) != nullptr) << std::endl;
+                        if (poi.find(*rrv)) continue;
+                        std::string vname = rrv->GetName();
+                        if (vname.size() > 3 && vname.substr(vname.size() - 3) == "_In") {
+                            auto match = comps->find(vname.substr(0, vname.size() - 3).c_str());
+                            if (match != nullptr) {
+                                if (verbose > 1)
+                                    std::cout << "    --> matched to " << match->ClassName() << " " << match->GetName() << std::endl;
+                                RooAbsReal *rfunc = dynamic_cast<RooAbsReal *>(match);
+                                if (rfunc != nullptr) {
+                                    if (rfunc->getVal() == rrv->getVal()) {
+                                        if (verbose > 1)
+                                            std::cout << "        --> the two already have the same " "value. nothing to do." << std::endl;
+                                    } else {
+                                        if (verbose > 1)
+                                            std::cout << "        --> set " << a->GetName() << ", currently at " << rrv->getVal() << ", to " << rfunc->getVal() << std::endl;
+                                        rrv->setVal(rfunc->getVal());
+                                    }
+                                }
+                                if (!gobs.find(*rrv)) {
+                                    if (verbose > 1)
+                                        std::cout << "    --> added to the global observables: " << std::endl;
+                                    gobs.add(*rrv);
+                                }
+                            }
+                        }
+                    }
+                    continue;
+                }
                 if (!cterm->dependsOn(nuis)) continue; // dummy constraints
                 if (typeid(*cterm) == typeid(RooUniform)) continue;
                 std::unique_ptr<RooArgSet> cpars(cterm->getParameters(&gobs));
