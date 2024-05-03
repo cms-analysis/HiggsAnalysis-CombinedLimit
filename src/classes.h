@@ -61,3 +61,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CMSExternalMorph.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSInterferenceFunc.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooEFTScalingFunction.h"
+
+#include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooHighmass.h"
+#include "HiggsAnalysis/CombinedLimit/interface/HZZ4L_RooHighmass_WoInt.h"
+
