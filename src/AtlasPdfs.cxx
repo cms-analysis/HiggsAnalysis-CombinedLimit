@@ -2207,9 +2207,6 @@ Double_t ResponseFunction::evaluate() const
 
   Double_t total = 1;
 
-  RooAbsReal *param;
-  int i = 0;
-
   for (Int_t i=0; i < _paramList.getSize(); i++) {
     const auto& param = static_cast<RooAbsReal&>(_paramList[i]);
     const auto& low = static_cast<RooAbsReal&>(_lowList[i]);
