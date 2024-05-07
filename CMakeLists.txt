@@ -2,6 +2,8 @@ cmake_minimum_required( VERSION 3.11 FATAL_ERROR )
 set(CMAKE_CXX_STANDARD 17)
 project(CMSCombine VERSION 0.0.1)
 
+option( MODIFY_ROOTMAP "Modify generated Rootmap to take out classes already bundled in StatAnalysis" FALSE )
+
 # Can build with CMake after e.g. setting up StatAnalysis release like this:
 # export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 # source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh; asetup StatAnalysis,0.3.2
@@ -48,6 +50,33 @@ target_link_libraries(combine PUBLIC ${LIBNAME})
 # Create empty __init__.py file in the build directory that will be installed
 # in the Python library directories.
 set(empty_init_py "${CMAKE_CURRENT_BINARY_DIR}/__init__.py")
+
+if(MODIFY_ROOTMAP)
+        # edit the generated rootmap in-situ before installation
+        
+        # Define the path to the generated file
+        set(GENERATED_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/lib${LIBNAME}.rootmap")
+
+        # Define the custom command to search and replace in-place
+        add_custom_command(
+          OUTPUT "${GENERATED_FILE_PATH}"  # Declare the generated file as output
+          DEPENDS "${GENERATED_FILE_PATH}"  # Ensure it depends on the original generated file
+          COMMAND sed -i "" -e "/class RooParamKeysPdf/d" \
+                            -e "/class RooStarMomentMorph/d" \
+                            -e "/class RooStats::HistFactory::RooBSpline/d" \
+                            -e "/class RooStats::HistFactory::RooBSplineBases/d" "${GENERATED_FILE_PATH}"
+          COMMENT "Removing conflicting classes from generated rootmap"
+        )
+
+        # Define a custom target that depends on the custom command output
+        add_custom_target(
+                ModifyRootmapFile  # Name of the custom target
+                DEPENDS "${GENERATED_FILE_PATH}"  # Ensure the custom command is executed
+        )
+
+        # Add the custom target as a dependency to another target to ensure it's built
+        add_dependencies(combine ModifyRootmapFile)
+endif()
 
 #####################
 # Installation part #
