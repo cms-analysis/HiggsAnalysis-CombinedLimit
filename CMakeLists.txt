@@ -61,9 +61,9 @@ if(MODIFY_ROOTMAP)
         add_custom_command(
           OUTPUT "${GENERATED_FILE_PATH}"  # Declare the generated file as output
           DEPENDS "${GENERATED_FILE_PATH}"  # Ensure it depends on the original generated file
-          COMMAND sed -i "" -e "/class RooParamKeysPdf/d" \
-                            -e "/class RooStarMomentMorph/d" \
-                            -e "/class RooStats::HistFactory::RooBSpline/d" \
+          COMMAND sed -i "" -e "/class RooParamKeysPdf/d"
+                            -e "/class RooStarMomentMorph/d"
+                            -e "/class RooStats::HistFactory::RooBSpline/d"
                             -e "/class RooStats::HistFactory::RooBSplineBases/d" "${GENERATED_FILE_PATH}"
           COMMENT "Removing conflicting classes from generated rootmap"
         )
