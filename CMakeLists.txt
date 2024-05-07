@@ -59,7 +59,7 @@ if(MODIFY_ROOTMAP)
 
         # Define the custom command to search and replace in-place
         add_custom_command(
-          OUTPUT "${GENERATED_FILE_PATH}"  # Declare the generated file as output
+          OUTPUT "${GENERATED_FILE_PATH}.edited"  # Declare the generated file as output
           DEPENDS "${GENERATED_FILE_PATH}"  # Ensure it depends on the original generated file
           COMMAND sed -i "" -e "/class RooParamKeysPdf/d"
                             -e "/class RooStarMomentMorph/d"
@@ -71,7 +71,7 @@ if(MODIFY_ROOTMAP)
         # Define a custom target that depends on the custom command output
         add_custom_target(
                 ModifyRootmapFile  # Name of the custom target
-                DEPENDS "${GENERATED_FILE_PATH}"  # Ensure the custom command is executed
+                DEPENDS "${GENERATED_FILE_PATH}.edited"  # Ensure the custom command is executed
         )
 
         # Add the custom target as a dependency to another target to ensure it's built
