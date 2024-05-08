@@ -197,7 +197,7 @@ print("Using ROOT version: %s" % ROOT.__version__)
 #     # Build a RooDataSet for the category
 #     t = f.Get("data_%s"%cat)
 #     data[cat] = ROOT.RooDataSet("data_%s"%cat, "data_%s"%cat,
-#         t, ROOT.RooArgSet(mass), "", "weight"
+#         t, ROOT.RooArgSet(mass, weight), "", "weight"
 #         )
 #
 #     alpha[cat] = ROOT.RooRealVar("alpha_%s"%cat, "alpha_%s"%cat,
@@ -296,9 +296,9 @@ print("Using ROOT version: %s" % ROOT.__version__)
 #         for syst in ['JEC','photonID']:
 #             key_up = "%s_%sUp01Sigma"%(key,syst)
 #             key_down = "%s_%sDown01Sigma"%(key,syst)
-#             yield_variation_up = mc[key_up].sumEntries() /
+#             yield_variation_up = mc[key_up].sumEntries() / \
 #                                  mc[key].sumEntries()
-#             yield_variation_down = mc[key_down].sumEntries() /
+#             yield_variation_down = mc[key_down].sumEntries() / \
 #                                    mc[key].sumEntries()
 #             print("Yield variation for %s syst for (%s,%s): %.3f/%.3f" %
 #                 (syst,proc,cat,yield_variation_down,yield_variation_up)
