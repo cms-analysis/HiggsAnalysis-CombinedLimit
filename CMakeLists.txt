@@ -128,5 +128,5 @@ install(DIRECTORY python/ DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/
 # Create empty __init__.py files in the Python package subdirectories such that
 # the Python imports work.
 file(TOUCH ${empty_init_py})
-INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/)
-INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/CombinedLimit/)
+INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis)
+INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/CombinedLimit)
