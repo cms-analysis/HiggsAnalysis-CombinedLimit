@@ -370,6 +370,9 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   if (readHybridResults_) {
       if (verbose > 0) std::cout << "Search for upper limit using pre-computed grid of p-values" << std::endl;
 
+      // need to get hold of quantileExpectedBranch 
+      Float_t quantExpectedIn;
+	
       if (!gridFile_.empty()) {
         if (grid_.empty()) {
             std::unique_ptr<TFile> gridFile(TFile::Open(gridFile_.c_str()));
@@ -377,6 +380,10 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
             TDirectory *toyDir = gridFile->GetDirectory("toys");
             if (!toyDir) throw std::logic_error("Cannot use readHypoTestResult: empty toy dir in input file empty");
             readGrid(toyDir, rMinSet_ ? rMin : -99e99, rMaxSet_ ? rMax :+99e99);
+
+      	    TTree *treeIn = (TTree*) gridFile->Get("limit");
+      	    treeIn->SetBranchAddress("quantileExpected",&quantExpectedIn);
+      	    treeIn->GetEntry(0);
         }
         if (grid_.size() <= 1) throw std::logic_error("The grid must contain at least 2 points.");
         if (noUpdateGrid_) {
@@ -384,8 +391,19 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
                 std::cout << "Will have to re-run points for which the test statistic was set to zero" << std::endl;
                 updateGridDataFC(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
             } else {
-                std::cout << "Will use the test statistic that had already been computed" << std::endl;
-            }
+
+		// check if we will have to update since we need a new value for the "data" test stat
+		if (expectedFromGrid_) {
+		   Float_t diffQE = TMath::Abs(quantExpectedIn-quantileForExpectedFromGrid_);
+		   if (diffQE > EPS)  {
+		     updateGridData(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
+		   }
+		} else if ( TMath::Abs(quantExpectedIn + 1) > EPS ) {
+		   updateGridData(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
+		} else {
+		    if (verbose > 0) CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string("Will use the test statistic values that has already been computed when producing grid file - "+gridFile_),__func__);
+		}
+	    }
         } else {
             updateGridData(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
         }
