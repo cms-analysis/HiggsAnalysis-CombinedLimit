@@ -22,7 +22,7 @@ message(STATUS "Using ROOT From: ${ROOT_INCLUDE_DIRS}")
 include(${ROOT_USE_FILE})
 
 include_directories(${ROOT_INCLUDE_DIRS})
-
+include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(${ROOT_CXX_FLAGS})
 
 set(LIBNAME CMSCombine)
@@ -36,7 +36,7 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/HiggsAnalysis)
 execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/HiggsAnalysis/CombinedLimit" )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-ROOT_GENERATE_DICTIONARY(G__${LIBNAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/classes.h LINKDEF src/classes_def.xml
+ROOT_GENERATE_DICTIONARY(G__${LIBNAME} src/classes.h LINKDEF src/classes_def.xml
         MODULE ${LIBNAME}
         OPTIONS --deep)
 add_library(${LIBNAME} SHARED ${SOURCES} G__${LIBNAME}.cxx)
