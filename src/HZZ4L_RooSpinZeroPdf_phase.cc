@@ -28,22 +28,18 @@ ClassImp(HZZ4L_RooSpinZeroPdf_phase)
   _coefList("coefList","List of funcficients",this) 
   
  { 
-  TIterator* coefIter = inCoefList.createIterator() ;
-  RooAbsArg* func;
-  while((func = (RooAbsArg*)coefIter->Next())) {
+  for (RooAbsArg *func : inCoefList) {
     if (!dynamic_cast<RooAbsReal*>(func)) {
       coutE(InputArguments) << "ERROR: :HZZ4L_RooSpinZeroPdf_phase(" << GetName() << ") funcficient " << func->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _coefList.add(*func) ;
   }
-  delete coefIter;
 
   Integral_T1 = dynamic_cast<const RooHistFunc*>(_coefList.at(0))-> analyticalIntegral(1000);
   Integral_T2 = dynamic_cast<const RooHistFunc*>(_coefList.at(1))-> analyticalIntegral(1000);
   Integral_T4 = dynamic_cast<const RooHistFunc*>(_coefList.at(2))-> analyticalIntegral(1000);
   Integral_T5 = dynamic_cast<const RooHistFunc*>(_coefList.at(3))-> analyticalIntegral(1000);
-// _coefIter = _coefList.createIterator() ;
  } 
 
 
@@ -61,7 +57,6 @@ ClassImp(HZZ4L_RooSpinZeroPdf_phase)
 	 Integral_T2 = other.Integral_T2;
 	 Integral_T4 = other.Integral_T4;
 	 Integral_T5 = other.Integral_T5;
- // _coefIter = _coefList.createIterator() ;
  } 
 
 

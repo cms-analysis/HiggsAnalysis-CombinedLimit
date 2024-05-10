@@ -8,13 +8,13 @@ from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 
 class KappaVKappaT(LHCHCGBaseModel):
     """
-    Copy of Kappas model with a combined kappa_V (for kappa_W and kappa_Z),
+    Copy of Kappa model with a combined kappa_V (for kappa_W and kappa_Z),
     and where hcc is independent of kappa_t.
 
     For tHq multilepton analysis (HIG-17-005)
 
     NOTE - Do not use this model for a generic analysis,
-    instead use the LHCHCGModels:K3 or K7 models   and freeze POIs accordingly
+    instead use the LHCHCGModels:K3 or K7 models and freeze POIs accordingly
     """
 
     def __init__(self, resolved=True, BRU=True, addInvisible=False, coupleTopTau=False):

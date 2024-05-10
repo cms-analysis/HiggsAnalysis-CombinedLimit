@@ -88,7 +88,7 @@ def getProcessInfo(bin, process):
         foundSTXSBin = foundSTXSBin.split("_")[0]
 
     if not matchedDecayString:
-        raise RuntimeError("Validation Error: no supported decay found in process")
+        raise RuntimeError("Validation error: no supported decay found in process")
 
     return (foundRecoCategory, foundSTXSBin, foundDecay, foundEnergy)
 
@@ -126,7 +126,7 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first")
             if po.startswith("fixProcesses="):
                 self.fixProcesses = (po.replace("fixProcesses=", "")).split(",")
             if po.startswith("stage0="):
@@ -145,7 +145,7 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
                 self.expand_equations = po.replace("expand_equations=", "") in ["yes", "1", "Yes", "True", "true"]
 
         # Output options to screen
-        print(" --> [STXStoSMEFT] Using (%s) parametrisation" % self.parametrisation)
+        print(" --> [STXStoSMEFT] Using (%s) parametrization" % self.parametrisation)
         if len(self.fixProcesses) > 0:
             print(" --> [STXStoSMEFT] Fixing following processes to SM: %s" % self.fixProcesses)
 

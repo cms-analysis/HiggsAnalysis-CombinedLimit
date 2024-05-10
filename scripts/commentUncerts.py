@@ -8,7 +8,7 @@ from optparse import OptionGroup, OptionParser
 ## set up the option parser
 parser = OptionParser(
     usage="usage: %prog [options] ARG",
-    description="This is a script to comment uncertainties, which are element of a list of uncertainties to be dropped in an actual set of datacards.",
+    description="This is a script to comment uncertainties, which are elements of a list of uncertainties to be dropped in an actual set of datacards.",
 )
 parser.add_option(
     "--drop-list",

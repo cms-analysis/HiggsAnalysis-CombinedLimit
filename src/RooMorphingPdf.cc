@@ -48,11 +48,7 @@ RooMorphingPdf::RooMorphingPdf(const char* name, const char* title,
       mh_lo_(0.),
       mh_hi_(0.) {
   SetAxisInfo();
-  TIterator* pdf_iter = pdfs.createIterator();
-  RooAbsArg* pdf;
-  while ((pdf = reinterpret_cast<RooAbsArg*>(pdf_iter->Next())))
-    pdfs_.add(*pdf);
-  delete pdf_iter;
+  pdfs_.add(pdfs);
 }
 
 RooMorphingPdf::RooMorphingPdf(const RooMorphingPdf& other, const char* name)
@@ -244,7 +240,7 @@ FastTemplate RooMorphingPdf::morph(FastTemplate const& hist1,
 
   if (wt1 < 0 || wt1 > 1. || wt2 < 0. || wt2 > 1. ||
       fabs(1 - (wt1 + wt2)) > 1.0e-4) {
-    std::cout << "Warning! th1fmorph: This is an extrapolation!! Weights are "
+    std::cout << "Warning! th1fmorph: This is an extrapolation! Weights are "
               << wt1 << " and " << wt2 << " (sum=" << wt1 + wt2 << ")"
               << std::endl;
   }

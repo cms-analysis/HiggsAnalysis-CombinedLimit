@@ -36,10 +36,8 @@ void RobustHesse::initialize() {
 
   // Get a list of the floating RooRealVars
   std::unique_ptr<RooArgSet> allpars(nll_->getParameters(RooArgSet()));
-  RooFIter iter = allpars->fwdIterator();
-  RooAbsArg *item;
   std::vector<Var> allVars;
-  while ((item = iter.next())) {
+  for (RooAbsArg *item : *allpars) {
     RooRealVar *rrv = dynamic_cast<RooRealVar*>(item);
     if (rrv && !rrv->isConstant()) {
       allVars.push_back(Var());
@@ -100,6 +98,13 @@ int RobustHesse::setParameterStencil(unsigned i) {
   // Am I near a boundary?
   double boundLo = rrv->getMin();
   double boundHi = rrv->getMax();
+
+  // If we skip initial fit (e.g. to compute from asimov point)
+  // need a guess for the initial step size
+  if ( rrv->getError() == 0.0 ) {
+    valLo = x + 1e-3*(boundLo - x);
+    valHi = x + 1e-3*(boundHi - x);
+  }
 
   bool closeToLo = valLo < boundLo;
   bool closeToHi = valHi > boundHi;
@@ -580,9 +585,7 @@ void RobustHesse::LoadHessianFromFile(std::string const& filename) {
 
 void RobustHesse::ProtectArgSet(RooArgSet const& set) {
   std::vector<std::string> names;
-  RooFIter iter = set.fwdIterator();
-  RooAbsArg *item;
-  while ((item = iter.next())) {
+  for (RooAbsArg *item : set) {
     RooRealVar *rrv = dynamic_cast<RooRealVar*>(item);
     if (rrv && !rrv->isConstant()) {
       names.push_back(rrv->GetName());

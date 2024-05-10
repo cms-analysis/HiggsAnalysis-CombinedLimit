@@ -15,6 +15,7 @@ import ROOT
 ROOT.gROOT.SetBatch(1)
 ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/hypoTestResultTree.cxx")
 ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/qmuPlot.cxx")
+ROOT.gStyle.SetOptStat(0)
 
 from ROOT import hypoTestResultTree, q0Plot, qmuPlot
 
@@ -25,12 +26,12 @@ parser.add_option(
     "--invert",
     default=False,
     action="store_true",
-    help="Invert Alt for Null in Plotting (+ numbers)",
+    help="Invert Alt for Null in Plotting (+ numbers). Necessary for some test-statistics (but not typical for limits/significance)",
 )
 parser.add_option(
     "-o",
     "--output",
-    default="cls_qmu_distributions.root",
+    default="test_stat_distributions.root",
     type="str",
     help="outputfile for plots",
 )
@@ -40,7 +41,15 @@ parser.add_option(
     "--val",
     default="all",
     type="str",
-    help="poi values, comma separated (type all to make a plot for every value found in the file?!)",
+    help="POI values, comma separated (type all to make a plot for every value found in the file)",
+)
+parser.add_option(
+    "",
+    "--sub-label",
+    default="",
+    type="str",
+    dest="sub_label",
+    help="Change sub-label from q to q_sub_label (doesn't apply if using --signif option",
 )
 parser.add_option(
     "-r",
@@ -54,7 +63,7 @@ parser.add_option(
     "--mass",
     default=[],
     action="append",
-    help="mass value(s) (same as -m for combine)",
+    help="Mass value(s) (same as -m for combine)",
 )
 parser.add_option(
     "-P",
@@ -68,7 +77,7 @@ parser.add_option(
     "--expected",
     default=False,
     action="store_true",
-    help="Replace observation with expected (under alt hyp)",
+    help="Replace observation with expected (under alt hyp - useful for limits)",
 )
 parser.add_option(
     "-q",
@@ -89,7 +98,23 @@ parser.add_option(
     "--signif",
     action="store_true",
     default=False,
-    help="If significance, don't plot Pmu, i.e make the q0 plot",
+    help="If significance, plot the distribution of q0 by default for the background only hypothesis",
+)
+
+parser.add_option(
+    "",
+    "--plot_both",
+    action="store_true",
+    default=False,
+    help="If --signif, Force plotting of both distributions (including for signal injected).",
+)
+parser.add_option(
+    "",
+    "--save-as-pdf",
+    dest="save_as_pdf",
+    action="store_true",
+    default=False,
+    help="Save plots as pdfs as well as Canvases in root files.",
 )
 (options, args) = parser.parse_args()
 
@@ -97,6 +122,8 @@ if options.quantileExpected >= 0:
     options.expected = True
 if options.expected and options.quantileExpected < 0:
     sys.exit("You should specify a quantile for the expected result, eg 0.5 for median expected")
+if options.plot_both and not options.signif:
+    sys.exit("plot_both only works with significance test-stat distribution")
 
 
 def findPOIvals(fi, m):
@@ -146,7 +173,7 @@ for m in options.mass:
         ft = ROOT.TFile.Open("tmp_out.root")
         print("Plotting ... ")
         if options.signif:
-            can = q0Plot(float(m), options.poi, options.rebin)
+            can = q0Plot(float(m), options.poi, float(pv), options.rebin, options.plot_both)
         else:
             can = qmuPlot(
                 float(m),
@@ -157,8 +184,11 @@ for m in options.mass:
                 options.rebin,
                 options.expected,
                 options.quantileExpected,
+                options.sub_label,
             )
         canvases.append(can.Clone())
+        if options.save_as_pdf:
+            can.SaveAs(options.output + "_" + can.GetName() + ".pdf")
         ft.Close()
 ofile = ROOT.TFile(options.output, "RECREATE")
 for can in canvases:

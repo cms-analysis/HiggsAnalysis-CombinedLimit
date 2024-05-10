@@ -53,11 +53,12 @@ DICTNAME=$(LIBNAME)_xr
 # Linker and flags -------------------------------------------------------------
 LD = $(shell root-config --ld)
 ROOTLDFLAGS   = $(shell root-config --ldflags)
+ROOTLIBDIR = $(shell root-config --libdir)
 # OS x specific linkage
 DARWIN := $(shell uname|grep Darwin)
 ifdef DARWIN
-LDFLAGS       = $(ROOTLDFLAGS) -shared -install_name @rpath/$(SONAME) -fPIC
-EXELDFLAGS    = -Wl,-rpath,'@executable_path/../lib'
+LDFLAGS       = $(ROOTLDFLAGS) -g -shared -install_name @rpath/$(SONAME) -fPIC
+EXELDFLAGS    = -Wl,-rpath,'@executable_path/../lib' -Wl,-rpath,$(ROOTLIBDIR)
 else
 LDFLAGS       = $(ROOTLDFLAGS) -shared -Wl,-soname,$(SONAME) -Wl,-E -Wl,-z,defs -fPIC
 EXELDFLAGS    = 
@@ -97,7 +98,7 @@ $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)/a
 
 $(OBJ_DIR)/a/$(DICTNAME).cc: $(SRC_DIR)/classes_def.xml | $(OBJ_DIR)
-	genreflex $(SRC_DIR)/classes.h -s $< -o $@ --deep --fail_on_warnings --rootmap=$(OBJ_DIR)/a/$(DICTNAME).rootmap --rootmap-lib=$(SONAME) -I$(PARENT_DIR)
+	genreflex $(SRC_DIR)/classes.h -s $< -o $@ --deep --fail_on_warnings --rootmap=$(OBJ_DIR)/a/$(DICTNAME).rootmap --rootmap-lib=$(SONAME) -Isrc -I$(PARENT_DIR)
 	mv $(OBJ_DIR)/a/$(DICTNAME).rootmap $(LIB_DIR)/
 	mv $(OBJ_DIR)/a/$(DICTNAME)_rdict.pcm $(LIB_DIR)/
 

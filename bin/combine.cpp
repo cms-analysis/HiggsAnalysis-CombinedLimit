@@ -26,10 +26,14 @@
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/ProfilingTools.h"
 #include "../interface/GenerateOnly.h"
-#include "../interface/Logger.h"
+#include "../interface/CombineLogger.h"
 #include <map>
 
 using namespace std;
+
+// Update whenever we have a new Tag
+std::string combineTagString = "v9.2.1";
+// 
 
 int main(int argc, char **argv) {
   using namespace boost;
@@ -50,6 +54,9 @@ int main(int argc, char **argv) {
   vector<string> modelParamValVector_;
 
   Combine combiner;
+
+  // Set name of Log file (ideally would make this similar format to out file)
+  CombineLogger::instance().setName("combine_logger.out");
 
   map<string, LimitAlgo *> methods;
   algo = new Significance(); methods.insert(make_pair(algo->name(), algo));
@@ -83,11 +90,11 @@ int main(int argc, char **argv) {
   combiner.statOptions().add_options()
     ("toys,t", po::value<int>(&runToys)->default_value(0), "Number of Toy MC extractions")
     ("seed,s", po::value<int>(&seed)->default_value(123456), "Toy MC random seed")
-    ("hintMethod,H",  po::value<string>(&whichHintMethod)->default_value(""), "Run first this method to provide a hint on the result")
+    ("hintMethod,H",  po::value<string>(&whichHintMethod)->default_value(""), "First run this method to provide a hint on the result")
     ;
   combiner.ioOptions().add_options()
     ("name,n",     po::value<string>(&name)->default_value("Test"), "Name of the job, affects the name of the output tree")
-    ("mass,m",     po::value<float>(&iMass)->default_value(120.), "Higgs mass to store in the output tree")
+    ("mass,m",     po::value<float>(&iMass)->default_value(120.), "Mass to store in the output tree")
     ("dataset,D",  po::value<string>(&dataset)->default_value("data_obs"), "Name of the dataset for observed limit - use this to replace dataset in workspace for example with a toy dataset. Format as file:workspace:object or file:object")
     ("dataMapName",  po::value<string>(&dataMapName)->default_value("data_obs"), "Name of the dataset for observed limit pattern in the datacard")
     ("toysFile",   po::value<string>(&toysFile)->default_value(""), "Read toy mc or other intermediate results from this file")
@@ -144,6 +151,8 @@ int main(int argc, char **argv) {
    splashFile.close(); 
   } else {
    std::cout << " <<< Combine >>> " << std::endl;
+   // UPDATE THIS TO THE LATEST TAG WHENEVER RELEASED 
+   std::cout << Form(" <<< %s >>>",combineTagString.c_str() ) << std::endl;
   }
 
   // now search for algo, and add option
@@ -177,15 +186,15 @@ int main(int argc, char **argv) {
   }
 
   if (seed == -1) {
-    if (verbose > 0) std::cout << ">>> Using OpenSSL to get a really random seed " << std::endl;
+    if (verbose > 0) std::cout << ">>> Using OpenSSL to get a truly random seed " << std::endl;
     FILE *rpipe = popen("openssl rand 8", "r");
     if (rpipe == 0) { std::cout << "Error when running 'openssl rand 8'" << std::endl; return 2101; }
     if (fread(&seed, sizeof(int), 1, rpipe) != 1) {
         std::cout << "Error when reading from 'openssl rand 8'" << std::endl; return 2102; 
     }
-    std::cout << ">>> Used OpenSSL to get a really random seed " << seed << std::endl;
+    std::cout << ">>> Used OpenSSL to get a truly random seed " << seed << std::endl;
   } else {
-    std::cout << ">>> random number generator seed is " << seed << std::endl;
+    std::cout << ">>> Random number generator seed is " << seed << std::endl;
   }
   RooRandom::randomGenerator()->SetSeed(seed); 
 
@@ -223,7 +232,7 @@ int main(int argc, char **argv) {
     combiner.applyOptions(vm);
     CascadeMinimizer::applyOptions(vm);
   } catch (std::exception &ex) {
-    cerr << "Error when configuring the combiner:\n\t" << ex.what() << std::endl;
+    cerr << "Error when configuring combine:\n\t" << ex.what() << std::endl;
     return 2001;
   }
 
@@ -234,7 +243,7 @@ int main(int argc, char **argv) {
       cerr << "Error when configuring the algorithm " << whichMethod << ":\n\t" << ex.what() << std::endl;
       return 2002;
   }
-  cout << ">>> method used is " << whichMethod << endl;
+  cout << ">>> Method used is " << whichMethod << endl;
 
   if (!whichHintMethod.empty()) {
       map<string, LimitAlgo *>::const_iterator it_hint = methods.find(whichHintMethod);
@@ -246,10 +255,11 @@ int main(int argc, char **argv) {
       } 
       hintAlgo = it_hint->second;
       hintAlgo->applyDefaultOptions();
-      cout << ">>> method used to hint where the upper limit is " << whichHintMethod << endl;
+      cout << ">>> Method used to hint where the upper limit is " << whichHintMethod << endl;
   }
   
   TString fileName = "higgsCombine" + name + "."+whichMethod+"."+massName+toyName+"root";
+
   TFile *test = new TFile(fileName, "RECREATE"); outputFile = test;
   TTree *t = new TTree("limit", "limit");
   int syst, iToy, iSeed, iChannel; 
@@ -324,7 +334,7 @@ int main(int argc, char **argv) {
 
   try {
      combiner.run(datacard, dataset, limit, limitErr, iToy, t, runToys);
-     if (verbose>0) Logger::instance().printLog(); 
+     if (verbose>0) CombineLogger::instance().printLog(); 
   } catch (std::exception &ex) {
      cerr << "Error when running the combination:\n\t" << ex.what() << std::endl;
      test->Close();

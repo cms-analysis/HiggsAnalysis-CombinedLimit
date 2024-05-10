@@ -28,7 +28,7 @@ class TagAndProbe(PhysicsModel):
         self.modelBuilder.factory_('expr::fail_scale("(%f+%f-(%f*@0))/%f", SF)' % (exp_pass, exp_fail, exp_pass, exp_fail))
 
     def getYieldScale(self, bin, process):
-        "Return the name of a RooAbsReal to scale this yield by or the two special values 1 and 0 (don't scale, and set to zero)"
+        "Return the name of a RooAbsReal to scale this yield by, or the two special values 1 and 0 (do not scale, and set to zero)"
         if self.DC.isSignal[process]:
             if re.search("pass", bin):
                 return "SF"

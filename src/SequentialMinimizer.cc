@@ -454,7 +454,7 @@ bool cmsmath::SequentialMinimizer::improve(int smallsteps)
         state_ = newstate;
         if (func_->nCalls > MaxFunctionCalls()) break;
     }
-    DEBUG_SM_printf("Failed do converge after %d big steps\n",bigsteps);
+    DEBUG_SM_printf("Failed to converge after %d big steps\n",bigsteps);
     fStatus   = -1;
     minValue_ = func_->eval();
     return false;

@@ -37,7 +37,8 @@ CMSHistSum::CMSHistSum(const char* name,
       binsentry_(TString(name) + "_binsentry", ""),
       initialized_(false),
       analytic_bb_(false),
-      fast_mode_(0) {
+      fast_mode_(0),
+      external_morphs_("external_morphs", "", this) {
 
   n_procs_ = funcs.getSize();
   assert(n_procs_ == coeffs.getSize());
@@ -188,7 +189,10 @@ CMSHistSum::CMSHistSum(
       sentry_(name ? TString(name) + "_sentry" : TString(other.GetName())+"_sentry", ""),
       binsentry_(name ? TString(name) + "_binsentry" : TString(other.GetName())+"_binsentry", ""),
       initialized_(false),
-      fast_mode_(0) {
+      fast_mode_(0),
+      external_morphs_("external_morphs", this, other.external_morphs_),
+      external_morph_indices_(other.external_morph_indices_)
+{
       initialize();
 }
 
@@ -198,7 +202,7 @@ void CMSHistSum::initialize() const {
   binsentry_.SetName(TString(this->GetName()) + "_binsentry");
 
 #if HFVERBOSE > 0
-  std::cout << "Initialising vectors\n";
+  std::cout << "Initializing vectors\n";
 #endif
 
   vmorphpars_.resize(n_morphs_);
@@ -243,6 +247,12 @@ void CMSHistSum::initialize() const {
   sentry_.addVars(coeffpars_);
   binsentry_.addVars(binpars_);
 
+  for (const auto* morph : external_morphs_) {
+    RooArgSet* deps = morph->getParameters({*x_});
+    sentry_.addVars(*deps);
+    delete deps;
+  }
+
   sentry_.setValueDirty();
   binsentry_.setValueDirty();
 
@@ -250,6 +260,16 @@ void CMSHistSum::initialize() const {
 }
 
 void CMSHistSum::updateMorphs() const {
+  // set up pointers ahead of time for quick loop
+  std::vector<CMSExternalMorph*> process_morphs(compcache_.size(), nullptr);
+  // if any external morphs are dirty, disable fast_mode_
+  for(size_t i=0; i < external_morph_indices_.size(); ++i) {
+    auto* morph = static_cast<CMSExternalMorph*>(external_morphs_.at(i));
+    process_morphs[external_morph_indices_[i]] = morph;
+    if (morph->hasChanged()) {
+      fast_mode_ = 0;
+    }
+  }
   // If we're not in fast mode, need to reset all the compcache_
   #if HFVERBOSE > 0
   std::cout << "fast_mode_ = " << fast_mode_ << std::endl;
@@ -257,6 +277,12 @@ void CMSHistSum::updateMorphs() const {
   for (unsigned ip = 0; ip < compcache_.size(); ++ip) {
     if (fast_mode_ == 0) {
       compcache_[ip].CopyValues(storage_[process_fields_[ip]]);
+      if ( process_morphs[ip] != nullptr ) {
+        auto& extdata = process_morphs[ip]->batchGetBinValues();
+        for(size_t ibin=0; ibin<extdata.size(); ++ibin) {
+          compcache_[ip][ibin] *= extdata[ibin];
+        }
+      }
     }
     if (vtype_[ip] == CMSHistFunc::VerticalSetting::LogQuadLinear) {
       compcache_[ip].Log();
@@ -448,9 +474,7 @@ void CMSHistSum::setAnalyticBarlowBeeston(bool flag) const {
       if (bintypes_[j][0] == 1 && !vbinpars_[j][0]->isConstant()) {
         bb_.use.push_back(j);
         double gobs_val = 0.;
-        RooFIter iter = vbinpars_[j][0]->valueClientMIterator();
-        RooAbsArg *arg = nullptr;
-        while((arg = iter.next())) {
+        for (RooAbsArg *arg : vbinpars_[j][0]->valueClients()) {
           if (arg == this || arg == &binsentry_) {
             // std::cout << "Skipping " << this << " " << this->GetName() << "\n";
           } else {
@@ -500,7 +524,7 @@ RooArgList * CMSHistSum::setupBinPars(double poissonThreshold) {
 
 
   std::cout << std::string(60, '=') << "\n";
-  std::cout << "Analysing bin errors for: " << this->GetName() << "\n";
+  std::cout << "Analyzing bin errors for: " << this->GetName() << "\n";
   std::cout << "Poisson cut-off: " << poissonThreshold << "\n";
   std::set<unsigned> skip_idx;
   std::vector<std::string> skipped_procs;
@@ -550,7 +574,7 @@ RooArgList * CMSHistSum::setupBinPars(double poissonThreshold) {
         TString::Format("Unweighted events, alpha=%f", alpha).Data());
 
     if (n <= poissonThreshold) {
-      std::cout << TString::Format("  %-30s\n", "=> Number of weighted events is below poisson threshold");
+      std::cout << TString::Format("  %-30s\n", "=> Number of weighted events is below Poisson threshold");
 
       bintypes_[j].resize(vfuncstmp_.size(), 4);
 
@@ -593,13 +617,13 @@ RooArgList * CMSHistSum::setupBinPars(double poissonThreshold) {
             binpars_.add(*prod);
 
             std::cout << TString::Format(
-                "      => Product of %s[%.2f,%.2f,%.2f] and const [%.4f] to be poisson constrained\n",
+                "      => Product of %s[%.2f,%.2f,%.2f] and const [%.4f] to be Poisson constrained\n",
                 var->GetName(), var->getVal(), var->getMin(), var->getMax(), cvar->getVal());
             bintypes_[j][i] = 2;
           } else {
             RooRealVar *var = new RooRealVar(TString::Format("%s_bin%i_%s", this->GetName(), j, proc.c_str()), "", 0, -7, 7);
             std::cout << TString::Format(
-                "      => Parameter %s[%.2f,%.2f,%.2f] to be gaussian constrained\n",
+                "      => Parameter %s[%.2f,%.2f,%.2f] to be Gaussian constrained\n",
                 var->GetName(), var->getVal(), var->getMin(), var->getMax());
             var->setAttribute("createGaussianConstraint");
             res->addOwned(*var);
@@ -609,7 +633,7 @@ RooArgList * CMSHistSum::setupBinPars(double poissonThreshold) {
         } else if (v_p >= 0 && e_p > v_p) {
           RooRealVar *var = new RooRealVar(TString::Format("%s_bin%i_%s", this->GetName(), j, proc.c_str()), "", 0, -7, 7);
           std::cout << TString::Format(
-              "      => Poisson not viable, %s[%.2f,%.2f,%.2f] to be gaussian constrained\n",
+              "      => Poisson not viable, %s[%.2f,%.2f,%.2f] to be Gaussian constrained\n",
               var->GetName(), var->getVal(), var->getMin(), var->getMax());
           var->setAttribute("createGaussianConstraint");
           res->addOwned(*var);
@@ -625,7 +649,7 @@ RooArgList * CMSHistSum::setupBinPars(double poissonThreshold) {
       bintypes_[j][0] = 1;
       RooRealVar *var = new RooRealVar(TString::Format("%s_bin%i", this->GetName(), j), "", 0, -7, 7);
       std::cout << TString::Format(
-          "  => Total parameter %s[%.2f,%.2f,%.2f] to be gaussian constrained\n",
+          "  => Total parameter %s[%.2f,%.2f,%.2f] to be Gaussian constrained\n",
           var->GetName(), var->getVal(), var->getMin(), var->getMax());
       var->setAttribute("createGaussianConstraint");
       var->setAttribute("forBarlowBeeston");
@@ -752,6 +776,25 @@ void CMSHistSum::setData(RooAbsData const& data) const {
 
 void CMSHistSum::EnableFastVertical() {
   enable_fast_vertical_ = true;
+}
+
+void CMSHistSum::injectExternalMorph(int idx, CMSExternalMorph& morph) {
+  if ( idx >= coeffpars_.getSize() ) {
+    throw std::runtime_error("Process index larger than number of processes in CMSHistSum");
+  }
+  if ( morph.batchGetBinValues().size() != cache_.size() ) {
+    throw std::runtime_error("Mismatched binning between external morph and CMSHistSum");
+    // equal edges are user responsibility for now
+  }
+
+  for (auto other_idx : external_morph_indices_) {
+    if ( idx == other_idx ) {
+      external_morphs_.replace(external_morphs_[idx], morph);
+      return;
+    }
+  }
+  external_morph_indices_.push_back(idx);
+  external_morphs_.add(morph);
 }
 
 #undef HFVERBOSE

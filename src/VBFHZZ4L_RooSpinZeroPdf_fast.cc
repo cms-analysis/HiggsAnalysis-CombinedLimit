@@ -31,27 +31,21 @@ VBFHZZ4L_RooSpinZeroPdf_fast::VBFHZZ4L_RooSpinZeroPdf_fast(
   obsList("obsList", "List of pdf observables", this),
   coefList("coefList", "List of pdf components", this)
 {
-  TIterator* coefIter = inObsList.createIterator();
-  RooAbsArg* coef;
-  while ((coef = (RooAbsArg*)coefIter->Next())){
+  for (RooAbsArg *coef : inObsList) {
     if (!dynamic_cast<RooAbsReal*>(coef)){
       coutE(InputArguments) << "VBFHZZ4L_RooSpinZeroPdf_fast(" << GetName() << ") observable " << coef->GetName() << " is not of type RooAbsReal" << endl;
       assert(0);
     }
     obsList.add(*coef);
   }
-  delete coefIter;
 
-  coefIter = inCoefList.createIterator();
-  coef=0;
-  while ((coef = (RooAbsArg*)coefIter->Next())){
+  for (RooAbsArg *coef : inCoefList) {
     if (dynamic_cast<FastTemplateFunc_f*>(coef)==0 && dynamic_cast<FastTemplateFunc_d*>(coef)==0){
       coutE(InputArguments) << "VBFHZZ4L_RooSpinZeroPdf_fast(" << GetName() << ") component " << coef->GetName() << " is not of type FastTemplateFunc_f" << endl;
       assert(0);
     }
     coefList.add(*coef);
   }
-  delete coefIter;
 }
 
 

@@ -9,14 +9,14 @@ fixed_procs = ["ggZH_lep", "tHq", "tHW", "bbH"]
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 stage0_procs = {
-    "ggH": ["ggH","bbH","ggZH_had"],
+    "ggH": ["ggH", "bbH", "ggZH_had"],
     "qqH": ["qqH"],
     "WH_lep": ["WH_lep"],
     "ZH_lep": ["ZH_lep"],
-    'ggZH_lep':['ggZH_lep'],
+    "ggZH_lep":["ggZH_lep"],
     "VH_had": ["WH_had", "ZH_had"],
     "ttH": ["ttH"],
-    'other':['tHq','tHW','bbH',"WH","ZH"]
+    "other":["tHq", "tHW", "bbH", "WH", "ZH"]
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,7 +50,7 @@ stage1_procs = {
         "ZH_had_REST",
         "ZH_had_PTJET1_GT200",
     ],
-    "ttH": ["ttH"]  # ,
+    "ttH": ["ttH"],  # ,
     #'other':['tHq','tHW','bbH']
 }
 
@@ -108,7 +108,7 @@ stage1_1_procs = {
         "ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25",
         "ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25",
     ],
-    "ttH": ["ttH"]  # ,
+    "ttH": ["ttH"],  # ,
     #'other':['tHq','tHW','bbH']
 }
 

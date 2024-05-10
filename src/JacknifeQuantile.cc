@@ -32,7 +32,7 @@ QuantileCalculator::QuantileCalculator(const RooAbsData &data, const char *varNa
     const RooRealVar *x   = dynamic_cast<const RooRealVar *>(set->find(varName)); 
     if (x == 0) {
      set->Print("V");
-     throw std::logic_error("Parameter of interest not in the idataset");
+     throw std::logic_error("Parameter of interest not in the dataset");
     }
     sumw_.resize(1, 0.0);
     if (firstEntry < lastEntry) {
@@ -158,7 +158,7 @@ void QuantileCalculator::quantiles(double quantile, bool doJacknife)
         // now compute the pseudo-values alpha_[j] = m * quantile[m] - (m-1) * quantile[j]
         for (int j = 0; j < m; ++j) {
             quantiles_[j] = m * quantiles_[m] - (m-1) * quantiles_[j];
-            printf("   ... jacknife quantile of section %d: %6.3f\n", j, quantiles_[j]);
+            printf("   ... jackknife quantile of section %d: %6.3f\n", j, quantiles_[j]);
         }
     }
 }
