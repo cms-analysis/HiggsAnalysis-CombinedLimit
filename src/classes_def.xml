@@ -164,6 +164,8 @@
 	<class name="RooSplineND" />
 	<class name="map<vector<int>,int>"/>
 	<class name="RooStarMomentMorph" />
+	<class name="RooTwoSidedCBShape" />
+	<class name="ResponseFunction" />
 	<class name="RooStats::HistFactory::RooBSpline" />
 	<class name="RooStats::HistFactory::RooBSplineBases" />
 	<class name="RooStepBernstein" />
@@ -215,5 +217,10 @@
   <class name="SimpleProdPdf" />
   <class name="CMSExternalMorph" />
   <class name="CMSInterferenceFunc" />
+  <class name="RooModZPdf" />
+  <class name="RooExpPdf" />
+  <class name="RooSumTwoExpPdf" />
+  <class name="RooPowerLawPdf" />
+  <class name="RooSumTwoPowerLawPdf" />
   <class name="RooEFTScalingFunction" />
 </lcgdict>

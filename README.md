@@ -1,6 +1,8 @@
 HiggsAnalysis-CombinedLimit
 ===========================
 
+Second attempt at merge, starting from 14x-comb2023
+
 ### Official documentation
 
 All documentation, including installation instructions, is hosted at
