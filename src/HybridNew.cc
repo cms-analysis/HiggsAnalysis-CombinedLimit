@@ -11,6 +11,7 @@
 #include <TF1.h>
 #include <TKey.h>
 #include <TLine.h>
+#include <TTree.h>
 #include <TCanvas.h>
 #include <TGraphErrors.h>
 #include <TStopwatch.h>

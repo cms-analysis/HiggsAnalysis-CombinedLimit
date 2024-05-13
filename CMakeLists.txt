@@ -64,7 +64,10 @@ if(MODIFY_ROOTMAP)
           COMMAND sed -i.bak -e "/class RooParamKeysPdf/d"
                             -e "/class RooStarMomentMorph/d"
                             -e "/class RooStats::HistFactory::RooBSpline/d"
-                            -e "/class RooStats::HistFactory::RooBSplineBases/d" "${GENERATED_FILE_PATH}"
+                            -e "/class RooStats::HistFactory::RooBSplineBases/d" 
+                            -e "/class ResponseFunction/d"
+                            -e "/class RooTwoSidedCBShape/d"
+                            "${GENERATED_FILE_PATH}"
           COMMENT "Removing conflicting classes from generated rootmap"
         )
 
