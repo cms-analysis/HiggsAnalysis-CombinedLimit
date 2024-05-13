@@ -36,8 +36,10 @@ void RobustHesse::initialize() {
 
   // Get a list of the floating RooRealVars
   std::unique_ptr<RooArgSet> allpars(nll_->getParameters(RooArgSet()));
+  RooFIter iter = allpars->fwdIterator();
+  RooAbsArg *item;
   std::vector<Var> allVars;
-  for (RooAbsArg *item : *allpars) {
+  while ((item = iter.next())) {
     RooRealVar *rrv = dynamic_cast<RooRealVar*>(item);
     if (rrv && !rrv->isConstant()) {
       allVars.push_back(Var());
@@ -585,7 +587,9 @@ void RobustHesse::LoadHessianFromFile(std::string const& filename) {
 
 void RobustHesse::ProtectArgSet(RooArgSet const& set) {
   std::vector<std::string> names;
-  for (RooAbsArg *item : set) {
+  RooFIter iter = set.fwdIterator();
+  RooAbsArg *item;
+  while ((item = iter.next())) {
     RooRealVar *rrv = dynamic_cast<RooRealVar*>(item);
     if (rrv && !rrv->isConstant()) {
       names.push_back(rrv->GetName());

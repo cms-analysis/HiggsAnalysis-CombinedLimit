@@ -42,7 +42,9 @@ nLinearVariations(nLinearVariations_)
   nCoef=0;
   nFuncs=0;
 
-  for (RooAbsArg *coef : inCoefList) {
+  TIterator* coefIter = inCoefList.createIterator();
+  RooAbsArg* coef;
+  while ((coef = (RooAbsArg*)coefIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(coef)) {
       coutE(InputArguments) << "ERROR::HZZ4L_RooCTauPdf_1D_Expanded(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << endl;
       assert(0);
@@ -50,6 +52,7 @@ nLinearVariations(nLinearVariations_)
     _coefList.add(*coef);
     nCoef++;
   }
+  delete coefIter;
 
   if (nCoef>2){
     coutE(InputArguments) << "ERROR::HZZ4L_RooCTauPdf_1D_Expanded(" << GetName() << ") number coefficients " << nCoef << " is not supported." << endl;
@@ -57,7 +60,9 @@ nLinearVariations(nLinearVariations_)
   }
 //  else cout << "Number of coefficients: " << nCoef << endl;
 
-	for (RooAbsArg *func : inFuncList) {
+  TIterator* funcIter = inFuncList.createIterator();
+	RooAbsArg* func;
+	while ((func = (RooAbsArg*)funcIter->Next())) {
 		if (!dynamic_cast<RooAbsReal*>(func)) {
 			coutE(InputArguments) << "ERROR::HZZ4L_RooCTauPdf_1D_Expanded(" << GetName() << ") function " << func->GetName() << " is not of type RooAbsReal" << endl;
 			assert(0);
@@ -65,6 +70,7 @@ nLinearVariations(nLinearVariations_)
 		_funcList.add(*func);
     nFuncs++;
   }
+	delete funcIter;
 
   if (nLinearVariations>nCoef){
     coutE(InputArguments) << "ERROR::HZZ4L_RooCTauPdf_1D_Expanded(" << GetName() << ") number of linear variations (" << nLinearVariations << ") is more than the number of coefficients (" << nCoef << ")!!!" << endl;

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <TIterator.h>
 #include <RooRandom.h>
 #include <RooStats/RooStatsUtils.h>
 
@@ -30,10 +31,11 @@ TestProposal::TestProposal(double divisor, const RooArgList &alwaysStepMe) :
 void TestProposal::Propose(RooArgSet& xPrime, RooArgSet& x )
 {
    RooStats::SetParameters(&x, &xPrime);
+   RooLinkedListIter it(xPrime.iterator());
+   RooRealVar* var;
    int n = xPrime.getSize(), j = floor(RooRandom::uniform()*n);
    const RooRealVar *indicatorPrime = discreteModelIndicator_ ? (RooRealVar*)xPrime.find(discreteModelIndicator_->GetName()) : 0;
-   for (int i = 0; i < xPrime.getSize(); ++i) {
-      RooRealVar* var = static_cast<RooRealVar*>(xPrime[i]);
+   for (int i = 0; (var = (RooRealVar*)it.Next()) != NULL; ++i) {
       if (i == j) {
         if (alwaysStepMe_.contains(*var)) break; // don't step twice
         if (discreteModelIndicator_ != 0) {
@@ -53,7 +55,8 @@ void TestProposal::Propose(RooArgSet& xPrime, RooArgSet& x )
         break;
       }
    }
-   for (RooAbsArg *poi : alwaysStepMe_) {
+   it = alwaysStepMe_.iterator();
+   for (RooRealVar *poi = (RooRealVar*)it.Next(); poi != NULL; poi = (RooRealVar*)it.Next()) {
         RooRealVar *var = (RooRealVar*) xPrime.find(poi->GetName());
         if (var == 0) {
             std::cout << "ERROR: missing POI " << poi->GetName() << " in xPrime" << std::endl;

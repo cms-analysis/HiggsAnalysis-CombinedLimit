@@ -180,8 +180,9 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     nOtherFloatingPoi_ = 0;
     deltaNLL_ = 0;
     int nConstPoi=0;
+    RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
     std::string setConstPOI;
-    for (RooAbsArg *a : *mc_s->GetParametersOfInterest()) {
+    for (RooAbsArg *a = (RooAbsArg*) iterP.Next(); a != 0; a = (RooAbsArg*) iterP.Next()) {
         if (poiList_.contains(*a)) continue;
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
         if (rrv == 0) { std::cerr << "MultiDimFit: Parameter of interest " << a->GetName() << " which is not a RooRealVar will be ignored" << std::endl; continue; }
@@ -325,7 +326,8 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 
     RooArgSet mcPoi(*mc_s->GetParametersOfInterest());
     if (poi_.empty()) {
-        for (RooAbsArg *a : *mc_s->GetParametersOfInterest()) {
+        RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
+        for (RooAbsArg *a = (RooAbsArg*) iterP.Next(); a != 0; a = (RooAbsArg*) iterP.Next()) {
             poi_.push_back(a->GetName());
         }
     }
@@ -385,7 +387,8 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 	    RooArgSet mcNuis(*mc_s->GetNuisanceParameters());
 	    if(saveSpecifiedNuis_=="all"){
 		    specifiedNuis_.clear();
-            for (RooAbsArg *a : *mc_s->GetNuisanceParameters()) {
+		    RooLinkedListIter iterN = mc_s->GetNuisanceParameters()->iterator();
+		    for (RooAbsArg *a = (RooAbsArg*) iterN.Next(); a != 0; a = (RooAbsArg*) iterN.Next()) {
 			    if (poiList_.contains(*a)) continue;
 			    specifiedNuis_.push_back(a->GetName());
 		    }
@@ -396,7 +399,8 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 		    while(token) {
 			    const RooArgSet* group = mc_s->GetWS()->set((std::string("group_") + token).data());
 			    if (group){
-                    for (RooAbsArg *a : *group) {
+				    RooLinkedListIter iterN = group->iterator();
+				    for (RooAbsArg *a = (RooAbsArg*) iterN.Next(); a != 0; a = (RooAbsArg*) iterN.Next()) {
 					    specifiedNuis_.push_back(a->GetName());
 				    }
 			    }else if (!poiList_.find(token)){
@@ -417,7 +421,8 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 	    }
     }
     if(saveInactivePOI_){
-        for (RooAbsArg *a : *mc_s->GetParametersOfInterest()) {
+	    RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
+	    for (RooAbsArg *a = (RooAbsArg*) iterP.Next(); a != 0; a = (RooAbsArg*) iterP.Next()) {
 		    if (poiList_.contains(*a)) continue;
 		    if (specifiedList_.contains(*a)) continue;
 		    RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);

@@ -55,7 +55,9 @@ RooStepBernstein::RooStepBernstein(const char* name, const char* title,
   _coefList("coefficients","List of coefficients",this)
 {
   // Constructor
-  for (RooAbsArg* coef : coefList) {
+  TIterator* coefIter = coefList.createIterator() ;
+  RooAbsArg* coef ;
+  while((coef = (RooAbsArg*)coefIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(coef)) {
       cout << "RooStepBernstein::ctor(" << GetName() << ") ERROR: coefficient " << coef->GetName() 
 	   << " is not of type RooAbsReal" << endl ;
@@ -63,6 +65,7 @@ RooStepBernstein::RooStepBernstein(const char* name, const char* title,
     }
     _coefList.add(*coef) ;
   }
+  delete coefIter ;
 }
 
 
@@ -92,22 +95,23 @@ Double_t RooStepBernstein::evaluate() const
   x = (x - _stepThresh)/(1.0-_stepThresh); // now we get the full polynomial  
 
   Int_t degree = _coefList.getSize() - 1; // n+1 polys of degree n
+  RooFIter iter = _coefList.fwdIterator();
 
   if(degree == 0) {
 
-    return ((RooAbsReal &)_coefList[0]).getVal();
+    return ((RooAbsReal *)iter.next())->getVal();
 
   } else if(degree == 1) {
 
-    Double_t a0 = ((RooAbsReal &)_coefList[0]).getVal(); // c0
-    Double_t a1 = ((RooAbsReal &)_coefList[1]).getVal() - a0; // c1 - c0
+    Double_t a0 = ((RooAbsReal *)iter.next())->getVal(); // c0
+    Double_t a1 = ((RooAbsReal *)iter.next())->getVal() - a0; // c1 - c0
     return a1 * x + a0;
 
   } else if(degree == 2) {
 
-    Double_t a0 = ((RooAbsReal &)_coefList[0]).getVal(); // c0
-    Double_t a1 = 2 * (((RooAbsReal &)_coefList[1]).getVal() - a0); // 2 * (c1 - c0)
-    Double_t a2 = ((RooAbsReal &)_coefList[2]).getVal() - a1 - a0; // c0 - 2 * c1 + c2
+    Double_t a0 = ((RooAbsReal *)iter.next())->getVal(); // c0
+    Double_t a1 = 2 * (((RooAbsReal *)iter.next())->getVal() - a0); // 2 * (c1 - c0)
+    Double_t a2 = ((RooAbsReal *)iter.next())->getVal() - a1 - a0; // c0 - 2 * c1 + c2
     return (a2 * x + a1) * x + a0;
 
   } else if(degree > 2) {
@@ -115,12 +119,12 @@ Double_t RooStepBernstein::evaluate() const
     Double_t t = x;
     Double_t s = 1 - x;
 
-    Double_t result = ((RooAbsReal &)_coefList[0]).getVal() * s;    
+    Double_t result = ((RooAbsReal *)iter.next())->getVal() * s;    
     for(Int_t i = 1; i < degree; i++) {
-      result = (result + t * TMath::Binomial(degree, i) * ((RooAbsReal &)_coefList[i]).getVal()) * s;
+      result = (result + t * TMath::Binomial(degree, i) * ((RooAbsReal *)iter.next())->getVal()) * s;
       t *= x;
     }
-    result += t * ((RooAbsReal &)_coefList[degree]).getVal(); 
+    result += t * ((RooAbsReal *)iter.next())->getVal(); 
 
     return result;
   }
@@ -156,15 +160,17 @@ Double_t RooStepBernstein::analyticalIntegral(Int_t code, const char* rangeName)
   Int_t degree= _coefList.getSize()-1; // n+1 polys of degree n
   Double_t norm(0) ;
 
+  RooFIter iter = _coefList.fwdIterator() ;
+  Double_t temp=0;
   for (int i=0; i<=degree; ++i){
     // for each of the i Bernstein basis polynomials
     // represent it in the 'power basis' (the naive polynomial basis)
     // where the integral is straight forward.
-    Double_t temp = 0;
+    temp = 0;
     for (int j=i; j<=degree; ++j){ // power basis≈ß
       temp += pow(-1.,j-i) * TMath::Binomial(degree, j) * TMath::Binomial(j,i) / (j+1);
     }
-    temp *= ((RooAbsReal&)_coefList[i]).getVal(); // include coeff
+    temp *= ((RooAbsReal*)iter.next())->getVal(); // include coeff
     norm += temp; // add this basis's contribution to total
   }
 
@@ -719,7 +725,9 @@ RooGaussStepBernstein::RooGaussStepBernstein(const char* name,
   _coefList("coefficients","List of coefficients",this)
 {
   // Constructor
-  for (RooAbsArg *coef : coefList) {
+  TIterator* coefIter = coefList.createIterator() ;
+  RooAbsArg* coef ;
+  while((coef = (RooAbsArg*)coefIter->Next())) {
     if (!dynamic_cast<RooAbsReal*>(coef)) {
       cout << "RooGaussStepBernstein::ctor(" << GetName()
 	   << ") ERROR: coefficient " << coef->GetName()
@@ -728,6 +736,7 @@ RooGaussStepBernstein::RooGaussStepBernstein(const char* name,
     }    
     _coefList.add(*coef) ;
   }
+  delete coefIter ;
 }
 
 
@@ -749,6 +758,7 @@ RooGaussStepBernstein::RooGaussStepBernstein(const RooGaussStepBernstein& other,
 Double_t RooGaussStepBernstein::evaluate() const
 {  
   const Int_t degree = _coefList.getSize() - 1; // n+1 polys of degree n
+  RooFIter iter = _coefList.fwdIterator() ;
   
   double poly_vals[degree+1];
   for( int i = 0; i <= degree; ++i ) {
@@ -763,7 +773,7 @@ Double_t RooGaussStepBernstein::evaluate() const
   RooAbsReal* coef = NULL;
   for(Int_t i = 0; i <= degree; ++i) {
     // coef is the bernstein polynomial coefficient
-    coef = &(RooAbsReal &)_coefList[i]; 
+    coef = (RooAbsReal *)iter.next(); 
     // calculate the coefficient in the 'power basis'
     // i.e. the naive polynomial basis
     beta = 0.0;
@@ -776,6 +786,8 @@ Double_t RooGaussStepBernstein::evaluate() const
     beta *= coef->getVal();     
     result += beta;
   }
+
+  //cout << result << endl;
 
   return result;
 }
@@ -799,6 +811,7 @@ Double_t RooGaussStepBernstein::analyticalIntegral(Int_t code,
   assert(code==1) ;
 
   const Int_t degree = _coefList.getSize() - 1; // n+1 polys of degree n
+  RooFIter iter = _coefList.fwdIterator() ;
   
   double integral_vals_hi[degree+1],integral_vals_lo[degree+1];
   for( int i = 0; i <= degree; ++i ) {
@@ -813,9 +826,10 @@ Double_t RooGaussStepBernstein::analyticalIntegral(Int_t code,
   double beta = 0.0;
   // iterate through each
   Double_t result = 0.0;
+  RooAbsReal* coef = NULL;
   for(Int_t i = 0; i <= degree; ++i) {
     // coef is the bernstein polynomial coefficient
-    RooAbsReal *coef = &(RooAbsReal &)_coefList[i]; 
+    coef = (RooAbsReal *)iter.next(); 
     // calculate the coefficient in the 'power basis'
     // i.e. the naive polynomial basis
     beta = 0.0;

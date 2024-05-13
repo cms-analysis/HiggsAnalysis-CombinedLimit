@@ -19,6 +19,7 @@
 #include <TFile.h>
 #include <TFileCacheRead.h>
 #include <TGraphErrors.h>
+#include <TIterator.h>
 #include <TLine.h>
 #include <TMath.h>
 #include <TString.h>
@@ -226,7 +227,8 @@ std::string Combine::parseRegex(std::string instr, const RooArgSet *nuisances, R
     std::regex rgx( reg_esp, std::regex::ECMAScript);
     
     std::string matchingParams="";
-    for (RooAbsArg *a : *nuisances) {
+    std::unique_ptr<TIterator> iter(nuisances->createIterator());
+    for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
         const std::string &target = a->GetName();
         std::smatch match;
         if (std::regex_match(target, match, rgx)) {
@@ -249,7 +251,8 @@ std::string Combine::parseRegex(std::string instr, const RooArgSet *nuisances, R
     std::regex rgx( reg_esp, std::regex::ECMAScript);
     
     std::string matchingParams="";
-    for (RooAbsArg *a : w->components()) {
+    std::unique_ptr<TIterator> iter(w->componentIterator());
+    for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
 
         if ( ! (a->IsA()->InheritsFrom(RooRealVar::Class()) || a->IsA()->InheritsFrom(RooCategory::Class()))) continue;
 
@@ -537,7 +540,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (nuisances && runtimedef::get("ADD_DISCRETE_FALLBACK")) {
     RooArgSet newNuis;
     std::string startswith = "u_CMS_Hgg_env_pdf_";
-    for (RooAbsArg *arg : *nuisances) {
+    TIterator *np = nuisances->createIterator();
+    while (RooRealVar *arg = (RooRealVar*)np->Next()) {
       if (std::string(arg->GetName()).compare(0, startswith.size(), startswith)) {
         newNuis.add(*arg);
       } else {
@@ -612,10 +616,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   if (redefineSignalPOIs_ != "") {
       RooArgSet newPOIs(w->argSet(redefineSignalPOIs_.c_str()));
-      for (RooAbsArg *arg : newPOIs) {
+      TIterator *np = newPOIs.createIterator();
+      while (RooRealVar *arg = (RooRealVar*)np->Next()) {
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(arg);
         if (rrv == 0) { std::cerr << "MultiDimFit: Parameter of interest " << arg->GetName() << " which is not a RooRealVar will be ignored" << std::endl; continue; }
-	rrv->setConstant(0);
+	arg->setConstant(0);
 	// also set ignoreConstraint flag for constraint PDF 
 	if ( w->pdf(Form("%s_Pdf",arg->GetName())) ) w->pdf(Form("%s_Pdf",arg->GetName()))->setAttribute("ignoreConstraint");
       }
@@ -634,8 +639,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   // Always reset the POIs to floating (post-fit workspaces can actually have them frozen in some cases, in any case they can be re-frozen in the next step 
-  for (RooAbsArg *arg : *POI) {
-      static_cast<RooRealVar*>(arg)->setConstant(0);
+  TIterator *pois = POI->createIterator();
+  while (RooRealVar *arg = (RooRealVar*)pois->Next()) {
+      arg->setConstant(0);
   }
 
   if (floatNuisances_ != "") {
@@ -665,7 +671,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (verbose > 0) {  
       	//std::cout << "Floating the following parameters: "; toFloat.Print(""); 
         CombineLogger::instance().log("Combine.cc",__LINE__,"Floating the following parameters:",__func__); 
-        for (RooAbsArg *a : toFloat) {
+        std::unique_ptr<TIterator> iter(toFloat.createIterator());
+        for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
            CombineLogger::instance().log("Combine.cc",__LINE__,a->GetName(),__func__); 
 	      }
       }
@@ -699,7 +706,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (verbose > 0) {  
       	//std::cout << "Freezing the following parameters: "; toFreeze.Print("");
         CombineLogger::instance().log("Combine.cc",__LINE__,"Freezing the following parameters: ",__func__); 
-        for (RooAbsArg *a : toFreeze) {
+        std::unique_ptr<TIterator> iter(toFreeze.createIterator());
+        for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
            CombineLogger::instance().log("Combine.cc",__LINE__,a->GetName(),__func__); 
 	      }
       }
@@ -756,7 +764,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     for (auto const& attr : nuisanceAttrs) {
       RooArgSet toFreeze;
       if (nuisances) {
-         for (RooAbsArg *arg : *nuisances) {
+         RooAbsArg *arg = nullptr;
+         auto iter = nuisances->createIterator();
+         while ((arg = (RooAbsArg*)iter->Next())) {
            if (arg->attributes().count(attr)) toFreeze.add(*arg);
          }
          if (verbose > 0) {  std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print(""); }
@@ -973,8 +983,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	    // print the values of the parameters used to generate the toy
 	    if (verbose > 2) {
 	      CombineLogger::instance().log("Combine.cc",__LINE__, "Generate Asimov toy from parameter values ... ",__func__);
-              std::unique_ptr<RooArgSet> params{genPdf->getParameters((const RooArgSet*)0)};
-              for (RooAbsArg *a : *params) {
+    	  std::unique_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
+    	  for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
 	  	    TString varstring = utils::printRooArgAsString(a);
 	  	    CombineLogger::instance().log("Combine.cc",__LINE__,varstring.Data(),__func__);
 	      }
@@ -1070,8 +1080,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (verbose > 2) {
 	  CombineLogger::instance().log("Combine.cc",__LINE__, std::string(Form("Generating toy %d/%d, from parameter values ... ",iToy,nToys)),__func__);
-    std::unique_ptr<RooArgSet> params{genPdf->getParameters((const RooArgSet*)0)};
-    for (RooAbsArg *a : *params) {
+    std::unique_ptr<TIterator> iter(genPdf->getParameters((const RooArgSet*)0)->createIterator());
+    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
 	  	TString varstring = utils::printRooArgAsString(a);
 	  	CombineLogger::instance().log("Combine.cc" ,__LINE__,varstring.Data(),__func__);
 	  }
@@ -1188,7 +1198,8 @@ void Combine::addPOI(const RooArgSet *poi){
    // RooArgSet *nuisances = (RooArgSet*) w->set("nuisances");
     CascadeMinimizerGlobalConfigs::O().parametersOfInterest = RooArgList();
     if (poi != 0) {
-        for (RooAbsArg *arg : *poi) (CascadeMinimizerGlobalConfigs::O().parametersOfInterest).add(*arg);
+        TIterator *pp = poi->createIterator();
+        while (RooAbsArg *arg = (RooAbsArg*)pp->Next()) (CascadeMinimizerGlobalConfigs::O().parametersOfInterest).add(*arg);
     }
 
 }
@@ -1197,15 +1208,20 @@ void Combine::addNuisances(const RooArgSet *nuisances){
    // RooArgSet *nuisances = (RooArgSet*) w->set("nuisances");
     CascadeMinimizerGlobalConfigs::O().nuisanceParameters = RooArgList();
     if (nuisances != 0) {
-        for (RooAbsArg *arg : *nuisances) (CascadeMinimizerGlobalConfigs::O().nuisanceParameters).add(*arg);
+        TIterator *np = nuisances->createIterator();
+        while (RooAbsArg *arg = (RooAbsArg*)np->Next()) (CascadeMinimizerGlobalConfigs::O().nuisanceParameters).add(*arg);
     }
 
 }
 void Combine::addFloatingParameters(const RooArgSet &parameters){
     CascadeMinimizerGlobalConfigs::O().allFloatingParameters = RooArgList();
-        for (RooAbsArg *arg : parameters) {
+    //if (parameters != 0) {
+        TIterator *np = parameters.createIterator();
+        while (RooAbsArg *arg = (RooAbsArg*)np->Next()) {
 	 if (! arg->isConstant()) (CascadeMinimizerGlobalConfigs::O().allFloatingParameters).add(*arg);
         }
+    //}
+
 }
 void Combine::addDiscreteNuisances(RooWorkspace *w){
 
@@ -1215,7 +1231,8 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
     CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams = RooArgList();
 
     if (discreteParameters != 0) {
-        for (RooAbsArg *arg : *discreteParameters) {
+        TIterator *dp = discreteParameters->createIterator();
+        while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) {
           RooCategory *cat = dynamic_cast<RooCategory*>(arg);
           if (cat && (!cat->isConstant() || runtimedef::get("ADD_DISCRETE_FALLBACK"))) {
 	        if (verbose){
@@ -1229,7 +1246,8 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
     // Run through all of the categories in the workspace and look for "pdfindex" -> fall back option 
     else if (runtimedef::get("ADD_DISCRETE_FALLBACK")) {
         RooArgSet discreteParameters_C = w->allCats();
-        for (RooAbsArg *arg : discreteParameters_C) {
+        TIterator *dp = discreteParameters_C.createIterator();
+        while (RooAbsArg *arg = (RooAbsArg*)dp->Next()) {
          RooCategory *cat = dynamic_cast<RooCategory*>(arg);
          if (! (std::string(cat->GetName()).find("pdfindex") != std::string::npos )) continue;
          if (cat/* && !cat->isConstant()*/) {
@@ -1244,11 +1262,14 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
     // Now lets go through the list of parameters which are associated to this discrete nuisance
     RooArgSet clients;
     utils::getClients(CascadeMinimizerGlobalConfigs::O().pdfCategories,(w->allPdfs()),clients);
-    for (RooAbsArg *arg : clients) {
+    TIterator *it = clients.createIterator();
+    // clients.Print();
+    while (RooAbsArg *arg = (RooAbsArg*)it->Next()) {
       (CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs).add(*(dynamic_cast<RooMultiPdf*>(arg)));
       RooAbsPdf *pdf = dynamic_cast<RooAbsPdf*>(arg);
-      std::unique_ptr<RooArgSet> pdfPars{pdf->getParameters((const RooArgSet*)0)};
-      for (RooAbsArg *a : *pdfPars) {
+      RooArgSet *pdfPars = pdf->getParameters((const RooArgSet*)0);
+      std::unique_ptr<TIterator> iter_v(pdfPars->createIterator());
+      for (RooAbsArg *a = (RooAbsArg *) iter_v->Next(); a != 0; a = (RooAbsArg *) iter_v->Next()) {
 	RooRealVar *v = dynamic_cast<RooRealVar *>(a);
 	if (!v) continue;
 	if (! (v->isConstant())) (CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams).add(*v) ;
@@ -1268,7 +1289,8 @@ void Combine::addBranches(const std::string& trackString, RooWorkspace* w, std::
           std::regex rgx( reg_esp, std::regex::ECMAScript);
 
           RooArgSet allParams(w->allVars());
-          for (RooAbsArg *a : allParams) {
+          std::unique_ptr<TIterator> iter(allParams.createIterator());
+          for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
               Var *tmp = dynamic_cast<Var *>(a);
               if(tmp==nullptr) continue;
               const std::string &target = tmp->GetName();

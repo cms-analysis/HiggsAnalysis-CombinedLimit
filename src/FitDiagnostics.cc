@@ -1211,14 +1211,16 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 //void FitDiagnostics::setFitResultTrees(const RooArgSet *args, std::vector<double> *vals){
 void FitDiagnostics::setFitResultTrees(const RooArgSet *args, double * vals){
 	
+         TIterator* iter(args->createIterator());
 	 int count=0;
 	 
-         for (RooAbsArg *a : *args) {
+         for (TObject *a = iter->Next(); a != 0; a = iter->Next()) { 
                  RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
 		 //std::string name = rrv->GetName();
 		 vals[count]=rrv->getVal();
 		 count++;
          }
+	 delete iter;
 	 return;
 }
 
@@ -1257,15 +1259,17 @@ void FitDiagnostics::resetFitResultTrees(bool withSys){
 }
 void FitDiagnostics::setNormsFitResultTrees(const RooArgSet *args, double * vals){
 	
+         TIterator* iter(args->createIterator());
 	 int count=0;
 	 
-         for (RooAbsArg *a : *args) {
+         for (TObject *a = iter->Next(); a != 0; a = iter->Next()) { 
                  RooRealVar *rcv = dynamic_cast<RooRealVar *>(a);   
 		 // std::cout << "index " << count << ", Name " << rcv->GetName() << ", val " <<  rcv->getVal() << std::endl;
 		 //std::string name = rcv->GetName();
 		 vals[count]=rcv->getVal();
 		 count++;
          }
+	 delete iter;
 	 return;
 }
 
@@ -1342,7 +1346,8 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
 	  nuisanceParameters_= new double[nuis->getSize()];
 	  overallNuis_ = nuis->getSize();
 
-          for (RooAbsArg * a : *cons) {
+          TIterator* iter_c(cons->createIterator());
+          for (TObject *a = iter_c->Next(); a != 0; a = iter_c->Next()) { 
                  RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rrv->GetName();
 		 globalObservables_[count]=0;
@@ -1352,7 +1357,8 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
 		 count++;
 	  }         
 	  count = 0;
-          for (RooAbsArg * a : *nuis) {
+          TIterator* iter_n(nuis->createIterator());
+          for (TObject *a = iter_n->Next(); a != 0; a = iter_n->Next()) { 
                  RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rrv->GetName();
 		 nuisanceParameters_[count] = 0;
@@ -1365,7 +1371,8 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
          }
 
 	 count = 0;
-          for (RooAbsArg * a : *norms) {
+         TIterator* iter_no(norms->createIterator());
+         for (TObject *a = iter_no->Next(); a != 0; a = iter_no->Next()) { 
                  RooRealVar *rcv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rcv->GetName();
 		 processNormalizations_[count] = -999;

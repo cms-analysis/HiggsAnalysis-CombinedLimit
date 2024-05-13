@@ -1,6 +1,7 @@
 #ifndef HiggsAnalysis_CombinedLimit_ProcessNormalization_h
 #define HiggsAnalysis_CombinedLimit_ProcessNormalization_h
 
+#include <TIterator.h>
 #include <RooAbsReal.h>
 #include "RooListProxy.h"
 

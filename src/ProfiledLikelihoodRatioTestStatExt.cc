@@ -152,7 +152,8 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
     DBG(DBG_PLTestStat_ctor, (std::cout << "All params: " << std::endl))  DBG(DBG_PLTestStat_ctor, (params_->Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "Snapshot: " << std::endl))    DBG(DBG_PLTestStat_ctor, (snap_.Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "POI: " << std::endl))         DBG(DBG_PLTestStat_ctor, (poi_.Print("V")))
-    for (RooAbsArg *a : poi) {
+    RooLinkedListIter it = poi.iterator();
+    for (RooAbsArg *a = (RooAbsArg*) it.Next(); a != 0; a = (RooAbsArg*) it.Next()) {
         // search for this poi in the parameters and in the snapshot
         RooAbsArg *ps = snap_.find(a->GetName());   
         RooAbsArg *pp = params_->find(a->GetName());

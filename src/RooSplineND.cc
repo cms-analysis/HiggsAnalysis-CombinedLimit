@@ -23,8 +23,9 @@ RooSplineND::RooSplineND(const char *name, const char *title, RooArgList &vars, 
 
   float *b_map = new float(ndim_);
 
-  int it_c=0;
-  for (RooAbsArg *rIt : vars) {
+  RooAbsReal *rIt;	
+  TIterator *iter = vars.createIterator(); int it_c=0;
+  while( (rIt = (RooAbsReal*) iter->Next()) ){ 
     vars_.add(*rIt);
     std::vector<double >tmpv(M_,0); 
     v_map.insert(std::pair<int, std::vector<double> >(it_c,tmpv));
@@ -74,7 +75,11 @@ RooSplineND::RooSplineND(const RooSplineND& other, const char *name) :
   eps_  = other.eps_;
   axis_pts_ = other.axis_pts_;
 
-  vars_.add(other.vars_);
+  RooAbsReal *rIt;	
+  TIterator *iter = other.vars_.createIterator();
+  while( (rIt = (RooAbsReal*) iter->Next()) ){ 
+    vars_.add(*rIt);
+  }
 
   w_mean = other.w_mean;
   w_rms  = other.w_rms;
@@ -108,7 +113,11 @@ RooSplineND::RooSplineND(const char *name, const char *title, const RooListProxy
  int ndim, int M, double eps, bool rescale, std::vector<double> &w, std::map<int,std::vector<double> > &map, std::map<int,std::pair<double,double> > &rmap,double wmean, double wrms) :
  RooAbsReal(name, title),vars_("vars",this,RooListProxy()) 
 {
-  vars_.add(vars);
+  RooAbsReal *rIt;	
+  TIterator *iter = vars.createIterator();
+  while( (rIt = (RooAbsReal*) iter->Next()) ){ 
+    vars_.add(*rIt);
+  }
   ndim_ = ndim;
   M_    = M;
   eps_  = eps;

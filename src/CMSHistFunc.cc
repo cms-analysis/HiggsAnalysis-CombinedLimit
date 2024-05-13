@@ -1203,7 +1203,9 @@ Double_t CMSHistFunc::analyticalIntegral(Int_t code,
 }
 
 CMSHistFuncWrapper const* CMSHistFunc::wrapper() const {
-  for (RooAbsArg *arg : valueClients()) {
+  RooFIter iter = this->valueClientMIterator();
+  RooAbsArg *arg = nullptr;
+  while((arg = iter.next())) {
     CMSHistFuncWrapper const* wrapper = dynamic_cast<CMSHistFuncWrapper const*>(arg);
     if (wrapper) return wrapper;
   }

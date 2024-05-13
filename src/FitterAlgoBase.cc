@@ -151,8 +151,9 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
               break;
       }
 
-      std::unique_ptr<RooArgSet> params{mc_s->GetPdf()->getParameters(data)};
-      for (RooAbsArg *a : *params) {
+      std::unique_ptr<RooArgSet>  params(mc_s->GetPdf()->getParameters(data));
+      RooLinkedListIter iter = params->iterator(); int i = 0;
+      for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
           RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
           if (rrv == 0 || rrv->isConstant()) continue;
           if (profileMode_ == ProfileUnconstrained && mc_s->GetNuisanceParameters()->find(*rrv) != 0) {
@@ -678,7 +679,8 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
 
 void FitterAlgoBase::optimizeBounds(const RooWorkspace *w, const RooStats::ModelConfig *mc) {
     if (runtimedef::get("UNBOUND_GAUSSIANS") && mc->GetNuisanceParameters() != 0) {
-        for (RooAbsArg *a : *mc->GetNuisanceParameters()) {
+        RooLinkedListIter iter = mc->GetNuisanceParameters()->iterator();
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
             if (rrv != 0) {
                 RooAbsPdf *pdf = w->pdf((std::string(a->GetName())+"_Pdf").c_str());
@@ -690,7 +692,8 @@ void FitterAlgoBase::optimizeBounds(const RooWorkspace *w, const RooStats::Model
         } 
     }
     if (runtimedef::get("OPTIMIZE_BOUNDS") && mc->GetNuisanceParameters() != 0) {
-        for (RooAbsArg *a : *mc->GetNuisanceParameters()) {
+        RooLinkedListIter iter = mc->GetNuisanceParameters()->iterator();
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
             //std::cout << (rrv ? "Var" : "Arg") << ": " << a->GetName()  << ": " << a->getAttribute("optimizeBounds") << std::endl;
             if (rrv != 0 && rrv->getAttribute("optimizeBounds")) {
@@ -704,7 +707,8 @@ void FitterAlgoBase::optimizeBounds(const RooWorkspace *w, const RooStats::Model
 }
 void FitterAlgoBase::restoreBounds(const RooWorkspace *w, const RooStats::ModelConfig *mc) {
     if (runtimedef::get("OPTIMIZE_BOUNDS") && mc->GetNuisanceParameters() != 0) {
-        for (RooAbsArg *a : *mc->GetNuisanceParameters()) {
+        RooLinkedListIter iter = mc->GetNuisanceParameters()->iterator();
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
             if (rrv != 0 && rrv->getAttribute("optimizeBounds")) {
                 rrv->setRange(rrv->getMin("optimizeBoundRange"), rrv->getMax("optimizeBoundRange"));

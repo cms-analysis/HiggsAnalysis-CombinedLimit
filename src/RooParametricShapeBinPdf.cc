@@ -47,7 +47,11 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
   xMin(0)
 {
   memset(&xArray, 0, sizeof(xArray));
-  pars.add(_pars);
+  TIterator *varIter=_pars.createIterator(); 
+  RooAbsReal *fVar;
+  while ( (fVar = (RooAbsReal*)varIter->Next()) ){
+    pars.add(*fVar);
+  }
   setTH1Binning(_shape);
   RooAbsReal* myintegral;
 
@@ -89,8 +93,18 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const RooParametricShapeBinPd
     xArray[i] = other.xArray[i];
   }
   
-  pars.add(other.pars);
-  myintegrals.add(other.myintegrals);
+  TIterator *varIter=other.pars.createIterator(); 
+  RooAbsReal *fVar;
+  while ( (fVar = (RooAbsReal*) varIter->Next()) ){
+    pars.add(*fVar);
+  }
+
+  TIterator *intIter=other.myintegrals.createIterator(); 
+  RooAbsReal *fInt;
+  while ( (fInt = (RooAbsReal*) intIter->Next()) ){
+    myintegrals.add(*fInt);
+  }
+  
 }
 //---------------------------------------------------------------------------
 void RooParametricShapeBinPdf::setTH1Binning(const TH1 &_Hnominal){

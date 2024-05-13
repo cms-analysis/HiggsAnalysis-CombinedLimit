@@ -262,7 +262,8 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
                 if (verbose > 1) { std::cout << "\nDiscrete model point " << (i+1) << std::endl; discreteModelPointSets_[i].Print("V"); }
             }
             RooArgSet discretePOI;
-            for (RooAbsArg *a : poi) {
+            RooLinkedListIter iter = poi.iterator();
+            for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
                 if (discreteModelPointSets_[0].find(a->GetName())) discretePOI.add(*a);
             }
             if (verbose > 1) { std::cout << "Discrete POI: " ; discretePOI.Print(""); }

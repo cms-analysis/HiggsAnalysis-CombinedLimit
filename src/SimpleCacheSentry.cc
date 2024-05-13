@@ -32,7 +32,8 @@ SimpleCacheSentry::SimpleCacheSentry(const SimpleCacheSentry &other, const char 
 
 void SimpleCacheSentry::addVars(const RooAbsCollection &vars) 
 {
-    for (RooAbsArg* a : vars) {
+    TIterator *iter = vars.createIterator();
+    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
         if (_deps.containsInstance(*a)) continue;
         // RooRealVars can return true to isDerived() if the ranges or binning depend on
         // other parameters, so always add RooRealVars to the list
@@ -44,6 +45,7 @@ void SimpleCacheSentry::addVars(const RooAbsCollection &vars)
           _deps.add(*a);
         }
     }
+    delete iter;
 }
 
 void SimpleCacheSentry::addFunc(const RooAbsArg &func, const RooArgSet *obs) 

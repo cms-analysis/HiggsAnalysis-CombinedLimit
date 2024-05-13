@@ -17,6 +17,9 @@
 #include "RooFit.h"
 
 #include "TFile.h"
+#include "TIterator.h"
+
+//using namespace RooFit ;
 
 ClassImp(RooParametricHist)
 
@@ -31,7 +34,11 @@ RooParametricHist::RooParametricHist(const char *name,
   pars("pars","pars",this)
   //SM_shape("SM_shape","SM_shape",this,_SM_shape),
 {
-  pars.add(_pars);
+  TIterator *varIter=_pars.createIterator();
+  RooAbsReal *fVar;
+  while ( (fVar = (RooAbsReal*)varIter->Next()) ){
+	pars.add(*fVar);
+  }
   if ( pars.getSize() != _shape.GetNbinsX() ){
 	std::cerr << " Warning, number of parameters not equal to number of bins in shape histogram! " << std::endl;
 	assert(0);
@@ -53,8 +60,17 @@ RooParametricHist::RooParametricHist(const RooParametricHist& other, const char*
   _hasMorphs=other._hasMorphs;
   _cval = other._cval;
 
-  pars.add(other.pars);
-  _coeffList.add(other._coeffList);
+  TIterator *varIter=other.pars.createIterator();
+  RooAbsReal *fVar;
+  while ( (fVar = (RooAbsReal*) varIter->Next()) ){
+	pars.add(*fVar);
+  }
+
+  TIterator *cIter=other._coeffList.createIterator();
+  RooAbsReal *cVar;
+  while ( (cVar = (RooAbsReal*) cIter->Next()) ){
+  _coeffList.add(*cVar);
+  }
 
   for(int i=0; i<=N_bins; i++) {
      bins.push_back(other.bins[i]);
@@ -93,8 +109,11 @@ RooArgList & RooParametricHist::getAllBinVars() const {
 
 double RooParametricHist::getFullSum() const {
     double sum=0;
-    for (int i = 0; i < pars.getSize(); ++i) {
-	  double thisVal = static_cast<RooAbsReal&>(pars[i]).getVal();
+    TIterator *varIter=pars.createIterator();
+    RooAbsReal *fVar;
+    int i=0;
+    while ( (fVar = (RooAbsReal*) varIter->Next()) ){
+	  double thisVal = fVar->getVal();
 	  if (_hasMorphs) thisVal*=evaluateMorphFunction(i);
 	  sum+=thisVal;
     }

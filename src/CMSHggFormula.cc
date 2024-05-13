@@ -11,7 +11,8 @@ CMSHggFormulaA1::CMSHggFormulaA1(const char* name, const char* title, RooAbsReal
       p3_("p3", "p3", this, p3),
       terms_("terms", "terms", this),
       coeffs_(coeffs) {
-  for (RooAbsArg* a : terms) {
+  RooFIter iter = terms.fwdIterator();
+  for (RooAbsArg* a = iter.next(); a != 0; a = iter.next()) {
     RooAbsReal* rar = dynamic_cast<RooAbsReal*>(a);
     if (!rar) {
       throw std::invalid_argument(std::string("Component ") + a->GetName() +
@@ -60,7 +61,8 @@ CMSHggFormulaA2::CMSHggFormulaA2(const char* name, const char* title, RooAbsReal
       p3_("p3", "p3", this, p3),
       terms_("terms", "terms", this),
       coeffs_(coeffs) {
-  for (RooAbsArg *a : terms) {
+  RooFIter iter = terms.fwdIterator();
+  for (RooAbsArg* a = iter.next(); a != 0; a = iter.next()) {
     RooAbsReal* rar = dynamic_cast<RooAbsReal*>(a);
     if (!rar) {
       throw std::invalid_argument(std::string("Component ") + a->GetName() +
@@ -105,7 +107,8 @@ CMSHggFormulaB1::CMSHggFormulaB1(const char* name, const char* title, RooAbsReal
       p0_("p0", "p0", this, p0),
       terms_("terms", "terms", this),
       coeffs_(coeffs) {
-  for (RooAbsArg *a : terms) {
+  RooFIter iter = terms.fwdIterator();
+  for (RooAbsArg* a = iter.next(); a != 0; a = iter.next()) {
     RooAbsReal* rar = dynamic_cast<RooAbsReal*>(a);
     if (!rar) {
       throw std::invalid_argument(std::string("Component ") + a->GetName() +
@@ -147,7 +150,8 @@ CMSHggFormulaB2::CMSHggFormulaB2(const char* name, const char* title, double con
       p0_(p0),
       terms_("terms", "terms", this),
       coeffs_(coeffs) {
-  for (RooAbsArg* a : terms) {
+  RooFIter iter = terms.fwdIterator();
+  for (RooAbsArg* a = iter.next(); a != 0; a = iter.next()) {
     RooAbsReal* rar = dynamic_cast<RooAbsReal*>(a);
     if (!rar) {
       throw std::invalid_argument(std::string("Component ") + a->GetName() +
@@ -188,7 +192,8 @@ CMSHggFormulaC1::CMSHggFormulaC1(const char* name, const char* title, RooArgList
     : RooAbsReal(name, title),
       terms_("terms", "terms", this),
       coeffs_(coeffs) {
-  for (RooAbsArg* a : terms) {
+  RooFIter iter = terms.fwdIterator();
+  for (RooAbsArg* a = iter.next(); a != 0; a = iter.next()) {
     RooAbsReal* rar = dynamic_cast<RooAbsReal*>(a);
     if (!rar) {
       throw std::invalid_argument(std::string("Component ") + a->GetName() +

@@ -16,13 +16,16 @@ RooChebyshevPDF::RooChebyshevPDF(const char *name, const char *title,
   x("x", "x", this, var),
   coefs("coefs", "coefs", this) {
 
-  for (RooAbsArg * coef : coefList) {
+  TIterator *cx = coefList.createIterator();
+  RooAbsReal *coef;
+  while ((coef = (RooAbsReal*)cx->Next())) {
     if (!dynamic_cast<RooAbsReal*>(coef)) {
       std::cerr << "Coefficient " << coef->GetName() << " is not good." << std::endl;
       assert(0);
     }
     coefs.add(*coef);
   }
+  delete cx;
 }
 
 RooChebyshevPDF::RooChebyshevPDF(const RooChebyshevPDF& other, 

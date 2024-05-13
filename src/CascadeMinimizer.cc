@@ -911,7 +911,8 @@ bool CascadeMinimizer::autoBoundsOk(int verbose) {
     for (int bothBounds = 0; bothBounds <= 1; ++bothBounds) {
       const RooArgSet * pois = (bothBounds ? poisForAutoBounds_ : poisForAutoMax_);
       if (!pois) continue;
-      for (RooAbsArg *a : *pois) {
+      RooFIter f = pois->fwdIterator();
+      for (RooAbsArg *a = f.next(); a != 0; a = f.next()) {
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
         if (rrv && !rrv->isConstant() && rrv->hasMax() && rrv->hasMin()) {
             double val = rrv->getVal(), lo = rrv->getMin(), hi = rrv->getMax();

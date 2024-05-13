@@ -47,7 +47,9 @@ void CMSHistFuncWrapper::initialize() const {
   pfunc_ = dynamic_cast<CMSHistFunc const*>(&(func_.arg()));
   perr_ = dynamic_cast<CMSHistErrorPropagator *>(err_.absArg());
   auto sentry_args = perr_->getSentryArgs();
-  for (RooAbsArg *arg : *sentry_args) {
+  RooFIter iter = sentry_args->fwdIterator() ;
+  RooAbsArg* arg;
+  while((arg = iter.next())) {
     sentry_.addArg(*arg);
   }
   sentry_.setValueDirty();

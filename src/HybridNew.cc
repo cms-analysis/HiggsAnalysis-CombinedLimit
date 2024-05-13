@@ -317,8 +317,9 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
     }
     if (saveHybridResult_) {
         TString name = TString::Format("HypoTestResult_mh%g",mass_);
-        for (RooAbsArg *rIn : rValues_) {
-            name += Form("_%s%g", rIn->GetName(), static_cast<RooRealVar*>(rIn)->getVal());
+        RooLinkedListIter it = rValues_.iterator();
+        for (RooRealVar *rIn = (RooRealVar*) it.Next(); rIn != 0; rIn = (RooRealVar*) it.Next()) {
+            name += Form("_%s%g", rIn->GetName(), rIn->getVal());
         }
         name += Form("_%u", RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
@@ -714,8 +715,8 @@ std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooStats::ModelConfig
     }
 
     HybridNew::Setup setup;
-    for (RooAbsArg *rInAbsArg : rVals) {
-        RooRealVar *rIn = static_cast<RooRealVar*>(rInAbsArg);
+    RooLinkedListIter it = rVals.iterator();
+    for (RooRealVar *rIn = (RooRealVar*) it.Next(); rIn != 0; rIn = (RooRealVar*) it.Next()) {
         RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->find(rIn->GetName()));
         r->setVal(rIn->getVal());
         if (verbose) std::cout << "  " << r->GetName() << " = " << rIn->getVal() << " +/- " << r->getError() << std::endl;
@@ -831,8 +832,9 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
 
     // print the values of the parameters used to generate the toy
     if (verbose > 2) {
-      CombineLogger::instance().log("HybridNew.cc",__LINE__,"Using the following (post-fit) parameters for 'no signal' hypothesis ",__func__);
-      for (RooAbsArg *a : *paramsToFit) {
+      CombineLogger::instance().log("HybridNew.cc",__LINE__,"Using the following (post-fit) parameters for No signal hypothesis ",__func__);
+      std::unique_ptr<TIterator> iter(paramsToFit->createIterator());
+      for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
   	TString varstring = utils::printRooArgAsString(a);
   	CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form(" %s",varstring.Data())),__func__);
       }
@@ -859,7 +861,8 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
       CombineLogger::instance().log("HybridNew.cc",__LINE__,"Using the following (post-fit) parameters for S+B hypothesis ",__func__);
       RooArgSet reportParams;
       reportParams.add(*paramsToFit); reportParams.add(poi);
-      for (RooAbsArg *a : reportParams) {
+      std::unique_ptr<TIterator> iter(reportParams.createIterator());
+      for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
   	TString varstring = utils::printRooArgAsString(a);
   	CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form(" %s",varstring.Data())),__func__);
       }
@@ -1167,8 +1170,9 @@ HybridNew::eval(RooStats::HybridCalculator &hc, const RooAbsCollection & rVals, 
     }
     if (saveHybridResult_) {
         TString name = TString::Format("HypoTestResult_mh%g",mass_);
-        for (RooAbsArg * rIn : rVals) {
-            name += Form("_%s%g", rIn->GetName(), static_cast<RooRealVar*>(rIn)->getVal());
+        RooLinkedListIter it = rVals.iterator();
+        for (RooRealVar *rIn = (RooRealVar*) it.Next(); rIn != 0; rIn = (RooRealVar*) it.Next()) {
+            name += Form("_%s%g", rIn->GetName(), rIn->getVal());
         }
         name += Form("_%u", RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
@@ -1472,8 +1476,8 @@ RooStats::HypoTestResult * HybridNew::readToysFromFile(const RooAbsCollection & 
     if (verbose) std::cout << "Reading toys for ";
     TString prefix1 = TString::Format("HypoTestResult_mh%g",mass_);
     TString prefix2 = TString::Format("HypoTestResult");
-    for (RooAbsArg *rInAbsArg : rVals) {
-        RooRealVar *rIn = static_cast<RooRealVar*>(rInAbsArg);
+    RooLinkedListIter it = rVals.iterator();
+    for (RooRealVar *rIn = (RooRealVar*) it.Next(); rIn != 0; rIn = (RooRealVar*) it.Next()) {
         if (verbose) std::cout << rIn->GetName() << " = " << rIn->getVal() << "   ";
         prefix1 += Form("_%s%g", rIn->GetName(), rIn->getVal());
         prefix2 += Form("_%s%g", rIn->GetName(), rIn->getVal());

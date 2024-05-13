@@ -3,6 +3,7 @@
 
 #include "RooRealVar.h"
 #include "RooSetProxy.h"
+#include "TIterator.h"
 
 class SimpleCacheSentry : public RooAbsArg {
     public:
