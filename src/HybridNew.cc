@@ -15,6 +15,7 @@
 #include <TGraphErrors.h>
 #include <TStopwatch.h>
 #include <TRandom3.h>
+#include <TTree.h>
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooAbsPdf.h"
