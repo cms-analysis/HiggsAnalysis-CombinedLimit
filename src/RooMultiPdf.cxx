@@ -51,24 +51,9 @@ RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, c
 RooMultiPdf::RooMultiPdf(const RooMultiPdf& other, const char* name) :
  RooAbsPdf(other, name),c("_pdfs",this,other.c), corr("_corrs",this,other.corr),x("_index",this,other.x)
 {
-
- fIndex=other.fIndex;
- nPdfs=other.nPdfs;
-
- TIterator *pdfIter=(other.c).createIterator();
-
- RooAbsPdf *fPdf;
- while ( (fPdf = (RooAbsPdf*) pdfIter->Next()) ){
-	c.add(*fPdf);
-  std::unique_ptr<RooArgSet> variables(fPdf->getVariables());
-  std::unique_ptr<RooAbsCollection> nonConstVariables(variables->selectByAttrib("Constant", false));
-
-	RooConstVar *tmp = new RooConstVar(Form("const%s",fPdf->GetName())
-		,"",nonConstVariables->getSize());
-	corr.add(*tmp);
- }
-
- _oldIndex=fIndex;
+  fIndex=other.fIndex;
+  nPdfs=other.nPdfs;
+  _oldIndex=fIndex;
   cFactor=other.cFactor; // correction to 2*NLL by default is -> 2*0.5 per param
 }
 
