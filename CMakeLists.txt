@@ -96,6 +96,9 @@ install(TARGETS ${LIBNAME}
         LIBRARY DESTINATION lib
         PUBLIC_HEADER DESTINATION include/HiggsAnalysis/CombinedLimit/interface
         )
+# dictionary requires classes.h to be in include path exactly as it was specified
+install(FILES HiggsAnalysis/CombinedLimit/src/classes.h
+        DESTINATION include/HiggsAnalysis/CombinedLimit/src)
 
 # Install the "combine" executable in the bin directory.
 install(TARGETS combine DESTINATION bin)
