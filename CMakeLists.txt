@@ -97,7 +97,7 @@ install(TARGETS ${LIBNAME}
         PUBLIC_HEADER DESTINATION include/HiggsAnalysis/CombinedLimit/interface
         )
 # dictionary requires classes.h to be in include path exactly as it was specified
-install(FILES HiggsAnalysis/CombinedLimit/src/classes.h
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/HiggsAnalysis/CombinedLimit/src/classes.h
         DESTINATION include/HiggsAnalysis/CombinedLimit/src)
 
 # Install the "combine" executable in the bin directory.
