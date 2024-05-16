@@ -27,7 +27,7 @@ add_definitions(${ROOT_CXX_FLAGS})
 
 set(LIBNAME CMSCombine)
 
-file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} interface/*.h)
+file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} interface/*.h*)
 file(GLOB SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.c*)
 
 # includes require "HiggsAnalysis/CombinedLimit" prefix in many places
