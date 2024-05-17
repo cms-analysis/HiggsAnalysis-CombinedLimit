@@ -1,4 +1,6 @@
 // An implementation of RooPower was added to ROOT from 6.28 onwards
+#include "RVersion.h"
+
 #if ROOT_VERSION_CODE < ROOT_VERSION(6, 28, 00)
 
 /*****************************************************************************
