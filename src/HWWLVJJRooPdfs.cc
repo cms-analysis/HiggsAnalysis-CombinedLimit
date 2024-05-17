@@ -431,6 +431,11 @@ ClassImp(RooPowerFunction)
    return 0 ; 
  } 
 
+// An implementation of RooPower was added to ROOT from 6.28 onwards
+#include "RVersion.h"
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 28, 00)
+
 ClassImp(RooExpPoly) 
 
 
@@ -560,3 +565,4 @@ RooExpPoly::DoubleComplex_t RooExpPoly::erfi(DoubleComplex_t z) {
   // std::cout << "erfi: "; ret.Print();
   return ret;
 }
+#endif
