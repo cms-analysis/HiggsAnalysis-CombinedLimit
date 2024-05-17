@@ -25,6 +25,8 @@
 #include "../interface/CombineLogger.h"
 #include "vectorized.h"
 
+#include "RVersion.h"
+
 namespace cacheutils {
     typedef OptimizedCachingPdfT<FastVerticalInterpHistPdf,FastVerticalInterpHistPdfV> CachingHistPdf;
     typedef OptimizedCachingPdfT<FastVerticalInterpHistPdf2,FastVerticalInterpHistPdf2V> CachingHistPdf2;
@@ -35,7 +37,9 @@ namespace cacheutils {
     typedef OptimizedCachingPdfT<RooGaussian,VectorizedGaussian> CachingGaussPdf;
     typedef OptimizedCachingPdfT<RooCBShape,VectorizedCBShape> CachingCBPdf;
     typedef OptimizedCachingPdfT<RooExponential,VectorizedExponential> CachingExpoPdf;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 28, 00)
     typedef OptimizedCachingPdfT<RooPower,VectorizedPower> CachingPowerPdf;
+#endif
 
     class ReminderSum : public RooAbsReal {
         public:
