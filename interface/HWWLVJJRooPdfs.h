@@ -198,7 +198,12 @@ protected:
 private:
   ClassDef(RooPowerLaw, 1) // Power law PDF
 };
- 
+
+// An implementation of RooExpPoly was added to ROOT from 6.28 onwards
+#include "RVersion.h"
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 28, 00)
+
 class RooExpPoly : public RooAbsPdf {
 public:
   RooExpPoly() {} ; 
@@ -228,5 +233,11 @@ private:
 
   ClassDef(RooExpPoly,1) // Your description goes here...
 };
+
+#else
+
+#include "RooExpPoly.h"
+
+#endif
 
 #endif
