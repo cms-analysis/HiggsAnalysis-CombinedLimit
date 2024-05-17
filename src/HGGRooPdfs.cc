@@ -1,3 +1,6 @@
+// An implementation of RooPower was added to ROOT from 6.28 onwards
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 28, 00)
+
 /*****************************************************************************
  * Project: RooFit                                                           *
  * Package: RooFitModels                                                     *
@@ -90,3 +93,4 @@ Double_t RooPower::analyticalIntegral(Int_t code, const char* rangeName) const
   assert(0) ;
   return 0 ;
 }
+#endif
