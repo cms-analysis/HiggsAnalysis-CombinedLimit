@@ -496,8 +496,10 @@ cacheutils::makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) {
 	std::unique_ptr<RooArgSet> params(pdf->getParameters(obs));
 	if(params->getSize()!=1) {return new CachingPdf(pdf,obs);}
         return new CachingExpoPdf(pdf, obs);
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 28, 00)
     } else if (gaussNll && typeid(*pdf) == typeid(RooPower)) {
         return new CachingPowerPdf(pdf, obs);
+#endif
     } else if (multiNll && typeid(*pdf) == typeid(RooMultiPdf)) {
         return new CachingMultiPdf(static_cast<RooMultiPdf&>(*pdf), *obs);
     } else if (multiNll && typeid(*pdf) == typeid(RooAddPdf)) {
