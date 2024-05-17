@@ -29,6 +29,7 @@ void VectorizedExponential::fill(std::vector<Double_t> &out) const {
     vectorized::exponentials(xvals_.size(), lambda, norm, &xvals_[0], &out[0], &work_[0]);
 }
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 28, 00)
 VectorizedPower::VectorizedPower(const RooPower &pdf, const RooAbsData &data, bool includeZeroWeights)
 {
     RooArgSet obs(*data.get());
@@ -53,3 +54,4 @@ void VectorizedPower::fill(std::vector<Double_t> &out) const {
     out.resize(xvals_.size());
     vectorized::powers(xvals_.size(), exponent, norm, &xvals_[0], &out[0], &work_[0]);
 }
+#endif
