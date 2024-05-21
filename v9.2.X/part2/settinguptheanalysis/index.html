@@ -1725,9 +1725,8 @@ This interpolation is designed so that the values of <span class="arithmatex">\(
 <p>The normalizations are interpolated linearly in log scale, just like we do for log-normal uncertainties. If the value in a given bin is negative for some value of <span class="arithmatex">\(\nu\)</span>, the value will be truncated at 0.</p>
 <p>For each shape uncertainty and process/channel affected by it, two additional input shapes have to be provided. These are obtained by shifting the parameter up and down by one standard deviation. When building the likelihood, each shape uncertainty is associated to a nuisance parameter taken from a unit gaussian distribution, which is used to interpolate or extrapolate using the specified histograms.</p>
 <p>For each given shape uncertainty, the part of the datacard describing shape uncertainties must contain a row</p>
-<ul>
-<li>** <em>name</em> <em>shape</em> <em>effect_for_each_process_and_channel</em> **</li>
-</ul>
+<pre><code>name shape effect_for_each_process_and_channel
+</code></pre>
 <p>The effect can be "-" or 0 for no effect, 1 for the normal effect, and something different from 1 to test larger or smaller effects (in that case, the unit gaussian is scaled by that factor before using it as parameter for the interpolation).</p>
 <p>The datacard in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-TH1.txt">data/tutorials/shapes/simple-shapes-TH1.txt</a> provides an example of how to include shapes in the datacard. In the first block the following line specifies the shape mapping:</p>
 <pre><code class="language-nohighlight">shapes * * simple-shapes-TH1.root $PROCESS $PROCESS_$SYSTEMATIC
