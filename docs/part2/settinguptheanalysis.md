@@ -139,7 +139,9 @@ For each shape uncertainty and process/channel affected by it, two additional in
 
 For each given shape uncertainty, the part of the datacard describing shape uncertainties must contain a row
 
--   ** *name* *shape* *effect_for_each_process_and_channel* **
+```
+name shape effect_for_each_process_and_channel
+```
 
 The effect can be "-" or 0 for no effect, 1 for the normal effect, and something different from 1 to test larger or smaller effects (in that case, the unit gaussian is scaled by that factor before using it as parameter for the interpolation).
 
