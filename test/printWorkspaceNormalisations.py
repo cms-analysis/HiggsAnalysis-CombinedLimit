@@ -269,7 +269,7 @@ if options.format == "html":
                         print("... is a product, which contains {proc_norm_var_name}<br>".format(proc_norm_var_name=proc_norm_var.GetName()))
                         printExpand(proc_norm_var.GetName())
                         proc_norm_var.Print()
-                        printExpand()
+                        printEndExpand()
                 else:
                     if proc[3]:
                         if proc[1].Class().GetName() == ROOT.ProcessNormalization().Class().GetName():
