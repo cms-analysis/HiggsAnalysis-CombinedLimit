@@ -52,19 +52,8 @@ RooMultiPdf::RooMultiPdf(const RooMultiPdf& other, const char* name) :
 
  fIndex=other.fIndex;
  nPdfs=other.nPdfs;
-
- for (RooAbsArg *fPdf : other.c) {
-	c.add(*fPdf);
-  std::unique_ptr<RooArgSet> variables(fPdf->getVariables());
-  std::unique_ptr<RooAbsCollection> nonConstVariables(variables->selectByAttrib("Constant", false));
-
-	RooConstVar *tmp = new RooConstVar(Form("const%s",fPdf->GetName())
-		,"",nonConstVariables->getSize());
-	corr.add(*tmp);
- }
-
  _oldIndex=fIndex;
-  cFactor=other.cFactor; // correction to 2*NLL by default is -> 2*0.5 per param
+ cFactor=other.cFactor; // correction to 2*NLL by default is -> 2*0.5 per param
 }
 
 bool RooMultiPdf::checkIndexDirty() const {
