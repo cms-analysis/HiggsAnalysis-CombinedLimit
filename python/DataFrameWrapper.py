@@ -70,7 +70,18 @@ class DataFrameWrapper(object):
         if not hasattr(self, "df"):
             raise AttributeError("Dataframe has not been loaded")
 
-        index_labels, column_labels = object_name.split(",")
+        # index_labels, column_labels = object_name.split(",")
+        # Not necessary to include ":nominal,sum_w:sum_ww in every line
+        # check if its not there and if so, add these default names of columns
+        try:
+            index_labels, column_labels = object_name.split(",")
+        except ValueError:
+            index_labels = object_name
+            column_labels = ""
+        if len(column_labels) == 0:
+            column_labels = "sum_w:sum_ww"
+        if len(index_labels.split(":")) < 3:
+            index_labels += ":nominal"
 
         # Try to cast index_labels into self.df.index dtypes. Users can only
         # input index_labels as a string, but the dataframe might have other
