@@ -27,7 +27,7 @@ jobs:
   build:
     strategy:
       matrix:
-        python: ["3.8"]
+        python: ["3.9"]
         root: ["6.22.08"]  #closest to CMSSW_11_3_4 where we have 6.22.09
         include:
           # to deprecate (11_2_X py2)
@@ -38,7 +38,7 @@ jobs:
             root: "6.26.4"
           # python 3.10 root 6.32
           - python: "3.10"
-            root: "6.32.00" # version 6.30.07 where the conflicting classes were removed from root is not available, so compiling with 6.32.00 where this issue is resolved
+            root: "6.32" # version 6.30.07 where the conflicting classes were removed from root is not available, so compiling with 6.32.00 where this issue is resolved
 
     runs-on: ubuntu-latest
     name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
