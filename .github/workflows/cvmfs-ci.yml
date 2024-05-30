@@ -15,13 +15,13 @@ jobs:
         IMAGE: ["cmscloud/al9-cms"]
         CMSSW_VERSION: ["CMSSW_14_1_0_pre4"] # ROOT v6.30/07
         SCRAM_ARCH: ["el9_amd64_gcc12"]
-      include:
-        - IMAGE: "cmscloud/cc7-cms"
-          CMSSW_VERSION: "CMSSW_11_3_4" # ROOT v6.22
-          SCRAM_ARCH: "slc7_amd64_gcc900"
-        - IMAGE: "cmscloud/al9-cms"
-          CMSSW_VERSION: "CMSSW_14_0_0_pre1" # ROOT v6.26/11
-          SCRAM_ARCH: "el9_amd64_gcc12"
+        include:
+          - IMAGE: "cmscloud/cc7-cms"
+            CMSSW_VERSION: "CMSSW_11_3_4" # ROOT v6.22
+            SCRAM_ARCH: "slc7_amd64_gcc900"
+          - IMAGE: "cmscloud/al9-cms"
+            CMSSW_VERSION: "CMSSW_14_0_0_pre1" # ROOT v6.26/11
+            SCRAM_ARCH: "el9_amd64_gcc12"
 
     name: Test with ${{ matrix.CMSSW_VERSION }}
     steps:
