@@ -176,7 +176,7 @@ toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, in
         std::unique_ptr<RooDataSet> data(pdf_->generate(observables_, nPoints));
         if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
         RooArgSet obsPlusW(observables_); obsPlusW.add(*weightVar);
-        RooDataSet *rds = new RooDataSet(data->GetName(), "", obsPlusW, weightVar->GetName());
+        RooDataSet *rds = new RooDataSet(data->GetName(), "", obsPlusW, RooFit::WeightVar(weightVar->GetName()));
         RooAbsArg::setDirtyInhibit(true); // don't propagate dirty flags while filling histograms 
         for (int i = 0; i < nPoints; ++i) {
             observables_ = *data->get(i);
@@ -219,7 +219,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
     double expectedEvents = pdf_->expectedEvents(observables_);
     histoSpec_->Scale(expectedEvents/ histoSpec_->Integral("width")); 
     RooArgSet obsPlusW(obs); obsPlusW.add(*weightVar);
-    RooDataSet *data = new RooDataSet(TString::Format("%sData", pdf_->GetName()), "", obsPlusW, weightVar->GetName());
+    RooDataSet *data = new RooDataSet(TString::Format("%sData", pdf_->GetName()), "", obsPlusW, RooFit::WeightVar(weightVar->GetName()));
     RooAbsArg::setDirtyInhibit(true); // don't propagate dirty flags while filling histograms 
     switch (obs.getSize()) {
         case 1:
@@ -377,7 +377,7 @@ toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet*
                 if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
                 RooArgSet obs(*data->get()); 
                 obs.add(*weightVar);
-                RooDataSet *wdata = new RooDataSet(data->GetName(), "", obs, "_weight_");
+                RooDataSet *wdata = new RooDataSet(data->GetName(), "", obs, RooFit::WeightVar("_weight_"));
                 for (int i = 0, n = data->numEntries(); i < n; ++i) {
                     obs = *data->get(i);
                     wdata->add(obs, data->weight());
@@ -393,7 +393,7 @@ toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet*
             //// slower but safer solution
             RooArgSet vars(observables_), varsPlusWeight(observables_); 
             if (weightVar) varsPlusWeight.add(*weightVar);
-            ret = new RooDataSet(retName, "", varsPlusWeight, (weightVar ? weightVar->GetName() : 0));
+            ret = new RooDataSet(retName, "", varsPlusWeight, RooFit::WeightVar(weightVar ? weightVar->GetName() : 0));
             RooAbsArg::setDirtyInhibit(true); // don't propagate dirty flags while filling histograms 
             for (std::map<std::string,RooAbsData*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
                 cat_->setLabel(it->first.c_str());
@@ -429,7 +429,7 @@ toymcoptutils::SimPdfGenInfo::generateAsimov(RooRealVar *&weightVar, int verbose
         }
         if (copyData_) { 
             RooArgSet vars(observables_), varsPlusWeight(observables_); varsPlusWeight.add(*weightVar);
-            ret = new RooDataSet(retName, "", varsPlusWeight, (weightVar ? weightVar->GetName() : 0));
+            ret = new RooDataSet(retName, "", varsPlusWeight, RooFit::WeightVar(weightVar ? weightVar->GetName() : 0));
             RooAbsArg::setDirtyInhibit(true); // don't propagate dirty flags while filling histograms 
             for (std::map<std::string,RooAbsData*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
                 cat_->setLabel(it->first.c_str());
@@ -467,7 +467,7 @@ toymcoptutils::SimPdfGenInfo::generateEpsilon(RooRealVar *&weightVar)
         }
         if (copyData_) { 
             RooArgSet vars(observables_), varsPlusWeight(observables_); varsPlusWeight.add(*weightVar);
-            ret = new RooDataSet(retName, "", varsPlusWeight, (weightVar ? weightVar->GetName() : 0));
+            ret = new RooDataSet(retName, "", varsPlusWeight, RooFit::WeightVar(weightVar ? weightVar->GetName() : 0));
             for (std::map<std::string,RooAbsData*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
                 cat_->setLabel(it->first.c_str());
                 for (unsigned int i = 0, n = it->second->numEntries(); i < n; ++i) {
