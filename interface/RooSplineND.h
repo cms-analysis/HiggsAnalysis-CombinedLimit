@@ -66,14 +66,14 @@ class RooSplineND : public RooAbsReal {
       RooSplineND(const char *name, const char *title, RooArgList &vars, TTree *tree, const char* fName="f", double eps=3., bool rescale=false, std::string cutstring="" ) ;
       RooSplineND(const RooSplineND& other, const char *name) ; 
       RooSplineND(const char *name, const char *title, const RooListProxy &vars, int ndim, int M, double eps, bool rescale, std::vector<double> &w, std::map<int,std::vector<double> > &map, std::map<int,std::pair<double,double> > & ,double,double) ;
-      ~RooSplineND() ;
+      ~RooSplineND() override ;
 
-      TObject * clone(const char *newname) const ;
+      TObject * clone(const char *newname) const override ;
 
       TGraph* getGraph(const char *xvar, double step) ;
 
     protected:
-        Double_t evaluate() const;
+        Double_t evaluate() const override;
 
     private:
         RooListProxy vars_;
@@ -98,7 +98,7 @@ class RooSplineND : public RooAbsReal {
 	mutable bool rescaleAxis;
 	
 
-  ClassDef(RooSplineND,1) 
+  ClassDefOverride(RooSplineND,1) 
 };
 
 #endif

@@ -22,15 +22,15 @@ class TDirectory;
 class HybridNew : public LimitAlgo {
 public:
   HybridNew() ; 
-  virtual void applyOptions(const boost::program_options::variables_map &vm) ;
-  virtual void applyDefaultOptions() ; 
+  void applyOptions(const boost::program_options::variables_map &vm) override ;
+  void applyDefaultOptions() override ; 
 
-  virtual bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) override;
   virtual bool runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual bool runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual bool runSinglePoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual bool runTestStatistics(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
-  virtual const std::string & name() const {
+  const std::string & name() const override {
     static const std::string name("HybridNew");
     return name;
   }

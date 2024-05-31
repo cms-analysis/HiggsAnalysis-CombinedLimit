@@ -41,27 +41,27 @@ public:
 
   CMSHistErrorPropagator(CMSHistErrorPropagator const& other, const char* name = 0);
 
-  virtual TObject* clone(const char* newname) const {
+  TObject* clone(const char* newname) const override {
     return new CMSHistErrorPropagator(*this, newname);
   }
 
-  virtual ~CMSHistErrorPropagator() {;}
+  ~CMSHistErrorPropagator() override {;}
 
   void applyErrorShifts(unsigned idx, FastHisto const& nominal, FastHisto & result);
 
-  Double_t evaluate() const;
+  Double_t evaluate() const override;
 
   RooArgList * setupBinPars(double poissonThreshold);
 
   std::unique_ptr<RooArgSet> getSentryArgs() const;
 
   void printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
-                      TString indent) const;
+                      TString indent) const override;
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
-                              const char* rangeName = 0) const;
+                              const char* rangeName = 0) const override;
 
-  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const override;
 
   void setData(RooAbsData const& data) const;
 
@@ -111,7 +111,7 @@ public:
 
 
  private:
-  ClassDef(CMSHistErrorPropagator,1)
+  ClassDefOverride(CMSHistErrorPropagator,1)
 };
 
 #endif

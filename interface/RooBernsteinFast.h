@@ -65,11 +65,11 @@ public:
     _xvector(other._xvector) {}
   
   
-  virtual TObject* clone(const char* newname) const { return new RooBernsteinFast(*this, newname); }
-  virtual ~RooBernsteinFast() { }
+  TObject* clone(const char* newname) const override { return new RooBernsteinFast(*this, newname); }
+  ~RooBernsteinFast() override { }
   
   
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override
     {
       
       // No analytical calculation available (yet) of integrals over subranges (as for standard RooBernstein)
@@ -82,7 +82,7 @@ public:
     }
     
     
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override
     {
 
       _bernvector[0] = 1.0;
@@ -111,7 +111,7 @@ protected:
   mutable VType _powvector;  //coefficients in power basis
   mutable VType _xvector;    //vector of powers of x variable
   
-  Double_t evaluate() const
+  Double_t evaluate() const override
     {
 
       _bernvector[0] = 1.0;
@@ -140,7 +140,7 @@ protected:
       
     }
 
-  ClassDef(RooBernsteinFast,1) // Polynomial PDF
+  ClassDefOverride(RooBernsteinFast,1) // Polynomial PDF
 };
 
 #endif

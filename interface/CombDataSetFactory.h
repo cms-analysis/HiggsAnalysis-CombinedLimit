@@ -22,7 +22,7 @@ class CombDataSetFactory : public TObject {
    public:
       CombDataSetFactory() {}
       CombDataSetFactory(const RooArgSet &vars, RooCategory &cat) ;
-      ~CombDataSetFactory() ;
+      ~CombDataSetFactory() override ;
 
       void addSetBin(const char *label, RooDataHist *set);
       void addSetAny(const char *label, RooDataSet  *set);
@@ -31,7 +31,7 @@ class CombDataSetFactory : public TObject {
       RooDataHist *done(const char *name, const char *title) ;
       RooDataSet *doneUnbinned(const char *name, const char *title) ;
 
-      ClassDef(CombDataSetFactory,1) // Make RooDataHist
+      ClassDefOverride(CombDataSetFactory,1) // Make RooDataHist
 
     private:
         RooArgSet vars_;

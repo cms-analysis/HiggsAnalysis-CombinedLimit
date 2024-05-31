@@ -26,11 +26,15 @@ public:
         _extraConstraints("extraConstraints", this, other._extraConstraints),
         _channelMasks("channelMasks", this, other._channelMasks)  {}
 
-  virtual RooSimultaneousOpt *clone(const char* name=0) const { return new RooSimultaneousOpt(*this, name); }
+  RooSimultaneousOpt *clone(const char* name=0) const override { return new RooSimultaneousOpt(*this, name); }
 
-  virtual ~RooSimultaneousOpt() ;
+  ~RooSimultaneousOpt() override ;
 
-  virtual RooAbsReal* createNLL(RooAbsData& data, const RooLinkedList& cmdList) ;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,30,0)
+  RooAbsReal* createNLL(RooAbsData& data, const RooLinkedList& cmdList) override;
+#else
+  std::unique_ptr<RooAbsReal> createNLLImpl(RooAbsData& data, const RooLinkedList& cmdList) override;
+#endif
 
   const RooArgList & extraConstraints() const { return _extraConstraints; }
   const RooArgList & channelMasks() const { return _channelMasks; }
@@ -39,7 +43,7 @@ public:
   void addExtraConstraints(const RooAbsCollection &pdfs) ;
   void addChannelMasks(const RooArgList &args);
 private:
-  ClassDef(RooSimultaneousOpt,3) // Variant of RooSimultaneous that can put together binned and unbinned stuff 
+  ClassDefOverride(RooSimultaneousOpt,3) // Variant of RooSimultaneous that can put together binned and unbinned stuff 
 
   RooListProxy _extraConstraints;  //  List of extra constraint terms
   RooListProxy _channelMasks;
