@@ -824,7 +824,7 @@ FastVerticalInterpHistPdf2Base::initBase() const
 }
 
 FastVerticalInterpHistPdf2::FastVerticalInterpHistPdf2(const char *name, const char *title, const RooRealVar &x, const TList & funcList, const RooArgList& coefList, Double_t smoothRegion, Int_t smoothAlgo) :
-    FastVerticalInterpHistPdf2Base(name,title,RooArgSet(x),funcList,coefList,smoothRegion,smoothAlgo),
+    FastVerticalInterpHistPdf2Base(name,title,x,funcList,coefList,smoothRegion,smoothAlgo),
     _x("x","Independent variable",this,const_cast<RooRealVar&>(x)),
     _cache(), _cacheNominal(), _cacheNominalLog()
 {
@@ -836,8 +836,19 @@ FastVerticalInterpHistPdf2::FastVerticalInterpHistPdf2(const char *name, const c
     }
 }
 
+namespace {
+
+RooArgSet createRooArgSet(RooAbsArg const& arg1, RooAbsArg const& arg2) {
+    RooArgSet out;
+    out.add(arg1);
+    out.add(arg2);
+    return out;
+}
+
+} // namespace
+
 FastVerticalInterpHistPdf2D2::FastVerticalInterpHistPdf2D2(const char *name, const char *title, const RooRealVar &x, const RooRealVar &y, bool conditional, const TList & funcList, const RooArgList& coefList, Double_t smoothRegion, Int_t smoothAlgo) :
-    FastVerticalInterpHistPdf2Base(name,title,RooArgSet(x,y),funcList,coefList,smoothRegion,smoothAlgo),
+    FastVerticalInterpHistPdf2Base(name,title,createRooArgSet(x, y),funcList,coefList,smoothRegion,smoothAlgo),
     _x("x","Independent variable",this,const_cast<RooRealVar&>(x)),
     _y("y","Independent variable",this,const_cast<RooRealVar&>(y)),
     _conditional(conditional),
@@ -859,7 +870,7 @@ FastVerticalInterpHistPdf2::FastVerticalInterpHistPdf2(const FastVerticalInterpH
     _cache(), _cacheNominal(), _cacheNominalLog()
 {
     initBase();
-    other.getVal(RooArgSet(_x.arg()));
+    other.getVal(_x.arg());
     _morphs = other._morphs;
     _cache = other._cache;
     _cacheNominal = other._cacheNominal;
@@ -875,7 +886,10 @@ FastVerticalInterpHistPdf2D2::FastVerticalInterpHistPdf2D2(const FastVerticalInt
     _cache(), _cacheNominal(), _cacheNominalLog()
 {
     initBase();
-    other.getVal(RooArgSet(_x.arg(), _y.arg()));
+    RooArgSet normSet;
+    normSet.add(_x.arg());
+    normSet.add(_y.arg());
+    other.getVal(normSet);
     _morphs = other._morphs;
     _cache = other._cache;
     _cacheNominal = other._cacheNominal;

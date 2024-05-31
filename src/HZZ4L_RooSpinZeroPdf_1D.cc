@@ -75,7 +75,7 @@ ClassImp(HZZ4L_RooSpinZeroPdf_1D)
 Int_t HZZ4L_RooSpinZeroPdf_1D::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* /*rangeName*/) const
 {
 
-//  if (matchArgs(allVars,analVars,RooArgSet(*kd.absArg(), *kdint.absArg(), *ksmd.absArg()))) return 4 ;
+//  if (matchArgs(allVars,analVars,kd, kdint, ksmd)) return 4 ;
   if (matchArgs(allVars,analVars,kd)) return 4 ;
   //if (matchArgs(allVars,analVars,kdint)) return 2 ;
   //if (matchArgs(allVars,analVars,ksmd)) return 3 ;

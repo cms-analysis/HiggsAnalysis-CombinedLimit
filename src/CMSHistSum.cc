@@ -611,7 +611,10 @@ RooArgList * CMSHistSum::setupBinPars(double poissonThreshold) {
             RooRealVar *var = new RooRealVar(TString::Format("%s_bin%i_%s", this->GetName(), j, proc.c_str()), "", n_p_r, rmin, rmax);
             RooConstVar *cvar = new RooConstVar(TString::Format("%g", 1. / n_p_r), "", 1. / n_p_r);
             RooProduct *prod = new RooProduct(TString::Format("%s_prod", var->GetName()), "", RooArgList(*var, *cvar));
-            var->addOwnedComponents(RooArgSet(*prod, *cvar));
+	    RooArgSet ownedComps;
+	    ownedComps.add(*prod);
+	    ownedComps.add(*cvar);
+            var->addOwnedComponents(ownedComps);
             var->setAttribute("createPoissonConstraint");
             res->addOwned(*var);
             binpars_.add(*prod);
