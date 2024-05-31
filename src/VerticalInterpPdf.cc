@@ -284,14 +284,15 @@ Double_t VerticalInterpPdf::analyticalIntegralWN(Int_t code, const RooArgSet* no
 
   // WVE needs adaptation for rangeName feature
   CacheElem* cache = (CacheElem*) _normIntMgr.getObjByIndex(code-1) ;
+  RooArgList& fIntL = cache->_funcIntList;
 
-  Double_t central = static_cast<RooAbsReal&>(_funcList[0]).getVal();
+  Double_t central = static_cast<RooAbsReal&>(fIntL[0]).getVal();
   value += central;
 
   for (int iCoef = 0; iCoef < _coefList.getSize(); ++iCoef) {
     Double_t coefVal = static_cast<RooAbsReal&>(_coefList[iCoef]).getVal(normSet2) ;
-    RooAbsReal * funcIntUp = &(RooAbsReal&)_funcList[2 * iCoef + 1];
-    RooAbsReal * funcIntDn = &(RooAbsReal&)_funcList[2 * iCoef + 2];
+    RooAbsReal * funcIntUp = &(RooAbsReal&)fIntL[2 * iCoef + 1];
+    RooAbsReal * funcIntDn = &(RooAbsReal&)fIntL[2 * iCoef + 2];
     value += interpolate(coefVal, central, funcIntUp, funcIntDn);
   }
   
