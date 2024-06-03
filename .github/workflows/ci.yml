@@ -27,6 +27,7 @@ jobs:
   build:
     strategy:
       matrix:
+        os: [ubuntu-latest, macos-latest]
         python: ["3.8"]
         root: ["6.22"]
         include:
@@ -39,8 +40,8 @@ jobs:
           # python 3.10 root 6.26
           - python: "3.10"
             root: "6.26.4"
-    runs-on: ubuntu-latest
-    name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
+    runs-on: ${{ matrix.os }}
+    name: Compile (os${{ matrix.os }} py${{ matrix.python }}, root${{ matrix.root }})
 
     steps:
     - uses: actions/checkout@master
