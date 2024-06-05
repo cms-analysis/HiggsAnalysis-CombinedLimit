@@ -2118,17 +2118,16 @@ function toggleChann(id) {
 
 <p>In case you only have a counting experiment datacard, include the option <code>--noshape</code>.</p>
 <p>If you have a datacard that uses several <code>rateParams</code> or a Physics model that includes a complicated product of normalization terms in each process, you can check the values of the normalization (and which objects in the workspace comprise them) using the <code>test/printWorkspaceNormalisations.py</code> tool. As an example, the first few blocks of output for the tutorial card <code>data/tutorials/counting/realistic-multi-channel.txt</code> are given below:</p>
+<pre><code class="language-sh">text2workspace.py data/tutorials/counting/realistic-multi-channel.txt 
+python test/printWorkspaceNormalisations.py data/tutorials/counting/realistic-multi-channel.root     
+</code></pre>
 <details>
 <summary><strong>Show example output</strong></summary>
-<pre><code>
-$ text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt -m 30
-$ python test/printWorkspaceNormalisations.py data/tutorials/counting/realistic-multi-channel.root                                                                                                           
-
----------------------------------------------------------------------------
+<pre><code>---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
 Channel - mu_tau
 ---------------------------------------------------------------------------
-  Top-level normalisation for process ZTT -> n_exp_binmu_tau_proc_ZTT
+  Top-level normalisation for process ZTT -&gt; n_exp_binmu_tau_proc_ZTT
   -------------------------------------------------------------------------
 Dumping ProcessNormalization n_exp_binmu_tau_proc_ZTT @ 0x6bbb610
     nominal value: 329
@@ -2142,7 +2141,7 @@ Dumping ProcessNormalization n_exp_binmu_tau_proc_ZTT @ 0x6bbb610
   -------------------------------------------------------------------------
   default value =  329.0
 ---------------------------------------------------------------------------
-  Top-level normalisation for process QCD -> n_exp_binmu_tau_proc_QCD
+  Top-level normalisation for process QCD -&gt; n_exp_binmu_tau_proc_QCD
   -------------------------------------------------------------------------
 Dumping ProcessNormalization n_exp_binmu_tau_proc_QCD @ 0x6bbcaa0
     nominal value: 259
@@ -2154,7 +2153,7 @@ Dumping ProcessNormalization n_exp_binmu_tau_proc_QCD @ 0x6bbcaa0
   -------------------------------------------------------------------------
   default value =  259.0
 ---------------------------------------------------------------------------
-  Top-level normalisation for process higgs -> n_exp_binmu_tau_proc_higgs
+  Top-level normalisation for process higgs -&gt; n_exp_binmu_tau_proc_higgs
   -------------------------------------------------------------------------
 Dumping ProcessNormalization n_exp_binmu_tau_proc_higgs @ 0x6bc6390
     nominal value: 0.57
@@ -2172,7 +2171,7 @@ Dumping ProcessNormalization n_exp_binmu_tau_proc_higgs @ 0x6bc6390
 ---------------------------------------------------------------------------
 Channel - e_mu
 ---------------------------------------------------------------------------
-  Top-level normalisation for process ZTT -> n_exp_bine_mu_proc_ZTT
+  Top-level normalisation for process ZTT -&gt; n_exp_bine_mu_proc_ZTT
   -------------------------------------------------------------------------
 Dumping ProcessNormalization n_exp_bine_mu_proc_ZTT @ 0x6bc8910
     nominal value: 88
@@ -2189,18 +2188,16 @@ Dumping ProcessNormalization n_exp_bine_mu_proc_ZTT @ 0x6bc8910
 </details>
 <p>As you can see, for each channel, a report is given for the top-level rate object in the workspace, for each process contributing to that channel. You can also see the various terms that make up that rate. The default value is for the default parameters in the workspace (i.e when running <code>text2workspace</code>, these are the values created as default).</p>
 <p>Another example is shown below for the workspace produced from the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-parametric.txt">data/tutorials/shapes/simple-shapes-parametric.txt</a> datacard.</p>
+<pre><code class="language-sh">text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt -m 30
+python test/printWorkspaceNormalisations.py data/tutorials/shapes/simple-shapes-parametric.root -m 30
+</code></pre>
 <details>
 <summary><strong>Show example output</strong></summary>
-<pre><code>
-  text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt
-  python test/printWorkspaceNormalisations.py data/tutorials/shapes/simple-shapes-parametric.root
-  ...
-
-  ---------------------------------------------------------------------------
+<pre><code>  ---------------------------------------------------------------------------
   ---------------------------------------------------------------------------
   Channel - bin1
   ---------------------------------------------------------------------------
-    Top-level normalisation for process bkg -> n_exp_final_binbin1_proc_bkg
+    Top-level normalisation for process bkg -&gt; n_exp_final_binbin1_proc_bkg
     -------------------------------------------------------------------------
   RooProduct::n_exp_final_binbin1_proc_bkg[ n_exp_binbin1_proc_bkg * shapeBkg_bkg_bin1__norm ] = 521.163
    ... is a product, which contains  n_exp_binbin1_proc_bkg
@@ -2208,7 +2205,7 @@ Dumping ProcessNormalization n_exp_bine_mu_proc_ZTT @ 0x6bc8910
     -------------------------------------------------------------------------
     default value =  521.163204829
   ---------------------------------------------------------------------------
-    Top-level normalisation for process sig -> n_exp_binbin1_proc_sig
+    Top-level normalisation for process sig -&gt; n_exp_binbin1_proc_sig
     -------------------------------------------------------------------------
   Dumping ProcessNormalization n_exp_binbin1_proc_sig @ 0x464f700
       nominal value: 1
