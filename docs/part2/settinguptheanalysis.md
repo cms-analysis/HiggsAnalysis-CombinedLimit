@@ -624,11 +624,12 @@ In case you only have a counting experiment datacard, include the option `--nosh
 
 If you have a datacard that uses several `rateParams` or a Physics model that includes a complicated product of normalization terms in each process, you can check the values of the normalization (and which objects in the workspace comprise them) using the `test/printWorkspaceNormalisations.py` tool. As an example, the first few blocks of output for the tutorial card `data/tutorials/counting/realistic-multi-channel.txt` are given below:
 
+```sh
+text2workspace.py data/tutorials/counting/realistic-multi-channel.txt 
+python test/printWorkspaceNormalisations.py data/tutorials/counting/realistic-multi-channel.root     
+```
 /// details | **Show example output**
-<pre><code>
-$ text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt -m 30
-$ python test/printWorkspaceNormalisations.py data/tutorials/counting/realistic-multi-channel.root                                                                                                           
-
+```
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
 Channel - mu_tau
@@ -690,7 +691,7 @@ Dumping ProcessNormalization n_exp_bine_mu_proc_ZTT @ 0x6bc8910
   -------------------------------------------------------------------------
   default value =  88.0
 ---------------------------------------------------------------------------
-</code></pre>
+```
 ///
 
 
@@ -698,13 +699,12 @@ As you can see, for each channel, a report is given for the top-level rate objec
 
 Another example is shown below for the workspace produced from the [data/tutorials/shapes/simple-shapes-parametric.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-parametric.txt) datacard.
 
-
+```sh
+text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt -m 30
+python test/printWorkspaceNormalisations.py data/tutorials/shapes/simple-shapes-parametric.root -m 30
+```
 /// details | **Show example output**
-<pre><code>
-  text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt
-  python test/printWorkspaceNormalisations.py data/tutorials/shapes/simple-shapes-parametric.root
-  ...
-
+```
   ---------------------------------------------------------------------------
   ---------------------------------------------------------------------------
   Channel - bin1
@@ -729,7 +729,7 @@ Another example is shown below for the workspace produced from the [data/tutoria
 
     -------------------------------------------------------------------------
     default value =  1.0
-</code></pre>
+```
 ///
 
 This tells us that the normalization for the background process, named `n_exp_final_binbin1_proc_bkg` is a product of two objects `n_exp_binbin1_proc_bkg * shapeBkg_bkg_bin1__norm`. The first object is just from the **rate** line in the datacard (equal to 1) and the second is a floating parameter. For the signal, the normalisation is called `n_exp_binbin1_proc_sig` and is a `ProcessNormalization` object that contains the rate modifications due to the systematic uncertainties. You can see that it also has a "*nominal value*", which again is just from the value given in the **rate** line of the datacard (again=1).
