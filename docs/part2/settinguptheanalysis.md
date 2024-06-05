@@ -541,8 +541,8 @@ In order to get a quick view of the systematic uncertainties included in the dat
 
 The default output is a `.html` file that can be expanded to give more details about the effect of the systematic uncertainty for each channel/process. Add the option `--format brief` to obtain a simpler summary report direct to the terminal. An example output for the tutorial card `data/tutorials/shapes/simple-shapes-TH1.txt` is shown below.
 
-```nohighlight 
-$ python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt --all -f html > out.html
+```sh
+python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt --all -f html > out.html
 ```
 
 This will produce the following output in html format: 
