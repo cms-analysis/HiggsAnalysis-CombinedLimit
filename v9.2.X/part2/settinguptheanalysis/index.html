@@ -2040,7 +2040,7 @@ MB.doModel()
 <p>For large combinations with multiple channels/processes etc, the <code>.txt</code> file can get unwieldy to read through. There are some simple tools to help check and disseminate the contents of the cards. </p>
 <p>In order to get a quick view of the systematic uncertainties included in the datacard, you can use the <code>test/systematicsAnalyzer.py</code> tool. This will produce a list of the systematic uncertainties (normalization and shape), indicating what type they are, which channels/processes they affect and the size of the effect on the normalization (for shape uncertainties, this will just be the overall uncertainty on the normalization).</p>
 <p>The default output is a <code>.html</code> file that can be expanded to give more details about the effect of the systematic uncertainty for each channel/process. Add the option <code>--format brief</code> to obtain a simpler summary report direct to the terminal. An example output for the tutorial card <code>data/tutorials/shapes/simple-shapes-TH1.txt</code> is shown below.</p>
-<pre><code class="language-nohighlight">$ python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt --all -f html &gt; out.html
+<pre><code class="language-sh">python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt --all -f html &gt; out.html
 </code></pre>
 <p>This will produce the following output in html format: </p>
 <html>
