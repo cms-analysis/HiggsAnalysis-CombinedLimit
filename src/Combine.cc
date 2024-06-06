@@ -428,6 +428,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       // Possible that MH value was re-set above, so make sure mass is set to the correct value and not over-ridden later.
       if (w->var("MH")) mass_ = w->var("MH")->getVal();
     }
+    // look for parameters ranged [-1e+30, 1e+30], corresponding to the old definition of unlimited parameters, 
+    // since ROOT v6.30 have to removeRange() to keep them unlimited
+    utils::check_inf_parameters(w->allVars());
 
   } else {
     std::cerr << "HLF not validated" << std::endl;
@@ -471,6 +474,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (setPhysicsModelParameterExpression_ != "") {
 	    utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
     }
+    utils::check_inf_parameters(w->allVars());
   }
   gSystem->cd(pwd);
 
