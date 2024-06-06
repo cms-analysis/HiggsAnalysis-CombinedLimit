@@ -110,19 +110,21 @@ The <span style="font-variant:small-caps;">Combine</span> tool can take as input
 
 The block of lines defining the mapping (first block in the datacard) contains one or more rows of the form
 
--   **shapes *process* *channel* *file* *histogram* *[histogram_with_systematics]* **
+```
+shapes process channel file histogram [histogram_with_systematics]
+```
 
 In this line,
 
--   ***process*** is any one the process names, or **\*** for all processes, or **data_obs** for the observed data;
--   ***channel*** is any one the process names, or **\*** for all channels;
--   *file*, *histogram* and *histogram_with_systematics* identify the names of the files and of the histograms within the file, after making some replacements (if any are found):
-    -   **$PROCESS** is replaced with the process name (or "**data_obs**" for the observed data);
-    -   **$CHANNEL** is replaced with the channel name;
-    -   **$SYSTEMATIC** is replaced with the name of the systematic + (**Up, Down**);
-    -   **$MASS** is replaced with the chosen (Higgs boson) mass value that is passed as a command-line option when running the tool
+-   `process`is any one the process names, or `*` for all processes, or `data_obs` for the observed data;
+-   `channel`is any one the process names, or `*` for all channels;
+-   `file`, `histogram` and `histogram_with_systematics` identify the names of the files and of the histograms within the file, after making some replacements (if any are found):
+    -   `$PROCESS` is replaced with the process name (or "`data_obs`" for the observed data);
+    -   `$CHANNEL` is replaced with the channel name;
+    -   `$SYSTEMATIC` is replaced with the name of the systematic + (`Up`, `Down`);
+    -   `$MASS` is replaced with the chosen (Higgs boson) mass value that is passed as a command-line option when running the tool
 
-In addition, user-defined keywords can be used. Any word in the datacard **$WORD** will be replaced by **VALUE** when including the option `--keyword-value WORD=VALUE`. This option can be repeated multiple times for multiple keywords.
+In addition, user-defined keywords can be used. Any word in the datacard `$WORD` will be replaced by `VALUE` when including the option `--keyword-value WORD=VALUE`. This option can be repeated multiple times for multiple keywords.
 
 #### Template shape uncertainties
 
