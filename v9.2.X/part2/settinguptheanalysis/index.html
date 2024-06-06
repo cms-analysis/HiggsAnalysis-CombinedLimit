@@ -1701,22 +1701,21 @@ bg_others lnN    -     -     -   1.30   30% uncertainty on the rest of the backg
 </ul>
 <p>The <span style="font-variant:small-caps;">Combine</span> tool can take as input histograms saved as TH1, as RooAbsHist in a RooFit workspace (an example of how to create a RooFit workspace and save histograms is available in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/shapes/make_simple_shapes.cxx">github</a>), or from a pandas dataframe (<a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-df.txt">example</a>).</p>
 <p>The block of lines defining the mapping (first block in the datacard) contains one or more rows of the form</p>
-<ul>
-<li><em><em>shapes </em>process</em> <em>channel</em> <em>file</em> <em>histogram</em> <em>[histogram_with_systematics]</em> **</li>
-</ul>
+<pre><code>shapes process channel file histogram [histogram_with_systematics]
+</code></pre>
 <p>In this line,</p>
 <ul>
-<li><strong><em>process</em></strong> is any one the process names, or <strong>*</strong> for all processes, or <strong>data_obs</strong> for the observed data;</li>
-<li><strong><em>channel</em></strong> is any one the process names, or <strong>*</strong> for all channels;</li>
-<li><em>file</em>, <em>histogram</em> and <em>histogram_with_systematics</em> identify the names of the files and of the histograms within the file, after making some replacements (if any are found):<ul>
-<li><strong>$PROCESS</strong> is replaced with the process name (or "<strong>data_obs</strong>" for the observed data);</li>
-<li><strong>$CHANNEL</strong> is replaced with the channel name;</li>
-<li><strong>$SYSTEMATIC</strong> is replaced with the name of the systematic + (<strong>Up, Down</strong>);</li>
-<li><strong>$MASS</strong> is replaced with the chosen (Higgs boson) mass value that is passed as a command-line option when running the tool</li>
+<li><code>process</code>is any one the process names, or <code>*</code> for all processes, or <code>data_obs</code> for the observed data;</li>
+<li><code>channel</code>is any one the process names, or <code>*</code> for all channels;</li>
+<li><code>file</code>, <code>histogram</code> and <code>histogram_with_systematics</code> identify the names of the files and of the histograms within the file, after making some replacements (if any are found):<ul>
+<li><code>$PROCESS</code> is replaced with the process name (or "<code>data_obs</code>" for the observed data);</li>
+<li><code>$CHANNEL</code> is replaced with the channel name;</li>
+<li><code>$SYSTEMATIC</code> is replaced with the name of the systematic + (<code>Up</code>, <code>Down</code>);</li>
+<li><code>$MASS</code> is replaced with the chosen (Higgs boson) mass value that is passed as a command-line option when running the tool</li>
 </ul>
 </li>
 </ul>
-<p>In addition, user-defined keywords can be used. Any word in the datacard <strong>$WORD</strong> will be replaced by <strong>VALUE</strong> when including the option <code>--keyword-value WORD=VALUE</code>. This option can be repeated multiple times for multiple keywords.</p>
+<p>In addition, user-defined keywords can be used. Any word in the datacard <code>$WORD</code> will be replaced by <code>VALUE</code> when including the option <code>--keyword-value WORD=VALUE</code>. This option can be repeated multiple times for multiple keywords.</p>
 <h4 id="template-shape-uncertainties">Template shape uncertainties</h4>
 <p>Shape uncertainties can be taken into account by vertical interpolation of the histograms. The shapes (fraction of events <span class="arithmatex">\(f\)</span> in each bin) are interpolated using a spline for shifts below +/- 1σ and linearly outside of that. Specifically, for nuisance parameter values <span class="arithmatex">\(|\nu|\leq 1\)</span> </p>
 <div class="arithmatex">\[ f(\nu) = \frac{1}{2} \left( (\delta^{+}-\delta^{-})\nu + \frac{1}{8}(\delta^{+}+\delta^{-})(3\nu^6 - 10\nu^4 + 15\nu^2) \right) \]</div>
