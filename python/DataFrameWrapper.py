@@ -100,12 +100,12 @@ class DataFrameWrapper(object):
     def convert_to_th1(df, th1_class):
         """
         Receive a dataframe and convert it to a TH1. Index is taken as the
-        binning for labelling. Last bin is overflow.
+        binning for labelling. Overflowbin should be ignored!
         """
         name = df.index.names[0]
-        nbins = df.shape[0] - 1
+        nbins = df.shape[0]
         th1 = getattr(ROOT, th1_class)(name, name, nbins, 0.0, float(nbins))
-        for i in range(nbins + 1):
+        for i in range(nbins):
             sum_w, sum_ww = df.iloc[i]
             th1.SetBinContent(i + 1, sum_w)
             th1.SetBinError(i + 1, np.sqrt(sum_ww))
