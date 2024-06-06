@@ -15,7 +15,7 @@ print("Plotting directory: %s" % plot_dir)
 #
 # # Convert to RooDataSet
 # data = ROOT.RooDataSet("data_Tag0", "data_Tag0",
-#     t, ROOT.RooArgSet(mass), "", "weight"
+#     t, ROOT.RooArgSet(mass, weight), "", "weight"
 #     )
 #
 # # Define ranges to fit

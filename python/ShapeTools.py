@@ -9,8 +9,6 @@ from sys import exit, stderr, stdout
 import six
 from six.moves import range
 
-from collections import OrderedDict
-
 import ROOT
 from HiggsAnalysis.CombinedLimit.ModelTools import ModelBuilder
 
@@ -33,7 +31,7 @@ class FileCache:
     def __init__(self, basedir, maxsize=250):
         self._basedir = basedir
         self._maxsize = maxsize
-        self._files = OrderedDict()
+        self._files = {}
         self._hits = defaultdict(int)
         self._total = 0
 
@@ -73,10 +71,10 @@ class ShapeBuilder(ModelBuilder):
         if options.libs:
             for lib in options.libs:
                 ROOT.gSystem.Load(lib)
-        self.wspnames = OrderedDict()
+        self.wspnames = {}
         self.wsp = None
         self.extraImports = []
-        self.norm_rename_map = OrderedDict()
+        self.norm_rename_map = {}
         self._fileCache = FileCache(self.options.baseDir)
 
     ## ------------------------------------------
@@ -470,12 +468,12 @@ class ShapeBuilder(ModelBuilder):
     ## --------------------------------------
     def prepareAllShapes(self):
         shapeTypes = []
-        shapeBins = OrderedDict()
-        shapeObs = OrderedDict()
-        self.pdfModes = OrderedDict()
+        shapeBins = {}
+        shapeObs = {}
+        self.pdfModes = {}
         for ib, b in enumerate(self.DC.bins):
-            databins = OrderedDict()
-            bgbins = OrderedDict()
+            databins = {}
+            bgbins = {}
             channelBinParFlag = b in list(self.DC.binParFlags.keys())
             for p in [self.options.dataname] + list(self.DC.exp[b].keys()):
                 if len(self.DC.obs) == 0 and p == self.options.dataname:
@@ -563,7 +561,7 @@ class ShapeBuilder(ModelBuilder):
                     if i not in bgbins:
                         stderr.write("Channel %s has bin %d filled in data but empty in all backgrounds\n" % (b, i))
         if shapeTypes.count("TH1"):
-            self.TH1Observables = OrderedDict()
+            self.TH1Observables = {}
             self.out.binVars = ROOT.RooArgSet()
             self.out.maxbins = max([shapeBins[k] for k in shapeBins.keys()])
             if self.options.optimizeTemplateBins:
@@ -664,7 +662,7 @@ class ShapeBuilder(ModelBuilder):
     ## -------------------------------------
     ## -------- Low level helpers ----------
     ## -------------------------------------
-    def getShape(self, channel, process, syst="", _cache=OrderedDict(), allowNoSyst=False):
+    def getShape(self, channel, process, syst="", _cache={}, allowNoSyst=False):
         if (channel, process, syst) in _cache:
             if self.options.verbose > 2:
                 print(
@@ -853,10 +851,10 @@ class ShapeBuilder(ModelBuilder):
             _cache[(channel, process, syst)] = ret
             return ret
 
-    def getData(self, channel, process, syst="", _cache=OrderedDict()):
+    def getData(self, channel, process, syst="", _cache={}):
         return self.shape2Data(self.getShape(channel, process, syst), channel, process)
 
-    def getPdf(self, channel, process, _cache=OrderedDict()):
+    def getPdf(self, channel, process, _cache={}):
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         if (channel, process) in _cache:
             return _cache[(channel, process)]
@@ -1214,7 +1212,7 @@ class ShapeBuilder(ModelBuilder):
             rebinh1._original_bins = shapeNbins
         return rebinh1
 
-    def shape2Data(self, shape, channel, process, _cache=OrderedDict()):
+    def shape2Data(self, shape, channel, process, _cache={}):
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         if shape == None:
             name = "shape%s_%s_%s" % (postFix, channel, process)
@@ -1250,7 +1248,7 @@ class ShapeBuilder(ModelBuilder):
                 raise RuntimeError("shape2Data not implemented for %s" % shape.ClassName())
         return _cache[shape.GetName()]
 
-    def shape2Pdf(self, shape, channel, process, _cache=OrderedDict()):
+    def shape2Pdf(self, shape, channel, process, _cache={}):
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         channelBinParFlag = channel in list(self.DC.binParFlags.keys())
         if shape == None:

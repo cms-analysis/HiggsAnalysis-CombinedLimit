@@ -109,6 +109,25 @@ Note that this will only affect your *local* copy of the gh-pages documentation.
 Please ensure you use relative paths. Currently, this is the only known feature where the behvaiour differs between local mkdocs and public page deployment. 
 If you'd like to test the deployment directly, the suggested method is to set up a docs page using your personal github account; this should mimic the exact settings of the official page.
 
+## Github Actions 
+
+There are several automated processes defined in the [`.github/workflows`](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/main/.github/workflows) folder which are triggered for every pull request or when a new commit is pushed into the `main` branch. 
+
+ - `CI with CVMFS` workflow defined in [.github/workflows/cvmfs-ci.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/cvmfs-ci.yml) compiles <span style="font-variant:small-caps;">Combine</span> with the CMSSW which is setup from `cvmfs`. This will also run several test <span style="font-variant:small-caps;">Combine</span> commands using tutorial datacards contained in the repository. 
+ - `CI/CD` workflow defined in [.github/workflows/ci.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/ci.yml) runs:
+   
+    1. [Linting checks](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/ci.yml#L11) with`flake8` and `black`.
+    2. <span style="font-variant:small-caps;">Combine</span> compilation using conda environment with several combinations of (ROOT, python) versions:  (6.26.4, 3.10), (6.24,3.9), (6.22, 3.9) and (6.22, 2.7.18) 
+    
+ - `Docs` workflow defined in [.github/workflows/docs.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/docs.yml) manages the documentation deployment with `mike` as described above.
+
+In addition there are two conditional workflows that can be triggered with [github labels](https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/managing-labels): 
+
+- `trigger gitlab job` workflow defined in [.github/workflows/gitlabci.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/gitlabci.yml) can be triggered with the "safe to test" label. Please note that this gitlab workflow uses `CMSSW_10_2_13`, therefore it might fail with later versions of <span style="font-variant:small-caps;">Combine</span> and it is likely to be deprecated soon. 
+
+- `Port to <branch>` workflows defined in [.github/workflows/port_to_branch.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/port_to_branch.yml), e.g. the `Port to 112x-comb2022` can be triggered with the "port to 112x-comb2022" label to port the changes from a pull request to the `112x-comb2022` branch and create a new pull request. 
+
+
 ## Big Contributions
 
 We welcome large contributions to <span style="font-variant:small-caps;">Combine</span>. 

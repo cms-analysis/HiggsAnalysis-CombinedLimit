@@ -1,7 +1,7 @@
-#include "HiggsAnalysis/CombinedLimit/interface/RandStartPt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
+#include "../interface/RandStartPt.h"
+#include "../interface/Combine.h"
+#include "../interface/utils.h"
+#include "../interface/CascadeMinimizer.h"
 
 #include <vector>
 #include <iostream>
