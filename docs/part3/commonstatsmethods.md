@@ -1046,6 +1046,38 @@ The output tree will contain the values of the POI that crosses the critical val
 
 You can produce a plot of the value of $p_{\vec{\mu}}$ vs the parameter of interest $\vec{\mu}$ by adding the option `--plot <plotname>`.
 
+As an example, we will use the`data/tutorials/multiDim/toy-hgg-125.txt` datacard and find the 1D FC 68% interval for the $r_{qqH}$ parameter. First, we construct the model as, 
+
+```sh
+text2workspace.py -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH toy-hgg-125.txt -o toy-hgg-125.root
+```
+
+Now we generate the grid of test statistics in a suitable range. You could use the `combineTool.py` as below but for 1D, we can just generate the points in a for loop. 
+
+```sh
+for i in range 0.1 1.1 2.1 3.1 4.1 5.1 6.1 7.1 8.1 9.1 10.1 ; do combine toy-hgg-125.root --redefineSignalPOI r_qqH   -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint r_qqH=${i} --saveToys --saveHybridResult -n ${i} ; done
+
+hadd -f FeldmanCousins1D.root higgsCombine*.1.HybridNew.mH120.123456.root
+```
+
+Next, we get combine to calculate the interval from this grid. 
+```sh
+combine toy-hgg-125.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridResults --grid=FeldmanCousins1D.root --cl 0.68 --redefineSignalPOI r_qqH
+```
+and we should see the below as the output, 
+
+```
+ -- HybridNew --
+found 68 % confidence regions
+  2.19388 (+/- 0.295316) < r_qqH < 8.01798 (+/- 0.0778685)
+Done in 0.00 min (cpu), 0.00 min (real)
+```
+
+Since we included the `--plot` option, we will also get a plot like the one below, 
+
+![1DFC](images/FC1D.png)
+
+
 #### Extracting 2D contours / general intervals
 
 For *two-dimensional* models, or if the parameter does not behave like a cross section, you will need to extract the contours from the output of `HybridNew` and plot them yourself. We will use the `data/tutorials/multiDim/toy-hgg-125.txt` datacard in the example below to demonstrate how this can be done. Let's build the model again as we did in the MultiDimFit section.
