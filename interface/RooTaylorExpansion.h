@@ -19,13 +19,13 @@ class RooTaylorExpansion : public RooAbsReal {
                      const std::vector<double>& terms);
 
   RooTaylorExpansion(const RooTaylorExpansion& other, const char* name = 0);
-  virtual TObject* clone(const char* newname) const {
+  TObject* clone(const char* newname) const override {
     return new RooTaylorExpansion(*this, newname);
   }
-  inline virtual ~RooTaylorExpansion() {}
+  inline ~RooTaylorExpansion() override {}
 
   void printMultiline(std::ostream& os, Int_t contents,
-                                   Bool_t verbose, TString indent) const;
+                                   Bool_t verbose, TString indent) const override;
 
  protected:
 
@@ -34,10 +34,10 @@ class RooTaylorExpansion : public RooAbsReal {
   std::vector<std::vector<int>> _trackers;
   std::vector<double> _terms;
 
-  Double_t evaluate() const;
+  Double_t evaluate() const override;
 
  private:
-  ClassDef(RooTaylorExpansion,
+  ClassDefOverride(RooTaylorExpansion,
            1)  // Multivariate Gaussian PDF with correlations
 };
 

@@ -23,12 +23,12 @@ class SimpleTaylorExpansion1D : public RooAbsReal {
       SimpleTaylorExpansion1D(const char *name, const char *title, RooAbsReal & func, RooRealVar & xvar, double dx, int order=2) ;
       SimpleTaylorExpansion1D(const SimpleTaylorExpansion1D &other, const char *newname=0) ;
 
-      ~SimpleTaylorExpansion1D() ;
+      ~SimpleTaylorExpansion1D() override ;
 
-      TObject * clone(const char *newname) const ;
+      TObject * clone(const char *newname) const override ;
 
     protected:
-        Double_t evaluate() const;
+        Double_t evaluate() const override;
 
     private:
 
@@ -36,7 +36,7 @@ class SimpleTaylorExpansion1D : public RooAbsReal {
         double x0_, ci_[MaxOrder+1];
 
 
-  ClassDef(SimpleTaylorExpansion1D,1) // Simple Taylor Expansion in 1D 
+  ClassDefOverride(SimpleTaylorExpansion1D,1) // Simple Taylor Expansion in 1D 
 };
 
 #endif

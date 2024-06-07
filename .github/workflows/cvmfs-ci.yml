@@ -1,10 +1,5 @@
 name: CI with CVMFS
 
-env:
-  IMAGE: cmscloud/cc7-cms
-  CMSSW_VERSION: CMSSW_11_3_4
-  SCRAM_ARCH: slc7_amd64_gcc900
-
 on:
   workflow_dispatch:
   pull_request:
@@ -15,7 +10,20 @@ on:
 jobs:
   test_workflow:
     runs-on: ubuntu-latest
-    name: Test with CMSSW
+    strategy:
+      matrix:
+        IMAGE: ["cmscloud/al9-cms"]
+        CMSSW_VERSION: ["CMSSW_14_1_0_pre4"] # ROOT v6.30/07
+        SCRAM_ARCH: ["el9_amd64_gcc12"]
+        include:
+          - IMAGE: "cmscloud/cc7-cms"
+            CMSSW_VERSION: "CMSSW_11_3_4" # ROOT v6.22
+            SCRAM_ARCH: "slc7_amd64_gcc900"
+          - IMAGE: "cmscloud/al9-cms"
+            CMSSW_VERSION: "CMSSW_14_0_0_pre1" # ROOT v6.26/11
+            SCRAM_ARCH: "el9_amd64_gcc12"
+
+    name: Test with ${{ matrix.CMSSW_VERSION }}
     steps:
       # checkout the files of this repository
       - uses: actions/checkout@v4
@@ -24,9 +32,9 @@ jobs:
           cvmfs_repositories: 'cms.cern.ch'
       - uses: rhaschke/docker-run-action@v5
         with:
-          image: ${{ env.IMAGE }}
+          image: ${{ matrix.IMAGE }}
           shell: bash
-          options: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit -w /home/cmsusr -e CMSSW_VERSION=${{ env.CMSSW_VERSION }} -e SCRAM_ARCH=${{ env.SCRAM_ARCH }}
+          options: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
           run: | 
             ls /work/CombinedLimit
             ls /cvmfs/cms.cern.ch | grep common
@@ -39,4 +47,15 @@ jobs:
             cp -r /work/CombinedLimit HiggsAnalysis/
             scramv1 b -j$(nproc)
             echo ${PATH}
+            root --version
             combine --help
+            combine HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01
+            combine HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M HybridNew --LHCmode LHC-significance -T 100 --mass 125
+            combine HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M Significance --mass 125
+            combine HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-1-counting-experiment.txt -M MarkovChainMC --tries 100
+            text2workspace.py HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-5-multi-signal.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o datacard-5-multi-signal.root --mass 125
+            combine datacard-5-multi-signal.root -M MultiDimFit --algo singles --mass 125
+            combine HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-5-multi-signal.txt -M ChannelCompatibilityCheck --mass 125
+
+
+

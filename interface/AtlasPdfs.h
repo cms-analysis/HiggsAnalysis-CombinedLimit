@@ -34,8 +34,8 @@ namespace HistFactory{
     RooBSplineBases(const char *name, const char *title);
     RooBSplineBases(const RooBSplineBases&, const char*);
 
-    virtual TObject* clone(const char* newname) const { return new RooBSplineBases(*this, newname); }
-    virtual ~RooBSplineBases() ;
+    TObject* clone(const char* newname) const override { return new RooBSplineBases(*this, newname); }
+    ~RooBSplineBases() override ;
 
 /*     Double_t getCurvature() const; */
 
@@ -62,9 +62,9 @@ namespace HistFactory{
     mutable std::vector<double> _t_ary;
     mutable std::vector<std::vector<double> > _bin;
 
-    Double_t evaluate() const;
+    Double_t evaluate() const override;
 
-    ClassDef(RooStats::HistFactory::RooBSplineBases,1) // Uniform B-Spline
+    ClassDefOverride(RooStats::HistFactory::RooBSplineBases,1) // Uniform B-Spline
   };
 }
 }
@@ -116,8 +116,8 @@ namespace HistFactory{
     RooBSpline(const char *name, const char *title);
     RooBSpline(const RooBSpline&, const char*);
 
-    virtual TObject* clone(const char* newname) const { return new RooBSpline(*this, newname); }
-    virtual ~RooBSpline() ;
+    TObject* clone(const char* newname) const override { return new RooBSpline(*this, newname); }
+    ~RooBSpline() override ;
 
 /*     Double_t getCurvature() const; */
 
@@ -127,8 +127,8 @@ namespace HistFactory{
     void setWeights(const RooArgList& weights);
 
     Bool_t setBinIntegrator(RooArgSet& allVars) ;
-    Int_t getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& analVars, const RooArgSet* normSet,const char* rangeName=0) const ;
-    Double_t analyticalIntegralWN(Int_t code, const RooArgSet* normSet, const char* rangeName=0) const ;
+    Int_t getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& analVars, const RooArgSet* normSet,const char* rangeName=0) const override ;
+    Double_t analyticalIntegralWN(Int_t code, const RooArgSet* normSet, const char* rangeName=0) const override ;
 
     const RooArgList& getControlPoints() const {return _controlPoints;}
 
@@ -151,17 +151,17 @@ namespace HistFactory{
     // Cache the integrals   
     class CacheElem : public RooAbsCacheElement {
     public:
-      virtual ~CacheElem();
+      ~CacheElem() override;
       // Payload
       RooArgList _I ;
-      virtual RooArgList containedArgs(Action) ;
+      RooArgList containedArgs(Action) override ;
     };
     mutable RooObjCacheManager _cacheMgr ; // The cache manager
 
 
-    Double_t evaluate() const;
+    Double_t evaluate() const override;
 
-    ClassDef(RooStats::HistFactory::RooBSpline,2) // Uniform B-Spline
+    ClassDefOverride(RooStats::HistFactory::RooBSpline,2) // Uniform B-Spline
   };
 }
 }
@@ -209,13 +209,13 @@ public:
     RooDataSet& data, Mirror mirror= NoMirror, Double_t rho=1, Int_t nPoints=1000
   );
   RooParamKeysPdf(const RooParamKeysPdf& other, const char* name=0);
-  virtual TObject* clone(const char* newname) const {return new RooParamKeysPdf(*this,newname); }
-  virtual ~RooParamKeysPdf();
+  TObject* clone(const char* newname) const override {return new RooParamKeysPdf(*this,newname); }
+  ~RooParamKeysPdf() override;
   
   void LoadDataSet( RooDataSet& data);
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
 
 protected:
   
@@ -223,7 +223,7 @@ protected:
   RooRealProxy _deltax ;
   double _centralValue;
   RooRealProxy _multiplicativeShift;
-  Double_t evaluate() const;
+  Double_t evaluate() const override;
 
 private:
   
@@ -251,7 +251,7 @@ private:
   Double_t _lo, _hi, _binWidth;
   Double_t _rho;
   
-  ClassDef(RooParamKeysPdf,4) // One-dimensional non-parametric kernel estimation p.d.f.
+  ClassDefOverride(RooParamKeysPdf,4) // One-dimensional non-parametric kernel estimation p.d.f.
 };
 
 #ifdef __CINT__
@@ -304,15 +304,15 @@ public:
 
   RooStarMomentMorph(const RooStarMomentMorph& other, const char* name=0) ;
 
-  virtual TObject* clone(const char* newname) const { return new RooStarMomentMorph(*this,newname); }
+  TObject* clone(const char* newname) const override { return new RooStarMomentMorph(*this,newname); }
 
-  virtual ~RooStarMomentMorph();
+  ~RooStarMomentMorph() override;
 
   void     setMode(const Setting& setting) { _setting = setting; }
 
   int nnuisSize() { return _nnuis.size(); }
 
-  virtual Bool_t selfNormalized() const { 
+  Bool_t selfNormalized() const override { 
     // P.d.f is self normalized
     return kTRUE ; 
   }
@@ -325,7 +325,7 @@ public:
 
 #if ROOT_VERSION_CODE>=ROOT_VERSION(5,34,15)
   void fixCache() { _cacheMgr.setClearOnRedirect(kFALSE) ; }
-  virtual CacheMode canNodeBeCached() const { return RooAbsArg::NotAdvised ; } ;
+  CacheMode canNodeBeCached() const override { return RooAbsArg::NotAdvised ; } ;
 #endif
   
 
@@ -336,9 +336,9 @@ protected:
     CacheElem(RooAbsPdf& sumPdf, RooChangeTracker& tracker, const RooArgList& flist) : _sumPdf(&sumPdf), _tracker(&tracker), _fractionsCalculated(false) { 
       _frac.add(flist) ; 
     } ;
-    void operModeHook(RooAbsArg::OperMode) {};
-    virtual ~CacheElem() ; 
-    virtual RooArgList containedArgs(Action) ;
+    void operModeHook(RooAbsArg::OperMode) override {};
+    ~CacheElem() override ; 
+    RooArgList containedArgs(Action) override ;
     RooAbsPdf* _sumPdf ;
     RooChangeTracker* _tracker ; 
     RooArgList _frac ;
@@ -353,7 +353,7 @@ protected:
 
   friend class CacheElem ; // Cache needs to be able to clear _norm pointer
 
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 
   void     initialize();
   CacheElem* getCache(const RooArgSet* nset) const ;
@@ -379,7 +379,7 @@ protected:
 
   Bool_t _useHorizMorph;
 
-  ClassDef(RooStarMomentMorph,2) // Your description goes here...
+  ClassDefOverride(RooStarMomentMorph,2) // Your description goes here...
 };
  
 #endif

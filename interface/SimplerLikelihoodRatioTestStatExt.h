@@ -40,11 +40,11 @@ class SimplerLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
         ///   factorize: if set to true, the constraint terms not depending on the observables will be removed 
         SimplerLikelihoodRatioTestStatOpt(const RooArgSet &obs, RooAbsPdf &pdfNull, RooAbsPdf &pdfAlt, const RooArgSet & paramsNull = RooArgSet(), const RooArgSet & paramsAlt = RooArgSet(), bool factorize=true) ;
 
-        virtual ~SimplerLikelihoodRatioTestStatOpt() ;
+        ~SimplerLikelihoodRatioTestStatOpt() override ;
 
-        virtual Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) ;
+        Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) override ;
 
-        virtual const TString GetVarName() const {
+        const TString GetVarName() const override {
             return TString::Format("-log(%s/%s)", pdfNull_->GetName(), pdfAlt_->GetName()); 
         }
     private:

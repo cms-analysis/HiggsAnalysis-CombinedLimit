@@ -113,7 +113,7 @@ If you'd like to test the deployment directly, the suggested method is to set up
 
 There are several automated processes defined in the [`.github/workflows`](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/main/.github/workflows) folder which are triggered for every pull request or when a new commit is pushed into the `main` branch. 
 
- - `CI with CVMFS` workflow defined in [.github/workflows/cvmfs-ci.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/cvmfs-ci.yml) compiles <span style="font-variant:small-caps;">Combine</span> with the CMSSW which is setup from `cvmfs`.
+ - `CI with CVMFS` workflow defined in [.github/workflows/cvmfs-ci.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/cvmfs-ci.yml) compiles <span style="font-variant:small-caps;">Combine</span> with the CMSSW which is setup from `cvmfs`. This will also run several test <span style="font-variant:small-caps;">Combine</span> commands using tutorial datacards contained in the repository. 
  - `CI/CD` workflow defined in [.github/workflows/ci.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/ci.yml) runs:
    
     1. [Linting checks](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/ci.yml#L11) with`flake8` and `black`.

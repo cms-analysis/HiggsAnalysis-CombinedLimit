@@ -28,7 +28,7 @@ protected:
 	RooRealProxy ctau;
 
 	RooListProxy _coefList;  //  List of histogram pdfs
-	Double_t evaluate() const;
+	Double_t evaluate() const override;
 public:
 	HZZ4L_RooCTauPdf_2D() {};
 	HZZ4L_RooCTauPdf_2D(
@@ -44,11 +44,11 @@ public:
 		);
 
 	HZZ4L_RooCTauPdf_2D(const HZZ4L_RooCTauPdf_2D& other, const char* name = 0);
-	virtual TObject* clone(const char* newname) const { return new HZZ4L_RooCTauPdf_2D(*this, newname); }
-	inline virtual ~HZZ4L_RooCTauPdf_2D() { delete[] Integral_T; }
+	TObject* clone(const char* newname) const override { return new HZZ4L_RooCTauPdf_2D(*this, newname); }
+	inline ~HZZ4L_RooCTauPdf_2D() override { delete[] Integral_T; }
 
-	Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName = 0) const;
-	Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
+	Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName = 0) const override;
+	Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const override;
 	const RooArgList& coefList() const { return _coefList; }
 
 	int nbins_ctau;
@@ -61,7 +61,7 @@ private:
 	Double_t interpolateBin() const;
 	Double_t interpolateIntegral() const;
 
-	ClassDef(HZZ4L_RooCTauPdf_2D, 1) // Your description goes here...
+	ClassDefOverride(HZZ4L_RooCTauPdf_2D, 1) // Your description goes here...
 };
  
 #endif

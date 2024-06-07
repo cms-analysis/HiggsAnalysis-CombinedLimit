@@ -12,7 +12,7 @@ ROOT.gROOT.SetBatch(True)
 # t = f.Get("data_Tag0")
 #
 # data = ROOT.RooDataSet("data_Tag0", "data_Tag0",
-#     t, ROOT.RooArgSet(mass), "", "weight"
+#     t, ROOT.RooArgSet(mass,weight), "", "weight"
 #     )
 #
 # # Define ranges to fit for initial parameter values

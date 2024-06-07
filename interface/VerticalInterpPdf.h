@@ -15,15 +15,15 @@ public:
   VerticalInterpPdf() ;
   VerticalInterpPdf(const char *name, const char *title, const RooArgList& funcList, const RooArgList& coefList, Double_t quadraticRegion=0., Int_t quadraticAlgo=0) ;
   VerticalInterpPdf(const VerticalInterpPdf& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new VerticalInterpPdf(*this,newname) ; }
-  virtual ~VerticalInterpPdf() ;
+  TObject* clone(const char* newname) const override { return new VerticalInterpPdf(*this,newname) ; }
+  ~VerticalInterpPdf() override ;
 
-  Double_t evaluate() const ;
-  virtual Bool_t checkObservables(const RooArgSet* nset) const ;	
+  Double_t evaluate() const override ;
+  Bool_t checkObservables(const RooArgSet* nset) const override ;	
 
-  virtual Bool_t forceAnalyticalInt(const RooAbsArg&) const { return kTRUE ; }
-  Int_t getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& numVars, const RooArgSet* normSet, const char* rangeName=0) const ;
-  Double_t analyticalIntegralWN(Int_t code, const RooArgSet* normSet, const char* rangeName=0) const ;
+  Bool_t forceAnalyticalInt(const RooAbsArg&) const override { return kTRUE ; }
+  Int_t getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& numVars, const RooArgSet* normSet, const char* rangeName=0) const override ;
+  Double_t analyticalIntegralWN(Int_t code, const RooArgSet* normSet, const char* rangeName=0) const override ;
 
   const RooArgList& funcList() const { return _funcList ; }
   const RooArgList& coefList() const { return _coefList ; }
@@ -35,8 +35,8 @@ protected:
   class CacheElem : public RooAbsCacheElement {
   public:
     CacheElem()  {} ;
-    virtual ~CacheElem() {} ; 
-    virtual RooArgList containedArgs(Action) { RooArgList ret(_funcIntList) ; ret.add(_funcNormList) ; return ret ; }
+    ~CacheElem() override {} ; 
+    RooArgList containedArgs(Action) override { RooArgList ret(_funcIntList) ; ret.add(_funcNormList) ; return ret ; }
     RooArgList _funcIntList ;
     RooArgList _funcNormList ;
   } ;
@@ -55,7 +55,7 @@ protected:
   bool isConditionalProdPdf(RooAbsReal *pdf) const;
   RooAbsReal* makeConditionalProdPdfIntegral(RooAbsPdf* pdf, RooArgSet const& analVars) const;
 
-  ClassDef(VerticalInterpPdf,3) // PDF constructed from a sum of (non-pdf) functions
+  ClassDefOverride(VerticalInterpPdf,3) // PDF constructed from a sum of (non-pdf) functions
 };
 
 #endif

@@ -15,6 +15,7 @@
 #include <TGraphErrors.h>
 #include <TStopwatch.h>
 #include <TRandom3.h>
+#include <TTree.h>
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooAbsPdf.h"
@@ -197,6 +198,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
         //std::cerr << "ALERT: generating both global observables and nuisance parameters at the same time is not validated." << std::endl;
     	CombineLogger::instance().log("HybridNew.cc",__LINE__,"[WARNING] generating both global observables and nuisance parameters at the same time is not validated!",__func__);
     }
+    if (doFC_ && (vm["singlePoint"].defaulted()) && (!vm.count("readHybridResults")) ) throw std::invalid_argument("HybridNew: Can't run feldman-cousins without --singlePoint, unless reading in grid file with --readHybridResults");
     if (!vm["singlePoint"].defaulted()) {
         if (doSignificance_) throw std::invalid_argument("HybridNew: Can't use --significance and --singlePoint at the same time");
         workingMode_ = ( vm.count("onlyTestStat") ? MakeTestStatistics : MakePValues );
@@ -370,6 +372,9 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   if (readHybridResults_) {
       if (verbose > 0) std::cout << "Search for upper limit using pre-computed grid of p-values" << std::endl;
 
+      // need to get hold of quantileExpectedBranch 
+      Float_t quantExpectedIn;
+	
       if (!gridFile_.empty()) {
         if (grid_.empty()) {
             std::unique_ptr<TFile> gridFile(TFile::Open(gridFile_.c_str()));
@@ -377,6 +382,10 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
             TDirectory *toyDir = gridFile->GetDirectory("toys");
             if (!toyDir) throw std::logic_error("Cannot use readHypoTestResult: empty toy dir in input file empty");
             readGrid(toyDir, rMinSet_ ? rMin : -99e99, rMaxSet_ ? rMax :+99e99);
+
+      	    TTree *treeIn = (TTree*) gridFile->Get("limit");
+      	    treeIn->SetBranchAddress("quantileExpected",&quantExpectedIn);
+      	    treeIn->GetEntry(0);
         }
         if (grid_.size() <= 1) throw std::logic_error("The grid must contain at least 2 points.");
         if (noUpdateGrid_) {
@@ -384,8 +393,19 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
                 std::cout << "Will have to re-run points for which the test statistic was set to zero" << std::endl;
                 updateGridDataFC(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
             } else {
-                std::cout << "Will use the test statistic that had already been computed" << std::endl;
-            }
+
+		// check if we will have to update since we need a new value for the "data" test stat
+		if (expectedFromGrid_) {
+		   Float_t diffQE = TMath::Abs(quantExpectedIn-quantileForExpectedFromGrid_);
+		   if (diffQE > EPS)  {
+		     updateGridData(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
+		   }
+		} else if ( TMath::Abs(quantExpectedIn + 1) > EPS ) {
+		   updateGridData(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
+		} else {
+		    if (verbose > 0) CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string("Will use the test statistic values that has already been computed when producing grid file - "+gridFile_),__func__);
+		}
+	    }
         } else {
             updateGridData(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
         }
@@ -522,26 +542,23 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
 		//std::cout << " HybridNew -- Found no interval in which " << rule_.c_str() << " is less than target " << cl << ", no crossings found " << std::endl;
 		CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("Found no interval in which %s is less than target %g, no crossing found!",rule_.c_str(),cl)),__func__);
 	}
-	else if (points.size()==2) {
-		//std::cout << "HybridNew -- One-sided boundary found for  " << 100*cl << "%% confidence regions " << std::endl;
-		CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("One-sided boundary found for %g %% confidence regions",100*cl)),__func__);
-		int ib=0;
-		if (points[0].second==0) ib=1;
-		//std::cout << "  " << points[ib].first << " (+/-" << points[ib].second << ")"<< ( ib==1 ? " < " : " > ") << r->GetName() << std::endl;
-		CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("%g (+/- %g) %s %s",points[ib].first,points[ib].second,( ib==1 ? " < " : " > "), r->GetName())),__func__);
-		// Commit points to limit tree
-		limit = points[ib].first; limitErr = points[ib].second; Combine::commitPoint(false, clsTarget);
-	}
 	else {
-		//std::cout << "HybridNew -- found  " << 100*cl << "%% confidence regions " << std::endl;
+		std::cout << "\n -- HybridNew -- \n";
 		CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("found %g %% confidence regions",100*cl)),__func__);
-		for (unsigned int ib=1;ib<points.size()-2;ib+=2){
-			//std::cout << "  " << points[ib].first << " (+/-" << points[ib].second << ")"<< " < " << r->GetName() << " < " << points[ib+1].first << " (+/-" << points[ib+1].second << ")" << std::endl;
-			CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("  %g (+/- %g) < %s < %g (+/- %g) ",points[ib].first,points[ib].second,r->GetName(),points[ib+1].first, points[ib+1].second)),__func__);
+		for (unsigned int ib=0;ib<=points.size()-2;ib+=2){
+			
+			if ( ib==0 && points[ib].second < 0 ) // in this case, we are on a 1-sided limit to the left 
+				CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form(" %s < %g (+/- %g) ",r->GetName(), points[ib+1].first,points[ib+1].second)),__func__);
+			else if ( ib==points.size()-2 && points[ib+1].second < 0 ) // in this case, we are on a 1-sided limit to the right
+				CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form(" %s > %g (+/- %g) ",r->GetName(), points[ib].first,points[ib].second)),__func__);
+
+			else CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("  %g (+/- %g) < %s < %g (+/- %g) ",points[ib].first,points[ib].second,r->GetName(),points[ib+1].first, points[ib+1].second)),__func__);
 
 			// Commit points to limit tree
-			limit = points[ib].first; limitErr = points[ib].second; Combine::commitPoint(false, clsTarget);
-			limit = points[ib+1].first; limitErr = points[ib+1].second; Combine::commitPoint(false, clsTarget);
+			if (points[ib].second>0) {
+				limit = points[ib].first; limitErr = points[ib].second; Combine::commitPoint(false, clsTarget);
+				limit = points[ib+1].first; limitErr = points[ib+1].second; Combine::commitPoint(false, clsTarget);
+			} else limit = points[ib+1].first; limitErr = points[ib+1].second; Combine::commitPoint(false, clsTarget);
 		}
 	}
       } else {
@@ -626,8 +643,10 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       c1->Print(plot_.c_str());
   }
 
-  std::cout << "\n -- Hybrid New -- \n";
-  std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL\n";
+  if (!doFC_){
+  	std::cout << "\n -- Hybrid New -- \n";
+  	std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL\n";
+  }
   if (verbose > 1) std::cout << "Total toys: " << perf_totalToysRun_ << std::endl;
   return true;
 }
@@ -1701,8 +1720,15 @@ std::vector<std::pair<double,double> > HybridNew::findIntervalsFromSplines(TGrap
 	limitPlot_->Sort();
 
 	std::vector<std::pair <double,double> > points ; // interval boundaries
-
+	
 	int npoints_plot =  limitPlot_->GetN();
+
+	// In this case we found not crossings at all 
+	if (npoints_plot <=2){
+	  if ( (limitPlot_->GetY()[0] > clsTarget) && (limitPlot_->GetY()[npoints_plot-1] > clsTarget) ) return points;
+	  if ( (limitPlot_->GetY()[0] < clsTarget) && (limitPlot_->GetY()[npoints_plot-1] < clsTarget) ) return points;
+	}
+
 	int previousCross = 0;
 
 	for (int pti = 0; pti<npoints_plot-1; pti++){
@@ -1725,15 +1751,15 @@ std::vector<std::pair<double,double> > HybridNew::findIntervalsFromSplines(TGrap
 			reverse->SetBit(2);
 			std::pair<double,double> res = interpolateAndUncert(reverse,clsTarget);
 			points.push_back(res);
-			//std::cout << " foind X point r = " << points.back().first << "+/-" <<points.back().second << std::endl;
+			//std::cout << " found Xing point r = " << points.back().first << "+/-" <<points.back().second << std::endl;
 			previousCross = pti+1;
 			//points.push_back(std::pair<double,double>(val,0));
 
 		} else previousCross=pti;
 	}
-	if (limitPlot_->GetY()[0] > clsTarget) 	points.push_back(std::pair<double,double>(limitPlot_->GetX()[0],0));
-	if (limitPlot_->GetY()[npoints_plot-1] > clsTarget)  points.push_back(std::pair<double,double>(limitPlot_->GetX()[npoints_plot-1],0));
+
+	if (limitPlot_->GetY()[0] > clsTarget) 		     points.push_back(std::pair<double,double>(limitPlot_->GetX()[0],-1));
+	if (limitPlot_->GetY()[npoints_plot-1] > clsTarget)  points.push_back(std::pair<double,double>(limitPlot_->GetX()[npoints_plot-1],-1));
 	std::sort(points.begin(),points.end());
-	// print Intervals - currently no estimate on uncertainty, how can we propagate the uncertainty to the
 	return points;
 }
