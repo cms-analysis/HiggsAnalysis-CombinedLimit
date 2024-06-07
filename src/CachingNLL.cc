@@ -663,7 +663,7 @@ cacheutils::CachingAddNLL::evaluate() const
         //         *its += coeff * (*itv); // sum (n_i * pdf_i)
         //    }
         // vectorize to make it faster
-        vectorized::mul_add(pdfvals.size(), coeff, &pdfvals[0], &partialSum_[0]);
+        vectorized::mul_add(pdfvals.size(), coeff, pdfvals.data(), partialSum_.data());
     }
     // if all basic integrals evaluated ok, use them
     if (allBasicIntegralsOk) basicIntegrals_ = 2;
@@ -705,7 +705,7 @@ cacheutils::CachingAddNLL::evaluate() const
     //      for ( its = bgs, itw = bgw ; its != eds ; ++its, ++itw ) {
     //         ret -= (*itw) * log( ((*its) / sumCoeff) );
     //      }
-    ret -= vectorized::nll_reduce(partialSum_.size(), &partialSum_[0], &weights_[0], sumCoeff, &workingArea_[0]);
+    ret -= vectorized::nll_reduce(partialSum_.size(), partialSum_.data(), weights_.data(), sumCoeff, workingArea_.data());
     // std::cout << "AddNLL for " << pdf_->GetName() << ": " << ret << std::endl;
     // and add extended term: expected - observed*log(expected);
     static bool expEventsNoNorm = runtimedef::get("ADDNLL_ROOREALSUM_NONORM");
