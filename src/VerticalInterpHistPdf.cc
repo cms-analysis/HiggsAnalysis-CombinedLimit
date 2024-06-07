@@ -772,14 +772,9 @@ FastVerticalInterpHistPdf2Base::FastVerticalInterpHistPdf2Base(const FastVertica
   _coefList("coefList", this, other._coefList),
   _smoothRegion(other._smoothRegion),
   _smoothAlgo(other._smoothAlgo),
-  _initBase(other._initBase),
+  _initBase(false),
   _morphs(other._morphs), _morphParams(other._morphParams)
 {
-    if (_initBase) {
-        // Morph params are already set, but we must set the sentry
-        _sentry.addVars(_coefList);
-        _sentry.setValueDirty(); 
-    }
 }
 
 //_____________________________________________________________________________
