@@ -1461,7 +1461,8 @@ RooStarMomentMorph::CacheElem* RooStarMomentMorph::getCache(const RooArgSet* /*n
       mypos[j] = new RooAddition(myposName.c_str(),myposName.c_str(),meanList,coefList2);
       myrms[j] = new RooAddition(myrmsName.c_str(),myrmsName.c_str(),rmsList,coefList3);
       
-      ownedComps.add(RooArgSet(*myrms[j],*mypos[j])) ;
+      ownedComps.add(*myrms[j]) ;
+      ownedComps.add(*mypos[j]) ;
     }
   }
 
@@ -1486,18 +1487,23 @@ RooStarMomentMorph::CacheElem* RooStarMomentMorph::getCache(const RooArgSet* /*n
       std::string slopeName  = Form("%s_slope_%d_%d", GetName(),i,j);
       std::string offsetName = Form("%s_offset_%d_%d",GetName(),i,j);
 
-      slope[sij(i,j)]  = _useHorizMorph ? 
-	(RooAbsReal*)new RooFormulaVar(slopeName.c_str(),"@0/@1",
-				       RooArgList(*sigmarv[sij(i,j)],*myrms[j])) : 
-	(RooAbsReal*)new RooConstVar(slopeName.c_str(),slopeName.c_str(),1.0); // 
+      if (_useHorizMorph) {
+	  RooArgList slopeInputs;
+	  slopeInputs.add(*sigmarv[sij(i,j)]);
+	  slopeInputs.add(*myrms[j]);
+          slope[sij(i,j)] = new RooFormulaVar(slopeName.c_str(),"@0/@1", slopeInputs);
+	  RooArgList offsetInputs;
+	  offsetInputs.add(*meanrv[sij(i,j)]);
+	  offsetInputs.add(*mypos[j]);
+	  offsetInputs.add(*slope[sij(i,j)]);
+          offsetVar[sij(i,j)] = new RooFormulaVar(offsetName.c_str(),"@0-(@1*@2)", offsetInputs);
+      } else {
+          slope[sij(i,j)] = new RooConstVar(slopeName.c_str(),slopeName.c_str(),1.0);
+          offsetVar[sij(i,j)] = new RooConstVar(offsetName.c_str(),offsetName.c_str(),0.0);
+      }
       
-      
-      offsetVar[sij(i,j)] = _useHorizMorph ? 
-	(RooAbsReal*)new RooFormulaVar(offsetName.c_str(),"@0-(@1*@2)",
-				       RooArgList(*meanrv[sij(i,j)],*mypos[j],*slope[sij(i,j)])) : 	
-	(RooAbsReal*)new RooConstVar(offsetName.c_str(),offsetName.c_str(),0.0); // 
-      
-      ownedComps.add(RooArgSet(*slope[sij(i,j)],*offsetVar[sij(i,j)])) ;
+      ownedComps.add(*slope[sij(i,j)]);
+      ownedComps.add(*offsetVar[sij(i,j)]);
       
       // linear transformations, so pdf can be renormalized easily
       RooRealVar *var = (RooRealVar*)(_obsList[j]);

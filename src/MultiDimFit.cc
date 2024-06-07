@@ -780,7 +780,6 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
             spacingOffsetY = 0.5;
         }
         unsigned int ipoint = 0;
-        //unsigned int nprint = ceil(0.005 * nTotal);
 
         // loop through the grid
         for (unsigned int i = 0; i < nX; ++i) {
