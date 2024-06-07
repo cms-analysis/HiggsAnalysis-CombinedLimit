@@ -22,6 +22,7 @@ ClassImp(RooMultiPdf)
 RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, const RooArgList& _c) : 
   RooAbsPdf(name, title),  //Why is this here? just to use the names to be used? 
   c("_pdfs","The list of pdfs",this),
+  corr("_corrs","The list of correction factors",this),
   x("_index","the pdf index",this,_x) 
 {
   int count=0;
@@ -46,24 +47,13 @@ RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, c
 
 //_____________________________________________________________________________
 RooMultiPdf::RooMultiPdf(const RooMultiPdf& other, const char* name) :
- RooAbsPdf(other, name),c("_pdfs",this,RooListProxy()),x("_index",this,other.x)
+ RooAbsPdf(other, name),c("_pdfs",this,other.c),corr("_corrs",this,other.corr),x("_index",this,other.x)
 {
 
  fIndex=other.fIndex;
  nPdfs=other.nPdfs;
-
- for (RooAbsArg *fPdf : other.c) {
-	c.add(*fPdf);
-  std::unique_ptr<RooArgSet> variables(fPdf->getVariables());
-  std::unique_ptr<RooAbsCollection> nonConstVariables(variables->selectByAttrib("Constant", false));
-
-	RooConstVar *tmp = new RooConstVar(Form("const%s",fPdf->GetName())
-		,"",nonConstVariables->getSize());
-	corr.add(*tmp);
- }
-
  _oldIndex=fIndex;
-  cFactor=other.cFactor; // correction to 2*NLL by default is -> 2*0.5 per param
+ cFactor=other.cFactor; // correction to 2*NLL by default is -> 2*0.5 per param
 }
 
 bool RooMultiPdf::checkIndexDirty() const {
