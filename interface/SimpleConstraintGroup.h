@@ -16,11 +16,11 @@ class SimpleConstraintGroup : public RooAbsReal {
         void clearZeroPoint() ;
         void updateZeroPoint() { clearZeroPoint(); setZeroPoint(); }
  
-        TObject * clone(const char *newname) const { return new SimpleConstraintGroup(*this, newname); }
+        TObject * clone(const char *newname) const override { return new SimpleConstraintGroup(*this, newname); }
 
         unsigned int size() const { return _gaus.size() + _pois.size(); }
     protected:
-        Double_t evaluate() const;
+        Double_t evaluate() const override;
 
     private:
         RooSetProxy _deps;
@@ -28,7 +28,7 @@ class SimpleConstraintGroup : public RooAbsReal {
         std::vector<const SimplePoissonConstraint *> _pois;
         std::vector<double> _gaus0, _pois0;
 
-        ClassDef(SimpleConstraintGroup,1) // group of constraints
+        ClassDefOverride(SimpleConstraintGroup,1) // group of constraints
 };
 
 #endif

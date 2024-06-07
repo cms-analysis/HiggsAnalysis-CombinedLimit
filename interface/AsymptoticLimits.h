@@ -22,16 +22,16 @@ class RooRealVar;
 class AsymptoticLimits : public LimitAlgo {
 public:
   AsymptoticLimits() ; 
-  virtual void applyOptions(const boost::program_options::variables_map &vm) ;
-  virtual void applyDefaultOptions() ; 
+  void applyOptions(const boost::program_options::variables_map &vm) override ;
+  void applyDefaultOptions() override ; 
 
-  virtual bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) override;
   virtual bool runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   std::vector<std::pair<float,float> > runLimitExpected(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) ;
 
   float findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, double rMin, double rMax, double nll0, double quantile) ; 
 
-  virtual const std::string& name() const { static std::string name_ = "AsymptoticLimits"; return name_; }
+  const std::string& name() const override { static std::string name_ = "AsymptoticLimits"; return name_; }
 private:
   static double rAbsAccuracy_, rRelAccuracy_;
   static std::string what_;

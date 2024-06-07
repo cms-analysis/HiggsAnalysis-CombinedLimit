@@ -14,10 +14,10 @@ class RooArgSet;
 class BayesianToyMC : public LimitAlgo {
 public:
   BayesianToyMC() ;
-  virtual bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) override;
   virtual bool runBayesFactor(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
-  virtual void applyOptions(const boost::program_options::variables_map &vm) ;
-  virtual const std::string & name() const {
+  void applyOptions(const boost::program_options::variables_map &vm) override ;
+  const std::string & name() const override {
     static const std::string name("BayesianToyMC");
     return name;
   }

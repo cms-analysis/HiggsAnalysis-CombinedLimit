@@ -28,7 +28,7 @@ protected:
 
   RooListProxy _funcList;  //  List of histogram pdfs
   RooListProxy _coefList;  //  List of pdf modifiers
-  Double_t evaluate() const;
+  Double_t evaluate() const override;
 public:
 	HZZ4L_RooCTauPdf_1D_Expanded() {};
 	HZZ4L_RooCTauPdf_1D_Expanded(
@@ -48,11 +48,11 @@ public:
     );
 
 	HZZ4L_RooCTauPdf_1D_Expanded(const HZZ4L_RooCTauPdf_1D_Expanded& other, const char* name = 0);
-	virtual TObject* clone(const char* newname) const { return new HZZ4L_RooCTauPdf_1D_Expanded(*this, newname); }
-	inline virtual ~HZZ4L_RooCTauPdf_1D_Expanded() { }
+	TObject* clone(const char* newname) const override { return new HZZ4L_RooCTauPdf_1D_Expanded(*this, newname); }
+	inline ~HZZ4L_RooCTauPdf_1D_Expanded() override { }
 
-	Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName = 0) const;
-	Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
+	Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName = 0) const override;
+	Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const override;
   const RooArgList& funcList() const { return _funcList; }
   const RooArgList& coefList() const { return _coefList; }
 
@@ -73,7 +73,7 @@ private:
   Double_t interpolateBin() const;
 	Double_t interpolateIntegral() const;
 
-	ClassDef(HZZ4L_RooCTauPdf_1D_Expanded, 1) // Your description goes here...
+	ClassDefOverride(HZZ4L_RooCTauPdf_1D_Expanded, 1) // Your description goes here...
 };
  
 #endif

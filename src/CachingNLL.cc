@@ -45,12 +45,12 @@ namespace cacheutils {
                 RooAbsReal(other, name),
                 list_("deps",this,other.list_),
                 terms_(other.terms_) {} 
-            ~ReminderSum() {}
-            virtual TObject* clone(const char* newname) const { return new ReminderSum(*this,newname); }
+            ~ReminderSum() override {}
+            TObject* clone(const char* newname) const override { return new ReminderSum(*this,newname); }
         private:
             RooListProxy list_;
             std::vector<const RooAbsReal *> terms_;
-            Double_t evaluate() const;
+            Double_t evaluate() const override;
     };
 }
 
@@ -842,6 +842,10 @@ cacheutils::CachingAddNLL::getObservables(const RooArgSet* depList, Bool_t value
     return new RooArgSet();
 }
 
+// ROOT 6.26 changed the signature of getParameters to avoid heap allocation,
+// and especially returning an owning pointer that people tend to forget to
+// delete.
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
 RooArgSet* 
 cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
@@ -849,6 +853,16 @@ cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList, Bool_t stripD
     ret->add(catParams_);
     return ret;
 }
+#else
+bool cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList,
+                                              RooArgSet& outputSet,
+                                              bool stripDisconnected) const
+{
+    outputSet.add(params_);
+    outputSet.add(catParams_);
+    return true;
+}
+#endif
 
 
 cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, const RooArgSet *nuis) :
@@ -1270,6 +1284,10 @@ cacheutils::CachingSimNLL::getObservables(const RooArgSet* depList, Bool_t value
     return new RooArgSet();
 }
 
+// ROOT 6.26 changed the signature of getParameters to avoid heap allocation,
+// and especially returning an owning pointer that people tend to forget to
+// delete.
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
 RooArgSet* 
 cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
@@ -1284,14 +1302,22 @@ cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripD
     if (hideConstants_) RooStats::RemoveConstantParameters(ret);
     return ret;
 }
-
+#else
 bool cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList,
-                                                              RooArgSet& outputSet,
-                                                              bool stripDisconnected) const {
-  RooArgSet tempList = *getParameters(depList);
-  outputSet.add(tempList);
-  return true;
+                                              RooArgSet& outputSet,
+                                              bool stripDisconnected) const
+{
+    if (internalMasks_.empty()) {
+        outputSet.add(params_);
+        if (!hideRooCategories_) outputSet.add(catParams_);
+    } else {
+        outputSet.add(activeParameters_);
+        if (!hideRooCategories_) outputSet.add(activeCatParameters_);
+    }
+    if (hideConstants_) RooStats::RemoveConstantParameters(&outputSet);
+    return true;
 }
+#endif
 
 void cacheutils::CachingSimNLL::setMaskConstraints(bool flag) {
     double nllBefore = evaluate();

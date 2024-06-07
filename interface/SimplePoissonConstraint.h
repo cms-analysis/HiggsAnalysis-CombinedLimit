@@ -14,8 +14,8 @@ class SimplePoissonConstraint : public RooPoisson {
             RooPoisson(other, name) { init(); }
         SimplePoissonConstraint(const RooPoisson &g) : RooPoisson(g, "") { init(); }
 
-        virtual TObject* clone(const char* newname) const { return new SimplePoissonConstraint(*this,newname); }
-        inline virtual ~SimplePoissonConstraint() { }
+        TObject* clone(const char* newname) const override { return new SimplePoissonConstraint(*this,newname); }
+        inline ~SimplePoissonConstraint() override { }
 
         const RooAbsReal & getMean() const { return mean.arg(); }
 
@@ -45,7 +45,7 @@ class SimplePoissonConstraint : public RooPoisson {
         double logGamma_;
         void init() ;
 
-        ClassDef(SimplePoissonConstraint,1) // Poisson PDF with fast log
+        ClassDefOverride(SimplePoissonConstraint,1) // Poisson PDF with fast log
 };
 
 #endif

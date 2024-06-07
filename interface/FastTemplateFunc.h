@@ -16,7 +16,7 @@ public:
   FastTemplateFunc_t() : RooAbsReal(), obsList("obsList", "obsList", this){}
   FastTemplateFunc_t(const char *name, const char *title, RooArgList& inObsList) : RooAbsReal(name, title), obsList("obsList", "obsList", this){ setProxyList(obsList, inObsList); }
   FastTemplateFunc_t(const FastTemplateFunc_t& other, const char* name=0) : RooAbsReal(other, name), obsList("obsList", this, other.obsList){}
-  virtual inline ~FastTemplateFunc_t(){}
+  inline ~FastTemplateFunc_t() override{}
 
   void setProxyList(RooListProxy& proxyList, RooArgList& varList){
     for (RooAbsArg *var : varList) {
@@ -27,13 +27,13 @@ public:
     }
   }
 
-  virtual TObject* clone(const char* newname) const = 0;
-  virtual Double_t evaluate() const = 0;
-  virtual Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const = 0;
-  virtual Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const = 0;
+  TObject* clone(const char* newname) const override = 0;
+  Double_t evaluate() const override = 0;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override = 0;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override = 0;
 
 private:
-  ClassDef(FastTemplateFunc_t, 1)
+  ClassDefOverride(FastTemplateFunc_t, 1)
 
 };
 typedef FastTemplateFunc_t<Float_t> FastTemplateFunc_f;
@@ -94,7 +94,7 @@ public:
   }
 
 private:
-  ClassDef(FastHistoFunc_t, 1)
+  ClassDefOverride(FastHistoFunc_t, 1)
 
 };
 typedef FastHistoFunc_t<Float_t> FastHistoFunc_f;
@@ -186,7 +186,7 @@ public:
   }
 
 private:
-  ClassDef(FastHisto2DFunc_t, 1)
+  ClassDefOverride(FastHisto2DFunc_t, 1)
 
 };
 typedef FastHisto2DFunc_t<Float_t> FastHisto2DFunc_f;
@@ -296,7 +296,7 @@ public:
   }
 
 private:
-  ClassDef(FastHisto3DFunc_t, 1)
+  ClassDefOverride(FastHisto3DFunc_t, 1)
 
 };
 typedef FastHisto3DFunc_t<Float_t> FastHisto3DFunc_f;

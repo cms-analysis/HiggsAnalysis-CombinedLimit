@@ -83,10 +83,10 @@ class CMSHistFunc : public RooAbsReal {
 
   CMSHistFunc(CMSHistFunc const& other, const char* name = 0);
 
-  virtual TObject* clone(const char* newname) const {
+  TObject* clone(const char* newname) const override {
     return new CMSHistFunc(*this, newname);
   }
-  virtual ~CMSHistFunc();
+  ~CMSHistFunc() override;
 
   void addHorizontalMorph(RooAbsReal& hvar, TVectorD hpoints);
 
@@ -99,19 +99,19 @@ class CMSHistFunc : public RooAbsReal {
   void setShape(unsigned hindex, unsigned hpoint, unsigned vindex,
                 unsigned vpoint, TH1 const& hist);
 
-  Double_t evaluate() const;
+  Double_t evaluate() const override;
 
   void updateCache() const;
 
   std::unique_ptr<RooArgSet> getSentryArgs() const;
 
   void printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
-                      TString indent) const;
+                      TString indent) const override;
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
-                              const char* rangeName = 0) const;
+                              const char* rangeName = 0) const override;
 
-  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const override;
 
   inline void setMorphStrategy(unsigned strategy) {
     morph_strategy_ = strategy;
@@ -219,7 +219,7 @@ class CMSHistFunc : public RooAbsReal {
 
   void applyRebin() const;
 
-  ClassDef(CMSHistFunc, 2)
+  ClassDefOverride(CMSHistFunc, 2)
 };
 
 

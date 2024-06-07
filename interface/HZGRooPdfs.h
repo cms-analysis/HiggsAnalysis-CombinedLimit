@@ -29,11 +29,11 @@ public:
 		   const RooArgList& _coefList) ;
 
   RooStepBernstein(const RooStepBernstein& other, const char* name = 0);
-  virtual TObject* clone(const char* newname) const { return new RooStepBernstein(*this, newname); }
-  inline virtual ~RooStepBernstein() { }
+  TObject* clone(const char* newname) const override { return new RooStepBernstein(*this, newname); }
+  inline ~RooStepBernstein() override { }
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
 
 private:
 
@@ -41,9 +41,9 @@ private:
   RooRealProxy _stepThresh;
   RooListProxy _coefList ;
 
-  Double_t evaluate() const;
+  Double_t evaluate() const override;
 
-  ClassDef(RooStepBernstein,1) // Bernstein polynomial PDF with step function
+  ClassDefOverride(RooStepBernstein,1) // Bernstein polynomial PDF with step function
 };
 
 class RooGaussStepBernstein : public RooAbsPdf {
@@ -57,12 +57,12 @@ public:
 
   RooGaussStepBernstein(const RooGaussStepBernstein& other,
 const char* name = 0);
-  virtual TObject* clone(const char* newname) const
+  TObject* clone(const char* newname) const override
   { return new RooGaussStepBernstein(*this, newname); }
-  inline virtual ~RooGaussStepBernstein() { }
+  inline ~RooGaussStepBernstein() override { }
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
 
 private:
 
@@ -70,9 +70,9 @@ private:
   RooRealProxy _mean,_sigma,_stepVal;
   RooListProxy _coefList ;
 
-  Double_t evaluate() const;
+  Double_t evaluate() const override;
 
-  ClassDef(RooGaussStepBernstein,1) // Bernstein polynomial PDF with step function convoluted with gaussian
+  ClassDefOverride(RooGaussStepBernstein,1) // Bernstein polynomial PDF with step function convoluted with gaussian
 };
 
 

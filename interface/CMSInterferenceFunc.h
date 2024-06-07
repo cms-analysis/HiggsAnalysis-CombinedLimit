@@ -25,9 +25,9 @@ class CMSInterferenceFunc : public CMSExternalMorph {
         const RooArgList& coefficients,
         const std::vector<std::vector<double>> binscaling
         );
-    virtual ~CMSInterferenceFunc();
+    ~CMSInterferenceFunc() override;
 
-    virtual TObject* clone(const char* newname) const override {
+    TObject* clone(const char* newname) const override {
       return new CMSInterferenceFunc(*this, newname);
     };
 

@@ -15,25 +15,25 @@ class SimpleProdPdf : public RooAbsPdf {
   SimpleProdPdf(const char* name, const char* title, RooArgList& pdfList,
                 std::vector<int> const& pdfSettings);
   SimpleProdPdf(const SimpleProdPdf& other, const char* name = 0);
-  virtual TObject* clone(const char* newname) const { return new SimpleProdPdf(*this, newname); }
-  inline virtual ~SimpleProdPdf() {}
+  TObject* clone(const char* newname) const override { return new SimpleProdPdf(*this, newname); }
+  inline ~SimpleProdPdf() override {}
 
   RooAbsReal* createIntegral(const RooArgSet& iset, const RooArgSet* nset,
-                             const RooNumIntConfig* cfg, const char* rangeName) const;
+                             const RooNumIntConfig* cfg, const char* rangeName) const override;
 
   const RooArgList& pdfList() const { return _pdfList; }
-  void printMetaArgs(std::ostream& os) const;
+  void printMetaArgs(std::ostream& os) const override;
 
   // Copied from RooProdPdf - needed to get the correct toy/Asimov binning
-  std::list<Double_t>* binBoundaries(RooAbsRealLValue& obs, Double_t xlo, Double_t xhi) const;
+  std::list<Double_t>* binBoundaries(RooAbsRealLValue& obs, Double_t xlo, Double_t xhi) const override;
 
  protected:
   RooListProxy _pdfList;
   std::vector<int> _pdfSettings;  // 0 = normal, 1 = conditional
-  virtual Double_t evaluate() const;
+  Double_t evaluate() const override;
 
  private:
-  ClassDef(SimpleProdPdf, 1)
+  ClassDefOverride(SimpleProdPdf, 1)
 };
 
 #endif

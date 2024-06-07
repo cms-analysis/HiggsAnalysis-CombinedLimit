@@ -28,11 +28,11 @@ public:
   RooPower(const char *name, const char *title,
 		 RooAbsReal& _x, RooAbsReal& _c);
   RooPower(const RooPower& other, const char* name=0);
-  virtual TObject* clone(const char* newname) const { return new RooPower(*this,newname); }
-  inline virtual ~RooPower() { }
+  TObject* clone(const char* newname) const override { return new RooPower(*this,newname); }
+  inline ~RooPower() override { }
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
   const RooAbsReal & base() const { return x.arg(); }
   const RooAbsReal & exponent() const { return c.arg(); }
 
@@ -40,10 +40,10 @@ protected:
   RooRealProxy x;
   RooRealProxy c;
 
-  Double_t evaluate() const;
+  Double_t evaluate() const override;
 
 private:
-  ClassDef(RooPower,1) // Exponential PDF
+  ClassDefOverride(RooPower,1) // Exponential PDF
 };
 
 #endif
