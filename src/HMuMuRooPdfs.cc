@@ -58,16 +58,13 @@ RooModZPdf::RooModZPdf(const char *name, const char *title, RooAbsReal& _x, RooA
   w{"w", "w", this},
   bernCoef("coefficients", "List of Bernstein coefficients", this)
 {
-  TIterator* coefIter = _coef.createIterator() ;
-  RooAbsArg* coef ;
-  while((coef = (RooAbsArg*)coefIter->Next())) {
+  for (RooAbsArg* coef : _coef) {
     if (!dynamic_cast<RooAbsReal*>(coef)) {
       std::cout << "RooBernstein::ctor(" << GetName() << ") ERROR: coefficient " << coef->GetName() << " is not of type RooAbsReal" << std::endl ;
       R__ASSERT(0) ;
     }
     bernCoef.add(*coef);
   }
-  delete coefIter ;
 }
 
 RooModZPdf::RooModZPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a, RooAbsReal& _b, RooAbsReal& _c, const RooArgList& _coef):
@@ -80,16 +77,13 @@ RooModZPdf::RooModZPdf(const char *name, const char *title, RooAbsReal& _x, RooA
   w{"w", "w", this},
   bernCoef("coefficients", "List of Bernstein coefficients", this)
 {
-  TIterator* coefIter = _coef.createIterator() ;
-  RooAbsArg* coef ;
-  while((coef = (RooAbsArg*)coefIter->Next())) {
+  for (RooAbsArg* coef : _coef) {
     if (!dynamic_cast<RooAbsReal*>(coef)) {
       std::cout << "RooBernstein::ctor(" << GetName() << ") ERROR: coefficient " << coef->GetName() << " is not of type RooAbsReal" << std::endl ;
       R__ASSERT(0) ;
     }
     bernCoef.add(*coef);
   }
-  delete coefIter ;
 }
 
 RooModZPdf::RooModZPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a, RooAbsReal& _b, RooAbsReal& _c, RooAbsReal& _m):
@@ -152,13 +146,12 @@ double RooModZPdf::evaluate() const {
   if (degree <= 0) return val;
   
   double xv = (x - xmin) / (xmax - xmin);
-  RooFIter iter = bernCoef.fwdIterator();
   double bernval = 1.;
   double coefsum = 0.;
   double coef    = 0.;
 
   for (Int_t i = 0; i < degree; i++) {
-    coef = ((RooAbsReal *)iter.next())->getVal();
+    coef = static_cast<RooAbsReal &>(bernCoef[i]).getVal();
     coefsum -= coef;
     bernval += (degree+1.) * TMath::Binomial(degree, i) * pow(xv, degree-i) * pow(1.-xv, i) * coef;
   }
