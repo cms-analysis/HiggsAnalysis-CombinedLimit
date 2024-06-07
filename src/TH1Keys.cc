@@ -31,7 +31,7 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,Double_t xlow,D
     RooArgSet vars;
     vars.add(*x_);
     vars.add(*w_);
-    dataset_ = new RooDataSet(name, title, vars, "w");
+    dataset_ = new RooDataSet(name, title, vars, RooFit::WeightVar("w"));
 
     cache_->SetDirectory(0);
     fDimension = 1;
@@ -54,7 +54,7 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Float_t  
     RooArgSet vars;
     vars.add(*x_);
     vars.add(*w_);
-    dataset_ = new RooDataSet(name, title, vars, "w");
+    dataset_ = new RooDataSet(name, title, vars, RooFit::WeightVar("w"));
 
     cache_->SetDirectory(0);
     fDimension = 1;
@@ -79,7 +79,7 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Double_t 
     RooArgSet vars;
     vars.add(*x_);
     vars.add(*w_);
-    dataset_ = new RooDataSet(name, title, vars, "w");
+    dataset_ = new RooDataSet(name, title, vars, RooFit::WeightVar("w"));
 
     cache_->SetDirectory(0);
     fDimension = 1;
@@ -103,7 +103,7 @@ TH1Keys::TH1Keys(const TH1Keys &other)  :
     RooArgSet vars;
     vars.add(*x_);
     vars.add(*w_);
-    dataset_ = new RooDataSet(other.GetName(), other.GetTitle(), vars, "w");
+    dataset_ = new RooDataSet(other.GetName(), other.GetTitle(), vars, RooFit::WeightVar("w"));
 
     other.Copy(*this);
     fDimension = 1;
