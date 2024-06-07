@@ -237,7 +237,11 @@ class HybridNewGrid(CombineToolBase):
 
         if hyp_res is not None:
             # We will take the number of toys thrown as the minimum of the number of b-only or s+b toys
-            ntoys = min(hyp_res.GetNullDistribution().GetSize(), hyp_res.GetAltDistribution().GetSize())
+            if feldman_cousins:
+                # For F-C we expect only s+b toys
+                ntoys = hyp_res.GetAltDistribution().GetSize()
+            else:
+                ntoys = min(hyp_res.GetNullDistribution().GetSize(), hyp_res.GetAltDistribution().GetSize())
             print(">>> Number of b toys %i" % (hyp_res.GetNullDistribution().GetSize()))
             print(">>> Number of s+b toys %i" % (hyp_res.GetAltDistribution().GetSize()))
 
