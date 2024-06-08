@@ -10,6 +10,8 @@
 #include "RooMsgService.h"
 #include "RooAbsData.h"
 
+#include "RooUniformBinning.h"
+
 //#define TRACE_CALLS
 #ifdef TRACE_CALLS
 #include "../interface/ProfilingTools.h"
@@ -1091,6 +1093,50 @@ void FastVerticalInterpHistPdf2::syncTotal() const {
     // normalize the result
     _cache.Normalize(); 
     //printf("Normalized result\n");  _cache.Dump();
+}
+
+void FastVerticalInterpHistPdf2::translate(RooFit::Detail::CodeSquashContext &ctx) const
+{
+   if (_smoothAlgo < 0) {
+      throw std::runtime_error("We only support _smoothAlgo >= 0");
+   }
+
+   auto& xVar = static_cast<RooRealVar&>(*_x);
+
+   // We also have to assert that x in uniformely binned!
+   if (!dynamic_cast<RooUniformBinning const *>(&xVar.getBinning())) {
+      throw std::runtime_error("We only support uniform binning!");
+   }
+
+   int numBins = xVar.numBins();
+   double xLow = xVar.getMin();
+   double xHigh = xVar.getMax();
+
+   std::vector<double> nominalVec(numBins);
+   std::vector<double> widthVec(numBins);
+   std::vector<double> morphsVecSum;
+   std::vector<double> morphsVecDiff;
+
+   for (int i = 0; i < numBins; ++i) {
+       nominalVec[i] = _cacheNominal.GetBinContent(i);
+       widthVec[i] = _cacheNominal.GetWidth(i);
+   }
+
+   morphsVecSum.reserve(numBins * _coefList.size());
+   morphsVecDiff.reserve(numBins * _coefList.size());
+   for (int j = 0; j < _coefList.size(); ++j) {
+       for (int i = 0; i < numBins; ++i) {
+           morphsVecSum.push_back(_morphs[j].sum[i]);
+           morphsVecDiff.push_back(_morphs[j].diff[i]);
+       }
+   }
+
+   for (int i = 0; i < numBins; ++i) {
+       nominalVec[i] = _cacheNominal.GetBinContent(i);
+   }
+
+   std::string binIdx = ctx.buildCall("RooFit::Detail::MathFuncs::getUniformBinning", xLow, xHigh, _x, numBins);
+   ctx.addResult(this, ctx.buildCall("RooFit::Detail::MathFuncs::fastVerticalInterpHistPdf2<" + std::to_string(numBins) + ">", binIdx, _coefList.size(), _coefList, nominalVec, widthVec, morphsVecSum, morphsVecDiff, _smoothRegion));
 }
 
 void FastVerticalInterpHistPdf2D2::syncTotal() const {
