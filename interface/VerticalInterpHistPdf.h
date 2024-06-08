@@ -10,7 +10,8 @@
 #include "TH1.h"
 #include "SimpleCacheSentry.h"
 #include "FastTemplate_Old.h"
-#include <cmath>
+
+#include "CombineCodegenImpl.h"
 
 class FastVerticalInterpHistPdf;
 class FastVerticalInterpHistPdf2Base;
@@ -330,6 +331,8 @@ public:
 
   FastHisto const& cache() const { return _cache; }
 
+  COMBINE_DECLARE_TRANSLATE;
+
   FastHisto const &cacheNominal() const { return _cacheNominal; }
 
   friend class FastVerticalInterpHistPdf2V;
@@ -390,6 +393,8 @@ public:
   Double_t maxVal(Int_t code) const override ;
 
   Double_t evaluate() const override ;
+
+  COMBINE_DECLARE_TRANSLATE;
 
   FastHisto2D const &cacheNominal() const { return _cacheNominal; }
 
@@ -463,5 +468,7 @@ private:
 };
 
 
+COMBINE_DECLARE_CODEGEN_IMPL(FastVerticalInterpHistPdf2);
+COMBINE_DECLARE_CODEGEN_IMPL(FastVerticalInterpHistPdf2D2);
 
 #endif

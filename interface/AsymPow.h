@@ -4,6 +4,7 @@
 #include <RooAbsReal.h>
 #include <RooRealProxy.h>
 
+#include "CombineCodegenImpl.h"
 
 //_________________________________________________
 /*
@@ -28,6 +29,8 @@ class AsymPow : public RooAbsReal {
 
       TObject * clone(const char *newname) const override { return new AsymPow(*this, newname); }
 
+      COMBINE_DECLARE_TRANSLATE;
+
       RooAbsReal const &kappaLow() const { return kappaLow_.arg(); }
       RooAbsReal const &kappaHigh() const { return kappaHigh_.arg(); }
       RooAbsReal const &theta() const { return theta_.arg(); }
@@ -41,5 +44,7 @@ class AsymPow : public RooAbsReal {
 
   ClassDefOverride(AsymPow,1) // Asymmetric power	
 };
+
+COMBINE_DECLARE_CODEGEN_IMPL(AsymPow);
 
 #endif
