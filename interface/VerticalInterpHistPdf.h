@@ -309,6 +309,8 @@ public:
 
   FastHisto const& cache() const { return _cache; }
 
+  void translate(RooFit::Detail::CodeSquashContext &ctx) const override;
+
   friend class FastVerticalInterpHistPdf2V;
 protected:
   RooRealProxy   _x;
