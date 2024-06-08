@@ -10,6 +10,9 @@ std::unique_ptr<RooAbsReal>
 RooSimultaneousOpt::createNLLImpl(RooAbsData& data, const RooLinkedList& cmdList) 
 #endif
 {
+    if (!_useCachingSimNLL) {
+        return RooSimultaneous::createNLLImpl(data, cmdList);
+    }
     RooCmdConfig pc(Form("RooSimultaneousOpt::createNLL(%s)",GetName())) ;
     pc.defineSet("cPars","Constrain",0,0);
     RooArgSet *cPars = pc.getSet("cPars");
