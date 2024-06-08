@@ -4,6 +4,8 @@
 #include <RooAbsReal.h>
 #include "RooListProxy.h"
 
+#include "CombineCodegenImpl.h"
+
 //_________________________________________________
 /*
 BEGIN_HTML
@@ -27,6 +29,8 @@ class ProcessNormalization : public RooAbsReal {
       void addAsymmLogNormal(double kappaLo, double kappaHi, RooAbsReal &theta) ;
       void addOtherFactor(RooAbsReal &factor) ;
       void dump() const ;
+
+      COMBINE_DECLARE_TRANSLATE;
 
       double nominalValue() const { return nominalValue_; }
       std::vector<double> const &logKappa() const { return logKappa_; }
@@ -56,5 +60,7 @@ class ProcessNormalization : public RooAbsReal {
 
   ClassDefOverride(ProcessNormalization,1) // Process normalization interpolator 
 };
+
+COMBINE_DECLARE_CODEGEN_IMPL(ProcessNormalization);
 
 #endif
