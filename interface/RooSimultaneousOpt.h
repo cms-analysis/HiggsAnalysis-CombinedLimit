@@ -36,6 +36,8 @@ public:
   std::unique_ptr<RooAbsReal> createNLLImpl(RooAbsData& data, const RooLinkedList& cmdList) override;
 #endif
 
+  inline void useCombineNLL(bool flag) { _useCachingSimNLL = flag; }
+
   const RooArgList & extraConstraints() const { return _extraConstraints; }
   const RooArgList & channelMasks() const { return _channelMasks; }
 
@@ -47,6 +49,7 @@ private:
 
   RooListProxy _extraConstraints;  //  List of extra constraint terms
   RooListProxy _channelMasks;
+  bool _useCachingSimNLL = true; //!
 
 };
 
