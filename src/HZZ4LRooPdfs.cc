@@ -4,7 +4,7 @@
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
 #include "RooVoigtian.h"
-//#include "RooComplex.h"
+#include "RooGenericPdf.h"
 #include "RooMath.h"
 #include "RooAbsCategory.h"
 #include <math.h>
@@ -2126,6 +2126,13 @@ Double_t RooqqZZPdf_v2::evaluate() const
 }
 
 
+std::unique_ptr<RooAbsArg> RooqqZZPdf_v2::compileForNormSet(RooArgSet const &normSet, RooFit::Detail::CompileContext & ctx) const
+{
+    return RooGenericPdf{GetName(),
+        "(.5+.5*TMath::Erf((x[0]-x[1])/x[2]))*(x[4]/(1+exp((x[0]-x[1])/x[3])))+(.5+.5*TMath::Erf((x[0]-x[5])/x[6]))*(x[8]/(1+exp((x[0]-x[5])/x[7]))+x[10]/(1+exp((x[0]-x[5])/x[9])))+(.5+.5*TMath::Erf((x[0]-x[11])/x[12]))*(x[14]/(1+exp((x[0]-x[11])/x[13])) )",
+        {*m4l, *a0, *a1, *a2, *a3, *a4, *a5, *a6, *a7, *a8, *a9, *a10, *a11, *a12, *a13}
+    }.compileForNormSet(normSet, ctx);
+}
 
 
 /************RooggZZPdf_v2***********/
@@ -2187,6 +2194,14 @@ Double_t RooggZZPdf_v2::evaluate() const
 	
 	
 	return ZZ;
+}
+
+std::unique_ptr<RooAbsArg> RooggZZPdf_v2::compileForNormSet(RooArgSet const &normSet, RooFit::Detail::CompileContext & ctx) const
+{
+    return RooGenericPdf{GetName(),
+        "(.5+.5*TMath::Erf((x[0]-x[1])/x[2]))*(x[4]/(1+exp((x[0]-x[1])/x[3]))) + (.5+.5*TMath::Erf((x[0]-x[5])/x[6]))*(x[8]/(1+exp((x[0]-x[5])/x[7]))+x[10]/(1+exp((x[0]-x[5])/x[9])))",
+        {*m4l, *a0, *a1, *a2, *a3, *a4, *a5, *a6, *a7, *a8, *a9}
+    }.compileForNormSet(normSet, ctx);
 }
 
 

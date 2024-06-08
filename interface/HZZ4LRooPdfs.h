@@ -136,6 +136,8 @@ public:
 	RooqqZZPdf_v2(const RooqqZZPdf_v2& other, const char* name=0) ;
 	TObject* clone(const char* newname) const override { return new RooqqZZPdf_v2(*this,newname); }
 	inline ~RooqqZZPdf_v2() override { }
+
+    std::unique_ptr<RooAbsArg> compileForNormSet(RooArgSet const &normSet, RooFit::Detail::CompileContext & ctx) const override;
 	
 protected:
 	
@@ -299,6 +301,8 @@ public:
 	RooggZZPdf_v2(const RooggZZPdf_v2& other, const char* name=0) ;
 	TObject* clone(const char* newname) const override { return new RooggZZPdf_v2(*this,newname); }
 	inline ~RooggZZPdf_v2() override { }
+
+    std::unique_ptr<RooAbsArg> compileForNormSet(RooArgSet const &normSet, RooFit::Detail::CompileContext & ctx) const override;
 	
 protected:
 	
