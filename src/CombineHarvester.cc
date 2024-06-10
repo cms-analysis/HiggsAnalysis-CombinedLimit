@@ -126,32 +126,31 @@ CombineHarvester CombineHarvester::deep() {
       dat_map[*o_dat_it] = *n_dat_it;
     }
 
-    auto o_pdf_it = o_pdf.createIterator();
-    auto n_pdf_it = n_pdf.createIterator();
-    do {
-      RooAbsPdf *o_pdf_ptr = static_cast<RooAbsPdf*>(**o_pdf_it);
-      RooAbsPdf *n_pdf_ptr = static_cast<RooAbsPdf*>(**n_pdf_it);
+    Int_t nPdf = o_pdf.getSize(); 
+
+    for (Int_t i=0; i<nPdf; ++i) {
+
+      RooAbsReal* o_pdf_ptr = static_cast<RooAbsReal *>(o_pdf[i]);
+      RooAbsReal* n_pdf_ptr = static_cast<RooAbsReal *>(n_pdf[i]);
       if (o_pdf_ptr && n_pdf_ptr) pdf_map[o_pdf_ptr] = n_pdf_ptr;
-      n_pdf_it->Next();
-    } while (o_pdf_it->Next());
+    }
 
-    auto o_var_it = o_var.createIterator();
-    auto n_var_it = n_var.createIterator();
-    do {
-      RooRealVar *o_var_ptr = static_cast<RooRealVar*>(**o_var_it);
-      RooRealVar *n_var_ptr = static_cast<RooRealVar*>(**n_var_it);
+    Int_t nVar = o_var.getSize();
+
+    for (Int_t i=0; i<nVar; ++i) {
+      RooRealVar *o_var_ptr = static_cast<RooRealVar*>(o_var[i]);
+      RooRealVar *n_var_ptr = static_cast<RooRealVar*>(n_var[i]);
       if (o_var_ptr && n_var_ptr) var_map[o_var_ptr] = n_var_ptr;
-      n_var_it->Next();
-    } while (o_var_it->Next());
+    }
 
-    auto o_fun_it = o_fun.createIterator();
-    auto n_fun_it = n_fun.createIterator();
-    do {
-      RooAbsReal *o_fun_ptr = static_cast<RooAbsReal*>(**o_fun_it);
-      RooAbsReal *n_fun_ptr = static_cast<RooAbsReal*>(**n_fun_it);
+    Int_t nFun = o_fun.getSize(); 
+
+    for (Int_t i=0; i<nFun; ++i) {
+      RooAbsReal* o_fun_ptr = static_cast<RooAbsReal *>(o_fun[i]);
+      RooAbsReal* n_fun_ptr = static_cast<RooAbsReal *>(n_fun[i]);
       if (o_fun_ptr && n_fun_ptr) fun_map[o_fun_ptr] = n_fun_ptr;
-      n_fun_it->Next();
-    } while (o_fun_it->Next());
+    } 
+
   }
 
 
@@ -733,9 +732,8 @@ std::shared_ptr<RooWorkspace> CombineHarvester::SetupWorkspace(
 }
 
 void CombineHarvester::ImportParameters(RooArgSet *vars) {
-  auto x = vars->createIterator();
-  do {
-    RooRealVar *y = dynamic_cast<RooRealVar*>(**x);
+  for (RooAbsArg *x : *vars) {
+    RooRealVar *y = dynamic_cast<RooRealVar*>(x);
     if (y) {
       if (!params_.count(y->GetName())) {
         if (verbosity_ >= 1) {
@@ -773,7 +771,7 @@ void CombineHarvester::ImportParameters(RooArgSet *vars) {
                    "RooRealVar object\n";
       }
     }
-  } while (x->Next());
+  } 
 }
 
 RooAbsData const* CombineHarvester::FindMatchingData(Process const* proc) {
