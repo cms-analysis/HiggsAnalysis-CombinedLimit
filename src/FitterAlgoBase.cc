@@ -356,7 +356,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
             r.setVal(r0); r.setConstant(true);
 
             if (verbose) { 
-	    	std::cout << "Robus Fit for POI " << std::endl;
+	    	std::cout << "Robust Fit for POI " << std::endl;
 		Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Running RobustFit for POI %s. Configured with strategy %d  ",__LINE__,r.GetName(), minimizerStrategyForMinos_)),Logger::kLogLevelInfo,__func__);
 	    }
  
@@ -375,7 +375,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
             assert(!std::isnan(r0));
             // high error
             double hi68 = findCrossing(minim2, *nll, r, threshold68, r0,   rMax);
-            double hi95 = do95_ ? findCrossing(minim2, *nll, r, threshold95, std::isnan(hi68) ? r0 : hi68, std::max(rMax, std::isnan(hi68*2-r0) ? r0 : hi68*2-r0)) : r0;
+            double hi95 = do95_ ? findCrossing(minim2, *nll, r, threshold95, std::isnan(hi68) ? r0 : hi68, rMax) : r0;
             // low error 
             *allpars = RooArgSet(ret->floatParsFinal()); r.setVal(r0); r.setConstant(true);
             double lo68 = findCrossing(minim2, *nll, r, threshold68, r0,   rMin); 
@@ -406,7 +406,14 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
     	Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Searching for crossing at nll = %g, in the interval %g < %s < %g",__LINE__,level, rStart,r.GetName(),rBound)),Logger::kLogLevelInfo,__func__);
     }
     double rInc = stepSize_*(rBound - rStart);
-    r.setVal(rStart); 
+    if (std::abs(rInc)<=crossingTolerance_*stepSize_*std::max(1.0, std::abs(rBound-rStart))){
+      std::cout << "The two end points are the same, so the physical boundary will be returned." << std::endl;
+      return rBound;
+    }
+
+    int const nPersistentTrials = runtimedef::get("FITTER_CROSSING_PERSISTENT_TRIALS");
+
+    r.setVal(rStart);
     std::auto_ptr<RooFitResult> checkpoint;
     std::auto_ptr<RooArgSet>    allpars;
     bool ok = false;
@@ -415,18 +422,27 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
         ok = minim.minimize(verbose-1);
         checkpoint.reset(minim.save());
     }
-    if (!ok && !keepFailures_) { 
-    	std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl; 
-	if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Minimization failed at %s = %g",__LINE__,r.GetName(), rStart)),Logger::kLogLevelError,__func__);
-	return NAN; 
-	}
+    if (!ok && !keepFailures_) {
+      std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl;
+      if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Minimization failed at %s = %g", __LINE__, r.GetName(), rStart)), Logger::kLogLevelError, __func__);
+      return NAN;
+    }
     double here = nll.getVal();
     int nfail = 0;
-    if (verbose > 0) { 
-    	printf("      %s      lvl-here  lvl-there   stepping\n", r.GetName()); fflush(stdout); 
-    	Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- %s lvl-here lvl-there 	stepping ",__LINE__,r.GetName())),Logger::kLogLevelInfo,__func__);
+    if (verbose > 0) {
+      printf("      %s      lvl-here  lvl-there   stepping\n", r.GetName()); fflush(stdout);
+      Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- %s lvl-here lvl-there 	stepping ", __LINE__, r.GetName())), Logger::kLogLevelInfo, __func__);
     }
+
+    int ntrials=0;
+    double mindiff_here = -1;
+    double rval_at_min = 0;
+    double mindiff_here_p2 = -1;
+    double rval_at_min_p2 = 0;
+    double mindiff_here_p3 = -1;
+    double rval_at_min_p3 = 0;
     do {
+        ntrials++;
         rStart += rInc;
         if (rInc*(rStart - rBound) > 0) { // went beyond bounds
             rStart -= rInc;
@@ -442,11 +458,11 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
         }
         if (!ok && !keepFailures_) { 
             nfail++;
-            if (nfail >= maxFailedSteps_) {  
-	    	std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl; 
-		if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Maximum failed steps (max=%d) reached and Minimization failed at %s = %g ",__LINE__,maxFailedSteps_,r.GetName(), rStart)),Logger::kLogLevelError,__func__);
-		return NAN; 
-	    }
+            if (nfail >= maxFailedSteps_) {
+              std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl;
+              if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Maximum failed steps (max=%d) reached and Minimization failed at %s = %g ", __LINE__, maxFailedSteps_, r.GetName(), rStart)), Logger::kLogLevelError, __func__);
+              return NAN;
+            }
             RooArgSet oldparams(checkpoint->floatParsFinal());
             if (allpars.get() == 0) allpars.reset(nll.getParameters((const RooArgSet *)0));
             *allpars = oldparams;
@@ -455,21 +471,69 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
         } else nfail = 0;
         double there = here;
         here = nll.getVal();
-        if (verbose > 0) { 
-	  printf("%f    %+.5f  %+.5f    %f\n", rStart, level-here, level-there, rInc); fflush(stdout); 
-    	  Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- %f    %+.5f  %+.5f    %f",__LINE__,rStart, level-here, level-there, rInc)),Logger::kLogLevelInfo,__func__);
-	}
-        if ( fabs(here - level) < 4*crossingTolerance_) {
-            // set to the right point with interpolation
-            r.setVal(rStart + (level-here)*(level-there)/(here-there));
-            return r.getVal();
+        if (mindiff_here<0. || std::abs(here-level)<mindiff_here){
+          mindiff_here = std::abs(here-level);
+          rval_at_min = r.getVal();
+        }
+        else if (mindiff_here_p2<0. || std::abs(here-level)<mindiff_here_p2){
+          mindiff_here_p2 = std::abs(here-level);
+          rval_at_min_p2 = r.getVal();
+        }
+        else if (mindiff_here_p3<0. || std::abs(here-level)<mindiff_here_p3){
+          mindiff_here_p3 = std::abs(here-level);
+          rval_at_min_p3 = r.getVal();
+        }
+        if (verbose > 0) {
+          printf("%f    %+.5f  %+.5f    %f\n", rStart, level-here, level-there, rInc); fflush(stdout);
+          Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- %f    %+.5f  %+.5f    %f", __LINE__, rStart, level-here, level-there, rInc)), Logger::kLogLevelInfo, __func__);
+        }
+
+
+        long double ccoef[3]={ 0 }; // The coeffs are defined for y(x) = sum_i{c_i * x**i}.
+        long double cdisc = -1.; // =b^2-4ac
+        if (
+          (mindiff_here>=0. && mindiff_here < 4.*crossingTolerance_)
+          && (mindiff_here_p2>=0. && mindiff_here_p2 < 4.*crossingTolerance_)
+          && (mindiff_here_p3>=0. && mindiff_here_p3 < 4.*crossingTolerance_)
+          ) {
+          long double xx[3] ={ rval_at_min, rval_at_min_p2, rval_at_min_p3 };
+          long double yy[3] ={ mindiff_here, mindiff_here_p2, mindiff_here_p3 };
+          long double mdet = xx[0]*((xx[1]-xx[2])*(xx[1]+xx[2])) - xx[1]*((xx[0]-xx[2])*(xx[0]+xx[2])) + xx[2]*((xx[0]-xx[1])*(xx[0]+xx[1]));
+          bool const isInvertible = (mdet!=0.); // This should always be the case, but check just to make sure there are no numerical precision issues.
+          if (isInvertible){
+            long double mm[3][3]={
+              { xx[1]*xx[2]*(xx[2]-xx[1]), xx[0]*xx[2]*(xx[0]-xx[2]), xx[0]*xx[1]*(xx[1]-xx[0]) },
+              { ((xx[1]-xx[2])*(xx[1]+xx[2])), -((xx[0]-xx[2])*(xx[0]+xx[2])), ((xx[0]-xx[1])*(xx[0]+xx[1])) },
+              { xx[2]-xx[1], xx[0]-xx[2], xx[1]-xx[0] }
+            };
+            for (unsigned char ii=0; ii<3; ii++){ for (unsigned char jj=0; jj<3; jj++){ mm[ii][jj] /= mdet; } }
+            for (unsigned char ii=0; ii<3; ii++){ for (unsigned char jj=0; jj<3; jj++){ ccoef[ii] += mm[ii][jj]*yy[jj]; } }
+            cdisc = std::pow(ccoef[1], 2) - 4.*ccoef[0]*ccoef[2];
+          }
+        }
+
+
+        // Check if the discriminant is positive, and interpolate with a quadratic if so.
+        // Case with discriminant=0 means the quadratic equation crosses y=0 once, so it is likely not an accurate estimate yet.
+        if (cdisc>0.) {
+            long double selsoln = 0; // Dummy 0
+            if (ccoef[2]!=0.){
+              long double soln[2]={ (-ccoef[1]-std::sqrt(cdisc))/(2.*ccoef[2]), (-ccoef[1]+std::sqrt(cdisc))/(2.*ccoef[2]) };
+              selsoln = (std::abs(soln[0] - rval_at_min)<std::abs(soln[1] - rval_at_min) ? soln[0] : soln[1]);
+            }
+            else{
+              // No case for else ccoef[1]==0. because of the cdisc>0. condition.
+              selsoln = -ccoef[0]/ccoef[1];
+            }
+            r.setVal(selsoln);
+            return selsoln;
         } else if (here > level) {
             // I'm above the level that I wanted, this means I stepped too long
             // First I take back all the step
             rStart -= rInc; 
             // Then I try to figure out a better step
             if (runtimedef::get("FITTER_DYN_STEP")) {
-                if (fabs(there - level) > 0.05) { // If started from far away, I still have to step carefully
+                if (std::abs(there - level) > 0.05) { // If started from far away, I still have to step carefully
                     double rIncFactor = std::max(0.2, std::min(0.7, 0.75*(level-there)/(here-there)));
                     //printf("\t\t\t\t\tCase A1: level-there = %f,  here-there = %f,   rInc(Old) = %f,  rInFactor = %f,  rInc(New) = %f\n", level-there, here-there, rInc, rIncFactor, rInc*rIncFactor);
                     rInc *= rIncFactor;
@@ -487,7 +551,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
                 *allpars = oldparams;
             }
         } else if ((here-there)*(level-there) < 0 && // went wrong
-                   fabs(here-there) > 0.1) {         // by more than roundoff
+                   std::abs(here-there) > 0.1) {         // by more than roundoff
             if (allpars.get() == 0) allpars.reset(nll.getParameters((const RooArgSet *)0));
             RooArgSet oldparams(checkpoint->floatParsFinal());
             *allpars = oldparams;
@@ -495,7 +559,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
         } else {
             // I did this step, and I'm not there yet
             if (runtimedef::get("FITTER_DYN_STEP")) {
-                if (fabs(here - level) > 0.05) { // we still have to step carefully
+                if (std::abs(here - level) > 0.05) { // we still have to step carefully
                     if ((here-there)*(level-there) > 0) { // if we went in the right direction
                         // then optimize step size
                         double rIncFactor = std::max(0.2, std::min(2.0, 0.75*(level-there)/(here-there)));
@@ -512,13 +576,13 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
             }
             checkpoint.reset(minim.save());
         }
-    } while (fabs(rInc) > crossingTolerance_*stepSize_*std::max(1.0,rBound-rStart));
-    if (fabs(here - level) > 0.01) {
+    } while ((nPersistentTrials>0 && ntrials<=nPersistentTrials && (mindiff_here<0. || mindiff_here>crossingTolerance_)) || std::abs(rInc) > crossingTolerance_*stepSize_*std::max(1.0, std::abs(rBound-rStart)));
+    if (mindiff_here > 0.01) {
         std::cout << "Error: closed range without finding crossing." << std::endl;
-	if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Closed range without finding crossing! ",__LINE__)),Logger::kLogLevelError,__func__);
+        if (verbose) Logger::instance().log(std::string(Form("FitterAlgoBase.cc: %d -- Closed range without finding crossing! ", __LINE__)), Logger::kLogLevelError, __func__);
         return NAN;
     } else {
-        return r.getVal();
+        return rval_at_min;
     }
 }
 
