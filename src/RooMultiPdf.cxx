@@ -22,13 +22,12 @@ ClassImp(RooMultiPdf)
 RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, const RooArgList& _c) : 
   RooAbsPdf(name, title),  //Why is this here? just to use the names to be used? 
   c("_pdfs","The list of pdfs",this),
+  corr("_corrs","The list of correction factors",this),
   x("_index","the pdf index",this,_x) 
 {
-  TIterator *pdfIter=_c.createIterator(); 
   int count=0;
 
-  RooAbsPdf *fPdf;
-  while ( (fPdf = (RooAbsPdf*) pdfIter->Next()) ){
+  for (RooAbsArg *fPdf : _c) {
 	c.add(*fPdf);
 	// This is done by the user BUT is there a way to do it at construction?
 	_x.defineType(Form("_pdf%d",count),count);//(fPdf->getParameters())->getSize());
@@ -48,27 +47,13 @@ RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, c
 
 //_____________________________________________________________________________
 RooMultiPdf::RooMultiPdf(const RooMultiPdf& other, const char* name) :
- RooAbsPdf(other, name),c("_pdfs",this,RooListProxy()),x("_index",this,other.x)
+ RooAbsPdf(other, name),c("_pdfs",this,other.c),corr("_corrs",this,other.corr),x("_index",this,other.x)
 {
 
  fIndex=other.fIndex;
  nPdfs=other.nPdfs;
-
- TIterator *pdfIter=(other.c).createIterator();
-
- RooAbsPdf *fPdf;
- while ( (fPdf = (RooAbsPdf*) pdfIter->Next()) ){
-	c.add(*fPdf);
-  std::unique_ptr<RooArgSet> variables(fPdf->getVariables());
-  std::unique_ptr<RooAbsCollection> nonConstVariables(variables->selectByAttrib("Constant", false));
-
-	RooConstVar *tmp = new RooConstVar(Form("const%s",fPdf->GetName())
-		,"",nonConstVariables->getSize());
-	corr.add(*tmp);
- }
-
  _oldIndex=fIndex;
-  cFactor=other.cFactor; // correction to 2*NLL by default is -> 2*0.5 per param
+ cFactor=other.cFactor; // correction to 2*NLL by default is -> 2*0.5 per param
 }
 
 bool RooMultiPdf::checkIndexDirty() const {

@@ -62,11 +62,11 @@ class ToyMCSamplerOpt : public RooStats::ToyMCSampler{
         ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) ;
         ToyMCSamplerOpt(const ToyMCSamplerOpt &other) ;
 #endif
-        ~ToyMCSamplerOpt() ;
-        virtual void SetPdf(RooAbsPdf& pdf) ;
+        ~ToyMCSamplerOpt() override ;
+        void SetPdf(RooAbsPdf& pdf) override ;
         void setGlobalObsPdf(RooAbsPdf *pdf) { globalObsPdf_ = pdf; }
-        virtual RooAbsData* GenerateToyData(RooArgSet& /*nullPOI*/, double& weight) const ;
-        virtual RooDataSet* GetSamplingDistributionsSingleWorker(RooArgSet& paramPointIn) ;
+        RooAbsData* GenerateToyData(RooArgSet& /*nullPOI*/, double& weight) const override ;
+        RooDataSet* GetSamplingDistributionsSingleWorker(RooArgSet& paramPointIn) override ;
     private:
         RooAbsData* GenerateToyDataWithImportanceSampling(RooArgSet& /*nullPOI*/, double& weight) const ;
 

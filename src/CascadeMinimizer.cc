@@ -143,7 +143,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade, bool forceResetMinimiz
                 myStrategy  != nominalStrat) {
                 if (verbose > 0) { 
 			//std::cerr << "Will fallback to minimization using " << it->algo << ", strategy " << myStrategy << " and tolerance " << it->tolerance << std::endl;
-			CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,std::string(Form("Will fallback to minimization using %s, strategy %d and tolerance %g",(it->algo).c_str(),myStrategy,it->tolerance)),__func__);
+			CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,std::string(Form("Will fall back to minimization using %s, strategy %d and tolerance %g",(it->algo).c_str(),myStrategy,it->tolerance)),__func__);
 		}
                 minimizer_->setEps(ROOT::Math::MinimizerOptions::DefaultTolerance());
                 minimizer_->setStrategy(myStrategy); 
@@ -185,7 +185,7 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
         if (rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
         outcome = nllutils::robustMinimize(nll_, *minimizer_, verbose, setZeroPoint_);
     } else {
-        if (verbose+2>0) CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,std::string(Form("Minimisation configured with Type=%s, Algo=%s, strategy=%d, tolerance=%g",myType.c_str(),myAlgo.c_str(),myStrategy,tol)),__func__);
+        if (verbose+2>0) CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,std::string(Form("Minimization configured with Type=%s, Algo=%s, strategy=%d, tolerance=%g",myType.c_str(),myAlgo.c_str(),myStrategy,tol)),__func__);
         cacheutils::CachingSimNLL *simnll = setZeroPoint_ ? dynamic_cast<cacheutils::CachingSimNLL *>(&nll_) : 0;
         if (simnll) simnll->setZeroPoint();
         if ((!simnll) && optConst) minimizer_->optimizeConst(std::max(0,optConst));
@@ -208,11 +208,11 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
         outcome = (status == 0 || status == 1);
       // Severe enough that we should print this to the terminal too
 	    if (status==1) { 
-        std::cerr << "[WARNING] Minimisation finished with status 1 (covariance forced positive definite), this could indicate a problem with the minimim!" << std::endl;
-        if (verbose+2>0 ) CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,"[WARNING] Minimisation finished with status 1 (covariance forced positive definite), this could indicate a problem with the minimim.",__func__);
+        std::cerr << "[WARNING] Minimization finished with status 1 (covariance matrix forced positive definite), this could indicate a problem with the minimum!" << std::endl;
+        if (verbose+2>0 ) CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,"[WARNING] Minimization finished with status 1 (covariance matrix forced positive definite), this could indicate a problem with the minimum.",__func__);
       }
     	if (verbose+2>0 ) {
-		  CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,std::string(Form("Minimisation finished with status=%d",status)),__func__);
+		  CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,std::string(Form("Minimization finished with status=%d",status)),__func__);
 	    }
     }
     if (verbose+2>0 ){
@@ -366,7 +366,7 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
    ret = improve(verbose, cascade); 
    minimumNLL = nll_.getVal();
 
-   tw.Stop(); if (verbose > 2) std::cout << "Done the full fit in " << tw.RealTime() << std::endl;
+   tw.Stop(); if (verbose > 2) std::cout << "Full fit done in " << tw.RealTime() << std::endl;
 
    // unfreeze from *
    freezeDiscParams(false);
@@ -724,12 +724,12 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 void CascadeMinimizer::initOptions() 
 {
     options_.add_options()
-        ("cminPoiOnlyFit",  "Do first a fit floating only the parameter of interest")
+        ("cminPoiOnlyFit",  "First do a fit floating only the parameter of interest")
         ("cminPreScan",  "Do a scan before first minimization")
-        ("cminPreFit", boost::program_options::value<int>(&preFit_)->default_value(preFit_), "if set to a value N > 0, it will perform a pre-fit with strategy (N-1) with frozen constrained nuisance parameters.")
-        ("cminApproxPreFitTolerance", boost::program_options::value<double>(&approxPreFitTolerance_)->default_value(approxPreFitTolerance_), "If non-zero, do first a pre-fit with this tolerance (or 10 times the final tolerance, whichever is largest)")
+        ("cminPreFit", boost::program_options::value<int>(&preFit_)->default_value(preFit_), "if set to a value N > 0, a pre-fit with strategy (N-1) will be performed with the constrained nuisance parameters frozen.")
+        ("cminApproxPreFitTolerance", boost::program_options::value<double>(&approxPreFitTolerance_)->default_value(approxPreFitTolerance_), "If nonzero, first do a pre-fit with this tolerance (or 10 times the final tolerance, whichever is largest)")
         ("cminApproxPreFitStrategy", boost::program_options::value<int>(&approxPreFitStrategy_)->default_value(approxPreFitStrategy_), "Strategy to use in the pre-fit")
-        ("cminSingleNuisFit", "Do first a minimization of each nuisance parameter individually")
+        ("cminSingleNuisFit", "First perform a minimization of each nuisance parameter individually")
         ("cminFallbackAlgo", boost::program_options::value<std::vector<std::string> >(), "Fallback algorithms if the default minimizer fails (can use multiple ones). Syntax is algo[,subalgo][,strategy][:tolerance]")
         ("cminSetZeroPoint", boost::program_options::value<bool>(&setZeroPoint_)->default_value(setZeroPoint_), "Change the reference point of the NLL to be zero during minimization")
         ("cminOldRobustMinimize", boost::program_options::value<bool>(&oldFallback_)->default_value(oldFallback_), "Use the old 'robustMinimize' logic in addition to the cascade (for debug only)")
@@ -741,8 +741,8 @@ void CascadeMinimizer::initOptions()
 	("cminDefaultMinimizerPrecision",boost::program_options::value<double>(&defaultMinimizerPrecision_)->default_value(defaultMinimizerPrecision_), "Set the default minimizer precision")
 	("cminDefaultMinimizerStrategy",boost::program_options::value<int>(&strategy_)->default_value(strategy_), "Set the default minimizer (initial) strategy")
         ("cminRunAllDiscreteCombinations",  "Run all combinations for discrete nuisances")
-        ("cminDiscreteMinTol", boost::program_options::value<double>(&discreteMinTol_)->default_value(discreteMinTol_), "tolerance on min NLL for discrete combination iterations")
-        ("cminM2StorageLevel", boost::program_options::value<int>(&minuit2StorageLevel_)->default_value(minuit2StorageLevel_), "storage level for minuit2 (0 = don't store intermediate covariances, 1 = store them)")
+        ("cminDiscreteMinTol", boost::program_options::value<double>(&discreteMinTol_)->default_value(discreteMinTol_), "Tolerance on min NLL for discrete combination iterations")
+        ("cminM2StorageLevel", boost::program_options::value<int>(&minuit2StorageLevel_)->default_value(minuit2StorageLevel_), "Storage level for minuit2 (0 = don't store intermediate covariances, 1 = store them)")
         //("cminNuisancePruning", boost::program_options::value<float>(&nuisancePruningThreshold_)->default_value(nuisancePruningThreshold_), "if non-zero, discard constrained nuisances whose effect on the NLL when changing by 0.2*range is less than the absolute value of the threshold; if threshold is negative, repeat afterwards the fit with these floating")
 
         //("cminDefaultIntegratorEpsAbs", boost::program_options::value<double>(), "RooAbsReal::defaultIntegratorConfig()->setEpsAbs(x)")
@@ -911,19 +911,18 @@ bool CascadeMinimizer::autoBoundsOk(int verbose) {
     for (int bothBounds = 0; bothBounds <= 1; ++bothBounds) {
       const RooArgSet * pois = (bothBounds ? poisForAutoBounds_ : poisForAutoMax_);
       if (!pois) continue;
-      RooFIter f = pois->fwdIterator();
-      for (RooAbsArg *a = f.next(); a != 0; a = f.next()) {
+      for (RooAbsArg *a : *pois) {
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
         if (rrv && !rrv->isConstant() && rrv->hasMax() && rrv->hasMin()) {
             double val = rrv->getVal(), lo = rrv->getMin(), hi = rrv->getMax();
             if (bothBounds && val < (0.9*lo+0.1*hi)) {
                 ok = false;
                 rrv->setMin(val - (hi-val));
-                if (verbose) std::cout << " POI " << rrv->GetName() << " is at " << val << ", within 10% from the low boundary " << lo << ". Will enlarge range to [ " << rrv->getMin() << " , " << hi << " ]" << std::endl;
+                if (verbose) std::cout << " POI " << rrv->GetName() << " is at " << val << ", within 10% from the lower boundary " << lo << ". Will enlarge range to [ " << rrv->getMin() << " , " << hi << " ]" << std::endl;
             } else if (val > (0.9*hi+0.1*lo)) {
                 ok = false;
                 rrv->setMax(val + (val-lo));
-                if (verbose) std::cout << " POI " << rrv->GetName() << " is at " << val << ", within 10% from the high boundary " << hi << ". Will enlarge range to [ " << lo << " , " << rrv->getMax() << " ]" << std::endl;
+                if (verbose) std::cout << " POI " << rrv->GetName() << " is at " << val << ", within 10% from the upper boundary " << hi << ". Will enlarge range to [ " << lo << " , " << rrv->getMax() << " ]" << std::endl;
             }
         }
       }

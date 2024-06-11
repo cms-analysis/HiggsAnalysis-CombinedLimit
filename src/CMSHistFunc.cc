@@ -713,6 +713,7 @@ void CMSHistFunc::updateMomentFractions(double m) const {
 
     case SineLinear:
       mfrac = TMath::Sin(TMath::PiOver2() * mfrac);
+      [[fallthrough]];
     // now fall through to Linear case
 
     case Linear:
@@ -1202,9 +1203,7 @@ Double_t CMSHistFunc::analyticalIntegral(Int_t code,
 }
 
 CMSHistFuncWrapper const* CMSHistFunc::wrapper() const {
-  RooFIter iter = this->valueClientMIterator();
-  RooAbsArg *arg = nullptr;
-  while((arg = iter.next())) {
+  for (RooAbsArg *arg : valueClients()) {
     CMSHistFuncWrapper const* wrapper = dynamic_cast<CMSHistFuncWrapper const*>(arg);
     if (wrapper) return wrapper;
   }

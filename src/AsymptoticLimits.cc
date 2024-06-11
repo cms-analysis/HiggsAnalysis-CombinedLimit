@@ -57,7 +57,7 @@ LimitAlgo("AsymptoticLimits specific options") {
         ("rule",    boost::program_options::value<std::string>(&rule_)->default_value(rule_),            "Rule to use: CLs, Pmu")
         ("picky", "Abort on fit failures")
         ("noFitAsimov", "Use the pre-fit asimov dataset")
-	("getLimitFromGrid", boost::program_options::value<std::string>(&gridFileName_), "calculates the limit from a grid of r,cls values")
+	("getLimitFromGrid", boost::program_options::value<std::string>(&gridFileName_), "Calculates the limit from a grid of r,cls values")
         ("newExpected", boost::program_options::value<bool>(&newExpected_)->default_value(newExpected_), "Use the new formula for expected limits (default is true)")
         ("minosAlgo", boost::program_options::value<std::string>(&minosAlgo_)->default_value(minosAlgo_), "Algorithm to use to get the median expected limit: 'minos' (fastest), 'bisection', 'stepping' (default, most robust)")
         ("strictBounds", "Take --rMax as a strict upper bound")
@@ -70,7 +70,7 @@ void AsymptoticLimits::applyOptions(const boost::program_options::variables_map 
         what_ = "singlePoint";
     } else {
         if (what_ != "observed" && what_ != "expected" && what_ != "both" && what_ != "blind") 
-            throw std::invalid_argument("AsymptoticLimits: option 'run' can only be 'observed', 'expected' or 'both' (the default) or 'blind' (a-priori expected)");
+            throw std::invalid_argument("AsymptoticLimits: option 'run' can only be 'observed', 'expected', 'both' (the default) or 'blind' (a-priori expected)");
     }
     picky_ = vm.count("picky");
     noFitAsimov_ = vm.count("noFitAsimov") || vm.count("bypassFrequentistFit"); // aslo pick up base option from combine
@@ -80,7 +80,7 @@ void AsymptoticLimits::applyOptions(const boost::program_options::variables_map 
     else throw std::invalid_argument("AsymptoticLimits: Rule must be either 'CLs' or 'Pmu'");
 
     if (what_ == "blind") { what_ = "expected"; noFitAsimov_ = true; } 
-    if (noFitAsimov_) std::cout << "Will use a-priori expected background instead of a-posteriori one." << std::endl; 
+    if (noFitAsimov_) std::cout << "Will use a-priori instead of a-posteriori expected background." << std::endl; 
     strictBounds_ = vm.count("strictBounds");
     useGrid_ = vm.count("getLimitFromGrid");
 
@@ -107,8 +107,7 @@ bool AsymptoticLimits::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
     */
     hasDiscreteParams_ = false;  
     if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
-    std::unique_ptr<TIterator> itparam(params_->createIterator());
-    for (RooAbsArg *a = (RooAbsArg *) itparam->Next(); a != 0; a = (RooAbsArg *) itparam->Next()) {
+    for (RooAbsArg *a : *params_) {
       if (a->IsA()->InheritsFrom(RooCategory::Class())) { hasDiscreteParams_ = true; break; }
     }
 
@@ -164,8 +163,7 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
   if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
 
   hasFloatParams_ = false;
-  std::unique_ptr<TIterator> itparam(params_->createIterator());
-  for (RooAbsArg *a = (RooAbsArg *) itparam->Next(); a != 0; a = (RooAbsArg *) itparam->Next()) {
+  for (RooAbsArg *a : *params_) {
       RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
       if ( rrv != 0 && rrv != r && rrv->isConstant() == false ) { hasFloatParams_ = true; break; }
   }
@@ -237,7 +235,7 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
     if (cls < clsTarget) { clsMin = cls; break; }
     if (strictBounds_ && rMax == r->getMax()) {
         //std::cout << rule_ << " at upper bound " << r->GetName() << " = " << r->getVal() << " is " << cls << ". Stopping search and using that as a limit.\n" << std::endl; 
-        CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form(" %s at upper bound %s = %g is %g. Stopping search and using that as limit.",rule_.data(),r->GetName(),r->getVal(),cls)),__func__);
+        CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form(" %s at upper bound %s = %g is %g. Stopping search and using upper bound as limit.",rule_.data(),r->GetName(),r->getVal(),cls)),__func__);
         limit = rMax; limitErr = -1.0;
         return true;
     }
@@ -669,7 +667,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
         if (minosStat != -1) return rCross;
     }
     //if (verbose > 1) printf("fail search for crossing of %s between %f and %f\n", r->GetName(), rMin, rMax);
-    if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("[WARNING] fail search for crossing of %s between %f and %f", r->GetName(), rMin, rMax)),__func__);
+    if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("[WARNING] search for crossing of %s between %f and %f failed", r->GetName(), rMin, rMax)),__func__);
     return std::numeric_limits<float>::quiet_NaN();
 }
 
@@ -718,12 +716,12 @@ float AsymptoticLimits::calculateLimitFromGrid(RooRealVar *r , double quantile, 
 	
 	if (!rminfound){
 		//std::cout << "Cannot Find r with CL above threshold for quantile " << quantiles[iq] << ", using lowest value of r found" << std::endl;
-		CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("Cannot Find r with CL above threshold for quantile %g, using lowest value of r found",quantiles[iq])),__func__);
+		CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("Cannot find r with CL above threshold for quantile %g, using lowest value of r found",quantiles[iq])),__func__);
 		return rlower;
 	}
 	if (!rmaxfound){
 		//std::cout << "Cannot Find r with CL below threshold for quantile " << quantiles[iq] << ", using largest value of r found" << std::endl;
-		CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("Cannot Find r with CL below threshold for quantile %g, using largest value of r found",quantiles[iq])),__func__);
+		CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("Cannot find r with CL below threshold for quantile %g, using largest value of r found",quantiles[iq])),__func__);
 		return rupper;
 	}
 

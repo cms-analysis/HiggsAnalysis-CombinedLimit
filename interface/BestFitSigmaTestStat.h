@@ -19,9 +19,9 @@ class BestFitSigmaTestStat : public RooStats::TestStatistic {
                 const RooArgSet *nuisances, 
                 const RooArgSet & params, int verbosity=0) ; 
 
-        virtual Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) ;
+        Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) override ;
 
-        virtual const TString GetVarName() const { return "mu-hat`"; }
+        const TString GetVarName() const override { return "mu-hat`"; }
 
         // Verbosity (default: 0)
         void setPrintLevel(Int_t level) { verbosity_ = level; }

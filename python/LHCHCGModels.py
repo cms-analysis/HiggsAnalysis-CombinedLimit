@@ -105,7 +105,7 @@ class LHCHCGBaseModel(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first")
         print("Will add bbH to signals in the following Higgs boson decay modes: %s" % (", ".join(self.add_bbH)))
 
     def dobbH(self):
@@ -402,7 +402,7 @@ class XSBRratios(LHCHCGBaseModel):
 
 
 class Kappas(LHCHCGBaseModel):
-    "assume the SM coupling but let the Higgs mass to float"
+    "assume the SM coupling but leave the Higgs mass to float"
 
     def __init__(
         self,

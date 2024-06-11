@@ -1,3 +1,6 @@
+hide:
+    - navigation 
+
 # Useful links and further reading
 
 ### Tutorials and reading material
@@ -29,7 +32,7 @@ Higgs combinations procedures
 
 ### Citations
 
-There is no document currently which can be cited for using the <span style="font-variant:small-caps;">Combine</span> tool, however, you can use the following publications for the procedures we use,
+The paper for the <span style="font-variant:small-caps;">Combine</span> tool is available [here](https://arxiv.org/abs/2404.06614). In addition, you can cite the following papers for the methods used within the tool; 
 
 * [Summer 2011 public ATLAS-CMS note](https://cds.cern.ch/record/1379837) for any Frequentist limit setting procedures with toys or Bayesian limits, constructing likelihoods, descriptions of nuisance parameter options (like log-normals (`lnN`) or gamma (`gmN`), and for definitions of test-statistics.
 

@@ -77,14 +77,14 @@ parser.add_option(
     "--exclude-nuisances-from-file",
     type="string",
     dest="nuisVetoFile",
-    help="Exclude all the nuisances in this file",
+    help="Exclude all the nuisance parameters in this file",
 )
 parser.add_option(
     "--en-file",
     "--edit-nuisances-from-file",
     type="string",
     dest="editNuisFile",
-    help="edit the nuisances in this file",
+    help="Edit the nuisance parameters in this file",
 )
 parser.add_option(
     "--drop_regularization_terms",
@@ -193,7 +193,7 @@ for ich, fname in enumerate(args):
             if lsyst in paramSysts:
                 # if paramSysts[lsyst] != pdfargs:
                 if not compareParamSystLines(paramSysts[lsyst], pdfargs):
-                    raise RuntimeError("Parameter uncerainty %s mismatch between cards, %g != %g" % lsyst)
+                    raise RuntimeError("Parameter uncertainty %s mismatch between cards, %g != %g" % lsyst)
             else:
                 paramSysts[lsyst] = pdfargs
             continue

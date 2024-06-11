@@ -46,7 +46,7 @@ bool FeldmanCousins::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
 
   fc.SetNBins(10);
   do { 
-      if (verbose > 1) std::cout << "scan in range [" << r->getMin() << ", " << r->getMax() << "]" << std::endl;
+      if (verbose > 1) std::cout << "Scan in range [" << r->getMin() << ", " << r->getMax() << "]" << std::endl;
       std::unique_ptr<RooStats::PointSetInterval> fcInterval((RooStats::PointSetInterval *)fc.GetInterval());
       if (fcInterval.get() == 0) return false;
       if (verbose > 1) fcInterval->GetParameterPoints()->Print("V"); 

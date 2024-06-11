@@ -145,8 +145,7 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double w
     if (boostAPA>0) {  // trigger adaptive PA (setting boostAPA=1 will just use internal logic)
         if ( verbose > 0 ) CombineLogger::instance().log("ToyMCSamplerOpt.cc",__LINE__, "Using internal logic for binned/unbinned Asimov dataset generation",__func__);
         int nbins = 1;
-        RooLinkedListIter iter = observables_.iterator(); 
-        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+        for (RooAbsArg *a : observables_) {
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a); 
             int mybins = rrv->getBins();
             nbins *= (mybins ? mybins : 100);
@@ -177,7 +176,7 @@ toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, in
         std::unique_ptr<RooDataSet> data(pdf_->generate(observables_, nPoints));
         if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
         RooArgSet obsPlusW(observables_); obsPlusW.add(*weightVar);
-        RooDataSet *rds = new RooDataSet(data->GetName(), "", obsPlusW, weightVar->GetName());
+        RooDataSet *rds = new RooDataSet(data->GetName(), "", obsPlusW, RooFit::WeightVar(weightVar->GetName()));
         RooAbsArg::setDirtyInhibit(true); // don't propagate dirty flags while filling histograms 
         for (int i = 0; i < nPoints; ++i) {
             observables_ = *data->get(i);
@@ -220,7 +219,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
     double expectedEvents = pdf_->expectedEvents(observables_);
     histoSpec_->Scale(expectedEvents/ histoSpec_->Integral("width")); 
     RooArgSet obsPlusW(obs); obsPlusW.add(*weightVar);
-    RooDataSet *data = new RooDataSet(TString::Format("%sData", pdf_->GetName()), "", obsPlusW, weightVar->GetName());
+    RooDataSet *data = new RooDataSet(TString::Format("%sData", pdf_->GetName()), "", obsPlusW, RooFit::WeightVar(weightVar->GetName()));
     RooAbsArg::setDirtyInhibit(true); // don't propagate dirty flags while filling histograms 
     switch (obs.getSize()) {
         case 1:
@@ -283,8 +282,7 @@ toymcoptutils::SinglePdfGenInfo::generateCountingAsimov()
 void
 toymcoptutils::SinglePdfGenInfo::setToExpected(RooProdPdf &prod, RooArgSet &obs) 
 {
-    std::unique_ptr<TIterator> iter(prod.pdfList().createIterator());
-    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+    for (RooAbsArg *a : prod.pdfList()) {
         if (!a->dependsOn(obs)) continue;
         RooPoisson *pois = 0;
         if ((pois = dynamic_cast<RooPoisson *>(a)) != 0) {
@@ -302,16 +300,15 @@ toymcoptutils::SinglePdfGenInfo::setToExpected(RooPoisson &pois, RooArgSet &obs)
 {
     RooRealVar *myobs = 0;
     RooAbsReal *myexp = 0;
-    std::unique_ptr<TIterator> iter(pois.serverIterator());
-    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+    for (RooAbsArg *a : pois.servers()) {
         if (obs.contains(*a)) {
-            assert(myobs == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two observables??");
+            assert(myobs == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two observables?");
             myobs = dynamic_cast<RooRealVar *>(a);
-            assert(myobs != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Observables is not a RooRealVar??");
+            assert(myobs != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Observable is not a RooRealVar?");
         } else {
-            assert(myexp == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two expecteds??");
+            assert(myexp == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two expecteds?");
             myexp = dynamic_cast<RooAbsReal *>(a);
-            assert(myexp != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Expectedis not a RooAbsReal??");
+            assert(myexp != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Expected is not a RooAbsReal?");
         }
     }
     assert(myobs != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): No observable?");
@@ -325,7 +322,7 @@ toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& obs
     observables_(observables),
     copyData_(true)
 {
-    assert(forceEvents == 0 && "SimPdfGenInfo: forceEvents must be zero at least for now");
+    assert(forceEvents == 0 && "SimPdfGenInfo: forceEvents must be zero.");
     RooSimultaneous *simPdf = dynamic_cast<RooSimultaneous *>(&pdf);
     if (simPdf) {
         cat_ = const_cast<RooAbsCategoryLValue *>(&simPdf->indexCat());
@@ -380,7 +377,7 @@ toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet*
                 if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
                 RooArgSet obs(*data->get()); 
                 obs.add(*weightVar);
-                RooDataSet *wdata = new RooDataSet(data->GetName(), "", obs, "_weight_");
+                RooDataSet *wdata = new RooDataSet(data->GetName(), "", obs, RooFit::WeightVar("_weight_"));
                 for (int i = 0, n = data->numEntries(); i < n; ++i) {
                     obs = *data->get(i);
                     wdata->add(obs, data->weight());
@@ -396,7 +393,7 @@ toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet*
             //// slower but safer solution
             RooArgSet vars(observables_), varsPlusWeight(observables_); 
             if (weightVar) varsPlusWeight.add(*weightVar);
-            ret = new RooDataSet(retName, "", varsPlusWeight, (weightVar ? weightVar->GetName() : 0));
+            ret = new RooDataSet(retName, "", varsPlusWeight, RooFit::WeightVar(weightVar ? weightVar->GetName() : 0));
             RooAbsArg::setDirtyInhibit(true); // don't propagate dirty flags while filling histograms 
             for (std::map<std::string,RooAbsData*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
                 cat_->setLabel(it->first.c_str());
@@ -432,7 +429,7 @@ toymcoptutils::SimPdfGenInfo::generateAsimov(RooRealVar *&weightVar, int verbose
         }
         if (copyData_) { 
             RooArgSet vars(observables_), varsPlusWeight(observables_); varsPlusWeight.add(*weightVar);
-            ret = new RooDataSet(retName, "", varsPlusWeight, (weightVar ? weightVar->GetName() : 0));
+            ret = new RooDataSet(retName, "", varsPlusWeight, RooFit::WeightVar(weightVar ? weightVar->GetName() : 0));
             RooAbsArg::setDirtyInhibit(true); // don't propagate dirty flags while filling histograms 
             for (std::map<std::string,RooAbsData*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
                 cat_->setLabel(it->first.c_str());
@@ -470,7 +467,7 @@ toymcoptutils::SimPdfGenInfo::generateEpsilon(RooRealVar *&weightVar)
         }
         if (copyData_) { 
             RooArgSet vars(observables_), varsPlusWeight(observables_); varsPlusWeight.add(*weightVar);
-            ret = new RooDataSet(retName, "", varsPlusWeight, (weightVar ? weightVar->GetName() : 0));
+            ret = new RooDataSet(retName, "", varsPlusWeight, RooFit::WeightVar(weightVar ? weightVar->GetName() : 0));
             for (std::map<std::string,RooAbsData*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
                 cat_->setLabel(it->first.c_str());
                 for (unsigned int i = 0, n = it->second->numEntries(); i < n; ++i) {

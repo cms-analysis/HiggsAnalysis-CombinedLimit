@@ -81,7 +81,7 @@ FitDiagnostics::FitDiagnostics() :
         ("out",                	boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put the diagnostics output file in")
         ("plots",              	"Make pre/post-fit RooPlots of 1D distributions of observables and fitted models")
         ("rebinFactor",        	boost::program_options::value<float>(&rebinFactor_)->default_value(rebinFactor_), "Rebin by this factor before plotting (does not affect fitting!)")
-        ("signalPdfNames",     	boost::program_options::value<std::string>(&signalPdfNames_)->default_value(signalPdfNames_), "Names of signal pdfs in plots (separated by ,)")
+        ("signalPdfNames",     	boost::program_options::value<std::string>(&signalPdfNames_)->default_value(signalPdfNames_), "Names of signal pdfs in plots (separated by ',')")
         ("backgroundPdfNames", 	boost::program_options::value<std::string>(&backgroundPdfNames_)->default_value(backgroundPdfNames_), "Names of background pdfs in plots (separated by ',')")
         ("saveNormalizations",  "Save post-fit normalizations RooArgSet (single toy only)")
         ("savePredictionsPerToy",  "Save post-fit normalizations and shapes per toy")
@@ -147,7 +147,7 @@ void FitDiagnostics::applyOptions(const boost::program_options::variables_map &v
 bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
 
   if (reuseParams_ && minos_!="none"){
-	std::cout << "Cannot reuse b-only fit params when running minos. Parameters will be reset when running S+B fit"<<std::endl;
+	std::cout << "Cannot re-use b-only fit parameters when running minos. Parameters will be reset when running S+B fit"<<std::endl;
 	reuseParams_=false;
   }
 
@@ -174,7 +174,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
   if ( currentToy_ > 1 && (saveShapes_) ) {
       //std::cerr << " ERROR, cannot use saveShapes  with > 1 toy dataset, \n you should run multiple times with -t 1 using random seeds (-s -1) or remove those options." << std::endl;
-      CombineLogger::instance().log("FitDiagnostics.cc",__LINE__,"[ERROR] cannot use saveShapes with > 1 toy dataset, \n you should run multiple times with -t 1 using random seeds (-s -1) or remove those options",__func__);
+      CombineLogger::instance().log("FitDiagnostics.cc",__LINE__,"[ERROR] cannot use saveShapes with > 1 toy dataset, \n you should run multiple times with -t 1 using random seeds (-s -1) or remove the saveShapes option",__func__);
       assert(0);
   }
 
@@ -531,7 +531,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 	}
       } else {
       	std::cout << "\n --- FitDiagnostics ---" << std::endl;
-      	std::cout << "Done! fit s+b and fit b should be identical" << std::endl;
+      	std::cout << "Done! s+b fit and b-only fit should be identical" << std::endl;
       }
   } else if (!skipSBFit_) {
       std::cout << "\n --- FitDiagnostics ---" << std::endl;
@@ -646,8 +646,8 @@ void FitDiagnostics::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std
         if (!normProd) {
           RooAbsReal* integral = shape->createIntegral(*myobs);
           normProd = new RooProduct(normProdName, "", RooArgList(*integral, *coeff));
-          normProd->addOwnedComponents(RooArgSet(*integral));
-          coeff->addOwnedComponents(RooArgSet(*normProd));
+          normProd->addOwnedComponents(*integral);
+          coeff->addOwnedComponents(*normProd);
         }
 
         ns.norm = normProd;
@@ -1211,16 +1211,14 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 //void FitDiagnostics::setFitResultTrees(const RooArgSet *args, std::vector<double> *vals){
 void FitDiagnostics::setFitResultTrees(const RooArgSet *args, double * vals){
 	
-         TIterator* iter(args->createIterator());
 	 int count=0;
 	 
-         for (TObject *a = iter->Next(); a != 0; a = iter->Next()) { 
+         for (RooAbsArg *a : *args) {
                  RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
 		 //std::string name = rrv->GetName();
 		 vals[count]=rrv->getVal();
 		 count++;
          }
-	 delete iter;
 	 return;
 }
 
@@ -1259,17 +1257,15 @@ void FitDiagnostics::resetFitResultTrees(bool withSys){
 }
 void FitDiagnostics::setNormsFitResultTrees(const RooArgSet *args, double * vals){
 	
-         TIterator* iter(args->createIterator());
 	 int count=0;
 	 
-         for (TObject *a = iter->Next(); a != 0; a = iter->Next()) { 
+         for (RooAbsArg *a : *args) {
                  RooRealVar *rcv = dynamic_cast<RooRealVar *>(a);   
 		 // std::cout << "index " << count << ", Name " << rcv->GetName() << ", val " <<  rcv->getVal() << std::endl;
 		 //std::string name = rcv->GetName();
 		 vals[count]=rcv->getVal();
 		 count++;
          }
-	 delete iter;
 	 return;
 }
 
@@ -1346,8 +1342,7 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
 	  nuisanceParameters_= new double[nuis->getSize()];
 	  overallNuis_ = nuis->getSize();
 
-          TIterator* iter_c(cons->createIterator());
-          for (TObject *a = iter_c->Next(); a != 0; a = iter_c->Next()) { 
+          for (RooAbsArg * a : *cons) {
                  RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rrv->GetName();
 		 globalObservables_[count]=0;
@@ -1357,8 +1352,7 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
 		 count++;
 	  }         
 	  count = 0;
-          TIterator* iter_n(nuis->createIterator());
-          for (TObject *a = iter_n->Next(); a != 0; a = iter_n->Next()) { 
+          for (RooAbsArg * a : *nuis) {
                  RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rrv->GetName();
 		 nuisanceParameters_[count] = 0;
@@ -1371,8 +1365,7 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
          }
 
 	 count = 0;
-         TIterator* iter_no(norms->createIterator());
-         for (TObject *a = iter_no->Next(); a != 0; a = iter_no->Next()) { 
+          for (RooAbsArg * a : *norms) {
                  RooRealVar *rcv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rcv->GetName();
 		 processNormalizations_[count] = -999;

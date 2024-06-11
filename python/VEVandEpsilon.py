@@ -10,7 +10,7 @@ from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 
 
 class MepsHiggs(SMLikeHiggsModel):
-    "assume the SM coupling but let the Higgs mass to float"
+    "Assume the SM coupling but leave the Higgs boson mass floating"
 
     def __init__(self):
         SMLikeHiggsModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
@@ -23,23 +23,23 @@ class MepsHiggs(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=", "").split(",")
-                print("The Higgs mass range:", self.mHRange)
+                print("The Higgs boson mass range:", self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError("Higgs mass range definition requires two extrema.")
+                    raise RuntimeError("Higgs boson mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
             if po.startswith("MRange="):
                 self.MRange = po.replace("MRange=", "").split(":")
                 if len(self.MRange) != 2:
                     raise RuntimeError("M range requires minimal and maximal value")
                 elif float(self.MRange[0]) >= float(self.MRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than the first one")
             if po.startswith("epsRange="):
                 self.epsRange = po.replace("epsRange=", "").split(":")
                 if len(self.epsRange) != 2:
                     raise RuntimeError("epsilon range requires minimal and maximal value")
                 elif float(self.epsRange[0]) >= float(self.epsRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than the first one")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -163,7 +163,7 @@ class MepsHiggs(SMLikeHiggsModel):
         if production == "VH":
             print(
                 "WARNING: You are trying to use a VH production mode in a model that needs WH and ZH separately. "
-                "The best I can do is to scale [%(production)s, %(decay)s, %(energy)s] with the decay BR only but this is wrong..." % locals()
+                "The best I can do is to scale [%(production)s, %(decay)s, %(energy)s] with the decay BR only, but this is incorrect..." % locals()
             )
             self.modelBuilder.factory_('expr::%(name)s("1.0*@0", Meps_BRscal_%(decay)s)' % locals())
             return name
@@ -177,7 +177,7 @@ class MepsHiggs(SMLikeHiggsModel):
 
 
 class ResolvedC6(SMLikeHiggsModel):
-    "assume the SM coupling but let the Higgs mass to float"
+    "Assume the SM coupling but leave the Higgs boson mass floating"
 
     def __init__(self):
         SMLikeHiggsModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
@@ -189,17 +189,17 @@ class ResolvedC6(SMLikeHiggsModel):
             if po.startswith("higgsMassRange="):
                 self.floatMass = True
                 self.mHRange = po.replace("higgsMassRange=", "").split(",")
-                print("The Higgs mass range:", self.mHRange)
+                print("The Higgs boson mass range:", self.mHRange)
                 if len(self.mHRange) != 2:
-                    raise RuntimeError("Higgs mass range definition requires two extrema.")
+                    raise RuntimeError("Higgs boson mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs boson mass range defined with inverterd order. Second must be larger than the first.")
             if po.startswith("MRange="):
                 self.MRange = po.replace("MRange=", "").split(":")
                 if len(self.MRange) != 2:
                     raise RuntimeError("M range requires minimal and maximal value")
                 elif float(self.MRange[0]) >= float(self.MRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than the first one")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -298,7 +298,7 @@ class ResolvedC6(SMLikeHiggsModel):
         if production == "VH":
             print(
                 "WARNING: You are trying to use a VH production mode in a model that needs WH and ZH separately. "
-                "The best I can do is to scale [%(production)s, %(decay)s, %(energy)s] with the decay BR only but this is wrong..." % locals()
+                "The best I can do is to scale [%(production)s, %(decay)s, %(energy)s] with the decay BR only, but this is incorrect..." % locals()
             )
             self.modelBuilder.factory_('expr::%(name)s("1.0*@0", wztbtm_BRscal_%(decay)s)' % locals())
             return name

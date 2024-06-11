@@ -70,7 +70,18 @@ class DataFrameWrapper(object):
         if not hasattr(self, "df"):
             raise AttributeError("Dataframe has not been loaded")
 
-        index_labels, column_labels = object_name.split(",")
+        # index_labels, column_labels = object_name.split(",")
+        # Not necessary to include ":nominal,sum_w:sum_ww in every line
+        # check if its not there and if so, add these default names of columns
+        try:
+            index_labels, column_labels = object_name.split(",")
+        except ValueError:
+            index_labels = object_name
+            column_labels = ""
+        if len(column_labels) == 0:
+            column_labels = "sum_w:sum_ww"
+        if len(index_labels.split(":")) < 3:
+            index_labels += ":nominal"
 
         # Try to cast index_labels into self.df.index dtypes. Users can only
         # input index_labels as a string, but the dataframe might have other
@@ -89,12 +100,12 @@ class DataFrameWrapper(object):
     def convert_to_th1(df, th1_class):
         """
         Receive a dataframe and convert it to a TH1. Index is taken as the
-        binning for labelling. Last bin is overflow.
+        binning for labelling. Overflowbin should be ignored!
         """
         name = df.index.names[0]
-        nbins = df.shape[0] - 1
+        nbins = df.shape[0]
         th1 = getattr(ROOT, th1_class)(name, name, nbins, 0.0, float(nbins))
-        for i in range(nbins + 1):
+        for i in range(nbins):
             sum_w, sum_ww = df.iloc[i]
             th1.SetBinContent(i + 1, sum_w)
             th1.SetBinError(i + 1, np.sqrt(sum_ww))

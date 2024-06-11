@@ -55,7 +55,7 @@ There are a number of useful command-line options that can be used to alter the 
 
 -   `--freezeParameters name1[,name2,...]` Will freeze the parameters with the given names to their set values. This option supports the use of regular expression by replacing `name` with `rgx{some regular expression}` for matching to *constrained nuisance parameters* or `var{some regular expression}` for matching to *any* parameter. For example `--freezeParameters rgx{CMS_scale_j.*}` will freeze all constrained nuisance parameters with the prefix `CMS_scale_j`, while `--freezeParameters var{.*rate_scale}` will freeze any parameter (constrained nuisance parameter or otherwise) with the suffix `rate_scale`.
     - Use the option `--freezeParameters allConstrainedNuisances` to freeze all nuisance parameters that have a constraint term (i.e not `flatParams` or `rateParams` or other freely floating parameters).
-    - Similarly, the option `--floatParameters name1[,name2,...]` sets the parameter(s) floating.
+    - Similarly, the option `--floatParameters name1[,name2,...]` sets the parameter(s) floating and also accepts regular expressions.
     - Groups of nuisance parameters (constrained or otherwise), as defined in the datacard, can be frozen using `--freezeNuisanceGroups`. You can also freeze all nuisances that are *not* contained in a particular group using a **^** before the group name (`--freezeNuisanceGroups=^group_name` will freeze everything except nuisance parameters in the group "group_name".)
     - All *constrained* nuisance parameters (not `flatParam` or `rateParam`) can be set floating using `--floatAllNuisances`.
 
@@ -152,8 +152,11 @@ The option `-t` is used to tell <span style="font-variant:small-caps;">Combine</
 
 The output file will contain the toys (as `RooDataSets` for the observables, including global observables) in the **toys** directory if the option `--saveToys` is provided. If you include this option, the `limit` TTree in the output will have an entry corresponding to the state of the POI used for the generation of the toy, with the value of **`quantileExpected`** set to **-2**. 
 
-!!! info
-    The branches that are created by methods like `MultiDimFit` *will not* show the values used to generate the toy. If you also want the TTree to show the values of the POIs used to generate to toy, you should add additional branches using the `--trackParameters` option as described in the [common command-line options](#common-command-line-options) section above. These branches will behave as expected when adding the option `--saveToys`. 
+The branches that are created by methods like `MultiDimFit` *will not* show the values used to generate the toy. If you also want the TTree to show the values of the POIs used to generate the toy, you should add additional branches using the `--trackParameters` option as described in the [common command-line options](#common-command-line-options) section above. These branches will behave as expected when adding the option `--saveToys`. 
+
+!!! warning
+    For statistical methods that make use of toys (including `HybridNew`, `MarkovChainMC` and running with `-t N`), the results of repeated <span style="font-variant:small-caps;">Combine</span> commands will not be identical when using the datacard as the input. This is due to a feature in the tool that allows one to run concurrent commands that do not interfere with one another. In order to produce reproducible results with toy-based methods, you should first convert the datacard to a binary workspace using `text2workspace.py` and then use the resulting file as input to the <span style="font-variant:small-caps;">Combine</span> commands
+    
 
 
 ### Asimov datasets
@@ -201,7 +204,9 @@ If you are using `toysFrequentist`, be aware that the values set by `--setParame
 
 ### Generate only
 
-It is also possible to generate the toys first, and then feed them to the methods in <span style="font-variant:small-caps;">Combine</span>. This can be done using `-M GenerateOnly --saveToys`. The toys can then be read and used with the other methods by specifying `--toysFile=higgsCombineTest.GenerateOnly...` and using the same options for the toy generation.
+It is also possible to generate the toys first, and then feed them to the methods in <span style="font-variant:small-caps;">Combine</span>. This can be done using `-M GenerateOnly --saveToys`. The toys can then be read and used with the other methods by specifying `--toysFile=higgsCombineTest.GenerateOnly...` and using the same options for the toy generation. 
+
+You can specify to run on a single toy, in place of the observed data, by including the option `-D file.root:toys/toy_i`. For example adding `-D higgsCombineTest.GenerateOnly.mH120.123456.root:toys/toy_10` will run on the  data set `toy_10` (the 10th toy) that was generated and saved in the file `higgsCombineTest.GenerateOnly.mH120.123456.root`. 
 
 !!! warning
     Some methods also use toys within the method itself (eg `AsymptoticLimits` and `HybridNew`). For these, you should **not** specify the toy generation with `-t` or the options above. Instead, you should follow the method-specific instructions.

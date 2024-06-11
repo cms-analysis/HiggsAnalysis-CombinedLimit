@@ -12,11 +12,11 @@ namespace cacheutils {
     class CachingMultiPdf : public CachingPdfBase {
         public:
             CachingMultiPdf(const RooMultiPdf &pdf, const RooArgSet &obs) ;
-            ~CachingMultiPdf() ;
-            virtual const std::vector<Double_t> & eval(const RooAbsData &data) ;
-            const RooAbsReal *pdf() const { return pdf_; }
-            virtual void  setDataDirty() ;
-            virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
+            ~CachingMultiPdf() override ;
+            const std::vector<Double_t> & eval(const RooAbsData &data) override ;
+            const RooAbsReal *pdf() const override { return pdf_; }
+            void  setDataDirty() override ;
+            void  setIncludeZeroWeights(bool includeZeroWeights) override ;
         protected:
             const RooMultiPdf * pdf_;
             boost::ptr_vector<CachingPdfBase>  cachingPdfs_;
@@ -25,11 +25,11 @@ namespace cacheutils {
     class CachingAddPdf : public CachingPdfBase {
         public:
             CachingAddPdf(const RooAddPdf &pdf, const RooArgSet &obs) ;
-            ~CachingAddPdf() ;
-            virtual const std::vector<Double_t> & eval(const RooAbsData &data) ;
-            const RooAbsReal *pdf() const { return pdf_; }
-            virtual void  setDataDirty() ;
-            virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
+            ~CachingAddPdf() override ;
+            const std::vector<Double_t> & eval(const RooAbsData &data) override ;
+            const RooAbsReal *pdf() const override { return pdf_; }
+            void  setDataDirty() override ;
+            void  setIncludeZeroWeights(bool includeZeroWeights) override ;
         protected:
             const RooAddPdf * pdf_;
             std::vector<const RooAbsReal *> coeffs_;
@@ -40,11 +40,11 @@ namespace cacheutils {
     class CachingProduct : public CachingPdfBase {
         public:
             CachingProduct(const RooProduct &pdf, const RooArgSet &obs) ;
-            ~CachingProduct() ;
-            virtual const std::vector<Double_t> & eval(const RooAbsData &data) ;
-            const RooAbsReal *pdf() const { return pdf_; }
-            virtual void  setDataDirty() ;
-            virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
+            ~CachingProduct() override ;
+            const std::vector<Double_t> & eval(const RooAbsData &data) override ;
+            const RooAbsReal *pdf() const override { return pdf_; }
+            void  setDataDirty() override ;
+            void  setIncludeZeroWeights(bool includeZeroWeights) override ;
         protected:
             const RooProduct * pdf_;
             boost::ptr_vector<CachingPdfBase>  cachingPdfs_;

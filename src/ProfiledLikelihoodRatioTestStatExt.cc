@@ -69,7 +69,7 @@ Double_t ProfiledLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSe
     *paramsNull_ = snapNull_;
     *paramsNull_ = nullPOI;
         
-    DBGV(DBG_TestStat_params, (std::cout << "Parameters of null pdf (pre fit)" << pdfNull_->GetName() << "\n"))
+    DBGV(DBG_TestStat_params, (std::cout << "Parameters of null pdf (pre-fit)" << pdfNull_->GetName() << "\n"))
     DBGV(DBG_TestStat_params, (paramsNull_->Print("V")))
 
     bool canKeepNullNLL = createNLL(*pdfNull_, data, nllNull_);
@@ -152,8 +152,7 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
     DBG(DBG_PLTestStat_ctor, (std::cout << "All params: " << std::endl))  DBG(DBG_PLTestStat_ctor, (params_->Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "Snapshot: " << std::endl))    DBG(DBG_PLTestStat_ctor, (snap_.Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "POI: " << std::endl))         DBG(DBG_PLTestStat_ctor, (poi_.Print("V")))
-    RooLinkedListIter it = poi.iterator();
-    for (RooAbsArg *a = (RooAbsArg*) it.Next(); a != 0; a = (RooAbsArg*) it.Next()) {
+    for (RooAbsArg *a : poi) {
         // search for this poi in the parameters and in the snapshot
         RooAbsArg *ps = snap_.find(a->GetName());   
         RooAbsArg *pp = params_->find(a->GetName());
@@ -241,7 +240,7 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
             nullNLL = minNLL(/*constrained=*/false, r);
             bestFitR = r->getVal();
             if (bestFitR > initialR && oneSided_ == oneSidedDef) {
-                DBG(DBG_PLTestStat_main, (printf("   after re-fit, signal %7.4f > %7.4f, test statistics will be zero.\n", bestFitR, initialR)))
+                DBG(DBG_PLTestStat_main, (printf("   after re-fit, signal %7.4f > %7.4f, test statistic will be zero.\n", bestFitR, initialR)))
                 thisNLL = nullNLL;
             }
         }
@@ -260,11 +259,11 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
         } */
         if (initialR == 0) { // NOTE: signs are flipped for the zero case!
             if (oneSided_ == signFlipDef && bestFitR < initialR) {
-                DBG(DBG_PLTestStat_main, (printf("   fitted signal %7.4f is negative, discovery test statistics will be negative.\n", bestFitR)))
+                DBG(DBG_PLTestStat_main, (printf("   fitted signal %7.4f is negative, discovery test statistic will be negative.\n", bestFitR)))
                 std::swap(thisNLL, nullNLL);
             }
         } else if (bestFitR > initialR && oneSided_ == signFlipDef) {
-            DBG(DBG_PLTestStat_main, (printf("   fitted signal %7.4f > %7.4f, test statistics will be negative.\n", bestFitR, initialR)))
+            DBG(DBG_PLTestStat_main, (printf("   fitted signal %7.4f > %7.4f, test statistic will be negative.\n", bestFitR, initialR)))
             std::swap(thisNLL, nullNLL);
         }
     } else {

@@ -22,7 +22,7 @@ public:
 	      RooAbsReal& _p1,
 	      RooAbsReal& _p2);
   GaussExp(const GaussExp& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new GaussExp(*this,newname); }
+  TObject* clone(const char* newname) const override { return new GaussExp(*this,newname); }
   // inline virtual ~GaussExp() { }
 
 protected:
@@ -32,11 +32,11 @@ protected:
   RooRealProxy p1 ;
   RooRealProxy p2 ;
   
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 
 private:
 
-  ClassDef(GaussExp,1) // Your description goes here...
+  ClassDefOverride(GaussExp,1) // Your description goes here...
 };
  
 #endif

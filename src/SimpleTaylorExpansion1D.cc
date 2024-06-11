@@ -13,7 +13,7 @@ SimpleTaylorExpansion1D::SimpleTaylorExpansion1D(const char *name, const char *t
     std::fill_n(ci_, MaxOrder+1, 0.0);
     ci_[0] = func.getVal();
     if (order > 4) {
-        std::cerr << "Only order 0..4 are implemented for the moment, out of lazyness" << std::endl;
+        std::cerr << "Only order 0..4 are implemented for the moment." << std::endl;
         assert(false);
     }
     if (order > 0) {

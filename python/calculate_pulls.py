@@ -87,7 +87,7 @@ def returnPull(method, x, x0, sx, sx0):
         return diffPull(x, x0, sx, sx0)
     # missing method unconstPull ?
     else:
-        sys.exit("python/calculate_pulls.py -- Error, pulls method %s not understood!" % method)
+        sys.exit("python/calculate_pulls.py -- Error, pull method %s not understood!" % method)
 
 
 def returnPullAsym(method, x, x0, sxu, sxu0, sxd, sxd0):
@@ -100,7 +100,7 @@ def returnPullAsym(method, x, x0, sxu, sxu0, sxd, sxd0):
     elif method == "diffPullAsym":
         return diffPullAsym(x, x0, sxu, sxu0, sxd, sxd0)
     else:
-        sys.exit("python/calculate_pulls.py -- Error, pulls method %s not understood!" % method)
+        sys.exit("python/calculate_pulls.py -- Error, pull method %s not understood!" % method)
 
 
 def returnTitle(method):
@@ -113,4 +113,4 @@ def returnTitle(method):
     elif method in ["diffPullAsym", "diffPull"]:
         return "(#theta-#theta_{I})/#sqrt{#sigma_{I}^{2}-#sigma^{2}}"
     else:
-        sys.exit("python/calculate_pulls.py -- Error, pulls method %s not understood!" % method)
+        sys.exit("python/calculate_pulls.py -- Error, pull method %s not understood!" % method)
