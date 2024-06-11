@@ -682,7 +682,7 @@ std::shared_ptr<RooWorkspace> CombineHarvester::SetupWorkspace(
     // bugs
     if (GetFlag("workspaces-use-clone")) {
       wspaces_[std::string(ws.GetName())] = std::shared_ptr<RooWorkspace>(
-              reinterpret_cast<RooWorkspace*>(ws.Clone())
+              reinterpret_cast<RooWorkspace*>(ws.Clone(ws.GetName()))
           );      
     } else {
       wspaces_[std::string(ws.GetName())] =
