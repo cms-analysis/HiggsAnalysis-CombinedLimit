@@ -45,12 +45,12 @@ namespace cacheutils {
                 RooAbsReal(other, name),
                 list_("deps",this,other.list_),
                 terms_(other.terms_) {} 
-            ~ReminderSum() {}
-            virtual TObject* clone(const char* newname) const { return new ReminderSum(*this,newname); }
+            ~ReminderSum() override {}
+            TObject* clone(const char* newname) const override { return new ReminderSum(*this,newname); }
         private:
             RooListProxy list_;
             std::vector<const RooAbsReal *> terms_;
-            Double_t evaluate() const;
+            Double_t evaluate() const override;
     };
 }
 
@@ -117,10 +117,7 @@ namespace { unsigned long CachingSimNLLEvalCount = 0; }
 
 cacheutils::ArgSetChecker::ArgSetChecker(const RooAbsCollection &set) 
 {
-    std::unique_ptr<TIterator> iter(set.createIterator());
-    for (RooAbsArg *a  = dynamic_cast<RooAbsArg *>(iter->Next()); 
-                    a != 0; 
-                    a  = dynamic_cast<RooAbsArg *>(iter->Next())) {
+    for (RooAbsArg *a : set) {
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
         if (rrv) { // && !rrv->isConstant()) { 
             vars_.push_back(rrv);
@@ -375,10 +372,9 @@ cacheutils::ReminderSum::ReminderSum(const char *name, const char *title, const 
     RooAbsReal(name,title),
     list_("deps","",this)
 {
-    RooLinkedListIter iter(sumSet.iterator());
-    for (RooAbsReal *rar = (RooAbsReal *) iter.Next(); rar != 0; rar = (RooAbsReal *) iter.Next()) {
+    for (RooAbsArg * rar : sumSet) {
         list_.add(*rar);
-        terms_.push_back(rar);
+        terms_.push_back(static_cast<RooAbsReal*>(rar));
     }
 }
 Double_t cacheutils::ReminderSum::evaluate() const {
@@ -585,8 +581,7 @@ cacheutils::CachingAddNLL::setup_()
     }
 
     std::unique_ptr<RooArgSet> params(pdf_->getParameters(*data_));
-    std::unique_ptr<TIterator> iter(params->createIterator());
-    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+    for (RooAbsArg *a : *params) {
         if (dynamic_cast<RooRealVar *>(a))  params_.add(*a);
         else if (dynamic_cast<RooCategory *>(a)) catParams_.add(*a);
     }
@@ -668,7 +663,7 @@ cacheutils::CachingAddNLL::evaluate() const
         //         *its += coeff * (*itv); // sum (n_i * pdf_i)
         //    }
         // vectorize to make it faster
-        vectorized::mul_add(pdfvals.size(), coeff, &pdfvals[0], &partialSum_[0]);
+        vectorized::mul_add(pdfvals.size(), coeff, pdfvals.data(), partialSum_.data());
     }
     // if all basic integrals evaluated ok, use them
     if (allBasicIntegralsOk) basicIntegrals_ = 2;
@@ -710,7 +705,7 @@ cacheutils::CachingAddNLL::evaluate() const
     //      for ( its = bgs, itw = bgw ; its != eds ; ++its, ++itw ) {
     //         ret -= (*itw) * log( ((*its) / sumCoeff) );
     //      }
-    ret -= vectorized::nll_reduce(partialSum_.size(), &partialSum_[0], &weights_[0], sumCoeff, &workingArea_[0]);
+    ret -= vectorized::nll_reduce(partialSum_.size(), partialSum_.data(), weights_.data(), sumCoeff, workingArea_.data());
     // std::cout << "AddNLL for " << pdf_->GetName() << ": " << ret << std::endl;
     // and add extended term: expected - observed*log(expected);
     static bool expEventsNoNorm = runtimedef::get("ADDNLL_ROOREALSUM_NONORM");
@@ -847,6 +842,10 @@ cacheutils::CachingAddNLL::getObservables(const RooArgSet* depList, Bool_t value
     return new RooArgSet();
 }
 
+// ROOT 6.26 changed the signature of getParameters to avoid heap allocation,
+// and especially returning an owning pointer that people tend to forget to
+// delete.
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
 RooArgSet* 
 cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
@@ -854,6 +853,16 @@ cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList, Bool_t stripD
     ret->add(catParams_);
     return ret;
 }
+#else
+bool cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList,
+                                              RooArgSet& outputSet,
+                                              bool stripDisconnected) const
+{
+    outputSet.add(params_);
+    outputSet.add(catParams_);
+    return true;
+}
+#endif
 
 
 cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, const RooArgSet *nuis) :
@@ -868,6 +877,7 @@ cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data,
 }
 
 cacheutils::CachingSimNLL::CachingSimNLL(const CachingSimNLL &other, const char *name) :
+    RooAbsReal{other, name},
     pdfOriginal_(other.pdfOriginal_),
     dataOriginal_(other.dataOriginal_),
     nuis_(other.nuis_),
@@ -1036,12 +1046,12 @@ cacheutils::CachingSimNLL::setup_()
         }
     }   
 
-    std::cout << "SimNLL created with " << nchannels << " channels, " <<
-                 constrainPdfs_.size() << " generic constraints, " << 
-                 constrainPdfsFast_.size() << " fast gaussian constraints, " << 
-                 constrainPdfsFastPoisson_.size() << " fast poisson constraints, " << 
-                 constrainPdfGroups_.size() << " fast group constraints, " << 
-                 std::endl;
+     
+    if (verb) {
+            CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form(
+	    "SimNLL created with %d channels, %d generic constraints, %d fast gaussian constraints, %d fast poisson constraints, %d fast group constraints.",
+	    (int)nchannels, (int)constrainPdfs_.size(),(int)constrainPdfsFast_.size(),(int)constrainPdfsFastPoisson_.size(),(int)constrainPdfGroups_.size())),__func__);
+    }
     setValueDirty();
 }
 
@@ -1130,7 +1140,7 @@ cacheutils::CachingSimNLL::setData(const RooAbsData &data)
     //utils::printRAD(&data);
     //dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));
     if (!(RooCategory*)data.get()->find("CMS_channel")) { 
-    	throw  std::logic_error("Error: no category in dataset. You should try to recreate your datacard as a Fake shape -- combineCards.py mycard.txt -S > myshapecard.txt OR rerun with option --forceRecreateNLL");
+    	throw  std::logic_error("Error: no category in dataset. You should try to recreate your datacard as a Fake shape datacard -- combineCards.py mycard.txt -S > myshapecard.txt OR rerun with option --forceRecreateNLL");
 	assert(0);
     }
     splitWithWeights(*dataOriginal_, pdfOriginal_->indexCat(), true);
@@ -1174,9 +1184,9 @@ void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const R
                 std::unique_ptr<RooArgSet> myobs(pdf->getObservables(obs));
                 myobs->add(weight);
                 //std::cout << "Observables for bin " << ib << ":"; myobs->Print("");
-                datasets_[ib] = new RooDataSet("", "", *myobs, "_weight_");
+                datasets_[ib] = new RooDataSet("", "", *myobs, RooFit::WeightVar("_weight_"));
             } else {
-                datasets_[ib] = new RooDataSet("", "", obsplus, "_weight_");
+                datasets_[ib] = new RooDataSet("", "", obsplus, RooFit::WeightVar("_weight_"));
             }
         } else {
             datasets_[ib]->reset();
@@ -1275,6 +1285,10 @@ cacheutils::CachingSimNLL::getObservables(const RooArgSet* depList, Bool_t value
     return new RooArgSet();
 }
 
+// ROOT 6.26 changed the signature of getParameters to avoid heap allocation,
+// and especially returning an owning pointer that people tend to forget to
+// delete.
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
 RooArgSet* 
 cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
@@ -1289,6 +1303,22 @@ cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripD
     if (hideConstants_) RooStats::RemoveConstantParameters(ret);
     return ret;
 }
+#else
+bool cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList,
+                                              RooArgSet& outputSet,
+                                              bool stripDisconnected) const
+{
+    if (internalMasks_.empty()) {
+        outputSet.add(params_);
+        if (!hideRooCategories_) outputSet.add(catParams_);
+    } else {
+        outputSet.add(activeParameters_);
+        if (!hideRooCategories_) outputSet.add(activeCatParameters_);
+    }
+    if (hideConstants_) RooStats::RemoveConstantParameters(&outputSet);
+    return true;
+}
+#endif
 
 void cacheutils::CachingSimNLL::setMaskConstraints(bool flag) {
     double nllBefore = evaluate();
@@ -1309,8 +1339,7 @@ void cacheutils::CachingSimNLL::setMaskNonDiscreteChannels(bool mask) {
         unsigned int idx = 0;
         for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it, ++idx) {
             if ((*it) == 0) continue;
-            RooLinkedListIter iter = (*it)->catParams().iterator();
-            for (RooAbsArg *P = (RooAbsArg *) iter.Next(); P != 0; P = (RooAbsArg *) iter.Next()) {
+            for (RooAbsArg *P : (*it)->catParams()) {
                 RooCategory *cat = dynamic_cast<RooCategory *>(P);
                 if (!cat) continue;
                 if (cat && !cat->isConstant()) {

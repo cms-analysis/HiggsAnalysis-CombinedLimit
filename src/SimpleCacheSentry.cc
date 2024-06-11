@@ -25,14 +25,14 @@ SimpleCacheSentry::SimpleCacheSentry(const RooAbsArg &func, const RooArgSet *obs
 }
 
 SimpleCacheSentry::SimpleCacheSentry(const SimpleCacheSentry &other, const char *newname) :
+    RooAbsArg{other, newname},
     _deps("deps",this,other._deps)   
 {
 }
 
 void SimpleCacheSentry::addVars(const RooAbsCollection &vars) 
 {
-    TIterator *iter = vars.createIterator();
-    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+    for (RooAbsArg* a : vars) {
         if (_deps.containsInstance(*a)) continue;
         // RooRealVars can return true to isDerived() if the ranges or binning depend on
         // other parameters, so always add RooRealVars to the list
@@ -44,7 +44,6 @@ void SimpleCacheSentry::addVars(const RooAbsCollection &vars)
           _deps.add(*a);
         }
     }
-    delete iter;
 }
 
 void SimpleCacheSentry::addFunc(const RooAbsArg &func, const RooArgSet *obs) 

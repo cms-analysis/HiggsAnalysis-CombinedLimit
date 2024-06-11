@@ -51,12 +51,12 @@ GoodnessOfFit::GoodnessOfFit() :
 {
     options_.add_options()
         ("algorithm",          boost::program_options::value<std::string>(&algo_), "Goodness of fit algorithm. Supported algorithms are 'saturated', 'KS' and 'AD'.")
-        ("setParametersForFit",   boost::program_options::value<std::string>(&setParametersForFit_)->default_value(""), "Set parameters values for the saturated model fitting step")
+        ("setParametersForFit",   boost::program_options::value<std::string>(&setParametersForFit_)->default_value(""), "Set parameter values for the saturated model fitting step")
         ("setParametersForEval",   boost::program_options::value<std::string>(&setParametersForEval_)->default_value(""), "Set parameter values for the saturated model NLL eval step")
   //      ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer (Minuit vs Minuit2)")
   //      ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer")
   //      ("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
-        ("fixedSignalStrength", boost::program_options::value<float>(&mu_)->default_value(mu_),  "Compute the goodness of fit for a fixed signal strength. If not specified, it's left floating")
+        ("fixedSignalStrength", boost::program_options::value<float>(&mu_)->default_value(mu_),  "Compute the goodness of fit for a fixed signal strength. If not specified, it is left floating")
         ("plots",  "Make plots containing information of the computation of the Anderson-Darling or Kolmogorov-Smirnov test statistic")
     ;
 }
@@ -65,7 +65,7 @@ void GoodnessOfFit::applyOptions(const boost::program_options::variables_map &vm
 {
     fixedMu_ = !vm["fixedSignalStrength"].defaulted();
     if (algo_ == "saturated") {
-      std::cout << "Will use saturated models to compute goodness of fit for a binned likelihood" << std::endl;
+      std::cout << "Will use saturated model to compute goodness of fit for a binned likelihood" << std::endl;
     } else if (algo_ == "AD") {
       std::cout << "Will use the Anderson-Darling test to compute goodness of fit for a binned likelihood" << std::endl;
     } else if (algo_ == "KS") {
@@ -146,11 +146,11 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
           if (constraints.getSize() > 0) {
             RooArgList terms(constraints); terms.add(*saturatedPdfi);
             RooProdPdf *prodpdf = new RooProdPdf(TString::Format("%s_constr", saturatedPdfi->GetName()), "", terms);
-            prodpdf->addOwnedComponents(RooArgSet(*saturatedPdfi));
+            prodpdf->addOwnedComponents(*saturatedPdfi);
             saturatedPdfi = prodpdf;
           }
           satsim->addPdf(*saturatedPdfi, cat->getLabel());
-          satsim->addOwnedComponents(RooArgSet(*saturatedPdfi));
+          satsim->addOwnedComponents(*saturatedPdfi);
       }
       // Transfer the channel masks manually
       RooSimultaneousOpt* satsimopt = dynamic_cast<RooSimultaneousOpt*>(satsim);
@@ -164,7 +164,7 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
       if (constraints.getSize() > 0) {
           RooArgList terms(constraints); terms.add(*saturatedPdfi);
           RooProdPdf *prodpdf = new RooProdPdf(TString::Format("%s_constr", saturatedPdfi->GetName()), "", terms);
-          prodpdf->addOwnedComponents(RooArgSet(*saturatedPdfi));
+          prodpdf->addOwnedComponents(*saturatedPdfi);
           saturatedPdfi = prodpdf;
       }
       saturated.reset(saturatedPdfi);
@@ -426,8 +426,8 @@ RooAbsPdf * GoodnessOfFit::makeSaturatedPdf(RooAbsData &data) {
   RooConstVar *norm = new RooConstVar(TString::Format("%s_norm", data.GetName()), "", data.sumEntries());
   // we use RooAddPdf because this works with CachingNLL
   RooAddPdf *ret = new RooAddPdf(TString::Format("%s_saturated", data.GetName()), "", RooArgList(*hpdf), RooArgList(*norm));
-  ret->addOwnedComponents(RooArgSet(*norm));
-  ret->addOwnedComponents(RooArgSet(*hpdf));
+  ret->addOwnedComponents(*norm);
+  ret->addOwnedComponents(*hpdf);
   return ret;
 }
 

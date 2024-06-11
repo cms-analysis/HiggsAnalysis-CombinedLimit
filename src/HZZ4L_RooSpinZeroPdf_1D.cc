@@ -27,18 +27,13 @@ ClassImp(HZZ4L_RooSpinZeroPdf_1D)
   _coefList("coefList","List of funcficients",this) 
   
  { 
-  TIterator* coefIter = inCoefList.createIterator() ;
-  RooAbsArg* func;
-  while((func = (RooAbsArg*)coefIter->Next())) {
+  for (RooAbsArg *func : inCoefList) {
     if (!dynamic_cast<RooAbsReal*>(func)) {
       coutE(InputArguments) << "ERROR: :HZZ4L_RooSpinZeroPdf_1D(" << GetName() << ") funcficient " << func->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _coefList.add(*func) ;
   }
-  delete coefIter;
-  
-  _coefIter = _coefList.createIterator() ;
  } 
 
 
@@ -51,7 +46,6 @@ ClassImp(HZZ4L_RooSpinZeroPdf_1D)
   _coefList("coefList",this,other._coefList)
 
  { 
-  _coefIter = _coefList.createIterator() ;
  } 
 
 
@@ -81,7 +75,7 @@ ClassImp(HZZ4L_RooSpinZeroPdf_1D)
 Int_t HZZ4L_RooSpinZeroPdf_1D::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* /*rangeName*/) const
 {
 
-//  if (matchArgs(allVars,analVars,RooArgSet(*kd.absArg(), *kdint.absArg(), *ksmd.absArg()))) return 4 ;
+//  if (matchArgs(allVars,analVars,kd, kdint, ksmd)) return 4 ;
   if (matchArgs(allVars,analVars,kd)) return 4 ;
   //if (matchArgs(allVars,analVars,kdint)) return 2 ;
   //if (matchArgs(allVars,analVars,ksmd)) return 3 ;

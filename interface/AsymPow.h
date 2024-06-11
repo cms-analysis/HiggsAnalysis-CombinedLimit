@@ -26,12 +26,12 @@ class AsymPow : public RooAbsReal {
       AsymPow(const char *name, const char *title, RooAbsReal &kappaLow, RooAbsReal &kappaHigh, RooAbsReal &theta) ;
       AsymPow(const AsymPow &other, const char *newname=0) ;
 
-      ~AsymPow() ;
+      ~AsymPow() override ;
 
-      TObject * clone(const char *newname) const ;
+      TObject * clone(const char *newname) const override ;
 
     protected:
-        Double_t evaluate() const;
+        Double_t evaluate() const override;
 
     private:
         RooRealProxy kappaLow_, kappaHigh_;
@@ -40,7 +40,7 @@ class AsymPow : public RooAbsReal {
         // get the kappa for the appropriate x
         Double_t logKappaForX(Double_t x) const ;
 
-  ClassDef(AsymPow,1) // Asymmetric power	
+  ClassDefOverride(AsymPow,1) // Asymmetric power	
 };
 
 #endif

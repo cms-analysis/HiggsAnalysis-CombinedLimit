@@ -454,7 +454,7 @@ bool cmsmath::SequentialMinimizer::improve(int smallsteps)
         state_ = newstate;
         if (func_->nCalls > MaxFunctionCalls()) break;
     }
-    DEBUG_SM_printf("Failed do converge after %d big steps\n",bigsteps);
+    DEBUG_SM_printf("Failed to converge after %d big steps\n",bigsteps);
     fStatus   = -1;
     minValue_ = func_->eval();
     return false;
@@ -465,10 +465,10 @@ namespace cmsmath {
         public:
            SubspaceMultiGenFunction(const ROOT::Math::IMultiGenFunction *f, int nDim, const int *idx, double *xi) :
                 f_(f), nDim_(nDim), idx_(idx), x_(xi) {}
-           virtual SubspaceMultiGenFunction * Clone() const { return new SubspaceMultiGenFunction(*this); }
-           virtual unsigned int NDim() const { return nDim_; }
+           SubspaceMultiGenFunction * Clone() const override { return new SubspaceMultiGenFunction(*this); }
+           unsigned int NDim() const override { return nDim_; }
         private:
-           virtual double DoEval(const double * x) const {
+           double DoEval(const double * x) const override {
                 for (int i = 0; i < nDim_; ++i) x_[idx_[i]] = x[i];
                 return (*f_)(x_);
            }

@@ -110,36 +110,40 @@ The <span style="font-variant:small-caps;">Combine</span> tool can take as input
 
 The block of lines defining the mapping (first block in the datacard) contains one or more rows of the form
 
--   **shapes *process* *channel* *file* *histogram* *[histogram_with_systematics]* **
+```
+shapes process channel file histogram [histogram_with_systematics]
+```
 
 In this line,
 
--   ***process*** is any one the process names, or **\*** for all processes, or **data_obs** for the observed data;
--   ***channel*** is any one the process names, or **\*** for all channels;
--   *file*, *histogram* and *histogram_with_systematics* identify the names of the files and of the histograms within the file, after making some replacements (if any are found):
-    -   **$PROCESS** is replaced with the process name (or "**data_obs**" for the observed data);
-    -   **$CHANNEL** is replaced with the channel name;
-    -   **$SYSTEMATIC** is replaced with the name of the systematic + (**Up, Down**);
-    -   **$MASS** is replaced with the chosen (Higgs boson) mass value that is passed as a command-line option when running the tool
+-   `process`is any one the process names, or `*` for all processes, or `data_obs` for the observed data;
+-   `channel`is any one the process names, or `*` for all channels;
+-   `file`, `histogram` and `histogram_with_systematics` identify the names of the files and of the histograms within the file, after making some replacements (if any are found):
+    -   `$PROCESS` is replaced with the process name (or "`data_obs`" for the observed data);
+    -   `$CHANNEL` is replaced with the channel name;
+    -   `$SYSTEMATIC` is replaced with the name of the systematic + (`Up`, `Down`);
+    -   `$MASS` is replaced with the chosen (Higgs boson) mass value that is passed as a command-line option when running the tool
 
-In addition, user-defined keywords can be used. Any word in the datacard **$WORD** will be replaced by **VALUE** when including the option `--keyword-value WORD=VALUE`. This option can be repeated multiple times for multiple keywords.
+In addition, user-defined keywords can be used. Any word in the datacard `$WORD` will be replaced by `VALUE` when including the option `--keyword-value WORD=VALUE`. This option can be repeated multiple times for multiple keywords.
 
 #### Template shape uncertainties
 
-Shape uncertainties can be taken into account by vertical interpolation of the histograms. The shapes (fraction of events $f$ in each bin) are interpolated using a spline for shifts below +/- 1σ and linearly outside of that. Specifically, for nuisance parameter values $|\theta|\leq 1$ 
+Shape uncertainties can be taken into account by vertical interpolation of the histograms. The shapes (fraction of events $f$ in each bin) are interpolated using a spline for shifts below +/- 1σ and linearly outside of that. Specifically, for nuisance parameter values $|\nu|\leq 1$ 
 
-$$ f(\theta) = \frac{1}{2} \left( (\delta^{+}-\delta^{-})\theta + \frac{1}{8}(\delta^{+}+\delta^{-})(3\theta^6 - 10\theta^4 + 15\theta^2) \right) $$
+$$ f(\nu) = \frac{1}{2} \left( (\delta^{+}-\delta^{-})\nu + \frac{1}{8}(\delta^{+}+\delta^{-})(3\nu^6 - 10\nu^4 + 15\nu^2) \right) $$
 
-and for $|\theta|> 1$ ($|\theta|<-1$), $f(\theta)$ is a straight line with gradient $\delta^{+}$ ($\delta^{-}$), where $\delta^{+}=f(\theta=1)-f(\theta=0)$, and $\delta^{-}=f(\theta=-1)-f(\theta=0)$, derived using the nominal and up/down histograms.  
-This interpolation is designed so that the values of $f(\theta)$ and its derivatives are continuous for all values of $\theta$. 
+and for $|\nu|> 1$ ($|\nu|<-1$), $f(\nu)$ is a straight line with gradient $\delta^{+}$ ($\delta^{-}$), where $\delta^{+}=f(\nu=1)-f(\nu=0)$, and $\delta^{-}=f(\nu=-1)-f(\nu=0)$, derived using the nominal and up/down histograms.  
+This interpolation is designed so that the values of $f(\nu)$ and its derivatives are continuous for all values of $\nu$. 
 
-The normalizations are interpolated linearly in log scale, just like we do for log-normal uncertainties. If the value in a given bin is negative for some value of $\theta$, the value will be truncated at 0.
+The normalizations are interpolated linearly in log scale, just like we do for log-normal uncertainties. If the value in a given bin is negative for some value of $\nu$, the value will be truncated at 0.
 
 For each shape uncertainty and process/channel affected by it, two additional input shapes have to be provided. These are obtained by shifting the parameter up and down by one standard deviation. When building the likelihood, each shape uncertainty is associated to a nuisance parameter taken from a unit gaussian distribution, which is used to interpolate or extrapolate using the specified histograms.
 
 For each given shape uncertainty, the part of the datacard describing shape uncertainties must contain a row
 
--   ** *name* *shape* *effect_for_each_process_and_channel* **
+```
+name shape effect_for_each_process_and_channel
+```
 
 The effect can be "-" or 0 for no effect, 1 for the normal effect, and something different from 1 to test larger or smaller effects (in that case, the unit gaussian is scaled by that factor before using it as parameter for the interpolation).
 
@@ -208,7 +212,7 @@ or a postifx can be added to the histogram name:
 !!! warning
     If you have a nuisance parameter that has shape effects on some processes (using `shape`) *and* rate effects on other processes (using `lnN`) you should use a single line for the systematic uncertainty with `shape?`. This will tell <span style="font-variant:small-caps;">Combine</span> to fist look for Up/Down systematic templates for that process and if it doesnt find them, it will interpret the number that you put for the process as a `lnN` instead. 
 
-For a detailed example of a template-based binned analysis, see the [H→ττ 2014 DAS tutorial](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_shape_analysis_using_templates)
+For a detailed example of a template-based binned analysis, see the [H→ττ 2014 DAS tutorial](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_shape_analysis_using_templates), or in our [Tutorial](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/#part-2-a-shape-based-analysis) pages. 
 
 ### Unbinned or parametric shape analyses
 
@@ -278,14 +282,16 @@ meaning there is a parameter in the input workspace called **`sigma`**, that sho
 
 If one wants to specify a parameter that is freely floating across its given range, and not Gaussian constrained, the following syntax is used:
 
- - **name *flatParam* **
+```
+name flatParam
+```
 
 Though this is *not strictly necessary* in frequentist methods using profiled likelihoods, as <span style="font-variant:small-caps;">Combine</span> will still profile these nuisances when performing fits (as is the case for the `simple-shapes-parametric.txt` datacard).
 
 !!! warning
     All parameters that are floating or constant in the user's input workspaces will remain floating or constant. <span style="font-variant:small-caps;">Combine</span> will ***not*** modify those for you!
 
-A full example of a parametric analysis can be found in this [H→γγ 2014 DAS tutorial](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_parametric_shape_analysis_H).
+A full example of a parametric analysis can be found in this [H→γγ 2014 DAS tutorial](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_parametric_shape_analysis_H) or in our [Tutorial](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/tutorial2023/parametric_exercise/) pages.
 
 #### Caveat on using parametric PDFs with binned datasets
 
@@ -537,8 +543,8 @@ In order to get a quick view of the systematic uncertainties included in the dat
 
 The default output is a `.html` file that can be expanded to give more details about the effect of the systematic uncertainty for each channel/process. Add the option `--format brief` to obtain a simpler summary report direct to the terminal. An example output for the tutorial card `data/tutorials/shapes/simple-shapes-TH1.txt` is shown below.
 
-```nohighlight 
-$ python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt --all -f html > out.html
+```sh
+python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt --all -f html > out.html
 ```
 
 This will produce the following output in html format: 
@@ -620,11 +626,12 @@ In case you only have a counting experiment datacard, include the option `--nosh
 
 If you have a datacard that uses several `rateParams` or a Physics model that includes a complicated product of normalization terms in each process, you can check the values of the normalization (and which objects in the workspace comprise them) using the `test/printWorkspaceNormalisations.py` tool. As an example, the first few blocks of output for the tutorial card `data/tutorials/counting/realistic-multi-channel.txt` are given below:
 
+```sh
+text2workspace.py data/tutorials/counting/realistic-multi-channel.txt 
+python test/printWorkspaceNormalisations.py data/tutorials/counting/realistic-multi-channel.root     
+```
 /// details | **Show example output**
-<pre><code>
-$ text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt -m 30
-$ python test/printWorkspaceNormalisations.py data/tutorials/counting/realistic-multi-channel.root                                                                                                           
-
+```
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
 Channel - mu_tau
@@ -686,7 +693,7 @@ Dumping ProcessNormalization n_exp_bine_mu_proc_ZTT @ 0x6bc8910
   -------------------------------------------------------------------------
   default value =  88.0
 ---------------------------------------------------------------------------
-</code></pre>
+```
 ///
 
 
@@ -694,13 +701,12 @@ As you can see, for each channel, a report is given for the top-level rate objec
 
 Another example is shown below for the workspace produced from the [data/tutorials/shapes/simple-shapes-parametric.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-parametric.txt) datacard.
 
-
+```sh
+text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt -m 30
+python test/printWorkspaceNormalisations.py data/tutorials/shapes/simple-shapes-parametric.root -m 30
+```
 /// details | **Show example output**
-<pre><code>
-  text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt
-  python test/printWorkspaceNormalisations.py data/tutorials/shapes/simple-shapes-parametric.root
-  ...
-
+```
   ---------------------------------------------------------------------------
   ---------------------------------------------------------------------------
   Channel - bin1
@@ -725,7 +731,7 @@ Another example is shown below for the workspace produced from the [data/tutoria
 
     -------------------------------------------------------------------------
     default value =  1.0
-</code></pre>
+```
 ///
 
 This tells us that the normalization for the background process, named `n_exp_final_binbin1_proc_bkg` is a product of two objects `n_exp_binbin1_proc_bkg * shapeBkg_bkg_bin1__norm`. The first object is just from the **rate** line in the datacard (equal to 1) and the second is a floating parameter. For the signal, the normalisation is called `n_exp_binbin1_proc_sig` and is a `ProcessNormalization` object that contains the rate modifications due to the systematic uncertainties. You can see that it also has a "*nominal value*", which again is just from the value given in the **rate** line of the datacard (again=1).

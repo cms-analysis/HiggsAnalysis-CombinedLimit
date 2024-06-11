@@ -69,8 +69,8 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         //("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer (Minuit vs Minuit2)")
         //("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer")
         //("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
-        ("preFitValue",        boost::program_options::value<float>(&preFitValue_)->default_value(preFitValue_),  "Value of signal strength pre-fit, also used for pre-fit plots, normalisations and uncertainty calculations (note this overrides --expectSignal for these features)")
-        ("do95",       boost::program_options::value<bool>(&do95_)->default_value(do95_),  "Compute also 2-sigma interval from delta(nll) = 1.92 instead of 0.5")
+        ("preFitValue",        boost::program_options::value<float>(&preFitValue_)->default_value(preFitValue_),  "Value of signal strength pre-fit, also used for pre-fit plots, normalizations and uncertainty calculations (note this overrides --expectSignal for these features)")
+        ("do95",       boost::program_options::value<bool>(&do95_)->default_value(do95_),  "Also compute 2-sigma interval from delta(nll) = 1.92 instead of 0.5")
         ("robustFit",  boost::program_options::value<bool>(&robustFit_)->default_value(robustFit_),  "Search manually for 1 and 2 sigma bands instead of using Minos")
         ("maxFailedSteps",  boost::program_options::value<int>(&maxFailedSteps_)->default_value(maxFailedSteps_),  "How many failed steps to retry before giving up")
         ("stepSize",        boost::program_options::value<float>(&stepSize_)->default_value(stepSize_),  "Step size for robust fits (multiplier of the range)")
@@ -82,8 +82,8 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         ("saveNLL",  "Save the negative log-likelihood at the minimum in the output tree (note: value is relative to the pre-fit state)")
         ("keepFailures",  "Save the results even if the fit is declared as failed (for NLL studies)")
         ("protectUnbinnedChannels", "Protect PDF from going negative in unbinned channels")
-        ("autoBoundsPOIs", boost::program_options::value<std::string>(&autoBoundsPOIs_)->default_value(autoBoundsPOIs_), "Adjust bounds for the POIs if they end up close to the boundary. Can be a list of POIs, or \"*\" to get all")
-        ("autoMaxPOIs", boost::program_options::value<std::string>(&autoMaxPOIs_)->default_value(autoMaxPOIs_), "Adjust maxima for the POIs if they end up close to the boundary. Can be a list of POIs, or \"*\" to get all")
+        ("autoBoundsPOIs", boost::program_options::value<std::string>(&autoBoundsPOIs_)->default_value(autoBoundsPOIs_), "Adjust bounds for these POIs if they end up close to the boundary. Can be a list of POIs, or \"*\" to get all")
+        ("autoMaxPOIs", boost::program_options::value<std::string>(&autoMaxPOIs_)->default_value(autoMaxPOIs_), "Adjust maxima for these POIs if they end up close to the boundary. Can be a list of POIs, or \"*\" to get all")
         ("forceRecreateNLL",  "Always recreate NLL when running on multiple toys rather than re-using nll with new dataset")
     ;
 }
@@ -111,7 +111,7 @@ void FitterAlgoBase::applyOptionsBase(const boost::program_options::variables_ma
     if (robustFit_){
      if (verbose) {
     	CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__
-            ,std::string(Form("Setting robust fit options to Tolerance=%g / Strategy=%d / Type,Algo=%s (note that defaults of CascadeMinimizer were taken where option not specified)"
+            ,std::string(Form("Setting robust fit options to Tolerance=%g / Strategy=%d / Type,Algo=%s (note that defaults of CascadeMinimizer if these options were not specified)"
             ,minimizerToleranceForMinos_,minimizerStrategyForMinos_,minimizerAlgoForMinos_.c_str()))
             ,__func__);
      }
@@ -151,9 +151,8 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
               break;
       }
 
-      std::unique_ptr<RooArgSet>  params(mc_s->GetPdf()->getParameters(data));
-      RooLinkedListIter iter = params->iterator(); int i = 0;
-      for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+      std::unique_ptr<RooArgSet> params{mc_s->GetPdf()->getParameters(data)};
+      for (RooAbsArg *a : *params) {
           RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
           if (rrv == 0 || rrv->isConstant()) continue;
           if (profileMode_ == ProfileUnconstrained && mc_s->GetNuisanceParameters()->find(*rrv) != 0) {
@@ -239,7 +238,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
     if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     CloseCoutSentry sentry(verbose < 3);    
-    if (verbose>1) CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,"do first Minimization",__func__); 
+    if (verbose>1) CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,"do first minimization",__func__); 
     TStopwatch tw; 
     if (verbose) tw.Start();
     bool ok = minim.minimize(verbose);
@@ -309,7 +308,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
   // r might be a bin-by-bin parameter that was minimzed analytically,
   // therefore not appearing in floatParsFinal().
 	if (!rfloat && runtimedef::get("MINIMIZER_no_analytic")) {
-                fprintf(sentry.trueStdOut(), "Skipping %s. Looks like the last fit did not float this parameter. You could try running --algo grid to get the errors.\n",r.GetName());
+                fprintf(sentry.trueStdOut(), "Skipping %s. Looks like the last fit did not float this parameter. You could try running --algo grid to get the uncertainties.\n",r.GetName());
 		continue ;
 		// Add the constant parameters in case previous fit was last iteration of a "discrete parameters loop"
 		//rfloat = ret->constPars().find(r.GetName());
@@ -330,7 +329,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
        if (!robustFit_) {
             if (do95_) {
 	    	int badFitResult = -1;
-                throw std::runtime_error("95% CL errors with Minos are not working at the moment.");
+                throw std::runtime_error("95% CL uncertainties with Minos are not working at the moment.");
                 minim.setErrorLevel(delta95);
                 minim.improve(verbose-1);
                 minim.setErrorLevel(delta95);
@@ -443,7 +442,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
             nfail++;
             if (nfail >= maxFailedSteps_) {  
 	    	//std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl; 
-		    CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,std::string(Form("Maximum failed steps (max=%d) reached and Minimization failed at %s = %g ",maxFailedSteps_,r.GetName(), rStart)),__func__);
+		    CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,std::string(Form("Maximum failed steps (max=%d) reached and minimization failed at %s = %g ",maxFailedSteps_,r.GetName(), rStart)),__func__);
 		return NAN; 
 	    }
             RooArgSet oldparams(checkpoint->floatParsFinal());
@@ -589,7 +588,7 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
                 hitbound = false;
                 if (verbose > 1) {
 		        //fprintf(sentry.trueStdOut(), "     --------> accumulated big change in NLL, will go do minimize\n");
-      		    CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__," --------> accumulated big change in NLL, will go do minimize",__func__);
+      		    CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__," --------> accumulated big change in NLL, will minimize",__func__);
 		}
                 break; 
             }
@@ -679,8 +678,7 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
 
 void FitterAlgoBase::optimizeBounds(const RooWorkspace *w, const RooStats::ModelConfig *mc) {
     if (runtimedef::get("UNBOUND_GAUSSIANS") && mc->GetNuisanceParameters() != 0) {
-        RooLinkedListIter iter = mc->GetNuisanceParameters()->iterator();
-        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+        for (RooAbsArg *a : *mc->GetNuisanceParameters()) {
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
             if (rrv != 0) {
                 RooAbsPdf *pdf = w->pdf((std::string(a->GetName())+"_Pdf").c_str());
@@ -692,8 +690,7 @@ void FitterAlgoBase::optimizeBounds(const RooWorkspace *w, const RooStats::Model
         } 
     }
     if (runtimedef::get("OPTIMIZE_BOUNDS") && mc->GetNuisanceParameters() != 0) {
-        RooLinkedListIter iter = mc->GetNuisanceParameters()->iterator();
-        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+        for (RooAbsArg *a : *mc->GetNuisanceParameters()) {
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
             //std::cout << (rrv ? "Var" : "Arg") << ": " << a->GetName()  << ": " << a->getAttribute("optimizeBounds") << std::endl;
             if (rrv != 0 && rrv->getAttribute("optimizeBounds")) {
@@ -707,8 +704,7 @@ void FitterAlgoBase::optimizeBounds(const RooWorkspace *w, const RooStats::Model
 }
 void FitterAlgoBase::restoreBounds(const RooWorkspace *w, const RooStats::ModelConfig *mc) {
     if (runtimedef::get("OPTIMIZE_BOUNDS") && mc->GetNuisanceParameters() != 0) {
-        RooLinkedListIter iter = mc->GetNuisanceParameters()->iterator();
-        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+        for (RooAbsArg *a : *mc->GetNuisanceParameters()) {
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
             if (rrv != 0 && rrv->getAttribute("optimizeBounds")) {
                 rrv->setRange(rrv->getMin("optimizeBoundRange"), rrv->getMax("optimizeBoundRange"));

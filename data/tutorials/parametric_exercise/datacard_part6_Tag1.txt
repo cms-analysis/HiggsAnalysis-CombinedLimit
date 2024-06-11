@@ -1,0 +1,44 @@
+# Datacard example for combine tutorial 2023 (part 6)
+---------------------------------------------
+imax *
+jmax *
+kmax *
+---------------------------------------------
+
+shapes      ggH          Tag1      workspace_sig_part6.root          workspace_sig:model_ggH_Tag1
+shapes      VBF          Tag1      workspace_sig_part6.root          workspace_sig:model_VBF_Tag1
+shapes      bkg_mass     Tag1      workspace_bkg_part6.root          workspace_bkg:multipdf_Tag1
+shapes      data_obs     Tag1      workspace_bkg_part6.root          workspace_bkg:data_hist_Tag1
+
+---------------------------------------------
+bin             Tag1
+observation     -1
+---------------------------------------------
+bin             Tag1         Tag1         Tag1
+process         ggH          VBF          bkg_mass
+process         0            -1           1
+rate            138000       138000       1.0
+---------------------------------------------
+lumi_13TeV                 lnN      1.016            1.016            -
+CMS_hgg_trigger            lnN      1.002            1.022            -
+CMS_hgg_presel             lnN      1.007            1.006            -
+CMS_hgg_phoIdMva           lnN      1.05             1.05             -
+CMS_scale_j                lnN      0.951/1.048      0.842/1.158      -
+CMS_res_j                  lnN      1.01             1.03             -
+---------------------------------------------
+BR_hgg                     lnN      0.980/1.021      0.980/1.021      -
+QCDscale_ggH               lnN      1.039            -                -
+pdf_Higgs_ggH              lnN      1.019            -                -
+alphaS_ggH                 lnN      1.026            -                -
+QCDscale_qqH               lnN      -                0.997/1.004      -
+pdf_Higgs_qqH              lnN      -                1.021            -
+alphaS_qqH                 lnN      -                1.005            -
+UnderlyingEvent            lnN      0.99/1.01        0.98/1.02        -
+PartonShower               lnN      0.963/1.032      0.918/1.086      -
+---------------------------------------------
+nuisance_scale        param    0.0    1.0
+nuisance_smear        param    0.0    1.0
+---------------------------------------------
+theory group = BR_hgg QCDscale_ggH pdf_Higgs_ggH alphaS_ggH QCDscale_qqH pdf_Higgs_qqH alphaS_qqH UnderlyingEvent PartonShower
+---------------------------------------------
+pdfindex_Tag1         discrete

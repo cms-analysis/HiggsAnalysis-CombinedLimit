@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <stdexcept>
-#include <TIterator.h>
 #include <RooAbsData.h>
 #include <RooArgSet.h>
 #include <RooProdPdf.h>
@@ -21,8 +20,8 @@ RooAbsData *asimovutils::asimovDatasetNominal(RooStats::ModelConfig *mc, double 
 
 	if (verbose>2) {
 	    CombineLogger::instance().log("AsimovUtils.cc",__LINE__,"Parameters after fit for asimov dataset",__func__);
-    	    std::unique_ptr<TIterator> iter(mc->GetPdf()->getParameters((const RooArgSet*) 0)->createIterator());
-    	    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+    	    std::unique_ptr<RooArgSet> params{mc->GetPdf()->getParameters((const RooArgSet*) 0)};
+    	    for (RooAbsArg *a : *params) {
 	  	TString varstring = utils::printRooArgAsString(a);
 	  	CombineLogger::instance().log("AsimovUtils.cc",__LINE__,std::string(Form("%s",varstring.Data())),__func__);
 	    }
@@ -45,8 +44,7 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
             } else {
                 // Do we have free parameters anyway that need fitting?
                 std::unique_ptr<RooArgSet> params(mc->GetPdf()->getParameters(realdata));
-                std::unique_ptr<TIterator> iter(params->createIterator());
-                for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+                for (RooAbsArg *a : *params) {
                     RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
                     if ( rrv != 0 && rrv->isConstant() == false ) { needsFit &= true; break; }
                 } 
@@ -67,8 +65,8 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
 
 	if (verbose>2) { 
 	    CombineLogger::instance().log("AsimovUtils.cc",__LINE__,"Parameters after fit for asimov dataset",__func__);
-    	    std::unique_ptr<TIterator> iter(mc->GetPdf()->getParameters(realdata)->createIterator());
-    	    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+            std::unique_ptr<RooArgSet> params{mc->GetPdf()->getParameters(realdata)};
+            for (RooAbsArg *a : *params) {
 	  	TString varstring = utils::printRooArgAsString(a);
 	  	CombineLogger::instance().log("AsimovUtils.cc",__LINE__,std::string(Form("%s",varstring.Data())),__func__);
 	    }
@@ -92,10 +90,9 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
             std::unique_ptr<RooAbsPdf> nuispdf(utils::makeNuisancePdf(*mc));
             RooProdPdf *prod = dynamic_cast<RooProdPdf *>(nuispdf.get());
             if (prod == 0) throw std::runtime_error("AsimovUtils: the nuisance pdf is not a RooProdPdf!");
-            std::unique_ptr<TIterator> iter(prod->pdfList().createIterator());
-            for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+            for (RooAbsArg *a : prod->pdfList()) {
                 RooAbsPdf *cterm = dynamic_cast<RooAbsPdf *>(a); 
-                if (!cterm) throw std::logic_error("AsimovUtils: a factor of the nuisance pdf is not a Pdf!");
+                if (!cterm) throw std::logic_error("AsimovUtils: a factor of the nuisance pdf is not a pdf!");
                 if (!cterm->dependsOn(nuis)) continue; // dummy constraints
                 if (typeid(*cterm) == typeid(RooUniform)) continue;
                 std::unique_ptr<RooArgSet> cpars(cterm->getParameters(&gobs));
@@ -109,8 +106,7 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
                 if (cpars->getSize() == 1) {
                     match = dynamic_cast<RooAbsReal *>(cpars->first());
                 } else {
-                    std::unique_ptr<TIterator> iter2(cpars->createIterator());
-                    for (RooAbsArg *a2 = (RooAbsArg *) iter2->Next(); a2 != 0; a2 = (RooAbsArg *) iter2->Next()) {
+                    for (RooAbsArg *a2 : *cpars) {
                         RooRealVar *rrv2 = dynamic_cast<RooRealVar *>(a2); 
                         if (rrv2 != 0 && !rrv2->isConstant()) {
                             if (match != 0) throw std::runtime_error(Form("AsimovUtils: constraint term %s has multiple floating params", cterm->GetName()));
@@ -119,12 +115,12 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
                     }
                 }
                 if (match == 0) {   
-                    std::cerr << "ERROR: AsimovUtils: can't find nuisance for constraint term " << cterm->GetName() << std::endl;
+                    std::cerr << "ERROR: AsimovUtils: can't find nuisance parameter for constraint term " << cterm->GetName() << std::endl;
                     std::cerr << "Parameters: " << std::endl;
                     cpars->Print("V");
                     std::cerr << "Observables: " << std::endl;
                     cgobs->Print("V");
-                    throw std::runtime_error(Form("AsimovUtils: can't find nuisance for constraint term %s", cterm->GetName()));
+                    throw std::runtime_error(Form("AsimovUtils: can't find nuisance parameter for constraint term %s", cterm->GetName()));
                 }
                 std::string pdfName(cterm->ClassName());
                 if (pdfName == "RooGaussian" || pdfName == "SimpleGaussianConstraint"  || pdfName == "RooBifurGauss" || pdfName == "RooPoisson"  || pdfName == "SimplePoissonConstraint" || pdfName == "RooGenericPdf") {
@@ -138,10 +134,10 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
                     // we want to set the global obs to a value for which the current value 
                     // of the nuisance is the best fit one.
                     // best fit x = (k-1)*theta    ---->  k = x/theta + 1
-                    RooArgList leaves; cterm->leafNodeServerList(&leaves);
-                    std::unique_ptr<TIterator> iter2(leaves.createIterator());
+                    RooArgList leaves;
+                    cterm->leafNodeServerList(&leaves);
                     RooAbsReal *match2 = 0;
-                    for (RooAbsArg *a2 = (RooAbsArg *) iter2->Next(); a2 != 0; a2 = (RooAbsArg *) iter2->Next()) {
+                    for (RooAbsArg *a2 : leaves) {
                         RooAbsReal *rar = dynamic_cast<RooAbsReal *>(a2);
                         if (rar == 0 || rar == match || rar == &rrv) continue;
                         if (!rar->isConstant()) throw std::runtime_error(Form("AsimovUtils: extra floating parameter %s of RooGamma %s.", rar->GetName(), cterm->GetName()));

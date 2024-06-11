@@ -56,11 +56,10 @@ SimplerLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& nullPOI
     if (paramsAlt_.get() == 0)  paramsAlt_.reset(pdfAlt_->getParameters(data));
 
     // if the dataset is not empty, redirect pdf nodes to the dataset
-    std::unique_ptr<TIterator> iterDepObs(pdfDepObs_.createIterator());
     bool nonEmpty = data.numEntries() > 0;
     if (nonEmpty) {
         const RooArgSet *entry = data.get(0);
-        for (RooAbsArg *a = (RooAbsArg *) iterDepObs->Next(); a != 0; a = (RooAbsArg *) iterDepObs->Next()) {
+        for (RooAbsArg *a : pdfDepObs_) {
             a->redirectServers(*entry);    
         }
     }
@@ -76,8 +75,7 @@ SimplerLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& nullPOI
 
     // put back links in pdf nodes, otherwise if the dataset goes out of scope they have dangling pointers
     if (nonEmpty) {
-        iterDepObs->Reset();
-        for (RooAbsArg *a = (RooAbsArg *) iterDepObs->Next(); a != 0; a = (RooAbsArg *) iterDepObs->Next()) {
+        for (RooAbsArg *a : pdfDepObs_) {
             a->redirectServers(*obs_);    
         }
     }

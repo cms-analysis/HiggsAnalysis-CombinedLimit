@@ -18,17 +18,17 @@
 class FitDiagnostics : public FitterAlgoBase {
 public:
   FitDiagnostics() ;
-  virtual const std::string & name() const {
+  const std::string & name() const override {
     static const std::string name("FitDiagnostics");
     return name;
   }
-  ~FitDiagnostics();
-  virtual void applyOptions(const boost::program_options::variables_map &vm) ;
-  virtual void setToyNumber(const int) ;
-  virtual void setNToys(const int);
+  ~FitDiagnostics() override;
+  void applyOptions(const boost::program_options::variables_map &vm) override ;
+  void setToyNumber(const int) override ;
+  void setNToys(const int) override;
 
 protected:
-  virtual bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) override;
 
   static std::string name_;
   static std::string massName_;
@@ -97,19 +97,19 @@ protected:
   class CovarianceReSampler : public NuisanceSampler {
     public:
         CovarianceReSampler(RooFitResult *res) : res_(res) {}
-        virtual void  generate(int ntoys) {}
-        virtual const RooAbsCollection & get(int) { return res_->randomizePars(); }
-        virtual const RooAbsCollection & centralValues() { return res_->floatParsFinal(); }
+        void  generate(int ntoys) override {}
+        const RooAbsCollection & get(int) override { return res_->randomizePars(); }
+        const RooAbsCollection & centralValues() override { return res_->floatParsFinal(); }
     protected:
         RooFitResult *res_;
   };
   class ToySampler : public NuisanceSampler, boost::noncopyable {
     public:
         ToySampler(RooAbsPdf *pdf, const RooArgSet *nuisances) ;    
-        virtual ~ToySampler() ;
-        virtual void  generate(int ntoys);
-        virtual const RooAbsCollection & get(int itoy);
-        virtual const RooAbsCollection & centralValues();
+        ~ToySampler() override ;
+        void  generate(int ntoys) override;
+        const RooAbsCollection & get(int itoy) override;
+        const RooAbsCollection & centralValues() override;
     private:
         RooAbsPdf  *pdf_;
         RooAbsData *data_;

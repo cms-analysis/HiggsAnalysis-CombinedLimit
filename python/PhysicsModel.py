@@ -233,7 +233,7 @@ class HiggsMassRangeModel(PhysicsModelBase_NiceSubclasses):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first")
                 processed.append(po)
         return processed
 
@@ -309,7 +309,7 @@ def getHiggsProdDecMode(bin, process, options):
         if decaySource not in ALL_HIGGS_DECAYS:
             print(
                 "ERROR",
-                "Validation Error in bin %r: signal process %s has a postfix %s which is not one recognized higgs decay modes (%s)"
+                "Validation Error in bin %r: signal process %s has a postfix %s which is not one of the recognized Higgs decay modes (%s)"
                 % (bin, process, decaySource, ALL_HIGGS_DECAYS),
             )
     if processSource not in ALL_HIGGS_PROD:
@@ -367,7 +367,7 @@ class StrictSMLikeHiggsModel(SMLikeHiggsModel):
 
 
 class FloatingHiggsMass(SMLikeHiggsModel):
-    "assume the SM coupling but let the Higgs mass to float"
+    "assume the SM coupling but leave the Higgs mass to float"
 
     def __init__(self):
         SMLikeHiggsModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
@@ -382,7 +382,7 @@ class FloatingHiggsMass(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrama for Higgs mass range defined with inverterd order. Second must be larger the first")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first")
             if po.startswith("signalStrengthMode="):
                 self.rMode = po.replace("signalStrengthMode=", "")
 
@@ -440,43 +440,43 @@ class FloatingXSHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Higgs mass range: Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
+                    raise RuntimeError("Higgs mass range: Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first")
             if po.startswith("ggHRange="):
                 self.ggHRange = po.replace("ggHRange=", "").split(":")
                 if len(self.ggHRange) != 2:
                     raise RuntimeError("ggH signal strength range requires minimal and maximal value")
                 elif float(self.ggHRange[0]) >= float(self.ggHRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than the first.")
             if po.startswith("qqHRange="):
                 self.qqHRange = po.replace("qqHRange=", "").split(":")
                 if len(self.qqHRange) != 2:
                     raise RuntimeError("qqH signal strength range requires minimal and maximal value")
                 elif float(self.qqHRange[0]) >= float(self.qqHRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than the first.")
             if po.startswith("VHRange="):
                 self.VHRange = po.replace("VHRange=", "").split(":")
                 if len(self.VHRange) != 2:
                     raise RuntimeError("VH signal strength range requires minimal and maximal value")
                 elif float(self.VHRange[0]) >= float(self.VHRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than the first.")
             if po.startswith("WHRange="):
                 self.WHRange = po.replace("WHRange=", "").split(":")
                 if len(self.WHRange) != 2:
                     raise RuntimeError("WH signal strength range requires minimal and maximal value")
                 elif float(self.WHRange[0]) >= float(self.WHRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than the first.")
             if po.startswith("ZHRange="):
                 self.ZHRange = po.replace("ZHRange=", "").split(":")
                 if len(self.ZHRange) != 2:
                     raise RuntimeError("ZH signal strength range requires minimal and maximal value")
                 elif float(self.ZHRange[0]) >= float(self.ZHRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than the first.")
             if po.startswith("ttHRange="):
                 self.ttHRange = po.replace("ttHRange=", "").split(":")
                 if len(self.ttHRange) != 2:
                     raise RuntimeError("ttH signal strength range requires minimal and maximal value")
                 elif float(self.ttHRange[0]) >= float(self.ttHRange[1]):
-                    raise RuntimeError("minimal and maximal range swapped. Second value must be larger first one")
+                    raise RuntimeError("Minimal and maximal range swapped. Second value must be larger than the first.")
         if self.ttHasggH:
             if "ggH" not in self.modes:
                 raise RuntimeError("Cannot set ttH=ggH if ggH is not an allowed mode")
@@ -560,7 +560,7 @@ class RvRfXSHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the the first.")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -611,7 +611,7 @@ class FloatingBRHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first")
 
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
@@ -680,7 +680,7 @@ class RvfBRHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -733,7 +733,7 @@ class ThetaVFBRHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -784,7 +784,7 @@ class FloatingXSBRHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first")
 
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
@@ -849,7 +849,7 @@ class DoubleRatioHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
@@ -909,7 +909,7 @@ class RatioBRSMHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first.")
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
         self.numerators = tuple(self.modes - set((self.denominator,)))
         print("denominator: ", self.denominator)
         print("numerators: ", self.numerators)

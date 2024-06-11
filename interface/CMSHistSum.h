@@ -42,13 +42,13 @@ public:
 
   CMSHistSum(CMSHistSum const& other, const char* name = 0);
 
-  virtual TObject* clone(const char* newname) const {
+  TObject* clone(const char* newname) const override {
     return new CMSHistSum(*this, newname);
   }
 
-  virtual ~CMSHistSum() {;}
+  ~CMSHistSum() override {;}
 
-  Double_t evaluate() const;
+  Double_t evaluate() const override;
 
   std::map<std::string, Double_t> getProcessNorms() const;
 
@@ -57,12 +57,12 @@ public:
   std::unique_ptr<RooArgSet> getSentryArgs() const;
 
   void printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
-                      TString indent) const;
+                      TString indent) const override;
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
-                              const char* rangeName = 0) const;
+                              const char* rangeName = 0) const override;
 
-  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const override;
 
   void setData(RooAbsData const& data) const;
 
@@ -150,7 +150,7 @@ public:
 
 
  private:
-  ClassDef(CMSHistSum,2)
+  ClassDefOverride(CMSHistSum,2)
 };
 
 #endif

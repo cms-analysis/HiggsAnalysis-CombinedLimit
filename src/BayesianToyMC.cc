@@ -34,7 +34,7 @@ BayesianToyMC::BayesianToyMC() :
         ("numIters,i", boost::program_options::value<int>(&numIters_)->default_value(numIters_),    "Number of iterations or calls used within iteration (0=ROOT Default)")
         ("hintSafetyFactor",
                 boost::program_options::value<float>(&hintSafetyFactor_)->default_value(hintSafetyFactor_),
-                "set range of integration equal to this number of times the hinted limit")
+                "Set range of integration equal to this number of times the hinted limit")
         ("twoPoints",
                 boost::program_options::value<std::vector<std::string> >(&twoPoints_)->multitoken(), "Compute BF comparing two points in parameter space");
         ;

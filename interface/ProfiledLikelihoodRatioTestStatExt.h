@@ -22,9 +22,9 @@ class ProfiledLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
                 const RooArgSet *nuisances, const RooArgSet & paramsNull = RooArgSet(), const RooArgSet & paramsAlt = RooArgSet(),
                 int verbosity=0) ;
  
-        virtual Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) ;
+        Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) override ;
 
-        virtual const TString GetVarName() const {
+        const TString GetVarName() const override {
             return TString::Format("-log(%s/%s)", pdfNull_->GetName(), pdfAlt_->GetName()); 
         }
 
@@ -55,10 +55,10 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
                 const RooArgSet *nuisances, 
                 const RooArgSet & params, const RooArgSet & poi, const RooArgList &gobsParams, const RooArgList &gobs, int verbosity=0, OneSidedness oneSided = oneSidedDef) ; 
 
-        virtual Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) ;
+        Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) override ;
         virtual std::vector<Double_t> Evaluate(RooAbsData& data, RooArgSet& nullPOI, const std::vector<Double_t> &rVals) ;
 
-        virtual const TString GetVarName() const { return "- log (#lambda)"; }
+        const TString GetVarName() const override { return "- log (#lambda)"; }
 
         // Verbosity (default: 0)
         void setPrintLevel(Int_t level) { verbosity_ = level; }
