@@ -130,24 +130,24 @@ CombineHarvester CombineHarvester::deep() {
 
     for (Int_t i=0; i<nPdf; ++i) {
 
-      RooAbsReal* o_pdf_ptr = static_cast<RooAbsReal *>(o_pdf[i]);
-      RooAbsReal* n_pdf_ptr = static_cast<RooAbsReal *>(n_pdf[i]);
+      RooAbsReal* o_pdf_ptr = dynamic_cast<RooAbsReal *>(o_pdf[i]);
+      RooAbsReal* n_pdf_ptr = dynamic_cast<RooAbsReal *>(n_pdf[i]);
       if (o_pdf_ptr && n_pdf_ptr) pdf_map[o_pdf_ptr] = n_pdf_ptr;
     }
 
     Int_t nVar = o_var.getSize();
 
     for (Int_t i=0; i<nVar; ++i) {
-      RooRealVar *o_var_ptr = static_cast<RooRealVar*>(o_var[i]);
-      RooRealVar *n_var_ptr = static_cast<RooRealVar*>(n_var[i]);
+      RooRealVar *o_var_ptr = dynamic_cast<RooRealVar*>(o_var[i]);
+      RooRealVar *n_var_ptr = dynamic_cast<RooRealVar*>(n_var[i]);
       if (o_var_ptr && n_var_ptr) var_map[o_var_ptr] = n_var_ptr;
     }
 
     Int_t nFun = o_fun.getSize(); 
 
     for (Int_t i=0; i<nFun; ++i) {
-      RooAbsReal* o_fun_ptr = static_cast<RooAbsReal *>(o_fun[i]);
-      RooAbsReal* n_fun_ptr = static_cast<RooAbsReal *>(n_fun[i]);
+      RooAbsReal* o_fun_ptr = dynamic_cast<RooAbsReal *>(o_fun[i]);
+      RooAbsReal* n_fun_ptr = dynamic_cast<RooAbsReal *>(n_fun[i]);
       if (o_fun_ptr && n_fun_ptr) fun_map[o_fun_ptr] = n_fun_ptr;
     } 
 
