@@ -54,6 +54,7 @@ git fetch origin
 git checkout v10.0.0
 scramv1 b clean; scramv1 b # always make a clean build
 ```
+
 ### Combine v9 
 
 The nominal installation method is inside CMSSW. The current release targets
