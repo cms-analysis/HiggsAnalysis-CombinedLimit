@@ -30,17 +30,18 @@ releases on github under
 ### Combine v10 - recommended version
 
 The nominal installation method is inside CMSSW. The current release targets
-the CMSSW `14_0_X` series because of the recent switch to el9 at lxplus machines.
+the CMSSW `14_1_X` series because of the recent switch to el9 at lxplus machines.
+
 
 
 ```sh
-cmsrel CMSSW_14_0_0_pre1
-cd CMSSW_14_0_0_pre1/src
+cmsrel CMSSW_14_1_0_pre4
+cd CMSSW_14_1_0_pre4/src
 cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 ```
-Update to a recommended tag - currently the recommended tag is **v10.0.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.1.0)
+Update to a recommended tag - currently the recommended tag is **v10.0.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.0.0)
 
 ```sh
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
