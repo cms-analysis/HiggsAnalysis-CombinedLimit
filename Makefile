@@ -17,7 +17,7 @@
 # source env_lcg.sh (if `make LCG=1` is used to build)
 #######################################################################
 
-# Hardcoded paths for standalone version identical to CMSSW 11_3_X
+# Hardcoded paths for standalone version identical to CMSSW 14_1_X
 # These are ignored if either CONDA=1 or LCG=1 is set
 BOOST = /cvmfs/cms.cern.ch/el9_amd64_gcc12/external/boost/1.80.0-87b5de10acd2f2c8a325345ad058b814
 VDT   = /cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/vdt/0.4.3-793cee1e1edef0e54b2bd5cb1f69aec9
