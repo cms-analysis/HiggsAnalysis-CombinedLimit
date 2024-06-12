@@ -886,14 +886,16 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
 }
 
 
-void utils::check_inf_parameters(const RooArgSet & params) {
+void utils::check_inf_parameters(const RooArgSet & params, int verbosity) {
 
     double infinity_root626 = 1.0e30; 
     for (RooAbsArg *arg : params) {    
         RooRealVar *p = dynamic_cast<RooRealVar *>(arg);
         if (p->getRange().first <= -infinity_root626 || p->getRange().second >= +infinity_root626){
-            std::cout << "Found a parameter named "<< p->GetName() 
-                      << " infinite in ROOT versions < 6.30, going to removeRange()" << endl;
+            if ( verbosity > 2 ) {
+                std::cout << "Found a parameter named "<< p->GetName()
+                          << " infinite in ROOT versions < 6.30, going to removeRange()" << endl;
+            }
             p->removeRange();
         }
     }

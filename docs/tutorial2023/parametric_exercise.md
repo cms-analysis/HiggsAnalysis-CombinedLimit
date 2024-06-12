@@ -1,8 +1,7 @@
 # Parametric Models in Combine
 
 ## Getting started
-
-To get started, you should have a working setup of `Combine` and `CombineHarvester`, please follow the instructions from the [home page](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users), to setup `CombineHarvester` checkout necessary scripts as described [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#combineharvestercombinetools). Make sure to use the latest recommended releases for both packages.
+To get started, you should have a working setup of `Combine`, please follow the instructions from the [home page](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users). Make sure to use the latest recommended release.
 
 Now let's move to the working directory for this tutorial which contains all of the inputs and scripts needed to run the parametric fitting exercise:
 ```shell
@@ -462,7 +461,7 @@ To perform a likelihood scan (i.e. calculate 2NLL at fixed values of the signal 
 ```shell
 combine -M MultiDimFit datacard_part1_with_norm.root -m 125 --freezeParameters MH -n .scan --algo grid --points 20 --setParameterRanges r=lo,hi
 ```
-We can use the `plot1DScan.py` function from combineTools to plot the likelihood scan:
+We can use the `plot1DScan.py` function from CombineTools to plot the likelihood scan:
 ```shell
 plot1DScan.py higgsCombine.scan.MultiDimFit.mH125.root -o part2_scan
 ```
@@ -802,7 +801,7 @@ These methods are not limited to this particular grouping of systematics. We can
 ### Impacts
 It is often useful/required to check the impacts of the nuisance parameters (NP) on the parameter of interest, r. The impact of a NP is defined as the shift $\Delta r$ induced as the NP, $\theta$, is fixed to its $\pm1\sigma$ values, with all other parameters profiled as normal. More information can be found in the combine documentation via this [link](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#nuisance-parameter-impacts).
 
-Let's calculate the impacts for our analysis. We can use the `combineTool.py` from the `CombineHarvester` package to automate the scripts. The impacts are calculated in a few stages:
+Let's calculate the impacts for our analysis. We can use the `combineTool.py` to automate the scripts. The impacts are calculated in a few stages:
 
 1) Do an initial fit for the parameter of interest, adding the `--robustFit 1` option:
 ```shell

@@ -32,7 +32,30 @@ should be sufficient. To choose a release version, you can find the latest
 releases on github under
 [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases)
 
-#### Combine v9 - recommended version
+### Combine v10 - recommended version
+
+The nominal installation method is inside CMSSW. The current release targets
+the CMSSW `14_1_X` series because of the recent switch to el9 at lxplus machines.
+
+
+
+```sh
+cmsrel CMSSW_14_1_0_pre4
+cd CMSSW_14_1_0_pre4/src
+cmsenv
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+```
+Update to a recommended tag - currently the recommended tag is **v10.0.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.0.0)
+
+```sh
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+git fetch origin
+git checkout v10.0.0
+scramv1 b clean; scramv1 b # always make a clean build
+```
+
+### Combine v9 
 
 The nominal installation method is inside CMSSW. The current release targets
 the CMSSW `11_3_X` series because this release has both python2 and python3 ROOT
@@ -239,7 +262,13 @@ See [contributing.md](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimi
 
 ## CombineHarvester/CombineTools
 
-CombineTools is an additional tool for submitting <span style="font-variant:small-caps;">Combine</span> jobs to batch systems or crab, which was originally developed in the context of Higgs to tau tau analyses. Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core [`CombineHarvester/CombineTools`](https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/) subpackage, speeding up the checkout and compile times:
+!!! info
+    Starting with <span style="font-variant:small-caps;">Combine v10</span>, CombineTool functionalities for job submition and parallelization (combineTool.py) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package.
+    For these tasks you no longer have to follow the instructions below.
+
+
+CombineTools is an additional packages with useful features for <span style="font-variant:small-caps;">Combine</span>, which is used for example for the automated datacard validation (see [instructions](docs/part3/validation)).
+Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core [`CombineHarvester/CombineTools`](https://github.com/cms-analysis/CombineHarvester/tree/main/CombineTools/) subpackage, speeding up the checkout and compile times:
 
 git clone via ssh:
 
