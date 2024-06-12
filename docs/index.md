@@ -135,9 +135,9 @@ make -j 4
 
 You will need to source `env_standalone.sh` each time you want to use the package, or add it to your login environment.
 
-##### Compilation on lxplus9
+##### Compilation of slc7 compatible versions
 
-For slc9 architectures, you will need to do the compilation in an slc7 environment using apptainer. You can then source the standalone script outside of the apptainer.
+For <span style="font-variant:small-caps;">Combine</span> versions before v10 release you will need to do the compilation in an slc7 environment using apptainer. You can then source the standalone script outside of the apptainer.
 On lxplus this can be done as follows:
 
 ```
