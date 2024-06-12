@@ -424,26 +424,17 @@
     </span>
   </a>
   
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#combine-v10-recommended-version" class="md-nav__link">
-    <span class="md-ellipsis">
-      Combine v10 - recommended version
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#combine-v9" class="md-nav__link">
-    <span class="md-ellipsis">
-      Combine v9
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Combine v9">
+    <nav class="md-nav" aria-label="Within CMSSW (recommended for CMS users)">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#combine-v9-recommended-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      Combine v9 - recommended version
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#combine-v8-cmssw_10_2_x-release-series" class="md-nav__link">
@@ -489,9 +480,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#compilation-on-lxplus9" class="md-nav__link">
+  <a href="#compilation-of-slc7-compatible-versions" class="md-nav__link">
     <span class="md-ellipsis">
-      Compilation on lxplus9
+      Compilation of slc7 compatible versions
     </span>
   </a>
   
@@ -1431,26 +1422,17 @@
     </span>
   </a>
   
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#combine-v10-recommended-version" class="md-nav__link">
-    <span class="md-ellipsis">
-      Combine v10 - recommended version
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#combine-v9" class="md-nav__link">
-    <span class="md-ellipsis">
-      Combine v9
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Combine v9">
+    <nav class="md-nav" aria-label="Within CMSSW (recommended for CMS users)">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#combine-v9-recommended-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      Combine v9 - recommended version
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#combine-v8-cmssw_10_2_x-release-series" class="md-nav__link">
@@ -1496,9 +1478,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#compilation-on-lxplus9" class="md-nav__link">
+  <a href="#compilation-of-slc7-compatible-versions" class="md-nav__link">
     <span class="md-ellipsis">
-      Compilation on lxplus9
+      Compilation of slc7 compatible versions
     </span>
   </a>
   
@@ -1620,22 +1602,7 @@ users that do not need to commit or do any development, the following recipes
 should be sufficient. To choose a release version, you can find the latest
 releases on github under
 <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases</a></p>
-<h3 id="combine-v10-recommended-version">Combine v10 - recommended version</h3>
-<p>The nominal installation method is inside CMSSW. The current release targets
-the CMSSW <code>14_1_X</code> series because of the recent switch to el9 at lxplus machines.</p>
-<pre><code class="language-sh">cmsrel CMSSW_14_1_0_pre4
-cd CMSSW_14_1_0_pre4/src
-cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-</code></pre>
-<p>Update to a recommended tag - currently the recommended tag is <strong>v10.0.0</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.0.0">see release notes</a></p>
-<pre><code class="language-sh">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v10.0.0
-scramv1 b clean; scramv1 b # always make a clean build
-</code></pre>
-<h3 id="combine-v9">Combine v9</h3>
+<h4 id="combine-v9-recommended-version">Combine v9 - recommended version</h4>
 <p>The nominal installation method is inside CMSSW. The current release targets
 the CMSSW <code>11_3_X</code> series because this release has both python2 and python3 ROOT
 bindings, allowing a more gradual migration of user code to python3. <span style="font-variant:small-caps;">Combine</span> is
@@ -1710,8 +1677,8 @@ cd HiggsAnalysis/CombinedLimit/
 make -j 4
 </code></pre>
 <p>You will need to source <code>env_standalone.sh</code> each time you want to use the package, or add it to your login environment.</p>
-<h5 id="compilation-on-lxplus9">Compilation on lxplus9</h5>
-<p>For slc9 architectures, you will need to do the compilation in an slc7 environment using apptainer. You can then source the standalone script outside of the apptainer.
+<h5 id="compilation-of-slc7-compatible-versions">Compilation of slc7 compatible versions</h5>
+<p>For <span style="font-variant:small-caps;">Combine</span> versions before v10 release you will need to do the compilation in an slc7 environment using apptainer. You can then source the standalone script outside of the apptainer.
 On lxplus this can be done as follows:</p>
 <pre><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit/ 
@@ -1798,13 +1765,7 @@ At least 2GB of disk space should be reserved on the virtual machine for <span s
 <p>We strongly encourage you to contribute any developments you make back to the main repository. 
 See <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/contributing.md">contributing.md</a> for details about contributing. </p>
 <h2 id="combineharvestercombinetools">CombineHarvester/CombineTools</h2>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>Starting with <span style="font-variant:small-caps;">Combine v10</span>, CombineTool functionalities for job submition and parallelization (combineTool.py) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package.
-For these tasks you no longer have to follow the instructions below.</p>
-</div>
-<p>CombineTools is an additional packages with useful features for <span style="font-variant:small-caps;">Combine</span>, which is used for example for the automated datacard validation (see <a href="docs/part3/validation">instructions</a>).
-Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core <a href="https://github.com/cms-analysis/CombineHarvester/tree/main/CombineTools/"><code>CombineHarvester/CombineTools</code></a> subpackage, speeding up the checkout and compile times:</p>
+<p>CombineTools is an additional tool for submitting <span style="font-variant:small-caps;">Combine</span> jobs to batch systems or crab, which was originally developed in the context of Higgs to tau tau analyses. Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core <a href="https://github.com/cms-analysis/CombineHarvester/blob/master/CombineTools/"><code>CombineHarvester/CombineTools</code></a> subpackage, speeding up the checkout and compile times:</p>
 <p>git clone via ssh:</p>
 <pre><code class="language-sh">bash &lt;(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-ssh.sh)
 </code></pre>
