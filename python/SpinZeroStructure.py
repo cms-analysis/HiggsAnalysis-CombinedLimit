@@ -1,5 +1,6 @@
-import math
-from HiggsAnalysis.CombinedLimit.PhysicsModel import *
+import collections, itertools, math, re
+import numpy as np
+from HiggsAnalysis.CombinedLimit.PhysicsModel import  CanTurnOffBkgModel, MultiSignalModel, PhysicsModelBase_NiceSubclasses
 
 ### This is the base python class to study the SpinZero structure
 
@@ -7,19 +8,10 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
     def __init__(self):
         super(SpinZeroHiggsBase, self).__init__()
 
-        self.fai1Floating = True
-        self.fai1POI = True
-
-        self.fai2Floating = False
-        self.fai2POI = False
-
-        self.allowPMF = False
-
-        self.phiai1Floating = False
-        self.phiai1POI = False
-
-        self.phiai2Floating = False
-        self.phiai2POI = False
+        self.faiphiaistatus = collections.defaultdict(lambda: "fix")
+        self.fairelative = collections.defaultdict(lambda: False)
+        self.allowPMF = collections.defaultdict(lambda: False)
+        self.allowPMF[0] = False
 
         self.HWWcombination = False
 
@@ -37,44 +29,69 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
     def processPhysicsOptions(self,physOptions):
         processed = super(SpinZeroHiggsBase, self).processPhysicsOptions(physOptions)
+
+        if {self.faidefinitionorder(i) for i in xrange(self.numberoffais)} != set(xrange(self.numberoffais)):
+            raise ValueError("faidefinitionorder is not defined right, should go from 0 to {0} for inputs from 0 to {0}\n{1}\n{2}".format(self.numberoffais-1, {self.faidefinitionorder(i) for i in xrange(self.numberoffais)}, set(xrange(self.numberoffais))))
+
         for po in physOptions:
-            if po.lower()=='fai1fixed' or po.lower()=='fai1notpoi':
-                if not self.fai1POI: raise ValueError("Specified fai1Fixed and/or fai1NotPOI multiple times!\n{}".format(physOptions))
-                print "CMS_zz4l_fai1 is NOT A POI"
-                self.fai1POI = False
-                if po.lower()=='fai1fixed':
-                    print "Will fix CMS_zz4l_fai1 to 0"
-                    self.fai1Floating = False
-                processed.append(po)
+            newpo = po.lower().replace("a1", "ai0")
+            match = re.match("(f|phi)ai([0-9]+)(fixed|notpoi|floating|aspoi)((?:relative)?)$", newpo)
+            if match:
+                parametertype = match.group(1)
+                i = int(match.group(2))
+                whattodo = match.group(3)
+                relative = bool(match.group(4))
 
-            if po.lower()=='phiai1floating' or po.lower()=='phiai1aspoi':
-                if self.phiai1Floating: raise ValueError("Specified phiai1Floating and/or phiai1AsPOI multiple times!\n{}".format(physOptions))
-                print "Will consider phase ai1 as a floating parameter"
-                self.phiai1Floating = True
-                if po.lower()=='phiai1aspoi':
-                    print "Will consider phase ai1 as a parameter of interest"
-                    self.phiai1POI = True
-                processed.append(po)
+                if not 0 <= i < self.numberoffais:
+                    raise ValueError("There are only {} fais available, so can't do anything with {}".format(self.numberoffais-1, po))
 
-            if po.lower() == 'fai2floating' or po.lower() == 'fai2aspoi':
-                if self.fai2Floating: raise ValueError("Specified fai2Floating and/or fai2AsPOI multiple times!\n{}".format(physOptions))
-                print "Will float CMS_zz4l_fai2"
-                self.fai2Floating = True
-                if po.lower() == 'fai2aspoi':
-                    self.fai2POI = True
-                processed.append(po)
+                if relative:
+                    if whattodo == "fixed": raise ValueError("relative doesn't make sense for fixed fais")
+                    if parametertype == "phi": raise ValueError("relative doesn't make sense for phi")
 
-            if po.lower() == 'phiai2floating' or po.lower() == 'phiai2aspoi':
-                if self.phiai2Floating: raise ValueError("Specified phiai2Floating and/or phiai2AsPOI multiple times!\n{}".format(physOptions))
-                print "Will consider phase ai2 as a floating parameter"
-                self.phiai2Floating = True
-                if po.lower() == 'phiai2aspoi':
-                    print "Will consider phase ai2 as a parameter of interest"
-                    self.phiai2POI = True
+                key = parametertype, i
+
+                if key in self.faiphiaistatus:
+                    raise ValueError("Specified multiple physics options for {}ai{}".format(parametertype, i).replace("ai0", "a1"))
+                if self.faidefinitionorder(i) == self.numberoffais-1:
+                    if parametertype == "phi":
+                        raise ValueError("fai{} is the last parameter to be defined, so it doesn't have a phi.  Can't do anything with {}".format(i, po).replace("ai0", "a1"))
+
+                if whattodo == "fixed":
+                    self.faiphiaistatus[key] = "fix"
+                    if parametertype == "f" and i == 1:
+                        print "Will fix {} to 0".format(self.parametername(parametertype, i, relative))
+                elif whattodo == "floating" or whattodo == "notpoi":
+                    self.faiphiaistatus[key] = "float"
+                    if parametertype == "f" and i == 1:
+                        print "{} is NOT A POI".format(self.parametername(parametertype, i, relative))
+                    else:
+                        print "Will float {}".format(self.parametername(parametertype, i, relative))
+                elif whattodo == "aspoi":
+                    self.faiphiaistatus[key] = "POI"
+                    print "Will consider {} as a parameter of interest".format(self.parametername(parametertype, i, relative))
+                else:
+                    assert False, whattodo
+
+                if relative:
+                    self.fairelative[key] = True
+
                 processed.append(po)
 
             if po.lower() == 'allowpmf':
-                self.allowPMF = True
+                self.allowPMF.default_factory = lambda: True
+                processed.append(po)
+
+            match = re.match("(allow|forbid)pmfai([0-9]+)", newpo)
+            if match:
+                i = int(match.group(2))
+                toset = {"allow": True, "forbid": False}[match.group(1)]
+                if i == 0:
+                    if toset == True:
+                        raise ValueError("fa1 has to be fixed to positive")
+                else:
+                    if i in self.allowPMF: raise ValueError("Two different options set for allow/forbidPMfai{}".format(i).replace("ai0", "a1"))
+                    self.allowPMF[i] = toset
                 processed.append(po)
 
             if po.lower() == 'hwwcombination':
@@ -87,98 +104,123 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
         return processed
 
-    def getPOIList(self):
+    @property
+    def numberoffais(self):
+        return 3 #including fa1
 
+    def faidefinitionorder(self, i):
+        if i == 0: return self.numberoffais-1
+        return i-1
+    def faidefinitionorderinverse(self, i):
+        for _ in xrange(self.numberoffais):
+            if self.faidefinitionorder(_) == i:
+                return _
+        raise ValueError("faidefinitionorder doesn't have anything that gives {}".format(i))
+    def parametername(self, parametertype, i, relative):
+      if parametertype == "phi" and self.faidefinitionorder(i) == self.numberoffais-1: raise ValueError("Can't have phiai for the last fai")
+      if i >= self.numberoffais: raise ValueError("Only have {} fais".format(self.numberoffais-1))
+      if i < 0: raise ValueError("Only have positive integer fais, plus 0 for fa1")
+      return "CMS_zz4l_{}ai{:d}{}".format(parametertype, i, "_relative" if relative else "").replace("ai0", "a1")
+
+    def getPOIList(self):
         poi = []
         poi += super(SpinZeroHiggsBase, self).getPOIList()
 
-        if self.fai1Floating:
-            if self.modelBuilder.out.var("CMS_zz4l_fai1"):
-                self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(0.,1.)
-                self.modelBuilder.out.var("CMS_zz4l_fai1").setVal(0)
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_fai1[0.,0,1]")
-            print "Floating CMS_zz4l_fai1"
-            self.modelBuilder.out.var("CMS_zz4l_fai1").setConstant(False)
-            if self.allowPMF:
-                self.modelBuilder.out.var("CMS_zz4l_fai1").setRange(-1.,1.)
-                print "Allowing negative CMS_zz4l_fai1"
-            if self.fai1POI:
-                poi.append("CMS_zz4l_fai1")
-            else:
-                self.modelBuilder.out.var("CMS_zz4l_fai1").setAttribute("flatParam")
-        else:
-            if self.modelBuilder.out.var("CMS_zz4l_fai1"):
-                self.modelBuilder.out.var("CMS_zz4l_fai1").setVal(0)
-                self.modelBuilder.out.var("CMS_zz4l_fai1").setConstant()
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_fai1[0]")
-            print "Fixing CMS_zz4l_fai1"
+        for i in xrange(self.numberoffais):
+            varname = self.parametername("f", i, False)
+            if self.faidefinitionorder(i) == self.numberoffais-1:
+                if self.faiphiaistatus["f", i] == "POI":
+                    if not self.allowPMF[i]:
+                        raise ValueError("fai{} is the last parameter to be defined, so it's defined as a function of the others.  It's sign is fixed.  Can't set it as a POI")
+                    self.faiphiaistatus["f", i] = "lastPOI"
+                else:
+                    self.faiphiaistatus["f", i] = "last"
+        if ("f", 1) not in self.faiphiaistatus: self.faiphiaistatus["f", 1] = "POI"
 
-        if self.fai2Floating:
-            if self.modelBuilder.out.var("CMS_zz4l_fai2"):
-                self.modelBuilder.out.var("CMS_zz4l_fai2").setRange(0.,1.)
-                self.modelBuilder.out.var("CMS_zz4l_fai2").setVal(0)
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_fai2[0.,0,1]")
-            print "Floating CMS_zz4l_fai2"
-            self.modelBuilder.out.var("CMS_zz4l_fai2").setConstant(False)
-            if self.allowPMF:
-                self.modelBuilder.out.var("CMS_zz4l_fai2").setRange(-1.,1.)
-                print "Allowing negative CMS_zz4l_fai2"
-            if self.fai2POI:
-                poi.append("CMS_zz4l_fai2")
-            else:
-                self.modelBuilder.out.var("CMS_zz4l_fai2").setAttribute("flatParam")
-        else:
-            if self.modelBuilder.out.var("CMS_zz4l_fai2"):
-                self.modelBuilder.out.var("CMS_zz4l_fai2").setVal(0)
-                self.modelBuilder.out.var("CMS_zz4l_fai2").setConstant()
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_fai2[0]")
-            print "Fixing CMS_zz4l_fai2"
+        for parametertype in "f", "phi":
+            for i in xrange(self.numberoffais):
+                if self.faidefinitionorder(i) == self.numberoffais-1: continue
 
-        if self.phiai1Floating:
-            if self.modelBuilder.out.var("CMS_zz4l_phiai1"):
-                self.modelBuilder.out.var("CMS_zz4l_phiai1").setRange(-3.14159265359,3.14159265359)
-                self.modelBuilder.out.var("CMS_zz4l_phiai1").setVal(0)
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_phiai1[0.,-3.14159265359,3.14159265359]")
-            print "Floating CMS_zz4l_phiai1"
-            self.modelBuilder.out.var("CMS_zz4l_phiai1").setConstant(False)
-            if self.phiai1POI:
-                print "Treating phiai1 as a POI"
-                poi.append("CMS_zz4l_phiai1")
-            else:
-                self.modelBuilder.out.var("CMS_zz4l_phiai1").setAttribute("flatParam")
-        else:
-            if self.modelBuilder.out.var("CMS_zz4l_phiai1"):
-                self.modelBuilder.out.var("CMS_zz4l_phiai1").setVal(0)
-                self.modelBuilder.out.var("CMS_zz4l_phiai1").setConstant()
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_phiai1[0]")
-            print "Fixing CMS_zz4l_phiai1"
+                varname = self.parametername(parametertype, i, self.fairelative[parametertype, i])
 
-        if self.phiai2Floating:
-            if self.modelBuilder.out.var("CMS_zz4l_phiai2"):
-                self.modelBuilder.out.var("CMS_zz4l_phiai2").setRange(-3.14159265359,3.14159265359)
-                self.modelBuilder.out.var("CMS_zz4l_phiai2").setVal(0)
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_phiai2[0.,-3.14159265359,3.14159265359]")
-            print "Floating CMS_zz4l_phiai2"
-            self.modelBuilder.out.var("CMS_zz4l_phiai2").setConstant(False)
-            if self.phiai2POI:
-                print "Treating phiai2 as a POI"
-                poi.append("CMS_zz4l_phiai2")
-            else:
-                self.modelBuilder.out.var("CMS_zz4l_phiai2").setAttribute("flatParam")
-        else:
-            if self.modelBuilder.out.var("CMS_zz4l_phiai2"):
-                self.modelBuilder.out.var("CMS_zz4l_phiai2").setVal(0)
-                self.modelBuilder.out.var("CMS_zz4l_phiai2").setConstant()
-            else:
-                self.modelBuilder.doVar("CMS_zz4l_phiai2[0]")
-            print "Fixing CMS_zz4l_phiai2"
+                if not self.modelBuilder.out.var(varname):
+                    self.modelBuilder.doVar(varname+"[0,0,1]") #will set the range later
+
+                self.modelBuilder.out.var(varname).setVal(1 if i==0 else 0) #set fa1 to 1, anomalous couplings to 0
+
+        parametertype = "f"
+        done = {i: False for i in xrange(self.numberoffais)}
+        while not all(done.values()):
+            for i in xrange(self.numberoffais):
+                if self.faidefinitionorder(i) == self.numberoffais-1: done[i] = True
+                if done[i]: continue
+                if self.fairelative[parametertype, i]:
+                    otheris = [j for j in xrange(self.numberoffais) if self.faidefinitionorder(j) < self.faidefinitionorder(i)]
+                    if not all(done[j] for j in otheris): continue
+                    expr = "-".join(["1"] + ["abs(@{})".format(k) for k, j in enumerate(otheris)])
+                    expr = "(" + expr + ")" + " * @{}".format(len(otheris))
+                    fais = ", ".join(
+                      [self.parametername("f", j, False) for j in otheris]
+                      + [self.parametername("f", i, True)]
+                    )
+                    self.modelBuilder.doVar('expr::{}("{}", {})'.format(self.parametername("f", i, False), expr, fais))
+                done[i] = True
+
+
+        for parametertype in "f", "phi":
+            for i in xrange(self.numberoffais):
+                if self.faidefinitionorder(i) == self.numberoffais-1 and parametertype == "phi": continue
+                relative = self.fairelative[parametertype, i]
+                varname = self.parametername(parametertype, i, relative)
+                status = self.faiphiaistatus[parametertype, i]
+                if status in ("float", "POI"):
+                    if parametertype == "f":
+                        if self.faidefinitionorder(i) == 0 or relative:
+                            parameterrange = (-1 if self.allowPMF[i] else 0), 1
+                        else:
+                            expr = "-".join(["1"] + ["abs(@{})".format(k) for k, j in enumerate(j for j in xrange(self.numberoffais) if self.faidefinitionorder(j) < self.faidefinitionorder(i))])
+                            fais = ", ".join(self.parametername("f", j, False) for j in xrange(self.numberoffais) if self.faidefinitionorder(j) < self.faidefinitionorder(i))
+                            self.modelBuilder.doVar('expr::max_'+varname+'("{}", {})'.format(expr, fais))
+                            if self.allowPMF[i]:
+                                self.modelBuilder.doVar('expr::min_{0}("-@0", max_{0})'.format(varname))
+                            else:
+                                self.modelBuilder.doVar('expr::min_{0}("0")'.format(varname))
+                            parameterrange = (
+                                self.modelBuilder.out.obj("min_"+varname),
+                                self.modelBuilder.out.obj("max_"+varname),
+                            )
+                    elif parametertype == "phi":
+                        parameterrange = -math.pi, math.pi
+                    else:
+                        assert False
+                    self.modelBuilder.out.var(varname).setRange(*parameterrange)
+                    self.modelBuilder.out.var(varname).setConstant(False)
+                    if status == "POI":
+                        print "Treating "+varname+" as a POI"
+                        poi.append(varname)
+                    else:
+                        print "Floating "+varname
+                        self.modelBuilder.out.var(varname).setAttribute("flatParam")
+                    if parametertype == "f" and self.allowPMF[i]: print "Allowing negative "+varname
+                elif status == "fix":
+                    self.modelBuilder.out.var(varname).setConstant()
+                    print "Fixing "+varname
+                elif status in ("last", "lastPOI"):
+                    expr = "-".join(["1"] + ["abs(@{})".format(j) for j in xrange(self.numberoffais-1)])
+                    fais = ", ".join(self.parametername(parametertype, j, relative) for j in xrange(self.numberoffais) if j != i)
+
+                    if self.allowPMF[i]:
+                        self.modelBuilder.doVar('sgn{}[negative,positive]'.format(varname))
+                        expr = "({}) * 2 * (@{}-0.5)".format(expr, self.numberoffais-1)
+                        fais += ", sgn"+varname
+                        self.modelBuilder.out.cat("sgn"+varname).setAttribute("flatParam")
+                        self.modelBuilder.addDiscrete("sgn"+varname)
+                        print "Floating the sign of "+varname
+
+                    self.modelBuilder.doVar('expr::{}("{}", {})'.format(varname, expr, fais))
+                    print "Setting "+varname+" to 1 - the sum of the other fais"
+                else:
+                    assert False, status
 
         if self.HWWcombination:
             if self.modelBuilder.out.var("CMS_zz4l_alpha"):
@@ -252,7 +294,7 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
             self.fai2POI = False
             self.phiai2Floating = False
             self.phiai2POI = False
-            self.allowPMF = False
+            self.allowPMF = defaultdict(lambda: False)
 
         return processed
 
@@ -283,6 +325,7 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
                 self.modelBuilder.doVar("r[1]")
         return poi
 
+
 class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalModel):
     def __init__(self):
         super(MultiSignalSpinZeroHiggs, self).__init__()
@@ -293,6 +336,7 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         self.sqrts = None
         self.fixed = []
         self.floated = []
+        self.noRV = self.noRF = False
         #not doing muAsPOI or fixMu, there are too many permutations.
         #should just be set when running combine.
 
@@ -300,7 +344,7 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         if not any(po.startswith("map=") for po in physOptions):
             #no po started with map --> no manual overriding --> use the defaults
             #can still override with e.g. turnoff=ZH,WH
-            physOptions = ["map=.*/(gg|qq|Z|W|tt)H:1"] + physOptions
+            physOptions = ["map=.*/(gg|qq|Z|W|V|tt|bb)H$:1"] + physOptions
         super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(physOptions)
 
     def processPhysicsOptions(self, physOptions):
@@ -318,6 +362,12 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
                 processed.append(po)
             if po.lower() == "uservoverrf":
                 self.uservoverrf = True
+                processed.append(po)
+            if po.lower() == "norv":
+                self.noRV = True
+                processed.append(po)
+            if po.lower() == "norf":
+                self.noRF = True
                 processed.append(po)
 
         if self.uservoverrf and not self.scalemuvfseparately:
@@ -349,6 +399,13 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         else:
             assert False, "?????"
 
+        if self.noRV:
+            self.fixed = [_ for _ in self.fixed if "RV" not in _]
+            self.floated = [_ for _ in self.floated if "RV" not in _]
+        if self.noRF:
+            self.fixed = [_ for _ in self.fixed if "RF" not in _]
+            self.floated = [_ for _ in self.floated if "RF" not in _]
+
         return processed
 
     def getPOIList(self):
@@ -357,7 +414,8 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
         fixedorfloated = self.fixed+self.floated
         for variable in fixedorfloated:
             if not self.modelBuilder.out.var(variable):
-                print "{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option".format(variable)
+                if variable in self.fixed: continue
+                raise RuntimeError("{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option".format(variable))
             else:
                 if 'r' in variable.lower():
                     print "Setting {} range to [1.,0.,400.]".format(variable)
@@ -382,5 +440,9 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase,CanTurnOffBkgModel,MultiSignalM
 
         return result
 
+
 spinZeroHiggs = SpinZeroHiggs()
 multiSignalSpinZeroHiggs = MultiSignalSpinZeroHiggs()
+
+
+

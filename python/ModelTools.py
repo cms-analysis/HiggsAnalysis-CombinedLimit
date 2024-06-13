@@ -107,6 +107,9 @@ class ModelBuilder(ModelBuilderBase):
     def setPhysics(self,physicsModel):
         self.physics = physicsModel
         self.physics.setModelBuilder(self)
+        for b in self.DC.bins:
+            for p in self.DC.exp[b].keys():
+                self.physics.tellAboutProcess(b, p)
     def doModel(self, justCheckPhysicsModel=False):
         if not justCheckPhysicsModel: self.doObservables()
         self.physics.doParametersOfInterest()

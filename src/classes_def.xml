@@ -82,10 +82,14 @@
 	<class name="VBFHZZ4L_RooSpinZeroPdf" />
 	<class name="VBFHZZ4L_RooSpinZeroPdf_fast" />
 
+	<class name="HZZ4L_RooSpinZeroPdf_1D_fast_base" />
 	<class name="HZZ4L_RooSpinZeroPdf_1D_fast" />
+	<class name="HZZ4L_RooSpinZeroPdf_1D_fast_a1ai" />
 	<class name="HZZ4L_RooSpinZeroPdf_2D_fast" />
 	<class name="HZZ4L_RooSpinZeroPdf_phase_fast" />
+	<class name="VVHZZ4L_RooSpinZeroPdf_1D_fast_base" />
 	<class name="VVHZZ4L_RooSpinZeroPdf_1D_fast" />
+	<class name="VVHZZ4L_RooSpinZeroPdf_1D_fast_a1ai" />
 
 	<class name="RooPiecewisePolynomial" />
 
