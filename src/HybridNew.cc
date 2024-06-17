@@ -1223,7 +1223,6 @@ std::pair<double,double> HybridNew::eval(const RooStats::HypoTestResult &hcres, 
         for (int i = 0, n = abssdist.size(); i < n; ++i) abssdist[i] = sdist[i]; 
     }
 
-    // should remove outliers from the distribution (will return immediately if no threshold set) 
     removeOutliers(&abssdist,&abssweight);
     removeOutliers(&absbdist,&absbweight);
 
@@ -1234,6 +1233,21 @@ std::pair<double,double> HybridNew::eval(const RooStats::HypoTestResult &hcres, 
     result.SetAltDistribution(abssDist);
     result.SetTestStatisticData(absdata);
     if (testStat_ == "LHCFC") result.SetPValueIsRightTail(!result.GetPValueIsRightTail());
+
+    // print comparison of Results before and after cleaning //
+    CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("Original: r = %g, CLs = %g +/- %g\n\t1-Pb = %g +/- %g\n\tPmu = %g +/- %g"
+    	,rVal
+	,hcres.CLs(), hcres.CLsError()
+	,hcres.CLb(), hcres.CLbError()
+	,hcres.CLsplusb(), hcres.CLsplusbError()))
+	,__func__);
+    CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("Update: r = %g, CLs = %g +/- %g\n\t1-Pb = %g +/- %g\n\tPmu = %g +/- %g"
+    	,rVal
+	,result.CLs(), result.CLsError()
+	,result.CLb(), result.CLbError()
+	,result.CLsplusb(), result.CLsplusbError()))
+	,__func__);
+
 
     if (CLs_) {
         return std::pair<double,double>(result.CLs(), result.CLsError());
@@ -1774,18 +1788,22 @@ std::vector<std::pair<double,double> > HybridNew::findIntervalsFromSplines(TGrap
 void HybridNew::removeOutliers(std::vector<Double_t> *sd, std::vector<Double_t> *sw){
 
     if ( removeOulierForPvalThreshold_ <= 0 ) return;
-    // calculate mean and stddev of distriution
-    double mean = std::accumulate(sd->begin(), sd->end(), 0.0) / sd->size();
+    // calculate median and stddev of distriution
+    std::vector<Double_t> sorted_sd(sd->size());
+    std::partial_sort_copy(std::begin(*sd), std::end(*sd), std::begin(sorted_sd), std::end(sorted_sd));
+    
+    double median = sorted_sd[(int)0.5*sorted_sd.size()];
+
     double accum = 0.0;
     std::for_each (std::begin(*sd), std::end(*sd), [&](const double d) {
-        accum += (d - mean) * (d - mean);
+        accum += (d - median) * (d - median);
     });
     double stdev = sqrt(accum / (sd->size()));
-
+    
     // filter outliers based on threshold
     std::vector<int> indices;
     for(unsigned int i = 0; i < sd->size(); i++) {
-        if(std::abs((*sd)[i] - mean) > removeOulierForPvalThreshold_*stdev) {
+        if(std::abs((*sd)[i] - median) > removeOulierForPvalThreshold_*stdev) {
             indices.push_back(i);
         }
     }
@@ -1796,3 +1814,4 @@ void HybridNew::removeOutliers(std::vector<Double_t> *sd, std::vector<Double_t> 
         sw->erase(sw->begin() + *it);
     } 
 }
+
