@@ -299,7 +299,7 @@ Double_t HZZ4L_RooCTauPdf_1D_Expanded::evaluate() const
 }
 Int_t HZZ4L_RooCTauPdf_1D_Expanded::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* /*rangeName*/) const
 {
-  if (matchArgs(allVars,analVars,RooArgSet(*kd.absArg()))) return 1;
+  if (matchArgs(allVars,analVars,kd)) return 1;
   return 0 ;
 }
 Double_t HZZ4L_RooCTauPdf_1D_Expanded::analyticalIntegral(Int_t code, const char* rangeName) const

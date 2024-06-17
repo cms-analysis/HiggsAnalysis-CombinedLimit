@@ -76,11 +76,11 @@ class CachingPdf : public CachingPdfBase {
     public:
         CachingPdf(RooAbsReal *pdf, const RooArgSet *obs) ;
         CachingPdf(const CachingPdf &other) ;
-        virtual ~CachingPdf() ;
-        virtual const std::vector<Double_t> & eval(const RooAbsData &data) ;
-        const RooAbsReal *pdf() const { return pdf_; }
-        virtual void  setDataDirty() { lastData_ = 0; }
-        virtual void  setIncludeZeroWeights(bool includeZeroWeights) { includeZeroWeights_ = includeZeroWeights;  setDataDirty(); }
+        ~CachingPdf() override ;
+        const std::vector<Double_t> & eval(const RooAbsData &data) override ;
+        const RooAbsReal *pdf() const override { return pdf_; }
+        void  setDataDirty() override { lastData_ = 0; }
+        void  setIncludeZeroWeights(bool includeZeroWeights) override { includeZeroWeights_ = includeZeroWeights;  setDataDirty(); }
     protected:
         const RooArgSet *obs_;
         RooAbsReal *pdfOriginal_;
@@ -102,10 +102,10 @@ class OptimizedCachingPdfT : public CachingPdf {
             CachingPdf(pdf,obs), vpdf_(0) {}
         OptimizedCachingPdfT(const OptimizedCachingPdfT &other) : 
             CachingPdf(other), vpdf_(0) {}
-        virtual ~OptimizedCachingPdfT() { delete vpdf_; }
+        ~OptimizedCachingPdfT() override { delete vpdf_; }
     protected:
-        virtual void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
-        virtual void newData_(const RooAbsData &data) ;
+        void realFill_(const RooAbsData &data, std::vector<Double_t> &values) override ;
+        void newData_(const RooAbsData &data) override ;
         VPdfT *vpdf_;
 };
 
@@ -115,14 +115,18 @@ class CachingAddNLL : public RooAbsReal {
     public:
         CachingAddNLL(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data, bool includeZeroWeights = false) ;
         CachingAddNLL(const CachingAddNLL &other, const char *name = 0) ;
-        virtual ~CachingAddNLL() ;
-        virtual CachingAddNLL *clone(const char *name = 0) const ;
-        virtual Double_t evaluate() const ;
-        virtual Bool_t isDerived() const { return kTRUE; }
-        virtual Double_t defaultErrorLevel() const { return 0.5; }
+        ~CachingAddNLL() override ;
+        CachingAddNLL *clone(const char *name = 0) const override ;
+        Double_t evaluate() const override ;
+        Bool_t isDerived() const override { return kTRUE; }
+        Double_t defaultErrorLevel() const override { return 0.5; }
         void setData(const RooAbsData &data) ;
         virtual RooArgSet* getObservables(const RooArgSet* depList, Bool_t valueOnly = kTRUE) const ;
-        virtual RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const ;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
+        RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const override;
+#else
+        bool getParameters(const RooArgSet* depList, RooArgSet& outputSet, bool stripDisconnected=true) const override;
+#endif
         double  sumWeights() const { return sumWeights_; }
         const RooAbsPdf *pdf() const { return pdf_; }
         void setZeroPoint() ;
@@ -161,15 +165,18 @@ class CachingSimNLL  : public RooAbsReal {
     public:
         CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, const RooArgSet *nuis=0) ;
         CachingSimNLL(const CachingSimNLL &other, const char *name = 0) ;
-        ~CachingSimNLL() ;
-        virtual CachingSimNLL *clone(const char *name = 0) const ;
-        virtual Double_t evaluate() const ;
-        virtual Bool_t isDerived() const { return kTRUE; }
-        virtual Double_t defaultErrorLevel() const { return 0.5; }
+        ~CachingSimNLL() override ;
+        CachingSimNLL *clone(const char *name = 0) const override ;
+        Double_t evaluate() const override ;
+        Bool_t isDerived() const override { return kTRUE; }
+        Double_t defaultErrorLevel() const override { return 0.5; }
         void setData(const RooAbsData &data) ;
         virtual RooArgSet* getObservables(const RooArgSet* depList, Bool_t valueOnly = kTRUE) const ;
-        virtual RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const ;
-        virtual bool getParameters(const RooArgSet* depList, RooArgSet& outputSet, bool stripDisconnected=true) const;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
+        RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const override;
+#else
+        bool getParameters(const RooArgSet* depList, RooArgSet& outputSet, bool stripDisconnected=true) const override;
+#endif
         void splitWithWeights(const RooAbsData &data, const RooAbsCategory& splitCat, Bool_t createEmptyDataSets) ;
         static void setNoDeepLogEvalError(bool noDeep) { noDeepLEE_ = noDeep; }
         void setZeroPoint() ; 
@@ -185,7 +192,7 @@ class CachingSimNLL  : public RooAbsReal {
         void setMaskNonDiscreteChannels(bool mask) ;
         friend class CachingAddNLL;
         // trap this call, since we don't care about propagating it to the sub-components
-        virtual void constOptimizeTestStatistic(ConstOpCode opcode, Bool_t doAlsoTrackingOpt=kTRUE) { }
+        void constOptimizeTestStatistic(ConstOpCode opcode, Bool_t doAlsoTrackingOpt=kTRUE) override { }
     private:
         void setup_();
         RooSimultaneous   *pdfOriginal_;

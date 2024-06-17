@@ -19,8 +19,7 @@ std::string GetQualififedName(std::string const& str) {
       ++apos;
     }
   }
-  std::string cpy = str.substr(apos, bpos - apos);
-  return cpy;
+  return str.substr(apos, bpos - apos);
 }
 
 

@@ -885,6 +885,22 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
   }
 }
 
+
+void utils::check_inf_parameters(const RooArgSet & params, int verbosity) {
+
+    double infinity_root626 = 1.0e30; 
+    for (RooAbsArg *arg : params) {    
+        RooRealVar *p = dynamic_cast<RooRealVar *>(arg);
+        if (p->getRange().first <= -infinity_root626 || p->getRange().second >= +infinity_root626){
+            if ( verbosity > 2 ) {
+                std::cout << "Found a parameter named "<< p->GetName()
+                          << " infinite in ROOT versions < 6.30, going to removeRange()" << endl;
+            }
+            p->removeRange();
+        }
+    }
+}
+
 void utils::createSnapshotFromString( const std::string expression, const RooArgSet &allvars, RooArgSet &output, const char *context) {
     if (expression.find("=") == std::string::npos) {
         if (allvars.getSize() != 1) throw std::invalid_argument(std::string("Error: the argument to ")+context+" is a single value, but there are multiple variables to choose from");

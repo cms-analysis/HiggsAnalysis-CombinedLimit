@@ -17,7 +17,7 @@ void CombDataSetFactory::addSetBin(const char *label, RooDataHist *set) {
 
 void CombDataSetFactory::addSetAny(const char *label, RooDataHist *set) {
     if (weight_ == 0) weight_ = new RooRealVar("_weight_","",1);
-    RooDataSet *data = new RooDataSet(TString(set->GetName())+"_unbin", "", RooArgSet(*set->get(), *weight_), "_weight_");
+    RooDataSet *data = new RooDataSet(TString(set->GetName())+"_unbin", "", {*set->get(), *weight_}, RooFit::WeightVar("_weight_"));
     for (int i = 0, n = set->numEntries(); i < n; ++i) {
         const RooArgSet *entry = set->get(i);
         data->add(*entry, set->weight());

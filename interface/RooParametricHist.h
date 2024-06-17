@@ -21,11 +21,11 @@ public:
   RooParametricHist() {} ;
   RooParametricHist (const char *name, const char *title, RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape);
   RooParametricHist(const RooParametricHist& other, const char* name=0);
-  virtual TObject* clone(const char* newname) const { return new RooParametricHist(*this,newname); }
-  inline virtual ~RooParametricHist (){};
+  TObject* clone(const char* newname) const override { return new RooParametricHist(*this,newname); }
+  inline ~RooParametricHist () override{};
 
-  Int_t getAnalyticalIntegral(RooArgSet &allVars, RooArgSet &analVars, const char* rangeName=0) const ;
-  Double_t analyticalIntegral(Int_t, const char* rangeName=0) const ;
+  Int_t getAnalyticalIntegral(RooArgSet &allVars, RooArgSet &analVars, const char* rangeName=0) const override ;
+  Double_t analyticalIntegral(Int_t, const char* rangeName=0) const override ;
 
   RooAbsArg  & getBinVar(const int i) const ;
   RooArgList & getAllBinVars() const ;
@@ -66,7 +66,7 @@ protected:
 
   double evaluatePartial() const ;
   double evaluateFull() const ;
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
   double getFullSum() const ;
 
   mutable double _cval;
@@ -79,7 +79,7 @@ protected:
   }
 
 private:
-   ClassDef(RooParametricHist, 2)
+   ClassDefOverride(RooParametricHist, 2)
 };
 
 #endif

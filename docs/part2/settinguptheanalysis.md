@@ -110,19 +110,21 @@ The <span style="font-variant:small-caps;">Combine</span> tool can take as input
 
 The block of lines defining the mapping (first block in the datacard) contains one or more rows of the form
 
--   **shapes *process* *channel* *file* *histogram* *[histogram_with_systematics]* **
+```
+shapes process channel file histogram [histogram_with_systematics]
+```
 
 In this line,
 
--   ***process*** is any one the process names, or **\*** for all processes, or **data_obs** for the observed data;
--   ***channel*** is any one the process names, or **\*** for all channels;
--   *file*, *histogram* and *histogram_with_systematics* identify the names of the files and of the histograms within the file, after making some replacements (if any are found):
-    -   **$PROCESS** is replaced with the process name (or "**data_obs**" for the observed data);
-    -   **$CHANNEL** is replaced with the channel name;
-    -   **$SYSTEMATIC** is replaced with the name of the systematic + (**Up, Down**);
-    -   **$MASS** is replaced with the chosen (Higgs boson) mass value that is passed as a command-line option when running the tool
+-   `process`is any one the process names, or `*` for all processes, or `data_obs` for the observed data;
+-   `channel`is any one the process names, or `*` for all channels;
+-   `file`, `histogram` and `histogram_with_systematics` identify the names of the files and of the histograms within the file, after making some replacements (if any are found):
+    -   `$PROCESS` is replaced with the process name (or "`data_obs`" for the observed data);
+    -   `$CHANNEL` is replaced with the channel name;
+    -   `$SYSTEMATIC` is replaced with the name of the systematic + (`Up`, `Down`);
+    -   `$MASS` is replaced with the chosen (Higgs boson) mass value that is passed as a command-line option when running the tool
 
-In addition, user-defined keywords can be used. Any word in the datacard **$WORD** will be replaced by **VALUE** when including the option `--keyword-value WORD=VALUE`. This option can be repeated multiple times for multiple keywords.
+In addition, user-defined keywords can be used. Any word in the datacard `$WORD` will be replaced by `VALUE` when including the option `--keyword-value WORD=VALUE`. This option can be repeated multiple times for multiple keywords.
 
 #### Template shape uncertainties
 
@@ -139,7 +141,9 @@ For each shape uncertainty and process/channel affected by it, two additional in
 
 For each given shape uncertainty, the part of the datacard describing shape uncertainties must contain a row
 
--   ** *name* *shape* *effect_for_each_process_and_channel* **
+```
+name shape effect_for_each_process_and_channel
+```
 
 The effect can be "-" or 0 for no effect, 1 for the normal effect, and something different from 1 to test larger or smaller effects (in that case, the unit gaussian is scaled by that factor before using it as parameter for the interpolation).
 
@@ -278,7 +282,9 @@ meaning there is a parameter in the input workspace called **`sigma`**, that sho
 
 If one wants to specify a parameter that is freely floating across its given range, and not Gaussian constrained, the following syntax is used:
 
- - **name *flatParam* **
+```
+name flatParam
+```
 
 Though this is *not strictly necessary* in frequentist methods using profiled likelihoods, as <span style="font-variant:small-caps;">Combine</span> will still profile these nuisances when performing fits (as is the case for the `simple-shapes-parametric.txt` datacard).
 
@@ -537,8 +543,8 @@ In order to get a quick view of the systematic uncertainties included in the dat
 
 The default output is a `.html` file that can be expanded to give more details about the effect of the systematic uncertainty for each channel/process. Add the option `--format brief` to obtain a simpler summary report direct to the terminal. An example output for the tutorial card `data/tutorials/shapes/simple-shapes-TH1.txt` is shown below.
 
-```nohighlight 
-$ python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt --all -f html > out.html
+```sh
+python test/systematicsAnalyzer.py data/tutorials/shapes/simple-shapes-TH1.txt --all -f html > out.html
 ```
 
 This will produce the following output in html format: 
@@ -620,11 +626,12 @@ In case you only have a counting experiment datacard, include the option `--nosh
 
 If you have a datacard that uses several `rateParams` or a Physics model that includes a complicated product of normalization terms in each process, you can check the values of the normalization (and which objects in the workspace comprise them) using the `test/printWorkspaceNormalisations.py` tool. As an example, the first few blocks of output for the tutorial card `data/tutorials/counting/realistic-multi-channel.txt` are given below:
 
+```sh
+text2workspace.py data/tutorials/counting/realistic-multi-channel.txt 
+python test/printWorkspaceNormalisations.py data/tutorials/counting/realistic-multi-channel.root     
+```
 /// details | **Show example output**
-<pre><code>
-$ text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt -m 30
-$ python test/printWorkspaceNormalisations.py data/tutorials/counting/realistic-multi-channel.root                                                                                                           
-
+```
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
 Channel - mu_tau
@@ -686,7 +693,7 @@ Dumping ProcessNormalization n_exp_bine_mu_proc_ZTT @ 0x6bc8910
   -------------------------------------------------------------------------
   default value =  88.0
 ---------------------------------------------------------------------------
-</code></pre>
+```
 ///
 
 
@@ -694,13 +701,12 @@ As you can see, for each channel, a report is given for the top-level rate objec
 
 Another example is shown below for the workspace produced from the [data/tutorials/shapes/simple-shapes-parametric.txt](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-parametric.txt) datacard.
 
-
+```sh
+text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt -m 30
+python test/printWorkspaceNormalisations.py data/tutorials/shapes/simple-shapes-parametric.root -m 30
+```
 /// details | **Show example output**
-<pre><code>
-  text2workspace.py data/tutorials/shapes/simple-shapes-parametric.txt
-  python test/printWorkspaceNormalisations.py data/tutorials/shapes/simple-shapes-parametric.root
-  ...
-
+```
   ---------------------------------------------------------------------------
   ---------------------------------------------------------------------------
   Channel - bin1
@@ -725,7 +731,7 @@ Another example is shown below for the workspace produced from the [data/tutoria
 
     -------------------------------------------------------------------------
     default value =  1.0
-</code></pre>
+```
 ///
 
 This tells us that the normalization for the background process, named `n_exp_final_binbin1_proc_bkg` is a product of two objects `n_exp_binbin1_proc_bkg * shapeBkg_bkg_bin1__norm`. The first object is just from the **rate** line in the datacard (equal to 1) and the second is a floating parameter. For the signal, the normalisation is called `n_exp_binbin1_proc_sig` and is a `ProcessNormalization` object that contains the rate modifications due to the systematic uncertainties. You can see that it also has a "*nominal value*", which again is just from the value given in the **rate** line of the datacard (again=1).

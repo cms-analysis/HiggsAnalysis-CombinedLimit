@@ -328,11 +328,8 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 void plotLLRdistribution(TTree *tree_, TFile *fdata_){
 
 	TCanvas *c = new TCanvas("llr","",960,800);
-	tree_->Draw("0*nll_nll0>>htemp_llr(100,0,4)","r<0");
-	tree_->Draw("-2*nll_nll0>>htemp_llr_2(100,0,4)","r>=0");
-	TH1F *ht0  = (TH1F*) gROOT->FindObject("htemp_llr");
-	TH1F *htmu = (TH1F*) gROOT->FindObject("htemp_llr_2");
-	ht0->Add(htmu);
+	tree_->Draw("-2*nll_nll0>>htemp_llr_2(100,0,4)");
+	TH1F *ht0  = (TH1F*) gROOT->FindObject("htemp_llr_2");
 	ht0->GetXaxis()->SetRangeUser(0,4);
 	ht0->SetFillColor(kGray+3); ht0->SetLineColor(1);
 	ht0->GetXaxis()->SetTitle("-2 #times llr");
@@ -383,8 +380,11 @@ void plotParametersFromToys(std::string inputFile, std::string dataFits="", std:
 		// These are essentially the nuisances in the card (note, from toys file, they will be randomized)
 		// so need to use the data fit.
 		RooArgSet *prefitargs = (RooArgSet*)fd_->Get("nuisances_prefit");
-
-		fillInitialParams(prefitargs,prevals_);
+		if (!prefitargs) { 
+			doPull = false;
+			std::cout << " No pre-fit params (no constrained parameters in model), skipping pulls" << std::endl;
+		}
+		else fillInitialParams(prefitargs,prevals_);
 		fillInitialParams(&fitargs,bfvals_);
 		fillInitialParams(&fitargs_s,bfvals_sb_);
 
@@ -400,8 +400,14 @@ void plotParametersFromToys(std::string inputFile, std::string dataFits="", std:
 				,RooFit::Extended(mc_s->GetPdf()->canBeExtended()));
 
 			
-			// grab r (mu) from workspace to set to 0 for bonly fit since it wasnt floating 
-			RooRealVar *r = w->var("r"); r->setVal(0);fitargs.add(*r);
+			// grab r (mu) from workspace to set to 0 for bonly fit since it wasnt floating. Only if it exists 
+			RooRealVar *r = w->var("r"); 
+			if (r) {
+				r->setVal(0);
+				fitargs.add(*r);
+			} else {
+				std::cout << " No overall signal strength r in workspace, ingoring pois for signal/background only comparisons" << std::endl; 
+			}
 			
 			w->saveSnapshot("bestfitparams",fitargs,true);	
 			w->saveSnapshot("bestfitparams_sb",fitargs_s,true);	

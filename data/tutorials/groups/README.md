@@ -12,17 +12,17 @@ The files in this directory are:
 
 For simplicity, this tutorial does not discuss scans using `-M MultiDimFit --algo=grid`,
 but rather uses `-M MaxLikelihoodFit --robustFit=1`
-to determine the crossings of the likelihood with the 1 sigma levels.
+to determine the crossings of the likelihood with the 1σ levels.
 
 ## Groups of nuisances
 
 Groups of nuisances are defined in the datacard, e.g. [here](./myanalysis.dc.txt#L30), [here](./myanalysis.dc.txt#L38-L40), [here](./myanalysis.dc.txt#L46-L47), and [here](./myanalysis.dc.txt#L56-L58).
 They are parsed when building the binary datacard and result in two actions:
-- creation in the workspace of a `RooArgSet` for each group, containing the concerned nuisance parameters.
+- creation in the workspace of a `RooArgSet` for each group, containing the concerned nuisance parameters, and
 - setting of a `group_%s` attribute in each nuisance parameter.
 
 A nuisance parameter can belong to multiple groups of nuisances.
-It is up to you to list or not list nuisances as part of groups in an exclusive, or overlapping way.
+It is up to you to list or not list nuisances as part of groups in an exclusive or overlapping way.
 In particular, there is no check that every nuisance is in at least one group.
 
 At present, the syntax does not allow to declare groups as members of other groups;
@@ -44,12 +44,12 @@ by fitting the data would not be taken into account and even the central value w
 
 One way to deconstruct the total uncertainty into different components is by freezing nuisances.
 For instance, freezing all nuisances directly gives the statistical component as mentioned above.
-By subtracting in quadrature the statistical uncertainty from the total uncertainty, one can derive the
-systematic uncertainty.
+By subtracting in quadrature the statistical uncertainty from the total uncertainty, one can estimate the
+total systematic uncertainty.
 
 When there are multiple components being disentangled,
 the decomposition can proceed in many ways,
-and an example of extracting the exp. syst. and theo. syst. is given in this tutorial, [here](./Makefile#L42-L70)
+and an example of extracting the `exp. syst.` and `theo. syst.` is given in this tutorial, [here](./Makefile#L42-L70).
 
 ## Show me the money
 

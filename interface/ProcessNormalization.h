@@ -19,9 +19,9 @@ class ProcessNormalization : public RooAbsReal {
       ProcessNormalization(const char *name, const char *title, double nominal=1) ;
       ProcessNormalization(const char *name, const char *title, RooAbsReal &nominal) ;
       ProcessNormalization(const ProcessNormalization &other, const char *newname = 0) ;
-      ~ProcessNormalization() ;
+      ~ProcessNormalization() override ;
 
-      TObject * clone(const char *newname) const { return new ProcessNormalization(*this, newname); }
+      TObject * clone(const char *newname) const override { return new ProcessNormalization(*this, newname); }
 
       void setNominalValue(double nominal) { nominalValue_ = nominal; }
       void addLogNormal(double kappa, RooAbsReal &theta) ;
@@ -29,7 +29,7 @@ class ProcessNormalization : public RooAbsReal {
       void addOtherFactor(RooAbsReal &factor) ;
       void dump() const ;
     protected:
-        Double_t evaluate() const;
+        Double_t evaluate() const override;
 
     private:
         // ---- PERSISTENT ----
@@ -46,7 +46,7 @@ class ProcessNormalization : public RooAbsReal {
         // get the kappa for the appropriate x
         Double_t logKappaForX(double x, const std::pair<double,double> &logKappas ) const ;
 
-  ClassDef(ProcessNormalization,1) // Process normalization interpolator 
+  ClassDefOverride(ProcessNormalization,1) // Process normalization interpolator 
 };
 
 #endif

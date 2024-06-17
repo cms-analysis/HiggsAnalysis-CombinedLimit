@@ -52,8 +52,8 @@ public:
 			   RooAbsReal& _b3,
 			   RooAbsReal& _frac);
 	RooqqZZPdf(const RooqqZZPdf& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooqqZZPdf(*this,newname); }
-	inline virtual ~RooqqZZPdf() { }
+	TObject* clone(const char* newname) const override { return new RooqqZZPdf(*this,newname); }
+	inline ~RooqqZZPdf() override { }
 	
 protected:
 	
@@ -66,11 +66,11 @@ protected:
 	RooRealProxy b3 ;
 	RooRealProxy frac ;
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooqqZZPdf,1) // Your description goes here...                                                                                                   
+	ClassDefOverride(RooqqZZPdf,1) // Your description goes here...                                                                                                   
 };
 
 
@@ -88,8 +88,8 @@ public:
 			   RooAbsReal& _b3,
 			   RooAbsReal& _frac);
 	RooggZZPdf(const RooggZZPdf& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooggZZPdf(*this,newname); }
-	inline virtual ~RooggZZPdf() { }
+	TObject* clone(const char* newname) const override { return new RooggZZPdf(*this,newname); }
+	inline ~RooggZZPdf() override { }
 	
 protected:
 	
@@ -102,11 +102,11 @@ protected:
 	RooRealProxy b3 ;
 	RooRealProxy frac ;
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooggZZPdf,1) // Your description goes here...                                                                                                   
+	ClassDefOverride(RooggZZPdf,1) // Your description goes here...                                                                                                   
 };
 
 // ------- RooqqZZPdf_v2 -------
@@ -134,8 +134,8 @@ public:
 			   
 			   );
 	RooqqZZPdf_v2(const RooqqZZPdf_v2& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooqqZZPdf_v2(*this,newname); }
-	inline virtual ~RooqqZZPdf_v2() { }
+	TObject* clone(const char* newname) const override { return new RooqqZZPdf_v2(*this,newname); }
+	inline ~RooqqZZPdf_v2() override { }
 	
 protected:
 	
@@ -156,11 +156,11 @@ protected:
 	RooRealProxy a13 ;
 	
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooqqZZPdf_v2,1) // Your description goes here...                                                                                                   
+	ClassDefOverride(RooqqZZPdf_v2,1) // Your description goes here...                                                                                                   
 };
 
 
@@ -191,8 +191,8 @@ public:
 			   RooAbsReal& _a16
 			   );
 	RooVBFZZPdf(const RooVBFZZPdf& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooVBFZZPdf(*this,newname); }
-	inline virtual ~RooVBFZZPdf() { }
+	TObject* clone(const char* newname) const override { return new RooVBFZZPdf(*this,newname); }
+	inline ~RooVBFZZPdf() override { }
 	
 protected:
 	
@@ -216,11 +216,11 @@ protected:
 	RooRealProxy a16 ;
 	
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooVBFZZPdf,1) // Your description goes here...                                                                                                   
+	ClassDefOverride(RooVBFZZPdf,1) // Your description goes here...                                                                                                   
 };
 
 
@@ -248,8 +248,8 @@ public:
 			   RooAbsReal& _a16
 			   );
 	RooVBFZZPdf_v2(const RooVBFZZPdf_v2& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooVBFZZPdf_v2(*this,newname); }
-	inline virtual ~RooVBFZZPdf_v2() { }
+	TObject* clone(const char* newname) const override { return new RooVBFZZPdf_v2(*this,newname); }
+	inline ~RooVBFZZPdf_v2() override { }
 	
 protected:
 	
@@ -269,11 +269,11 @@ protected:
 	RooRealProxy a16 ;
 	
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooVBFZZPdf_v2,1) // Your description goes here...                                                                                                   
+	ClassDefOverride(RooVBFZZPdf_v2,1) // Your description goes here...                                                                                                   
 };
 
 
@@ -297,8 +297,8 @@ public:
 			   
 			   );
 	RooggZZPdf_v2(const RooggZZPdf_v2& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooggZZPdf_v2(*this,newname); }
-	inline virtual ~RooggZZPdf_v2() { }
+	TObject* clone(const char* newname) const override { return new RooggZZPdf_v2(*this,newname); }
+	inline ~RooggZZPdf_v2() override { }
 	
 protected:
 	
@@ -314,11 +314,11 @@ protected:
 	RooRealProxy a8 ;
 	RooRealProxy a9 ;
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooggZZPdf_v2,1) // Your description goes here...                                                                                                   
+	ClassDefOverride(RooggZZPdf_v2,1) // Your description goes here...                                                                                                   
 };
 
 class RooBetaFunc_v2 : public RooAbsPdf {
@@ -339,8 +339,8 @@ public:
 				   RooAbsReal& _f0
 				   );
 	RooBetaFunc_v2(const RooBetaFunc_v2& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooBetaFunc_v2(*this,newname); }
-	inline virtual ~RooBetaFunc_v2() { }
+	TObject* clone(const char* newname) const override { return new RooBetaFunc_v2(*this,newname); }
+	inline ~RooBetaFunc_v2() override { }
 	
 protected:
 	
@@ -357,11 +357,11 @@ protected:
     RooRealProxy f;
 	RooRealProxy f0;
 	
-    Double_t evaluate() const ;
+    Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooBetaFunc_v2,1) 
+	ClassDefOverride(RooBetaFunc_v2,1) 
 };
 
 class Roo4lMasses2D_Bkg : public RooAbsPdf {
@@ -373,8 +373,8 @@ public:
 					  RooAbsReal& _channelVal	     
 					  );
 	Roo4lMasses2D_Bkg(const Roo4lMasses2D_Bkg& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new Roo4lMasses2D_Bkg(*this,newname); }
-	inline virtual ~Roo4lMasses2D_Bkg() { }
+	TObject* clone(const char* newname) const override { return new Roo4lMasses2D_Bkg(*this,newname); }
+	inline ~Roo4lMasses2D_Bkg() override { }
 	
 protected:
 	
@@ -382,11 +382,11 @@ protected:
     RooRealProxy mZZ;     
     RooRealProxy channelVal;     
 	
-    Double_t evaluate() const ;
+    Double_t evaluate() const override ;
     Double_t UnitStep(double arg) const;
 private:
 	
-	ClassDef(Roo4lMasses2D_Bkg,1) 
+	ClassDefOverride(Roo4lMasses2D_Bkg,1) 
 };
 
 //------------------------
@@ -400,8 +400,8 @@ public:
 					  RooAbsReal& _channelVal	     
 					  );
 	Roo4lMasses2D_BkgGGZZ(const Roo4lMasses2D_BkgGGZZ& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new Roo4lMasses2D_BkgGGZZ(*this,newname); }
-	inline virtual ~Roo4lMasses2D_BkgGGZZ() { }
+	TObject* clone(const char* newname) const override { return new Roo4lMasses2D_BkgGGZZ(*this,newname); }
+	inline ~Roo4lMasses2D_BkgGGZZ() override { }
 	
 protected:
 	
@@ -409,11 +409,11 @@ protected:
     RooRealProxy mZZ;     
     RooRealProxy channelVal;     
 	
-    Double_t evaluate() const ;
+    Double_t evaluate() const override ;
     Double_t UnitStep(double arg) const;
 private:
 	
-	ClassDef(Roo4lMasses2D_BkgGGZZ,1) 
+	ClassDefOverride(Roo4lMasses2D_BkgGGZZ,1) 
 };
 
 // --------------------------------------------------------------------
@@ -441,8 +441,8 @@ public:
 				  RooAbsReal& _CBn             
 				  );
 	Roo4lMasses2D(const Roo4lMasses2D& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new Roo4lMasses2D(*this,newname); }
-	inline virtual ~Roo4lMasses2D() { }
+	TObject* clone(const char* newname) const override { return new Roo4lMasses2D(*this,newname); }
+	inline ~Roo4lMasses2D() override { }
 	
 protected:
 	
@@ -458,11 +458,11 @@ protected:
     RooRealProxy CBalpha;            
     RooRealProxy CBn;             
 	
-    Double_t evaluate() const ;
+    Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(Roo4lMasses2D,1) 
+	ClassDefOverride(Roo4lMasses2D,1) 
 };
 
 // --------------------------------------
@@ -474,20 +474,20 @@ public:
 						   RooAbsReal& _m4l,
 						   RooAbsReal& _mH);
 	RooFourMuMassShapePdf2(const RooFourMuMassShapePdf2& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooFourMuMassShapePdf2(*this,newname); }
-	inline virtual ~RooFourMuMassShapePdf2() { }
+	TObject* clone(const char* newname) const override { return new RooFourMuMassShapePdf2(*this,newname); }
+	inline ~RooFourMuMassShapePdf2() override { }
 	
 protected:
 	
 	RooRealProxy m4l ;
 	RooRealProxy mH ;
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	//void readFile() const ;
 	
 private:
 	
-	ClassDef(RooFourMuMassShapePdf2,2) // Your description goes here...                                                                                       
+	ClassDefOverride(RooFourMuMassShapePdf2,2) // Your description goes here...                                                                                       
 };
 
 
@@ -498,20 +498,20 @@ public:
 						  RooAbsReal& _m4l,
 						  RooAbsReal& _mH);
 	RooFourEMassShapePdf2(const RooFourEMassShapePdf2& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooFourEMassShapePdf2(*this,newname); }
-	inline virtual ~RooFourEMassShapePdf2() { }
+	TObject* clone(const char* newname) const override { return new RooFourEMassShapePdf2(*this,newname); }
+	inline ~RooFourEMassShapePdf2() override { }
 	
 protected:
 	
 	RooRealProxy m4l ;
 	RooRealProxy mH ;
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	//void readFile() const ;
 	
 private:
 	
-	ClassDef(RooFourEMassShapePdf2,2) // Your description goes here...                                                                                        
+	ClassDefOverride(RooFourEMassShapePdf2,2) // Your description goes here...                                                                                        
 };
 
 
@@ -523,20 +523,20 @@ public:
 							  RooAbsReal& _m4l,
 							  RooAbsReal& _mH);
 	RooTwoETwoMuMassShapePdf2(const RooTwoETwoMuMassShapePdf2& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooTwoETwoMuMassShapePdf2(*this,newname); }
-	inline virtual ~RooTwoETwoMuMassShapePdf2() { }
+	TObject* clone(const char* newname) const override { return new RooTwoETwoMuMassShapePdf2(*this,newname); }
+	inline ~RooTwoETwoMuMassShapePdf2() override { }
 	
 protected:
 	
 	RooRealProxy m4l ;
 	RooRealProxy mH ;
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	//void readFile() const ;
 	
 private:	
 	
-	ClassDef(RooTwoETwoMuMassShapePdf2,2) // Your description goes here...                                                                                    
+	ClassDefOverride(RooTwoETwoMuMassShapePdf2,2) // Your description goes here...                                                                                    
 };
 
 
@@ -547,19 +547,19 @@ public:
 					 RooAbsReal& _m4l,
 					 RooAbsReal& _mH);
 	RooFourMuMassRes(const RooFourMuMassRes& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooFourMuMassRes(*this,newname); }
-	inline virtual ~RooFourMuMassRes() { }
+	TObject* clone(const char* newname) const override { return new RooFourMuMassRes(*this,newname); }
+	inline ~RooFourMuMassRes() override { }
 	
 protected:
 	
 	RooRealProxy m4l ;
 	RooRealProxy mH  ;
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooFourMuMassRes,1) // Your description goes here...                                                                                             
+	ClassDefOverride(RooFourMuMassRes,1) // Your description goes here...                                                                                             
 };
 
 class RooFourEMassRes : public RooAbsPdf {
@@ -569,19 +569,19 @@ public:
 					RooAbsReal& _m4l,
 					RooAbsReal& _mH);
 	RooFourEMassRes(const RooFourEMassRes& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooFourEMassRes(*this,newname); }
-	inline virtual ~RooFourEMassRes() { }
+	TObject* clone(const char* newname) const override { return new RooFourEMassRes(*this,newname); }
+	inline ~RooFourEMassRes() override { }
 	
 protected:
 	
 	RooRealProxy m4l ;
 	RooRealProxy mH  ;
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooFourEMassRes,1) // Your description goes here...                                                                                              
+	ClassDefOverride(RooFourEMassRes,1) // Your description goes here...                                                                                              
 };
 
 
@@ -592,8 +592,8 @@ public:
 						RooAbsReal& _m4l,
 						RooAbsReal& _mH);
 	RooTwoETwoMuMassRes(const RooTwoETwoMuMassRes& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooTwoETwoMuMassRes(*this,newname); }
-	inline virtual ~RooTwoETwoMuMassRes() { }
+	TObject* clone(const char* newname) const override { return new RooTwoETwoMuMassRes(*this,newname); }
+	inline ~RooTwoETwoMuMassRes() override { }
 	
 protected:
 	
@@ -601,11 +601,11 @@ protected:
 	RooRealProxy mH  ;
 	
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooTwoETwoMuMassRes,1) // Your description goes here...                                                                                          
+	ClassDefOverride(RooTwoETwoMuMassRes,1) // Your description goes here...                                                                                          
 };
 
 class RooRelBW1 : public RooAbsPdf {
@@ -616,8 +616,8 @@ public:
 			  RooAbsReal& _mean,
 			  RooAbsReal& _gamma);
 	RooRelBW1(const RooRelBW1& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooRelBW1(*this,newname); }
-	inline virtual ~RooRelBW1() { }
+	TObject* clone(const char* newname) const override { return new RooRelBW1(*this,newname); }
+	inline ~RooRelBW1() override { }
 	
 protected:
 	
@@ -625,11 +625,11 @@ protected:
 	RooRealProxy mean ;
 	RooRealProxy gamma ;
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooRelBW1,1) // Your description goes here...                                                                                                    
+	ClassDefOverride(RooRelBW1,1) // Your description goes here...                                                                                                    
 };
 
 //////////////////////////////////////////////
@@ -641,19 +641,19 @@ public:
 			  RooAbsReal& _m4l,
 			  RooAbsReal& _mH);
 	RooRelBWUF(const RooRelBWUF& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooRelBWUF(*this,newname); }
-	inline virtual ~RooRelBWUF() { }
+	TObject* clone(const char* newname) const override { return new RooRelBWUF(*this,newname); }
+	inline ~RooRelBWUF() override { }
 	
 protected:
 	
 	RooRealProxy m4l ;
 	RooRealProxy mH ;
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooRelBWUF,2) // Your description goes here...                                                                                                    
+	ClassDefOverride(RooRelBWUF,2) // Your description goes here...                                                                                                    
 };
 
 
@@ -666,19 +666,19 @@ public:
 			  RooAbsReal& _m4l,
 			  RooAbsReal& _mH);
 	RooRelBWUF_SM4(const RooRelBWUF_SM4& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooRelBWUF_SM4(*this,newname); }
-	inline virtual ~RooRelBWUF_SM4() { }
+	TObject* clone(const char* newname) const override { return new RooRelBWUF_SM4(*this,newname); }
+	inline ~RooRelBWUF_SM4() override { }
 	
 protected:
 	
 	RooRealProxy m4l ;
 	RooRealProxy mH ;
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooRelBWUF_SM4,2) // Your description goes here...                                                                                                    
+	ClassDefOverride(RooRelBWUF_SM4,2) // Your description goes here...                                                                                                    
 };
 
 
@@ -692,8 +692,8 @@ public:
 					RooAbsReal& _mH,
 					RooAbsReal& _width);
 	RooRelBWUFParamWidth(const RooRelBWUFParamWidth& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooRelBWUFParamWidth(*this,newname); }
-	inline virtual ~RooRelBWUFParamWidth() { }
+	TObject* clone(const char* newname) const override { return new RooRelBWUFParamWidth(*this,newname); }
+	inline ~RooRelBWUFParamWidth() override { }
 	
 protected:
 	
@@ -701,11 +701,11 @@ protected:
 	RooRealProxy mH ;
 	RooRealProxy width;
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooRelBWUFParamWidth,2) // Your description goes here...                                                                                                    
+	ClassDefOverride(RooRelBWUFParamWidth,2) // Your description goes here...                                                                                                    
 };
 
 
@@ -719,8 +719,8 @@ public:
 			Double_t _widthSF=1.
 			);
 	RooRelBWUFParam(const RooRelBWUFParam& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooRelBWUFParam(*this,newname); }
-	inline virtual ~RooRelBWUFParam() { }
+	TObject* clone(const char* newname) const override { return new RooRelBWUFParam(*this,newname); }
+	inline ~RooRelBWUFParam() override { }
 	
 protected:
 	
@@ -729,11 +729,11 @@ protected:
 	RooRealProxy scaleParam ;
 	Double_t widthSF ;
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooRelBWUFParam,3) // Your description goes here...                                                                                                    
+	ClassDefOverride(RooRelBWUFParam,3) // Your description goes here...                                                                                                    
 };
 
 //////////////////////////////////////////////
@@ -746,8 +746,8 @@ public:
 					RooAbsReal& _mH,
 					RooAbsReal& _gamma);
 	RooRelBWHighMass(const RooRelBWHighMass& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooRelBWHighMass(*this,newname); }
-	inline virtual ~RooRelBWHighMass() { }
+	TObject* clone(const char* newname) const override { return new RooRelBWHighMass(*this,newname); }
+	inline ~RooRelBWHighMass() override { }
 	
 protected:
 	
@@ -755,11 +755,11 @@ protected:
 	RooRealProxy mH ;
 	RooRealProxy gamma ;
 	
-	Double_t evaluate() const ;
+	Double_t evaluate() const override ;
 	
 private:
 	
-	ClassDef(RooRelBWHighMass,2) // Your description goes here...                                                                                                    
+	ClassDefOverride(RooRelBWHighMass,2) // Your description goes here...                                                                                                    
 };
 
 ///////////////////////////////////////////////////
@@ -778,8 +778,8 @@ public:
 	          RooAbsReal& _fexp);
 
   RooTsallis(const RooTsallis& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooTsallis(*this,newname); }
-  inline virtual ~RooTsallis() { }
+  TObject* clone(const char* newname) const override { return new RooTsallis(*this,newname); }
+  inline ~RooTsallis() override { }
   /* Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
      Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;*/
 
@@ -794,11 +794,11 @@ protected:
   RooRealProxy T ;
   RooRealProxy fexp ;
 
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 
 private:
 
- ClassDef(RooTsallis,1) // Your description goes here...
+ ClassDefOverride(RooTsallis,1) // Your description goes here...
 };
 
 
@@ -823,8 +823,8 @@ class RooaDoubleCBxBW : public RooAbsPdf {
         bool _computeActualCB
     );
   RooaDoubleCBxBW(const RooaDoubleCBxBW& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooaDoubleCBxBW(*this,newname); }
-  inline virtual ~RooaDoubleCBxBW() { }
+  TObject* clone(const char* newname) const override { return new RooaDoubleCBxBW(*this,newname); }
+  inline ~RooaDoubleCBxBW() override { }
 
  protected:
 
@@ -841,7 +841,7 @@ class RooaDoubleCBxBW : public RooAbsPdf {
   RooRealProxy thetaR;
   bool computeActualCB;
 
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
   Double_t evaluateDoubleCB() const ;
   Double_t evaluatePowerLaw(double lim, unsigned power, bool isLeft) const ;
   Double_t evaluateQuadratic(double lim1, double lim2, bool isLeft) const ;
@@ -849,7 +849,7 @@ class RooaDoubleCBxBW : public RooAbsPdf {
 
  private:
 
-  ClassDef(RooaDoubleCBxBW,1)
+  ClassDefOverride(RooaDoubleCBxBW,1)
     };
 
 
@@ -867,9 +867,9 @@ public:
 	      RooAbsReal& _WidthScl,
 	      Bool_t is8TeV);
   RooCPSHighMassGGH(const RooCPSHighMassGGH& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooCPSHighMassGGH(*this,newname); }
+  TObject* clone(const char* newname) const override { return new RooCPSHighMassGGH(*this,newname); }
   Double_t Spline(Double_t xx) const;
-  inline virtual ~RooCPSHighMassGGH() {  }
+  inline ~RooCPSHighMassGGH() override {  }
 
 protected:
 
@@ -888,7 +888,7 @@ protected:
   Double_t a_r[7][5];
   Double_t a_beta[7][5];
   
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
   void initMatrices() ;
   Double_t interpolateMatrix(const Double_t matrix[][5], const Double_t& x, const Double_t& y) const;
   Double_t getWidth(const Double_t& mass, const Double_t& cprime) const;
@@ -901,7 +901,7 @@ protected:
 
 private:
 
-  ClassDef(RooCPSHighMassGGH,5)
+  ClassDefOverride(RooCPSHighMassGGH,5)
 };
 
 
@@ -918,8 +918,8 @@ public:
 	      RooAbsReal& _IntStr,
 	      Bool_t is8TeV);
   RooBWHighMassGGH(const RooBWHighMassGGH& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooBWHighMassGGH(*this,newname); }
-  inline virtual ~RooBWHighMassGGH() {  }
+  TObject* clone(const char* newname) const override { return new RooBWHighMassGGH(*this,newname); }
+  inline ~RooBWHighMassGGH() override {  }
 
 protected:
 
@@ -937,7 +937,7 @@ protected:
   Double_t a_r[7][5];
   Double_t a_beta[7][5];
   
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
   void initMatrices() ;
   Double_t interpolateMatrix(const Double_t matrix[][5], const Double_t& x, const Double_t& y) const;
   Double_t getWidth(const Double_t& mass, const Double_t& cprime) const;
@@ -952,7 +952,7 @@ protected:
 
 private:
 
-  ClassDef(RooBWHighMassGGH,4)
+  ClassDefOverride(RooBWHighMassGGH,4)
 };
 
 
@@ -967,9 +967,9 @@ public:
 	      RooAbsReal& _BRnew,
 	      Bool_t is8TeV);
   RooCPSHighMassGGHNoInterf(const RooCPSHighMassGGHNoInterf& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooCPSHighMassGGHNoInterf(*this,newname); }
+  TObject* clone(const char* newname) const override { return new RooCPSHighMassGGHNoInterf(*this,newname); }
   Double_t Spline(Double_t xx) const;
-  inline virtual ~RooCPSHighMassGGHNoInterf() {  }
+  inline ~RooCPSHighMassGGHNoInterf() override {  }
 
 protected:
 
@@ -983,7 +983,7 @@ protected:
   Double_t a_width[7][5];
   Double_t a_delta[7][5];
   
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
   void initMatrices() ;
   Double_t interpolateMatrix(const Double_t matrix[][5], const Double_t& x, const Double_t& y) const;
   Double_t getWidth(const Double_t& mass, const Double_t& cprime) const;
@@ -993,7 +993,7 @@ protected:
 
 private:
 
-  ClassDef(RooCPSHighMassGGHNoInterf,4)
+  ClassDefOverride(RooCPSHighMassGGHNoInterf,4)
 };
 
 
@@ -1012,9 +1012,9 @@ public:
 	      RooAbsReal& _WidthScl,
 	      Bool_t is8TeV);
   RooCPSHighMassVBF(const RooCPSHighMassVBF& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooCPSHighMassVBF(*this,newname); }
+  TObject* clone(const char* newname) const override { return new RooCPSHighMassVBF(*this,newname); }
   Double_t Spline(Double_t xx) const;
-  inline virtual ~RooCPSHighMassVBF() {  }
+  inline ~RooCPSHighMassVBF() override {  }
 
 protected:
 
@@ -1033,7 +1033,7 @@ protected:
   Double_t a_r[7][5];
   Double_t a_beta[7][5];
   
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
   void initMatrices() ;
   Double_t interpolateMatrix(const Double_t matrix[][5], const Double_t& x, const Double_t& y) const;
   Double_t getWidth(const Double_t& mass, const Double_t& cprime) const;
@@ -1046,7 +1046,7 @@ protected:
 
 private:
 
-  ClassDef(RooCPSHighMassVBF,4)
+  ClassDefOverride(RooCPSHighMassVBF,4)
 };
 
 
@@ -1061,9 +1061,9 @@ public:
 	      RooAbsReal& _BRnew,
 	      Bool_t is8TeV);
   RooCPSHighMassVBFNoInterf(const RooCPSHighMassVBFNoInterf& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooCPSHighMassVBFNoInterf(*this,newname); }
+  TObject* clone(const char* newname) const override { return new RooCPSHighMassVBFNoInterf(*this,newname); }
   Double_t Spline(Double_t xx) const;
-  inline virtual ~RooCPSHighMassVBFNoInterf() {  }
+  inline ~RooCPSHighMassVBFNoInterf() override {  }
 
 protected:
 
@@ -1077,7 +1077,7 @@ protected:
   Double_t a_width[7][5];
   Double_t a_delta[7][5];
   
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
   void initMatrices() ;
   Double_t interpolateMatrix(const Double_t matrix[][5], const Double_t& x, const Double_t& y) const;
   Double_t getWidth(const Double_t& mass, const Double_t& cprime) const;
@@ -1087,7 +1087,7 @@ protected:
 
 private:
 
-  ClassDef(RooCPSHighMassVBFNoInterf,4)
+  ClassDefOverride(RooCPSHighMassVBFNoInterf,4)
 };
 
 
@@ -1107,8 +1107,8 @@ public:
 	      RooAbsReal& _beta,
 	      RooAbsReal& _r);
   RooSigPlusInt(const RooSigPlusInt& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooSigPlusInt(*this,newname); }
-  inline virtual ~RooSigPlusInt() { }
+  TObject* clone(const char* newname) const override { return new RooSigPlusInt(*this,newname); }
+  inline ~RooSigPlusInt() override { }
   Double_t Spline(Double_t xx) const;
 
 protected:
@@ -1124,11 +1124,11 @@ protected:
   RooRealProxy beta ;
   RooRealProxy r ;
   
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 
 private:
 
-  ClassDef(RooSigPlusInt,1) // Your description goes here...
+  ClassDefOverride(RooSigPlusInt,1) // Your description goes here...
 };
 
 

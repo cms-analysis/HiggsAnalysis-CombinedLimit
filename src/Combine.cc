@@ -481,6 +481,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       // Possible that MH value was re-set above, so make sure mass is set to the correct value and not over-ridden later.
       if (w->var("MH")) mass_ = w->var("MH")->getVal();
     }
+    // look for parameters ranged [-1e+30, 1e+30], corresponding to the old definition of unlimited parameters, 
+    // since ROOT v6.30 have to removeRange() to keep them unlimited
+    utils::check_inf_parameters(w->allVars(), verbose);
 
   } else {
     std::cerr << "HLF not validated" << std::endl;
@@ -524,6 +527,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (setPhysicsModelParameterExpression_ != "") {
 	    utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
     }
+    utils::check_inf_parameters(w->allVars(), verbose);
   }
   gSystem->cd(pwd);
 
@@ -1018,7 +1022,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     allFloatingParameters.remove(*mc->GetParametersOfInterest());
     int nFloatingNonPoiParameters = utils::countFloating(allFloatingParameters); 
     if (nFloatingNonPoiParameters && !toysNoSystematics_ && (readToysFromHere == 0)) {
-      if (nuisances == 0) throw std::logic_error("Running with systematic variation in toys enabled, but I found floating parameters (which are not POIs) and no constraint terms have been defined in the datacard. If this is ok, re-run with -S 0");
+      if (nuisances == 0) throw std::logic_error("Running with systematic variation in toys (either generating nuisance parameters or generating auxiliary observables) enabled, but I found floating parameters (which are not POIs) and no constraint terms have been defined in the datacard. If this is fine, run again with --toysNoSystematics.");
       nuisancePdf.reset(utils::makeNuisancePdf(expectSignal_ ||  setPhysicsModelParameterExpression_ != "" || noMCbonly_ ? *mc : *mc_bonly));
       if (toysFrequentist_) {
           if (mc->GetGlobalObservables() == 0) throw std::logic_error("Cannot use toysFrequentist without global observables");

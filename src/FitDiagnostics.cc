@@ -646,8 +646,8 @@ void FitDiagnostics::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std
         if (!normProd) {
           RooAbsReal* integral = shape->createIntegral(*myobs);
           normProd = new RooProduct(normProdName, "", RooArgList(*integral, *coeff));
-          normProd->addOwnedComponents(RooArgSet(*integral));
-          coeff->addOwnedComponents(RooArgSet(*normProd));
+          normProd->addOwnedComponents(*integral);
+          coeff->addOwnedComponents(*normProd);
         }
 
         ns.norm = normProd;

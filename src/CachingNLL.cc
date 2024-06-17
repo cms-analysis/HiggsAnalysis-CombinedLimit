@@ -45,12 +45,12 @@ namespace cacheutils {
                 RooAbsReal(other, name),
                 list_("deps",this,other.list_),
                 terms_(other.terms_) {} 
-            ~ReminderSum() {}
-            virtual TObject* clone(const char* newname) const { return new ReminderSum(*this,newname); }
+            ~ReminderSum() override {}
+            TObject* clone(const char* newname) const override { return new ReminderSum(*this,newname); }
         private:
             RooListProxy list_;
             std::vector<const RooAbsReal *> terms_;
-            Double_t evaluate() const;
+            Double_t evaluate() const override;
     };
 }
 
@@ -663,7 +663,7 @@ cacheutils::CachingAddNLL::evaluate() const
         //         *its += coeff * (*itv); // sum (n_i * pdf_i)
         //    }
         // vectorize to make it faster
-        vectorized::mul_add(pdfvals.size(), coeff, &pdfvals[0], &partialSum_[0]);
+        vectorized::mul_add(pdfvals.size(), coeff, pdfvals.data(), partialSum_.data());
     }
     // if all basic integrals evaluated ok, use them
     if (allBasicIntegralsOk) basicIntegrals_ = 2;
@@ -705,7 +705,7 @@ cacheutils::CachingAddNLL::evaluate() const
     //      for ( its = bgs, itw = bgw ; its != eds ; ++its, ++itw ) {
     //         ret -= (*itw) * log( ((*its) / sumCoeff) );
     //      }
-    ret -= vectorized::nll_reduce(partialSum_.size(), &partialSum_[0], &weights_[0], sumCoeff, &workingArea_[0]);
+    ret -= vectorized::nll_reduce(partialSum_.size(), partialSum_.data(), weights_.data(), sumCoeff, workingArea_.data());
     // std::cout << "AddNLL for " << pdf_->GetName() << ": " << ret << std::endl;
     // and add extended term: expected - observed*log(expected);
     static bool expEventsNoNorm = runtimedef::get("ADDNLL_ROOREALSUM_NONORM");
@@ -842,6 +842,10 @@ cacheutils::CachingAddNLL::getObservables(const RooArgSet* depList, Bool_t value
     return new RooArgSet();
 }
 
+// ROOT 6.26 changed the signature of getParameters to avoid heap allocation,
+// and especially returning an owning pointer that people tend to forget to
+// delete.
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
 RooArgSet* 
 cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
@@ -849,6 +853,16 @@ cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList, Bool_t stripD
     ret->add(catParams_);
     return ret;
 }
+#else
+bool cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList,
+                                              RooArgSet& outputSet,
+                                              bool stripDisconnected) const
+{
+    outputSet.add(params_);
+    outputSet.add(catParams_);
+    return true;
+}
+#endif
 
 
 cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, const RooArgSet *nuis) :
@@ -863,6 +877,7 @@ cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data,
 }
 
 cacheutils::CachingSimNLL::CachingSimNLL(const CachingSimNLL &other, const char *name) :
+    RooAbsReal{other, name},
     pdfOriginal_(other.pdfOriginal_),
     dataOriginal_(other.dataOriginal_),
     nuis_(other.nuis_),
@@ -1169,9 +1184,9 @@ void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const R
                 std::unique_ptr<RooArgSet> myobs(pdf->getObservables(obs));
                 myobs->add(weight);
                 //std::cout << "Observables for bin " << ib << ":"; myobs->Print("");
-                datasets_[ib] = new RooDataSet("", "", *myobs, "_weight_");
+                datasets_[ib] = new RooDataSet("", "", *myobs, RooFit::WeightVar("_weight_"));
             } else {
-                datasets_[ib] = new RooDataSet("", "", obsplus, "_weight_");
+                datasets_[ib] = new RooDataSet("", "", obsplus, RooFit::WeightVar("_weight_"));
             }
         } else {
             datasets_[ib]->reset();
@@ -1270,6 +1285,10 @@ cacheutils::CachingSimNLL::getObservables(const RooArgSet* depList, Bool_t value
     return new RooArgSet();
 }
 
+// ROOT 6.26 changed the signature of getParameters to avoid heap allocation,
+// and especially returning an owning pointer that people tend to forget to
+// delete.
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
 RooArgSet* 
 cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
 {
@@ -1284,14 +1303,22 @@ cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripD
     if (hideConstants_) RooStats::RemoveConstantParameters(ret);
     return ret;
 }
-
+#else
 bool cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList,
-                                                              RooArgSet& outputSet,
-                                                              bool stripDisconnected) const {
-  RooArgSet tempList = *getParameters(depList);
-  outputSet.add(tempList);
-  return true;
+                                              RooArgSet& outputSet,
+                                              bool stripDisconnected) const
+{
+    if (internalMasks_.empty()) {
+        outputSet.add(params_);
+        if (!hideRooCategories_) outputSet.add(catParams_);
+    } else {
+        outputSet.add(activeParameters_);
+        if (!hideRooCategories_) outputSet.add(activeCatParameters_);
+    }
+    if (hideConstants_) RooStats::RemoveConstantParameters(&outputSet);
+    return true;
 }
+#endif
 
 void cacheutils::CachingSimNLL::setMaskConstraints(bool flag) {
     double nllBefore = evaluate();

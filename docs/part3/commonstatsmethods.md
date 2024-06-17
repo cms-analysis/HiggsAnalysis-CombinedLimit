@@ -575,10 +575,15 @@ and similarly, the median expected and quantiles can be determined using
 combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --grid=merged.root --expectedFromGrid <quantile>
 ```
 
-substituting `<quantile>` with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, and 0.025 for the -ve side of the 95% band. You should note that  <span style="font-variant:small-caps;">Combine</span> will update the grid to improve the accuracy on the extracted limit by default. If you want to avoid this, you can use the option `--noUpdateGrid`. This will mean only the toys/points you produced in the grid will be used to compute the limit.
+substituting `<quantile>` with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, and 0.025 for the -ve side of the 95% band. 
 
 !!! warning
     Make sure that if you specified a particular mass value (`-m` or `--mass`) in the commands for calculating the toys, you also specify the same mass when reading in the grid of distributions.
+
+You should note that  <span style="font-variant:small-caps;">Combine</span> will update the grid to improve the accuracy on the extracted limit by default. If you want to avoid this, you can use the option `--noUpdateGrid`. This will mean only the toys/points you produced in the grid will be used to compute the limit.
+
+!!! warning
+    This option should not be used with `--expectedFromGrid` if you did not create the grid with the same option. The reason is that the value of the test-statistic that is used to calculate the limit will not be properly calcualted if `--noUpdateGrid` is included. In future versions of the tool, this option will be ignored if using `--expectedFromGrid`. 
 
 The splitting of the jobs can be left to the user's preference. However, users may wish to use the **combineTool** for automating this, as described in the section on [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)
 
@@ -680,7 +685,7 @@ The following algorithms are implemented:
 
 - **`AD`**: Compute a goodness-of-fit measure for binned fits using the *Anderson-Darling* test. It is based on the integral of the difference between the cumulative distribution function and the empirical distribution function over all bins. It also gives the tail ends of the distribution a higher weighting.
 
-The output tree will contain a branch called **`limit`**, which contains the value of the test statistic in each toy. You can make a histogram of this test statistic $t$. From the distribution that is obtained in this way ($f(t)$) and the single value obtained by running on the observed data ($t_{0}$) you can calculate the p-value $p = \int_{t=t_{0}}^{\mathrm{+inf}} f(t) dt$. Note: in rare cases the test statistic value for the toys can be undefined (for AS and KD). In this case we set the test statistic value to -1. When plotting the test statistic distribution, those toys should be excluded. This is automatically taken care of if you use the GoF collection script in CombineHarvester, which is described below.
+The output tree will contain a branch called **`limit`**, which contains the value of the test statistic in each toy. You can make a histogram of this test statistic $t$. From the distribution that is obtained in this way ($f(t)$) and the single value obtained by running on the observed data ($t_{0}$) you can calculate the p-value $p = \int_{t=t_{0}}^{\mathrm{+inf}} f(t) dt$. Note: in rare cases the test statistic value for the toys can be undefined (for AS and KD). In this case we set the test statistic value to -1. When plotting the test statistic distribution, those toys should be excluded. This is automatically taken care of if you use the GoF collection script which is described below.
 
 When generating toys, the default behavior will be used. See the section on [toy generation](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#toy-data-generation) for options that control how nuisance parameters are generated and fitted in these tests. It is recommended to use *frequentist toys* (`--toysFreq`) when running the **`saturated`** model, and the default toys for the other two tests.
 
@@ -1004,6 +1009,8 @@ In <span style="font-variant:small-caps;">Combine</span>, you can perform this t
 combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint  param1=value1,param2=value2,param3=value3,... --saveHybridResult [Other options for toys, iterations etc as with limits]
 ```
 
+Note that you can also split this calculationg into several separate runs (remembering to set a random seed `-s -1` each time the above command is run) and `hadd` the resulting `.root` output files into a single file `toys.root`. This can then be read in and used to calculate $p_{\vec{\mu}}$ by using the same command as above but replacing the option `--saveHybridResult` with `--readHybridResult --toysFile toys.root`.  
+
 The point belongs to your confidence region if $p_{\vec{\mu}}$ is larger than $\alpha$ (e.g. 0.3173 for a 1σ region, $1-\alpha=0.6827$).
 
 !!! warning
@@ -1050,6 +1057,38 @@ combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridRe
 The output tree will contain the values of the POI that crosses the critical value ($\alpha$) - i.e, the boundaries of the confidence intervals.
 
 You can produce a plot of the value of $p_{\vec{\mu}}$ vs the parameter of interest $\vec{\mu}$ by adding the option `--plot <plotname>`.
+
+As an example, we will use the`data/tutorials/multiDim/toy-hgg-125.txt` datacard and find the 1D FC 68% interval for the $r_{qqH}$ parameter. First, we construct the model as, 
+
+```sh
+text2workspace.py -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH toy-hgg-125.txt -o toy-hgg-125.root
+```
+
+Now we generate the grid of test statistics in a suitable range. You could use the `combineTool.py` as below but for 1D, we can just generate the points in a for loop. 
+
+```sh
+for i in range 0.1 1.1 2.1 3.1 4.1 5.1 6.1 7.1 8.1 9.1 10.1 ; do combine toy-hgg-125.root --redefineSignalPOI r_qqH   -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint r_qqH=${i} --saveToys --saveHybridResult -n ${i} ; done
+
+hadd -f FeldmanCousins1D.root higgsCombine*.1.HybridNew.mH120.123456.root
+```
+
+Next, we get combine to calculate the interval from this grid. 
+```sh
+combine toy-hgg-125.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridResults --grid=FeldmanCousins1D.root --cl 0.68 --redefineSignalPOI r_qqH
+```
+and we should see the below as the output, 
+
+```
+ -- HybridNew --
+found 68 % confidence regions
+  2.19388 (+/- 0.295316) < r_qqH < 8.01798 (+/- 0.0778685)
+Done in 0.00 min (cpu), 0.00 min (real)
+```
+
+Since we included the `--plot` option, we will also get a plot like the one below, 
+
+![1DFC](images/FC1D.png)
+
 
 #### Extracting 2D contours / general intervals
 

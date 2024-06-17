@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 import six
-from collections import OrderedDict
 
 
 class Datacard:
@@ -17,57 +16,57 @@ class Datacard:
         ## list of [bins in datacard]
         self.bins = []
         ## dict of {bin : number of observed events}
-        self.obs = OrderedDict()
+        self.obs = {}
         ## list of [processes]
         self.processes = []
         ## list of [signal processes]
         self.signals = []
         ## dict of {processes : boolean to indicate whether process is signal or not}
-        self.isSignal = OrderedDict()
+        self.isSignal = {}
         ## list of [(bin, process, boolean to indicate whether process is signal or not)]
         self.keyline = []
         ## dict of {bin : {process : yield}}
-        self.exp = OrderedDict()
+        self.exp = {}
         ## list of [(name of uncert, boolean to indicate whether to float this nuisance or not, type, list of what additional arguments (e.g. for gmN), keyline element)]
         self.systs = []
         ## list of [{bin : {process : [input file, path to shape, path to shape for uncertainty]}}]
-        self.shapeMap = OrderedDict()
+        self.shapeMap = {}
         ## boolean that indicates whether the datacard contains shapes or not
         self.hasShapes = False
         ## dirct of {name of uncert, boolean to indicate whether it is a flat parametric uncertainty or not}
-        self.flatParamNuisances = OrderedDict()
+        self.flatParamNuisances = {}
         ## dict of rateParam, key is f"{bin}AND{process}", per bin/process they are a list
-        self.rateParams = OrderedDict()
+        self.rateParams = {}
         ## dict of extArgs
-        self.extArgs = OrderedDict()
+        self.extArgs = {}
         ## maintain the names of rate modifiers
         self.rateParamsOrder = set()
         ## dirct of {name of uncert, boolean to indicate whether this nuisance is floating or not}
         self.frozenNuisances = set()
 
         # Allows for nuisance renaming of "shape" systematics
-        self.systematicsShapeMap = OrderedDict()
+        self.systematicsShapeMap = {}
 
         # Allows for nuisance renaming of "param" systematics
-        self.systematicsParamMap = OrderedDict()
+        self.systematicsParamMap = {}
 
         # Allow to pick out entry in self.systs.
-        self.systIDMap = OrderedDict()
+        self.systIDMap = {}
 
         # Keep edits
         self.nuisanceEditLines = []
 
         # map of which bins should have automated Barlow-Beeston parameters
-        self.binParFlags = OrderedDict()
+        self.binParFlags = {}
 
-        self.groups = OrderedDict()
+        self.groups = {}
         self.discretes = []
 
         # list of parameters called _norm in user input workspace
-        self.pdfnorms = OrderedDict()
+        self.pdfnorms = {}
 
         # collection of nuisances to auto-produce flat priors for
-        self.toCreateFlatParam = OrderedDict()
+        self.toCreateFlatParam = {}
 
     def print_structure(self):
         """
@@ -171,7 +170,7 @@ MB.doModel()
         )
 
         # map of which bins should have automated Barlow-Beeston parameters
-        self.binParFlags = OrderedDict()
+        self.binParFlags = {}
 
     def list_of_bins(self):
         """
@@ -312,7 +311,7 @@ MB.doModel()
         for specific channels/processes, then you should specify a
         process (list or leave empty for all) and channel (list or leave empty for all)
         """
-        existingclashes = OrderedDict()
+        existingclashes = {}
         for lsyst, nofloat, pdf0, args0, errline0 in self.systs[:]:
             if lsyst == newname:  # found the nuisance exists
                 existingclashes[lsyst] = (nofloat, pdf0, args0, errline0)
