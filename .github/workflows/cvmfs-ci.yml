@@ -56,8 +56,8 @@ jobs:
             text2workspace.py HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-5-multi-signal.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o datacard-5-multi-signal.root --mass 125
             combine datacard-5-multi-signal.root -M MultiDimFit --algo singles --mass 125
             combine HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-5-multi-signal.txt -M ChannelCompatibilityCheck --mass 125
-            text2workspace.py toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
-            combine -M MultiDimFit toy-hgg-125.root
+            text2workspace.py  data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
+            combine -M MultiDimFit data/tutorials/multiDim/toy-hgg-125.root
 
 
 
