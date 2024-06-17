@@ -892,11 +892,18 @@ void utils::check_inf_parameters(const RooArgSet & params, int verbosity) {
     for (RooAbsArg *arg : params) {    
         RooRealVar *p = dynamic_cast<RooRealVar *>(arg);
         if (p->getRange().first <= -infinity_root626 || p->getRange().second >= +infinity_root626){
+            
             if ( verbosity > 2 ) {
                 std::cout << "Found a parameter named "<< p->GetName()
-                          << " infinite in ROOT versions < 6.30, going to removeRange()" << endl;
+                          << " infinite in ROOT versions < 6.30, going to update the ranges to take into account the new definition of infinity in ROOT v6.30" << endl;
             }
-            p->removeRange();
+            if (p->getRange().first <= -infinity_root626 && p->getRange().second >= +infinity_root626) {
+              p->removeRange();
+            } else if (p->getRange().second >= +infinity_root626) {
+              p->removeMax();
+            } else {
+              p->removeMin();
+            }
         }
     }
 }
