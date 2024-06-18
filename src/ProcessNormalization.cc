@@ -1,6 +1,6 @@
 #include "../interface/ProcessNormalization.h"
 
-#include "../interface/CombineMathFuncs.h"
+#include <RooFit/Detail/MathFuncs.h>
 
 #include <cmath>
 #include <cassert>
@@ -91,6 +91,17 @@ Double_t ProcessNormalization::evaluate() const
             thetaListVec_.data(), logKappa_.data(), asymmThetaListVec_.data(),
             logAsymmKappaLow_.data(), logAsymmKappaHigh_.data(),
             otherFactorListVec_.data());
+}
+
+void ProcessNormalization::translate(RooFit::Detail::CodeSquashContext &ctx) const
+{
+    fillAsymmKappaVecs();
+    ctx.addResult(this, ctx.buildCall("RooFit::Detail::MathFuncs::processNormalization",
+            nominalValue_,
+            thetaList_.size(), asymmThetaList_.size(), otherFactorList_.size(),
+            thetaList_, logKappa_, asymmThetaList_,
+            logAsymmKappaLow_, logAsymmKappaHigh_,
+            otherFactorList_));
 }
 
 void ProcessNormalization::dump() const {

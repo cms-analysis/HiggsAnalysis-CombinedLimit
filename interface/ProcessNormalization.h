@@ -29,6 +29,8 @@ class ProcessNormalization : public RooAbsReal {
       void addOtherFactor(RooAbsReal &factor) ;
       void dump() const ;
 
+      void translate(RooFit::Detail::CodeSquashContext &ctx) const override;
+
     protected:
         Double_t evaluate() const override;
 

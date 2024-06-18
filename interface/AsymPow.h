@@ -30,6 +30,8 @@ class AsymPow : public RooAbsReal {
 
       TObject * clone(const char *newname) const override ;
 
+      void translate(RooFit::Detail::CodeSquashContext &ctx) const override;
+
     protected:
         Double_t evaluate() const override;
 

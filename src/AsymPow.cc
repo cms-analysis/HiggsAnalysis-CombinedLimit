@@ -1,6 +1,6 @@
 #include "../interface/AsymPow.h"
 
-#include "../interface/CombineMathFuncs.h"
+#include <RooFit/Detail/MathFuncs.h>
 
 #include <cmath>
 #include <cassert>
@@ -29,6 +29,11 @@ TObject *AsymPow::clone(const char *newname) const
 
 Double_t AsymPow::evaluate() const {
    return RooFit::Detail::MathFuncs::asymPow(theta_, kappaLow_, kappaHigh_);
+}
+
+void AsymPow::translate(RooFit::Detail::CodeSquashContext &ctx) const
+{
+   ctx.addResult(this, ctx.buildCall("RooFit::Detail::MathFuncs::asymPow", theta_, kappaLow_, kappaHigh_));
 }
 
 ClassImp(AsymPow)
