@@ -30,15 +30,14 @@ class AsymPow : public RooAbsReal {
 
       TObject * clone(const char *newname) const override ;
 
+      void translate(RooFit::Detail::CodeSquashContext &ctx) const override;
+
     protected:
         Double_t evaluate() const override;
 
     private:
         RooRealProxy kappaLow_, kappaHigh_;
         RooRealProxy theta_;
-
-        // get the kappa for the appropriate x
-        Double_t logKappaForX(Double_t x) const ;
 
   ClassDefOverride(AsymPow,1) // Asymmetric power	
 };

@@ -28,10 +28,15 @@ class ProcessNormalization : public RooAbsReal {
       void addAsymmLogNormal(double kappaLo, double kappaHi, RooAbsReal &theta) ;
       void addOtherFactor(RooAbsReal &factor) ;
       void dump() const ;
+
+      void translate(RooFit::Detail::CodeSquashContext &ctx) const override;
+
     protected:
         Double_t evaluate() const override;
 
     private:
+        void fillAsymmKappaVecs() const;
+
         // ---- PERSISTENT ----
         double nominalValue_;                         
         std::vector<double> logKappa_; // Logarithm of symmetric kappas
@@ -39,12 +44,11 @@ class ProcessNormalization : public RooAbsReal {
         std::vector<std::pair<double,double> > logAsymmKappa_; // Logarithm of asymmetric kappas (low, high)
         RooListProxy asymmThetaList_;                           // List of nuisances for asymmetric kappas
         RooListProxy otherFactorList_;     // Other multiplicative terms 
-        std::vector<RooAbsReal *> thetaListVec_; //! Don't serialize me
-        std::vector<RooAbsReal *> asymmThetaListVec_; //! Don't serialize me
-        std::vector<RooAbsReal *> otherFactorListVec_; //! Don't serialize me
-
-        // get the kappa for the appropriate x
-        Double_t logKappaForX(double x, const std::pair<double,double> &logKappas ) const ;
+        mutable std::vector<double> thetaListVec_; //! Don't serialize me
+        mutable std::vector<double> asymmThetaListVec_; //! Don't serialize me
+        mutable std::vector<double> otherFactorListVec_; //! Don't serialize me
+        mutable std::vector<double> logAsymmKappaLow_; //! Don't serialize me
+        mutable std::vector<double> logAsymmKappaHigh_; //! Don't serialize me
 
   ClassDefOverride(ProcessNormalization,1) // Process normalization interpolator 
 };

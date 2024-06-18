@@ -23,7 +23,7 @@ include(${ROOT_USE_FILE})
 
 include_directories(${ROOT_INCLUDE_DIRS})
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
-add_definitions(${ROOT_CXX_FLAGS})
+add_definitions(${ROOT_CXX_FLAGS} -g)
 
 set(LIBNAME CMSCombine)
 
