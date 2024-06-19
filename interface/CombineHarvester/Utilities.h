@@ -108,6 +108,7 @@ RooDataHist TH1F2Data(TH1F const& hist, RooRealVar const& x,
 TH1F RebinHist(TH1F const& hist);
 
 TH1F RestoreBinning(TH1F const& src, TH1F const& ref);
+TH2F RestoreBinning2D(TH2F const& src, TH2F const& ref);
 
 
 std::vector<std::vector<unsigned>> GenerateCombinations(

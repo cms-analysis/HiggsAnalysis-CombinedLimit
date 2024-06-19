@@ -188,6 +188,18 @@ TH1F RestoreBinning(TH1F const& src, TH1F const& ref) {
   return res;
 }
 
+TH2F RestoreBinning2D(TH2F const& src, TH2F const& ref) {
+  TH2F res = ref;
+  res.Reset();
+  for (int y = 1; y <= res.GetNbinsY(); ++y) {
+    for (int x = 1; x <= res.GetNbinsX(); ++x) {
+      res.SetBinContent(x,y, src.GetBinContent(x,y));
+      res.SetBinError(x,y, src.GetBinError(x,y));
+    }
+  }
+  return res;
+}
+
 std::vector<std::vector<unsigned>> GenerateCombinations(
     std::vector<unsigned> vec) {
   unsigned n = vec.size();
