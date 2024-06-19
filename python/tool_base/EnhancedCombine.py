@@ -103,7 +103,7 @@ class EnhancedCombine(CombineToolBase):
             # If the limitPoints option is set, limit the number of points read
             limitPoints = int(self.args.limitPoints)
             if limitPoints == 0:
-                print(f"Warning: --limitPoints option is set to 0. No points will be scanned!")
+                print("Warning: --limitPoints option is set to 0. No points will be scanned!")
                 points_df = pd.DataFrame()
             elif limitPoints > 0:
                 points_df = points_df.head(limitPoints)
