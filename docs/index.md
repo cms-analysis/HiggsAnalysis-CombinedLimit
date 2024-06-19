@@ -262,29 +262,20 @@ See [contributing.md](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimi
 
 ## CombineHarvester/CombineTools
 
+CombineHarvester/CombineTools is a package for the creation of datacards/workspaces used with <span style="font-variant:small-caps;">Combine v10</span> for a number of analyses in CMS. See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation pages for more details on using this tool and additional features available in the full package.
+
+This package also comes with useful features for <span style="font-variant:small-caps;">Combine</span> such as the automated datacard validation (see [instructions](docs/part3/validation)). The repository can be checked out and compiled using, 
+
+```sh
+git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
+scram b
+```
+
+See the [`Combi    neHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation for full instructions and reccomended versions. 
+
 !!! info
-    Starting with <span style="font-variant:small-caps;">Combine v10</span>, CombineTool functionalities for job submition and parallelization (combineTool.py) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package.
-    For these tasks you no longer have to follow the instructions below.
+    Starting with <span style="font-variant:small-caps;">Combine v10</span>, specific ombineTool functionalities for job submition and parallelization (`combineTool.py`) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package. For these tasks you no longer have to follow the instructions above.
 
-
-CombineTools is an additional packages with useful features for <span style="font-variant:small-caps;">Combine</span>, which is used for example for the automated datacard validation (see [instructions](docs/part3/validation)).
-Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core [`CombineHarvester/CombineTools`](https://github.com/cms-analysis/CombineHarvester/tree/main/CombineTools/) subpackage, speeding up the checkout and compile times:
-
-git clone via ssh:
-
-```sh
-bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-ssh.sh)
-```
-
-git clone via https:
-
-```sh
-bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-https.sh)
-```
-
-make sure to run `scram`  to compile the `CombineTools` package.
-
-See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation pages for more details on using this tool and additional features available in the full package.
 
 ## Citation 
 

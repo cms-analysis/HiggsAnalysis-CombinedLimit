@@ -585,7 +585,7 @@ You should note that  <span style="font-variant:small-caps;">Combine</span> will
 !!! warning
     This option should not be used with `--expectedFromGrid` if you did not create the grid with the same option. The reason is that the value of the test-statistic that is used to calculate the limit will not be properly calcualted if `--noUpdateGrid` is included. In future versions of the tool, this option will be ignored if using `--expectedFromGrid`. 
 
-The splitting of the jobs can be left to the user's preference. However, users may wish to use the **combineTool** for automating this, as described in the section on [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)
+The splitting of the jobs can be left to the user's preference. However, users may wish to use `combineTool.py` for automating this, as described in the section on [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)
 
 
 #### Plotting
@@ -656,7 +656,7 @@ The *expected* significance, assuming a signal with **r=X** can be calculated, b
 
 The total number of background toys needs to be large enough to compute the value of the significance, but you need fewer signal toys (especially when you are only computing the median expected significance). For large significances, you can run most of the toys without the `--fullBToys` option, which will be about a factor 2 faster. Only a small part of the toys needs to be run with that option turned on.
 
-As with calculating limits with toys, these jobs can be submitted to the grid or batch systems with the help of the `combineTool`, as described in the section on [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)
+As with calculating limits with toys, these jobs can be submitted to the grid or batch systems with the help of the `combineTool.py` script, as described in the section on [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)
 
 
 ## Goodness of fit tests
@@ -763,7 +763,7 @@ where the former gives the result for the S+B model, while the latter gives the 
 
 ### Making a plot of the GoF test statistic distribution
 
-If you have also checked out the [combineTool](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool), you can use this to run batch jobs or on the grid (see [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)) and produce a plot of the results. Once the jobs have completed, you can hadd them together and run (e.g for the saturated model),
+You can use the `combineTool.py` script to run batch jobs or on the grid (see [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)) and produce a plot of the results. Once the jobs have completed, you can hadd them together and run (e.g for the saturated model),
 
 ```sh
 combineTool.py -M CollectGoodnessOfFit --input data_run.root toys_run.root -m 125.0 -o gof.json
