@@ -1847,7 +1847,7 @@
 </li>
 </ul>
 <h2 id="combinetool-for-job-submission">combineTool for job submission</h2>
-<p>For longer tasks that cannot be run locally, several methods in <span style="font-variant:small-caps;">Combine</span> can be split to run on a <em>batch</em> system or on the <em>Grid</em>. The splitting and submission is handled using the <code>combineTool</code> (see <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool">this getting started</a> section to check out the tool)</p>
+<p>For longer tasks that cannot be run locally, several methods in <span style="font-variant:small-caps;">Combine</span> can be split to run on a <em>batch</em> system or on the <em>Grid</em>. The splitting and submission is handled using the <code>combineTool.py</code> script.</p>
 <h3 id="submission-to-condor">Submission to Condor</h3>
 <p>The syntax for running on condor with the tool is</p>
 <pre><code class="language-sh">combineTool.py -M ALGO [options] --job-mode condor --sub-opts='CLASSADS' --task-name NAME [--dry-run]

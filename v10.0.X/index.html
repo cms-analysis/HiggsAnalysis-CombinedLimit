@@ -1798,21 +1798,16 @@ At least 2GB of disk space should be reserved on the virtual machine for <span s
 <p>We strongly encourage you to contribute any developments you make back to the main repository. 
 See <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/contributing.md">contributing.md</a> for details about contributing. </p>
 <h2 id="combineharvestercombinetools">CombineHarvester/CombineTools</h2>
+<p>CombineHarvester/CombineTools is a package for the creation of datacards/workspaces used with <span style="font-variant:small-caps;">Combine v10</span> for a number of analyses in CMS. See the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> documentation pages for more details on using this tool and additional features available in the full package.</p>
+<p>This package also comes with useful features for <span style="font-variant:small-caps;">Combine</span> such as the automated datacard validation (see <a href="docs/part3/validation">instructions</a>). The repository can be checked out and compiled using, </p>
+<pre><code class="language-sh">git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
+scram b
+</code></pre>
+<p>See the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> documentation for full instructions and reccomended versions. </p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>Starting with <span style="font-variant:small-caps;">Combine v10</span>, CombineTool functionalities for job submition and parallelization (combineTool.py) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package.
-For these tasks you no longer have to follow the instructions below.</p>
+<p>Starting with <span style="font-variant:small-caps;">Combine v10</span>, specific ombineTool functionalities for job submition and parallelization (<code>combineTool.py</code>) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package. For these tasks you no longer have to follow the instructions above.</p>
 </div>
-<p>CombineTools is an additional packages with useful features for <span style="font-variant:small-caps;">Combine</span>, which is used for example for the automated datacard validation (see <a href="docs/part3/validation">instructions</a>).
-Since the repository contains a certain amount of analysis-specific code, the following scripts can be used to clone it with a sparse checkout for just the core <a href="https://github.com/cms-analysis/CombineHarvester/tree/main/CombineTools/"><code>CombineHarvester/CombineTools</code></a> subpackage, speeding up the checkout and compile times:</p>
-<p>git clone via ssh:</p>
-<pre><code class="language-sh">bash &lt;(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-ssh.sh)
-</code></pre>
-<p>git clone via https:</p>
-<pre><code class="language-sh">bash &lt;(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/main/CombineTools/scripts/sparse-checkout-https.sh)
-</code></pre>
-<p>make sure to run <code>scram</code>  to compile the <code>CombineTools</code> package.</p>
-<p>See the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> documentation pages for more details on using this tool and additional features available in the full package.</p>
 <h2 id="citation">Citation</h2>
 <p>If you use <span style="font-variant:small-caps;">Combine</span>, please cite the following CMS publication <a href="https://arxiv.org/abs/2404.06614">here</a>. </p>
 <details>
