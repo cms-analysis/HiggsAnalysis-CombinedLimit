@@ -230,7 +230,7 @@ Here are a few examples of calculations with toys from post-fit workspaces using
 
 ## combineTool for job submission
 
-For longer tasks that cannot be run locally, several methods in <span style="font-variant:small-caps;">Combine</span> can be split to run on a *batch* system or on the *Grid*. The splitting and submission is handled using the `combineTool` (see [this getting started](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool) section to check out the tool)
+For longer tasks that cannot be run locally, several methods in <span style="font-variant:small-caps;">Combine</span> can be split to run on a *batch* system or on the *Grid*. The splitting and submission is handled using the `combineTool.py` script.
 
 
 ### Submission to Condor
