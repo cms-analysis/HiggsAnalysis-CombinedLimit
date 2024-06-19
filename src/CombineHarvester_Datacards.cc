@@ -611,17 +611,16 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
       data_ws_map[d] = iter.second.get();
     }
     RooArgSet vars = iter.second->allPdfs();
-    auto v = vars.createIterator();
-    do {
-      RooAbsReal *y = dynamic_cast<RooAbsReal*>(**v);
+    for (RooAbsArg *v : vars) {
+      RooAbsPdf *y = dynamic_cast<RooAbsPdf*>(v);
+
       if (y) pdf_ws_map[iter.second->pdf(y->GetName())] = iter.second.get();
-    } while (v->Next());
+    }
     RooArgSet fvars = iter.second->allFunctions();
-    auto fv = fvars.createIterator();
-    do {
-      RooAbsReal *y = dynamic_cast<RooAbsReal*>(**fv);
+    for (RooAbsArg *fv : fvars) {
+      RooAbsReal *y = dynamic_cast<RooAbsReal*>(fv);
       if (y) pdf_ws_map[iter.second->function(y->GetName())] = iter.second.get();
-    } while (fv->Next());
+    } 
   }
 
   // For writing TH1s we will hard code a set of patterns for each bin
@@ -874,9 +873,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
         norm_par_list.add(ParametersByName(proc->norm(), &tmp_set));
       }
     }
-    RooFIter par_list_it = par_list.fwdIterator();
-    RooAbsArg *par_list_var = nullptr;
-    while ((par_list_var = par_list_it.next())) {
+    for (RooAbsArg *par_list_var : par_list) {
       if (dynamic_cast<RooRealVar*>(par_list_var)) {
         all_dependents_pars.insert(par_list_var->GetName());
       }
@@ -889,11 +886,10 @@ void CombineHarvester::WriteDatacard(std::string const& name,
           proc->pdf()->InheritsFrom("RooMultiPdf")) {
         multipdf_cats.insert(par_list_var->GetName());
       }
-    }
+    
+}
     if (proc->norm()) {
-      RooFIter nm_list_it = norm_par_list.fwdIterator();
-      RooAbsArg *nm_list_var = nullptr;
-      while ((nm_list_var = nm_list_it.next())) {
+      for (RooAbsArg *nm_list_var: norm_par_list) {
         if (dynamic_cast<RooRealVar*>(nm_list_var)) {
           all_dependents_pars.insert(nm_list_var->GetName());
         }
@@ -1275,9 +1271,8 @@ void CombineHarvester::WriteDatacard(std::string const& name,
   if (wspaces_.count("_rateParams")) {
     RooWorkspace *rp_ws = wspaces_.at("_rateParams").get();
     RooArgSet vars = rp_ws->allVars();
-    auto v = vars.createIterator();
-    do {
-      RooRealVar *y = dynamic_cast<RooRealVar*>(**v);
+    for (RooAbsArg *v : vars) {
+      RooRealVar *y = dynamic_cast<RooRealVar*>(v);
       if (y && y->getAttribute("extArg") && all_fn_param_args.count(std::string(y->GetName()))) {
         if (!params_.count(y->GetName()) &&  y->getStringAttribute("wspSource")) {
           std::vector<std::string> tokens;
@@ -1302,11 +1297,10 @@ void CombineHarvester::WriteDatacard(std::string const& name,
 
       }
       
-    } while (v->Next());
+    }
     RooArgSet funcs = rp_ws->allFunctions();
-    v = funcs.createIterator();
-    do {
-      RooAbsReal *y = dynamic_cast<RooAbsReal*>(**v);
+    for (RooAbsArg *v : funcs){
+      RooAbsReal *y = dynamic_cast<RooAbsReal*>(v);
       if (y && y->getAttribute("extArg") && y->getStringAttribute("wspSource") && all_fn_param_args.count(std::string(y->GetName()))) {
           txt_file << format("%-" + sys_str_short +
                              "s %-10s %-20s\n") %
@@ -1314,19 +1308,16 @@ void CombineHarvester::WriteDatacard(std::string const& name,
           continue;
 
       }
-    } while (v->Next());
+    }
   }
 
   std::set<std::string> ws_vars;
   for (auto iter : wspaces_) {
     RooArgSet vars = iter.second->allVars();
-    auto v = vars.createIterator();
-    do {
-      RooRealVar *y = dynamic_cast<RooRealVar*>(**v);
-      if (y) {
-        ws_vars.insert(y->GetName());
-      }
-    } while (v->Next());
+    for (RooAbsArg *v : vars) {
+      RooRealVar *y = dynamic_cast<RooRealVar*>(v);
+      if (y) ws_vars.insert(y->GetName());
+    }
   }
 
   // How to check for params we need to write:
