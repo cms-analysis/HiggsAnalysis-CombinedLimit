@@ -612,7 +612,7 @@ void CombineHarvester::FillHistMappings(std::vector<HistMapping> & mappings) {
     }
     RooArgSet vars = iter.second->allPdfs();
     for (RooAbsArg *v : vars) {
-      RooRealVar *y = dynamic_cast<RooRealVar*>(v);
+      RooAbsPdf *y = dynamic_cast<RooAbsPdf*>(v);
 
       if (y) pdf_ws_map[iter.second->pdf(y->GetName())] = iter.second.get();
     }
