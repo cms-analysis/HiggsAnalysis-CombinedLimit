@@ -1005,11 +1005,11 @@ class ShapeBuilder(ModelBuilder):
                     pdfs.Add(self.shape2Pdf(shapeUp, channel, process))
                     pdfs.Add(self.shape2Pdf(shapeDown, channel, process))
                 histpdf = nominalPdf if nominalPdf.InheritsFrom("RooDataHist") else nominalPdf.dataHist()
-                xvar = histpdf.get().first()
-                yvar = histpdf.get().second()
                 if histpdf.get().getSize() > 2:
                     raise ValueError("No support for 3+ dimensional histpdfs")
-                elif yvar:
+                elif histpdf.get().getSize() > 1:
+                    xvar = histpdf.get().first()
+                    yvar = histpdf.get().second()
                     rhp = ROOT.FastVerticalInterpHistPdf2D2(
                         "shape%s_%s_%s_morph" % (postFix, channel, process),
                         "",
@@ -1022,6 +1022,7 @@ class ShapeBuilder(ModelBuilder):
                         qalgo,
                     )
                 else:
+                    xvar = histpdf.get().first()
                     rhp = ROOT.FastVerticalInterpHistPdf2(
                         "shape%s_%s_%s_morph" % (postFix, channel, process),
                         "",
