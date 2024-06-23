@@ -1,16 +1,16 @@
 imax 1                         # number of channels
 jmax 1                         # number of backgrounds
-kmax 1                         # number of nuisance parameters
+kmax 3                         # number of nuisance parameters
 -------
 shapes * * FAKE
 ------
-bin          bin1              # list of channel names
-observation     6              # observed events in each channel
+bin          bin1
+observation     6
 -----
-bin            bin1    bin1    # channel names
-process         ggH      WW    # process names
-process           0       1    # process ids ( <=0 is signal,  > 0 is background )
-rate            2.3     5.4    # expected number of events
+bin            bin1    bin1
+process         ggH      WW
+process           0       1
+rate            2.3     5.4
 -------
 lumi     lnN   1.01    1.01    # luminosity uncertainty
 xs_ggH   lnN   1.10       -    # gg->H cross section + signal efficiency + other minor ones
