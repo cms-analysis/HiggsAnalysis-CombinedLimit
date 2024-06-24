@@ -159,7 +159,7 @@ First, lets generate a set of 1000 toys from our model with `r` = 1.525.
 Since we want to generate frequentist toys (since we are calculating a frequentist confidence interval), we also need the `--toysFrequentist` option.
 
 ```
-combine -M GenerateOnly datacard.txt -t 1000 --toysFrequentist --setParameters r=1.525
+combine -M GenerateOnly datacard.txt -t 1000 --toysFrequentist --setParameters r=1.525 --saveToys 
 ```
 
 Now we can tell `MultiDimFit` to run over these toys by using the output from the previous step, with the command line argument `--toysFile <output_file_from_toy_generation>`.
