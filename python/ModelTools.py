@@ -173,11 +173,9 @@ class ModelBuilder(ModelBuilderBase):
         self.physics.doParametersOfInterest()
 
         # set a group attribute on POI variables
-        poiIter = self.out.set("POI").createIterator()
-        poi = poiIter.Next()
-        while poi:
+        pois = self.out.set("POI")
+        for poi in pois:
             self.out.var(poi.GetName()).setAttribute("group_POI", True)
-            poi = poiIter.Next()
         self.physics.preProcessNuisances(self.DC.systs)
         self.doNuisances()
         self.doExtArgs()
