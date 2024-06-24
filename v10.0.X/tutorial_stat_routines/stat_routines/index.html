@@ -1709,7 +1709,7 @@ As expected, the crossing happens at around <span class="arithmatex">\(0.24^2\)<
 <h3 id="going-beyond-the-asymptotic-approximation-with-hybrid-new">Going beyond the Asymptotic Approximation with Hybrid New</h3>
 <p>We could move beyond the asymptotic approximation as we did before by generating toys and explicitly calculating the test statistic.
 In order to do this, we would simply run <code>MultiDimFit</code> using:</p>
-<pre><code>combine -M MultiDimFit datacard.txt --rMin -10 --rMax 10 --algo fixed --fixedPointPOIs r=0 --setParameters r=0 -t &lt;ntoys&gt; --toysFrequentist
+<pre><code>combine -M MultiDimFit datacard.txt --rMin -10 --rMax 10 --algo fixed --fixedPointPOIs r=0 --setParameters r=0 -t 500 --toysFrequentist
 </code></pre>
 <p>and then calculate the value of <span class="arithmatex">\(q_0\)</span> for every toy, check their distribution and compare the observed value in data to the distribution from the toys.</p>
 <p>However, we can also use the <code>HybridNew</code> method, which has a built-in routine to do this for us, and save us the work of calculating the test-statistic values ourselves.</p>
@@ -1785,7 +1785,7 @@ We can also use the <code>--saveHybridResult</code> argument to save the distrib
 <pre><code>combine -M HybridNew --LHCmode LHC-limits --singlePoint r=2 --saveHybridResult datacard.txt
 </code></pre>
 <p>Then the test-statistic distributions can be plotted:</p>
-<pre><code>python3  ../../../test/plotTestStatCLs.py --input higgsCombineTest.HybridNew.mH120.123456.root --poi r --val all --mass 120
+<pre><code>python3  ../../../test/plotTestStatCLs.py --input higgsCombineTest.HybridNew.mH120.root --poi r --val all --mass 120
 </code></pre>
 <p><img alt="" src="../limit_test_stat_distributions.png" /></p>
 <p>This plot shows the expected distribution of the test statistic under the signal hypothesis (blue histogram) and the background-only hypothesis (red histogram), as well as the actual observed value in the data (black arrow).
@@ -1805,11 +1805,11 @@ Repeating this many times, we could find the value of <code>r</code> at which th
 <p>If you see some strange or unexpected behaviour in your limits, you can look at the distributions of the test static, or the various CLs values computed in order to better understand where the problem might be coming from.</p>
 <p>One situation you might encounter is observing the discrete nature or the counts when you are in the low statistics regime.</p>
 <pre><code>combine -M HybridNew --LHCmode LHC-limits --singlePoint r=1 --saveHybridResult datacard_lowbackground.txt
-python3  ../../../test/plotTestStatCLs.py --input higgsCombineTest.HybridNew.mH120.123456.root --poi r --val all --mass 120
+python3  ../../../test/plotTestStatCLs.py --input higgsCombineTest.HybridNew.mH120.root --poi r --val all --mass 120
 </code></pre>
 <p><img alt="" src="../limit_test_stat_distributions_few_events.png" /></p>
 <p>There is nothing wrong with this distribution, but noting its features may help you understand the results you are seeing and if they are reasonable or there might be an issue with the fit.
-In a case like this, we can certainly expect the asymptotic approximation not to be very reliable. 
+In a case like this, we can certainly expect the asymptotic approximation not to be very reliable.
 With low backgrounds, the shapes of the signal-hypothesis and signal+background hypothesis distributions can also start to look very similar.
 In such cases, some of the quantiles of the expected limits may be very compressed, and statistical fluctuations in the empirical distributions may be more apparent.</p>
 
