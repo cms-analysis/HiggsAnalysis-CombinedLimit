@@ -32,6 +32,7 @@ nav:
             - "Solutions":                part5/longexerciseanswers.md
           - "Parametric Models":          tutorial2023/parametric_exercise.md
           - "Likelihood Based Unfolding": tutorial2023_unfolding/unfolding_exercise.md
+          - "Statitiscal Tests Basics": tutorial_stat_routines/stat_routines.md
         - Links & FAQ: part4/usefullinks.md
 
 theme:
