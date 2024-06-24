@@ -1660,7 +1660,7 @@ Then we calculate the test statistic: </p>
 We could do this all in one command using the <code>-t &lt;n_toys&gt;</code> functionality of combine, but let's split it into two steps to make the logic more clear.</p>
 <p>First, lets generate a set of 1000 toys from our model with <code>r</code> = 1.525.
 Since we want to generate frequentist toys (since we are calculating a frequentist confidence interval), we also need the <code>--toysFrequentist</code> option.</p>
-<pre><code>combine -M GenerateOnly datacard.txt -t 1000 --toysFrequentist --setParameters r=1.525
+<pre><code>combine -M GenerateOnly datacard.txt -t 1000 --toysFrequentist --setParameters r=1.525 --saveToys 
 </code></pre>
 <p>Now we can tell <code>MultiDimFit</code> to run over these toys by using the output from the previous step, with the command line argument <code>--toysFile &lt;output_file_from_toy_generation&gt;</code>.
 To calculate the test statistic with MultiDimFit we will use <code>--algo fixed --fixedPointPOIs r=1.525</code> to tell <code>MultiDimFit</code> to calculate the log-likelihood ratio using that point in the numerator.
