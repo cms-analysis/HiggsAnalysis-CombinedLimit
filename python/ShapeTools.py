@@ -439,7 +439,7 @@ class ShapeBuilder(ModelBuilder):
             self.out.safe_import(arg, ROOT.RooFit.RecycleConflictNodes())
         if self.options.fixpars:
             pars = self.out.pdf("model_s").getParameters(self.out.obs)
-            for arg in pars: 
+            for arg in pars:
                 if arg == None:
                     break
                 if arg.InheritsFrom("RooRealVar") and arg.GetName() != "r":
