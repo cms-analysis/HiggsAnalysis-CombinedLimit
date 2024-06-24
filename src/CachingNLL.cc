@@ -1170,9 +1170,9 @@ void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const R
                 std::unique_ptr<RooArgSet> myobs(pdf->getObservables(obs));
                 myobs->add(weight);
                 //std::cout << "Observables for bin " << ib << ":"; myobs->Print("");
-                datasets_[ib] = new RooDataSet("", "", *myobs, "_weight_");
+                datasets_[ib] = new RooDataSet("", "", *myobs, RooFit::WeightVar("_weight_"));
             } else {
-                datasets_[ib] = new RooDataSet("", "", obsplus, "_weight_");
+                datasets_[ib] = new RooDataSet("", "", obsplus, RooFit::WeightVar("_weight_"));
             }
         } else {
             datasets_[ib]->reset();
