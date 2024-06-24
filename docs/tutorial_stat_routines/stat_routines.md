@@ -238,7 +238,7 @@ We could move beyond the asymptotic approximation as we did before by generating
 In order to do this, we would simply run `MultiDimFit` using:
 
 ```
-combine -M MultiDimFit datacard.txt --rMin -10 --rMax 10 --algo fixed --fixedPointPOIs r=0 --setParameters r=0 -t <ntoys> --toysFrequentist
+combine -M MultiDimFit datacard.txt --rMin -10 --rMax 10 --algo fixed --fixedPointPOIs r=0 --setParameters r=0 -t 500 --toysFrequentist
 ```
 
 and then calculate the value of $q_0$ for every toy, check their distribution and compare the observed value in data to the distribution from the toys.
@@ -374,7 +374,7 @@ combine -M HybridNew --LHCmode LHC-limits --singlePoint r=2 --saveHybridResult d
 Then the test-statistic distributions can be plotted:
 
 ```
-python3  ../../../test/plotTestStatCLs.py --input higgsCombineTest.HybridNew.mH120.123456.root --poi r --val all --mass 120
+python3  ../../../test/plotTestStatCLs.py --input higgsCombineTest.HybridNew.mH120.root --poi r --val all --mass 120
 ```
 
 ![](limit_test_stat_distributions.png)
@@ -409,13 +409,13 @@ One situation you might encounter is observing the discrete nature or the counts
 
 ```
 combine -M HybridNew --LHCmode LHC-limits --singlePoint r=1 --saveHybridResult datacard_lowbackground.txt
-python3  ../../../test/plotTestStatCLs.py --input higgsCombineTest.HybridNew.mH120.123456.root --poi r --val all --mass 120
+python3  ../../../test/plotTestStatCLs.py --input higgsCombineTest.HybridNew.mH120.root --poi r --val all --mass 120
 ```
 
 ![](limit_test_stat_distributions_few_events.png)
 
 There is nothing wrong with this distribution, but noting its features may help you understand the results you are seeing and if they are reasonable or there might be an issue with the fit.
-In a case like this, we can certainly expect the asymptotic approximation not to be very reliable. 
+In a case like this, we can certainly expect the asymptotic approximation not to be very reliable.
 With low backgrounds, the shapes of the signal-hypothesis and signal+background hypothesis distributions can also start to look very similar.
 In such cases, some of the quantiles of the expected limits may be very compressed, and statistical fluctuations in the empirical distributions may be more apparent.
 
