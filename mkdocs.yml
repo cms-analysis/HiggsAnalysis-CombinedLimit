@@ -37,7 +37,8 @@ theme:
         name: material
         logo: logo.png
         favicon: logo.png
-        features:
+        custom_dir: docs/overrides
+        features: 
             - content.code.copy
             - navigation.footer
             - navigation.indexes
