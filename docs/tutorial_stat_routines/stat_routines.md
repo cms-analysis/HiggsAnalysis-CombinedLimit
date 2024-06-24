@@ -105,7 +105,7 @@ Both algorithms take the best fit value $\hat{r}$ for which $-2 \ln(\Lambda)$ wi
 
 However, the different intervals estimate this value in different ways.
 The asymmetric intervals are "minos errors", which means that the crossing points were determined by explicitly scanning the likelihood as a function of `r` to look for the crossing, while minimizing other parameters at each step (profiling).
-The symmetric intervals are "hesse errors", which means that thec crossing points were determined by taking the matrix of second-order partial derivatives (Hessian) at the minimum, and inverting it to estimate the crossing assuming all other derivatives vanish.
+The symmetric intervals are "hesse errors", which means that the crossing points were determined by taking the matrix of second-order partial derivatives (Hessian) at the minimum, and inverting it to estimate the crossing assuming all other derivatives vanish.
 
 > The information printed under the `Status` section of the `RooFitResult` is showing that the minimization suceeded and that the hessian was positive definite, i.e. that all the second derivates are positive, as they should be at the minimum of a function. 
 > If the HESSE status is not 0 or the covariance matrix quality indicates it had to be forced positive definite, this indicates that there are problems with the fit.
@@ -132,11 +132,12 @@ You can see the best fit values, as well as the crossing points for the $1\sigma
 ### Uncertainty intervals from first principles
 
 All the methods mentioned above rely on Wilks' theorem, which only holds under certain conditions.
-In some cases, particularly those of low statistics or where the yield depends quadratically on the parameter of interest, Wilks' theorem will not be a good approximation.
+In some cases, particularly those of low statistics or some other cases, such as sometimes when the yield depends quadratically on the parameter of interest, Wilks' theorem will not be a good approximation.
 
 One thing you can do is check the uncertainty intervals explicitly, following the Neyman Construction.
-In order to do this you would scan your signal strength parameter `r`, at each value generating a set of pseudodata toys to determine the expected distribution of the test statistic $t_0$.
+In order to do this you would scan your signal strength parameter `r`, at each value generating a set of pseudodata toys to determine the expected distribution of the test statistic $t_\mu$ under the hypothesis that the true signal strength is $\mu$.
 Then, you can check the distribution of $t_\mu$ and find the critical value of the test statistic, $t'$, such that:
+
 
 $$ \int_{t'}^{\infty} p(t_{\mu}) \mathrm{d}t_{\mu} =(1 - \mathrm{CL}) $$
 
@@ -147,6 +148,7 @@ Let's do that for the upper end of our confidence interval, using the `MultiDimF
 
 We do it by generating a number of toy datasets with `r = 1.525`, which is our upper bound value. 
 Then we calculate the test statistic: 
+
 
 $$ t_{\mu=1.525} = -2 \ln (\frac{\mathrm{L}(r=1.525)}{\mathrm{L}(r=\hat{r})}) $$
 
@@ -169,7 +171,7 @@ combine -M MultiDimFit datacard.txt --rMin -10 --rMax 10 --algo fixed --fixedPoi
 ```
 
 We can inspect the results of all of our toy fits by opening the `higgsCombineTest.MultiDimFit.mH120.123456.root` file our command created, and looking at the `limit` tree contained in it.
-The log-likelihood ratio $-ln(\Lambda)$ is stored in the `deltaNLL` branch of the tree.
+The log-likelihood ratio $-\ln(\Lambda)$ is stored in the `deltaNLL` branch of the tree.
 For the `fixed` algorithm, there are two entries stored in the tree for every dataset: one for the best fit point, and one for the fixed point passed as the aregument to `--fixedPointPOIs`.
 In order to select only the values we are interest in we can pass the requirement `quantileExpected >= 0` to our TTree selection, because combine uses the value `-1` for `quantileExpected` to indicate best fit points.
 
@@ -179,6 +181,7 @@ You can draw the $t_{\mu}$ distribution with:
 root -l higgsCombineTest.MultiDimFit.mH120.123456.root
 root [1] > limit->Draw("2*deltaNLL","quantileExpected >= 0")
 ```
+
 
 To test wether or not this point should be rejected, we first define the confidence level of our rejection, say $1\sigma$ (approximately 68%), then we use the empirical distribution of the test statistic to estimate the cut-off value of the test statistic.
 This is done for you in the script `get_quantile.py`, which you can run:
@@ -202,11 +205,11 @@ Test out a few values of `r` and see if they all give you the same result.
 What happens for `r` less than about -1? Can you explain why? (hint: look at the values in the datacard)
 
 
-# Significance Testing
+## Significance Testing
 
 For significance testing, we want to test the compatibility of our model with the background-only hypothesis $\mu = 0$.
 However, when performing significance testing we are typically only interested in rejecting the null hypothesis if the confidence level is very high (e.g. $5\sigma$).
-Furthermore, we typically use a modified test-statistic $q_0$ which is equal to 0 whenever the best-fit signal strength is less than 0, to avoid rejecting the null hypothesis due to a deficit.
+Furthermore, we typically use a modified test-statistic $q_0$ which is equal to 0 whenever the best-fit signal strength is less than 0, to avoid rejecting the null hypothesis due to a deficit of events.
 
 A typical significance test can be run with combine using the `Significance` method:
 
@@ -214,9 +217,9 @@ A typical significance test can be run with combine using the `Significance` met
 combine -M Significance datacard.txt
 ```
 
-for this datacard, we get a very modest significance of about `0.24`.  
+for this datacard, we get a very modest significance of about `0.24`, meaning we fail to reject the null hypothesis.  
 This method is run using the asymptotic approximation, which relies on Wilks' theorem, similar to as it was used above.
-Under this approximation the significance is directly related to our test statistic, $q0$ by: Significance = $\sqrt{q0}$.
+Under this approximation the significance is directly related to our test statistic, $q_0$ by: Significance = $\sqrt{q_0}$.
 So for positive values of $\hat{r}$ we can read the Significance from the likelihood scan, by checking the value at the origin.
 
 ```
@@ -229,7 +232,7 @@ As expected, the crossing happens at around $0.24^2$
 
 ![](llhood_scan_for_significance.png)
 
-## Going beyond the Asymptotic Approximation with Hybrid New
+### Going beyond the Asymptotic Approximation with Hybrid New
 
 We could move beyond the asymptotic approximation as we did before by generating toys and explicitly calculating the test statistic.
 In order to do this, we would simply run `MultiDimFit` using:
@@ -238,7 +241,7 @@ In order to do this, we would simply run `MultiDimFit` using:
 combine -M MultiDimFit datacard.txt --rMin -10 --rMax 10 --algo fixed --fixedPointPOIs r=0 --setParameters r=0 -t <ntoys> --toysFrequentist
 ```
 
-and then calculate the value of $q0$ for every toy, check their distribution and compare the observed value in data to the distribution from the toys.
+and then calculate the value of $q_0$ for every toy, check their distribution and compare the observed value in data to the distribution from the toys.
 
 However, we can also use the `HybridNew` method, which has a built-in routine to do this for us, and save us the work of calculating the test-statistic values ourselves.
 
@@ -254,7 +257,7 @@ Significance: 0.306006  -0.0127243/+0.012774
 Null p-value: 0.3798 +/- 0.00485337
 ```
 
-# Limit Setting
+## Limit Setting
 
 **NOTE: This section explores several methods which are not recommended to be used in limit setting, in order to better understand their limitations before getting to the commonly used procedure**
 
@@ -274,7 +277,7 @@ python3 ../../../scripts/plot1DScan.py --POI r higgsCombineTest.MultiDimFit.mH12
 ![](llhood_scan_obs12.png)
 
 
-In this case we would reject values of `r` above about 6.7, but also values of `r` below about 0.3 are the 95% CL.
+In this case we would reject values of `r` above about 6.7, but also values of `r` below about 0.3 at the 95% CL.
 However, despite rejecting `r` = 0, our 95% CL is far below typical particle physics standards for claiming discovery.
 We therefore prefer to set only an upper bound, which we can do by modifying the test statistic to be 0 for all values below the best fit value.
 
@@ -288,7 +291,7 @@ combine -M HybridNew --frequentist --testStat=Profile datacard_underfluctuation.
 
 The above command is telling combine to calculate the limit, but we have to pass the non-standard arguemnts `--testStat=Profile --rule Pmu` to tell combine to use the profile likelihood ratio test statistic $t_{\mu}$ directly, and not to use the $\mathrm{CL}_\mathrm{s}$ criterion which is normally applied.
 
-Usually at the LHC, for upper limits we use the modified test statistic $\tilde{q}_{\mu}$ which is set to 0 for $\mu < \hat{mu}$ but also replaces $\hat{u}$ with 0 if $\min(\hat{mu},0)$ so that upper limits are always positive.
+Usually at the LHC, for upper limits we use the modified test statistic $\tilde{q}_{\mu}$ which is set to 0 for $\mu < \hat{\mu}$ but also replaces $\hat{\mu}$ with 0 if $\min(\hat{\mu},0)$ so that upper limits are always positive.
 
 If we use the standard LHC test statistic we will get a positive limit:
 
@@ -305,7 +308,7 @@ Limit: r < 0.0736126 +/- 0.0902187 @ 95% CL
 
 But this is an extremely tight bound on our signal strength, given that a signal strength of 1 is still within the statistical uncertainty of the background.
 
-## the CL_s criterion
+### the CL_s criterion
 
 With the limit setting procedure above we set a limit of `r` < 0.07, due to an underfluctuation in the observed data.
 However, if we had designed our experiment better so that the expected background were lower, we never would have been able to set a limit that strong.
@@ -339,9 +342,9 @@ combine -M HybridNew --frequentist --testStat=LHC --rule CLs datacard_underfluct
 
 sets a limit around 2.7. This is reasonable, given that we should expect a better limit when we have a better experimental design which manages to reduce backgrounds without any change in the signal acceptance.
 
-These are the default settings for setting limits at the LHC and the arguments `--frequentist --testStat LHC --rule CLs` can be replace by `--LHCmode LHC-limits`.
+These are the default settings for setting limits at the LHC and the arguments `--frequentist --testStat LHC --rule CLs` can be replaced by `--LHCmode LHC-limits`.
 
-## Asymptotic Limits
+### Asymptotic Limits
 
 The `HybridNew` method generates pseudodata to estimate the distributions of the test statistics and set a limit, however often the asymptotic distributions, which have analytically known forms, can be used.
 This is computationally much faster than running `HybridNew` and can be run with:
@@ -356,7 +359,7 @@ As well as the observed limit, the `AsymptoticLimits` method will automatically 
 These are calculated by taking the appropriate quantiles from the distribution of the test-statistic under the background-only hypothesis.
 
 
-## The limit setting algorithm
+### The limit setting algorithm
 
 Because the $CL_s$ value as a function of $r$ is not known analytically, the limit setting algorithm follows an iterative process.
 It starts by picking a value of the signal strength, then it calculates the expected distributions of the test-statistics for that signal strength $\tilde{q}_{\mu}$ under both the background-only and signal+background hypotheses.
@@ -414,5 +417,5 @@ python3  ../../../test/plotTestStatCLs.py --input higgsCombineTest.HybridNew.mH1
 There is nothing wrong with this distribution, but noting its features may help you understand the results you are seeing and if they are reasonable or there might be an issue with the fit.
 In a case like this, we can certainly expect the asymptotic approximation not to be very reliable. 
 With low backgrounds, the shapes of the signal-hypothesis and signal+background hypothesis distributions can also start to look very similar.
-I such cases, some of the quantiles of the expected limits may be very compressed, and statistical fluctuations in the empirical distributions may be more apparent.
+In such cases, some of the quantiles of the expected limits may be very compressed, and statistical fluctuations in the empirical distributions may be more apparent.
 
