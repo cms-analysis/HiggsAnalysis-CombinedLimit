@@ -1635,7 +1635,7 @@ sigma  shape    0.5        -   # uncertainty in the signal template.
 </code></pre>
 <h2 id="keywords">Keywords</h2>
 <p>Go to the datacards location corresponding to this section of the tutorial:</p>
-<pre><code>cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_models_2024/keywords
+<pre><code>cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/keywords
 </code></pre>
 <p>The datacard can also contain <code>$MASS</code> keyword, it allows to setup a single datacard for various mass points. It will be replaced with the value passed to <code>-m</code> option when running the tool. In addition, user-defined keywords can be used. Any word in the datacard <code>$WORD</code> will be replaced by <code>VALUE</code> when including the option <code>--keyword-value WORD=VALUE</code>. This option can be repeated multiple times for multiple keywords.</p>
 <pre><code> KEY: TH1D  ggH110;1    
@@ -1657,7 +1657,7 @@ shapes ggH htt_tt_9_13TeV htt_input.root htt_tt_9_13TeV/ggH$MASS htt_tt_9_13TeV/
 <pre><code>combine -M AsymptoticLimits  -d htt_tt_9_13TeV.txt  -m &lt;mass_value&gt;
 </code></pre>
 <h2 id="simultaneous-fit-in-multiple-categories">Simultaneous fit in multiple categories</h2>
-<pre><code>cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_models_2024/control_regions
+<pre><code>cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/control_regions
 </code></pre>
 <p>To combine the datacards corresponding to various (independent) regions into a single card one can use <code>combineCards.py</code>. </p>
 <pre><code>combineCards.py htt_tt_9_13TeV=htt_tt_9_13TeV.txt htt_tt_8_13TeV=htt_tt_8_13TeV.txt &gt;htt_tt_SRs.txt
@@ -1671,7 +1671,7 @@ observation  3416            105545
 
 </code></pre>
 <h2 id="rate-parameters">Rate parameters</h2>
-<pre><code>cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_models_2024/control_regions
+<pre><code>cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/control_regions
 </code></pre>
 <p>It is quite common to use data-drive background estimation methods. In Combine one can perform simultaneous fit of signal and control regions it allows to automatically handle the statistical uncertainty due to the number of data events in the control region, correctly handles signal contamination in the control region, allows to properly take into account systematic uncertainties affecting the backgrounds in the control regions. </p>
 <p>In the working directory for this section you can find the <code>htt_zmm_8_13TeV.txt, htt_zmm_9_13TeV.txt and htt_ttbar_1_13TeV.txt</code> cards, corresponding to the control regions enriched in ZLL and ttbar processes, in addition to the signal regions from the previous step. Let's combine all of the regions into one datacard. </p>
@@ -1698,7 +1698,7 @@ ratio_BtoA param 1 1
 rate_B rateParam *  process_B  @0*@1 rate_A*ratio
 </code></pre>
 <h2 id="extra-arguments">Extra arguments</h2>
-<pre><code>cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_models_2024/PhysicsModels
+<pre><code>cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/PhysicsModels
 </code></pre>
 <p>In one wants to connect different models with common parameters, or just use external functions it is possible to import parameters defined within external workspaces with <code>extArg</code>: </p>
 <pre><code class="language-nohighlight">name extArg rootfile:workspacename
