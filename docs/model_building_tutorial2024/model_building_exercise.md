@@ -203,9 +203,9 @@ Now the `htt_tt_combined.txt` contains signal and control regions. To allow the 
 
 The following lines define `rate_TT` and `rate_ZMM` rate parameters scaling TT and ZLL processes in all regions simultaneously: 
 ```
-rate_TT                 rateParam  *          TT         1 [0, 5]
-rate_TT                 rateParam  *          TTT         1 [0, 5]
-rate_ZMM                rateParam  *          ZLL        1 [0, 2]
+rate_TT                 rateParam  *          TT         1 [0,5]
+rate_TT                 rateParam  *          TTT        1 [0,5]
+rate_ZMM                rateParam  *          ZLL        1 [0,2]
 ```
 
 Note that by default rate parameters are freely floating (unconstrained) parameters in Combine, however it is possible to add a constrain term to the likelihood by adding the `param` modifier with the same name as rate parameter: 
