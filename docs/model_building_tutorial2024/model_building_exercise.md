@@ -132,7 +132,7 @@ shapes * * <input-file.root> $CHANNEL/$PROCESS $CHANNEL/$PROCESS_$SYSTEMATIC
 
 Go to the datacards location corresponding to this section of the tutorial:
 ```
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_models_2024/keywords
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/keywords
 ```
 
 The datacard can also contain `$MASS` keyword, it allows to setup a single datacard for various mass points. It will be replaced with the value passed to `-m` option when running the tool. In addition, user-defined keywords can be used. Any word in the datacard `$WORD` will be replaced by `VALUE` when including the option `--keyword-value WORD=VALUE`. This option can be repeated multiple times for multiple keywords.
@@ -164,7 +164,7 @@ combine -M AsymptoticLimits  -d htt_tt_9_13TeV.txt  -m <mass_value>
 ## Simultaneous fit in multiple categories
 
 ```
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_models_2024/control_regions
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/control_regions
 ```
 
 To combine the datacards corresponding to various (independent) regions into a single card one can use `combineCards.py`. 
@@ -185,7 +185,7 @@ observation  3416            105545
 ## Rate parameters 
 
 ```
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_models_2024/control_regions
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/control_regions
 ```
 
 It is quite common to use data-drive background estimation methods. In Combine one can perform simultaneous fit of signal and control regions it allows to automatically handle the statistical uncertainty due to the number of data events in the control region, correctly handles signal contamination in the control region, allows to properly take into account systematic uncertainties affecting the backgrounds in the control regions. 
@@ -231,7 +231,7 @@ rate_B rateParam *  process_B  @0*@1 rate_A*ratio
 ## Extra arguments 
 
 ```
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_models_2024/PhysicsModels
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/PhysicsModels
 ```
 
 In one wants to connect different models with common parameters, or just use external functions it is possible to import parameters defined within external workspaces with `extArg`: 
