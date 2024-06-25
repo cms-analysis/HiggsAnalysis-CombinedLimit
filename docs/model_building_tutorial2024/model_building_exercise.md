@@ -9,7 +9,7 @@ After setting up <span style="font-variant:small-caps;">Combine</span>, you can 
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/
 git checkout main 
 scram b -j 8
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_models_2024/
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/
 ```
 
 ## Exercise outline
