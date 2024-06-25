@@ -9,7 +9,7 @@ After setting up <span style="font-variant:small-caps;">Combine</span>, you can 
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/
 git checkout main 
 scram b -j 8
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_models_2024/
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/
 ```
 
 ## Exercise outline
@@ -53,7 +53,7 @@ shapes   <process_name>   <channel_name>   <path/to/input_shape.root>   <histogr
 
 To start the hands-on for this section: 
 ```
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_models_2024/simple_shape
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/simple_shape
 ```
 
 The input shapes for the first example (`datacard-2-template-analysis.txt`) are located in the `template-analysis-datacard-input.root`, it contains the observed distribution `data_obs`, the nominal histograms for each process and systematic uncertainties templates:  
