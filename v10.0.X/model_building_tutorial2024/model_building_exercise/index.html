@@ -1546,7 +1546,7 @@
 <pre><code class="language-shell">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/
 git checkout main 
 scram b -j 8
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_models_2024/
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/
 </code></pre>
 <h2 id="exercise-outline">Exercise outline</h2>
 <p>This tutorial focuses and extends on the model building topic, and it is not going to give a full picture on the statistical methods, which are extensively covered in the <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/part5/longexercise/">long exercise</a> and <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/tutorial_stat_routines/stat_routines/">statistical methods exercise</a>. </p>
@@ -1571,7 +1571,7 @@ cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_models_20
 <pre><code class="language-shell">shapes   &lt;process_name&gt;   &lt;channel_name&gt;   &lt;path/to/input_shape.root&gt;   &lt;histograms_nominal&gt;  &lt;histograms_with_variations&gt;
 </code></pre>
 <p>To start the hands-on for this section: </p>
-<pre><code>cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_models_2024/simple_shape
+<pre><code>cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/simple_shape
 </code></pre>
 <p>The input shapes for the first example (<code>datacard-2-template-analysis.txt</code>) are located in the <code>template-analysis-datacard-input.root</code>, it contains the observed distribution <code>data_obs</code>, the nominal histograms for each process and systematic uncertainties templates:  </p>
 <pre><code class="language-shell">root [0] 
