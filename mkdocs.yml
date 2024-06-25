@@ -33,6 +33,7 @@ nav:
           - "Parametric Models":          tutorial2023/parametric_exercise.md
           - "Likelihood Based Unfolding": tutorial2023_unfolding/unfolding_exercise.md
           - "Statitiscal Tests Basics": tutorial_stat_routines/stat_routines.md
+          - "Model building": model_building_tutorial2024/model_building_exercise.md
         - Links & FAQ: part4/usefullinks.md
 
 theme:
