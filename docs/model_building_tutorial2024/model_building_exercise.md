@@ -293,11 +293,14 @@ ZH_8to13TeV    rateParam  *   ZH    @0/@1         ZH_13TeV,ZH_8TeV
 ggH_8to13TeV    rateParam  *   ggH    @0/@1         ggH_13TeV,ggH_8TeV
 vbfH_8to13TeV    rateParam  *   qqH    @0/@1         vbfH_13TeV,vbfH_8TeV
 ```
+
+When running Combine methods (e.g. `combine -M MultiDimFit --algo singles`) with these parameters you have to freeze `MH`, i.e. add `--freezeParameters MH` option.  
+
 **Advanced task:** rescale the signal templates to the cross-section corresponding to a different MH value (e.g. 120 GeV). 
 
 ## Physics Models
 
-With physics model one can instruct Combine how to scale the signal (background) yields with parameters of the model: $$M_{cp}(\vec{\mu})$$ from 
+With physics model one can instruct Combine how to scale the signal (background) yields with parameters of the model: $M_{cp}(\vec{\mu})$ from 
 
 $$n^\mathrm{exp}_{cb} = \mathrm{max}(0, \sum_{p} M_{cp}(\vec{\mu})N_{cp}(\nu_G, \vec{\nu}_L,\vec{\nu}_S,\vec{\nu}_{\rho})\omega_{cbp}(\vec{\nu}_S) + E_{cb}(\vec{\nu}_B) ) $$
 
