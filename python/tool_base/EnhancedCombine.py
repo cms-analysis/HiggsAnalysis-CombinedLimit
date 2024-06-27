@@ -9,6 +9,7 @@ from HiggsAnalysis.CombinedLimit.tool_base.opts import OPTS
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
 import six
 from six.moves import zip
+import pandas as pd
 
 
 def isfloat(value):
@@ -39,6 +40,7 @@ class EnhancedCombine(CombineToolBase):
         group.add_argument("-d", "--datacard", nargs="*", default=[], help="Operate on multiple datacards")
         group.add_argument("--name", "-n", default=".Test", help="Name used to label the combine output file, can be modified by other options")
         group.add_argument("--setParameterRanges", help="Some other options will modify or add to the list of parameter ranges")
+        group.add_argument("--algo", help='The algorithm to use with "-M MultiDimFit"')
 
     def attach_args(self, group):
         CombineToolBase.attach_args(self, group)
@@ -54,6 +56,8 @@ class EnhancedCombine(CombineToolBase):
             "--boundlist", help="Name of json-file which contains the ranges of physical parameters depending on the given mass and given physics model"
         )
         group.add_argument("--generate", nargs="*", default=[], help="Generate sets of options")
+        group.add_argument("--fromfile", help='The file to read the points from. For use with "-M MultiDimFit --algo fixed')
+        group.add_argument("--limitPoints", default=-1, help='The maximum number of points to scan from a file. For use with "--fromfile"')
 
     def set_args(self, known, unknown):
         CombineToolBase.set_args(self, known, unknown)
@@ -85,6 +89,26 @@ class EnhancedCombine(CombineToolBase):
             seed_vals = utils.split_vals(self.args.seed)
             subbed_vars[("SEED",)] = [(sval,) for sval in seed_vals]
             self.passthru.extend(["-s", "%(SEED)s"])
+
+        # Handle the --fromfile option
+        if self.args.fromfile is not None:
+            if self.args.algo is None:
+                self.args.algo = "fixed"
+                print(f"Argument --algo not specified but --fromfile is set to {self.args.fromfile}, defaulting to --algo fixed.")
+            elif self.args.algo != "fixed":
+                print(f"Warning: --fromfile option is only compatible with --algo fixed, not {self.args.algo}. Setting --algo to fixed.")
+                self.args.algo = "fixed"
+            # Read the points from the file into a dataframe
+            points_df = pd.read_csv(self.args.fromfile)
+            # If the limitPoints option is set, limit the number of points read
+            limitPoints = int(self.args.limitPoints)
+            if limitPoints == 0:
+                print("Warning: --limitPoints option is set to 0. No points will be scanned!")
+                points_df = pd.DataFrame()
+            elif limitPoints > 0:
+                points_df = points_df.head(limitPoints)
+        if self.args.algo is not None:
+            self.put_back_arg("algo", "--algo")
 
         for i, generate in enumerate(self.args.generate):
             split_char = ":" if "::" in generate else ";"
@@ -236,6 +260,19 @@ class EnhancedCombine(CombineToolBase):
             subbed_vars[("P_START", "P_END")] = [(r[0], r[1]) for r in ranges]
             self.passthru.extend(["--firstPoint %(P_START)s --lastPoint %(P_END)s"])
             self.args.name += ".POINTS.%(P_START)s.%(P_END)s"
+        # Handle the --fromfile option
+        if self.args.fromfile is not None:
+            # For each row in the dataframe, create a fixedPointPOIs string
+            poi_strs = []
+            for _, row in points_df.iterrows():
+                fixedPointPOIs = ""
+                for col in points_df.columns:
+                    fixedPointPOIs += f"{col}={row[col]},"
+                fixedPointPOIs = fixedPointPOIs[:-1]
+                poi_strs.append(fixedPointPOIs)
+            subbed_vars[("FIXEDPOINTPOIS", "INDEX")] = [(s, index) for s, index in zip(poi_strs, range(len(poi_strs)))]
+            self.passthru.extend(["--fixedPointPOIs", "%(FIXEDPOINTPOIS)s"])
+            self.args.name += ".POINT.%(INDEX)s"
 
         # can only put the name option back now because we might have modified
         # it from what the user specified
