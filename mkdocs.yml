@@ -73,6 +73,11 @@ extra_javascript:
 markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
+
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.details
   - pymdownx.blocks.details
   - admonition
+

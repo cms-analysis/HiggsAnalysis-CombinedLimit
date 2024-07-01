@@ -75,11 +75,55 @@ If you are aware that your analysis has any of these features you could try reso
 
 ### Pre- and post-fit nuisance parameters
 
-It is possible to compare pre-fit and post-fit nuisance parameter values with the script [diffNuisances.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/diffNuisances.py). Taking as input a `fitDiagnostics.root` file, the script will by default print out the parameters that have changed significantly with respect to their initial estimate. For each of those parameters, it will print out the shift in value and the post-fit uncertainty, both normalized to the initial (pre-fit) value. The linear correlation between the parameter and the signal strength will also be printed.
+It is possible to compare pre-fit and post-fit nuisance parameter values with the script [diffNuisances.py](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/diffNuisances.py). Taking as input a `fitDiagnosticsTest.root` file, the script will by default print out the parameters that have changed significantly with respect to their initial estimate. 
 
-    python diffNuisances.py fitDiagnostics.root
+For each of those parameters, it will print out 
 
-The script has several options to toggle the thresholds used to decide whether a parameter has changed significantly, to get the printout of the absolute value of the nuisance parameters, and to get the output in another format for use on a webpage or in a note (the supported formats are `html`, `latex`, `twiki`). To print _all_ of the parameters, use the option `--all`.
+- The shift in value and the post-fit uncertainty, both normalized to the initial (pre-fit) value from the s+b fit and the b-only fit. 
+- The linear correlation between the parameter and the signal strength `r` - $\rho(r,\nu)$.
+- The approximate impact of the nuisance parameter determined as $I(r,\nu) = \sigma_{r}\sigma_{\nu}\rho(r,\nu)$, where $\sigma_{r}$ and $\sigma_{\nu}$ are the symmetrized total uncertainties on the signal strength and nuisance parameter, respectively (see the section on [Nuisance parameter impacts](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/part3/nonstandard/#nuisance-parameter-impacts) for our recommend calculation of impacts.).
+
+The script has several options to toggle the thresholds used to decide whether a parameter has changed significantly, to get the printout of the absolute value of the nuisance parameters, and to get the output in another format for use on a webpage or in a note (the supported formats are `html`, `latex`, `twiki`). To print *all* of the parameters, use the option `--all`. 
+
+An example of using this script is shown below, 
+
+```sh
+combine data/tutorials/counting/realistic-counting-experiment.txt -M FitDiagnostics --forceRecreateNLL --rMin -1 --rMax 1
+python diffNuisances.py fitDiagnosticsTest.root
+```
+
+/// details | Show output 
+
+=== "`--format text` (default)" 
+    ```sh
+    diffNuisances run on fitDiagnosticsTest.root, at 2024-07-01 18:05:37.585109 with the following options ... {'vtol': 0.3, 'stol': 0.1, 'vtol2': 2.0, 'stol2': 0.5, 'show_all_parameters': False, 'absolute_values': False, 'poi': 'r', 'format': 'text', 'plotfile': None, 'pullDef': '', 'skipFitS': False, 'skipFitB': False, 'sortBy': 'correlation', 'regex': '.*'}
+
+    name                                              b-only fit            s+b fit         rho  approx impact
+    CMS_scale_t_tautau_8TeV                          -0.60, 0.40     ! -0.73, 0.39!     !-0.19!      -0.051
+    CMS_eff_t_tt_8TeV                                +0.57, 0.32     ! +0.50, 0.32!     !-0.17!      -0.037
+    CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_12         +0.21, 0.89        -0.20, 0.96       -0.15      -0.103
+    CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_11         +0.71, 0.87        +0.42, 0.90       -0.15      -0.095
+    CMS_htt_QCDSyst_tauTau_vbf_8TeV                  +0.16, 0.82        -0.15, 0.84       -0.12      -0.071
+    CMS_htt_tt_tauTau_vbf_8TeV_ZTT_bin_6             +0.32, 0.97        +0.09, 0.99       -0.08      -0.054
+    CMS_htt_QCDSyst_tauTau_1jet_high_mediumhiggs_8TeV         +0.52, 0.20     ! +0.48, 0.20!     !-0.08!      -0.011
+    CMS_htt_QCDSyst_tauTau_1jet_high_highhiggs_8TeV         -0.15, 0.84        -0.33, 0.84       -0.08      -0.044
+    CMS_htt_extrap_ztt_tauTau_1jet_high_mediumhiggs_8TeV         +0.34, 0.95        +0.45, 0.95       +0.07      +0.049
+    CMS_htt_extrap_ztt_tauTau_vbf_8TeV               +0.31, 0.96        +0.14, 0.96       -0.06      -0.040
+    CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_14         +0.29, 0.88        +0.24, 0.89       -0.03      -0.018
+    CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_6         -0.67, 0.94        -0.63, 0.93       +0.02      +0.014
+    CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_23         +0.44, 0.92        +0.46, 0.92       +0.01      +0.004
+    CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_18         +0.44, 0.92        +0.43, 0.93       -0.01      -0.005
+    CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_17         -0.62, 1.00        -0.61, 1.00       +0.01      +0.004
+    CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_15         -0.55, 0.98        -0.54, 0.98       +0.01      +0.005
+    CMS_htt_extrap_ztt_tauTau_1jet_high_highhiggs_8TeV         -0.34, 0.95        -0.41, 0.95       -0.01      -0.006
+    CMS_htt_tt_tauTau_1jet_high_mediumhiggs_8TeV_ZTT_bin_20         -0.34, 0.99        -0.33, 0.99       +0.00      +0.003
+    CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_5         -0.49, 1.00        -0.48, 1.00       +0.00      +0.003
+    CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_26         -0.47, 0.96        -0.46, 0.97       +0.00      +0.003
+    ```
+
+=== "`--format html`"
+    ![example dfn html](images/exampledfhtml.jpg)
+///
 
 By default, the changes in the nuisance parameter values and uncertainties are given relative to their initial (pre-fit) values (usually relative to initial values of 0 and 1 for most nuisance types).
 
@@ -90,7 +134,10 @@ The reported uncertainty will be the ratio $\sigma/\sigma_{I}$ - i.e the ratio o
 To print the pre-fit and post-fit values and (asymmetric) uncertainties, rather than the ratios, the option `--abs` can be used.
 
 !!! info
-    We recommend that you include the options `--abs` and `--all` to get the full information on all of the parameters (including unconstrained nuisance parameters) at least once when checking your datacards.
+    We recommend that you include the options `--abs` and `--all` to get the full information on all of the parameters (including unconstrained nuisance parameters) at least once when checking your datacards. 
+
+
+#### Pulls 
 
 If instead of the nuisance parameter values, you wish to report the _pulls_, you can do so using the option `--pullDef X`, with `X` being one of the options listed below. You should note that since the pulls below are only defined when the pre-fit uncertainty exists, _nothing_ will be reported for parameters that have no prior constraint (except in the case of the `unconstPullAsym` choice as described below). You may want to run without this option and `--all` to get information about those parameters.
 
