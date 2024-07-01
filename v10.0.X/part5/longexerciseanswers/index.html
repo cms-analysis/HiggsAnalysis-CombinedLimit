@@ -1854,10 +1854,8 @@
 <summary><b>Show datacard line</b></summary>
 
 <b> You should add this line to the end of the datacard:
-
-<pre><code class="language-shell">tauID group = CMS_eff_t CMS_eff_t_highpt CMS_scale_t_1prong0pi0_13TeV CMS_scale_t_1prong1pi0_13TeV CMS_scale_t_3prong0pi0_13TeV
-</code></pre>
-
+<div class="highlight"><pre><span></span><code>tauID<span class="w"> </span><span class="nv">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>CMS_eff_t<span class="w"> </span>CMS_eff_t_highpt<span class="w"> </span>CMS_scale_t_1prong0pi0_13TeV<span class="w"> </span>CMS_scale_t_1prong1pi0_13TeV<span class="w"> </span>CMS_scale_t_3prong0pi0_13TeV
+</code></pre></div>
   </b>
 </details>
 <ul>
@@ -1867,11 +1865,8 @@
 <summary><b>Show code</b></summary>
 
 <b> This can be done as:
-
-<pre><code class="language-shell">python plot1DScan.py higgsCombine.part3E.MultiDimFit.mH200.root --others 'higgsCombine.part3E.freezeTauID.MultiDimFit.mH200.root:FreezeTauID:4' 'higgsCombine.part3E.freezeAll.MultiDimFit.mH200.root:FreezeAll:2' -o freeze_third_attempt --breakdown TauID,OtherSyst,Stat
-
-</code></pre>
-
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>plot1DScan.py<span class="w"> </span>higgsCombine.part3E.MultiDimFit.mH200.root<span class="w"> </span>--others<span class="w"> </span><span class="s1">&#39;higgsCombine.part3E.freezeTauID.MultiDimFit.mH200.root:FreezeTauID:4&#39;</span><span class="w"> </span><span class="s1">&#39;higgsCombine.part3E.freezeAll.MultiDimFit.mH200.root:FreezeAll:2&#39;</span><span class="w"> </span>-o<span class="w"> </span>freeze_third_attempt<span class="w"> </span>--breakdown<span class="w"> </span>TauID,OtherSyst,Stat
+</code></pre></div>
   </b>
 </details>
 <ul>

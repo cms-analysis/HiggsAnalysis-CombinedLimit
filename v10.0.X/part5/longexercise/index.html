@@ -1747,9 +1747,9 @@
 If you are not yet familiar with these concepts, or would like to refresh your memory, we recommend that you have a look at these presentations before you start with the exercise.</p>
 <h2 id="getting-started">Getting started</h2>
 <p>To get started, you should have a working setup of <code>Combine</code>, please follow the instructions from the <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users">home page</a>. Make sure to use the latest recommended release.</p>
-<p>Now we will move to the working directory for this tutorial, which contains all the inputs needed to run the exercises below:</p>
-<pre><code class="language-shell">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/
-</code></pre>
+<p>Now we will move to the working directory for this tutorial, which contains all the inputs needed to run the exercises below:
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/
+</code></pre></div></p>
 <h2 id="part-1-a-one-bin-counting-experiment">Part 1: A one-bin counting experiment</h2>
 <p>Topics covered in this section:</p>
 <ul>
@@ -1759,30 +1759,28 @@ If you are not yet familiar with these concepts, or would like to refresh your m
 <p>We will begin with a simplified version of a datacard from the MSSM <span class="arithmatex">\(\phi\rightarrow\tau\tau\)</span> analysis that has been converted to a one-bin counting experiment, as described above. While the full analysis considers a range of signal mass hypotheses, we will start by considering just one: <span class="arithmatex">\(m_{\phi}\)</span>=800GeV. Click the text below to study the datacard (<code>datacard_part1.txt</code> in the <code>longexercise</code> directory):</p>
 <details>
 <summary><b>Show datacard</b></summary>
-
-<pre><code class="language-shell">imax    1 number of bins
-jmax    4 number of processes minus 1
-kmax    * number of nuisance parameters
+<div class="highlight"><pre><span></span><code>imax<span class="w">    </span><span class="m">1</span><span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>bins
+jmax<span class="w">    </span><span class="m">4</span><span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>processes<span class="w"> </span>minus<span class="w"> </span><span class="m">1</span>
+kmax<span class="w">    </span>*<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>nuisance<span class="w"> </span>parameters
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
-bin          signal_region
-observation  10.0
+bin<span class="w">          </span>signal_region
+observation<span class="w">  </span><span class="m">10</span>.0
 --------------------------------------------------------------------------------
-bin                      signal_region   signal_region   signal_region   signal_region   signal_region
-process                  ttbar           diboson         Ztautau         jetFakes        bbHtautau
-process                  1               2               3               4               0
-rate                     4.43803         3.18309         3.7804          1.63396         0.711064
+bin<span class="w">                      </span>signal_region<span class="w">   </span>signal_region<span class="w">   </span>signal_region<span class="w">   </span>signal_region<span class="w">   </span>signal_region
+process<span class="w">                  </span>ttbar<span class="w">           </span>diboson<span class="w">         </span>Ztautau<span class="w">         </span>jetFakes<span class="w">        </span>bbHtautau
+process<span class="w">                  </span><span class="m">1</span><span class="w">               </span><span class="m">2</span><span class="w">               </span><span class="m">3</span><span class="w">               </span><span class="m">4</span><span class="w">               </span><span class="m">0</span>
+rate<span class="w">                     </span><span class="m">4</span>.43803<span class="w">         </span><span class="m">3</span>.18309<span class="w">         </span><span class="m">3</span>.7804<span class="w">          </span><span class="m">1</span>.63396<span class="w">         </span><span class="m">0</span>.711064
 --------------------------------------------------------------------------------
-CMS_eff_b          lnN   1.02            1.02            1.02            -               1.02
-CMS_eff_t          lnN   1.12            1.12            1.12            -               1.12
-CMS_eff_t_highpt   lnN   1.1             1.1             1.1             -               1.1
-acceptance_Ztautau lnN   -               -               1.08            -               -
-acceptance_bbH     lnN   -               -               -               -               1.05
-acceptance_ttbar   lnN   1.005           -               -               -               -
-norm_jetFakes      lnN   -               -               -               1.2             -
-xsec_diboson       lnN   -               1.05            -               -               -
-</code></pre>
-
+CMS_eff_b<span class="w">          </span>lnN<span class="w">   </span><span class="m">1</span>.02<span class="w">            </span><span class="m">1</span>.02<span class="w">            </span><span class="m">1</span>.02<span class="w">            </span>-<span class="w">               </span><span class="m">1</span>.02
+CMS_eff_t<span class="w">          </span>lnN<span class="w">   </span><span class="m">1</span>.12<span class="w">            </span><span class="m">1</span>.12<span class="w">            </span><span class="m">1</span>.12<span class="w">            </span>-<span class="w">               </span><span class="m">1</span>.12
+CMS_eff_t_highpt<span class="w">   </span>lnN<span class="w">   </span><span class="m">1</span>.1<span class="w">             </span><span class="m">1</span>.1<span class="w">             </span><span class="m">1</span>.1<span class="w">             </span>-<span class="w">               </span><span class="m">1</span>.1
+acceptance_Ztautau<span class="w"> </span>lnN<span class="w">   </span>-<span class="w">               </span>-<span class="w">               </span><span class="m">1</span>.08<span class="w">            </span>-<span class="w">               </span>-
+acceptance_bbH<span class="w">     </span>lnN<span class="w">   </span>-<span class="w">               </span>-<span class="w">               </span>-<span class="w">               </span>-<span class="w">               </span><span class="m">1</span>.05
+acceptance_ttbar<span class="w">   </span>lnN<span class="w">   </span><span class="m">1</span>.005<span class="w">           </span>-<span class="w">               </span>-<span class="w">               </span>-<span class="w">               </span>-
+norm_jetFakes<span class="w">      </span>lnN<span class="w">   </span>-<span class="w">               </span>-<span class="w">               </span>-<span class="w">               </span><span class="m">1</span>.2<span class="w">             </span>-
+xsec_diboson<span class="w">       </span>lnN<span class="w">   </span>-<span class="w">               </span><span class="m">1</span>.05<span class="w">            </span>-<span class="w">               </span>-<span class="w">               </span>-
+</code></pre></div>
 </details>
 
 <p>The layout of the datacard is as follows:</p>
@@ -1794,12 +1792,12 @@ xsec_diboson       lnN   -               1.05            -               -      
 <li>It is also possible to add a hash symbol (<code>#</code>) at the start of a line, which <span style="font-variant:small-caps;">Combine</span> will then ignore when it reads the card.</li>
 </ul>
 <p>We can now run <span style="font-variant:small-caps;">Combine</span> directly using this datacard as input. The general format for running <span style="font-variant:small-caps;">Combine</span> is:</p>
-<pre><code class="language-shell">combine -M [method] [datacard] [additional options...]
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span><span class="o">[</span>method<span class="o">]</span><span class="w"> </span><span class="o">[</span>datacard<span class="o">]</span><span class="w"> </span><span class="o">[</span>additional<span class="w"> </span>options...<span class="o">]</span>
+</code></pre></div>
 <h3 id="a-computing-limits-using-the-asymptotic-approximation">A: Computing limits using the asymptotic approximation</h3>
 <p>As we are searching for a signal process that does not exist in the standard model, it's natural to set an upper limit on the cross section times branching fraction of the process (assuming our dataset does not contain a significant discovery of new physics). <span style="font-variant:small-caps;">Combine</span> has dedicated methods for calculating upper limits. The most commonly used one is <code>AsymptoticLimits</code>, which implements the <a href="https://inspirehep.net/literature/599622">CLs criterion</a> and uses the <a href="../../what_combine_does/statistical_tests/#limit-setting-using-the-likelihood-ratio">modified profile likelihood ratio for upper limits</a> as the default test statistic. As the name implies, the test statistic distributions are determined analytically in the <a href="https://arxiv.org/abs/1007.1727">asymptotic approximation</a>, so there is no need for more time-intensive toy throwing and fitting. Try running the following command:</p>
-<pre><code class="language-shell">combine -M AsymptoticLimits datacard_part1.txt -n .part1A
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>AsymptoticLimits<span class="w"> </span>datacard_part1.txt<span class="w"> </span>-n<span class="w"> </span>.part1A
+</code></pre></div>
 <p>You should see the results of the observed and expected limit calculations printed to the screen. Here we have added an extra option, <code>-n .part1A</code>, which is short for <code>--name</code>, and is used to label the output file <span style="font-variant:small-caps;">Combine</span> produces, which in this case will be called <code>higgsCombine.part1A.AsymptoticLimits.mH120.root</code>. The file name depends on the options we ran with, and is of the form: <code>higgsCombine[name].[method].mH[mass].root</code>. The file contains a TTree called <code>limit</code> which stores the numerical values returned by the limit computation. Note that in our case we did not set a signal mass when running <span style="font-variant:small-caps;">Combine</span> (i.e. <code>-m 800</code>), so the output file just uses the default value of <code>120</code>. This does not affect our result in any way though, just the label that is used on the output file.</p>
 <p>The limits are given on a parameter called <code>r</code>. This is the default <strong>parameter of interest (POI)</strong> that is added to the model automatically. It is a linear scaling of the normalization of all signal processes given in the datacard, i.e. if <span class="arithmatex">\(s_{i,j}\)</span> is the nominal number of signal events in channel <span class="arithmatex">\(i\)</span> for signal process <span class="arithmatex">\(j\)</span>, then the normalization of that signal in the model is given as <span class="arithmatex">\(r\cdot s_{i,j}(\vec{\theta})\)</span>, where <span class="arithmatex">\(\vec{\theta}\)</span> represents the set of nuisance parameters which may also affect the signal normalization. We therefore have some choice in the interpretation of r: for the measurement of a process with a well-defined SM prediction we may enter this as the nominal yield in the datacard, such that <span class="arithmatex">\(r=1\)</span> corresponds to this SM expectation, whereas for setting limits on BSM processes we may choose the nominal yield to correspond to some cross section, e.g. 1 pb, such that we can interpret the limit as a cross section limit directly. In this example the signal has been normalised to a cross section times branching fraction of 1 fb.</p>
 <p>The expected limit is given under the background-only hypothesis. The median value under this hypothesis as well as the quantiles needed to give the 68% and 95% intervals are also calculated. These are all the ingredients needed to produce the standard limit plots you will see in many CMS results, for example the <span class="arithmatex">\(\sigma \times \mathcal{B}\)</span> limits for the <span class="arithmatex">\(\text{bb}\phi\rightarrow\tau\tau\)</span> process:</p>
@@ -1818,13 +1816,13 @@ xsec_diboson       lnN   -               1.05            -               -      
 </ul>
 <h3 id="advanced-section-b-computing-limits-with-toys">Advanced section: B: Computing limits with toys</h3>
 <p>Now we will look at computing limits without the asymptotic approximation, so instead using toy datasets to determine the test statistic distributions under the signal+background and background-only hypotheses. This can be necessary if we are searching for signal in bins with a small number of events expected. In <span style="font-variant:small-caps;">Combine</span> we will use the <code>HybridNew</code> method to calculate limits using toys. This mode is capable of calculating limits with several different test statistics and with fine-grained control over how the toy datasets are generated internally. To calculate LHC-style profile likelihood limits (i.e. the same as we did with the asymptotic) we set the option <code>--LHCmode LHC-limits</code>. You can read more about the different options in the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-limits-with-toys">Combine documentation</a>.</p>
-<p>Run the following command:</p>
-<pre><code class="language-shell">combine -M HybridNew datacard_part1.txt --LHCmode LHC-limits -n .part1B --saveHybridResult
-</code></pre>
-<p>In contrast to <code>AsymptoticLimits</code> this will only determine the observed limit, and will take a few minutes. There will not be much output to the screen while combine is running. You can add the option <code>-v 1</code> to get a better idea of what is going on. You should see <span style="font-variant:small-caps;">Combine</span> stepping around in <code>r</code>, trying to find the value for which CLs = 0.05, i.e. the 95% CL limit. The <code>--saveHybridResult</code> option will cause the test statistic distributions that are generated at each tested value of <code>r</code> to be saved in the output ROOT file.</p>
+<p>Run the following command:
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>datacard_part1.txt<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>-n<span class="w"> </span>.part1B<span class="w"> </span>--saveHybridResult
+</code></pre></div>
+In contrast to <code>AsymptoticLimits</code> this will only determine the observed limit, and will take a few minutes. There will not be much output to the screen while combine is running. You can add the option <code>-v 1</code> to get a better idea of what is going on. You should see <span style="font-variant:small-caps;">Combine</span> stepping around in <code>r</code>, trying to find the value for which CLs = 0.05, i.e. the 95% CL limit. The <code>--saveHybridResult</code> option will cause the test statistic distributions that are generated at each tested value of <code>r</code> to be saved in the output ROOT file.</p>
 <p>To get an expected limit add the option <code>--expectedFromGrid X</code>, where <code>X</code> is the desired quantile, e.g. for the median:</p>
-<pre><code class="language-shell">combine -M HybridNew datacard_part1.txt --LHCmode LHC-limits -n .part1B --saveHybridResult --expectedFromGrid 0.500
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>datacard_part1.txt<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>-n<span class="w"> </span>.part1B<span class="w"> </span>--saveHybridResult<span class="w"> </span>--expectedFromGrid<span class="w"> </span><span class="m">0</span>.500
+</code></pre></div>
 <p>Calculate the median expected limit and the 68% range. The 95% range could also be done, but note it will take much longer to run the 0.025 quantile. While <span style="font-variant:small-caps;">Combine</span> is running you can move on to the next steps below.</p>
 <p><strong>Tasks and questions:</strong></p>
 <ul>
@@ -1832,12 +1830,12 @@ xsec_diboson       lnN   -               1.05            -               -      
 <li>How good is the agreement between the asymptotic and toy-based methods?</li>
 <li>Why does it take longer to calculate the lower expected quantiles (e.g. 0.025, 0.16)? Think about how the statistical uncertainty on the CLs value depends on Pmu and Pb.</li>
 </ul>
-<p>Next plot the test statistic distributions stored in the output file:</p>
-<pre><code class="language-shell">python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotTestStatCLs.py --input higgsCombine.part1B.HybridNew.mH120.root --poi r --val all --mass 120
-</code></pre>
+<p>Next plot the test statistic distributions stored in the output file:
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit/test/plotTestStatCLs.py<span class="w"> </span>--input<span class="w"> </span>higgsCombine.part1B.HybridNew.mH120.root<span class="w"> </span>--poi<span class="w"> </span>r<span class="w"> </span>--val<span class="w"> </span>all<span class="w"> </span>--mass<span class="w"> </span><span class="m">120</span>
+</code></pre></div></p>
 <p>This produces a new ROOT file <code>test_stat_distributions.root</code> containing the plots, to save them as pdf/png files run this small script and look at the resulting figures:</p>
-<pre><code class="language-shell">python3 printTestStatPlots.py test_stat_distributions.root
-</code></pre>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>printTestStatPlots.py<span class="w"> </span>test_stat_distributions.root
+</code></pre></div>
 <h3 id="advanced-section-b-asymptotic-approximation-limitations">Advanced section: B: Asymptotic approximation limitations</h3>
 <p>These distributions can be useful in understanding features in the CLs limits, especially in the low statistics regime. To explore this, try reducing the observed and expected yields in the datacard by a factor of 10, and rerun the above steps to compare the observed and expected limits with the asymptotic approach, and plot the test statistic distributions.</p>
 <p><strong>Tasks and questions:</strong></p>
@@ -1858,27 +1856,25 @@ xsec_diboson       lnN   -               1.05            -               -      
 <p>Now we move to the next step: instead of a one-bin counting experiment we will fit a binned distribution. In a typical analysis we will produce TH1 histograms of some variable sensitive to the presence of signal: one for the data and one for each signal and background processes. Then we add a few extra lines to the datacard to link the declared processes to these shapes which are saved in a ROOT file, for example:</p>
 <details>
 <summary><b>Show datacard</b></summary>
-
-<pre><code class="language-shell">imax 1
-jmax 1
-kmax *
+<div class="highlight"><pre><span></span><code>imax<span class="w"> </span><span class="m">1</span>
+jmax<span class="w"> </span><span class="m">1</span>
+kmax<span class="w"> </span>*
 ---------------
-shapes * * simple-shapes-TH1_input.root $PROCESS $PROCESS_$SYSTEMATIC
-shapes signal * simple-shapes-TH1_input.root $PROCESS$MASS $PROCESS$MASS_$SYSTEMATIC
+shapes<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>simple-shapes-TH1_input.root<span class="w"> </span><span class="nv">$PROCESS</span><span class="w"> </span><span class="nv">$PROCESS_$SYSTEMATIC</span>
+shapes<span class="w"> </span>signal<span class="w"> </span>*<span class="w"> </span>simple-shapes-TH1_input.root<span class="w"> </span><span class="nv">$PROCESS$MASS</span><span class="w"> </span><span class="nv">$PROCESS$MASS_$SYSTEMATIC</span>
 ---------------
-bin bin1
-observation 85
+bin<span class="w"> </span>bin1
+observation<span class="w"> </span><span class="m">85</span>
 ------------------------------
-bin             bin1       bin1
-process         signal     background
-process         0          1
-rate            10         100
+bin<span class="w">             </span>bin1<span class="w">       </span>bin1
+process<span class="w">         </span>signal<span class="w">     </span>background
+process<span class="w">         </span><span class="m">0</span><span class="w">          </span><span class="m">1</span>
+rate<span class="w">            </span><span class="m">10</span><span class="w">         </span><span class="m">100</span>
 --------------------------------
-lumi     lnN    1.10       1.0
-bgnorm   lnN    1.00       1.3
-alpha  shape    -          1
-</code></pre>
-
+lumi<span class="w">     </span>lnN<span class="w">    </span><span class="m">1</span>.10<span class="w">       </span><span class="m">1</span>.0
+bgnorm<span class="w">   </span>lnN<span class="w">    </span><span class="m">1</span>.00<span class="w">       </span><span class="m">1</span>.3
+alpha<span class="w">  </span>shape<span class="w">    </span>-<span class="w">          </span><span class="m">1</span>
+</code></pre></div>
 </details>
 
 <p>Note that as with the one-bin card, the total nominal rate of a given process must be specified in the <code>rate</code> line of the datacard. This should agree with the value returned by <code>TH1::Integral</code>. However, we can also put a value of <code>-1</code> and the Integral value will be substituted automatically.</p>
@@ -1897,12 +1893,12 @@ alpha  shape    -          1
 <p>Compared to the counting experiment we must also consider the effect of uncertainties that change the shape of the distribution. Some, like <code>CMS_eff_t_highpt</code>, were present before, as it has both a shape and normalisation effect. Others are primarily shape effects so were not included before.</p>
 <p>Add the following shape uncertainties: <code>top_pt_ttbar_shape</code> affecting <code>ttbar</code>,the tau energy scale uncertainties <code>CMS_scale_t_1prong0pi0_13TeV</code>, <code>CMS_scale_t_1prong1pi0_13TeV</code> and <code>CMS_scale_t_3prong0pi0_13TeV</code> affecting all processes except <code>jetFakes</code>, and <code>CMS_eff_t_highpt</code> also affecting the same processes.</p>
 <p>Once this is done you can run the asymptotic limit calculation on this datacard. From now on we will convert the text datacard into a RooFit workspace ourselves instead of combine doing it internally every time we run. This is a good idea for more complex analyses since the conversion step can take a notable amount of time. For this we use the <code>text2workspace.py</code> command:</p>
-<pre><code class="language-shell">text2workspace.py datacard_part2.txt -m 800 -o workspace_part2.root
-</code></pre>
-<p>And then we can use this as input to combine instead of the text datacard:</p>
-<pre><code class="language-shell">combine -M AsymptoticLimits workspace_part2.root -m 800
-</code></pre>
-<p><strong>Tasks and questions:</strong></p>
+<p><div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>datacard_part2.txt<span class="w"> </span>-m<span class="w"> </span><span class="m">800</span><span class="w"> </span>-o<span class="w"> </span>workspace_part2.root
+</code></pre></div>
+And then we can use this as input to combine instead of the text datacard:
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>AsymptoticLimits<span class="w"> </span>workspace_part2.root<span class="w"> </span>-m<span class="w"> </span><span class="m">800</span>
+</code></pre></div>
+<strong>Tasks and questions:</strong></p>
 <ul>
 <li>Verify that the sensitivity of the shape analysis is indeed improved over the counting analysis in the first part.</li>
 <li><em>Advanced task</em>: You can open the workspace ROOT file interactively and print the contents: <code>w-&gt;Print();</code>. Each process is represented by a PDF object that depends on the shape morphing nuisance parameters. From the workspace, choose a process and shape uncertainty, and make a plot overlaying the nominal shape with different values of the shape morphing nuisance parameter. You can change the value of a parameter with <code>w-&gt;var("X")-&gt;setVal(Y)</code>, and access a particular pdf with <code>w-&gt;pdf("Z")</code>. PDF objects in RooFit have a <a href="https://root.cern.ch/doc/master/classRooAbsReal.html#a552a08367c964e689515f2b5c92c8bbe">createHistogram</a> method that requires the name of the observable (the variable defining the x-axis) - this is called <code>CMS_th1x</code> in combine datacards. Feel free to ask for help with this!</li>
@@ -1918,66 +1914,62 @@ alpha  shape    -          1
 <li>A "signal+background" (s+b) fit: all POIs are floating</li>
 </ul>
 <p>With the s+b fit <span style="font-variant:small-caps;">Combine</span> will report the best-fit value of our signal strength modifier <code>r</code>. As well as the usual output file, a file named <code>fitDiagnosticsTest.root</code> is produced which contains additional information. In particular it includes two <code>RooFitResult</code> objects, one for the b-only and one for the s+b fit, which store the fitted values of all the <strong>nuisance parameters (NPs)</strong> and POIs as well as estimates of their uncertainties. The covariance matrix from both fits is also included, from which we can learn about the correlations between parameters. Run the <code>FitDiagnostics</code> method on our workspace:</p>
-<pre><code class="language-shell">combine -M FitDiagnostics workspace_part2.root -m 800 --rMin -20 --rMax 20
-</code></pre>
-<p>Open the resulting <code>fitDiagnosticsTest.root</code> interactively and print the contents of the s+b RooFitResult:</p>
-<pre><code class="language-shell">root [1] fit_s-&gt;Print()
-</code></pre>
+<p><div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>FitDiagnostics<span class="w"> </span>workspace_part2.root<span class="w"> </span>-m<span class="w"> </span><span class="m">800</span><span class="w"> </span>--rMin<span class="w"> </span>-20<span class="w"> </span>--rMax<span class="w"> </span><span class="m">20</span>
+</code></pre></div>
+Open the resulting <code>fitDiagnosticsTest.root</code> interactively and print the contents of the s+b RooFitResult:</p>
+<div class="highlight"><pre><span></span><code>root<span class="w"> </span><span class="o">[</span><span class="m">1</span><span class="o">]</span><span class="w"> </span>fit_s-&gt;Print<span class="o">()</span>
+</code></pre></div>
 <details>
 <summary><b>Show output</b></summary>
+<div class="highlight"><pre><span></span><code>RooFitResult:<span class="w"> </span>minimized<span class="w"> </span>FCN<span class="w"> </span>value:<span class="w"> </span>-2.55338e-05,<span class="w"> </span>estimated<span class="w"> </span>distance<span class="w"> </span>to<span class="w"> </span>minimum:<span class="w"> </span><span class="m">7</span>.54243e-06
+<span class="w">                </span>covariance<span class="w"> </span>matrix<span class="w"> </span>quality:<span class="w"> </span>Full,<span class="w"> </span>accurate<span class="w"> </span>covariance<span class="w"> </span>matrix
+<span class="w">                </span>Status<span class="w"> </span>:<span class="w"> </span><span class="nv">MINIMIZE</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">HESSE</span><span class="o">=</span><span class="m">0</span>
 
-<pre><code class="language-shell">RooFitResult: minimized FCN value: -2.55338e-05, estimated distance to minimum: 7.54243e-06
-                covariance matrix quality: Full, accurate covariance matrix
-                Status : MINIMIZE=0 HESSE=0
-
-    Floating Parameter    FinalValue +/-  Error
-  --------------------  --------------------------
-             CMS_eff_b   -4.5380e-02 +/-  9.93e-01
-             CMS_eff_t   -2.6311e-01 +/-  7.33e-01
-      CMS_eff_t_highpt   -4.7146e-01 +/-  9.62e-01
-  CMS_scale_t_1prong0pi0_13TeV   -1.5989e-01 +/-  5.93e-01
-  CMS_scale_t_1prong1pi0_13TeV   -1.6426e-01 +/-  4.94e-01
-  CMS_scale_t_3prong0pi0_13TeV   -3.0698e-01 +/-  6.06e-01
-    acceptance_Ztautau   -3.1262e-01 +/-  8.62e-01
-        acceptance_bbH   -2.8676e-05 +/-  1.00e+00
-      acceptance_ttbar    4.9981e-03 +/-  1.00e+00
-            lumi_13TeV   -5.6366e-02 +/-  9.89e-01
-         norm_jetFakes   -9.3327e-02 +/-  2.56e-01
-                     r   -2.7220e+00 +/-  2.59e+00
-    top_pt_ttbar_shape    1.7586e-01 +/-  7.00e-01
-          xsec_Ztautau   -1.6007e-01 +/-  9.66e-01
-          xsec_diboson    3.9758e-02 +/-  1.00e+00
-            xsec_ttbar    5.7794e-02 +/-  9.46e-01
-</code></pre>
-
+<span class="w">    </span>Floating<span class="w"> </span>Parameter<span class="w">    </span>FinalValue<span class="w"> </span>+/-<span class="w">  </span>Error
+<span class="w">  </span>--------------------<span class="w">  </span>--------------------------
+<span class="w">             </span>CMS_eff_b<span class="w">   </span>-4.5380e-02<span class="w"> </span>+/-<span class="w">  </span><span class="m">9</span>.93e-01
+<span class="w">             </span>CMS_eff_t<span class="w">   </span>-2.6311e-01<span class="w"> </span>+/-<span class="w">  </span><span class="m">7</span>.33e-01
+<span class="w">      </span>CMS_eff_t_highpt<span class="w">   </span>-4.7146e-01<span class="w"> </span>+/-<span class="w">  </span><span class="m">9</span>.62e-01
+<span class="w">  </span>CMS_scale_t_1prong0pi0_13TeV<span class="w">   </span>-1.5989e-01<span class="w"> </span>+/-<span class="w">  </span><span class="m">5</span>.93e-01
+<span class="w">  </span>CMS_scale_t_1prong1pi0_13TeV<span class="w">   </span>-1.6426e-01<span class="w"> </span>+/-<span class="w">  </span><span class="m">4</span>.94e-01
+<span class="w">  </span>CMS_scale_t_3prong0pi0_13TeV<span class="w">   </span>-3.0698e-01<span class="w"> </span>+/-<span class="w">  </span><span class="m">6</span>.06e-01
+<span class="w">    </span>acceptance_Ztautau<span class="w">   </span>-3.1262e-01<span class="w"> </span>+/-<span class="w">  </span><span class="m">8</span>.62e-01
+<span class="w">        </span>acceptance_bbH<span class="w">   </span>-2.8676e-05<span class="w"> </span>+/-<span class="w">  </span><span class="m">1</span>.00e+00
+<span class="w">      </span>acceptance_ttbar<span class="w">    </span><span class="m">4</span>.9981e-03<span class="w"> </span>+/-<span class="w">  </span><span class="m">1</span>.00e+00
+<span class="w">            </span>lumi_13TeV<span class="w">   </span>-5.6366e-02<span class="w"> </span>+/-<span class="w">  </span><span class="m">9</span>.89e-01
+<span class="w">         </span>norm_jetFakes<span class="w">   </span>-9.3327e-02<span class="w"> </span>+/-<span class="w">  </span><span class="m">2</span>.56e-01
+<span class="w">                     </span>r<span class="w">   </span>-2.7220e+00<span class="w"> </span>+/-<span class="w">  </span><span class="m">2</span>.59e+00
+<span class="w">    </span>top_pt_ttbar_shape<span class="w">    </span><span class="m">1</span>.7586e-01<span class="w"> </span>+/-<span class="w">  </span><span class="m">7</span>.00e-01
+<span class="w">          </span>xsec_Ztautau<span class="w">   </span>-1.6007e-01<span class="w"> </span>+/-<span class="w">  </span><span class="m">9</span>.66e-01
+<span class="w">          </span>xsec_diboson<span class="w">    </span><span class="m">3</span>.9758e-02<span class="w"> </span>+/-<span class="w">  </span><span class="m">1</span>.00e+00
+<span class="w">            </span>xsec_ttbar<span class="w">    </span><span class="m">5</span>.7794e-02<span class="w"> </span>+/-<span class="w">  </span><span class="m">9</span>.46e-01
+</code></pre></div>
 </details>
 
 <p>There are several useful pieces of information here. At the top the status codes from the fits that were performed is given. In this case we can see that two algorithms were run: <code>MINIMIZE</code> and <code>HESSE</code>, both of which returned a successful status code (0). Both of these are routines in the <strong>Minuit2</strong> minimization package - the default minimizer used in RooFit. The first performs the main fit to the data, and the second calculates the covariance matrix at the best-fit point. It is important to always check this second step was successful and the message "Full, accurate covariance matrix" is printed, otherwise the parameter uncertainties can be very inaccurate, even if the fit itself was successful.</p>
 <p>Underneath this the best-fit values (<span class="arithmatex">\(\theta\)</span>) and symmetrised uncertainties for all the floating parameters are given. For all the constrained nuisance parameters a convention is used by which the nominal value (<span class="arithmatex">\(\theta_I\)</span>) is zero, corresponding to the mean of a Gaussian constraint PDF with width 1.0, such that the parameter values <span class="arithmatex">\(\pm 1.0\)</span> correspond to the <span class="arithmatex">\(\pm 1\sigma\)</span> input uncertainties.</p>
 <p>A more useful way of looking at this is to compare the pre- and post-fit values of the parameters, to see how much the fit to data has shifted and constrained these parameters with respect to the input uncertainty. The script <code>diffNuisances.py</code> can be used for this:</p>
-<pre><code class="language-shell">python diffNuisances.py fitDiagnosticsTest.root --all
-</code></pre>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>diffNuisances.py<span class="w"> </span>fitDiagnosticsTest.root<span class="w"> </span>--all
+</code></pre></div>
 <details>
 <summary><b>Show output</b></summary>
-
-<pre><code class="language-shell">name                                              b-only fit            s+b fit         rho
-CMS_eff_b                                        -0.04, 0.99        -0.05, 0.99       +0.01
-CMS_eff_t                                     * -0.24, 0.73*     * -0.26, 0.73*       +0.06
-CMS_eff_t_highpt                              * -0.56, 0.94*     * -0.47, 0.96*       +0.02
-CMS_scale_t_1prong0pi0_13TeV                  * -0.17, 0.58*     * -0.16, 0.59*       -0.04
-CMS_scale_t_1prong1pi0_13TeV                  ! -0.12, 0.45!     ! -0.16, 0.49!       +0.20
-CMS_scale_t_3prong0pi0_13TeV                  * -0.31, 0.61*     * -0.31, 0.61*       +0.02
-acceptance_Ztautau                            * -0.31, 0.86*     * -0.31, 0.86*       -0.05
-acceptance_bbH                                   +0.00, 1.00        -0.00, 1.00       +0.05
-acceptance_ttbar                                 +0.01, 1.00        +0.00, 1.00       +0.00
-lumi_13TeV                                       -0.05, 0.99        -0.06, 0.99       +0.01
-norm_jetFakes                                 ! -0.09, 0.26!     ! -0.09, 0.26!       -0.05
-top_pt_ttbar_shape                            * +0.24, 0.69*     * +0.18, 0.70*       +0.22
-xsec_Ztautau                                     -0.16, 0.97        -0.16, 0.97       -0.02
-xsec_diboson                                     +0.03, 1.00        +0.04, 1.00       -0.02
-xsec_ttbar                                       +0.08, 0.95        +0.06, 0.95       +0.02
-</code></pre>
-
+<div class="highlight"><pre><span></span><code>name<span class="w">                                              </span>b-only<span class="w"> </span>fit<span class="w">            </span>s+b<span class="w"> </span>fit<span class="w">         </span>rho
+CMS_eff_b<span class="w">                                        </span>-0.04,<span class="w"> </span><span class="m">0</span>.99<span class="w">        </span>-0.05,<span class="w"> </span><span class="m">0</span>.99<span class="w">       </span>+0.01
+CMS_eff_t<span class="w">                                     </span>*<span class="w"> </span>-0.24,<span class="w"> </span><span class="m">0</span>.73*<span class="w">     </span>*<span class="w"> </span>-0.26,<span class="w"> </span><span class="m">0</span>.73*<span class="w">       </span>+0.06
+CMS_eff_t_highpt<span class="w">                              </span>*<span class="w"> </span>-0.56,<span class="w"> </span><span class="m">0</span>.94*<span class="w">     </span>*<span class="w"> </span>-0.47,<span class="w"> </span><span class="m">0</span>.96*<span class="w">       </span>+0.02
+CMS_scale_t_1prong0pi0_13TeV<span class="w">                  </span>*<span class="w"> </span>-0.17,<span class="w"> </span><span class="m">0</span>.58*<span class="w">     </span>*<span class="w"> </span>-0.16,<span class="w"> </span><span class="m">0</span>.59*<span class="w">       </span>-0.04
+CMS_scale_t_1prong1pi0_13TeV<span class="w">                  </span>!<span class="w"> </span>-0.12,<span class="w"> </span><span class="m">0</span>.45!<span class="w">     </span>!<span class="w"> </span>-0.16,<span class="w"> </span><span class="m">0</span>.49!<span class="w">       </span>+0.20
+CMS_scale_t_3prong0pi0_13TeV<span class="w">                  </span>*<span class="w"> </span>-0.31,<span class="w"> </span><span class="m">0</span>.61*<span class="w">     </span>*<span class="w"> </span>-0.31,<span class="w"> </span><span class="m">0</span>.61*<span class="w">       </span>+0.02
+acceptance_Ztautau<span class="w">                            </span>*<span class="w"> </span>-0.31,<span class="w"> </span><span class="m">0</span>.86*<span class="w">     </span>*<span class="w"> </span>-0.31,<span class="w"> </span><span class="m">0</span>.86*<span class="w">       </span>-0.05
+acceptance_bbH<span class="w">                                   </span>+0.00,<span class="w"> </span><span class="m">1</span>.00<span class="w">        </span>-0.00,<span class="w"> </span><span class="m">1</span>.00<span class="w">       </span>+0.05
+acceptance_ttbar<span class="w">                                 </span>+0.01,<span class="w"> </span><span class="m">1</span>.00<span class="w">        </span>+0.00,<span class="w"> </span><span class="m">1</span>.00<span class="w">       </span>+0.00
+lumi_13TeV<span class="w">                                       </span>-0.05,<span class="w"> </span><span class="m">0</span>.99<span class="w">        </span>-0.06,<span class="w"> </span><span class="m">0</span>.99<span class="w">       </span>+0.01
+norm_jetFakes<span class="w">                                 </span>!<span class="w"> </span>-0.09,<span class="w"> </span><span class="m">0</span>.26!<span class="w">     </span>!<span class="w"> </span>-0.09,<span class="w"> </span><span class="m">0</span>.26!<span class="w">       </span>-0.05
+top_pt_ttbar_shape<span class="w">                            </span>*<span class="w"> </span>+0.24,<span class="w"> </span><span class="m">0</span>.69*<span class="w">     </span>*<span class="w"> </span>+0.18,<span class="w"> </span><span class="m">0</span>.70*<span class="w">       </span>+0.22
+xsec_Ztautau<span class="w">                                     </span>-0.16,<span class="w"> </span><span class="m">0</span>.97<span class="w">        </span>-0.16,<span class="w"> </span><span class="m">0</span>.97<span class="w">       </span>-0.02
+xsec_diboson<span class="w">                                     </span>+0.03,<span class="w"> </span><span class="m">1</span>.00<span class="w">        </span>+0.04,<span class="w"> </span><span class="m">1</span>.00<span class="w">       </span>-0.02
+xsec_ttbar<span class="w">                                       </span>+0.08,<span class="w"> </span><span class="m">0</span>.95<span class="w">        </span>+0.06,<span class="w"> </span><span class="m">0</span>.95<span class="w">       </span>+0.02
+</code></pre></div>
 </details>
 
 <p>The numbers in each column are respectively <span class="arithmatex">\(\frac{\theta-\theta_I}{\sigma_I}\)</span> (This is often called the pull, but note that this is a misnomer. In this tutorial we will refer to it as the fitted value of the nuisance parameter relative to the input uncertainty. The true pull is defined as discussed under <code>diffPullAsym</code> <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#pre-and-post-fit-nuisance-parameters-and-pulls">here</a> ), where <span class="arithmatex">\(\sigma_I\)</span> is the input uncertainty; and the ratio of the post-fit to the pre-fit uncertainty <span class="arithmatex">\(\frac{\sigma}{\sigma_I}\)</span>.</p>
@@ -2043,46 +2035,44 @@ We are still implicitly using the MC simulation to predict to the ratio of event
 If the CRs are well chosen then this uncertainty should be smaller than the direct acceptance uncertainty in the SR however.
 The uncertainties <code>acceptance_ttbar_cr</code> and <code>acceptance_DY_cr</code> have been added to these datacards cover this effect. <strong>Task:</strong> Calculate the ratio of CR to SR events for these two processes, as well as their CR purity to verify that these are useful CRs.</p>
 <p>The next step is to combine these datacards into one, which is done with the <code>combineCards.py</code> script:</p>
-<pre><code class="language-shell">combineCards.py signal_region=datacard_part3.txt ttbar_cr=datacard_part3_ttbar_cr.txt DY_cr=datacard_part3_DY_cr.txt &amp;&gt; part3_combined.txt
-</code></pre>
+<div class="highlight"><pre><span></span><code>combineCards.py<span class="w"> </span><span class="nv">signal_region</span><span class="o">=</span>datacard_part3.txt<span class="w"> </span><span class="nv">ttbar_cr</span><span class="o">=</span>datacard_part3_ttbar_cr.txt<span class="w"> </span><span class="nv">DY_cr</span><span class="o">=</span>datacard_part3_DY_cr.txt<span class="w"> </span><span class="p">&amp;</span>&gt;<span class="w"> </span>part3_combined.txt
+</code></pre></div>
 <p>Each argument is of the form <code>[new channel name]=[datacard.txt]</code>. The new datacard is written to the screen by default, so we redirect the output into our new datacard file. The output looks like:</p>
 <details>
 <summary><b>Show datacard</b></summary>
-
-<pre><code class="language-shell">imax 3 number of bins
-jmax 8 number of processes minus 1
-kmax 15 number of nuisance parameters
+<div class="highlight"><pre><span></span><code>imax<span class="w"> </span><span class="m">3</span><span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>bins
+jmax<span class="w"> </span><span class="m">8</span><span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>processes<span class="w"> </span>minus<span class="w"> </span><span class="m">1</span>
+kmax<span class="w"> </span><span class="m">15</span><span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>nuisance<span class="w"> </span>parameters
 ----------------------------------------------------------------------------------------------------------------------------------
-shapes *              DY_cr          datacard_part3_DY_cr.shapes.root DY_control_region/$PROCESS DY_control_region/$PROCESS_$SYSTEMATIC
-shapes *              signal_region  datacard_part3.shapes.root signal_region/$PROCESS signal_region/$PROCESS_$SYSTEMATIC
-shapes bbHtautau      signal_region  datacard_part3.shapes.root signal_region/bbHtautau$MASS signal_region/bbHtautau$MASS_$SYSTEMATIC
-shapes *              ttbar_cr       datacard_part3_ttbar_cr.shapes.root tt_control_region/$PROCESS tt_control_region/$PROCESS_$SYSTEMATIC
+shapes<span class="w"> </span>*<span class="w">              </span>DY_cr<span class="w">          </span>datacard_part3_DY_cr.shapes.root<span class="w"> </span>DY_control_region/<span class="nv">$PROCESS</span><span class="w"> </span>DY_control_region/<span class="nv">$PROCESS_$SYSTEMATIC</span>
+shapes<span class="w"> </span>*<span class="w">              </span>signal_region<span class="w">  </span>datacard_part3.shapes.root<span class="w"> </span>signal_region/<span class="nv">$PROCESS</span><span class="w"> </span>signal_region/<span class="nv">$PROCESS_$SYSTEMATIC</span>
+shapes<span class="w"> </span>bbHtautau<span class="w">      </span>signal_region<span class="w">  </span>datacard_part3.shapes.root<span class="w"> </span>signal_region/bbHtautau<span class="nv">$MASS</span><span class="w"> </span>signal_region/bbHtautau<span class="nv">$MASS_$SYSTEMATIC</span>
+shapes<span class="w"> </span>*<span class="w">              </span>ttbar_cr<span class="w">       </span>datacard_part3_ttbar_cr.shapes.root<span class="w"> </span>tt_control_region/<span class="nv">$PROCESS</span><span class="w"> </span>tt_control_region/<span class="nv">$PROCESS_$SYSTEMATIC</span>
 ----------------------------------------------------------------------------------------------------------------------------------
-bin          signal_region  ttbar_cr       DY_cr
-observation  3416           79251          365754
+bin<span class="w">          </span>signal_region<span class="w">  </span>ttbar_cr<span class="w">       </span>DY_cr
+observation<span class="w">  </span><span class="m">3416</span><span class="w">           </span><span class="m">79251</span><span class="w">          </span><span class="m">365754</span>
 ----------------------------------------------------------------------------------------------------------------------------------
-bin                                               signal_region  signal_region  signal_region  signal_region  signal_region  ttbar_cr       ttbar_cr       ttbar_cr       ttbar_cr       ttbar_cr       DY_cr          DY_cr          DY_cr          DY_cr          DY_cr          DY_cr
-process                                           bbHtautau      ttbar          diboson        Ztautau        jetFakes       W              QCD            ttbar          VV             Ztautau        W              QCD            Zmumu          ttbar          VV             Ztautau
-process                                           0              1              2              3              4              5              6              1              7              3              5              6              8              1              7              3
-rate                                              198.521        683.017        96.5185        742.649        2048.94        597.336        308.965        67280.4        10589.6        150.025        59.9999        141.725        305423         34341.1        5273.43        115.34
+bin<span class="w">                                               </span>signal_region<span class="w">  </span>signal_region<span class="w">  </span>signal_region<span class="w">  </span>signal_region<span class="w">  </span>signal_region<span class="w">  </span>ttbar_cr<span class="w">       </span>ttbar_cr<span class="w">       </span>ttbar_cr<span class="w">       </span>ttbar_cr<span class="w">       </span>ttbar_cr<span class="w">       </span>DY_cr<span class="w">          </span>DY_cr<span class="w">          </span>DY_cr<span class="w">          </span>DY_cr<span class="w">          </span>DY_cr<span class="w">          </span>DY_cr
+process<span class="w">                                           </span>bbHtautau<span class="w">      </span>ttbar<span class="w">          </span>diboson<span class="w">        </span>Ztautau<span class="w">        </span>jetFakes<span class="w">       </span>W<span class="w">              </span>QCD<span class="w">            </span>ttbar<span class="w">          </span>VV<span class="w">             </span>Ztautau<span class="w">        </span>W<span class="w">              </span>QCD<span class="w">            </span>Zmumu<span class="w">          </span>ttbar<span class="w">          </span>VV<span class="w">             </span>Ztautau
+process<span class="w">                                           </span><span class="m">0</span><span class="w">              </span><span class="m">1</span><span class="w">              </span><span class="m">2</span><span class="w">              </span><span class="m">3</span><span class="w">              </span><span class="m">4</span><span class="w">              </span><span class="m">5</span><span class="w">              </span><span class="m">6</span><span class="w">              </span><span class="m">1</span><span class="w">              </span><span class="m">7</span><span class="w">              </span><span class="m">3</span><span class="w">              </span><span class="m">5</span><span class="w">              </span><span class="m">6</span><span class="w">              </span><span class="m">8</span><span class="w">              </span><span class="m">1</span><span class="w">              </span><span class="m">7</span><span class="w">              </span><span class="m">3</span>
+rate<span class="w">                                              </span><span class="m">198</span>.521<span class="w">        </span><span class="m">683</span>.017<span class="w">        </span><span class="m">96</span>.5185<span class="w">        </span><span class="m">742</span>.649<span class="w">        </span><span class="m">2048</span>.94<span class="w">        </span><span class="m">597</span>.336<span class="w">        </span><span class="m">308</span>.965<span class="w">        </span><span class="m">67280</span>.4<span class="w">        </span><span class="m">10589</span>.6<span class="w">        </span><span class="m">150</span>.025<span class="w">        </span><span class="m">59</span>.9999<span class="w">        </span><span class="m">141</span>.725<span class="w">        </span><span class="m">305423</span><span class="w">         </span><span class="m">34341</span>.1<span class="w">        </span><span class="m">5273</span>.43<span class="w">        </span><span class="m">115</span>.34
 ----------------------------------------------------------------------------------------------------------------------------------
-CMS_eff_b               lnN                       1.02           1.02           1.02           1.02           -              -              -              -              -              -              -              -              -              -              -              -
-CMS_eff_e               lnN                       -              -              -              -              -              1.02           -              -              1.02           1.02           -              -              -              -              -              -
+CMS_eff_b<span class="w">               </span>lnN<span class="w">                       </span><span class="m">1</span>.02<span class="w">           </span><span class="m">1</span>.02<span class="w">           </span><span class="m">1</span>.02<span class="w">           </span><span class="m">1</span>.02<span class="w">           </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span>-
+CMS_eff_e<span class="w">               </span>lnN<span class="w">                       </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span><span class="m">1</span>.02<span class="w">           </span>-<span class="w">              </span>-<span class="w">              </span><span class="m">1</span>.02<span class="w">           </span><span class="m">1</span>.02<span class="w">           </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span>-<span class="w">              </span>-
 ...
-</code></pre>
-
+</code></pre></div>
 </details>
 
 <p>The <code>[new channel name]=</code> part of the input arguments is not required, but it gives us control over how the channels in the combined card will be named,
 otherwise default values like <code>ch1</code>, <code>ch2</code> etc will be used.</p>
 <h3 id="a-use-of-rateparams">A: Use of rateParams</h3>
 <p>We now have a combined datacard that we can run text2workspace.py on and start doing fits, however there is still one important ingredient missing. Right now the yields of the <code>Ztautau</code> process in the SR and <code>Zmumu</code> in the CR are not connected to each other in any way, and similarly for the <code>ttbar</code> processes. In the fit both would be adjusted by the nuisance parameters only, and constrained to the nominal yields. To remedy this we introduce <code>rateParam</code> directives to the datacard. A <code>rateParam</code> is a new free parameter that multiples the yield of a given process, just in the same way the signal strength <code>r</code> multiplies the signal yield. The syntax of a <code>rateParam</code> line in the datacard is</p>
-<pre><code class="language-shell">[name] rateParam [channel] [process] [init] [min,max]
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="o">[</span>name<span class="o">]</span><span class="w"> </span>rateParam<span class="w"> </span><span class="o">[</span>channel<span class="o">]</span><span class="w"> </span><span class="o">[</span>process<span class="o">]</span><span class="w"> </span><span class="o">[</span>init<span class="o">]</span><span class="w"> </span><span class="o">[</span>min,max<span class="o">]</span>
+</code></pre></div>
 <p>where <code>name</code> is the chosen name for the parameter, <code>channel</code> and <code>process</code> specify which (channel, process) combination it should affect, <code>init</code> gives the initial value, and optionally <code>[min,max]</code> specifies the ranges on the RooRealVar that will be created. The <code>channel</code> and <code>process</code> arguments support the use of the wildcard <code>*</code> to match multiple entries. <strong>Task:</strong> Add two <code>rateParam</code>s with nominal values of <code>1.0</code> to the end of the combined datacard named <code>rate_ttbar</code> and <code>rate_Zll</code>. The former should affect the <code>ttbar</code> process in all channels, and the latter should affect the <code>Ztautau</code> and <code>Zmumu</code> processes in all channels. Set ranges of <code>[0,5]</code> to both. Note that a <code>rateParam</code> name can be repeated to apply it to multiple processes, e.g.:</p>
-<pre><code class="language-shell">rateScale rateParam * procA 1.0
-rateScale rateParam * procB 1.0
-</code></pre>
+<div class="highlight"><pre><span></span><code>rateScale<span class="w"> </span>rateParam<span class="w"> </span>*<span class="w"> </span>procA<span class="w"> </span><span class="m">1</span>.0
+rateScale<span class="w"> </span>rateParam<span class="w"> </span>*<span class="w"> </span>procB<span class="w"> </span><span class="m">1</span>.0
+</code></pre></div>
 <p>is perfectly valid and only one <code>rateParam</code> will be created. These parameters will allow the yields to float in the fit without prior constraint (unlike a regular <code>lnN</code> or <code>shape</code> systematic), with the yields in the CRs and SR tied together.</p>
 <p><strong>Tasks and questions:</strong></p>
 <ul>
@@ -2092,17 +2082,17 @@ rateScale rateParam * procB 1.0
 </ul>
 <h3 id="b-nuisance-parameter-impacts">B: Nuisance parameter impacts</h3>
 <p>It is often useful to examine in detail the effects the systematic uncertainties have on the signal strength measurement. This is often referred to as calculating the "impact" of each uncertainty. What this means is to determine the shift in the signal strength, with respect to the best-fit, that is induced if a given nuisance parameter is shifted by its <span class="arithmatex">\(\pm1\sigma\)</span> post-fit uncertainty values. If the signal strength shifts a lot, it tells us that it has a strong dependency on this systematic uncertainty. In fact, what we are measuring here is strongly related to the correlation coefficient between the signal strength and the nuisance parameter. The <code>MultiDimFit</code> method has an algorithm for calculating the impact for a given systematic: <code>--algo impact -P [parameter name]</code>, but it is typical to use a higher-level script, <code>combineTool.py</code>, to automatically run the impacts for all parameters. Full documentation on this is given <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#nuisance-parameter-impacts">here</a>. There is a three step process for running this. First we perform an initial fit for the signal strength and its uncertainty:</p>
-<pre><code class="language-shell">combineTool.py -M Impacts -d workspace_part3.root -m 200 --rMin -1 --rMax 2 --robustFit 1 --doInitialFit
-</code></pre>
-<p>Then we run the impacts for all the nuisance parameters:</p>
-<pre><code class="language-shell">combineTool.py -M Impacts -d workspace_part3.root -m 200 --rMin -1 --rMax 2 --robustFit 1 --doFits
-</code></pre>
-<p>This will take a little bit of time. When finished we collect all the output and convert it to a json file:</p>
-<pre><code class="language-shell">combineTool.py -M Impacts -d workspace_part3.root -m 200 --rMin -1 --rMax 2 --robustFit 1 --output impacts.json
-</code></pre>
-<p>We can then make a plot showing the fitted values of the nuisance parameters, relative to the input uncertainty, and parameter impacts, sorted by the largest impact:</p>
-<pre><code class="language-shell">plotImpacts.py -i impacts.json -o impacts
-</code></pre>
+<p><div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>Impacts<span class="w"> </span>-d<span class="w"> </span>workspace_part3.root<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">2</span><span class="w"> </span>--robustFit<span class="w"> </span><span class="m">1</span><span class="w"> </span>--doInitialFit
+</code></pre></div>
+Then we run the impacts for all the nuisance parameters:
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>Impacts<span class="w"> </span>-d<span class="w"> </span>workspace_part3.root<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">2</span><span class="w"> </span>--robustFit<span class="w"> </span><span class="m">1</span><span class="w"> </span>--doFits
+</code></pre></div>
+This will take a little bit of time. When finished we collect all the output and convert it to a json file:
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>Impacts<span class="w"> </span>-d<span class="w"> </span>workspace_part3.root<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">2</span><span class="w"> </span>--robustFit<span class="w"> </span><span class="m">1</span><span class="w"> </span>--output<span class="w"> </span>impacts.json
+</code></pre></div>
+We can then make a plot showing the fitted values of the nuisance parameters, relative to the input uncertainty, and parameter impacts, sorted by the largest impact:
+<div class="highlight"><pre><span></span><code>plotImpacts.py<span class="w"> </span>-i<span class="w"> </span>impacts.json<span class="w"> </span>-o<span class="w"> </span>impacts
+</code></pre></div></p>
 <p><strong>Tasks and questions:</strong></p>
 <ul>
 <li>Identify the most important uncertainties using the impacts tool.</li>
@@ -2111,8 +2101,8 @@ rateScale rateParam * procB 1.0
 <h3 id="c-post-fit-distributions">C: Post-fit distributions</h3>
 <p>Another thing the <code>FitDiagnostics</code> mode can help us with is visualising the distributions we are fitting, and the uncertainties on those distributions, both before the fit is performed ("pre-fit") and after ("post-fit"). The pre-fit can give us some idea of how well our uncertainties cover any data-MC discrepancy, and the post-fit if discrepancies remain after the fit to data (as well as possibly letting us see the presence of a significant signal!).</p>
 <p>To produce these distributions add the <code>--saveShapes</code> and <code>--saveWithUncertainties</code> options when running <code>FitDiagnostics</code>:</p>
-<pre><code class="language-shell">combine -M FitDiagnostics workspace_part3.root -m 200 --rMin -1 --rMax 2 --saveShapes --saveWithUncertainties -n .part3B
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>FitDiagnostics<span class="w"> </span>workspace_part3.root<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">2</span><span class="w"> </span>--saveShapes<span class="w"> </span>--saveWithUncertainties<span class="w"> </span>-n<span class="w"> </span>.part3B
+</code></pre></div>
 <p><span style="font-variant:small-caps;">Combine</span> will produce pre- and post-fit distributions (for fit_s and fit_b) in the fitDiagnosticsTest.root output file:</p>
 <p><img alt="" src="../images/fit_diag_shapes.png" /></p>
 <p><strong>Tasks and questions:</strong></p>
@@ -2127,14 +2117,14 @@ rateScale rateParam * procB 1.0
 </ul>
 <h3 id="d-calculating-the-significance">D: Calculating the significance</h3>
 <p>In the event that you observe a deviation from your null hypothesis, in this case the b-only hypothesis, <span style="font-variant:small-caps;">Combine</span> can be used to calculate the p-value or significance. To do this using the asymptotic approximation simply do:</p>
-<pre><code class="language-shell">combine -M Significance workspace_part3.root -m 200 --rMin -1 --rMax 2
-</code></pre>
-<p>To calculate the expected significance for a given signal strength we can just generate an Asimov dataset first:</p>
-<pre><code class="language-shell">combine -M Significance workspace_part3.root -m 200 --rMin -1 --rMax 5 -t -1 --expectSignal 1.5
-</code></pre>
-<p>Note that the Asimov dataset generated this way uses the nominal values of all model parameters to define the dataset. Another option is to add <code>--toysFrequentist</code>, which causes a fit to the data to be performed first (with <code>r</code> frozen to the <code>--expectSignal</code> value) and then any subsequent Asimov datasets or toys are generated using the post-fit values of the model parameters. In general this will result in a different value for the expected significance due to changes in the background normalisation and shape induced by the fit to data:</p>
-<pre><code class="language-shell">combine -M Significance workspace_part3.root -m 200 --rMin -1 --rMax 5 -t -1 --expectSignal 1.5 --toysFrequentist
-</code></pre>
+<p><div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>Significance<span class="w"> </span>workspace_part3.root<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">2</span>
+</code></pre></div>
+To calculate the expected significance for a given signal strength we can just generate an Asimov dataset first:</p>
+<p><div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>Significance<span class="w"> </span>workspace_part3.root<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">5</span><span class="w"> </span>-t<span class="w"> </span>-1<span class="w"> </span>--expectSignal<span class="w"> </span><span class="m">1</span>.5
+</code></pre></div>
+Note that the Asimov dataset generated this way uses the nominal values of all model parameters to define the dataset. Another option is to add <code>--toysFrequentist</code>, which causes a fit to the data to be performed first (with <code>r</code> frozen to the <code>--expectSignal</code> value) and then any subsequent Asimov datasets or toys are generated using the post-fit values of the model parameters. In general this will result in a different value for the expected significance due to changes in the background normalisation and shape induced by the fit to data:</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>Significance<span class="w"> </span>workspace_part3.root<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">5</span><span class="w"> </span>-t<span class="w"> </span>-1<span class="w"> </span>--expectSignal<span class="w"> </span><span class="m">1</span>.5<span class="w"> </span>--toysFrequentist
+</code></pre></div>
 <p><strong>Tasks and questions:</strong></p>
 <ul>
 <li>Note how much the expected significance changes with the --toysFrequentist option. Does the change make sense given the difference in the post-fit and pre-fit distributions you looked at in the previous section?</li>
@@ -2150,73 +2140,71 @@ rateScale rateParam * procB 1.0
 <li>Explicit scan of the profile likelihood on a chosen grid of parameter values. Interpolation between points to find parameter values corresponding to appropriate d. It is a good idea to use this for important measurements since we can see by eye that there are no unexpected features in the shape of the likelihood curve.</li>
 </ul>
 <p>In this section we will look at the last approach, using the <code>MultiDimFit</code> mode of combine. By default this mode just performs a single fit to the data:</p>
-<pre><code class="language-shell">combine -M MultiDimFit workspace_part3.root -n .part3E -m 200 --rMin -1 --rMax 2
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>workspace_part3.root<span class="w"> </span>-n<span class="w"> </span>.part3E<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">2</span>
+</code></pre></div>
 <p>You should see the best-fit value of the signal strength reported and nothing else. By adding the <code>--algo X</code> option combine will run an additional algorithm after this best fit. Here we will use <code>--algo grid</code>, which performs a scan of the likelihood with <code>r</code> fixed to a set of different values. The set of points will be equally spaced between the <code>--rMin</code> and <code>--rMax</code> values, and the number of points is controlled with <code>--points N</code>:</p>
-<pre><code class="language-shell">combine -M MultiDimFit workspace_part3.root -n .part3E -m 200 --rMin -1 --rMax 2 --algo grid --points 30
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>workspace_part3.root<span class="w"> </span>-n<span class="w"> </span>.part3E<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">2</span><span class="w"> </span>--algo<span class="w"> </span>grid<span class="w"> </span>--points<span class="w"> </span><span class="m">30</span>
+</code></pre></div>
 <p>The results of the scan are written into the output file, if opened interactively should see:</p>
 <details>
 <summary><b>Show output</b></summary>
-
-<pre><code class="language-shell">root [1] limit-&gt;Scan(&quot;r:deltaNLL&quot;)
+<div class="highlight"><pre><span></span><code>root<span class="w"> </span><span class="o">[</span><span class="m">1</span><span class="o">]</span><span class="w"> </span>limit-&gt;Scan<span class="o">(</span><span class="s2">&quot;r:deltaNLL&quot;</span><span class="o">)</span>
 ************************************
-*    Row   *         r *  deltaNLL *
+*<span class="w">    </span>Row<span class="w">   </span>*<span class="w">         </span>r<span class="w"> </span>*<span class="w">  </span>deltaNLL<span class="w"> </span>*
 ************************************
-*        0 * 0.5399457 *         0 *
-*        1 * -0.949999 * 5.6350698 *
-*        2 * -0.850000 * 4.9482779 *
-*        3 *     -0.75 * 4.2942519 *
-*        4 * -0.649999 * 3.6765284 *
-*        5 * -0.550000 * 3.0985388 *
-*        6 * -0.449999 * 2.5635135 *
-*        7 * -0.349999 * 2.0743820 *
-*        8 *     -0.25 * 1.6337506 *
-*        9 * -0.150000 * 1.2438088 *
-*       10 * -0.050000 * 0.9059833 *
-*       11 * 0.0500000 * 0.6215767 *
-*       12 * 0.1500000 * 0.3910581 *
-*       13 *      0.25 * 0.2144184 *
-*       14 * 0.3499999 * 0.0911308 *
-*       15 * 0.4499999 * 0.0201983 *
-*       16 * 0.5500000 * 0.0002447 *
-*       17 * 0.6499999 * 0.0294311 *
-*       18 *      0.75 * 0.1058298 *
-*       19 * 0.8500000 * 0.2272539 *
-*       20 * 0.9499999 * 0.3912534 *
-*       21 * 1.0499999 * 0.5952836 *
-*       22 * 1.1499999 * 0.8371513 *
-*       23 *      1.25 * 1.1142146 *
-*       24 * 1.3500000 * 1.4240909 *
-*       25 * 1.4500000 * 1.7644306 *
-*       26 * 1.5499999 * 2.1329684 *
-*       27 * 1.6499999 * 2.5273966 *
-*       28 *      1.75 * 2.9458723 *
-*       29 * 1.8500000 * 3.3863399 *
-*       30 * 1.9500000 * 3.8469560 *
+*<span class="w">        </span><span class="m">0</span><span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.5399457<span class="w"> </span>*<span class="w">         </span><span class="m">0</span><span class="w"> </span>*
+*<span class="w">        </span><span class="m">1</span><span class="w"> </span>*<span class="w"> </span>-0.949999<span class="w"> </span>*<span class="w"> </span><span class="m">5</span>.6350698<span class="w"> </span>*
+*<span class="w">        </span><span class="m">2</span><span class="w"> </span>*<span class="w"> </span>-0.850000<span class="w"> </span>*<span class="w"> </span><span class="m">4</span>.9482779<span class="w"> </span>*
+*<span class="w">        </span><span class="m">3</span><span class="w"> </span>*<span class="w">     </span>-0.75<span class="w"> </span>*<span class="w"> </span><span class="m">4</span>.2942519<span class="w"> </span>*
+*<span class="w">        </span><span class="m">4</span><span class="w"> </span>*<span class="w"> </span>-0.649999<span class="w"> </span>*<span class="w"> </span><span class="m">3</span>.6765284<span class="w"> </span>*
+*<span class="w">        </span><span class="m">5</span><span class="w"> </span>*<span class="w"> </span>-0.550000<span class="w"> </span>*<span class="w"> </span><span class="m">3</span>.0985388<span class="w"> </span>*
+*<span class="w">        </span><span class="m">6</span><span class="w"> </span>*<span class="w"> </span>-0.449999<span class="w"> </span>*<span class="w"> </span><span class="m">2</span>.5635135<span class="w"> </span>*
+*<span class="w">        </span><span class="m">7</span><span class="w"> </span>*<span class="w"> </span>-0.349999<span class="w"> </span>*<span class="w"> </span><span class="m">2</span>.0743820<span class="w"> </span>*
+*<span class="w">        </span><span class="m">8</span><span class="w"> </span>*<span class="w">     </span>-0.25<span class="w"> </span>*<span class="w"> </span><span class="m">1</span>.6337506<span class="w"> </span>*
+*<span class="w">        </span><span class="m">9</span><span class="w"> </span>*<span class="w"> </span>-0.150000<span class="w"> </span>*<span class="w"> </span><span class="m">1</span>.2438088<span class="w"> </span>*
+*<span class="w">       </span><span class="m">10</span><span class="w"> </span>*<span class="w"> </span>-0.050000<span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.9059833<span class="w"> </span>*
+*<span class="w">       </span><span class="m">11</span><span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.0500000<span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.6215767<span class="w"> </span>*
+*<span class="w">       </span><span class="m">12</span><span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.1500000<span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.3910581<span class="w"> </span>*
+*<span class="w">       </span><span class="m">13</span><span class="w"> </span>*<span class="w">      </span><span class="m">0</span>.25<span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.2144184<span class="w"> </span>*
+*<span class="w">       </span><span class="m">14</span><span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.3499999<span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.0911308<span class="w"> </span>*
+*<span class="w">       </span><span class="m">15</span><span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.4499999<span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.0201983<span class="w"> </span>*
+*<span class="w">       </span><span class="m">16</span><span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.5500000<span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.0002447<span class="w"> </span>*
+*<span class="w">       </span><span class="m">17</span><span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.6499999<span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.0294311<span class="w"> </span>*
+*<span class="w">       </span><span class="m">18</span><span class="w"> </span>*<span class="w">      </span><span class="m">0</span>.75<span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.1058298<span class="w"> </span>*
+*<span class="w">       </span><span class="m">19</span><span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.8500000<span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.2272539<span class="w"> </span>*
+*<span class="w">       </span><span class="m">20</span><span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.9499999<span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.3912534<span class="w"> </span>*
+*<span class="w">       </span><span class="m">21</span><span class="w"> </span>*<span class="w"> </span><span class="m">1</span>.0499999<span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.5952836<span class="w"> </span>*
+*<span class="w">       </span><span class="m">22</span><span class="w"> </span>*<span class="w"> </span><span class="m">1</span>.1499999<span class="w"> </span>*<span class="w"> </span><span class="m">0</span>.8371513<span class="w"> </span>*
+*<span class="w">       </span><span class="m">23</span><span class="w"> </span>*<span class="w">      </span><span class="m">1</span>.25<span class="w"> </span>*<span class="w"> </span><span class="m">1</span>.1142146<span class="w"> </span>*
+*<span class="w">       </span><span class="m">24</span><span class="w"> </span>*<span class="w"> </span><span class="m">1</span>.3500000<span class="w"> </span>*<span class="w"> </span><span class="m">1</span>.4240909<span class="w"> </span>*
+*<span class="w">       </span><span class="m">25</span><span class="w"> </span>*<span class="w"> </span><span class="m">1</span>.4500000<span class="w"> </span>*<span class="w"> </span><span class="m">1</span>.7644306<span class="w"> </span>*
+*<span class="w">       </span><span class="m">26</span><span class="w"> </span>*<span class="w"> </span><span class="m">1</span>.5499999<span class="w"> </span>*<span class="w"> </span><span class="m">2</span>.1329684<span class="w"> </span>*
+*<span class="w">       </span><span class="m">27</span><span class="w"> </span>*<span class="w"> </span><span class="m">1</span>.6499999<span class="w"> </span>*<span class="w"> </span><span class="m">2</span>.5273966<span class="w"> </span>*
+*<span class="w">       </span><span class="m">28</span><span class="w"> </span>*<span class="w">      </span><span class="m">1</span>.75<span class="w"> </span>*<span class="w"> </span><span class="m">2</span>.9458723<span class="w"> </span>*
+*<span class="w">       </span><span class="m">29</span><span class="w"> </span>*<span class="w"> </span><span class="m">1</span>.8500000<span class="w"> </span>*<span class="w"> </span><span class="m">3</span>.3863399<span class="w"> </span>*
+*<span class="w">       </span><span class="m">30</span><span class="w"> </span>*<span class="w"> </span><span class="m">1</span>.9500000<span class="w"> </span>*<span class="w"> </span><span class="m">3</span>.8469560<span class="w"> </span>*
 ************************************
-</code></pre>
-
+</code></pre></div>
 </details>
 
-<p>To turn this into a plot run:</p>
-<pre><code class="language-shell">python plot1DScan.py higgsCombine.part3E.MultiDimFit.mH200.root -o single_scan
-</code></pre>
-<p>This script will also perform a spline interpolation of the points to give accurate values for the uncertainties.</p>
+<p>To turn this into a plot run:
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>plot1DScan.py<span class="w"> </span>higgsCombine.part3E.MultiDimFit.mH200.root<span class="w"> </span>-o<span class="w"> </span>single_scan
+</code></pre></div>
+This script will also perform a spline interpolation of the points to give accurate values for the uncertainties.</p>
 <p>In the next step we will split this total uncertainty into two components. It is typical to separate the contribution from statistics and systematics, and sometimes even split the systematic part into different components. This gives us an idea of which aspects of the uncertainty dominate.
 The statistical component is usually defined as the uncertainty we would have if all the systematic uncertainties went to zero. We can emulate this effect by freezing all the nuisance parameters when we do the scan in <code>r</code>,
 such that they do not vary in the fit. This is achieved by adding the <code>--freezeParameters allConstrainedNuisances</code> option. It would also work if the parameters are specified explicitly, e.g. <code>--freezeParameters CMS_eff_t,lumi_13TeV,...,</code> but the <code>allConstrainedNuisances</code> option is more concise. Run the scan again with the systematics frozen, and use the plotting script to overlay this curve with the previous one:</p>
-<pre><code class="language-shell">combine -M MultiDimFit workspace_part3.root -n .part3E.freezeAll -m 200 --rMin -1 --rMax 2 --algo grid --points 30 --freezeParameters allConstrainedNuisances
-python plot1DScan.py higgsCombine.part3E.MultiDimFit.mH200.root --others 'higgsCombine.part3E.freezeAll.MultiDimFit.mH200.root:FreezeAll:2' -o freeze_first_attempt
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>workspace_part3.root<span class="w"> </span>-n<span class="w"> </span>.part3E.freezeAll<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">2</span><span class="w"> </span>--algo<span class="w"> </span>grid<span class="w"> </span>--points<span class="w"> </span><span class="m">30</span><span class="w"> </span>--freezeParameters<span class="w"> </span>allConstrainedNuisances
+python<span class="w"> </span>plot1DScan.py<span class="w"> </span>higgsCombine.part3E.MultiDimFit.mH200.root<span class="w"> </span>--others<span class="w"> </span><span class="s1">&#39;higgsCombine.part3E.freezeAll.MultiDimFit.mH200.root:FreezeAll:2&#39;</span><span class="w"> </span>-o<span class="w"> </span>freeze_first_attempt
+</code></pre></div>
 <p><img alt="" src="../images/freeze_first_attempt.png" /></p>
 <p>This doesn't look quite right - the best-fit has been shifted because unfortunately the <code>--freezeParameters</code> option acts before the initial fit, whereas we only want to add it for the scan after this fit. To remedy this we can use a feature of <span style="font-variant:small-caps;">Combine</span> that lets us save a "snapshot" of the best-fit parameter values, and reuse this snapshot in subsequent fits. First we perform a single fit, adding the <code>--saveWorkspace</code> option:</p>
-<pre><code class="language-shell">combine -M MultiDimFit workspace_part3.root -n .part3E.snapshot -m 200 --rMin -1 --rMax 2 --saveWorkspace
-</code></pre>
-<p>The output file will now contain a copy of our workspace from the input, and this copy will contain a snapshot of the best-fit parameter values. We can now run the frozen scan again, but instead using this copy of the workspace as input, and restoring the snapshot that was saved:</p>
-<pre><code class="language-shell">combine -M MultiDimFit higgsCombine.part3E.snapshot.MultiDimFit.mH200.root -n .part3E.freezeAll -m 200 --rMin -1 --rMax 2 --algo grid --points 30 --freezeParameters allConstrainedNuisances --snapshotName MultiDimFit
-python plot1DScan.py higgsCombine.part3E.MultiDimFit.mH200.root --others 'higgsCombine.part3E.freezeAll.MultiDimFit.mH200.root:FreezeAll:2' -o freeze_second_attempt --breakdown Syst,Stat
-</code></pre>
+<p><div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>workspace_part3.root<span class="w"> </span>-n<span class="w"> </span>.part3E.snapshot<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">2</span><span class="w"> </span>--saveWorkspace
+</code></pre></div>
+The output file will now contain a copy of our workspace from the input, and this copy will contain a snapshot of the best-fit parameter values. We can now run the frozen scan again, but instead using this copy of the workspace as input, and restoring the snapshot that was saved:</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>higgsCombine.part3E.snapshot.MultiDimFit.mH200.root<span class="w"> </span>-n<span class="w"> </span>.part3E.freezeAll<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">2</span><span class="w"> </span>--algo<span class="w"> </span>grid<span class="w"> </span>--points<span class="w"> </span><span class="m">30</span><span class="w"> </span>--freezeParameters<span class="w"> </span>allConstrainedNuisances<span class="w"> </span>--snapshotName<span class="w"> </span>MultiDimFit
+python<span class="w"> </span>plot1DScan.py<span class="w"> </span>higgsCombine.part3E.MultiDimFit.mH200.root<span class="w"> </span>--others<span class="w"> </span><span class="s1">&#39;higgsCombine.part3E.freezeAll.MultiDimFit.mH200.root:FreezeAll:2&#39;</span><span class="w"> </span>-o<span class="w"> </span>freeze_second_attempt<span class="w"> </span>--breakdown<span class="w"> </span>Syst,Stat
+</code></pre></div>
 <p>Now the plot should look correct:</p>
 <p><img alt="" src="../images/freeze_second_attempt.png" /></p>
 <p>We added the <code>--breakdown Syst,Stat</code> option to the plotting script to make it calculate the systematic component, which is defined simply as <span class="arithmatex">\(\sigma_{\text{syst}} = \sqrt{\sigma^2_{\text{tot}} - \sigma^2_{\text{stat}}}\)</span>.
@@ -2226,8 +2214,8 @@ To split the systematic uncertainty into different components we just need to ru
 <p><span class="arithmatex">\(\sigma_{\text{stat}} = \sigma_{\text{fr.theory+expt}}\)</span></p>
 <p>where fr.=freeze.</p>
 <p>While it is perfectly fine to just list the relevant nuisance parameters in the <code>--freezeParameters</code> argument for the <span class="arithmatex">\(\sigma_{\text{fr.theory}}\)</span> scan, a convenient way can be to define a named group of parameters in the text datacard and then freeze all parameters in this group with <code>--freezeNuisanceGroups</code>. The syntax for defining a group is:</p>
-<pre><code class="language-shell">[group name] group = uncertainty_1 uncertainty_2 ... uncertainty_N
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="o">[</span>group<span class="w"> </span>name<span class="o">]</span><span class="w"> </span><span class="nv">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>uncertainty_1<span class="w"> </span>uncertainty_2<span class="w"> </span>...<span class="w"> </span>uncertainty_N
+</code></pre></div>
 <p><strong>Tasks and questions:</strong></p>
 <ul>
 <li>Take our stat+syst split one step further and separate the systematic part into two: one part for hadronic tau uncertainties and one for all others.</li>
@@ -2238,8 +2226,8 @@ To split the systematic uncertainty into different components we just need to ru
 <h3 id="f-use-of-channel-masking">F: Use of channel masking</h3>
 <p>We will now return briefly to the topic of blinding. We've seen that we can compute expected results by performing any <span style="font-variant:small-caps;">Combine</span> method on an Asimov dataset generated using <code>-t -1</code>. This is useful, because we can optimise our analysis without introducing any accidental bias that might come from looking at the data in the signal region. However our control regions have been chosen specifically to be signal-free, and it would be useful to use the data here to set the normalisation of our backgrounds even while the signal region remains blinded. Unfortunately there's no easy way to generate a partial Asimov dataset just for the signal region, but instead we can use a feature called "channel masking" to remove specific channels from the likelihood evaluation. One useful application of this feature is to make post-fit plots of the signal region from a control-region-only fit.</p>
 <p>To use the masking we first need to rerun <code>text2workspace.py</code> with an extra option that will create variables named like <code>mask_[channel]</code> in the workspace:</p>
-<pre><code class="language-shell">text2workspace.py part3_combined.txt -m 200 -o workspace_part3_with_masks.root --channel-masks
-</code></pre>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>part3_combined.txt<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>-o<span class="w"> </span>workspace_part3_with_masks.root<span class="w"> </span>--channel-masks
+</code></pre></div>
 <p>These parameters have a default value of 0 which means the channel is not masked. By setting it to 1 the channel is masked from the likelihood evaluation. <strong>Task:</strong> Run the same <code>FitDiagnostics</code> command as before to save the post-fit shapes, but add an option <code>--setParameters mask_signal_region=1</code>. Note that the s+b fit will probably fail in this case, since we are no longer fitting a channel that contains signal, however the b-only fit should work fine. <strong>Task:</strong> Compare the expected background distribution and uncertainty to the pre-fit, and to the background distribution from the full fit you made before.</p>
 <h2 id="part-4-physics-models">Part 4: Physics models</h2>
 <p>Topics covered in this section:</p>
@@ -2254,37 +2242,35 @@ For example, when measuring the couplings of the Higgs boson to the different SM
 <p>An example physics model that just implements a single parameter <code>r</code> is given in <code>DASModel.py</code>:</p>
 <details>
 <summary><b>Show DASModel.py</b></summary>
-
-<pre><code class="language-python">from HiggsAnalysis.CombinedLimit.PhysicsModel import PhysicsModel
-
-
-class DASModel(PhysicsModel):
-    def doParametersOfInterest(self):
-        &quot;&quot;&quot;Create POI and other parameters, and define the POI set.&quot;&quot;&quot;
-        self.modelBuilder.doVar(&quot;r[0,0,10]&quot;)
-        self.modelBuilder.doSet(&quot;POI&quot;, &quot;,&quot;.join([&quot;r&quot;]))
-
-    def getYieldScale(self, bin, process):
-        &quot;Return the name of a RooAbsReal to scale this yield by or the two special values 1 and 0 (don't scale, and set to zero)&quot;
-        if self.DC.isSignal[process]:
-            print(&quot;Scaling %s/%s by r&quot; % (bin, process))
-            return &quot;r&quot;
-        return 1
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">HiggsAnalysis.CombinedLimit.PhysicsModel</span> <span class="kn">import</span> <span class="n">PhysicsModel</span>
 
 
-dasModel = DASModel()
-</code></pre>
+<span class="k">class</span> <span class="nc">DASModel</span><span class="p">(</span><span class="n">PhysicsModel</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">doParametersOfInterest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create POI and other parameters, and define the POI set.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">doVar</span><span class="p">(</span><span class="s2">&quot;r[0,0,10]&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">doSet</span><span class="p">(</span><span class="s2">&quot;POI&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;r&quot;</span><span class="p">]))</span>
 
+    <span class="k">def</span> <span class="nf">getYieldScale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">bin</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
+        <span class="s2">&quot;Return the name of a RooAbsReal to scale this yield by or the two special values 1 and 0 (don&#39;t scale, and set to zero)&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">DC</span><span class="o">.</span><span class="n">isSignal</span><span class="p">[</span><span class="n">process</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Scaling </span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2"> by r&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">bin</span><span class="p">,</span> <span class="n">process</span><span class="p">))</span>
+            <span class="k">return</span> <span class="s2">&quot;r&quot;</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+
+<span class="n">dasModel</span> <span class="o">=</span> <span class="n">DASModel</span><span class="p">()</span>
+</code></pre></div>
 </details>
 
 <p>In this we override two methods of the basic <code>PhysicsModel</code> class: <code>doParametersOfInterest</code> and <code>getYieldScale</code>. In the first we define our POI variables, using the doVar function which accepts the RooWorkspace factory syntax for creating variables, and then define all our POIs in a set via the doSet function. The second function will be called for every process in every channel (bin), and using the corresponding strings we have to specify how that process should be scaled. Here we check if the process was declared as signal in the datacard, and if so scale it by <code>r</code>, otherwise if it is a background no scaling is applied (<code>1</code>).
-To use the physics model with <code>text2workspace.py</code> first copy it to the python directory in the <span style="font-variant:small-caps;">Combine</span> package:</p>
-<pre><code class="language-shell">cp DASModel.py $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/python/
-</code></pre>
+To use the physics model with <code>text2workspace.py</code> first copy it to the python directory in the <span style="font-variant:small-caps;">Combine</span> package:
+<div class="highlight"><pre><span></span><code>cp<span class="w"> </span>DASModel.py<span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit/python/
+</code></pre></div></p>
 <p>In this section we will use the full datacards from the MSSM analysis. Have a look in <code>part4/200/combined.txt</code>. You will notice that there are now two signal processes declared: <code>ggH</code> and <code>bbH</code>. In the MSSM these cross sections can vary independently depending on the exact parameters of the model, so it is useful to be able to measure them independently too. First run <code>text2workspace.py</code> as follows, adding the <code>-P</code> option to specify the physics model, then verify the result of the fit:</p>
-<pre><code class="language-shell">text2workspace.py part4/200/combined.txt -P HiggsAnalysis.CombinedLimit.DASModel:dasModel -m 200 -o workspace_part4.root
-combine -M MultiDimFit workspace_part4.root -n .part4A -m 200 --rMin 0 --rMax 2
-</code></pre>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>part4/200/combined.txt<span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.DASModel:dasModel<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>-o<span class="w"> </span>workspace_part4.root
+combine<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>workspace_part4.root<span class="w"> </span>-n<span class="w"> </span>.part4A<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span><span class="m">0</span><span class="w"> </span>--rMax<span class="w"> </span><span class="m">2</span>
+</code></pre></div>
 <p><strong>Tasks and questions:</strong></p>
 <ul>
 <li>Modify the physics model to scale the ggH and bbH processes by <code>r_ggH</code> and <code>r_bbH</code> separately.</li>

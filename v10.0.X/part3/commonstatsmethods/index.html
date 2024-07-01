@@ -2097,10 +2097,10 @@ The limit calculation relies on an asymptotic approximation of the distributions
 <p>This method is the default <span style="font-variant:small-caps;">Combine</span> method: if you call <span style="font-variant:small-caps;">Combine</span> without specifying <code>-M</code>, the <code>AsymptoticLimits</code> method will be run.</p>
 <p>A realistic example of a datacard for a counting experiment can be found in the HiggsCombination package: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/realistic-counting-experiment.txt">data/tutorials/counting/realistic-counting-experiment.txt</a></p>
 <p>The <code>AsymptoticLimits</code> method can be run using</p>
-<pre><code class="language-sh">combine -M AsymptoticLimits realistic-counting-experiment.txt
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>AsymptoticLimits<span class="w"> </span>realistic-counting-experiment.txt
+</code></pre></div>
 <p>The program will print the limit on the signal strength r (number of signal events / number of expected signal events) e .g. <code>Observed Limit: r &lt; 1.6297 @ 95% CL</code> , the median expected limit <code>Expected 50.0%: r &lt; 2.3111</code>, and edges of the 68% and 95% ranges for the expected limits.</p>
-<pre><code class="language-nohighlight"> &lt;&lt;&lt; Combine &gt;&gt;&gt;
+<div class="highlight"><pre><span></span><code> &lt;&lt;&lt; Combine &gt;&gt;&gt;
 &gt;&gt;&gt; including systematics
 &gt;&gt;&gt; method used to compute upper limit is AsymptoticLimits
 [...]
@@ -2113,7 +2113,7 @@ Expected 84.0%: r &lt; 3.9800
 Expected 97.5%: r &lt; 6.6194
 
 Done in 0.01 min (cpu), 0.01 min (real)
-</code></pre>
+</code></pre></div>
 <p>By default, the limits are calculated using the CL<sub>s</sub> prescription, as noted in the output, which takes the ratio of p-values under the signal plus background and background only hypothesis. This can be altered to using the strict p-value by using the option <code>--rule CLsplusb</code> (note that <code>CLsplusb</code> is the jargon for calculating the p-value <span class="arithmatex">\(p_{\mu}\)</span>). You can also change the confidence level (default is 95%) to 90% using the option <code>--cl 0.9</code> or any other confidence level. You can find the full list of options for <code>AsymptoticLimits</code> using <code>--help -M AsymptoticLimits</code>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -2122,7 +2122,7 @@ Done in 0.01 min (cpu), 0.01 min (real)
 <p>If this happens, you should check to make sure that there are no issues with the datacard or the Asimov generation used for your setup. For details on debugging, it is recommended that you follow the simple checks used by the HIG PAG <a href="https://twiki.cern.ch/twiki/bin/view/CMS/HiggsWG/HiggsPAGPreapprovalChecks">here</a>.</p>
 </div>
 <p>The program will also create a ROOT file <code>higgsCombineTest.AsymptoticLimits.mH120.root</code> containing a ROOT tree <code>limit</code> that contains the limit values and other bookkeeping information. The important columns are <code>limit</code> (the limit value) and <code>quantileExpected</code> (-1 for observed limit, 0.5 for median expected limit, 0.16/0.84 for the edges of the 65% interval band of expected limits, 0.025/0.975 for 95%).</p>
-<pre><code class="language-nohighlight">$ root -l higgsCombineTest.AsymptoticLimits.mH120.root
+<div class="highlight"><pre><span></span><code>$ root -l higgsCombineTest.AsymptoticLimits.mH120.root
 root [0] limit-&gt;Scan(&quot;*&quot;)
 ************************************************************************************************************************************
 *    Row   *     limit *  limitErr *        mh *      syst *      iToy *     iSeed *  iChannel *     t_cpu *    t_real * quantileE *
@@ -2134,7 +2134,7 @@ root [0] limit-&gt;Scan(&quot;*&quot;)
 *        4 * 6.6194028 *         0 *       120 *         1 *         0 *    123456 *         0 *         0 *         0 * 0.9750000 *
 *        5 * 1.6281188 * 0.0050568 *       120 *         1 *         0 *    123456 *         0 * 0.0035000 * 0.0055123 *        -1 *
 ************************************************************************************************************************************
-</code></pre>
+</code></pre></div>
 <h3 id="blind-limits">Blind limits</h3>
 <p>The <code>AsymptoticLimits</code> calculation follows the frequentist paradigm for calculating expected limits. This means that the routine will first fit the observed data, conditionally for a fixed value of <strong>r</strong>, and set the nuisance parameters to the values obtained in the fit for generating the Asimov data set. This means it calculates the <strong>post-fit</strong> or <strong>a-posteriori</strong> expected limit. In order to use the <strong>pre-fit</strong> nuisance parameters (to calculate an <strong>a-priori</strong> limit), you must add the option <code>--noFitAsimov</code> or <code>--bypassFrequentistFit</code>.</p>
 <p>For blinding the results completely (i.e not using the data) you can include the option <code>--run blind</code>.</p>
@@ -2144,15 +2144,15 @@ root [0] limit-&gt;Scan(&quot;*&quot;)
 </div>
 <h3 id="splitting-points">Splitting points</h3>
 <p>In case your model is particularly complex, you can perform the asymptotic calculation by determining the value of CL<sub>s</sub> for a set grid of points (in <code>r</code>) and merging the results. This is done by using the option <code>--singlePoint X</code> for multiple values of X, hadd'ing the output files and reading them back in,</p>
-<pre><code class="language-sh">combine -M AsymptoticLimits realistic-counting-experiment.txt --singlePoint 0.1 -n 0.1
-combine -M AsymptoticLimits realistic-counting-experiment.txt --singlePoint 0.2 -n 0.2
-combine -M AsymptoticLimits realistic-counting-experiment.txt --singlePoint 0.3 -n 0.3
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>AsymptoticLimits<span class="w"> </span>realistic-counting-experiment.txt<span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.1<span class="w"> </span>-n<span class="w"> </span><span class="m">0</span>.1
+combine<span class="w"> </span>-M<span class="w"> </span>AsymptoticLimits<span class="w"> </span>realistic-counting-experiment.txt<span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.2<span class="w"> </span>-n<span class="w"> </span><span class="m">0</span>.2
+combine<span class="w"> </span>-M<span class="w"> </span>AsymptoticLimits<span class="w"> </span>realistic-counting-experiment.txt<span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.3<span class="w"> </span>-n<span class="w"> </span><span class="m">0</span>.3
 ...
 
-hadd limits.root higgsCombine*.AsymptoticLimits.*
+hadd<span class="w"> </span>limits.root<span class="w"> </span>higgsCombine*.AsymptoticLimits.*
 
-combine -M AsymptoticLimits realistic-counting-experiment.txt --getLimitFromGrid limits.root
-</code></pre>
+combine<span class="w"> </span>-M<span class="w"> </span>AsymptoticLimits<span class="w"> </span>realistic-counting-experiment.txt<span class="w"> </span>--getLimitFromGrid<span class="w"> </span>limits.root
+</code></pre></div>
 <h2 id="asymptotic-significances">Asymptotic Significances</h2>
 <p>The significance of a result is calculated using a ratio of profiled likelihoods, one in which the signal strength is set to 0 and the other in which it is free to float. The evaluated quantity is <span class="arithmatex">\(-2\ln[\mathcal{L}(\mu=0,\hat{\hat{\nu}}(0))/\mathcal{L}(\hat{\mu},\hat{\nu})]\)</span>, in which the nuisance parameters are profiled separately for <span class="arithmatex">\(\mu=\hat{\mu}\)</span> and <span class="arithmatex">\(\mu=0\)</span>.</p>
 <p>The distribution of this test statistic can be determined using Wilks' theorem provided the number of events is large enough (i.e in the <em>Asymptotic limit</em>). The significance (or p-value) can therefore be calculated very quickly. The <code>Significance</code> method can be used for this.</p>
@@ -2165,7 +2165,7 @@ combine -M AsymptoticLimits realistic-counting-experiment.txt --getLimitFromGrid
 <p>The observed significance is calculated using the <code>Significance</code> method, as</p>
 <p><code>combine -M Significance datacard.txt</code></p>
 <p>The printed output will report the significance and the p-value, for example, when using the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/realistic-counting-experiment.txt">realistic-counting-experiment.txt</a> datacard, you will see</p>
-<pre><code class="language-nohighlight"> &lt;&lt;&lt; Combine &gt;&gt;&gt;
+<div class="highlight"><pre><span></span><code> &lt;&lt;&lt; Combine &gt;&gt;&gt;
 &gt;&gt;&gt; including systematics
 &gt;&gt;&gt; method used is Significance
 [...]
@@ -2173,7 +2173,7 @@ combine -M AsymptoticLimits realistic-counting-experiment.txt --getLimitFromGrid
 Significance: 0
        (p-value = 0.5)
 Done in 0.00 min (cpu), 0.01 min (real)
-</code></pre>
+</code></pre></div>
 <p>which is not surprising since 0 events were observed in that datacard.</p>
 <p>The output ROOT file will contain the significance value in the branch <strong>limit</strong>. To store the p-value instead, include the option <code>--pval</code>. The significance and p-value can be converted between one another using the RooFit functions <code>RooFit::PValueToSignificance</code> and <code>RooFit::SignificanceToPValue</code>.</p>
 <p>When calculating the significance, you may find it useful to resort to a brute-force fitting algorithm that scans the nll (repeating fits until a certain tolerance is reached), bypassing MINOS, which can be activated with the option <code>bruteForce</code>. This can be tuned using the options <code>setBruteForceAlgo</code>, <code>setBruteForceTypeAndAlgo</code> and <code>setBruteForceTolerance</code>.</p>
@@ -2184,33 +2184,33 @@ Done in 0.00 min (cpu), 0.01 min (real)
 <li>a-priori expected (the default behavior): does not depend on the observed dataset, and so is a good metric for optimizing an analysis when still blinded.</li>
 </ul>
 <p>The <strong>a-priori</strong> expected significance from the Asimov dataset is calculated as</p>
-<pre><code class="language-sh">combine -M Significance datacard.txt -t -1 --expectSignal=1
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>Significance<span class="w"> </span>datacard.txt<span class="w"> </span>-t<span class="w"> </span>-1<span class="w"> </span>--expectSignal<span class="o">=</span><span class="m">1</span>
+</code></pre></div>
 <p>In order to produce the <strong>a-posteriori</strong> expected significance, just generate a post-fit Asimov data set by adding the option <code>--toysFreq</code> in the command above.</p>
 <p>The output format is the same as for observed significances: the variable <strong>limit</strong> in the tree will be filled with the significance (or with the p-value if you put also the option <code>--pvalue</code>)</p>
 <h2 id="bayesian-limits-and-credible-regions">Bayesian Limits and Credible regions</h2>
 <p>Bayesian calculation of limits requires the user to assume a particular prior distribution for the parameter of interest (default <strong>r</strong>). You can specify the prior using the <code>--prior</code> option, the default is a flat pior in <strong>r</strong>.</p>
 <h3 id="computing-the-observed-bayesian-limit-for-simple-models">Computing the observed bayesian limit (for simple models)</h3>
 <p>The <code>BayesianSimple</code> method computes a Bayesian limit performing classical numerical integration. This is very fast and accurate, but only works for simple models (a few channels and nuisance parameters).</p>
-<pre><code class="language-nohighlight">combine -M BayesianSimple simple-counting-experiment.txt
+<div class="highlight"><pre><span></span><code>combine -M BayesianSimple simple-counting-experiment.txt
 [...]
 
  -- BayesianSimple --
 Limit: r &lt; 0.672292 @ 95% CL
 Done in 0.04 min (cpu), 0.05 min (real)
-</code></pre>
+</code></pre></div>
 <p>The output tree will contain a single entry corresponding to the observed 95% confidence level upper limit. The confidence level can be modified to <strong>100*X%</strong> using <code>--cl X</code>.</p>
 <h3 id="computing-the-observed-bayesian-limit-for-arbitrary-models">Computing the observed bayesian limit (for arbitrary models)</h3>
 <p>The <code>MarkovChainMC</code> method computes a Bayesian limit performing a Monte Carlo integration. From the statistical point of view it is identical to the <code>BayesianSimple</code> method, only the technical implementation is different. The method is slower, but can also handle complex models. For this method you can increase the accuracy of the result by increasing the number of Markov Chains, at the expense of a longer running time (option <code>--tries</code>, default is 10). Let's use the realistic counting experiment datacard to test the method.</p>
 <p>To use the MarkovChainMC method, users need to specify this method in the command line, together with the options they want to use. For instance, to set the number of times the algorithm will run with different random seeds, use option <code>--tries</code>:</p>
-<pre><code class="language-nohighlight">combine -M MarkovChainMC realistic-counting-experiment.txt --tries 100
+<div class="highlight"><pre><span></span><code>combine -M MarkovChainMC realistic-counting-experiment.txt --tries 100
 [...]
 
  -- MarkovChainMC --
 Limit: r &lt; 2.20438 +/- 0.0144695 @ 95% CL (100 tries)
 Average chain acceptance: 0.078118
 Done in 0.14 min (cpu), 0.15 min (real)
-</code></pre>
+</code></pre></div>
 <p>Again, the resulting limit tree will contain the result. You can also save the chains using the option <code>--saveChain</code>, which will then also be included in the output file.</p>
 <p>Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there is an infinite number of possible regions that contain 68% of the posterior pdf). Below is a simple example script that can be used to plot the posterior distribution from these chains and calculate the <em>smallest</em> such region. Note that in this example we are ignoring the burn-in. This can be added by e.g. changing <code>for i in range(mychain.numEntries()):</code> to <code>for i in range(200,mychain.numEntries()):</code> for a burn-in of 200.</p>
 <details>
@@ -2317,10 +2317,10 @@ print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
 </code></pre>
 <p>The output of the Markov Chain is again a RooDataSet of weighted events distributed according to the posterior PDF (after you cut out the burn in part), so it can be used to make histograms or other distributions of the posterior PDF. See as an example <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesPosterior2D.cxx">bayesPosterior2D.cxx</a>.</p>
 <p>Below is an example of the output of the macro,</p>
-<pre><code class="language-c++">$ root -l higgsCombineTest.MarkovChainMC....
-.L bayesPosterior2D.cxx
-bayesPosterior2D(&quot;bayes2D&quot;,&quot;Posterior PDF&quot;)
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="w"> </span><span class="n">root</span><span class="w"> </span><span class="o">-</span><span class="n">l</span><span class="w"> </span><span class="n">higgsCombineTest</span><span class="p">.</span><span class="n">MarkovChainMC</span><span class="p">....</span>
+<span class="p">.</span><span class="n">L</span><span class="w"> </span><span class="n">bayesPosterior2D</span><span class="p">.</span><span class="n">cxx</span>
+<span class="n">bayesPosterior2D</span><span class="p">(</span><span class="s">&quot;bayes2D&quot;</span><span class="p">,</span><span class="s">&quot;Posterior PDF&quot;</span><span class="p">)</span>
+</code></pre></div>
 <p><img alt="" src="../images/bayes2D.png" /></p>
 <h2 id="computing-limits-with-toys">Computing Limits with toys</h2>
 <p>The <code>HybridNew</code> method is used to compute either the hybrid bayesian-frequentist limits, popularly known as "CL<sub>s</sub> of LEP or Tevatron type", or the fully frequentist limits, which are the current recommended method by the LHC Higgs Combination Group. Note that these methods can be resource intensive for complex models.</p>
@@ -2366,8 +2366,8 @@ bayesPosterior2D(&quot;bayes2D&quot;,&quot;Posterior PDF&quot;)
 </div>
 <h3 id="simple-models">Simple models</h3>
 <p>For relatively simple models, the observed and expected limits can be calculated interactively. Since the <strong>LHC-style</strong> is the recommended set of options for calculating limits using toys, we will use that in this section. However, the same procedure can be followed with the other sets of options.</p>
-<pre><code class="language-sh">combine realistic-counting-experiment.txt -M HybridNew --LHCmode LHC-limits
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>realistic-counting-experiment.txt<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits
+</code></pre></div>
 <details>
 <summary><strong>Show output</strong></summary>
 <pre><code>
@@ -2557,19 +2557,19 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
 <p>Note, to further improve the accuracy when searching for the upper limit, <span style="font-variant:small-caps;">Combine</span> will also fit an exponential function to several of the points and interpolate to find the crossing.</p>
 <h3 id="complex-models">Complex models</h3>
 <p>For complicated models, it is best to produce a <em>grid</em> of test statistic distributions at various values of the signal strength, and use it to compute the observed and expected limit and central intervals. This approach is convenient for complex models, since the grid of points can be distributed across any number of jobs. In this approach we will store the distributions of the test statistic at different values of the signal strength using the option <code>--saveHybridResult</code>. The distribution at a single value of <strong>r=X</strong> can be determined by</p>
-<pre><code class="language-sh">combine datacard.txt -M HybridNew --LHCmode LHC-limits --singlePoint X --saveToys --saveHybridResult -T 500 --clsAcc 0
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>datacard.txt<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>--singlePoint<span class="w"> </span>X<span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-T<span class="w"> </span><span class="m">500</span><span class="w"> </span>--clsAcc<span class="w"> </span><span class="m">0</span>
+</code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>We have specified the accuracy here by including <code>--clsAcc=0</code>, which turns off adaptive sampling, and specifying the number of toys to be 500 with the <code>-T N</code> option. For complex models, it may be necessary to internally split the toys over a number of instances of <code>HybridNew</code> using the option <code>--iterations I</code>. The <strong>total</strong> number of toys will be the product <strong>I*N</strong>.</p>
 </div>
 <p>The above can be repeated several times, in parallel, to build the distribution of the test statistic (passing the random seed option <code>-s -1</code>). Once all of the distributions have been calculated, the resulting output files can be merged into one using <strong>hadd</strong>, and read back to calculate the limit, specifying the merged file with <code>--grid=merged.root</code>.</p>
 <p>The observed limit can be obtained with</p>
-<pre><code class="language-sh">combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --grid=merged.root
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>datacard.txt<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>--readHybridResults<span class="w"> </span>--grid<span class="o">=</span>merged.root
+</code></pre></div>
 <p>and similarly, the median expected and quantiles can be determined using</p>
-<pre><code class="language-sh">combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --grid=merged.root --expectedFromGrid &lt;quantile&gt;
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>datacard.txt<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>--readHybridResults<span class="w"> </span>--grid<span class="o">=</span>merged.root<span class="w"> </span>--expectedFromGrid<span class="w"> </span>&lt;quantile&gt;
+</code></pre></div>
 <p>substituting <code>&lt;quantile&gt;</code> with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, and 0.025 for the -ve side of the 95% band. </p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -2587,8 +2587,8 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
 <p><img alt="" src="../images/limit_scan.png" /></p>
 <p>You should judge in each case whether the limit is accurate given the spacing of the points and the precision of CL<sub>s</sub> at each point. If it is not sufficient, simply generate more points closer to the limit and/or more toys at each point.</p>
 <p>The distributions of the test statistic can also be plotted, at each value in the grid, using</p>
-<pre><code class="language-sh">python test/plotTestStatCLs.py --input mygrid.root --poi r --val all --mass MASS
-</code></pre>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>test/plotTestStatCLs.py<span class="w"> </span>--input<span class="w"> </span>mygrid.root<span class="w"> </span>--poi<span class="w"> </span>r<span class="w"> </span>--val<span class="w"> </span>all<span class="w"> </span>--mass<span class="w"> </span>MASS
+</code></pre></div>
 <p>The resulting output file will contain a canvas showing the distribution of the test statistics for the background only and signal+background hypotheses at each value of <strong>r</strong>. Use <code>--help</code> to see more options for this script.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -2615,12 +2615,12 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
 </ul>
 <h3 id="observed-significance">Observed significance</h3>
 <p>To construct the distribution of the test statistic, the following command should be run as many times as necessary</p>
-<pre><code class="language-sh">combine -M HybridNew datacard.txt --LHCmode LHC-significance  --saveToys --fullBToys --saveHybridResult -T toys -i iterations -s seed
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>datacard.txt<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-significance<span class="w">  </span>--saveToys<span class="w"> </span>--fullBToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-T<span class="w"> </span>toys<span class="w"> </span>-i<span class="w"> </span>iterations<span class="w"> </span>-s<span class="w"> </span>seed
+</code></pre></div>
 <p>with different seeds, or using <code>-s -1</code> for random seeds, then merge all those results into a single ROOT file with <code>hadd</code>. The toys can then be read back into combine using the option <code>--toysFile=input.root --readHybridResult</code>.</p>
 <p>The <em>observed</em> significance can be calculated as</p>
-<pre><code class="language-sh">combine -M HybridNew datacard.txt --LHCmode LHC-significance --readHybridResult --toysFile=input.root [--pvalue ]
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>datacard.txt<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-significance<span class="w"> </span>--readHybridResult<span class="w"> </span>--toysFile<span class="o">=</span>input.root<span class="w"> </span><span class="o">[</span>--pvalue<span class="w"> </span><span class="o">]</span>
+</code></pre></div>
 <p>where the option <code>--pvalue</code> will replace the result stored in the <strong>limit</strong> branch output tree to be the p-value instead of the signficance.</p>
 <h3 id="expected-significance-assuming-some-signal">Expected significance, assuming some signal</h3>
 <p>The <em>expected</em> significance, assuming a signal with <strong>r=X</strong> can be calculated, by including the option <code>--expectSignal X</code> when generating the distribution of the test statistic and using the option <code>--expectedFromGrid=0.5</code> when calculating the significance for the median. To get the ±1σ bands, use 0.16 and 0.84 instead of 0.5, and so on.</p>
@@ -2629,11 +2629,11 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
 <h2 id="goodness-of-fit-tests">Goodness of fit tests</h2>
 <p>The <code>GoodnessOfFit</code> method can be used to evaluate how compatible the observed data are with the model PDF.</p>
 <p>This method implements several algorithms, and will compute a goodness of fit indicator for the chosen algorithm and the data. The procedure is therefore to first run on the real data</p>
-<pre><code class="language-sh">combine -M GoodnessOfFit datacard.txt --algo=&lt;some-algo&gt;
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>GoodnessOfFit<span class="w"> </span>datacard.txt<span class="w"> </span>--algo<span class="o">=</span>&lt;some-algo&gt;
+</code></pre></div>
 <p>and then to run on many toy MC data sets to determine the distribution of the goodness-of-fit indicator</p>
-<pre><code class="language-sh">combine -M GoodnessOfFit datacard.txt --algo=&lt;some-algo&gt; -t &lt;number-of-toys&gt; -s &lt;seed&gt;
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>GoodnessOfFit<span class="w"> </span>datacard.txt<span class="w"> </span>--algo<span class="o">=</span>&lt;some-algo&gt;<span class="w"> </span>-t<span class="w"> </span>&lt;number-of-toys&gt;<span class="w"> </span>-s<span class="w"> </span>&lt;seed&gt;
+</code></pre></div>
 <p>When computing the goodness-of-fit, by default the signal strength is left floating in the fit, so that the measure is independent from the presence or absence of a signal. It is possible to fixe the signal strength to some value by passing the option <code>--fixedSignalStrength=&lt;value&gt;</code>.</p>
 <p>The following algorithms are implemented:</p>
 <ul>
@@ -2659,20 +2659,20 @@ The output limit tree will contain the value of the test statistic in each toy (
 <p>For analyses that employ a simultaneous fit across signal and control regions, it may be useful to mask one or more analysis regions, either when the likelihood is maximized (fit) or when the test statistic is computed. This can be done by using the options <code>--setParametersForFit</code> and <code>--setParametersForEval</code>, respectively. The former will set parameters <em>before</em> each fit, while the latter is used to set parameters <em>after</em> each fit, but before the NLL is evaluated. Note, of course, that if the parameter in the list is floating, it will still be floating in each fit. Therefore, it will not affect the results when using <code>--setParametersForFit</code>.</p>
 <p>A realistic example for a binned shape analysis performed in one signal region and two control samples can be found in this directory of the <span style="font-variant:small-caps;">Combine</span> package <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/rate_params">Datacards-shape-analysis-multiple-regions</a>.</p>
 <p>First of all, one needs to <span style="font-variant:small-caps;">Combine</span> the individual datacards to build a single model, and to introduce the channel masking variables as follow:</p>
-<pre><code class="language-sh">combineCards.py signal_region.txt dimuon_control_region.txt singlemuon_control_region.txt &gt; combined_card.txt
-text2workspace.py combined_card.txt --channel-masks
-</code></pre>
+<div class="highlight"><pre><span></span><code>combineCards.py<span class="w"> </span>signal_region.txt<span class="w"> </span>dimuon_control_region.txt<span class="w"> </span>singlemuon_control_region.txt<span class="w"> </span>&gt;<span class="w"> </span>combined_card.txt
+text2workspace.py<span class="w"> </span>combined_card.txt<span class="w"> </span>--channel-masks
+</code></pre></div>
 <p>More information about the channel masking can be found in this
 section <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#channel-masking">Channel Masking</a>. The saturated test static value for a simultaneous fit across all the analysis regions can be calculated as:</p>
-<pre><code class="language-sh">combine -M GoodnessOfFit -d combined_card.root --algo=saturated -n _result_sb
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>GoodnessOfFit<span class="w"> </span>-d<span class="w"> </span>combined_card.root<span class="w"> </span>--algo<span class="o">=</span>saturated<span class="w"> </span>-n<span class="w"> </span>_result_sb
+</code></pre></div>
 <p>In this case, signal and control regions are included in both the fit and in the evaluation of the test statistic, and the signal strength is freely floating. This measures the compatibility between the signal+background fit and the observed data. Moreover, it can be interesting to assess the level of compatibility between the observed data in all the regions and the background prediction obtained by only fitting the control regions (CR-only fit). This can be evaluated as follow:</p>
-<pre><code class="language-sh">combine -M GoodnessOfFit -d combined_card.root --algo=saturated -n _result_bonly_CRonly --setParametersForFit mask_ch1=1 --setParametersForEval mask_ch1=0 --freezeParameters r --setParameters r=0
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>GoodnessOfFit<span class="w"> </span>-d<span class="w"> </span>combined_card.root<span class="w"> </span>--algo<span class="o">=</span>saturated<span class="w"> </span>-n<span class="w"> </span>_result_bonly_CRonly<span class="w"> </span>--setParametersForFit<span class="w"> </span><span class="nv">mask_ch1</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>--setParametersForEval<span class="w"> </span><span class="nv">mask_ch1</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>--freezeParameters<span class="w"> </span>r<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">r</span><span class="o">=</span><span class="m">0</span>
+</code></pre></div>
 <p>where the signal strength is frozen and the signal region is not considered in the fit (<code>--setParametersForFit mask_ch1=1</code>), but it is included in the test statistic computation (<code>--setParametersForEval mask_ch1=0</code>). To show the differences between the two models being tested, one can perform a fit to the data using the FitDiagnostics method as:</p>
-<pre><code class="language-sh">combine -M FitDiagnostics -d combined_card.root -n _fit_result --saveShapes --saveWithUncertainties
-combine -M FitDiagnostics -d combined_card.root -n _fit_CRonly_result --saveShapes --saveWithUncertainties --setParameters mask_ch1=1
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>FitDiagnostics<span class="w"> </span>-d<span class="w"> </span>combined_card.root<span class="w"> </span>-n<span class="w"> </span>_fit_result<span class="w"> </span>--saveShapes<span class="w"> </span>--saveWithUncertainties
+combine<span class="w"> </span>-M<span class="w"> </span>FitDiagnostics<span class="w"> </span>-d<span class="w"> </span>combined_card.root<span class="w"> </span>-n<span class="w"> </span>_fit_CRonly_result<span class="w"> </span>--saveShapes<span class="w"> </span>--saveWithUncertainties<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">mask_ch1</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div>
 <p>By taking the total background, the total signal, and the data shapes from the FitDiagnostics output, we can compare the post-fit predictions from the S+B fit (first case) and the CR-only fit (second case) with the observation as reported below:</p>
 <details>
 <summary><strong>FitDiagnostics S+B fit</strong></summary>
@@ -2683,9 +2683,9 @@ combine -M FitDiagnostics -d combined_card.root -n _fit_CRonly_result --saveShap
 <p><img alt="" src="../images/result_fitCRonly.png" /></p>
 </details>
 <p>To compute a p-value for the two results, one needs to compare the observed goodness-of-fit value previously computed with the expected distribution of the test statistic obtained in toys:</p>
-<pre><code class="language-sh">    combine -M GoodnessOfFit combined_card.root --algo=saturated -n result_toy_sb --toysFrequentist -t 500
-    combine -M GoodnessOfFit -d combined_card.root --algo=saturated -n _result_bonly_CRonly_toy --setParametersForFit mask_ch1=1 --setParametersForEval mask_ch1=0 --freezeParameters r --setParameters r=0,mask_ch1=1 -t 500 --toysFrequentist
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="w">    </span>combine<span class="w"> </span>-M<span class="w"> </span>GoodnessOfFit<span class="w"> </span>combined_card.root<span class="w"> </span>--algo<span class="o">=</span>saturated<span class="w"> </span>-n<span class="w"> </span>result_toy_sb<span class="w"> </span>--toysFrequentist<span class="w"> </span>-t<span class="w"> </span><span class="m">500</span>
+<span class="w">    </span>combine<span class="w"> </span>-M<span class="w"> </span>GoodnessOfFit<span class="w"> </span>-d<span class="w"> </span>combined_card.root<span class="w"> </span>--algo<span class="o">=</span>saturated<span class="w"> </span>-n<span class="w"> </span>_result_bonly_CRonly_toy<span class="w"> </span>--setParametersForFit<span class="w"> </span><span class="nv">mask_ch1</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>--setParametersForEval<span class="w"> </span><span class="nv">mask_ch1</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>--freezeParameters<span class="w"> </span>r<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">r</span><span class="o">=</span><span class="m">0</span>,mask_ch1<span class="o">=</span><span class="m">1</span><span class="w"> </span>-t<span class="w"> </span><span class="m">500</span><span class="w"> </span>--toysFrequentist
+</code></pre></div>
 <p>where the former gives the result for the S+B model, while the latter gives the test-statistic for CR-only fit. The command <code>--setParameters r=0,mask_ch1=1</code> is needed to ensure that toys are thrown using the nuisance parameters estimated from the CR-only fit to the data. The comparison between the observation and the expected distribition should look like the following two plots:</p>
 <details>
 <summary><strong>Goodness-of-fit for S+B model</strong></summary>
@@ -2697,9 +2697,9 @@ combine -M FitDiagnostics -d combined_card.root -n _fit_CRonly_result --saveShap
 </details>
 <h3 id="making-a-plot-of-the-gof-test-statistic-distribution">Making a plot of the GoF test statistic distribution</h3>
 <p>You can use the <code>combineTool.py</code> script to run batch jobs or on the grid (see <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">here</a>) and produce a plot of the results. Once the jobs have completed, you can hadd them together and run (e.g for the saturated model),</p>
-<pre><code class="language-sh">combineTool.py -M CollectGoodnessOfFit --input data_run.root toys_run.root -m 125.0 -o gof.json
-plotGof.py gof.json --statistic saturated --mass 125.0 -o gof_plot --title-right=&quot;my label&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>CollectGoodnessOfFit<span class="w"> </span>--input<span class="w"> </span>data_run.root<span class="w"> </span>toys_run.root<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span>.0<span class="w"> </span>-o<span class="w"> </span>gof.json
+plotGof.py<span class="w"> </span>gof.json<span class="w"> </span>--statistic<span class="w"> </span>saturated<span class="w"> </span>--mass<span class="w"> </span><span class="m">125</span>.0<span class="w"> </span>-o<span class="w"> </span>gof_plot<span class="w"> </span>--title-right<span class="o">=</span><span class="s2">&quot;my label&quot;</span>
+</code></pre></div>
 <h2 id="channel-compatibility">Channel Compatibility</h2>
 <p>The <code>ChannelCompatibilityCheck</code> method can be used to evaluate how compatible the measurements of the signal strength from the separate channels of a combination are with each other.</p>
 <p>The method performs two fits of the data, first with the nominal model in which all channels are assumed to have the <em>same signal strength modifier</em> <span class="arithmatex">\(r\)</span>, and then another allowing <em>separate signal strengths</em> <span class="arithmatex">\(r_{i}\)</span> in each channel. A chisquare-like quantity is computed as <span class="arithmatex">\(-2 \ln \mathcal{L}(\mathrm{data}| r)/L(\mathrm{data}|\{r_{i}\}_{i=1}^{N_{\mathrm{chan}}})\)</span>. Just like for the goodness-of-fit indicators, the expected distribution of this quantity under the nominal model can be computed from toy MC data sets.</p>
@@ -2708,7 +2708,7 @@ plotGof.py gof.json --statistic saturated --mass 125.0 -o gof_plot --title-right
 <p>Optionally, channels can be grouped together by using the option <code>-g &lt;name_fragment&gt;</code>, where <code>&lt;name_fragment&gt;</code> is a string which is common to all channels to be grouped together. The <code>-g</code> option can also be used to set the range for the each POI separately via <code>-g &lt;name&gt;=&lt;min&gt;,&lt;max&gt;</code>.</p>
 <p>When run with a verbosity of 1, as is the default, the program also prints out the best fit signal strengths in all channels. As the fit to all channels is done simultaneously, the correlation between the other systematic uncertainties is taken into account. Therefore, these results can differ from the ones obtained when fitting each channel separately.</p>
 <p>Below is an example output from <span style="font-variant:small-caps;">Combine</span>,</p>
-<pre><code class="language-nohighlight">$ combine -M ChannelCompatibilityCheck comb_hww.txt -m 160 -n HWW
+<div class="highlight"><pre><span></span><code>$ combine -M ChannelCompatibilityCheck comb_hww.txt -m 160 -n HWW
  &lt;&lt;&lt; Combine &gt;&gt;&gt;
 &gt;&gt;&gt; including systematics
 &gt;&gt;&gt; method used to compute upper limit is ChannelCompatibilityCheck
@@ -2726,20 +2726,20 @@ Alternate fit: r = 0.3170 -0.3121/+0.3837 in channel hww_1jof_shape
 Alternate fit: r = 0.0000 -0.0000/+0.5129 in channel hww_2j_cut
 Chi2-like compatibility variable: 2.16098
 Done in 0.08 min (cpu), 0.08 min (real)
-</code></pre>
+</code></pre></div>
 <p>The output tree will contain the value of the compatibility (chi-square variable) in the <strong>limit</strong> branch. If the option <code>--saveFitResult</code> is specified, the output ROOT file also contains two <a href="http://root.cern.ch/root/htmldoc/RooFitResult.html">RooFitResult</a> objects <strong>fit_nominal</strong> and <strong>fit_alternate</strong> with the results of the two fits.</p>
 <p>This can be read and used to extract the best fit value for each channel, and the overall best fit value, using</p>
-<pre><code class="language-c++">$ root -l
-TFile* _file0 = TFile::Open(&quot;higgsCombineTest.ChannelCompatibilityCheck.mH120.root&quot;);
-fit_alternate-&gt;floatParsFinal().selectByName(&quot;*ChannelCompatibilityCheck*&quot;)-&gt;Print(&quot;v&quot;);
-fit_nominal-&gt;floatParsFinal().selectByName(&quot;r&quot;)-&gt;Print(&quot;v&quot;);
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="w"> </span><span class="n">root</span><span class="w"> </span><span class="o">-</span><span class="n">l</span>
+<span class="n">TFile</span><span class="o">*</span><span class="w"> </span><span class="n">_file0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TFile</span><span class="o">::</span><span class="n">Open</span><span class="p">(</span><span class="s">&quot;higgsCombineTest.ChannelCompatibilityCheck.mH120.root&quot;</span><span class="p">);</span>
+<span class="n">fit_alternate</span><span class="o">-&gt;</span><span class="n">floatParsFinal</span><span class="p">().</span><span class="n">selectByName</span><span class="p">(</span><span class="s">&quot;*ChannelCompatibilityCheck*&quot;</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">);</span>
+<span class="n">fit_nominal</span><span class="o">-&gt;</span><span class="n">floatParsFinal</span><span class="p">().</span><span class="n">selectByName</span><span class="p">(</span><span class="s">&quot;r&quot;</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">);</span>
+</code></pre></div>
 <p>The macro <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/plotting/cccPlot.cxx">cccPlot.cxx</a> can be used to produce a comparison plot of the best fit signal strengths from all channels.</p>
 <h2 id="likelihood-fits-and-scans">Likelihood Fits and Scans</h2>
 <p>The <code>MultiDimFit</code> method can be used to perform multi-dimensional fits and likelihood-based scans/contours using models with several parameters of interest.</p>
 <p>Taking a toy datacard <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/multiDim/toy-hgg-125.txt">data/tutorials/multiDim/toy-hgg-125.txt</a> (counting experiment which vaguely resembles an early H→γγ analysis at 125 GeV), we need to convert the datacard into a workspace with 2 parameters, the ggH and qqH cross sections:</p>
-<pre><code class="language-sh">text2workspace.py toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
-</code></pre>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>toy-hgg-125.txt<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs<span class="w"> </span>--PO<span class="w"> </span><span class="nv">modes</span><span class="o">=</span>ggH,qqH
+</code></pre></div>
 <p>A number of different algorithms can be used with the option <code>--algo &lt;algo&gt;</code>,</p>
 <ul>
 <li>
@@ -2772,8 +2772,8 @@ fit_nominal-&gt;floatParsFinal().selectByName(&quot;r&quot;)-&gt;Print(&quot;v&q
 <p>As usual, any <em>floating</em> nuisance parameters will be <em>profiled</em>. This behaviour can be modified by using the <code>--freezeParameters</code> option.</p>
 <p>For most of the methods, for lower-precision results you can turn off the profiling of the nuisance parameters by using the option <code>--fastScan</code>, which for complex models speeds up the process by several orders of magnitude. <strong>All</strong> nuisance parameters will be kept fixed at the value corresponding to the best fit point.</p>
 <p>As an example, let's produce the <span class="arithmatex">\(-2\Delta\ln{\mathcal{L}}\)</span> scan as a function of <strong><code>r_ggH</code></strong> and <strong><code>r_qqH</code></strong> from the toy <span class="arithmatex">\(H\rightarrow\gamma\gamma\)</span> datacard. The command below should be pretty fast, as the statistical model is quite simple,</p>
-<pre><code class="language-sh">combine toy-hgg-125.root -M MultiDimFit --algo grid --points 2500 --setParameterRanges r_qqH=0,12:r_ggH=-1,4 -m 125
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>--algo<span class="w"> </span>grid<span class="w"> </span>--points<span class="w"> </span><span class="m">2500</span><span class="w"> </span>--setParameterRanges<span class="w"> </span><span class="nv">r_qqH</span><span class="o">=</span><span class="m">0</span>,12:r_ggH<span class="o">=</span>-1,4<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span>
+</code></pre></div>
 <p>The scan, along with the best fit point and <span class="arithmatex">\(1\sigma\)</span> CL contour can be drawn using ROOT using something like the script below,</p>
 <details>
 <summary><strong>Show script</strong></summary>
@@ -2836,8 +2836,8 @@ void plot2D_LHScan(){
 <p>For a full list of options use <code>combine -M MultiDimFit --help</code></p>
 <h3 id="fitting-only-some-parameters">Fitting only some parameters</h3>
 <p>If your model contains more than one parameter of interest, you can still decide to fit a smaller number of them, using the option <code>--parameters</code> (or <code>-P</code>), with a syntax like this:</p>
-<pre><code class="language-sh">combine -M MultiDimFit [...] -P poi1 -P poi2 ... --floatOtherPOIs=(0|1)
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span><span class="o">[</span>...<span class="o">]</span><span class="w"> </span>-P<span class="w"> </span>poi1<span class="w"> </span>-P<span class="w"> </span>poi2<span class="w"> </span>...<span class="w"> </span>--floatOtherPOIs<span class="o">=(</span><span class="m">0</span><span class="p">|</span><span class="m">1</span><span class="o">)</span>
+</code></pre></div>
 <p>If <code>--floatOtherPOIs</code> is set to 0, the other parameters of interest (POIs), which are not included as a <code>-P</code> option, are kept <em>fixed</em> to their nominal values. If it's set to 1, they are kept <em>floating</em>, which has different consequences depending on <code>algo</code>:</p>
 <ul>
 <li>When running with <code>--algo=singles</code>, the other floating POIs are treated as unconstrained nuisance parameters.</li>
@@ -2859,16 +2859,16 @@ void plot2D_LHScan(){
 <ul>
 <li>Create a workspace for a floating <span class="arithmatex">\(r,m_{H}\)</span> fit</li>
 </ul>
-<pre><code class="language-sh">text2workspace.py hgg_datacard_mva_8TeV_bernsteins.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass --PO higgsMassRange=120,130 -o testmass.root`
-</code></pre>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>hgg_datacard_mva_8TeV_bernsteins.txt<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass<span class="w"> </span>--PO<span class="w"> </span><span class="nv">higgsMassRange</span><span class="o">=</span><span class="m">120</span>,130<span class="w"> </span>-o<span class="w"> </span>testmass.root<span class="sb">`</span>
+</code></pre></div>
 <ul>
 <li>Perfom the fit, <em>saving</em> the workspace</li>
 </ul>
-<pre><code class="language-sh">combine -m 123 -M MultiDimFit --saveWorkspace -n teststep1 testmass.root  --verbose 9
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-m<span class="w"> </span><span class="m">123</span><span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>--saveWorkspace<span class="w"> </span>-n<span class="w"> </span>teststep1<span class="w"> </span>testmass.root<span class="w">  </span>--verbose<span class="w"> </span><span class="m">9</span>
+</code></pre></div>
 <p>Now we can load the best fit <span class="arithmatex">\(\hat{r},\hat{m}_{H}\)</span> and fit for <span class="arithmatex">\(r\)</span> freezing <span class="arithmatex">\(m_{H}\)</span> and <strong>lumi_8TeV</strong> to their best-fit values,</p>
-<pre><code class="language-sh">combine -m 123 -M MultiDimFit -d higgsCombineteststep1.MultiDimFit.mH123.root -w w --snapshotName &quot;MultiDimFit&quot; -n teststep2  --verbose 9 --freezeParameters MH,lumi_8TeV
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-m<span class="w"> </span><span class="m">123</span><span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>-d<span class="w"> </span>higgsCombineteststep1.MultiDimFit.mH123.root<span class="w"> </span>-w<span class="w"> </span>w<span class="w"> </span>--snapshotName<span class="w"> </span><span class="s2">&quot;MultiDimFit&quot;</span><span class="w"> </span>-n<span class="w"> </span>teststep2<span class="w">  </span>--verbose<span class="w"> </span><span class="m">9</span><span class="w"> </span>--freezeParameters<span class="w"> </span>MH,lumi_8TeV
+</code></pre></div>
 <h2 id="feldman-cousins">Feldman-Cousins</h2>
 <p>The Feldman-Cousins (FC) procedure for computing confidence intervals for a generic model is,</p>
 <ul>
@@ -2882,8 +2882,8 @@ void plot2D_LHScan(){
 </ul>
 <p>With a critical value <span class="arithmatex">\(\alpha\)</span>.</p>
 <p>In <span style="font-variant:small-caps;">Combine</span>, you can perform this test on each individual point (<strong>param1, param2,...</strong>) = (<strong>value1,value2,...</strong>) by doing,</p>
-<pre><code class="language-sh">combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint  param1=value1,param2=value2,param3=value3,... --saveHybridResult [Other options for toys, iterations etc as with limits]
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>workspace.root<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-feldman-cousins<span class="w"> </span>--clsAcc<span class="w"> </span><span class="m">0</span><span class="w"> </span>--singlePoint<span class="w">  </span><span class="nv">param1</span><span class="o">=</span>value1,param2<span class="o">=</span>value2,param3<span class="o">=</span>value3,...<span class="w"> </span>--saveHybridResult<span class="w"> </span><span class="o">[</span>Other<span class="w"> </span>options<span class="w"> </span><span class="k">for</span><span class="w"> </span>toys,<span class="w"> </span>iterations<span class="w"> </span>etc<span class="w"> </span>as<span class="w"> </span>with<span class="w"> </span>limits<span class="o">]</span>
+</code></pre></div>
 <p>Note that you can also split this calculationg into several separate runs (remembering to set a random seed <code>-s -1</code> each time the above command is run) and <code>hadd</code> the resulting <code>.root</code> output files into a single file <code>toys.root</code>. This can then be read in and used to calculate <span class="arithmatex">\(p_{\vec{\mu}}\)</span> by using the same command as above but replacing the option <code>--saveHybridResult</code> with <code>--readHybridResult --toysFile toys.root</code>.  </p>
 <p>The point belongs to your confidence region if <span class="arithmatex">\(p_{\vec{\mu}}\)</span> is larger than <span class="arithmatex">\(\alpha\)</span> (e.g. 0.3173 for a 1σ region, <span class="arithmatex">\(1-\alpha=0.6827\)</span>).</p>
 <div class="admonition warning">
@@ -2892,8 +2892,8 @@ void plot2D_LHScan(){
 </div>
 <h3 id="physical-boundaries">Physical boundaries</h3>
 <p>Imposing physical boundaries (such as requiring <span class="arithmatex">\(r&gt;0\)</span> for a signal strength <span class="arithmatex">\(r\)</span> ) is achieved by setting the ranges of the physics model parameters using</p>
-<pre><code class="language-sh">--setParameterRanges param1=param1_min,param1_max:param2=param2_min,param2_max ....
-</code></pre>
+<div class="highlight"><pre><span></span><code>--setParameterRanges<span class="w"> </span><span class="nv">param1</span><span class="o">=</span>param1_min,param1_max:param2<span class="o">=</span>param2_min,param2_max<span class="w"> </span>....
+</code></pre></div>
 <p>The boundary is imposed by <strong>restricting the parameter range(s)</strong> to those set by the user, in the fits. Note that this is a trick! The actual fitted value, as one of an ensemble of outcomes, can fall outside of the allowed region, while the boundary should be imposed on the physical parameter. The effect of restricting the parameter value in the fit is such that the test statistic is modified as follows ;</p>
 <div class="arithmatex">\[q(\vec{\mu}) = - 2 \ln \mathcal{L}(\vec{\mu},\hat{\hat{\vec{\nu}}}(\vec{\mu}))/\mathcal{L}(\hat{\vec{\mu}},\hat{\vec{\nu}}),\]</div>
 <p>if <span class="arithmatex">\(\hat{\vec{\mu}}\)</span> in contained in the bounded range</p>
@@ -2909,36 +2909,36 @@ void plot2D_LHScan(){
 <p>As in general for <code>HybridNew</code>, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs with <code>hadd</code>. You can also refer to the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">combineTool for job submission</a> section for submitting the jobs to the grid/batch or if you have more than one parameter of interest, see the instructions for running <code>HybridNew</code> on a grid of parameter points on the <a href="http://cms-analysis.github.io/CombineHarvester/md_docs__hybrid_new_grid.html">CombineHarvest - HybridNewGrid</a> documentation.</p>
 <h4 id="extracting-1d-intervals">Extracting 1D intervals</h4>
 <p>For <em>one-dimensional</em> models only, and if the parameter behaves like a cross section, the code is able to interpolate and determine the values of your parameter on the contour (just like it does for the limits). As with limits, read in the grid of points and extract 1D intervals using,</p>
-<pre><code class="language-sh">combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridResults --grid=mergedfile.root --cl &lt;1-alpha&gt;
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>workspace.root<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-feldman-cousins<span class="w"> </span>--readHybridResults<span class="w"> </span>--grid<span class="o">=</span>mergedfile.root<span class="w"> </span>--cl<span class="w"> </span>&lt;<span class="m">1</span>-alpha&gt;
+</code></pre></div>
 <p>The output tree will contain the values of the POI that crosses the critical value (<span class="arithmatex">\(\alpha\)</span>) - i.e, the boundaries of the confidence intervals.</p>
 <p>You can produce a plot of the value of <span class="arithmatex">\(p_{\vec{\mu}}\)</span> vs the parameter of interest <span class="arithmatex">\(\vec{\mu}\)</span> by adding the option <code>--plot &lt;plotname&gt;</code>.</p>
 <p>As an example, we will use the<code>data/tutorials/multiDim/toy-hgg-125.txt</code> datacard and find the 1D FC 68% interval for the <span class="arithmatex">\(r_{qqH}\)</span> parameter. First, we construct the model as, </p>
-<pre><code class="language-sh">text2workspace.py -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH toy-hgg-125.txt -o toy-hgg-125.root
-</code></pre>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs<span class="w"> </span>--PO<span class="w"> </span><span class="nv">modes</span><span class="o">=</span>ggH,qqH<span class="w"> </span>toy-hgg-125.txt<span class="w"> </span>-o<span class="w"> </span>toy-hgg-125.root
+</code></pre></div>
 <p>Now we generate the grid of test statistics in a suitable range. You could use the <code>combineTool.py</code> as below but for 1D, we can just generate the points in a for loop. </p>
-<pre><code class="language-sh">for i in range 0.1 1.1 2.1 3.1 4.1 5.1 6.1 7.1 8.1 9.1 10.1 ; do combine toy-hgg-125.root --redefineSignalPOI r_qqH   -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint r_qqH=${i} --saveToys --saveHybridResult -n ${i} ; done
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span>range<span class="w"> </span><span class="m">0</span>.1<span class="w"> </span><span class="m">1</span>.1<span class="w"> </span><span class="m">2</span>.1<span class="w"> </span><span class="m">3</span>.1<span class="w"> </span><span class="m">4</span>.1<span class="w"> </span><span class="m">5</span>.1<span class="w"> </span><span class="m">6</span>.1<span class="w"> </span><span class="m">7</span>.1<span class="w"> </span><span class="m">8</span>.1<span class="w"> </span><span class="m">9</span>.1<span class="w"> </span><span class="m">10</span>.1<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>combine<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>--redefineSignalPOI<span class="w"> </span>r_qqH<span class="w">   </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-feldman-cousins<span class="w"> </span>--clsAcc<span class="w"> </span><span class="m">0</span><span class="w"> </span>--singlePoint<span class="w"> </span><span class="nv">r_qqH</span><span class="o">=</span><span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-n<span class="w"> </span><span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
 
-hadd -f FeldmanCousins1D.root higgsCombine*.1.HybridNew.mH120.123456.root
-</code></pre>
-<p>Next, we get combine to calculate the interval from this grid. </p>
-<pre><code class="language-sh">combine toy-hgg-125.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridResults --grid=FeldmanCousins1D.root --cl 0.68 --redefineSignalPOI r_qqH
-</code></pre>
-<p>and we should see the below as the output, </p>
-<pre><code> -- HybridNew --
+hadd<span class="w"> </span>-f<span class="w"> </span>FeldmanCousins1D.root<span class="w"> </span>higgsCombine*.1.HybridNew.mH120.123456.root
+</code></pre></div>
+<p>Next, we get combine to calculate the interval from this grid. 
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-feldman-cousins<span class="w"> </span>--readHybridResults<span class="w"> </span>--grid<span class="o">=</span>FeldmanCousins1D.root<span class="w"> </span>--cl<span class="w"> </span><span class="m">0</span>.68<span class="w"> </span>--redefineSignalPOI<span class="w"> </span>r_qqH
+</code></pre></div>
+and we should see the below as the output, </p>
+<div class="highlight"><pre><span></span><code> -- HybridNew --
 found 68 % confidence regions
   2.19388 (+/- 0.295316) &lt; r_qqH &lt; 8.01798 (+/- 0.0778685)
 Done in 0.00 min (cpu), 0.00 min (real)
-</code></pre>
+</code></pre></div>
 <p>Since we included the <code>--plot</code> option, we will also get a plot like the one below, </p>
 <p><img alt="1DFC" src="../images/FC1D.png" /></p>
 <h4 id="extracting-2d-contours-general-intervals">Extracting 2D contours / general intervals</h4>
 <p>For <em>two-dimensional</em> models, or if the parameter does not behave like a cross section, you will need to extract the contours from the output of <code>HybridNew</code> and plot them yourself. We will use the <code>data/tutorials/multiDim/toy-hgg-125.txt</code> datacard in the example below to demonstrate how this can be done. Let's build the model again as we did in the MultiDimFit section.</p>
-<pre><code class="language-sh">text2workspace.py -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH toy-hgg-125.txt -o toy-hgg-125.root
-</code></pre>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs<span class="w"> </span>--PO<span class="w"> </span><span class="nv">modes</span><span class="o">=</span>ggH,qqH<span class="w"> </span>toy-hgg-125.txt<span class="w"> </span>-o<span class="w"> </span>toy-hgg-125.root
+</code></pre></div>
 <p>First, we use <code>combineTool.py</code> to create jobs for each point in our parameter scan. We want to impose the boundaries that <span class="arithmatex">\(r_{ggH}&gt;0\)</span>, <span class="arithmatex">\(r_{qqH}&gt;0\)</span>.
 In the example below, we will run in interactive mode so this can take a little while. You can instead run using a batch cluster (eg <code>condor</code>) or the grid (<code>grid</code>) to submit sepaerate jobs for each point / set of points. We configure the tool by specifying the grid of points in <code>poi_grid_configuration.json</code> as below. Here we want 5000 toys for each point, and we choose a grid of <span class="arithmatex">\(r_{ggH}\in [0,4]\)</span> in steps of 0.2, and <span class="arithmatex">\(r_{qqH}\in[0,10]\)</span> in steps of 0.5.</p>
-<pre><code>{
+<div class="highlight"><pre><span></span><code>{
   &quot;verbose&quot; : true,
   &quot;opts&quot; : &quot; --LHCmode LHC-feldman-cousins --saveHybridResult --clsAcc 0 &quot;,
   &quot;POIs&quot; : [&quot;r_ggH&quot;, &quot;r_qqH&quot;],
@@ -2957,14 +2957,14 @@ In the example below, we will run in interactive mode so this can take a little 
   &quot;zipfile&quot;         : &quot;collected.zip&quot;,
   &quot;statusfile&quot;      : &quot;status.json&quot;
  }
-</code></pre>
+</code></pre></div>
 <p>The command will look like,</p>
-<pre><code class="language-sh">combineTool.py -M HybridNewGrid  ./poi_grid_configuration.json -d toy-hgg-125.root --task-name fc2d --job-mode 'interactive' --cycles 1
-</code></pre>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>HybridNewGrid<span class="w">  </span>./poi_grid_configuration.json<span class="w"> </span>-d<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>--task-name<span class="w"> </span>fc2d<span class="w"> </span>--job-mode<span class="w"> </span><span class="s1">&#39;interactive&#39;</span><span class="w"> </span>--cycles<span class="w"> </span><span class="m">1</span>
+</code></pre></div>
 <p>As mentioned, this will take a while to run so you should consider going to make a cup of coffee at this point and reading through the <a href="http://cms-analysis.github.io/CombineHarvester/md_docs__hybrid_new_grid.html">HybridNewGrid documentation</a> to learn more about this tool.
 Once this is done, we extract the values of <span class="arithmatex">\(p_{\vec{\mu}}\)</span> for each point in our parameter space using the same command, but this time setting <code>--cycles 0</code> and adding the option <code>--output</code>,</p>
-<pre><code class="language-sh">combineTool.py -M HybridNewGrid  ./poi_grid_configuration.json -d toy-hgg-125.root --task-name fc2d --job-mode 'interactive' --cycles 0 --output
-</code></pre>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>HybridNewGrid<span class="w">  </span>./poi_grid_configuration.json<span class="w"> </span>-d<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>--task-name<span class="w"> </span>fc2d<span class="w"> </span>--job-mode<span class="w"> </span><span class="s1">&#39;interactive&#39;</span><span class="w"> </span>--cycles<span class="w"> </span><span class="m">0</span><span class="w"> </span>--output
+</code></pre></div>
 <p>which will produce a file <code>FeldmanCousins.root</code> (as defined in the <code>"output"</code> field of <code>poi_grid_configuration.json</code>) that contains a <code>TGraph2D</code> which stores the calculated value of <span class="arithmatex">\(p_{\vec{\mu}}\)</span> for each point in the grid. Using something like the macro below, these values can be plotted along with a contour corresponding to 68% CL (<span class="arithmatex">\(\alpha=0.32\)</span>).</p>
 <details>
 <summary><strong>Show script</strong></summary>

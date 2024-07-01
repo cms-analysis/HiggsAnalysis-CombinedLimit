@@ -1595,8 +1595,8 @@
 
 <h1 id="how-to-run-the-tool">How to run the tool</h1>
 <p>The executable <span style="font-variant:small-caps;">Combine</span> provided by the package is used to invoke the tools via the command line. The statistical analysis method, as well as user settings, are also specified on the command line. To see the full list of available options, you can run:</p>
-<pre><code class="language-sh">combine --help
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>--help
+</code></pre></div>
 <p>The option <code>-M</code> is used to choose the statistical evaluation method. There are several groups of statistical methods:</p>
 <ul>
 <li><strong>Asymptotic</strong> likelihood methods:<ul>
@@ -1896,20 +1896,20 @@
 <p>For longer tasks that cannot be run locally, several methods in <span style="font-variant:small-caps;">Combine</span> can be split to run on a <em>batch</em> system or on the <em>Grid</em>. The splitting and submission is handled using the <code>combineTool.py</code> script.</p>
 <h3 id="submission-to-condor">Submission to Condor</h3>
 <p>The syntax for running on condor with the tool is</p>
-<pre><code class="language-sh">combineTool.py -M ALGO [options] --job-mode condor --sub-opts='CLASSADS' --task-name NAME [--dry-run]
-</code></pre>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>ALGO<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>--job-mode<span class="w"> </span>condor<span class="w"> </span>--sub-opts<span class="o">=</span><span class="s1">&#39;CLASSADS&#39;</span><span class="w"> </span>--task-name<span class="w"> </span>NAME<span class="w"> </span><span class="o">[</span>--dry-run<span class="o">]</span>
+</code></pre></div>
 <p>with <code>options</code> being the usual list of <span style="font-variant:small-caps;">Combine</span> options. The help option <code>-h</code> will give a list of both <span style="font-variant:small-caps;">Combine</span> and <code>combineTool</code> options. It is possible to use this tool with several different methods from <span style="font-variant:small-caps;">Combine</span>.</p>
 <p>The <code>--sub-opts</code> option takes a string with the different ClassAds that you want to set, separated by <code>\n</code> as argument (e.g. <code>'+JobFlavour="espresso"\nRequestCpus=1'</code>).</p>
 <p>The <code>--dry-run</code> option will show what will be run without actually doing so / submitting the jobs.</p>
 <p>For example, to generate toys (eg for use with limit setting) users running on lxplus at CERN can use the <strong>condor</strong> mode:</p>
-<pre><code class="language-sh">combineTool.py -d workspace.root -M HybridNew --LHCmode LHC-limits --clsAcc 0  -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveHybridResult -m 125 --job-mode condor --task-name condor-test --sub-opts='+JobFlavour=&quot;tomorrow&quot;'
-</code></pre>
-<p>The <code>--singlePoint</code> option is over-ridden, so that this will produce a script for each value of the POI in the range 0.2 to 2.0 in steps of 0.05. You can merge multiple points into a script using <code>--merge</code> - e.g adding <code>--merge 10</code> to the above command will mean that each job contains <em>at most</em> 10 of the values. The scripts are labelled by the <code>--task-name</code> option. They will be submitted directly to condor, adding any options in <code>--sub-opts</code> to the condor submit script. Make sure multiple options are separated by <code>\n</code>. The jobs will run and produce output in the <strong>current directory</strong>.</p>
+<p><div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-d<span class="w"> </span>workspace.root<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>--clsAcc<span class="w"> </span><span class="m">0</span><span class="w">  </span>-T<span class="w"> </span><span class="m">2000</span><span class="w"> </span>-s<span class="w"> </span>-1<span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.2:2.0:0.05<span class="w"> </span>--saveHybridResult<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--job-mode<span class="w"> </span>condor<span class="w"> </span>--task-name<span class="w"> </span>condor-test<span class="w"> </span>--sub-opts<span class="o">=</span><span class="s1">&#39;+JobFlavour=&quot;tomorrow&quot;&#39;</span>
+</code></pre></div>
+The <code>--singlePoint</code> option is over-ridden, so that this will produce a script for each value of the POI in the range 0.2 to 2.0 in steps of 0.05. You can merge multiple points into a script using <code>--merge</code> - e.g adding <code>--merge 10</code> to the above command will mean that each job contains <em>at most</em> 10 of the values. The scripts are labelled by the <code>--task-name</code> option. They will be submitted directly to condor, adding any options in <code>--sub-opts</code> to the condor submit script. Make sure multiple options are separated by <code>\n</code>. The jobs will run and produce output in the <strong>current directory</strong>.</p>
 <p>Below is an example for splitting points in a multi-dimensional likelihood scan.</p>
 <h4 id="splitting-jobs-for-a-multi-dimensional-likelihood-scan">Splitting jobs for a multi-dimensional likelihood scan</h4>
 <p>The option <code>--split-points</code> issues the command to split the jobs for <code>MultiDimFit</code> when using <code>--algo grid</code>. The following example will split the jobs such that there are <strong>10 points</strong> in each of the jobs, which will be submitted to the <strong>workday</strong> queue.</p>
-<pre><code class="language-sh">combineTool.py datacard.txt -M MultiDimFit --algo grid --points 50 --rMin 0 --rMax 1 --job-mode condor --split-points 10 --sub-opts='+JobFlavour=&quot;workday&quot;' --task-name mytask -n mytask
-</code></pre>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>datacard.txt<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>--algo<span class="w"> </span>grid<span class="w"> </span>--points<span class="w"> </span><span class="m">50</span><span class="w"> </span>--rMin<span class="w"> </span><span class="m">0</span><span class="w"> </span>--rMax<span class="w"> </span><span class="m">1</span><span class="w"> </span>--job-mode<span class="w"> </span>condor<span class="w"> </span>--split-points<span class="w"> </span><span class="m">10</span><span class="w"> </span>--sub-opts<span class="o">=</span><span class="s1">&#39;+JobFlavour=&quot;workday&quot;&#39;</span><span class="w"> </span>--task-name<span class="w"> </span>mytask<span class="w"> </span>-n<span class="w"> </span>mytask
+</code></pre></div>
 <p>Remember, any usual options (such as redefining POIs or freezing parameters) are passed to <span style="font-variant:small-caps;">Combine</span> and can be added to the command line for <code>combineTool</code>.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -1921,11 +1921,11 @@
 <p>With this model it would take too long to find the limit in one go, so instead we create a set of jobs in which each one throws toys and builds up the test statistic distributions for a fixed value of the signal strength. These jobs can then be submitted to a batch system or to the Grid using <code>crab3</code>. From the set of output distributions it is possible to extract the expected and observed limits.</p>
 <p>For this we will use <code>combineTool.py</code></p>
 <p>First we need to build a workspace from the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/htt/125/htt_tt.txt"><span class="arithmatex">\(H\rightarrow\tau\tau\)</span> datacard</a>,</p>
-<pre><code class="language-sh">$ text2workspace.py data/tutorials/htt/125/htt_mt.txt -m 125
-$ mv data/tutorials/htt/125/htt_mt.root ./
-</code></pre>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>text2workspace.py<span class="w"> </span>data/tutorials/htt/125/htt_mt.txt<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span>
+$<span class="w"> </span>mv<span class="w"> </span>data/tutorials/htt/125/htt_mt.root<span class="w"> </span>./
+</code></pre></div>
 <p>To get an idea of the range of signal strength values we will need to build test-statistic distributions for, we will first use the <code>AsymptoticLimits</code> method of <span style="font-variant:small-caps;">Combine</span>,</p>
-<pre><code class="language-nohighlight">$ combine -M Asymptotic htt_mt.root -m 125
+<div class="highlight"><pre><span></span><code>$ combine -M Asymptotic htt_mt.root -m 125
  &lt;&lt; Combine &gt;&gt;
 [...]
  -- AsymptoticLimits (CLs) --
@@ -1935,39 +1935,39 @@ Expected 16.0%: r &lt; 0.5971
 Expected 50.0%: r &lt; 0.8555
 Expected 84.0%: r &lt; 1.2340
 Expected 97.5%: r &lt; 1.7200
-</code></pre>
+</code></pre></div>
 <p>Based on this, a range of 0.2 to 2.0 should be suitable.</p>
 <p>We can use the same command for generating the distribution of test statistics with <code>combineTool</code>. The <code>--singlePoint</code> option is now enhanced to support expressions that generate a set of calls to <span style="font-variant:small-caps;">Combine</span> with different values. The accepted syntax is of the form <strong>MIN:MAX:STEPSIZE</strong>, and multiple comma-separated expressions can be specified.</p>
 <p>The script also adds an option <code>--dry-run</code>, which will not actually call com<span style="font-variant:small-caps;">Combine</span>bine but just prints out the commands that would be run, e.g,</p>
-<pre><code class="language-sh">combineTool.py -M HybridNew -d htt_mt.root --LHCmode LHC-limits --singlePoint 0.2:2.0:0.2 -T 2000 -s -1 --saveToys --saveHybridResult -m 125 --dry-run
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>-d<span class="w"> </span>htt_mt.root<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.2:2.0:0.2<span class="w"> </span>-T<span class="w"> </span><span class="m">2000</span><span class="w"> </span>-s<span class="w"> </span>-1<span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--dry-run
 ...
-[DRY-RUN]: combine -d htt_mt.root --LHCmode LHC-limits -T 2000 -s -1 --saveToys --saveHybridResult -M HybridNew -m 125 --singlePoint 0.2 -n .Test.POINT.0.2
-[DRY-RUN]: combine -d htt_mt.root --LHCmode LHC-limits -T 2000 -s -1 --saveToys --saveHybridResult -M HybridNew -m 125 --singlePoint 0.4 -n .Test.POINT.0.4
-[...]
-[DRY-RUN]: combine -d htt_mt.root --LHCmode LHC-limits -T 2000 -s -1 --saveToys --saveHybridResult -M HybridNew -m 125 --singlePoint 2.0 -n .Test.POINT.2.0
-</code></pre>
+<span class="o">[</span>DRY-RUN<span class="o">]</span>:<span class="w"> </span>combine<span class="w"> </span>-d<span class="w"> </span>htt_mt.root<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>-T<span class="w"> </span><span class="m">2000</span><span class="w"> </span>-s<span class="w"> </span>-1<span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.2<span class="w"> </span>-n<span class="w"> </span>.Test.POINT.0.2
+<span class="o">[</span>DRY-RUN<span class="o">]</span>:<span class="w"> </span>combine<span class="w"> </span>-d<span class="w"> </span>htt_mt.root<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>-T<span class="w"> </span><span class="m">2000</span><span class="w"> </span>-s<span class="w"> </span>-1<span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.4<span class="w"> </span>-n<span class="w"> </span>.Test.POINT.0.4
+<span class="o">[</span>...<span class="o">]</span>
+<span class="o">[</span>DRY-RUN<span class="o">]</span>:<span class="w"> </span>combine<span class="w"> </span>-d<span class="w"> </span>htt_mt.root<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>-T<span class="w"> </span><span class="m">2000</span><span class="w"> </span>-s<span class="w"> </span>-1<span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">2</span>.0<span class="w"> </span>-n<span class="w"> </span>.Test.POINT.2.0
+</code></pre></div>
 <p>When the <code>--dry-run</code> option is removed each command will be run in sequence.</p>
 <h3 id="grid-submission-with-crab3">Grid submission with crab3</h3>
 <p>Submission to the grid with <code>crab3</code> works in a similar way. Before doing so, ensure that the <code>crab3</code> environment has been sourced in addition to the CMSSW environment. We will use the example of generating a grid of test-statistic distributions for limits.</p>
-<pre><code class="language-sh">$ cmsenv; source /cvmfs/cms.cern.ch/crab3/crab.sh
-$ combineTool.py -d htt_mt.root -M HybridNew --LHCmode LHC-limits --clsAcc 0 -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveToys --saveHybridResult -m 125 --job-mode crab3 --task-name grid-test --custom-crab custom_crab.py
-</code></pre>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>cmsenv<span class="p">;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>/cvmfs/cms.cern.ch/crab3/crab.sh
+$<span class="w"> </span>combineTool.py<span class="w"> </span>-d<span class="w"> </span>htt_mt.root<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>--clsAcc<span class="w"> </span><span class="m">0</span><span class="w"> </span>-T<span class="w"> </span><span class="m">2000</span><span class="w"> </span>-s<span class="w"> </span>-1<span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.2:2.0:0.05<span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--job-mode<span class="w"> </span>crab3<span class="w"> </span>--task-name<span class="w"> </span>grid-test<span class="w"> </span>--custom-crab<span class="w"> </span>custom_crab.py
+</code></pre></div>
 <p>The option <code>--custom-crab</code> should point to a python file python containing a function of the form <code>custom_crab(config)</code> that will be used to modify the default crab configuration. You can use this to set the output site to your local grid site, or modify other options such as the voRole, or the site blacklist/whitelist.</p>
 <p>For example</p>
-<pre><code class="language-python">def custom_crab(config):
-  print '&gt;&gt; Customising the crab config'
-  config.Site.storageSite = 'T2_CH_CERN'
-  config.Site.blacklist = ['SOME_SITE', 'SOME_OTHER_SITE']
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">custom_crab</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+  <span class="nb">print</span> <span class="s1">&#39;&gt;&gt; Customising the crab config&#39;</span>
+  <span class="n">config</span><span class="o">.</span><span class="n">Site</span><span class="o">.</span><span class="n">storageSite</span> <span class="o">=</span> <span class="s1">&#39;T2_CH_CERN&#39;</span>
+  <span class="n">config</span><span class="o">.</span><span class="n">Site</span><span class="o">.</span><span class="n">blacklist</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SOME_SITE&#39;</span><span class="p">,</span> <span class="s1">&#39;SOME_OTHER_SITE&#39;</span><span class="p">]</span>
+</code></pre></div>
 <p>Again it is possible to use the option <code>--dry-run</code> to see what the complete crab config will look like before actually submitting it.</p>
 <p>Once submitted, the progress can be monitored using the standard <code>crab</code> commands. When all jobs are completed, copy the output from your site's storage element to the local output folder.</p>
-<pre><code class="language-sh">$ crab getoutput -d crab_grid-test
-# Now we have to un-tar the output files
-$ cd crab_grid-test/results/
-$ for f in *.tar; do tar xf $f; done
-$ mv higgsCombine*.root ../../
-$ cd ../../
-</code></pre>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>crab<span class="w"> </span>getoutput<span class="w"> </span>-d<span class="w"> </span>crab_grid-test
+<span class="c1"># Now we have to un-tar the output files</span>
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>crab_grid-test/results/
+$<span class="w"> </span><span class="k">for</span><span class="w"> </span>f<span class="w"> </span><span class="k">in</span><span class="w"> </span>*.tar<span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>tar<span class="w"> </span>xf<span class="w"> </span><span class="nv">$f</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+$<span class="w"> </span>mv<span class="w"> </span>higgsCombine*.root<span class="w"> </span>../../
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>../../
+</code></pre></div>
 <p>These output files should be combined with <code>hadd</code>, after which we invoke <span style="font-variant:small-caps;">Combine</span> as usual to calculate observed and expected limits from the merged grid, as usual.</p>
 
 

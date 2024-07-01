@@ -1459,8 +1459,8 @@
 <h2 id="getting-started">Getting started</h2>
 <p>To get started, you should have a working setup of <code>Combine</code>, please follow the instructions from the <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users">home page</a>. Make sure to use the latest recommended release.</p>
 <p>After setting up <code>Combine</code>, you can access the working directory for this tutorial which contains all of the inputs and scripts needed to run the unfolding fitting exercise:</p>
-<pre><code class="language-shell">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_unfolding_2023/
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_unfolding_2023/
+</code></pre></div>
 <h2 id="exercise-outline">Exercise outline</h2>
 <p>The hands-on exercise is split into seven parts: </p>
 <p>1) "Simple" Unfolding Experiment</p>
@@ -1487,7 +1487,7 @@
 <p>When determining the detector-level binning for any differential analysis the main goal is to chose a binning that distinguishes contributions from the various generator-level bins well. In the simplest case it can be done with the cut-based approach, i.e. applying the same binning for the detector-level observables as is being applied to the generator-level quantities being measured. In this case, that means binning in <span class="arithmatex">\(p_{T}(Z)\)</span> and <span class="arithmatex">\(n_{\text{add. jets}}\)</span>. 
 Due to the good lepton <span class="arithmatex">\(p_{T}\)</span> resolution we can follow the original STXS scheme quite closely with the detector-level selection, with one exception, it is not possible to access the very-low transverse momenta bin <span class="arithmatex">\(p_{T}(Z)&lt;75\)</span> GeV.  </p>
 <p>In <code>counting/regions</code> dicrectory you can find the datacards with five detector-level categories, each targetting a corresponding generator-level bin. Below you can find an example of the datacard for the detector-level bin with <span class="arithmatex">\(p_{T}(Z)&gt;400\)</span> GeV. </p>
-<pre><code>imax    1 number of bins
+<div class="highlight"><pre><span></span><code>imax    1 number of bins
 jmax    9 number of processes minus 1
 kmax    * number of nuisance parameters
 --------------------------------------------------------------------------------
@@ -1500,54 +1500,49 @@ process                               ggZH_lep_PTV_GT400_hbb ZH_lep_PTV_GT400_hb
 process                               -3                     -2                   -1                     0                        1               2               3               4               5               6
 rate                                  0.0907733              0.668303             0.026293               0.00434588               3.78735         2.58885         4.09457         0.413716        7.02731         0.642605
 --------------------------------------------------------------------------------
-
-</code></pre>
+</code></pre></div>
 <p>You can see the contributions from various background processes, namely Z+jets, <span class="arithmatex">\(t\bar{t}\)</span> and the single top, as well as the signal processes (ggZH and ZH) corresponding to the STXS scheme discussed above. Note that for each generator-level bin being measured, we assign a different process in combine. This is so that the signal strengths for each of their contributions can float independently in the measurement. Also note, that due to migrations, each detector-level bin will receive contributions from multiple generator-level bins.</p>
 <p>One of the most important stages in the analysis design, is to make sure that the detector-level categories are well-chosen to target the corresponding generator-level processes.</p>
 <p>To explicitly check the correspondance between detector- and generator-level, one can plot the contributions of each of the generator-level bins in all of the detector-level bins. You can use the script provided in the tutorial git-lab page. This script uses <code>CombineHarvester</code> to loop over detector-level bins, and get the rate at which each of the signal processes (generator-level bins) contributes to that detector-level bin; which is then used to plot the migration matrix. </p>
-<pre><code class="language-shell">python scripts/get_migration_matrix.py counting/combined_ratesOnly.txt
-
-</code></pre>
-<p><img alt="" src="../figures/migration_matrix_zh.png" /> </p>
+<p><div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/get_migration_matrix.py<span class="w"> </span>counting/combined_ratesOnly.txt
+</code></pre></div>
+<img alt="" src="../figures/migration_matrix_zh.png" /> </p>
 <p>The migration matrix shows the generator-level bins on the x-axis and the corresponding detector-level bins on the y-axis. The entries are normalized such that the sum of all contributions for a given generator-level bin sum up to 1. With this convention, the numbers in each bin represent the probability that an event from a given generator-level bin is reconstructed in a given detector-level bin if it is reconstructed at all within the considered bins.</p>
-<p>Now that we checked the response matrix we can attempt the maximum likelihood unfolding. We can use the <code>multiSignalModel</code> physics model available in <code>Combine</code>, which assigns a parameter of interest <code>poi</code> to a process <code>p</code> within a bin <code>b</code> using the syntax <code>--PO 'map=b/p:poi[init, min, max]'</code> to linearly scale the normalisation of this process under the parameter of interest (POI) variations. To create the workspace we can run the following command: </p>
-<pre><code class="language-shell">text2workspace.py -m 125  counting/combined_ratesOnly.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/.*ZH_lep_PTV_75_150_hbb:r_zh_75_150[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_150_250_0J_hbb:r_zh_150_250noj[1,-5,5]'  --PO 'map=.*/.*ZH_lep_PTV_150_250_GE1J_hbb:r_zh_150_250wj[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_250_400_hbb:r_zh_250_400[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_GT400_hbb:r_zh_gt400[1,-5,5]' -o ws_counting.root
-</code></pre>
-<p>In the example given above a signal POI is assigned to each generator-level bin independent of detector-level bin. This allows the measurement to take into account migrations. </p>
+<p>Now that we checked the response matrix we can attempt the maximum likelihood unfolding. We can use the <code>multiSignalModel</code> physics model available in <code>Combine</code>, which assigns a parameter of interest <code>poi</code> to a process <code>p</code> within a bin <code>b</code> using the syntax <code>--PO 'map=b/p:poi[init, min, max]'</code> to linearly scale the normalisation of this process under the parameter of interest (POI) variations. To create the workspace we can run the following command: 
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w">  </span>counting/combined_ratesOnly.txt<span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel<span class="w">  </span>--PO<span class="w"> </span>verbose<span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_75_150_hbb:r_zh_75_150[1,-5,5]&#39;</span><span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_150_250_0J_hbb:r_zh_150_250noj[1,-5,5]&#39;</span><span class="w">  </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_150_250_GE1J_hbb:r_zh_150_250wj[1,-5,5]&#39;</span><span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_250_400_hbb:r_zh_250_400[1,-5,5]&#39;</span><span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_GT400_hbb:r_zh_gt400[1,-5,5]&#39;</span><span class="w"> </span>-o<span class="w"> </span>ws_counting.root
+</code></pre></div>
+In the example given above a signal POI is assigned to each generator-level bin independent of detector-level bin. This allows the measurement to take into account migrations. </p>
 <p>To extract the measurement let's run the initial fit first using the <code>MultiDimFit</code> method implemented in <code>Combine</code> to extract the best-fit values and uncertainties on all floating parameters:  </p>
-<pre><code class="language-shell">combineTool.py -M MultiDimFit --datacard ws_counting.root --setParameters r_zh_250_400=1,r_zh_150_250noj=1,r_zh_75_150=1,r_zh_150_250wj=1,r_zh_gt400=1 --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400 -t -1 
-</code></pre>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>--datacard<span class="w"> </span>ws_counting.root<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">r_zh_250_400</span><span class="o">=</span><span class="m">1</span>,r_zh_150_250noj<span class="o">=</span><span class="m">1</span>,r_zh_75_150<span class="o">=</span><span class="m">1</span>,r_zh_150_250wj<span class="o">=</span><span class="m">1</span>,r_zh_gt400<span class="o">=</span><span class="m">1</span><span class="w"> </span>--redefineSignalPOIs<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400<span class="w"> </span>-t<span class="w"> </span>-1<span class="w"> </span>
+</code></pre></div>
 <blockquote>
 <p>With the option <code>-t -1</code> we set <code>Combine</code> to fit the asimov dataset instead of actual data.
 The <code>--setParameters &lt;param&gt;=&lt;value&gt;</code> set the initial value of parameter named <param>.
 <code>--redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400</code> set the POIs to the comma-separated list, instead of the default one <code>r</code>.</p>
 </blockquote>
 <p>While the uncertainties on the parameters of interest (POIs) can be extracted in multiple ways, the most robust way is to run the likelihood scans for a POI corresponding to each generator-level bin, it allows you to spot discontinuities in the likelihood shape in case of problems with the fit or the model. </p>
-<pre><code class="language-shell">combineTool.py -M MultiDimFit --datacard ws_counting.root -t -1 --setParameters r_zh_250_400=1,r_zh_150_250noj=1,r_zh_75_150=1,r_zh_150_250wj=1,r_zh_gt400=1 --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400 --algo=grid --points=100 -P r_zh_75_150 --floatOtherPOIs=1 -n scan_r_zh_75_150
-
-</code></pre>
-<p>Now we can plot the likelihood scan and extract the expected intervals.</p>
-<pre><code class="language-shell">python scripts/plot1DScan.py higgsCombinescan_r_zh_75_150.MultiDimFit.mH120.root -o r_zh_75_150 --POI r_zh_75_150
-</code></pre>
-<ul>
-<li>Repeat for all POIs</li>
-</ul>
+<p><div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>--datacard<span class="w"> </span>ws_counting.root<span class="w"> </span>-t<span class="w"> </span>-1<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">r_zh_250_400</span><span class="o">=</span><span class="m">1</span>,r_zh_150_250noj<span class="o">=</span><span class="m">1</span>,r_zh_75_150<span class="o">=</span><span class="m">1</span>,r_zh_150_250wj<span class="o">=</span><span class="m">1</span>,r_zh_gt400<span class="o">=</span><span class="m">1</span><span class="w"> </span>--redefineSignalPOIs<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400<span class="w"> </span>--algo<span class="o">=</span>grid<span class="w"> </span>--points<span class="o">=</span><span class="m">100</span><span class="w"> </span>-P<span class="w"> </span>r_zh_75_150<span class="w"> </span>--floatOtherPOIs<span class="o">=</span><span class="m">1</span><span class="w"> </span>-n<span class="w"> </span>scan_r_zh_75_150
+</code></pre></div>
+Now we can plot the likelihood scan and extract the expected intervals.</p>
+<p><div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/plot1DScan.py<span class="w"> </span>higgsCombinescan_r_zh_75_150.MultiDimFit.mH120.root<span class="w"> </span>-o<span class="w"> </span>r_zh_75_150<span class="w"> </span>--POI<span class="w"> </span>r_zh_75_150
+</code></pre></div>
+* Repeat for all POIs</p>
 <h2 id="shape-analysis-with-control-regions">Shape analysis with control regions</h2>
 <p>One of the advantages of the maximum likelihood unfolding is the flexibility to choose the analysis observable and include more information on the event kinematics, consequently improving the analysis sensitivity. This analysis benefits from the shape information of the DNN output trained to differentiate the VH(bb) signal from the SM backgrounds. </p>
 <p>The datacards for this part of the exercise located <code>full_model_datacards/</code>, where you can find a separate datacard for each region within <code>full_model_datacards/regions</code> directory and also a combined datacard <code>full_model_datacards/comb_full_model.txt</code>. In this case, each of the detector-level bins being used in the unfolding above is now split into multiple bins according to the DNN output score. This provides extra discrimination power to separate the signal from background and improve the measurement.</p>
 <p>As you will find, the datacards also contain several background processes. To control them properly we will also add regions enriched in the respective backgrounds. Then we can define a common set of rate parameters for signal and control regions to scale the rates or other parameters affecting their shape.  </p>
 <p>For the shape datacards one has to specify the mapping of histograms and channels/processes as given described below:</p>
-<pre><code>shapes [process] [channel] [file] [nominal] [systematics_templates]
-</code></pre>
-<p>Then the <code>shape</code> nuisance parameters can be defined in the systematics block in the datacard. More details can be found in <code>Combine</code> <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/settinguptheanalysis/#binned-shape-analysis">documentation pages</a>.</p>
+<p><div class="highlight"><pre><span></span><code>shapes [process] [channel] [file] [nominal] [systematics_templates]
+</code></pre></div>
+Then the <code>shape</code> nuisance parameters can be defined in the systematics block in the datacard. More details can be found in <code>Combine</code> <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/settinguptheanalysis/#binned-shape-analysis">documentation pages</a>.</p>
 <p>In many CMS analyses there are hundreds of nuisance parameters corresponding to various source of systematics. </p>
 <p>When we unfold to the generator-level quantities we should remove the nuisances affecting the rate of the generator-level bins, i.e. when measuring a given cross-section such as <span class="arithmatex">\(\sigma_{\textrm{gen1}}\)</span>, the nuisance parameters should not change the value of that parameter itself; they should only change the relationship between that parameter and the observations.  This means that, for example, effects of renormalization and factorization scales on the generator-level cross section within each bin need to be removed. Only their effects on the detector-level distribution through changes of shape within each bin as well as acceptances and efficiencies should be considered. </p>
 <p>For this analysis, that means removing the <code>lnN</code> nuisance parameters: <code>THU_ZH_mig*</code> and  <code>THU_ZH_inc</code>; keeping only the acceptance <code>shape</code> uncertainties: <code>THU_ZH_acc</code> and <code>THU_ggZH_acc</code>, which do not scale the inclusive cross sections by construction. In this analysis the normalisation effects in the <code>THU_ZH_acc</code> and <code>THU_ggZH_acc</code> templates were already removed from the shape histograms. Removing the normalization effects can be achieved by removing them from the datacard. Alternatively, freezing the respective nuisance parameters with the option <code>--freezeParameters par_name1,par_name2</code>. Or you can create a group following the syntax given below at the end of the combined datacard, and freeze the parameters with the <code>--freezeNuisanceGroups group_name</code> option.</p>
-<pre><code>[group_name] group = uncertainty_1 uncertainty_2 ... uncertainty_N
-</code></pre>
+<div class="highlight"><pre><span></span><code>[group_name] group = uncertainty_1 uncertainty_2 ... uncertainty_N
+</code></pre></div>
 <p>Now we can create the workspace using the same <code>multiSignalmodel</code> as before:</p>
-<pre><code class="language-shell">text2workspace.py -m 125  full_model_datacards/comb_full_model.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/.*ZH_lep_PTV_75_150_hbb:r_zh_75_150[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_150_250_0J_hbb:r_zh_150_250noj[1,-5,5]'  --PO 'map=.*/.*ZH_lep_PTV_150_250_GE1J_hbb:r_zh_150_250wj[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_250_400_hbb:r_zh_250_400[1,-5,5]' --PO 'map=.*/.*ZH_lep_PTV_GT400_hbb:r_zh_gt400[1,-5,5]' --for-fits --no-wrappers --X-pack-asympows --optimize-simpdf-constraints=cms --use-histsum -o ws_full.root
-</code></pre>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w">  </span>full_model_datacards/comb_full_model.txt<span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel<span class="w">  </span>--PO<span class="w"> </span>verbose<span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_75_150_hbb:r_zh_75_150[1,-5,5]&#39;</span><span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_150_250_0J_hbb:r_zh_150_250noj[1,-5,5]&#39;</span><span class="w">  </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_150_250_GE1J_hbb:r_zh_150_250wj[1,-5,5]&#39;</span><span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_250_400_hbb:r_zh_250_400[1,-5,5]&#39;</span><span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_GT400_hbb:r_zh_gt400[1,-5,5]&#39;</span><span class="w"> </span>--for-fits<span class="w"> </span>--no-wrappers<span class="w"> </span>--X-pack-asympows<span class="w"> </span>--optimize-simpdf-constraints<span class="o">=</span>cms<span class="w"> </span>--use-histsum<span class="w"> </span>-o<span class="w"> </span>ws_full.root
+</code></pre></div>
 <blockquote>
 <p>As you might have noticed we are using a few extra versions <code>--for-fits --no-wrappers --X-pack-asympows --optimize-simpdf-constraints=cms --use-histsum</code> to create a workspace. They are needed to construct a more optimised pdf using the <code>CMSHistSum</code> class implemented in Combine to significantly lower the memory consumption.</p>
 </blockquote>
@@ -1555,8 +1550,8 @@ The <code>--setParameters &lt;param&gt;=&lt;value&gt;</code> set the initial val
 <li>Following the instructions given earlier, create the workspace and run the initial fit with <code>-t -1</code>. </li>
 </ul>
 <p>Since this time the datacards include shape uncertainties as well as additional categories to improve the background description the fit might take much longer, but we can submit jobs to a batch system by using the combine tool and have results ready to look at in a few minutes.  </p>
-<pre><code class="language-shell">combineTool.py -M MultiDimFit -d ws_full.root --setParameters r_zh_250_400=1,r_zh_150_250noj=1,r_zh_75_150=1,r_zh_150_250wj=1,r_zh_gt400=1 --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400  -t -1 --X-rtd FAST_VERTICAL_MORPH --algo=grid --points=50 --floatOtherPOIs=1 -n .scans_blinded --job-mode condor --task-name scans_zh  --split-points 1 --generate P:n::r_zh_gt400,r_zh_gt400:r_zh_250_400,r_zh_250_400:r_zh_150_250wj,r_zh_150_250wj:r_zh_150_250noj,r_zh_150_250noj:r_zh_75_150,r_zh_75_150
-</code></pre>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>-d<span class="w"> </span>ws_full.root<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">r_zh_250_400</span><span class="o">=</span><span class="m">1</span>,r_zh_150_250noj<span class="o">=</span><span class="m">1</span>,r_zh_75_150<span class="o">=</span><span class="m">1</span>,r_zh_150_250wj<span class="o">=</span><span class="m">1</span>,r_zh_gt400<span class="o">=</span><span class="m">1</span><span class="w"> </span>--redefineSignalPOIs<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400<span class="w">  </span>-t<span class="w"> </span>-1<span class="w"> </span>--X-rtd<span class="w"> </span>FAST_VERTICAL_MORPH<span class="w"> </span>--algo<span class="o">=</span>grid<span class="w"> </span>--points<span class="o">=</span><span class="m">50</span><span class="w"> </span>--floatOtherPOIs<span class="o">=</span><span class="m">1</span><span class="w"> </span>-n<span class="w"> </span>.scans_blinded<span class="w"> </span>--job-mode<span class="w"> </span>condor<span class="w"> </span>--task-name<span class="w"> </span>scans_zh<span class="w">  </span>--split-points<span class="w"> </span><span class="m">1</span><span class="w"> </span>--generate<span class="w"> </span>P:n::r_zh_gt400,r_zh_gt400:r_zh_250_400,r_zh_250_400:r_zh_150_250wj,r_zh_150_250wj:r_zh_150_250noj,r_zh_150_250noj:r_zh_75_150,r_zh_75_150
+</code></pre></div>
 <blockquote>
 <p>The option <code>--X-rtd FAST_VERTICAL_MORPH</code> is added here and for all <code>combineTool.py -M MultiDimFit ...</code> to speed up the minimisation. </p>
 <p>The job submission is handled by the <code>CombineHarvester</code>, the combination of options <code>--job-mode condor --task-name scans_zh  --split-points 1 --generate P:n::r_zh_gt400,r_zh_gt400:r_zh_250_400,r_zh_250_400:r_zh_150_250wj,r_zh_150_250wj:r_zh_150_250noj,r_zh_150_250noj:r_zh_75_150,r_zh_75_150</code> will submit the jobs to HTCondor for each POI. 
@@ -1565,31 +1560,31 @@ You can add <code>--dry-run</code> option to create the submissions files first 
 <p>If you are running the tutorial from a cluster where HTCondor is not available you can also submit the jobs to the slurm system, just change the <code>--job-mode condor</code> to <code>--job-mode slurm</code>. </p>
 </blockquote>
 <p>After all jobs are completed we can combine the files for each POI: </p>
-<pre><code class="language-shell">for p in r_zh_75_150 r_zh_150_250noj r_zh_150_250wj r_zh_250_400 r_zh_gt400
-do
-    hadd -k -f scan_${p}_blinded.root higgsCombine.scans_blinded.${p}.POINTS.*.MultiDimFit.mH120.root
-done
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>p<span class="w"> </span><span class="k">in</span><span class="w"> </span>r_zh_75_150<span class="w"> </span>r_zh_150_250noj<span class="w"> </span>r_zh_150_250wj<span class="w"> </span>r_zh_250_400<span class="w"> </span>r_zh_gt400
+<span class="k">do</span>
+<span class="w">    </span>hadd<span class="w"> </span>-k<span class="w"> </span>-f<span class="w"> </span>scan_<span class="si">${</span><span class="nv">p</span><span class="si">}</span>_blinded.root<span class="w"> </span>higgsCombine.scans_blinded.<span class="si">${</span><span class="nv">p</span><span class="si">}</span>.POINTS.*.MultiDimFit.mH120.root
+<span class="k">done</span>
+</code></pre></div>
 <p>And finally plot the likelihood scans </p>
-<pre><code class="language-shell">python scripts/plot1DScan.py scan_r_zh_75_150_blinded.root  -o scan_r_zh_75_150_blinded --POI r_zh_75_150 --json summary_zh_stxs_blinded.json
-</code></pre>
-<p><img alt="" src="../figures/scan_plot_r_zh_75_150_blinded.png" /></p>
+<p><div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/plot1DScan.py<span class="w"> </span>scan_r_zh_75_150_blinded.root<span class="w">  </span>-o<span class="w"> </span>scan_r_zh_75_150_blinded<span class="w"> </span>--POI<span class="w"> </span>r_zh_75_150<span class="w"> </span>--json<span class="w"> </span>summary_zh_stxs_blinded.json
+</code></pre></div>
+<img alt="" src="../figures/scan_plot_r_zh_75_150_blinded.png" /></p>
 <h2 id="impacts">Impacts</h2>
 <p>One of the important tests before we move to the unblinding stage is to check the impacts of nuisance parameters on each POI. For this we can run the <code>combineTool.py</code> with <code>-M Impacts</code> method. We start with the initial fit, which should take about 20 minutes (good time to have a coffee break!):</p>
-<pre><code class="language-shell">combineTool.py -M Impacts -d ws_full.root -m 125 --robustFit 1 --doInitialFit --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400 --X-rtd FAST_VERTICAL_MORPH
-</code></pre>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>Impacts<span class="w"> </span>-d<span class="w"> </span>ws_full.root<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--robustFit<span class="w"> </span><span class="m">1</span><span class="w"> </span>--doInitialFit<span class="w"> </span>--redefineSignalPOIs<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400<span class="w"> </span>--X-rtd<span class="w"> </span>FAST_VERTICAL_MORPH
+</code></pre></div>
 <blockquote>
 <p>Note that it is important to add the option <code>--redefineSignalPOIs [list of parameters]</code>, to produce the impacts for all POIs we defined when the workspace was created with the <code>multiSignalModel</code>.</p>
 </blockquote>
 <p>After the initial fit is completed we can perform the likelihood scans for each nuisance parameter. 
 We will submit the jobs to the HTCondor to speed up the process.</p>
-<pre><code class="language-shell">combineTool.py -M Impacts -d ws_full.root -m 125 --robustFit 1 --doFits --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400 --job-mode condor --task-name impacts_zh --X-rtd FAST_VERTICAL_MORPH 
-</code></pre>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>Impacts<span class="w"> </span>-d<span class="w"> </span>ws_full.root<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--robustFit<span class="w"> </span><span class="m">1</span><span class="w"> </span>--doFits<span class="w"> </span>--redefineSignalPOIs<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400<span class="w"> </span>--job-mode<span class="w"> </span>condor<span class="w"> </span>--task-name<span class="w"> </span>impacts_zh<span class="w"> </span>--X-rtd<span class="w"> </span>FAST_VERTICAL_MORPH<span class="w"> </span>
+</code></pre></div>
 <p>Now we can combine the results into the <code>.json</code> format and use it to produce the impact plots.</p>
-<pre><code class="language-shell">combineTool.py -M Impacts -d ws_full.root -m 125 --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400 --output impacts.json 
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>Impacts<span class="w"> </span>-d<span class="w"> </span>ws_full.root<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--redefineSignalPOIs<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400<span class="w"> </span>--output<span class="w"> </span>impacts.json<span class="w"> </span>
 
-plotImpacts.py -i impacts.json -o impacts_r_zh_75_150 --POI r_zh_75_150
-</code></pre>
+plotImpacts.py<span class="w"> </span>-i<span class="w"> </span>impacts.json<span class="w"> </span>-o<span class="w"> </span>impacts_r_zh_75_150<span class="w"> </span>--POI<span class="w"> </span>r_zh_75_150
+</code></pre></div>
 <p><img alt="" src="../figures/impacts_zh_75_150.png" />
 * Do you observe differences in impacts plots for different POIs, do these differences make sense to you? </p>
 <h2 id="unfolded-measurements">Unfolded measurements</h2>
@@ -1598,24 +1593,23 @@ Note that for the purposes of the tutorial, we are skipping further checks and v
 <p>At this stage we'll run the <code>MultiDimFit</code> again scanning each POI to calculate the intervals, but this time we'll remove the <code>-t -1</code> option to extract the unblinded results. </p>
 <p>Also since we want to unfold the measurements to the generator-level observables, i.e. extract the cross sections, we remove the theoretical uncertainties affecting the rates of signal processes,  we can do this be freezing them <code>--freezeNuisanceGroups &lt;group_name&gt;</code>, using the <code>group_name</code> you assigned earlier in the tutorial. </p>
 <p>Now plot the scans and collect the measurements in the json file <code>summary_zh_stxs.json</code>. </p>
-<pre><code class="language-shell">python scripts/plot1DScan.py scan_r_zh_75_150.root -o r_zh_75_150 --POI r_zh_75_150 --json summary_zh_stxs.json  
-</code></pre>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/plot1DScan.py<span class="w"> </span>scan_r_zh_75_150.root<span class="w"> </span>-o<span class="w"> </span>r_zh_75_150<span class="w"> </span>--POI<span class="w"> </span>r_zh_75_150<span class="w"> </span>--json<span class="w"> </span>summary_zh_stxs.json<span class="w">  </span>
+</code></pre></div>
 <p><img alt="" src="../figures/scan_plot_r_zh_75_150.png" /></p>
 <p>Repeat the same command for other POIs to fill the <code>summary_zh_stxs.json</code>, which can then be used to make the cross section plot by multiplying the standard model cross sections by the signal strengths' best-fit values as shown below. </p>
-<pre><code class="language-shell">python scripts/make_XSplot.py summary_zh_stxs.json
-</code></pre>
-<p><img alt="" src="../figures/stxs_zh.png" /> </p>
+<p><div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/make_XSplot.py<span class="w"> </span>summary_zh_stxs.json
+</code></pre></div>
+<img alt="" src="../figures/stxs_zh.png" /> </p>
 <h2 id="poi-correlations">POI correlations</h2>
 <p>In addition to the cross-section measurements it is very important to publish covariance or correlation information of the measured cross sections. 
 This allows the measurement to be properly intepreted or reused in combined fits.  </p>
 <p>The correlation matrix or covariance matrix can be extracted from the results after the fit. Here we can use the <code>FitDiagnostics</code> or <code>MultiDimFit</code> method.</p>
-<pre><code class="language-shell">combineTool.py -M FitDiagnostics --datacard ws_full.root --setParameters r_zh_250_400=1,r_zh_150_250noj=1,r_zh_75_150=1,r_zh_150_250wj=1,r_zh_gt400=1 --redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400  --robustHesse 1 -n .full_model --X-rtd FAST_VERTICAL_MORPH
-</code></pre>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>FitDiagnostics<span class="w"> </span>--datacard<span class="w"> </span>ws_full.root<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">r_zh_250_400</span><span class="o">=</span><span class="m">1</span>,r_zh_150_250noj<span class="o">=</span><span class="m">1</span>,r_zh_75_150<span class="o">=</span><span class="m">1</span>,r_zh_150_250wj<span class="o">=</span><span class="m">1</span>,r_zh_gt400<span class="o">=</span><span class="m">1</span><span class="w"> </span>--redefineSignalPOIs<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400<span class="w">  </span>--robustHesse<span class="w"> </span><span class="m">1</span><span class="w"> </span>-n<span class="w"> </span>.full_model<span class="w"> </span>--X-rtd<span class="w"> </span>FAST_VERTICAL_MORPH
+</code></pre></div>
 <p>Then the <code>RooFitResult</code>, containing correlations matrix, can be found in the <code>fitDiagnostics.full_model.root</code> file under the name <code>fit_s</code>. The script <code>plotCorrelations_pois.py</code> from the exercise git-lab repository can help to plot the correlation matrix.</p>
-<pre><code class="language-shell">python scripts/plotCorrelations_pois.py -i fitDiagnostics.full_model.root:fit_s -p r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400
-
-</code></pre>
-<p><img alt="" src="../figures/correlationMatrix_pois.png" /></p>
+<p><div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/plotCorrelations_pois.py<span class="w"> </span>-i<span class="w"> </span>fitDiagnostics.full_model.root:fit_s<span class="w"> </span>-p<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400
+</code></pre></div>
+<img alt="" src="../figures/correlationMatrix_pois.png" /></p>
 
 
 

@@ -1669,76 +1669,76 @@ releases on github under
 <h3 id="combine-v10-recommended-version">Combine v10 - recommended version</h3>
 <p>The nominal installation method is inside CMSSW. The current release targets
 the CMSSW <code>14_1_X</code> series because of the recent switch to el9 at lxplus machines.</p>
-<pre><code class="language-sh">cmsrel CMSSW_14_1_0_pre4
-cd CMSSW_14_1_0_pre4/src
+<p><div class="highlight"><pre><span></span><code>cmsrel<span class="w"> </span>CMSSW_14_1_0_pre4
+<span class="nb">cd</span><span class="w"> </span>CMSSW_14_1_0_pre4/src
 cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-</code></pre>
-<p>Update to a recommended tag - currently the recommended tag is <strong>v10.0.1</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.0.1">see release notes</a></p>
-<pre><code class="language-sh">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v10.0.1
-scramv1 b clean; scramv1 b # always make a clean build
-</code></pre>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
+<span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
+</code></pre></div>
+Update to a recommended tag - currently the recommended tag is <strong>v10.0.1</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.0.1">see release notes</a></p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit
+git<span class="w"> </span>fetch<span class="w"> </span>origin
+git<span class="w"> </span>checkout<span class="w"> </span>v10.0.1
+scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span><span class="c1"># always make a clean build</span>
+</code></pre></div>
 <h3 id="combine-v9">Combine v9</h3>
 <p>The nominal installation method is inside CMSSW. The current release targets
 the CMSSW <code>11_3_X</code> series because this release has both python2 and python3 ROOT
 bindings, allowing a more gradual migration of user code to python3. <span style="font-variant:small-caps;">Combine</span> is
 fully python3-compatible and, with some adaptations, can also work in 12_X releases. </p>
-<p>CMSSW <code>11_3_X</code> runs on slc7, which can be setup using apptainer (<a href="http://cms-sw.github.io/singularity.html">see detailed instructions</a>):</p>
-<pre><code class="language-sh">cmssw-el7
-cmsrel CMSSW_11_3_4
-cd CMSSW_11_3_4/src
+<p>CMSSW <code>11_3_X</code> runs on slc7, which can be setup using apptainer (<a href="http://cms-sw.github.io/singularity.html">see detailed instructions</a>):
+<div class="highlight"><pre><span></span><code>cmssw-el7
+cmsrel<span class="w"> </span>CMSSW_11_3_4
+<span class="nb">cd</span><span class="w"> </span>CMSSW_11_3_4/src
 cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-</code></pre>
-<p>Update to a recommended tag - currently the recommended tag is <strong>v9.2.1</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.2.1">see release notes</a></p>
-<pre><code class="language-sh">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v9.2.1
-scramv1 b clean; scramv1 b # always make a clean build
-</code></pre>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
+<span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
+</code></pre></div>
+Update to a recommended tag - currently the recommended tag is <strong>v9.2.1</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.2.1">see release notes</a></p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit
+git<span class="w"> </span>fetch<span class="w"> </span>origin
+git<span class="w"> </span>checkout<span class="w"> </span>v9.2.1
+scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span><span class="c1"># always make a clean build</span>
+</code></pre></div>
 <h4 id="combine-v8-cmssw_10_2_x-release-series">Combine v8: <code>CMSSW_10_2_X</code> release series</h4>
 <p>Setting up the environment (once):</p>
-<pre><code class="language-sh">cmssw-el7
-cmsrel CMSSW_10_2_13
-cd CMSSW_10_2_13/src
+<p><div class="highlight"><pre><span></span><code>cmssw-el7
+cmsrel<span class="w"> </span>CMSSW_10_2_13
+<span class="nb">cd</span><span class="w"> </span>CMSSW_10_2_13/src
 cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-</code></pre>
-<p>Update to a recommended tag - currently the recommended tag is <strong>v8.2.0</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v8.2.0">see release notes</a></p>
-<pre><code class="language-sh">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v8.2.0
-scramv1 b clean; scramv1 b # always make a clean build
-</code></pre>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
+<span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
+</code></pre></div>
+Update to a recommended tag - currently the recommended tag is <strong>v8.2.0</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v8.2.0">see release notes</a></p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit
+git<span class="w"> </span>fetch<span class="w"> </span>origin
+git<span class="w"> </span>checkout<span class="w"> </span>v8.2.0
+scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span><span class="c1"># always make a clean build</span>
+</code></pre></div>
 <h4 id="slc6cc7-release-cmssw_8_1_x">SLC6/CC7 release <code>CMSSW_8_1_X</code></h4>
 <p>Setting up OS using apptainer (<a href="http://cms-sw.github.io/singularity.html">see detailed instructions</a>):</p>
-<pre><code class="language-sh"># For CC7:
+<p><div class="highlight"><pre><span></span><code><span class="c1"># For CC7:</span>
 cmssw-el7
-# For SLC6:
+<span class="c1"># For SLC6:</span>
 cmssw-el6
 
-cmsrel CMSSW_8_1_0
-cd CMSSW_8_1_0/src
+cmsrel<span class="w"> </span>CMSSW_8_1_0
+<span class="nb">cd</span><span class="w"> </span>CMSSW_8_1_0/src
 cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-</code></pre>
-<p>Update to a recommended tag - currently the recommended tag for CMSSW_8_1_X is <strong>v7.0.13</strong>:</p>
-<pre><code class="language-sh">cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v7.0.13
-scramv1 b clean; scramv1 b # always make a clean build
-</code></pre>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
+<span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
+</code></pre></div>
+Update to a recommended tag - currently the recommended tag for CMSSW_8_1_X is <strong>v7.0.13</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit
+git<span class="w"> </span>fetch<span class="w"> </span>origin
+git<span class="w"> </span>checkout<span class="w"> </span>v7.0.13
+scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span><span class="c1"># always make a clean build</span>
+</code></pre></div>
 <h3 id="oustide-of-cmssw-recommended-for-non-cms-users">Oustide of CMSSW (recommended for non-CMS users)</h3>
 <p>Pre-compiled versions of the tool are available as container images from the <a href="https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235">CMS cloud</a>. These containers can be downloaded and run using <a href="https://cms-opendata-guide.web.cern.ch/tools/docker/">Docker</a>. If you have docker running you can pull and run the image using, </p>
-<pre><code class="language-sh">docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:&lt;tag&gt;
-</code></pre>
-<p>where you must replace <code>&lt;tag&gt;</code> with a particular version of the tool - eg - <code>v9.2.1</code>. See the top of this page for the latest recommended versions. </p>
+<p><div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>combine<span class="w"> </span>-it<span class="w"> </span>gitlab-registry.cern.ch/cms-cloud/combine-standalone:&lt;tag&gt;
+</code></pre></div>
+where you must replace <code>&lt;tag&gt;</code> with a particular version of the tool - eg - <code>v9.2.1</code>. See the top of this page for the latest recommended versions. </p>
 <p>You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool. 
 The container can be re-started using <code>docker start -i combine</code>. </p>
 <h4 id="standalone-compilation">Standalone compilation</h4>
@@ -1749,17 +1749,17 @@ be obtained from lxplus machines or via <code>CernVM</code>. See <a href="CernVM
 further details on the latter. In case you do not want to use the <code>cvmfs</code>
 area, you will need to adapt the locations of the dependencies listed in both
 the <code>Makefile</code> and <code>env_standalone.sh</code> files.</p>
-<pre><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+<div class="highlight"><pre><span></span><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit/ 
 # git checkout &lt;some release&gt;
 . env_standalone.sh
 make -j 4
-</code></pre>
+</code></pre></div>
 <p>You will need to source <code>env_standalone.sh</code> each time you want to use the package, or add it to your login environment.</p>
 <h5 id="compilation-of-slc7-compatible-versions">Compilation of slc7 compatible versions</h5>
 <p>For <span style="font-variant:small-caps;">Combine</span> versions before v10 release you will need to do the compilation in an slc7 environment using apptainer. You can then source the standalone script outside of the apptainer.
 On lxplus this can be done as follows:</p>
-<pre><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+<div class="highlight"><pre><span></span><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit/ 
 # git checkout &lt;some release&gt;
 cmssw-el7
@@ -1767,22 +1767,22 @@ cmssw-el7
 make -j 4
 exit
 source . env_standalone.sh
-</code></pre>
+</code></pre></div>
 <h5 id="standalone-compilation-with-lcg">Standalone compilation with LCG</h5>
-<p>For compilation outside of CMSSW, for example to use ROOT versions not yet available in CMSSW, one can compile against LCG releases. The current default is to compile with LCG_102, which contains ROOT 6.26:</p>
-<pre><code class="language-sh">git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-source env_lcg.sh 
-make LCG=1 -j 8
-</code></pre>
-<p>To change the LCG version, edit <code>env_lcg.sh</code>. </p>
+<p>For compilation outside of CMSSW, for example to use ROOT versions not yet available in CMSSW, one can compile against LCG releases. The current default is to compile with LCG_102, which contains ROOT 6.26:
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
+<span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
+<span class="nb">source</span><span class="w"> </span>env_lcg.sh<span class="w"> </span>
+make<span class="w"> </span><span class="nv">LCG</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>-j<span class="w"> </span><span class="m">8</span>
+</code></pre></div>
+To change the LCG version, edit <code>env_lcg.sh</code>. </p>
 <p>The resulting binaries can be moved for use in a
-batch job if the following files are included in the job tarball:</p>
-<pre><code class="language-sh">tar -zcf Combine_LCG_env.tar.gz build interface src/classes.h --exclude=obj
-</code></pre>
+batch job if the following files are included in the job tarball:
+<div class="highlight"><pre><span></span><code>tar<span class="w"> </span>-zcf<span class="w"> </span>Combine_LCG_env.tar.gz<span class="w"> </span>build<span class="w"> </span>interface<span class="w"> </span>src/classes.h<span class="w"> </span>--exclude<span class="o">=</span>obj
+</code></pre></div></p>
 <h5 id="standalone-compilation-with-conda">Standalone compilation with <code>conda</code></h5>
-<p>This recipe will work both for linux and MacOS</p>
-<pre><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+<p>This recipe will work both for linux and MacOS
+<div class="highlight"><pre><span></span><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 
 conda install --name base mamba # faster conda
@@ -1795,10 +1795,10 @@ conda deactivate
 conda activate combine
 
 make CONDA=1 -j 8
-</code></pre>
-<p>Using <span style="font-variant:small-caps;">Combine</span> from then on should only require sourcing the conda environment </p>
-<pre><code>conda activate combine
-</code></pre>
+</code></pre></div></p>
+<p>Using <span style="font-variant:small-caps;">Combine</span> from then on should only require sourcing the conda environment 
+<div class="highlight"><pre><span></span><code>conda activate combine
+</code></pre></div></p>
 <p><strong>Note:</strong> on OS X, <span style="font-variant:small-caps;">Combine</span> can only accept workspaces, so run <code>text2workspace.py</code> first.
 This is due to an issue with child processes and <code>LD_LIBRARY_PATH</code> (see note in Makefile)</p>
 <h5 id="standalone-compilation-with-cernvm">Standalone compilation with CernVM</h5>
@@ -1846,9 +1846,9 @@ See <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/ma
 <h2 id="combineharvestercombinetools">CombineHarvester/CombineTools</h2>
 <p>CombineHarvester/CombineTools is a package for the creation of datacards/workspaces used with <span style="font-variant:small-caps;">Combine v10</span> for a number of analyses in CMS. See the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> documentation pages for more details on using this tool and additional features available in the full package.</p>
 <p>This package also comes with useful features for <span style="font-variant:small-caps;">Combine</span> such as the automated datacard validation (see <a href="docs/part3/validation">instructions</a>). The repository can be checked out and compiled using, </p>
-<pre><code class="language-sh">git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
-scram b
-</code></pre>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cms-analysis/CombineHarvester.git<span class="w"> </span>CombineHarvester
+scram<span class="w"> </span>b
+</code></pre></div>
 <p>See the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> documentation for full instructions and reccomended versions. </p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -1858,8 +1858,7 @@ scram b
 <p>If you use <span style="font-variant:small-caps;">Combine</span>, please cite the following CMS publication <a href="https://arxiv.org/abs/2404.06614">here</a>. </p>
 <details>
 <summary><b>Show BibTex Entry</b></summary>
-
-<pre><code>@unpublished{
+<div class="highlight"><pre><span></span><code>@unpublished{
     CMS:2024onh,
     author = &quot;Hayrapetyan, Aram and others&quot;,
     collaboration = &quot;CMS&quot;,
@@ -1871,8 +1870,7 @@ scram b
     year = &quot;2024&quot;,
     note = &quot;Submitted to \textit{Comput. Softw. Big Sci.}&quot;
 }
-</code></pre>
-
+</code></pre></div>
 </details>
 
 

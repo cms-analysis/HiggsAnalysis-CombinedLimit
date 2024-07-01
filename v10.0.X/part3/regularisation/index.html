@@ -1426,16 +1426,16 @@ and folds in the acceptance/efficiency effects as usual.</li>
 </ul>
 <p>The model we use for this is then just the usual <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/PhysicsModel.py#L98"><code>PhysicsModel:multiSignalModel</code></a>, where each <em>signal</em> refers to a particular truth level bin. The results can be extracted through a 
 simple maximum-likelihood fit with, </p>
-<pre><code>    text2workspace.py -m 125 --X-allow-no-background -o datacard.root datacard.txt
-       -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO map='.*GenBin0.*:r_Bin0[1,-1,20]' --PO map='.*GenBin1.*:r_Bin1[1,-1,20]' --PO map='.*GenBin2.*:r_Bin2[1,-1,20]' --PO map='.*GenBin3.*:r_Bin3[1,-1,20]' --PO map='.*GenBin4.*:r_Bin4[1,-1,20]'
+<div class="highlight"><pre><span></span><code>    text2workspace.py -m 125 --X-allow-no-background -o datacard.root datacard.txt
+       -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO map=&#39;.*GenBin0.*:r_Bin0[1,-1,20]&#39; --PO map=&#39;.*GenBin1.*:r_Bin1[1,-1,20]&#39; --PO map=&#39;.*GenBin2.*:r_Bin2[1,-1,20]&#39; --PO map=&#39;.*GenBin3.*:r_Bin3[1,-1,20]&#39; --PO map=&#39;.*GenBin4.*:r_Bin4[1,-1,20]&#39;
 
     combine -M MultiDimFit --setParameters=r_Bin0=1,r_Bin1=1,r_Bin2=1,r_Bin3=1,r_Bin4=1 -t -1 -m 125 datacard.root
     combine -M MultiDimFit --setParameters=r_Bin0=1,r_Bin1=1,r_Bin2=1,r_Bin3=1,r_Bin4=1 -t -1 -m 125 --algo=grid --points=100 -P r_Bin1 --setParameterRanges r_Bin1=0.5,1.5 --floatOtherPOIs=1 datacard.root
-</code></pre>
+</code></pre></div>
 <p>Notice that one can also perform the so called bin-by-bin unfolding (though it is strongly discouraged, except for testing) with, </p>
-<pre><code>    text2workspace.py -m 125 --X-allow-no-background -o datacard.root datacard.txt
-      -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO map='.*RecoBin0.*:r_Bin0[1,-1,20]' --PO map='.*RecoBin1.*:r_Bin1[1,-1,20]' --PO map='.*RecoBin2.*:r_Bin2[1,-1,20]' --PO map='.*RecoBin3.*:r_Bin3[1,-1,20]' --PO map='.*RecoBin4.*:r_Bin4[1,-1,20]'
-</code></pre>
+<div class="highlight"><pre><span></span><code>    text2workspace.py -m 125 --X-allow-no-background -o datacard.root datacard.txt
+      -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO map=&#39;.*RecoBin0.*:r_Bin0[1,-1,20]&#39; --PO map=&#39;.*RecoBin1.*:r_Bin1[1,-1,20]&#39; --PO map=&#39;.*RecoBin2.*:r_Bin2[1,-1,20]&#39; --PO map=&#39;.*RecoBin3.*:r_Bin3[1,-1,20]&#39; --PO map=&#39;.*RecoBin4.*:r_Bin4[1,-1,20]&#39;
+</code></pre></div>
 <p>Nuisance parameters can be added to the likelihood function and profiled in the usual way via the datacards. Theory uncertainties on the inclusive cross section are typically not included in unfolded measurements.</p>
 <p>The figure below shows a comparison of likelihood-based unfolding and a least-squares based unfolding as implemented in <code>RooUnfold</code>. </p>
 <details>
@@ -1476,19 +1476,19 @@ A =
 \]</div>
 <p>Penalty terms on the derivatives can also be included. Such a penalty term is included by modifying the likelihood to include one constraint for each 
 row of the product <span class="arithmatex">\(A\cdot\vec{\mu}\)</span>, by including them as lines in the datacard of the form, </p>
-<pre><code>    name constr formula dependents delta
-</code></pre>
-<p>where the regularization strength is <span class="arithmatex">\(\delta=\frac{1}{\sqrt{\tau}}\)</span> and can either be a fixed value (e.g. by directly putting <code>0.01</code>) or as 
+<p><div class="highlight"><pre><span></span><code>    name constr formula dependents delta
+</code></pre></div>
+where the regularization strength is <span class="arithmatex">\(\delta=\frac{1}{\sqrt{\tau}}\)</span> and can either be a fixed value (e.g. by directly putting <code>0.01</code>) or as 
 a modifiable parameter with e.g. <code>delta[0.01]</code>. </p>
 <p>For example, for 3 bins and a regularization strength of 0.03, the first line would be </p>
-<pre><code>    name constr @0-2*@2+@1 r_Bin0,r_Bin1,r_Bin2 0.03
-</code></pre>
+<div class="highlight"><pre><span></span><code>    name constr @0-2*@2+@1 r_Bin0,r_Bin1,r_Bin2 0.03
+</code></pre></div>
 <p>Alternative valid syntaxes are  </p>
-<pre><code>    constr1 constr r_bin0-r_bin1 0.01
+<div class="highlight"><pre><span></span><code>    constr1 constr r_bin0-r_bin1 0.01
     constr1 constr r_bin0-r_bin1 delta[0.01]
     constr1 constr r_bin0+r_bin1 r_bin0,r_bin1 0.01
     constr1 constr r_bin0+r_bin1 {r_bin0,r_bin1} delta[0.01]
-</code></pre>
+</code></pre></div>
 <p>The figure below shows an example unfolding using the "SVD regularization" approach with the least squares method (as implemented by <code>RooUnfold</code>) and implemented as a penalty term added to the likelihood using the maximum likelihood approach in <span style="font-variant:small-caps;">Combine</span>.</p>
 <details>
 <summary><strong>Show comparison</strong></summary>
@@ -1498,8 +1498,8 @@ a modifiable parameter with e.g. <code>delta[0.01]</code>. </p>
 <p>The Tikhonov regularization as implemented in <code>TUnfold</code> uses the MC information, or rather the density prediction, as a bias vector. 
 In order to give this information to <span style="font-variant:small-caps;">Combine</span>, a single datacard for each reconstruction-level bin needs to be produced, so that we have access to the proper normalization terms during the minimization. In this case the bias vector is <span class="arithmatex">\(\vec{x}_{obs}-\vec{x}_{true}\)</span> </p>
 <p>Then one can write a constraint term in the datacard via, for example,</p>
-<pre><code>    constr1 constr (r_Bin0-1.)*(shapeSig_GenBin0_RecoBin0__norm+shapeSig_GenBin0_RecoBin1__norm+shapeSig_GenBin0_RecoBin2__norm+shapeSig_GenBin0_RecoBin3__norm+shapeSig_GenBin0_RecoBin4__norm)+(r_Bin2-1.)*(shapeSig_GenBin2_RecoBin0__norm+shapeSig_GenBin2_RecoBin1__norm+shapeSig_GenBin2_RecoBin2__norm+shapeSig_GenBin2_RecoBin3__norm+shapeSig_GenBin2_RecoBin4__norm)-2*(r_Bin1-1.)*(shapeSig_GenBin1_RecoBin0__norm+shapeSig_GenBin1_RecoBin1__norm+shapeSig_GenBin1_RecoBin2__norm+shapeSig_GenBin1_RecoBin3__norm+shapeSig_GenBin1_RecoBin4__norm) {r_Bin0,r_Bin1,r_Bin2,shapeSig_GenBin1_RecoBin0__norm,shapeSig_GenBin0_RecoBin0__norm,shapeSig_GenBin2_RecoBin0__norm,shapeSig_GenBin1_RecoBin1__norm,shapeSig_GenBin0_RecoBin1__norm,shapeSig_GenBin2_RecoBin1__norm,shapeSig_GenBin1_RecoBin2__norm,shapeSig_GenBin0_RecoBin2__norm,shapeSig_GenBin2_RecoBin2__norm,shapeSig_GenBin1_RecoBin3__norm,shapeSig_GenBin0_RecoBin3__norm,shapeSig_GenBin2_RecoBin3__norm,shapeSig_GenBin1_RecoBin4__norm,shapeSig_GenBin0_RecoBin4__norm,shapeSig_GenBin2_RecoBin4__norm} delta[0.03]
-</code></pre>
+<div class="highlight"><pre><span></span><code>    constr1 constr (r_Bin0-1.)*(shapeSig_GenBin0_RecoBin0__norm+shapeSig_GenBin0_RecoBin1__norm+shapeSig_GenBin0_RecoBin2__norm+shapeSig_GenBin0_RecoBin3__norm+shapeSig_GenBin0_RecoBin4__norm)+(r_Bin2-1.)*(shapeSig_GenBin2_RecoBin0__norm+shapeSig_GenBin2_RecoBin1__norm+shapeSig_GenBin2_RecoBin2__norm+shapeSig_GenBin2_RecoBin3__norm+shapeSig_GenBin2_RecoBin4__norm)-2*(r_Bin1-1.)*(shapeSig_GenBin1_RecoBin0__norm+shapeSig_GenBin1_RecoBin1__norm+shapeSig_GenBin1_RecoBin2__norm+shapeSig_GenBin1_RecoBin3__norm+shapeSig_GenBin1_RecoBin4__norm) {r_Bin0,r_Bin1,r_Bin2,shapeSig_GenBin1_RecoBin0__norm,shapeSig_GenBin0_RecoBin0__norm,shapeSig_GenBin2_RecoBin0__norm,shapeSig_GenBin1_RecoBin1__norm,shapeSig_GenBin0_RecoBin1__norm,shapeSig_GenBin2_RecoBin1__norm,shapeSig_GenBin1_RecoBin2__norm,shapeSig_GenBin0_RecoBin2__norm,shapeSig_GenBin2_RecoBin2__norm,shapeSig_GenBin1_RecoBin3__norm,shapeSig_GenBin0_RecoBin3__norm,shapeSig_GenBin2_RecoBin3__norm,shapeSig_GenBin1_RecoBin4__norm,shapeSig_GenBin0_RecoBin4__norm,shapeSig_GenBin2_RecoBin4__norm} delta[0.03]
+</code></pre></div>
 
 
 

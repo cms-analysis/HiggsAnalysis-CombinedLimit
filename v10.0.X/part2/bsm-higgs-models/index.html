@@ -1370,8 +1370,8 @@
 <h2 id="two-higgs-models">Two Higgs Models</h2>
 <p>These models are for the case where there are just Two Higgs bosons, one of which is the SM-like Higgs boson that was discovered at the LHC. The two Higgs models are implemented in the python file <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/TwoHiggsModels.py"><code>TwoHiggsModels.py</code></a>. For each of these models, we assume that the SM-like Higgs boson has mass specified by <code>MH_SM</code>, while the additional boson has mass <code>MH</code>.</p>
 <p>You can produce the model by including the  following option in the <code>text2workspace.py</code> command:</p>
-<pre><code class="language-sh">-P HiggsAnalysis.CombinedLimit.TwoHiggsModels:model
-</code></pre>
+<div class="highlight"><pre><span></span><code>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.TwoHiggsModels:model
+</code></pre></div>
 <table>
 <thead>
 <tr>
@@ -1416,8 +1416,8 @@
 <h2 id="two-higgs-doublet-models">Two Higgs Doublet Models</h2>
 <p>In these models, the couplings of the SM-like Higgs boson are modified according to the type of 2HDM with parameters <span class="arithmatex">\(\cos(\beta-\alpha)\)</span> and <span class="arithmatex">\(\tan\beta\)</span>. The two Higgs doublet models are implemented in the python file <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/AdditionalModels.py"><code>AdditionalModels.py</code></a>.  In this model, the Higgs boson mass is <code>MH</code>, and it can be promoted to a POI by including the option <code>--PO higgsMassRange=[low,high]</code>.</p>
 <p>You can produce the model by including the  following option in the <code>text2workspace.py</code> command:</p>
-<pre><code class="language-sh">-P HiggsAnalysis.CombinedLimit.AdditionalModels:model_name
-</code></pre>
+<div class="highlight"><pre><span></span><code>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.AdditionalModels:model_name
+</code></pre></div>
 <table>
 <thead>
 <tr>
@@ -1462,8 +1462,8 @@
 <h2 id="fermiophobic-higgs-model">Fermiophobic Higgs Model</h2>
 <p>This model is for the case where the additional Higgs boson does not couple to fermions. The fermiophobic Higgs model is implemented in the python file <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsFermiophobic.py"><code>HiggsFermiophobic.py</code></a>. In this model, the Higgs boson mass is <code>MH</code>, and it can be promoted to a POI by including the option <code>--PO higgsMassRange=[low,high]</code>.</p>
 <p>You can produce the model by including the  following option in the <code>text2workspace.py</code> command:</p>
-<pre><code class="language-sh">-P HiggsAnalysis.CombinedLimit.HiggsFermiophobic:model_name
-</code></pre>
+<div class="highlight"><pre><span></span><code>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.HiggsFermiophobic:model_name
+</code></pre></div>
 <table>
 <thead>
 <tr>

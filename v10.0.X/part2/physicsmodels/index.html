@@ -1415,14 +1415,14 @@
 
 <h1 id="introduction-to-physics-models">Introduction to Physics Models</h1>
 <p><span style="font-variant:small-caps;">Combine</span> can be run directly on the text-based datacard. However, for more advanced physics models, the internal step to convert the datacard to a binary workspace should be performed by the user. To create a binary workspace starting from a <code>datacard.txt</code>, you can run</p>
-<pre><code class="language-sh">text2workspace.py datacard.txt -o workspace.root
-</code></pre>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>datacard.txt<span class="w"> </span>-o<span class="w"> </span>workspace.root
+</code></pre></div>
 <p>By default (without the <code>-o</code> option), the binary workspace will be named <code>datacard.root</code> - i.e the <strong>.txt</strong> suffix will be replaced by <strong>.root</strong>.</p>
 <p>A full set of options for <code>text2workspace</code> can be found by running <code>text2workspace.py --help</code>.</p>
 <p>The default model that will be produced when running <code>text2workspace</code> is one in which all processes identified as signal are multiplied by a common multiplier <strong>r</strong>. This is all that is needed for simply setting limits or calculating significances.</p>
 <p><code>text2workspace</code> will convert the datacard into a PDF that summarizes the analysis.
 For example, let's take a look at the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/simple-counting-experiment.txt">data/tutorials/counting/simple-counting-experiment.txt</a> datacard.</p>
-<pre><code class="language-nohighlight"># Simple counting experiment, with one signal and one background process
+<div class="highlight"><pre><span></span><code># Simple counting experiment, with one signal and one background process
 # Extremely simplified version of the 35/pb H-&gt;WW analysis for mH = 200 GeV,
 # for 4th generation exclusion (EWK-10-009, arxiv:1102.5429v1)
 imax 1  number of channels
@@ -1434,7 +1434,7 @@ bin         1
 observation 0
 ------------
 # now we list the expected events for signal and all backgrounds in that bin
-# the second 'process' line must have a positive number for backgrounds, and 0 for signal
+# the second &#39;process&#39; line must have a positive number for backgrounds, and 0 for signal
 # then we list the independent sources of uncertainties, and give their effect (syst. error)
 # on each process and bin
 bin             1      1
@@ -1444,7 +1444,7 @@ rate           4.76  1.47
 ------------
 deltaS  lnN    1.20    -    20% uncertainty on signal
 deltaB  lnN      -   1.50   50% uncertainty on background
-</code></pre>
+</code></pre></div>
 <p>If we run <code>text2workspace.py</code> on this datacard and take a look at the workspace (<code>w</code>) inside the <code>.root</code> file produced, we will find a number of different objects representing the signal, background, and observed event rates, as well as the nuisance parameters and signal strength <span class="arithmatex">\(r\)</span>. Note that often in the statistics literature, this parameter is referred to as <span class="arithmatex">\(\mu\)</span>.</p>
 <p>From these objects, the necessary PDF has been constructed (named <code>model_s</code>). For this counting experiment we will expect a simple PDF of the form</p>
 <div class="arithmatex">\[
@@ -1459,8 +1459,8 @@ p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
 <p>A combination of counting experiments (or a binned shape datacard) will look like a product of PDFs of this kind. For parametric/unbinned analyses, the PDF for each process in each channel is provided instead of the using the Poisson terms and a product runs over the bin counts/events.</p>
 <h2 id="model-building">Model building</h2>
 <p>For more complex models, <code>PhysicsModels</code> can be produced. To use a different physics model instead of the default one, use the option <code>-P</code> as in</p>
-<pre><code class="language-sh">text2workspace.py datacard -P HiggsAnalysis.CombinedLimit.PythonFile:modelName
-</code></pre>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>datacard<span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PythonFile:modelName
+</code></pre></div>
 <p>Generic models can be implemented by writing a python class that:</p>
 <ul>
 <li>defines the model parameters (by default it is just the signal strength modifier <strong><code>r</code></strong>)</li>
@@ -1469,27 +1469,27 @@ p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
 </ul>
 <p>In the case of SM-like Higgs boson measurements, the class should inherit from <strong><code>SMLikeHiggsModel</code></strong> (redefining <strong><code>getHiggsSignalYieldScale</code></strong>), while beyond that one can inherit from <strong><code>PhysicsModel</code></strong>. You can find some examples in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/PhysicsModel.py">PhysicsModel.py</a>.</p>
 <p>In the 4-process model (<code>PhysicsModel:floatingXSHiggs</code>, you will see that each of the 4 dominant Higgs boson production modes get separate scaling parameters, <strong><code>r_ggH</code></strong>, <strong><code>r_qqH</code></strong>, <strong><code>r_ttH</code></strong> and <strong><code>r_VH</code></strong> (or <strong><code>r_ZH</code></strong> and <strong><code>r_WH</code></strong>) as defined in,</p>
-<pre><code class="language-python">def doParametersOfInterest(self):
-  &quot;&quot;&quot;Create POI and other parameters, and define the POI set.&quot;&quot;&quot;
-  # --- Signal Strength as only POI ---
-  if &quot;ggH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_ggH[1,%s,%s]&quot; % (self.ggHRange[0], self.ggHRange[1]))
-  if &quot;qqH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_qqH[1,%s,%s]&quot; % (self.qqHRange[0], self.qqHRange[1]))
-  if &quot;VH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_VH[1,%s,%s]&quot;  % (self.VHRange [0], self.VHRange [1]))
-  if &quot;WH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_WH[1,%s,%s]&quot;  % (self.WHRange [0], self.WHRange [1]))
-  if &quot;ZH&quot;  in self.modes: self.modelBuilder.doVar(&quot;r_ZH[1,%s,%s]&quot;  % (self.ZHRange [0], self.ZHRange [1]))
-  if &quot;ttH&quot; in self.modes: self.modelBuilder.doVar(&quot;r_ttH[1,%s,%s]&quot; % (self.ttHRange[0], self.ttHRange[1]))
-  poi = &quot;,&quot;.join([&quot;r_&quot;+m for m in self.modes])
-  if self.pois: poi = self.pois
-  ...
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">doParametersOfInterest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">  </span><span class="sd">&quot;&quot;&quot;Create POI and other parameters, and define the POI set.&quot;&quot;&quot;</span>
+  <span class="c1"># --- Signal Strength as only POI ---</span>
+  <span class="k">if</span> <span class="s2">&quot;ggH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">doVar</span><span class="p">(</span><span class="s2">&quot;r_ggH[1,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ggHRange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ggHRange</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+  <span class="k">if</span> <span class="s2">&quot;qqH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">doVar</span><span class="p">(</span><span class="s2">&quot;r_qqH[1,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qqHRange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">qqHRange</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+  <span class="k">if</span> <span class="s2">&quot;VH&quot;</span>  <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">doVar</span><span class="p">(</span><span class="s2">&quot;r_VH[1,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">]&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">VHRange</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">VHRange</span> <span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+  <span class="k">if</span> <span class="s2">&quot;WH&quot;</span>  <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">doVar</span><span class="p">(</span><span class="s2">&quot;r_WH[1,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">]&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">WHRange</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">WHRange</span> <span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+  <span class="k">if</span> <span class="s2">&quot;ZH&quot;</span>  <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">doVar</span><span class="p">(</span><span class="s2">&quot;r_ZH[1,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">]&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ZHRange</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ZHRange</span> <span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+  <span class="k">if</span> <span class="s2">&quot;ttH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">doVar</span><span class="p">(</span><span class="s2">&quot;r_ttH[1,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ttHRange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ttHRange</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+  <span class="n">poi</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;r_&quot;</span><span class="o">+</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">])</span>
+  <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pois</span><span class="p">:</span> <span class="n">poi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pois</span>
+  <span class="o">...</span>
+</code></pre></div>
 <p>The mapping of which POI scales which process is handled via the following function,</p>
-<pre><code class="language-python">def getHiggsSignalYieldScale(self,production,decay, energy):
-  if production == &quot;ggH&quot;: return (&quot;r_ggH&quot; if &quot;ggH&quot; in self.modes else 1)
-  if production == &quot;qqH&quot;: return (&quot;r_qqH&quot; if &quot;qqH&quot; in self.modes else 1)
-  if production == &quot;ttH&quot;: return (&quot;r_ttH&quot; if &quot;ttH&quot; in self.modes else (&quot;r_ggH&quot; if self.ttHasggH else 1))
-  if production in [ &quot;WH&quot;, &quot;ZH&quot;, &quot;VH&quot; ]: return (&quot;r_VH&quot; if &quot;VH&quot; in self.modes else 1)
-  raise RuntimeError, &quot;Unknown production mode '%s'&quot; % production
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">getHiggsSignalYieldScale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">production</span><span class="p">,</span><span class="n">decay</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">production</span> <span class="o">==</span> <span class="s2">&quot;ggH&quot;</span><span class="p">:</span> <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;r_ggH&quot;</span> <span class="k">if</span> <span class="s2">&quot;ggH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">production</span> <span class="o">==</span> <span class="s2">&quot;qqH&quot;</span><span class="p">:</span> <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;r_qqH&quot;</span> <span class="k">if</span> <span class="s2">&quot;qqH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">production</span> <span class="o">==</span> <span class="s2">&quot;ttH&quot;</span><span class="p">:</span> <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;r_ttH&quot;</span> <span class="k">if</span> <span class="s2">&quot;ttH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;r_ggH&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ttHasggH</span> <span class="k">else</span> <span class="mi">1</span><span class="p">))</span>
+  <span class="k">if</span> <span class="n">production</span> <span class="ow">in</span> <span class="p">[</span> <span class="s2">&quot;WH&quot;</span><span class="p">,</span> <span class="s2">&quot;ZH&quot;</span><span class="p">,</span> <span class="s2">&quot;VH&quot;</span> <span class="p">]:</span> <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;r_VH&quot;</span> <span class="k">if</span> <span class="s2">&quot;VH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">,</span> <span class="s2">&quot;Unknown production mode &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">production</span>
+</code></pre></div>
 <p>You should note that <code>text2workspace</code> will look for the python module in <code>PYTHONPATH</code>. If you want to keep your model local, you'll need to add the location of the python file to <code>PYTHONPATH</code>.</p>
 <p>A number of models used in the LHC Higgs combination paper can be found in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/LHCHCGModels.py">LHCHCGModels.py</a>.</p>
 <p>The models can be applied to the datacard by using the <code>-P</code> option, for example <code>-P HiggsAnalysis.CombinedLimit.HiggsCouplings:c7</code>, and others that are defined in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsCouplings.py">HiggsCouplings.py</a>.</p>
@@ -1510,11 +1510,11 @@ p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
 <ul>
 <li>Scale both <code>ggH</code> and <code>qqH</code> with the same signal strength <code>r</code> (that is what the default physics model of <span style="font-variant:small-caps;">Combine</span> does for all signals; if they all have the same systematic uncertainties, it is also equivalent to adding up their yields and writing them as a single column in the card)</li>
 </ul>
-<pre><code class="language-nohighlight">  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:r[1,0,10]' --PO 'map=.*/qqH:r' toy-hgg-125.txt -o toy-1d.root
+<div class="highlight"><pre><span></span><code>  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO &#39;map=.*/ggH:r[1,0,10]&#39; --PO &#39;map=.*/qqH:r&#39; toy-hgg-125.txt -o toy-1d.root
   [...]
   Will create a POI  r  with factory  r[1,0,10]
-  Mapping  r  to  ['.*/ggH']  patterns
-  Mapping  r  to  ['.*/qqH']  patterns
+  Mapping  r  to  [&#39;.*/ggH&#39;]  patterns
+  Mapping  r  to  [&#39;.*/qqH&#39;]  patterns
   [...]
   Will scale  incl/bkg  by  1
   Will scale  incl/ggH  by  r
@@ -1522,16 +1522,16 @@ p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
   Will scale  dijet/bkg  by  1
   Will scale  dijet/ggH  by  r
   Will scale  dijet/qqH  by  r
-</code></pre>
+</code></pre></div>
 <ul>
 <li>Define two independent parameters of interest <code>r_ggH</code> and <code>r_qqH</code></li>
 </ul>
-<pre><code class="language-nohighlight">  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:r_ggH[1,0,10]' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-2d.root
+<div class="highlight"><pre><span></span><code>  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO &#39;map=.*/ggH:r_ggH[1,0,10]&#39; --PO &#39;map=.*/qqH:r_qqH[1,0,20]&#39; toy-hgg-125.txt -o toy-2d.root
   [...]
   Will create a POI  r_ggH  with factory  r_ggH[1,0,10]
-  Mapping  r_ggH  to  ['.*/ggH']  patterns
+  Mapping  r_ggH  to  [&#39;.*/ggH&#39;]  patterns
   Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
-  Mapping  r_qqH  to  ['.*/qqH']  patterns
+  Mapping  r_qqH  to  [&#39;.*/qqH&#39;]  patterns
   [...]
   Will scale  incl/bkg  by  1
   Will scale  incl/ggH  by  r_ggH
@@ -1539,15 +1539,15 @@ p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
   Will scale  dijet/bkg  by  1
   Will scale  dijet/ggH  by  r_ggH
   Will scale  dijet/qqH  by  r_qqH
-</code></pre>
+</code></pre></div>
 <ul>
 <li>Fix <strong><code>ggH</code></strong> to SM, define only <strong><code>qqH</code></strong> as parameter</li>
 </ul>
-<pre><code class="language-nohighlight">  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:1' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-1d-qqH.root
+<div class="highlight"><pre><span></span><code>  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO &#39;map=.*/ggH:1&#39; --PO &#39;map=.*/qqH:r_qqH[1,0,20]&#39; toy-hgg-125.txt -o toy-1d-qqH.root
   [...]
-  Mapping  1  to  ['.*/ggH']  patterns
+  Mapping  1  to  [&#39;.*/ggH&#39;]  patterns
   Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
-  Mapping  r_qqH  to  ['.*/qqH']  patterns
+  Mapping  r_qqH  to  [&#39;.*/qqH&#39;]  patterns
   [...]
   Will scale  incl/bkg  by  1
   Will scale  incl/ggH  by  1
@@ -1555,15 +1555,15 @@ p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
   Will scale  dijet/bkg  by  1
   Will scale  dijet/ggH  by  1
   Will scale  dijet/qqH  by  r_qqH
-</code></pre>
+</code></pre></div>
 <ul>
 <li>Drop <strong><code>ggH</code></strong> , and define only <strong><code>qqH</code></strong> as parameter</li>
 </ul>
-<pre><code class="language-nohighlight"> $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/ggH:0' --PO 'map=.*/qqH:r_qqH[1,0,20]' toy-hgg-125.txt -o toy-1d-qqH0-only.root
+<div class="highlight"><pre><span></span><code> $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO &#39;map=.*/ggH:0&#39; --PO &#39;map=.*/qqH:r_qqH[1,0,20]&#39; toy-hgg-125.txt -o toy-1d-qqH0-only.root
  [...]
- Mapping  0  to  ['.*/ggH']  patterns
+ Mapping  0  to  [&#39;.*/ggH&#39;]  patterns
  Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
- Mapping  r_qqH  to  ['.*/qqH']  patterns
+ Mapping  r_qqH  to  [&#39;.*/qqH&#39;]  patterns
  [...]
  Will scale  incl/bkg  by  1
  Will scale  incl/ggH  by  0
@@ -1571,10 +1571,10 @@ p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
  Will scale  dijet/bkg  by  1
  Will scale  dijet/ggH  by  0
  Will scale  dijet/qqH  by  r_qqH
-</code></pre>
+</code></pre></div>
 <h3 id="two-hypothesis-testing">Two Hypothesis testing</h3>
 <p>The <code>PhysicsModel</code> that encodes the signal model above is the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsJPC.py">twoHypothesisHiggs</a>, which assumes signal processes with suffix <strong>_ALT</strong> will exist in the datacard. An example of such a datacard can be found under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt">data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt</a></p>
-<pre><code class="language-nohighlight"> $ text2workspace.py twoSignals-3bin-bigBSyst.txt -P HiggsAnalysis.CombinedLimit.HiggsJPC:twoHypothesisHiggs -m 125.7 --PO verbose -o jcp_hww.root
+<div class="highlight"><pre><span></span><code> $ text2workspace.py twoSignals-3bin-bigBSyst.txt -P HiggsAnalysis.CombinedLimit.HiggsJPC:twoHypothesisHiggs -m 125.7 --PO verbose -o jcp_hww.root
 
  MH (not there before) will be assumed to be 125.7
  Process  S  will get norm  not_x
@@ -1583,7 +1583,7 @@ p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
  Process  S_ALT  will get norm  x
  Process  S  will get norm  not_x
  Process  S_ALT  will get norm  x
-</code></pre>
+</code></pre></div>
 <p>The two processes (S and S_ALT) will get different scaling parameters. The LEP-style likelihood for hypothesis testing can now be used by setting <strong>x</strong> or <strong>not_x</strong> to 1 and 0 and comparing the two likelihood evaluations.</p>
 <h3 id="signal-background-interference">Signal-background interference</h3>
 <p>Since negative probability distribution functions do not exist, the recommended way to implement this is to start from the expression for the individual amplitudes <span class="arithmatex">\(A\)</span> and the parameter of interest <span class="arithmatex">\(k\)</span>,</p>
@@ -1598,14 +1598,14 @@ p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
 <p><span class="arithmatex">\(\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]\)</span></p>
 <p>where square brackets represent the input (histograms as <code>TH1</code> or <code>RooDataHists</code>) that one needs to provide.</p>
 <p>An example of this scheme is implemented in a <a href="https://gitlab.cern.ch/cms-hcg/cadi/hig-17-012/-/blob/master/2l2nu/HiggsWidth.py">HiggsWidth</a> and is completely general, since all of the three components above are strictly positive. In this example, the POI is <code>CMS_zz4l_mu</code> and the equations for the three components are scaled (separately for the <strong>qqH</strong> and <strong>ggH</strong> processes) as,</p>
-<pre><code class="language-python"> self.modelBuilder.factory_( &quot;expr::ggH_s_func(\&quot;@0-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
- self.modelBuilder.factory_(  &quot;expr::ggH_b_func(\&quot;1-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
- self.modelBuilder.factory_(  &quot;expr::ggH_sbi_func(\&quot;sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
+<div class="highlight"><pre><span></span><code> <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">factory_</span><span class="p">(</span> <span class="s2">&quot;expr::ggH_s_func(</span><span class="se">\&quot;</span><span class="s2">@0-sqrt(@0)</span><span class="se">\&quot;</span><span class="s2">, CMS_zz4l_mu)&quot;</span><span class="p">)</span>
+ <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">factory_</span><span class="p">(</span>  <span class="s2">&quot;expr::ggH_b_func(</span><span class="se">\&quot;</span><span class="s2">1-sqrt(@0)</span><span class="se">\&quot;</span><span class="s2">, CMS_zz4l_mu)&quot;</span><span class="p">)</span>
+ <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">factory_</span><span class="p">(</span>  <span class="s2">&quot;expr::ggH_sbi_func(</span><span class="se">\&quot;</span><span class="s2">sqrt(@0)</span><span class="se">\&quot;</span><span class="s2">, CMS_zz4l_mu)&quot;</span><span class="p">)</span>
 
- self.modelBuilder.factory_( &quot;expr::qqH_s_func(\&quot;@0-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
- self.modelBuilder.factory_(  &quot;expr::qqH_b_func(\&quot;1-sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
- self.modelBuilder.factory_(  &quot;expr::qqH_sbi_func(\&quot;sqrt(@0)\&quot;, CMS_zz4l_mu)&quot;)
-</code></pre>
+ <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">factory_</span><span class="p">(</span> <span class="s2">&quot;expr::qqH_s_func(</span><span class="se">\&quot;</span><span class="s2">@0-sqrt(@0)</span><span class="se">\&quot;</span><span class="s2">, CMS_zz4l_mu)&quot;</span><span class="p">)</span>
+ <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">factory_</span><span class="p">(</span>  <span class="s2">&quot;expr::qqH_b_func(</span><span class="se">\&quot;</span><span class="s2">1-sqrt(@0)</span><span class="se">\&quot;</span><span class="s2">, CMS_zz4l_mu)&quot;</span><span class="p">)</span>
+ <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">factory_</span><span class="p">(</span>  <span class="s2">&quot;expr::qqH_sbi_func(</span><span class="se">\&quot;</span><span class="s2">sqrt(@0)</span><span class="se">\&quot;</span><span class="s2">, CMS_zz4l_mu)&quot;</span><span class="p">)</span>
+</code></pre></div>
 <h3 id="multi-process-interference">Multi-process interference</h3>
 <p>The above formulation can be extended to multiple parameters of interest
 (POIs). See
@@ -1637,19 +1637,19 @@ encountered and the default when using
 To use this model, for each bin find <span class="arithmatex">\(y_0\)</span> and put it into the datacard as a signal process, then find <span class="arithmatex">\(M\)</span> and
 save the lower triangular component as an array in a <code>scaling.json</code> file with a
 syntax as follows:</p>
-<pre><code class="language-json">[
-  {
-    &quot;channel&quot;: &quot;my_channel&quot;,
-    &quot;process&quot;: &quot;my_nominal_process&quot;,
-    &quot;parameters&quot;: [&quot;sqrt_mu[1,0,2]&quot;, &quot;Bscaling[1]&quot;],
-    &quot;scaling&quot;: [
-      [0.5, 0.1, 1.0],
-      [0.6, 0.2, 1.0],
-      [0.7, 0.3, 1.0]
-    ]
-  }
-]
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;channel&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my_channel&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;process&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my_nominal_process&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;sqrt_mu[1,0,2]&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Bscaling[1]&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;scaling&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">0.6</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span><span class="w"> </span><span class="mf">0.3</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">]</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
 <p>where the parameters are declared using RooFit's <a href="https://root.cern.ch/doc/v622/classRooWorkspace.html#a0ddded1d65f5c6c4732a7a3daa8d16b0">factory
 syntax</a>
 and each row of the <code>scaling</code> field represents the scaling information of a bin, e.g. if <span class="arithmatex">\(y_0 = |A_b|^2\)</span>
@@ -1657,20 +1657,20 @@ then each row would contain three entries:</p>
 <div class="arithmatex">\[
 |A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1
 \]</div>
-<p>For several coefficients, one would enumerate as follows:</p>
-<pre><code class="language-python">scaling = []
-for ibin in range(nbins):
-    binscaling = []
-    for icoef in range(ncoef):
-        for jcoef in range(icoef + 1):
-            binscaling.append(amplitude_squared_for(ibin, icoef, jcoef))
-    scaling.append(binscaling)
-</code></pre>
+<p>For several coefficients, one would enumerate as follows:
+<div class="highlight"><pre><span></span><code><span class="n">scaling</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">ibin</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbins</span><span class="p">):</span>
+    <span class="n">binscaling</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">icoef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncoef</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">jcoef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">icoef</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">binscaling</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">amplitude_squared_for</span><span class="p">(</span><span class="n">ibin</span><span class="p">,</span> <span class="n">icoef</span><span class="p">,</span> <span class="n">jcoef</span><span class="p">))</span>
+    <span class="n">scaling</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">binscaling</span><span class="p">)</span>
+</code></pre></div></p>
 <p>Then, to construct the workspace, run</p>
-<pre><code class="language-bash">text2workspace.py card.txt -P HiggsAnalysis.CombinedLimit.InterferenceModels:interferenceModel \
-    --PO verbose --PO scalingData=scaling.json
-</code></pre>
-<p>For large amounts of scaling data, you can optionally use gzipped json (<code>.json.gz</code>) or pickle (<code>.pkl.gz</code>)
+<p><div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>card.txt<span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.InterferenceModels:interferenceModel<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--PO<span class="w"> </span>verbose<span class="w"> </span>--PO<span class="w"> </span><span class="nv">scalingData</span><span class="o">=</span>scaling.json
+</code></pre></div>
+For large amounts of scaling data, you can optionally use gzipped json (<code>.json.gz</code>) or pickle (<code>.pkl.gz</code>)
 files with 2D numpy arrays for the scaling coefficients instead of lists. The function <code>numpy.tril_indices(ncoef)</code>
 is helpful for extracting the lower triangle of a square matrix.</p>
 <p>You could pick any
@@ -1685,22 +1685,22 @@ framework via three diagrams, with scaling coefficients <span class="arithmatex"
 <span class="arithmatex">\(\kappa_V^2\)</span>, and <span class="arithmatex">\(\kappa_{2V}\)</span>, respectively, that interfere.  In
 that case, you can declare formulas with the factory syntax to represent each
 amplitude as follows:</p>
-<pre><code class="language-json">[
-  {
-    &quot;channel&quot;: &quot;a_vbf_channel&quot;,
-    &quot;process&quot;: &quot;VBFHH&quot;,
-    &quot;parameters&quot;: [&quot;expr::a0('@0*@1', kv[1,0,2], kl[1,0,2])&quot;, &quot;expr::a1('@0*@0', kv[1,0,2])&quot;, &quot;k2v[1,0,2]&quot;],
-    &quot;scaling&quot;: [
-      [3.30353674666415, -8.54170982038222, 22.96464188467882, 4.2353483207128, -11.07996258835088, 5.504469544697623],
-      [2.20644332142891, -7.076836641962523, 23.50989689214267, 4.053185685866683, -13.08569222837996, 7.502346155380032]
-    ]
-  }
-]
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;channel&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a_vbf_channel&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;process&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VBFHH&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;expr::a0(&#39;@0*@1&#39;, kv[1,0,2], kl[1,0,2])&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;expr::a1(&#39;@0*@0&#39;, kv[1,0,2])&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;k2v[1,0,2]&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;scaling&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">3.30353674666415</span><span class="p">,</span><span class="w"> </span><span class="mf">-8.54170982038222</span><span class="p">,</span><span class="w"> </span><span class="mf">22.96464188467882</span><span class="p">,</span><span class="w"> </span><span class="mf">4.2353483207128</span><span class="p">,</span><span class="w"> </span><span class="mf">-11.07996258835088</span><span class="p">,</span><span class="w"> </span><span class="mf">5.504469544697623</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">2.20644332142891</span><span class="p">,</span><span class="w"> </span><span class="mf">-7.076836641962523</span><span class="p">,</span><span class="w"> </span><span class="mf">23.50989689214267</span><span class="p">,</span><span class="w"> </span><span class="mf">4.053185685866683</span><span class="p">,</span><span class="w"> </span><span class="mf">-13.08569222837996</span><span class="p">,</span><span class="w"> </span><span class="mf">7.502346155380032</span><span class="p">]</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
 <p>However, you will need to manually specify what the POIs should be when creating the workspace using the <code>POIs=</code> physics option, e.g.</p>
-<pre><code class="language-bash">text2workspace.py card.txt -P HiggsAnalysis.CombinedLimit.InterferenceModels:interferenceModel \
-  --PO scalingData=scaling.json --PO 'POIs=kl[1,0,2]:kv[1,0,2]:k2v[1,0,2]'
-</code></pre>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>card.txt<span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.InterferenceModels:interferenceModel<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--PO<span class="w"> </span><span class="nv">scalingData</span><span class="o">=</span>scaling.json<span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;POIs=kl[1,0,2]:kv[1,0,2]:k2v[1,0,2]&#39;</span>
+</code></pre></div>
 
 
 

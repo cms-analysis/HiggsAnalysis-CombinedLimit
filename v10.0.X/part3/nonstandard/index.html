@@ -920,6 +920,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Pre- and post-fit nuisance parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pulls" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pulls
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1514,6 +1529,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Pre- and post-fit nuisance parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pulls" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pulls
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1688,8 +1718,8 @@
 <h2 id="fit-diagnostics">Fit Diagnostics</h2>
 <p>If you want to diagnose your limits/fit results, you may first want to look at the HIG PAG standard checks, which are applied to all datacards and can be found <a href="https://twiki.cern.ch/twiki/bin/view/CMS/HiggsWG/HiggsPAGPreapprovalChecks">here</a>.</p>
 <p>If you have already found the Higgs boson but it's an exotic one, instead of computing a limit or significance you might want to extract its cross section by performing a maximum-likelihood fit. Alternatively, you might want to know how compatible your data and your model are, e.g. how strongly your nuisance parameters are constrained, to what extent they are correlated, etc. These general diagnostic tools are contained in the method <code>FitDiagnostics</code>.</p>
-<pre><code>    combine -M FitDiagnostics datacard.txt
-</code></pre>
+<div class="highlight"><pre><span></span><code>    combine -M FitDiagnostics datacard.txt
+</code></pre></div>
 <p>The program will print out the result of <em>two fits</em>. The first one is performed with the signal strength <strong>r</strong> (or the first POI in the list, in models with multiple POIs) set to zero and a second with floating <strong>r</strong>. The output ROOT tree will contain the best fit value for <strong>r</strong> and its uncertainty. You will also get a <code>fitDiagnostics.root</code> file containing the following objects:</p>
 <table>
 <thead>
@@ -1762,8 +1792,8 @@
 <p>If you use the option <code>--name</code>, this additional name will be inserted into the file name for this output file.</p>
 </div>
 <p>As well as the values of the constrained nuisance parameters (and their constraints), you will also find branches for the number of "bad" nll calls (which you should check is not too large) and the status of the fit <code>fit_status</code>. The fit status is computed as follows</p>
-<pre><code>fit_status = 100 * hesse_status + 10 * minos_status +  minuit_summary_status
-</code></pre>
+<div class="highlight"><pre><span></span><code>fit_status = 100 * hesse_status + 10 * minos_status +  minuit_summary_status
+</code></pre></div>
 <p>The <code>minuit_summary_status</code> is the usual status from Minuit, details of which can be found <a href="https://root.cern.ch/root/htmldoc/ROOT__Minuit2__Minuit2Minimizer.html#ROOT__Minuit2__Minuit2Minimizer:Minimize">here</a>. For the other status values, check these documentation links for the <a href="https://root.cern.ch/root/htmldoc/ROOT__Minuit2__Minuit2Minimizer.html#ROOT__Minuit2__Minuit2Minimizer:Hesse"><code>hesse_status</code></a> and the <a href="https://root.cern.ch/root/htmldoc/ROOT__Minuit2__Minuit2Minimizer.html#ROOT__Minuit2__Minuit2Minimizer:GetMinosError"><code>minos_status</code></a>.</p>
 <p>A fit status of -1 indicates that the fit failed (Minuit summary was not 0 or 1) and hence the fit result is <strong>not</strong> valid.</p>
 <h3 id="fit-options">Fit options</h3>
@@ -1791,18 +1821,63 @@
 </ul>
 <p>If you are aware that your analysis has any of these features you could try resolving these. Setting <code>--cminDefaultMinimizerStrategy 0</code> can also help with this problem.</p>
 <h3 id="pre-and-post-fit-nuisance-parameters">Pre- and post-fit nuisance parameters</h3>
-<p>It is possible to compare pre-fit and post-fit nuisance parameter values with the script <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/diffNuisances.py">diffNuisances.py</a>. Taking as input a <code>fitDiagnostics.root</code> file, the script will by default print out the parameters that have changed significantly with respect to their initial estimate. For each of those parameters, it will print out the shift in value and the post-fit uncertainty, both normalized to the initial (pre-fit) value. The linear correlation between the parameter and the signal strength will also be printed.</p>
-<pre><code>python diffNuisances.py fitDiagnostics.root
-</code></pre>
-<p>The script has several options to toggle the thresholds used to decide whether a parameter has changed significantly, to get the printout of the absolute value of the nuisance parameters, and to get the output in another format for use on a webpage or in a note (the supported formats are <code>html</code>, <code>latex</code>, <code>twiki</code>). To print <em>all</em> of the parameters, use the option <code>--all</code>.</p>
+<p>It is possible to compare pre-fit and post-fit nuisance parameter values with the script <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/diffNuisances.py">diffNuisances.py</a>. Taking as input a <code>fitDiagnosticsTest.root</code> file, the script will by default print out the parameters that have changed significantly with respect to their initial estimate. </p>
+<p>For each of those parameters, it will print out </p>
+<ul>
+<li>The shift in value and the post-fit uncertainty, both normalized to the initial (pre-fit) value from the s+b fit and the b-only fit. </li>
+<li>The linear correlation between the parameter and the signal strength <code>r</code> - <span class="arithmatex">\(\rho(r,\nu)\)</span>.</li>
+<li>The approximate impact of the nuisance parameter determined as <span class="arithmatex">\(I(r,\nu) = \sigma_{r}\sigma_{\nu}\rho(r,\nu)\)</span>, where <span class="arithmatex">\(\sigma_{r}\)</span> and <span class="arithmatex">\(\sigma_{\nu}\)</span> are the symmetrized total uncertainties on the signal strength and nuisance parameter, respectively (see the section on <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/part3/nonstandard/#nuisance-parameter-impacts">Nuisance parameter impacts</a> for our recommend calculation of impacts.).</li>
+</ul>
+<p>The script has several options to toggle the thresholds used to decide whether a parameter has changed significantly, to get the printout of the absolute value of the nuisance parameters, and to get the output in another format for use on a webpage or in a note (the supported formats are <code>html</code>, <code>latex</code>, <code>twiki</code>). To print <em>all</em> of the parameters, use the option <code>--all</code>. </p>
+<p>An example of using this script is shown below, </p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>data/tutorials/counting/realistic-counting-experiment.txt<span class="w"> </span>-M<span class="w"> </span>FitDiagnostics<span class="w"> </span>--forceRecreateNLL<span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">1</span>
+python<span class="w"> </span>diffNuisances.py<span class="w"> </span>fitDiagnosticsTest.root
+</code></pre></div>
+<details>
+<summary>Show output</summary>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><code>--format text</code> (default)</label><label for="__tabbed_1_2"><code>--format html</code></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>diffNuisances<span class="w"> </span>run<span class="w"> </span>on<span class="w"> </span>fitDiagnosticsTest.root,<span class="w"> </span>at<span class="w"> </span><span class="m">2024</span>-07-01<span class="w"> </span><span class="m">18</span>:05:37.585109<span class="w"> </span>with<span class="w"> </span>the<span class="w"> </span>following<span class="w"> </span>options<span class="w"> </span>...<span class="w"> </span><span class="o">{</span><span class="s1">&#39;vtol&#39;</span>:<span class="w"> </span><span class="m">0</span>.3,<span class="w"> </span><span class="s1">&#39;stol&#39;</span>:<span class="w"> </span><span class="m">0</span>.1,<span class="w"> </span><span class="s1">&#39;vtol2&#39;</span>:<span class="w"> </span><span class="m">2</span>.0,<span class="w"> </span><span class="s1">&#39;stol2&#39;</span>:<span class="w"> </span><span class="m">0</span>.5,<span class="w"> </span><span class="s1">&#39;show_all_parameters&#39;</span>:<span class="w"> </span>False,<span class="w"> </span><span class="s1">&#39;absolute_values&#39;</span>:<span class="w"> </span>False,<span class="w"> </span><span class="s1">&#39;poi&#39;</span>:<span class="w"> </span><span class="s1">&#39;r&#39;</span>,<span class="w"> </span><span class="s1">&#39;format&#39;</span>:<span class="w"> </span><span class="s1">&#39;text&#39;</span>,<span class="w"> </span><span class="s1">&#39;plotfile&#39;</span>:<span class="w"> </span>None,<span class="w"> </span><span class="s1">&#39;pullDef&#39;</span>:<span class="w"> </span><span class="s1">&#39;&#39;</span>,<span class="w"> </span><span class="s1">&#39;skipFitS&#39;</span>:<span class="w"> </span>False,<span class="w"> </span><span class="s1">&#39;skipFitB&#39;</span>:<span class="w"> </span>False,<span class="w"> </span><span class="s1">&#39;sortBy&#39;</span>:<span class="w"> </span><span class="s1">&#39;correlation&#39;</span>,<span class="w"> </span><span class="s1">&#39;regex&#39;</span>:<span class="w"> </span><span class="s1">&#39;.*&#39;</span><span class="o">}</span>
+
+name<span class="w">                                              </span>b-only<span class="w"> </span>fit<span class="w">            </span>s+b<span class="w"> </span>fit<span class="w">         </span>rho<span class="w">  </span>approx<span class="w"> </span>impact
+CMS_scale_t_tautau_8TeV<span class="w">                          </span>-0.60,<span class="w"> </span><span class="m">0</span>.40<span class="w">     </span>!<span class="w"> </span>-0.73,<span class="w"> </span><span class="m">0</span>.39!<span class="w">     </span>!-0.19!<span class="w">      </span>-0.051
+CMS_eff_t_tt_8TeV<span class="w">                                </span>+0.57,<span class="w"> </span><span class="m">0</span>.32<span class="w">     </span>!<span class="w"> </span>+0.50,<span class="w"> </span><span class="m">0</span>.32!<span class="w">     </span>!-0.17!<span class="w">      </span>-0.037
+CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_12<span class="w">         </span>+0.21,<span class="w"> </span><span class="m">0</span>.89<span class="w">        </span>-0.20,<span class="w"> </span><span class="m">0</span>.96<span class="w">       </span>-0.15<span class="w">      </span>-0.103
+CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_11<span class="w">         </span>+0.71,<span class="w"> </span><span class="m">0</span>.87<span class="w">        </span>+0.42,<span class="w"> </span><span class="m">0</span>.90<span class="w">       </span>-0.15<span class="w">      </span>-0.095
+CMS_htt_QCDSyst_tauTau_vbf_8TeV<span class="w">                  </span>+0.16,<span class="w"> </span><span class="m">0</span>.82<span class="w">        </span>-0.15,<span class="w"> </span><span class="m">0</span>.84<span class="w">       </span>-0.12<span class="w">      </span>-0.071
+CMS_htt_tt_tauTau_vbf_8TeV_ZTT_bin_6<span class="w">             </span>+0.32,<span class="w"> </span><span class="m">0</span>.97<span class="w">        </span>+0.09,<span class="w"> </span><span class="m">0</span>.99<span class="w">       </span>-0.08<span class="w">      </span>-0.054
+CMS_htt_QCDSyst_tauTau_1jet_high_mediumhiggs_8TeV<span class="w">         </span>+0.52,<span class="w"> </span><span class="m">0</span>.20<span class="w">     </span>!<span class="w"> </span>+0.48,<span class="w"> </span><span class="m">0</span>.20!<span class="w">     </span>!-0.08!<span class="w">      </span>-0.011
+CMS_htt_QCDSyst_tauTau_1jet_high_highhiggs_8TeV<span class="w">         </span>-0.15,<span class="w"> </span><span class="m">0</span>.84<span class="w">        </span>-0.33,<span class="w"> </span><span class="m">0</span>.84<span class="w">       </span>-0.08<span class="w">      </span>-0.044
+CMS_htt_extrap_ztt_tauTau_1jet_high_mediumhiggs_8TeV<span class="w">         </span>+0.34,<span class="w"> </span><span class="m">0</span>.95<span class="w">        </span>+0.45,<span class="w"> </span><span class="m">0</span>.95<span class="w">       </span>+0.07<span class="w">      </span>+0.049
+CMS_htt_extrap_ztt_tauTau_vbf_8TeV<span class="w">               </span>+0.31,<span class="w"> </span><span class="m">0</span>.96<span class="w">        </span>+0.14,<span class="w"> </span><span class="m">0</span>.96<span class="w">       </span>-0.06<span class="w">      </span>-0.040
+CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_14<span class="w">         </span>+0.29,<span class="w"> </span><span class="m">0</span>.88<span class="w">        </span>+0.24,<span class="w"> </span><span class="m">0</span>.89<span class="w">       </span>-0.03<span class="w">      </span>-0.018
+CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_6<span class="w">         </span>-0.67,<span class="w"> </span><span class="m">0</span>.94<span class="w">        </span>-0.63,<span class="w"> </span><span class="m">0</span>.93<span class="w">       </span>+0.02<span class="w">      </span>+0.014
+CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_23<span class="w">         </span>+0.44,<span class="w"> </span><span class="m">0</span>.92<span class="w">        </span>+0.46,<span class="w"> </span><span class="m">0</span>.92<span class="w">       </span>+0.01<span class="w">      </span>+0.004
+CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_18<span class="w">         </span>+0.44,<span class="w"> </span><span class="m">0</span>.92<span class="w">        </span>+0.43,<span class="w"> </span><span class="m">0</span>.93<span class="w">       </span>-0.01<span class="w">      </span>-0.005
+CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_17<span class="w">         </span>-0.62,<span class="w"> </span><span class="m">1</span>.00<span class="w">        </span>-0.61,<span class="w"> </span><span class="m">1</span>.00<span class="w">       </span>+0.01<span class="w">      </span>+0.004
+CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_15<span class="w">         </span>-0.55,<span class="w"> </span><span class="m">0</span>.98<span class="w">        </span>-0.54,<span class="w"> </span><span class="m">0</span>.98<span class="w">       </span>+0.01<span class="w">      </span>+0.005
+CMS_htt_extrap_ztt_tauTau_1jet_high_highhiggs_8TeV<span class="w">         </span>-0.34,<span class="w"> </span><span class="m">0</span>.95<span class="w">        </span>-0.41,<span class="w"> </span><span class="m">0</span>.95<span class="w">       </span>-0.01<span class="w">      </span>-0.006
+CMS_htt_tt_tauTau_1jet_high_mediumhiggs_8TeV_ZTT_bin_20<span class="w">         </span>-0.34,<span class="w"> </span><span class="m">0</span>.99<span class="w">        </span>-0.33,<span class="w"> </span><span class="m">0</span>.99<span class="w">       </span>+0.00<span class="w">      </span>+0.003
+CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_5<span class="w">         </span>-0.49,<span class="w"> </span><span class="m">1</span>.00<span class="w">        </span>-0.48,<span class="w"> </span><span class="m">1</span>.00<span class="w">       </span>+0.00<span class="w">      </span>+0.003
+CMS_htt_tt_tauTau_1jet_high_highhiggs_8TeV_ZTT_bin_26<span class="w">         </span>-0.47,<span class="w"> </span><span class="m">0</span>.96<span class="w">        </span>-0.46,<span class="w"> </span><span class="m">0</span>.97<span class="w">       </span>+0.00<span class="w">      </span>+0.003
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p><img alt="example dfn html" src="../images/exampledfhtml.jpg" /></p>
+</div>
+</div>
+</div>
+</details>
 <p>By default, the changes in the nuisance parameter values and uncertainties are given relative to their initial (pre-fit) values (usually relative to initial values of 0 and 1 for most nuisance types).</p>
 <p>The values in the output will be <span class="arithmatex">\((\nu-\nu_{I})/\sigma_{I}\)</span> if the nuisance has a pre-fit uncertainty, otherwise they will be <span class="arithmatex">\(\nu-\nu_{I}\)</span> (for example, a <code>flatParam</code> has no pre-fit uncertainty).</p>
 <p>The reported uncertainty will be the ratio <span class="arithmatex">\(\sigma/\sigma_{I}\)</span> - i.e the ratio of the post-fit to the pre-fit uncertainty. If there is no pre-fit uncertainty (as for <code>flatParam</code> nuisances), the post-fit uncertainty is shown.</p>
 <p>To print the pre-fit and post-fit values and (asymmetric) uncertainties, rather than the ratios, the option <code>--abs</code> can be used.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>We recommend that you include the options <code>--abs</code> and <code>--all</code> to get the full information on all of the parameters (including unconstrained nuisance parameters) at least once when checking your datacards.</p>
+<p>We recommend that you include the options <code>--abs</code> and <code>--all</code> to get the full information on all of the parameters (including unconstrained nuisance parameters) at least once when checking your datacards. </p>
 </div>
+<h4 id="pulls">Pulls</h4>
 <p>If instead of the nuisance parameter values, you wish to report the <em>pulls</em>, you can do so using the option <code>--pullDef X</code>, with <code>X</code> being one of the options listed below. You should note that since the pulls below are only defined when the pre-fit uncertainty exists, <em>nothing</em> will be reported for parameters that have no prior constraint (except in the case of the <code>unconstPullAsym</code> choice as described below). You may want to run without this option and <code>--all</code> to get information about those parameters.</p>
 <ul>
 <li>
@@ -1905,10 +1980,10 @@
 <h3 id="toy-by-toy-diagnostics">Toy-by-toy diagnostics</h3>
 <p><code>FitDiagnostics</code> can also be used to diagnose the fitting procedure in toy experiments to identify potentially problematic nuisance parameters when running the full limits/p-values. This can be done by adding the option <code>-t &lt;num toys&gt;</code>. The output file, <code>fitDiagnostics.root</code> the three <code>TTrees</code> will contain the value of the constraint fitted result in each toy, as a separate entry. It is recommended to use the following options when investigating toys to reduce the running time: <code>--toysFrequentist</code> <code>--noErrors</code> <code>--minos none</code></p>
 <p>The results can be plotted using the macro <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/plotParametersFromToys.C">test/plotParametersFromToys.C</a></p>
-<pre><code class="language-c++">$ root -l
-.L plotParametersFromToys.C+
-plotParametersFromToys(&quot;fitDiagnosticsToys.root&quot;,&quot;fitDiagnosticsData.root&quot;,&quot;workspace.root&quot;,&quot;r&lt;0&quot;)
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="w"> </span><span class="n">root</span><span class="w"> </span><span class="o">-</span><span class="n">l</span>
+<span class="p">.</span><span class="n">L</span><span class="w"> </span><span class="n">plotParametersFromToys</span><span class="p">.</span><span class="n">C</span><span class="o">+</span>
+<span class="n">plotParametersFromToys</span><span class="p">(</span><span class="s">&quot;fitDiagnosticsToys.root&quot;</span><span class="p">,</span><span class="s">&quot;fitDiagnosticsData.root&quot;</span><span class="p">,</span><span class="s">&quot;workspace.root&quot;</span><span class="p">,</span><span class="s">&quot;r&lt;0&quot;</span><span class="p">)</span>
+</code></pre></div>
 <p>The first argument is the name of the output file from running with toys, and the second and third (optional) arguments are the name of the file containing the result from a fit to the data and the workspace (created from <code>text2workspace.py</code>). The fourth argument can be used to specify a cut string applied to one of the branches in the tree, which can be used to correlate strange behaviour with specific conditions. The output will be 2 pdf files (<strong><code>tree_fit_(s)b.pdf</code></strong>) and 2 ROOT files (<strong><code>tree_fit_(s)b.root</code></strong>) containing canvases of the fit results of the tool. For details on the output plots, consult <a href="http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2012/317">AN-2012/317</a>.</p>
 <h2 id="scaling-constraints">Scaling constraints</h2>
 <p>It possible to scale the <strong>constraints</strong> on the nuisance parameters when converting the datacard to a workspace (see the section on <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/">physics models</a>) with <code>text2workspace.py</code>. This can be useful for projection studies of the analysis to higher luminosities or with different assumptions about the sizes of certain systematics without changing the datacard by hand.</p>
@@ -1940,9 +2015,9 @@ plotParametersFromToys(&quot;fitDiagnosticsToys.root&quot;,&quot;fitDiagnosticsD
 <p>This is effectively a measure of the correlation between the NP and the POI, and is useful for determining which NPs have the largest effect on the POI uncertainty.</p>
 <p>It is possible to use the <code>MultiDimFit</code> method of <span style="font-variant:small-caps;">Combine</span> with the option <code>--algo impact -P parameter</code> to calculate the impact of a particular nuisance parameter on the parameter(s) of interest. We will use the <code>combineTool.py</code> script to automate the fits.</p>
 <p>We will use an example workspace from the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/htt/125/htt_tt.txt"><span class="arithmatex">\(H\rightarrow\tau\tau\)</span> datacard</a>,</p>
-<pre><code>$ cp HiggsAnalysis/CombinedLimit/data/tutorials/htt/125/htt_tt.txt .
+<div class="highlight"><pre><span></span><code>$ cp HiggsAnalysis/CombinedLimit/data/tutorials/htt/125/htt_tt.txt .
 $ text2workspace.py htt_tt.txt -m 125
-</code></pre>
+</code></pre></div>
 <p>Calculating the impacts is done in a few stages. First we just fit for each POI, using the <code>--doInitialFit</code> option with <code>combineTool.py</code>, and adding the <code>--robustFit 1</code> option that will be passed through to <span style="font-variant:small-caps;">Combine</span>,</p>
 <pre><code>combineTool.py -M Impacts -d htt_tt.root -m 125 --doInitialFit --robustFit 1
 </code></pre>
@@ -1966,10 +2041,10 @@ $ text2workspace.py htt_tt.txt -m 125
 <p>The plot also shows the <em>best fit</em> value of the POI at the top and its uncertainty. You may wish to allow the range to go negative (i.e using <code>--setParameterRanges</code> or <code>--rMin</code>) to avoid getting one-sided impacts!</p>
 </div>
 <p>This script also accepts an optional json-file argument with <code>-t</code>, which can be used to provide a dictionary for renaming parameters. A simple example would be to create a file <code>rename.json</code>,</p>
-<pre><code class="language-python">{
-  &quot;r&quot; : &quot;#mu&quot;
-}
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+  <span class="s2">&quot;r&quot;</span> <span class="p">:</span> <span class="s2">&quot;#mu&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
 <p>that will rename the POI label on the plot.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -1981,10 +2056,10 @@ $ text2workspace.py htt_tt.txt -m 125
 <ol>
 <li>Add groups to the datacard to group nuisance parameters. Nuisance parameters not in groups will be considered as "rest" in the later steps. The lines should look like the following and you should add them to the end of the datacard</li>
 </ol>
-<pre><code>theory      group = QCDscale_VH QCDscale_ggH1in QCDscale_ggH2in QCDscale_qqH UEPS pdf_gg pdf_qqbar
+<div class="highlight"><pre><span></span><code>theory      group = QCDscale_VH QCDscale_ggH1in QCDscale_ggH2in QCDscale_qqH UEPS pdf_gg pdf_qqbar
 calibration group = CMS_scale_j_8TeV CMS_scale_t_tautau_8TeV CMS_htt_scale_met_8TeV
 efficiency  group = CMS_eff_b_8TeV   CMS_eff_t_tt_8TeV CMS_fake_b_8TeV
-</code></pre>
+</code></pre></div>
 <ol>
 <li>
 <p>Create the workspace with <code>text2workspace.py data/tutorials/htt/125/htt_tt.txt -m 125</code>.</p>
@@ -1996,27 +2071,27 @@ efficiency  group = CMS_eff_b_8TeV   CMS_eff_t_tt_8TeV CMS_fake_b_8TeV
 <p>Run a scan from the postfit workspace</p>
 </li>
 </ol>
-<pre><code>combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit -n htt.total --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit -n htt.total --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4
+</code></pre></div>
 <ol>
 <li>Run additional scans using the post-fit workspace, sequentially adding another group to the list of groups to freeze</li>
 </ol>
-<pre><code>combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4  --freezeNuisanceGroups theory -n htt.freeze_theory
+<div class="highlight"><pre><span></span><code>combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4  --freezeNuisanceGroups theory -n htt.freeze_theory
 
 combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4  --freezeNuisanceGroups theory,calibration -n htt.freeze_theory_calibration
 
 combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4  --freezeNuisanceGroups theory,calibration,efficiency -n htt.freeze_theory_calibration_efficiency
-</code></pre>
+</code></pre></div>
 <ol>
 <li>Run one last scan freezing all of the constrained nuisance parameters (this represents the statistical uncertainty only).</li>
 </ol>
-<pre><code>combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4  --freezeParameters allConstrainedNuisances -n htt.freeze_all
-</code></pre>
+<div class="highlight"><pre><span></span><code>combine higgsCombinehtt.postfit.MultiDimFit.mH120.root -M MultiDimFit --algo grid --snapshotName MultiDimFit --setParameterRanges r=0,4  --freezeParameters allConstrainedNuisances -n htt.freeze_all
+</code></pre></div>
 <ol>
 <li>Use the <code>combineTool</code> script <code>plot1DScan.py</code> to report the breakdown of uncertainties.</li>
 </ol>
-<pre><code>plot1DScan.py higgsCombinehtt.total.MultiDimFit.mH120.root --main-label &quot;Total Uncert.&quot;  --others higgsCombinehtt.freeze_theory.MultiDimFit.mH120.root:&quot;freeze theory&quot;:4 higgsCombinehtt.freeze_theory_calibration.MultiDimFit.mH120.root:&quot;freeze theory+calibration&quot;:7 higgsCombinehtt.freeze_theory_calibration_efficiency.MultiDimFit.mH120.root:&quot;freeze theory+calibration+efficiency&quot;:2 higgsCombinehtt.freeze_all.MultiDimFit.mH120.root:&quot;stat only&quot;:6  --output breakdown --y-max 10 --y-cut 40 --breakdown &quot;theory,calibration,efficiency,rest,stat&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code>plot1DScan.py higgsCombinehtt.total.MultiDimFit.mH120.root --main-label &quot;Total Uncert.&quot;  --others higgsCombinehtt.freeze_theory.MultiDimFit.mH120.root:&quot;freeze theory&quot;:4 higgsCombinehtt.freeze_theory_calibration.MultiDimFit.mH120.root:&quot;freeze theory+calibration&quot;:7 higgsCombinehtt.freeze_theory_calibration_efficiency.MultiDimFit.mH120.root:&quot;freeze theory+calibration+efficiency&quot;:2 higgsCombinehtt.freeze_all.MultiDimFit.mH120.root:&quot;stat only&quot;:6  --output breakdown --y-max 10 --y-cut 40 --breakdown &quot;theory,calibration,efficiency,rest,stat&quot;
+</code></pre></div>
 <p>The final step calculates the contribution of each group of nuisance parameters as the subtraction in quadrature of each scan from the previous one. This procedure guarantees that the sum in quadrature of the individual components is the same as the total uncertainty.</p>
 <p>The plot below is produced,</p>
 <p><img alt="" src="../images/breakdown.png" /></p>
@@ -2048,110 +2123,110 @@ combineCards.py signal=signal_region.txt dimuon=dimuon_control_region.txt single
 <h2 id="roomultipdf-conventional-bias-studies">RooMultiPdf conventional bias studies</h2>
 <p>Several analyses in CMS use a functional form to describe the background. This functional form is fit to the data. Often however, there is some uncertainty associated with the choice of which background function to use, and this choice will impact the fit results. It is therefore often the case that in these analyses, a bias study is performed. This study will give an indication of the size of the potential bias in the result, given a certain choice of functional form. These studies can be conducted using <span style="font-variant:small-caps;">Combine</span>.</p>
 <p>Below is an example script that will produce a workspace based on a simplified Higgs to diphoton (Hgg) analysis with a <em>single</em> category. It will produce the data and PDFs necessary for this example, and you can use it as a basis to construct your own studies.</p>
-<pre><code class="language-c++">void makeRooMultiPdfWorkspace(){
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">makeRooMultiPdfWorkspace</span><span class="p">(){</span>
 
-   // Load the combine Library
-   gSystem-&gt;Load(&quot;libHiggsAnalysisCombinedLimit.so&quot;);
+<span class="w">   </span><span class="c1">// Load the combine Library</span>
+<span class="w">   </span><span class="n">gSystem</span><span class="o">-&gt;</span><span class="n">Load</span><span class="p">(</span><span class="s">&quot;libHiggsAnalysisCombinedLimit.so&quot;</span><span class="p">);</span>
 
-   // mass variable
-   RooRealVar mass(&quot;CMS_hgg_mass&quot;,&quot;m_{#gamma#gamma}&quot;,120,100,180);
-
-
-   // create 3 background pdfs
-   // 1. exponential
-   RooRealVar expo_1(&quot;expo_1&quot;,&quot;slope of exponential&quot;,-0.02,-0.1,-0.0001);
-   RooExponential exponential(&quot;exponential&quot;,&quot;exponential pdf&quot;,mass,expo_1);
-
-   // 2. polynomial with 2 parameters
-   RooRealVar poly_1(&quot;poly_1&quot;,&quot;T1 of chebychev polynomial&quot;,0,-3,3);
-   RooRealVar poly_2(&quot;poly_2&quot;,&quot;T2 of chebychev polynomial&quot;,0,-3,3);
-   RooChebychev polynomial(&quot;polynomial&quot;,&quot;polynomial pdf&quot;,mass,RooArgList(poly_1,poly_2));
-
-   // 3. A power law function
-   RooRealVar pow_1(&quot;pow_1&quot;,&quot;exponent of power law&quot;,-3,-6,-0.0001);
-   RooGenericPdf powerlaw(&quot;powerlaw&quot;,&quot;TMath::Power(@0,@1)&quot;,RooArgList(mass,pow_1));
-
-   // Generate some data (lets use the power lay function for it)
-   // Here we are using unbinned data, but binning the data is also fine
-   RooDataSet *data = powerlaw.generate(mass,RooFit::NumEvents(1000));
-
-   // First we fit the pdfs to the data (gives us a sensible starting value of parameters for, e.g - blind limits)
-   exponential.fitTo(*data);   // index 0
-   polynomial.fitTo(*data);   // index 1
-   powerlaw.fitTo(*data);     // index 2
-
-   // Make a plot (data is a toy dataset)
-   RooPlot *plot = mass.frame();   data-&gt;plotOn(plot);
-   exponential.plotOn(plot,RooFit::LineColor(kGreen));
-   polynomial.plotOn(plot,RooFit::LineColor(kBlue));
-   powerlaw.plotOn(plot,RooFit::LineColor(kRed));
-   plot-&gt;SetTitle(&quot;PDF fits to toy data&quot;);
-   plot-&gt;Draw();
-
-   // Make a RooCategory object. This will control which of the pdfs is &quot;active&quot;
-   RooCategory cat(&quot;pdf_index&quot;,&quot;Index of Pdf which is active&quot;);
-
-   // Make a RooMultiPdf object. The order of the pdfs will be the order of their index, ie for below
-   // 0 == exponential
-   // 1 == polynomial
-   // 2 == powerlaw
-   RooArgList mypdfs;
-   mypdfs.add(exponential);
-   mypdfs.add(polynomial);
-   mypdfs.add(powerlaw);
-
-   RooMultiPdf multipdf(&quot;roomultipdf&quot;,&quot;All Pdfs&quot;,cat,mypdfs);
-   // By default the multipdf will tell combine to add 0.5 to the nll for each parameter (this is the penalty for the discrete profiling method)
-   // It can be changed with
-   //   multipdf.setCorrectionFactor(penalty)
-   // For bias-studies, this isn;t relevant however, so lets just leave the default
-
-   // As usual make an extended term for the background with _norm for freely floating yield
-   RooRealVar norm(&quot;roomultipdf_norm&quot;,&quot;Number of background events&quot;,1000,0,10000);
-
-   // We will also produce a signal model for the bias studies
-   RooRealVar sigma(&quot;sigma&quot;,&quot;sigma&quot;,1.2); sigma.setConstant(true);
-   RooRealVar MH(&quot;MH&quot;,&quot;MH&quot;,125); MH.setConstant(true);
-   RooGaussian signal(&quot;signal&quot;,&quot;signal&quot;,mass,MH,sigma);
+<span class="w">   </span><span class="c1">// mass variable</span>
+<span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">mass</span><span class="p">(</span><span class="s">&quot;CMS_hgg_mass&quot;</span><span class="p">,</span><span class="s">&quot;m_{#gamma#gamma}&quot;</span><span class="p">,</span><span class="mi">120</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">180</span><span class="p">);</span>
 
 
-   // Save to a new workspace
-   TFile *fout = new TFile(&quot;workspace.root&quot;,&quot;RECREATE&quot;);
-   RooWorkspace wout(&quot;workspace&quot;,&quot;workspace&quot;);
+<span class="w">   </span><span class="c1">// create 3 background pdfs</span>
+<span class="w">   </span><span class="c1">// 1. exponential</span>
+<span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">expo_1</span><span class="p">(</span><span class="s">&quot;expo_1&quot;</span><span class="p">,</span><span class="s">&quot;slope of exponential&quot;</span><span class="p">,</span><span class="mf">-0.02</span><span class="p">,</span><span class="mf">-0.1</span><span class="p">,</span><span class="mf">-0.0001</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooExponential</span><span class="w"> </span><span class="n">exponential</span><span class="p">(</span><span class="s">&quot;exponential&quot;</span><span class="p">,</span><span class="s">&quot;exponential pdf&quot;</span><span class="p">,</span><span class="n">mass</span><span class="p">,</span><span class="n">expo_1</span><span class="p">);</span>
 
-   data-&gt;SetName(&quot;data&quot;);
-   wout.import(*data);
-   wout.import(cat);
-   wout.import(norm);
-   wout.import(multipdf);
-   wout.import(signal);
-   wout.Print();
-   wout.Write();
-}
-</code></pre>
+<span class="w">   </span><span class="c1">// 2. polynomial with 2 parameters</span>
+<span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">poly_1</span><span class="p">(</span><span class="s">&quot;poly_1&quot;</span><span class="p">,</span><span class="s">&quot;T1 of chebychev polynomial&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">-3</span><span class="p">,</span><span class="mi">3</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">poly_2</span><span class="p">(</span><span class="s">&quot;poly_2&quot;</span><span class="p">,</span><span class="s">&quot;T2 of chebychev polynomial&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">-3</span><span class="p">,</span><span class="mi">3</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooChebychev</span><span class="w"> </span><span class="n">polynomial</span><span class="p">(</span><span class="s">&quot;polynomial&quot;</span><span class="p">,</span><span class="s">&quot;polynomial pdf&quot;</span><span class="p">,</span><span class="n">mass</span><span class="p">,</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">poly_1</span><span class="p">,</span><span class="n">poly_2</span><span class="p">));</span>
+
+<span class="w">   </span><span class="c1">// 3. A power law function</span>
+<span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">pow_1</span><span class="p">(</span><span class="s">&quot;pow_1&quot;</span><span class="p">,</span><span class="s">&quot;exponent of power law&quot;</span><span class="p">,</span><span class="mi">-3</span><span class="p">,</span><span class="mi">-6</span><span class="p">,</span><span class="mf">-0.0001</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooGenericPdf</span><span class="w"> </span><span class="n">powerlaw</span><span class="p">(</span><span class="s">&quot;powerlaw&quot;</span><span class="p">,</span><span class="s">&quot;TMath::Power(@0,@1)&quot;</span><span class="p">,</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span><span class="n">pow_1</span><span class="p">));</span>
+
+<span class="w">   </span><span class="c1">// Generate some data (lets use the power lay function for it)</span>
+<span class="w">   </span><span class="c1">// Here we are using unbinned data, but binning the data is also fine</span>
+<span class="w">   </span><span class="n">RooDataSet</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">powerlaw</span><span class="p">.</span><span class="n">generate</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span><span class="n">RooFit</span><span class="o">::</span><span class="n">NumEvents</span><span class="p">(</span><span class="mi">1000</span><span class="p">));</span>
+
+<span class="w">   </span><span class="c1">// First we fit the pdfs to the data (gives us a sensible starting value of parameters for, e.g - blind limits)</span>
+<span class="w">   </span><span class="n">exponential</span><span class="p">.</span><span class="n">fitTo</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">);</span><span class="w">   </span><span class="c1">// index 0</span>
+<span class="w">   </span><span class="n">polynomial</span><span class="p">.</span><span class="n">fitTo</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">);</span><span class="w">   </span><span class="c1">// index 1</span>
+<span class="w">   </span><span class="n">powerlaw</span><span class="p">.</span><span class="n">fitTo</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">);</span><span class="w">     </span><span class="c1">// index 2</span>
+
+<span class="w">   </span><span class="c1">// Make a plot (data is a toy dataset)</span>
+<span class="w">   </span><span class="n">RooPlot</span><span class="w"> </span><span class="o">*</span><span class="n">plot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mass</span><span class="p">.</span><span class="n">frame</span><span class="p">();</span><span class="w">   </span><span class="n">data</span><span class="o">-&gt;</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">);</span>
+<span class="w">   </span><span class="n">exponential</span><span class="p">.</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span><span class="n">RooFit</span><span class="o">::</span><span class="n">LineColor</span><span class="p">(</span><span class="n">kGreen</span><span class="p">));</span>
+<span class="w">   </span><span class="n">polynomial</span><span class="p">.</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span><span class="n">RooFit</span><span class="o">::</span><span class="n">LineColor</span><span class="p">(</span><span class="n">kBlue</span><span class="p">));</span>
+<span class="w">   </span><span class="n">powerlaw</span><span class="p">.</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span><span class="n">RooFit</span><span class="o">::</span><span class="n">LineColor</span><span class="p">(</span><span class="n">kRed</span><span class="p">));</span>
+<span class="w">   </span><span class="n">plot</span><span class="o">-&gt;</span><span class="n">SetTitle</span><span class="p">(</span><span class="s">&quot;PDF fits to toy data&quot;</span><span class="p">);</span>
+<span class="w">   </span><span class="n">plot</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">();</span>
+
+<span class="w">   </span><span class="c1">// Make a RooCategory object. This will control which of the pdfs is &quot;active&quot;</span>
+<span class="w">   </span><span class="n">RooCategory</span><span class="w"> </span><span class="n">cat</span><span class="p">(</span><span class="s">&quot;pdf_index&quot;</span><span class="p">,</span><span class="s">&quot;Index of Pdf which is active&quot;</span><span class="p">);</span>
+
+<span class="w">   </span><span class="c1">// Make a RooMultiPdf object. The order of the pdfs will be the order of their index, ie for below</span>
+<span class="w">   </span><span class="c1">// 0 == exponential</span>
+<span class="w">   </span><span class="c1">// 1 == polynomial</span>
+<span class="w">   </span><span class="c1">// 2 == powerlaw</span>
+<span class="w">   </span><span class="n">RooArgList</span><span class="w"> </span><span class="n">mypdfs</span><span class="p">;</span>
+<span class="w">   </span><span class="n">mypdfs</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">exponential</span><span class="p">);</span>
+<span class="w">   </span><span class="n">mypdfs</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">polynomial</span><span class="p">);</span>
+<span class="w">   </span><span class="n">mypdfs</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">powerlaw</span><span class="p">);</span>
+
+<span class="w">   </span><span class="n">RooMultiPdf</span><span class="w"> </span><span class="n">multipdf</span><span class="p">(</span><span class="s">&quot;roomultipdf&quot;</span><span class="p">,</span><span class="s">&quot;All Pdfs&quot;</span><span class="p">,</span><span class="n">cat</span><span class="p">,</span><span class="n">mypdfs</span><span class="p">);</span>
+<span class="w">   </span><span class="c1">// By default the multipdf will tell combine to add 0.5 to the nll for each parameter (this is the penalty for the discrete profiling method)</span>
+<span class="w">   </span><span class="c1">// It can be changed with</span>
+<span class="w">   </span><span class="c1">//   multipdf.setCorrectionFactor(penalty)</span>
+<span class="w">   </span><span class="c1">// For bias-studies, this isn;t relevant however, so lets just leave the default</span>
+
+<span class="w">   </span><span class="c1">// As usual make an extended term for the background with _norm for freely floating yield</span>
+<span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">norm</span><span class="p">(</span><span class="s">&quot;roomultipdf_norm&quot;</span><span class="p">,</span><span class="s">&quot;Number of background events&quot;</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">10000</span><span class="p">);</span>
+
+<span class="w">   </span><span class="c1">// We will also produce a signal model for the bias studies</span>
+<span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">sigma</span><span class="p">(</span><span class="s">&quot;sigma&quot;</span><span class="p">,</span><span class="s">&quot;sigma&quot;</span><span class="p">,</span><span class="mf">1.2</span><span class="p">);</span><span class="w"> </span><span class="n">sigma</span><span class="p">.</span><span class="n">setConstant</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">MH</span><span class="p">(</span><span class="s">&quot;MH&quot;</span><span class="p">,</span><span class="s">&quot;MH&quot;</span><span class="p">,</span><span class="mi">125</span><span class="p">);</span><span class="w"> </span><span class="n">MH</span><span class="p">.</span><span class="n">setConstant</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooGaussian</span><span class="w"> </span><span class="n">signal</span><span class="p">(</span><span class="s">&quot;signal&quot;</span><span class="p">,</span><span class="s">&quot;signal&quot;</span><span class="p">,</span><span class="n">mass</span><span class="p">,</span><span class="n">MH</span><span class="p">,</span><span class="n">sigma</span><span class="p">);</span>
+
+
+<span class="w">   </span><span class="c1">// Save to a new workspace</span>
+<span class="w">   </span><span class="n">TFile</span><span class="w"> </span><span class="o">*</span><span class="n">fout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TFile</span><span class="p">(</span><span class="s">&quot;workspace.root&quot;</span><span class="p">,</span><span class="s">&quot;RECREATE&quot;</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooWorkspace</span><span class="w"> </span><span class="n">wout</span><span class="p">(</span><span class="s">&quot;workspace&quot;</span><span class="p">,</span><span class="s">&quot;workspace&quot;</span><span class="p">);</span>
+
+<span class="w">   </span><span class="n">data</span><span class="o">-&gt;</span><span class="n">SetName</span><span class="p">(</span><span class="s">&quot;data&quot;</span><span class="p">);</span>
+<span class="w">   </span><span class="n">wout</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">);</span>
+<span class="w">   </span><span class="n">wout</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">cat</span><span class="p">);</span>
+<span class="w">   </span><span class="n">wout</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">norm</span><span class="p">);</span>
+<span class="w">   </span><span class="n">wout</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">multipdf</span><span class="p">);</span>
+<span class="w">   </span><span class="n">wout</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">signal</span><span class="p">);</span>
+<span class="w">   </span><span class="n">wout</span><span class="p">.</span><span class="n">Print</span><span class="p">();</span>
+<span class="w">   </span><span class="n">wout</span><span class="p">.</span><span class="n">Write</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
 <p>The signal is modelled as a simple Gaussian with a width approximately that of the diphoton resolution. For the background there is a choice of 3 functions: an exponential, a power-law, and a 2nd order polynomial. This choice is accessible within <span style="font-variant:small-caps;">Combine</span> through the use of the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/interface/RooMultiPdf.h">RooMultiPdf</a> object, which can switch between the functions by setting their associated indices (herein called <strong>pdf_index</strong>). This (as with all parameters in <span style="font-variant:small-caps;">Combine</span>) can be set via the <code>--setParameters</code> option.</p>
 <p>To assess the bias, one can throw toys using one function and fit with another. To do this, only a single datacard is needed: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/main/data/tutorials/bias_studies/hgg_toy_datacard.txt">hgg_toy_datacard.txt</a>.</p>
 <p>The bias studies are performed in two stages. The first is to generate toys using one of the functions, under some value of the signal strength <strong>r</strong> (or <span class="arithmatex">\(\mu\)</span>). This can be repeated for several values of <strong>r</strong> and also at different masses, but in this example the Higgs boson mass is fixed to 125 GeV.</p>
-<pre><code class="language-bash">    combine hgg_toy_datacard.txt -M GenerateOnly --setParameters pdf_index=0 --toysFrequentist -t 100 --expectSignal 1 --saveToys -m 125 --freezeParameters pdf_index
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="w">    </span>combine<span class="w"> </span>hgg_toy_datacard.txt<span class="w"> </span>-M<span class="w"> </span>GenerateOnly<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">pdf_index</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>--toysFrequentist<span class="w"> </span>-t<span class="w"> </span><span class="m">100</span><span class="w"> </span>--expectSignal<span class="w"> </span><span class="m">1</span><span class="w"> </span>--saveToys<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--freezeParameters<span class="w"> </span>pdf_index
+</code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>It is important to freeze <code>pdf_index</code>, otherwise <span style="font-variant:small-caps;">Combine</span> will try to iterate over the index in the frequentist fit.</p>
 </div>
 <p>Now we have 100 toys which, by setting <code>pdf_index=0</code>, sets the background PDF to the exponential function. This means we assume that the exponential is the <em>true</em> function. Note that the option <code>--toysFrequentist</code> is added; this first performs a fit of the PDF, assuming a signal strength of 1, to the data before generating the toys. This is the most obvious choice as to where to throw the toys from.</p>
 <p>The next step is to fit the toys under a different background PDF hypothesis. This time we set the <code>pdf_index</code> to 1, which selects the powerlaw, and run fits with the <code>FitDiagnostics</code> method, again freezing <code>pdf_index</code>.</p>
-<pre><code class="language-bash">    combine hgg_toy_datacard.txt -M FitDiagnostics  --setParameters pdf_index=1 --toysFile higgsCombineTest.GenerateOnly.mH125.123456.root  -t 100 --rMin -10 --rMax 10 --freezeParameters pdf_index --cminDefaultMinimizerStrategy=0
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="w">    </span>combine<span class="w"> </span>hgg_toy_datacard.txt<span class="w"> </span>-M<span class="w"> </span>FitDiagnostics<span class="w">  </span>--setParameters<span class="w"> </span><span class="nv">pdf_index</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>--toysFile<span class="w"> </span>higgsCombineTest.GenerateOnly.mH125.123456.root<span class="w">  </span>-t<span class="w"> </span><span class="m">100</span><span class="w"> </span>--rMin<span class="w"> </span>-10<span class="w"> </span>--rMax<span class="w"> </span><span class="m">10</span><span class="w"> </span>--freezeParameters<span class="w"> </span>pdf_index<span class="w"> </span>--cminDefaultMinimizerStrategy<span class="o">=</span><span class="m">0</span>
+</code></pre></div>
 <p>Note how we add the option <code>--cminDefaultMinimizerStrategy=0</code>. This is because we do not need the Hessian, as <code>FitDiagnostics</code> will run MINOS to get the uncertainty on <code>r</code>. If we do not do this, Minuit will think the fit failed as we have parameters (those not attached to the current PDF) for which the likelihood is flat.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>You may get warnings about non-accurate errors such as <code>[WARNING]: Unable to determine uncertainties on all fit parameters in b-only fit</code> - These can be ignored since they are related to the free parameters of the background PDFs which are not active.</p>
 </div>
 <p>In the output file <code>fitDiagnostics.root</code> there is a tree that contains the best fit results under the signal+background hypothesis. One measure of the bias is the <em>pull</em> defined as the difference between the measured value of <span class="arithmatex">\(\mu\)</span> and the generated value (here we used 1) relative to the uncertainty on <span class="arithmatex">\(\mu\)</span>. The pull distribution can be drawn and the mean provides an estimate of the pull. In this example, we are averaging the positive and negative uncertainties, but we could do something smarter if the uncertainties are very asymmetric.</p>
-<pre><code class="language-c++">root -l fitDiagnostics.root
-tree_fit_sb-&gt;Draw(&quot;(r-1)/(0.5*(rHiErr+rLoErr))&gt;&gt;h(20,-5,5)&quot;)
-h-&gt;Fit(&quot;gaus&quot;)
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="n">root</span><span class="w"> </span><span class="o">-</span><span class="n">l</span><span class="w"> </span><span class="n">fitDiagnostics</span><span class="p">.</span><span class="n">root</span>
+<span class="n">tree_fit_sb</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span><span class="s">&quot;(r-1)/(0.5*(rHiErr+rLoErr))&gt;&gt;h(20,-5,5)&quot;</span><span class="p">)</span>
+<span class="n">h</span><span class="o">-&gt;</span><span class="n">Fit</span><span class="p">(</span><span class="s">&quot;gaus&quot;</span><span class="p">)</span>
+</code></pre></div>
 <p><img alt="" src="../images/biasexample.png" /></p>
 <p>From the fitted Gaussian, we see the mean is at -1.29, which would indicate a bias of 129% of the uncertainty on mu from choosing the polynomial when the true function is an exponential.</p>
 <h3 id="discrete-profiling">Discrete profiling</h3>
@@ -2162,11 +2237,11 @@ h-&gt;Fit(&quot;gaus&quot;)
 </div>
 <p>As an example, we can peform a likelihood scan as a function of the Higgs boson signal strength in the toy Hgg datacard. By leaving the object <code>pdf_index</code> non-constant, at each point in the likelihood scan, the PDFs will be iterated over and the one that gives the lowest -2 times log-likelihood, including the correction factor <span class="arithmatex">\(c\)</span> (as defined in the paper linked above) will be stored in the output tree. We can also check the scan when we fix at each PDF individually to check that the envelope is achieved. For this, you will need to include the option <code>--X-rtd REMOVE_CONSTANT_ZERO_POINT=1</code>. In this way, we can take a look at the absolute value to compare the curves, if we also include <code>--saveNLL</code>.</p>
 <p>For example for a full scan, you can run</p>
-<pre><code class="language-bash">    combine -M MultiDimFit -d hgg_toy_datacard.txt --algo grid --setParameterRanges r=-1,3 --cminDefaultMinimizerStrategy 0 --saveNLL -n Envelope -m 125 --setParameters myIndex=-1 --X-rtd REMOVE_CONSTANT_ZERO_POINT=1
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="w">    </span>combine<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>-d<span class="w"> </span>hgg_toy_datacard.txt<span class="w"> </span>--algo<span class="w"> </span>grid<span class="w"> </span>--setParameterRanges<span class="w"> </span><span class="nv">r</span><span class="o">=</span>-1,3<span class="w"> </span>--cminDefaultMinimizerStrategy<span class="w"> </span><span class="m">0</span><span class="w"> </span>--saveNLL<span class="w"> </span>-n<span class="w"> </span>Envelope<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">myIndex</span><span class="o">=</span>-1<span class="w"> </span>--X-rtd<span class="w"> </span><span class="nv">REMOVE_CONSTANT_ZERO_POINT</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div>
 <p>and for the individual <code>pdf_index</code> set to <code>X</code>,</p>
-<pre><code class="language-bash">    combine -M MultiDimFit -d hgg_toy_datacard.txt --algo grid --setParameterRanges r=-1,3 --cminDefaultMinimizerStrategy 0 --saveNLL --freezeParameters pdf_index --setParameters pdf_index=X -n fixed_pdf_X -m 125 --X-rtd REMOVE_CONSTANT_ZERO_POINT=1
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="w">    </span>combine<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>-d<span class="w"> </span>hgg_toy_datacard.txt<span class="w"> </span>--algo<span class="w"> </span>grid<span class="w"> </span>--setParameterRanges<span class="w"> </span><span class="nv">r</span><span class="o">=</span>-1,3<span class="w"> </span>--cminDefaultMinimizerStrategy<span class="w"> </span><span class="m">0</span><span class="w"> </span>--saveNLL<span class="w"> </span>--freezeParameters<span class="w"> </span>pdf_index<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">pdf_index</span><span class="o">=</span>X<span class="w"> </span>-n<span class="w"> </span>fixed_pdf_X<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--X-rtd<span class="w"> </span><span class="nv">REMOVE_CONSTANT_ZERO_POINT</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div>
 <p>for <code>X=0,1,2</code></p>
 <p>You can then plot the value of <code>2*(deltaNLL+nll+nll0)</code> to plot the absolute value of (twice) the negative log-likelihood, including the correction term for extra parameters in the different PDFs.</p>
 <p>The above output will produce the following scans.
@@ -2202,8 +2277,8 @@ f(\vec{x}) = \sum_{i=1}^{M}w_{i}\phi(||\vec{x}-\vec{x}_{i}||),
 \]</div>
 <p>The solution is obtained using the <code>eigen</code> c++ package.</p>
 <p>The typical constructor of the object is as follows;</p>
-<pre><code class="language-c++">RooSplineND(const char *name, const char *title, RooArgList &amp;vars, TTree *tree, const char* fName=&quot;f&quot;, double eps=3., bool rescale=false, std::string cutstring=&quot;&quot; ) ;
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="n">RooSplineND</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">RooArgList</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vars</span><span class="p">,</span><span class="w"> </span><span class="n">TTree</span><span class="w"> </span><span class="o">*</span><span class="n">tree</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">fName</span><span class="o">=</span><span class="s">&quot;f&quot;</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">eps</span><span class="o">=</span><span class="mf">3.</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">rescale</span><span class="o">=</span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">cutstring</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">;</span>
+</code></pre></div>
 <p>where the arguments are:</p>
 <ul>
 <li><code>vars</code>: A <code>RooArgList</code> of <code>RooRealVars</code> representing the <span class="arithmatex">\(N\)</span> dimensions of the spline. The length of this list determines the dimension <span class="arithmatex">\(N\)</span> of the spline.</li>
@@ -2221,105 +2296,103 @@ f(\vec{x}) = \sum_{i=1}^{M}w_{i}\phi(||\vec{x}-\vec{x}_{i}||),
 <p>The following script is an example that produces a 2D spline (<code>N=2</code>) from a set of 400 points (<code>M=400</code>) generated from a function.</p>
 <details>
 <summary><b>Show script</b></summary>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">splinend</span><span class="p">(){</span>
+<span class="w">   </span><span class="c1">// library containing the RooSplineND</span>
+<span class="w">   </span><span class="n">gSystem</span><span class="o">-&gt;</span><span class="n">Load</span><span class="p">(</span><span class="s">&quot;libHiggsAnalysisCombinedLimit.so&quot;</span><span class="p">);</span>
 
-<pre><code class="language-c++">void splinend(){
-   // library containing the RooSplineND
-   gSystem-&gt;Load(&quot;libHiggsAnalysisCombinedLimit.so&quot;);
+<span class="w">   </span><span class="n">TTree</span><span class="w"> </span><span class="o">*</span><span class="n">tree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TTree</span><span class="p">(</span><span class="s">&quot;tree_vals&quot;</span><span class="p">,</span><span class="s">&quot;tree_vals&quot;</span><span class="p">);</span>
+<span class="w">   </span><span class="kt">float</span><span class="w"> </span><span class="n">xb</span><span class="p">,</span><span class="n">yb</span><span class="p">,</span><span class="n">fb</span><span class="p">;</span>
 
-   TTree *tree = new TTree(&quot;tree_vals&quot;,&quot;tree_vals&quot;);
-   float xb,yb,fb;
+<span class="w">   </span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">Branch</span><span class="p">(</span><span class="s">&quot;f&quot;</span><span class="p">,</span><span class="o">&amp;</span><span class="n">fb</span><span class="p">,</span><span class="s">&quot;f/F&quot;</span><span class="p">);</span>
+<span class="w">   </span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">Branch</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">,</span><span class="o">&amp;</span><span class="n">xb</span><span class="p">,</span><span class="s">&quot;x/F&quot;</span><span class="p">);</span>
+<span class="w">   </span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">Branch</span><span class="p">(</span><span class="s">&quot;y&quot;</span><span class="p">,</span><span class="o">&amp;</span><span class="n">yb</span><span class="p">,</span><span class="s">&quot;y/F&quot;</span><span class="p">);</span>
 
-   tree-&gt;Branch(&quot;f&quot;,&amp;fb,&quot;f/F&quot;);
-   tree-&gt;Branch(&quot;x&quot;,&amp;xb,&quot;x/F&quot;);
-   tree-&gt;Branch(&quot;y&quot;,&amp;yb,&quot;y/F&quot;);
+<span class="w">   </span><span class="n">TRandom3</span><span class="w"> </span><span class="o">*</span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TRandom3</span><span class="p">();</span>
+<span class="w">   </span><span class="kt">int</span><span class="w"> </span><span class="n">nentries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span><span class="w"> </span><span class="c1">// just use a regular grid of 20x20=400 points</span>
 
-   TRandom3 *r = new TRandom3();
-   int nentries = 20; // just use a regular grid of 20x20=400 points
+<span class="w">   </span><span class="kt">double</span><span class="w"> </span><span class="n">xmin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">-3.2</span><span class="p">;</span>
+<span class="w">   </span><span class="kt">double</span><span class="w"> </span><span class="n">xmax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.2</span><span class="p">;</span>
+<span class="w">   </span><span class="kt">double</span><span class="w"> </span><span class="n">ymin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">-3.2</span><span class="p">;</span>
+<span class="w">   </span><span class="kt">double</span><span class="w"> </span><span class="n">ymax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.2</span><span class="p">;</span>
 
-   double xmin = -3.2;
-   double xmax = 3.2;
-   double ymin = -3.2;
-   double ymax = 3.2;
+<span class="w">   </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">n</span><span class="o">&lt;</span><span class="n">nentries</span><span class="p">;</span><span class="n">n</span><span class="o">++</span><span class="p">){</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">k</span><span class="o">&lt;</span><span class="n">nentries</span><span class="p">;</span><span class="n">k</span><span class="o">++</span><span class="p">){</span>
 
-   for (int n=0;n&lt;nentries;n++){
-    for (int k=0;k&lt;nentries;k++){
+<span class="w">      </span><span class="n">xb</span><span class="o">=</span><span class="n">xmin</span><span class="o">+</span><span class="n">n</span><span class="o">*</span><span class="p">((</span><span class="n">xmax</span><span class="o">-</span><span class="n">xmin</span><span class="p">)</span><span class="o">/</span><span class="n">nentries</span><span class="p">);</span>
+<span class="w">      </span><span class="n">yb</span><span class="o">=</span><span class="n">ymin</span><span class="o">+</span><span class="n">k</span><span class="o">*</span><span class="p">((</span><span class="n">ymax</span><span class="o">-</span><span class="n">ymin</span><span class="p">)</span><span class="o">/</span><span class="n">nentries</span><span class="p">);</span>
+<span class="w">      </span><span class="c1">// Gaussian * cosine function radial in &quot;F(x^2+y^2)&quot;</span>
+<span class="w">      </span><span class="kt">double</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">xb</span><span class="o">*</span><span class="n">xb</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">yb</span><span class="o">*</span><span class="n">yb</span><span class="p">);</span>
+<span class="w">      </span><span class="n">fb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">*</span><span class="n">TMath</span><span class="o">::</span><span class="n">Exp</span><span class="p">(</span><span class="mi">-1</span><span class="o">*</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">/</span><span class="mi">9</span><span class="p">)</span><span class="o">*</span><span class="n">TMath</span><span class="o">::</span><span class="n">Cos</span><span class="p">(</span><span class="mf">2.5</span><span class="o">*</span><span class="n">TMath</span><span class="o">::</span><span class="n">Sqrt</span><span class="p">(</span><span class="n">R</span><span class="p">));</span>
+<span class="w">      </span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">Fill</span><span class="p">();</span>
+<span class="w">     </span><span class="p">}</span>
+<span class="w">   </span><span class="p">}</span>
 
-      xb=xmin+n*((xmax-xmin)/nentries);
-      yb=ymin+k*((ymax-ymin)/nentries);
-      // Gaussian * cosine function radial in &quot;F(x^2+y^2)&quot;
-      double R = (xb*xb)+(yb*yb);
-      fb = 0.1*TMath::Exp(-1*(R)/9)*TMath::Cos(2.5*TMath::Sqrt(R));
-      tree-&gt;Fill();
-     }
-   }
+<span class="w">   </span><span class="c1">// 2D graph of points in tree</span>
+<span class="w">   </span><span class="n">TGraph2D</span><span class="w"> </span><span class="o">*</span><span class="n">p0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TGraph2D</span><span class="p">();</span>
+<span class="w">   </span><span class="n">p0</span><span class="o">-&gt;</span><span class="n">SetMarkerSize</span><span class="p">(</span><span class="mf">0.8</span><span class="p">);</span>
+<span class="w">   </span><span class="n">p0</span><span class="o">-&gt;</span><span class="n">SetMarkerStyle</span><span class="p">(</span><span class="mi">20</span><span class="p">);</span>
 
-   // 2D graph of points in tree
-   TGraph2D *p0 = new TGraph2D();
-   p0-&gt;SetMarkerSize(0.8);
-   p0-&gt;SetMarkerStyle(20);
-
-   int c0=0;
-   for (int p=0;p&lt;tree-&gt;GetEntries();p++){
-        tree-&gt;GetEntry(p);
-        p0-&gt;SetPoint(c0,xb,yb,fb);
-        c0++;
-        }
-
-
-   // ------------------------------ THIS IS WHERE WE BUILD THE SPLINE ------------------------ //
-   // Create 2 Real-vars, one for each of the parameters of the spline
-   // The variables MUST be named the same as the corresponding branches in the tree
-   RooRealVar x(&quot;x&quot;,&quot;x&quot;,0.1,xmin,xmax);
-   RooRealVar y(&quot;y&quot;,&quot;y&quot;,0.1,ymin,ymax);
+<span class="w">   </span><span class="kt">int</span><span class="w"> </span><span class="n">c0</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="w">   </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">p</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">p</span><span class="o">&lt;</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">GetEntries</span><span class="p">();</span><span class="n">p</span><span class="o">++</span><span class="p">){</span>
+<span class="w">        </span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">GetEntry</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+<span class="w">        </span><span class="n">p0</span><span class="o">-&gt;</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">c0</span><span class="p">,</span><span class="n">xb</span><span class="p">,</span><span class="n">yb</span><span class="p">,</span><span class="n">fb</span><span class="p">);</span>
+<span class="w">        </span><span class="n">c0</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
 
 
-   // And the spline - arguments are
-   // Required -&gt;   name, title, arglist of dependants, input tree,
-   // Optional -&gt;  function branch name, interpolation width (tunable parameter), rescale Axis bool, cutstring
-   // The tunable parameter gives the radial basis a &quot;width&quot;, over which the interpolation will be effectively taken
-
-   // the reascale Axis bool (if true) will first try to rescale the points so that they are of order 1 in range
-   // This can be helpful if for example one dimension is in much larger units than another.
-
-   // The cutstring is just a ROOT string which can be used to apply cuts to the tree in case only a sub-set of the points should be used
-
-   RooArgList args(x,y);
-   RooSplineND *spline = new RooSplineND(&quot;spline&quot;,&quot;spline&quot;,args,tree,&quot;f&quot;,1,true);
-      // ----------------------------------------------------------------------------------------- //
+<span class="w">   </span><span class="c1">// ------------------------------ THIS IS WHERE WE BUILD THE SPLINE ------------------------ //</span>
+<span class="w">   </span><span class="c1">// Create 2 Real-vars, one for each of the parameters of the spline</span>
+<span class="w">   </span><span class="c1">// The variables MUST be named the same as the corresponding branches in the tree</span>
+<span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">x</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">,</span><span class="s">&quot;x&quot;</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">y</span><span class="p">(</span><span class="s">&quot;y&quot;</span><span class="p">,</span><span class="s">&quot;y&quot;</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="n">ymin</span><span class="p">,</span><span class="n">ymax</span><span class="p">);</span>
 
 
-   //TGraph *gr = spline-&gt;getGraph(&quot;x&quot;,0.1); // Return 1D graph. Will be a slice of the spline for fixed y generated at steps of 0.1
+<span class="w">   </span><span class="c1">// And the spline - arguments are</span>
+<span class="w">   </span><span class="c1">// Required -&gt;   name, title, arglist of dependants, input tree,</span>
+<span class="w">   </span><span class="c1">// Optional -&gt;  function branch name, interpolation width (tunable parameter), rescale Axis bool, cutstring</span>
+<span class="w">   </span><span class="c1">// The tunable parameter gives the radial basis a &quot;width&quot;, over which the interpolation will be effectively taken</span>
 
-   // Plot the 2D spline
-   TGraph2D *gr = new TGraph2D();
-   int pt = 0;
-   for (double xx=xmin;xx&lt;xmax;xx+=0.1){
-     for (double yy=xmin;yy&lt;ymax;yy+=0.1){
-        x.setVal(xx);
-        y.setVal(yy);
-        gr-&gt;SetPoint(pt,xx,yy,spline-&gt;getVal());
-        pt++;
-     }
-   }
+<span class="w">   </span><span class="c1">// the reascale Axis bool (if true) will first try to rescale the points so that they are of order 1 in range</span>
+<span class="w">   </span><span class="c1">// This can be helpful if for example one dimension is in much larger units than another.</span>
 
-   gr-&gt;SetTitle(&quot;&quot;);
+<span class="w">   </span><span class="c1">// The cutstring is just a ROOT string which can be used to apply cuts to the tree in case only a sub-set of the points should be used</span>
 
-   gr-&gt;SetLineColor(1);
-   //p0-&gt;SetTitle(&quot;0.1 exp(-(x{^2}+y{^2})/9) #times Cos(2.5#sqrt{x^{2}+y^{2}})&quot;);
-   gr-&gt;Draw(&quot;surf&quot;);
-   gr-&gt;GetXaxis()-&gt;SetTitle(&quot;x&quot;);
-   gr-&gt;GetYaxis()-&gt;SetTitle(&quot;y&quot;);
-   p0-&gt;Draw(&quot;Pcolsame&quot;);
+<span class="w">   </span><span class="n">RooArgList</span><span class="w"> </span><span class="n">args</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooSplineND</span><span class="w"> </span><span class="o">*</span><span class="n">spline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RooSplineND</span><span class="p">(</span><span class="s">&quot;spline&quot;</span><span class="p">,</span><span class="s">&quot;spline&quot;</span><span class="p">,</span><span class="n">args</span><span class="p">,</span><span class="n">tree</span><span class="p">,</span><span class="s">&quot;f&quot;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="nb">true</span><span class="p">);</span>
+<span class="w">      </span><span class="c1">// ----------------------------------------------------------------------------------------- //</span>
 
-   //p0-&gt;Draw(&quot;surfsame&quot;);
-   TLegend *leg = new TLegend(0.2,0.82,0.82,0.98);
-   leg-&gt;SetFillColor(0);
-   leg-&gt;AddEntry(p0,&quot;0.1 exp(-(x{^2}+y{^2})/9) #times Cos(2.5#sqrt{x^{2}+y^{2}})&quot;,&quot;p&quot;);
-   leg-&gt;AddEntry(gr,&quot;RooSplineND (N=2) interpolation&quot;,&quot;L&quot;);
-   leg-&gt;Draw();
-}
-</code></pre>
 
+<span class="w">   </span><span class="c1">//TGraph *gr = spline-&gt;getGraph(&quot;x&quot;,0.1); // Return 1D graph. Will be a slice of the spline for fixed y generated at steps of 0.1</span>
+
+<span class="w">   </span><span class="c1">// Plot the 2D spline</span>
+<span class="w">   </span><span class="n">TGraph2D</span><span class="w"> </span><span class="o">*</span><span class="n">gr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TGraph2D</span><span class="p">();</span>
+<span class="w">   </span><span class="kt">int</span><span class="w"> </span><span class="n">pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">   </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">xx</span><span class="o">=</span><span class="n">xmin</span><span class="p">;</span><span class="n">xx</span><span class="o">&lt;</span><span class="n">xmax</span><span class="p">;</span><span class="n">xx</span><span class="o">+=</span><span class="mf">0.1</span><span class="p">){</span>
+<span class="w">     </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">yy</span><span class="o">=</span><span class="n">xmin</span><span class="p">;</span><span class="n">yy</span><span class="o">&lt;</span><span class="n">ymax</span><span class="p">;</span><span class="n">yy</span><span class="o">+=</span><span class="mf">0.1</span><span class="p">){</span>
+<span class="w">        </span><span class="n">x</span><span class="p">.</span><span class="n">setVal</span><span class="p">(</span><span class="n">xx</span><span class="p">);</span>
+<span class="w">        </span><span class="n">y</span><span class="p">.</span><span class="n">setVal</span><span class="p">(</span><span class="n">yy</span><span class="p">);</span>
+<span class="w">        </span><span class="n">gr</span><span class="o">-&gt;</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="n">xx</span><span class="p">,</span><span class="n">yy</span><span class="p">,</span><span class="n">spline</span><span class="o">-&gt;</span><span class="n">getVal</span><span class="p">());</span>
+<span class="w">        </span><span class="n">pt</span><span class="o">++</span><span class="p">;</span>
+<span class="w">     </span><span class="p">}</span>
+<span class="w">   </span><span class="p">}</span>
+
+<span class="w">   </span><span class="n">gr</span><span class="o">-&gt;</span><span class="n">SetTitle</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span>
+
+<span class="w">   </span><span class="n">gr</span><span class="o">-&gt;</span><span class="n">SetLineColor</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">   </span><span class="c1">//p0-&gt;SetTitle(&quot;0.1 exp(-(x{^2}+y{^2})/9) #times Cos(2.5#sqrt{x^{2}+y^{2}})&quot;);</span>
+<span class="w">   </span><span class="n">gr</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span><span class="s">&quot;surf&quot;</span><span class="p">);</span>
+<span class="w">   </span><span class="n">gr</span><span class="o">-&gt;</span><span class="n">GetXaxis</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">SetTitle</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">);</span>
+<span class="w">   </span><span class="n">gr</span><span class="o">-&gt;</span><span class="n">GetYaxis</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">SetTitle</span><span class="p">(</span><span class="s">&quot;y&quot;</span><span class="p">);</span>
+<span class="w">   </span><span class="n">p0</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span><span class="s">&quot;Pcolsame&quot;</span><span class="p">);</span>
+
+<span class="w">   </span><span class="c1">//p0-&gt;Draw(&quot;surfsame&quot;);</span>
+<span class="w">   </span><span class="n">TLegend</span><span class="w"> </span><span class="o">*</span><span class="n">leg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TLegend</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.82</span><span class="p">,</span><span class="mf">0.82</span><span class="p">,</span><span class="mf">0.98</span><span class="p">);</span>
+<span class="w">   </span><span class="n">leg</span><span class="o">-&gt;</span><span class="n">SetFillColor</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">   </span><span class="n">leg</span><span class="o">-&gt;</span><span class="n">AddEntry</span><span class="p">(</span><span class="n">p0</span><span class="p">,</span><span class="s">&quot;0.1 exp(-(x{^2}+y{^2})/9) #times Cos(2.5#sqrt{x^{2}+y^{2}})&quot;</span><span class="p">,</span><span class="s">&quot;p&quot;</span><span class="p">);</span>
+<span class="w">   </span><span class="n">leg</span><span class="o">-&gt;</span><span class="n">AddEntry</span><span class="p">(</span><span class="n">gr</span><span class="p">,</span><span class="s">&quot;RooSplineND (N=2) interpolation&quot;</span><span class="p">,</span><span class="s">&quot;L&quot;</span><span class="p">);</span>
+<span class="w">   </span><span class="n">leg</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
 </details>
 
 <p>Running the script will produce the following plot. The plot shows the sampled points and the spline produced from them.</p>
@@ -2331,240 +2404,237 @@ f(\vec{x}) = \sum_{i=1}^{M}w_{i}\phi(||\vec{x}-\vec{x}_{i}||),
 <details>
 <summary><b>Show script</b></summary>
 
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">examplews</span><span class="p">(){</span>
+<span class="w">    </span><span class="c1">// As usual, load the combine library to get access to the RooParametricHist</span>
+<span class="w">    </span><span class="n">gSystem</span><span class="o">-&gt;</span><span class="n">Load</span><span class="p">(</span><span class="s">&quot;libHiggsAnalysisCombinedLimit.so&quot;</span><span class="p">);</span>
 
-<pre><code class="language-c++">void examplews(){
-    // As usual, load the combine library to get access to the RooParametricHist
-    gSystem-&gt;Load(&quot;libHiggsAnalysisCombinedLimit.so&quot;);
+<span class="w">    </span><span class="c1">// Output file and workspace</span>
+<span class="w">    </span><span class="n">TFile</span><span class="w"> </span><span class="o">*</span><span class="n">fOut</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TFile</span><span class="p">(</span><span class="s">&quot;param_ws.root&quot;</span><span class="p">,</span><span class="s">&quot;RECREATE&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooWorkspace</span><span class="w"> </span><span class="n">wspace</span><span class="p">(</span><span class="s">&quot;wspace&quot;</span><span class="p">,</span><span class="s">&quot;wspace&quot;</span><span class="p">);</span>
 
-    // Output file and workspace
-    TFile *fOut = new TFile(&quot;param_ws.root&quot;,&quot;RECREATE&quot;);
-    RooWorkspace wspace(&quot;wspace&quot;,&quot;wspace&quot;);
+<span class="w">    </span><span class="c1">// better to create the bins rather than use the &quot;nbins,min,max&quot; to avoid spurious warning about adding bins with different</span>
+<span class="w">    </span><span class="c1">// ranges in combine - see https://root-forum.cern.ch/t/attempt-to-divide-histograms-with-different-bin-limits/17624/3 for why!</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nbins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">xmin</span><span class="o">=</span><span class="mf">200.</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">xmax</span><span class="o">=</span><span class="mf">1000.</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">xbins</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mf">200.</span><span class="p">,</span><span class="mf">400.</span><span class="p">,</span><span class="mf">600.</span><span class="p">,</span><span class="mf">800.</span><span class="p">,</span><span class="mf">1000.</span><span class="p">};</span>
 
-    // better to create the bins rather than use the &quot;nbins,min,max&quot; to avoid spurious warning about adding bins with different
-    // ranges in combine - see https://root-forum.cern.ch/t/attempt-to-divide-histograms-with-different-bin-limits/17624/3 for why!
-    const int nbins = 4;
-    double xmin=200.;
-    double xmax=1000.;
-    double xbins[5] = {200.,400.,600.,800.,1000.};
+<span class="w">    </span><span class="c1">// A search in a MET tail, define MET as our variable</span>
 
-    // A search in a MET tail, define MET as our variable
-
-    RooRealVar met(&quot;met&quot;,&quot;E_{T}^{miss}&quot;,200,xmin,xmax);
-    RooArgList vars(met);
-
-
-    // ---------------------------- SIGNAL REGION -------------------------------------------------------------------//
-    // Make a dataset, this will be just four bins in MET.
-    // its easiest to make this from a histogram. Set the contents to &quot;somehting&quot;
-    TH1F data_th1(&quot;data_obs_SR&quot;,&quot;Data observed in signal region&quot;,nbins,xbins);
-
-    data_th1.SetBinContent(1,100);
-    data_th1.SetBinContent(2,50);
-    data_th1.SetBinContent(3,25);
-    data_th1.SetBinContent(4,10);
-    RooDataHist data_hist(&quot;data_obs_SR&quot;,&quot;Data observed&quot;,vars,&amp;data_th1);
-    wspace.import(data_hist);
-
-    // In the signal region, our background process will be freely floating,
-    // Create one parameter per bin representing the yield. (note of course we can have multiple processes like this)
-    RooRealVar bin1(&quot;bkg_SR_bin1&quot;,&quot;Background yield in signal region, bin 1&quot;,100,0,500);
-    RooRealVar bin2(&quot;bkg_SR_bin2&quot;,&quot;Background yield in signal region, bin 2&quot;,50,0,500);
-    RooRealVar bin3(&quot;bkg_SR_bin3&quot;,&quot;Background yield in signal region, bin 3&quot;,25,0,500);
-    RooRealVar bin4(&quot;bkg_SR_bin4&quot;,&quot;Background yield in signal region, bin 4&quot;,10,0,500);
-    RooArgList bkg_SR_bins;
-    bkg_SR_bins.add(bin1);
-    bkg_SR_bins.add(bin2);
-    bkg_SR_bins.add(bin3);
-    bkg_SR_bins.add(bin4);
-
-    // Create a RooParametericHist which contains those yields, last argument is just for the binning,
-    // can use the data TH1 for that
-    RooParametricHist p_bkg(&quot;bkg_SR&quot;, &quot;Background PDF in signal region&quot;,met,bkg_SR_bins,data_th1);
-    // Always include a _norm term which should be the sum of the yields (thats how combine likes to play with pdfs)
-    RooAddition p_bkg_norm(&quot;bkg_SR_norm&quot;,&quot;Total Number of events from background in signal region&quot;,bkg_SR_bins);
-
-    // Every signal region needs a signal
-    TH1F signal_th1(&quot;signal_SR&quot;,&quot;Signal expected in signal region&quot;,nbins,xbins);
-
-    signal_th1.SetBinContent(1,1);
-    signal_th1.SetBinContent(2,2);
-    signal_th1.SetBinContent(3,3);
-    signal_th1.SetBinContent(4,8);
-    RooDataHist signal_hist(&quot;signal&quot;,&quot;Data observed&quot;,vars,&amp;signal_th1);
-    wspace.import(signal_hist);
-
-    // -------------------------------------------------------------------------------------------------------------//
-    // ---------------------------- CONTROL REGION -----------------------------------------------------------------//
-    TH1F data_CRth1(&quot;data_obs_CR&quot;,&quot;Data observed in control region&quot;,nbins,xbins);
-
-    data_CRth1.SetBinContent(1,200);
-    data_CRth1.SetBinContent(2,100);
-    data_CRth1.SetBinContent(3,50);
-    data_CRth1.SetBinContent(4,20);
-
-    RooDataHist data_CRhist(&quot;data_obs_CR&quot;,&quot;Data observed&quot;,vars,&amp;data_CRth1);
-    wspace.import(data_CRhist);
-
-    // This time, the background process will be dependent on the yields of the background in the signal region.
-    // The transfer factor TF must account for acceptance/efficiency etc differences in the signal to control
-    // In this example lets assume the control region is populated by the same process decaying to clean daughters with 2xBR
-    // compared to the signal region
-
-    // NB You could have a different transfer factor for each bin represented by a completely different RooRealVar
-
-    // We can imagine that the transfer factor could be associated with some uncertainty - lets say a 1% uncertainty due to efficiency and 2% due to acceptance.
-    // We need to make these nuisance parameters ourselves and give them a nominal value of 0
+<span class="w">    </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">met</span><span class="p">(</span><span class="s">&quot;met&quot;</span><span class="p">,</span><span class="s">&quot;E_{T}^{miss}&quot;</span><span class="p">,</span><span class="mi">200</span><span class="p">,</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooArgList</span><span class="w"> </span><span class="n">vars</span><span class="p">(</span><span class="n">met</span><span class="p">);</span>
 
 
-    RooRealVar efficiency(&quot;efficiency&quot;, &quot;efficiency nuisance parameter&quot;,0);
-    RooRealVar acceptance(&quot;acceptance&quot;, &quot;acceptance nuisance parameter&quot;,0);
+<span class="w">    </span><span class="c1">// ---------------------------- SIGNAL REGION -------------------------------------------------------------------//</span>
+<span class="w">    </span><span class="c1">// Make a dataset, this will be just four bins in MET.</span>
+<span class="w">    </span><span class="c1">// its easiest to make this from a histogram. Set the contents to &quot;somehting&quot;</span>
+<span class="w">    </span><span class="n">TH1F</span><span class="w"> </span><span class="n">data_th1</span><span class="p">(</span><span class="s">&quot;data_obs_SR&quot;</span><span class="p">,</span><span class="s">&quot;Data observed in signal region&quot;</span><span class="p">,</span><span class="n">nbins</span><span class="p">,</span><span class="n">xbins</span><span class="p">);</span>
 
-    // We would need to make the transfer factor a function of those too. Here we've assumed Log-normal effects (i.e the same as putting lnN in the CR datacard)
-    // but note that we could use any function which could be used to parameterise the effect - eg if the systematic is due to some alternate template, we could
-    // use polynomials for example.
+<span class="w">    </span><span class="n">data_th1</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">);</span>
+<span class="w">    </span><span class="n">data_th1</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">50</span><span class="p">);</span>
+<span class="w">    </span><span class="n">data_th1</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">25</span><span class="p">);</span>
+<span class="w">    </span><span class="n">data_th1</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooDataHist</span><span class="w"> </span><span class="n">data_hist</span><span class="p">(</span><span class="s">&quot;data_obs_SR&quot;</span><span class="p">,</span><span class="s">&quot;Data observed&quot;</span><span class="p">,</span><span class="n">vars</span><span class="p">,</span><span class="o">&amp;</span><span class="n">data_th1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">wspace</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">data_hist</span><span class="p">);</span>
 
+<span class="w">    </span><span class="c1">// In the signal region, our background process will be freely floating,</span>
+<span class="w">    </span><span class="c1">// Create one parameter per bin representing the yield. (note of course we can have multiple processes like this)</span>
+<span class="w">    </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">bin1</span><span class="p">(</span><span class="s">&quot;bkg_SR_bin1&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in signal region, bin 1&quot;</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">500</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">bin2</span><span class="p">(</span><span class="s">&quot;bkg_SR_bin2&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in signal region, bin 2&quot;</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">500</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">bin3</span><span class="p">(</span><span class="s">&quot;bkg_SR_bin3&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in signal region, bin 3&quot;</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">500</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">bin4</span><span class="p">(</span><span class="s">&quot;bkg_SR_bin4&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in signal region, bin 4&quot;</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">500</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooArgList</span><span class="w"> </span><span class="n">bkg_SR_bins</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bkg_SR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">bin1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bkg_SR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">bin2</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bkg_SR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">bin3</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bkg_SR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">bin4</span><span class="p">);</span>
 
-    RooFormulaVar TF(&quot;TF&quot;,&quot;Trasnfer factor&quot;,&quot;2*TMath::Power(1.01,@0)*TMath::Power(1.02,@1)&quot;,RooArgList(efficiency,acceptance) );
+<span class="w">    </span><span class="c1">// Create a RooParametericHist which contains those yields, last argument is just for the binning,</span>
+<span class="w">    </span><span class="c1">// can use the data TH1 for that</span>
+<span class="w">    </span><span class="n">RooParametricHist</span><span class="w"> </span><span class="n">p_bkg</span><span class="p">(</span><span class="s">&quot;bkg_SR&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Background PDF in signal region&quot;</span><span class="p">,</span><span class="n">met</span><span class="p">,</span><span class="n">bkg_SR_bins</span><span class="p">,</span><span class="n">data_th1</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Always include a _norm term which should be the sum of the yields (thats how combine likes to play with pdfs)</span>
+<span class="w">    </span><span class="n">RooAddition</span><span class="w"> </span><span class="n">p_bkg_norm</span><span class="p">(</span><span class="s">&quot;bkg_SR_norm&quot;</span><span class="p">,</span><span class="s">&quot;Total Number of events from background in signal region&quot;</span><span class="p">,</span><span class="n">bkg_SR_bins</span><span class="p">);</span>
 
-    // Finally, we need to make each bin of the background in the control region a function of the background in the signal and the transfer factor
-    // N_CR = N_SR x TF
+<span class="w">    </span><span class="c1">// Every signal region needs a signal</span>
+<span class="w">    </span><span class="n">TH1F</span><span class="w"> </span><span class="n">signal_th1</span><span class="p">(</span><span class="s">&quot;signal_SR&quot;</span><span class="p">,</span><span class="s">&quot;Signal expected in signal region&quot;</span><span class="p">,</span><span class="n">nbins</span><span class="p">,</span><span class="n">xbins</span><span class="p">);</span>
 
-    RooFormulaVar CRbin1(&quot;bkg_CR_bin1&quot;,&quot;Background yield in control region, bin 1&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin1));
-    RooFormulaVar CRbin2(&quot;bkg_CR_bin2&quot;,&quot;Background yield in control region, bin 2&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin2));
-    RooFormulaVar CRbin3(&quot;bkg_CR_bin3&quot;,&quot;Background yield in control region, bin 3&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin3));
-    RooFormulaVar CRbin4(&quot;bkg_CR_bin4&quot;,&quot;Background yield in control region, bin 4&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin4));
+<span class="w">    </span><span class="n">signal_th1</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">signal_th1</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span>
+<span class="w">    </span><span class="n">signal_th1</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">);</span>
+<span class="w">    </span><span class="n">signal_th1</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">8</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooDataHist</span><span class="w"> </span><span class="n">signal_hist</span><span class="p">(</span><span class="s">&quot;signal&quot;</span><span class="p">,</span><span class="s">&quot;Data observed&quot;</span><span class="p">,</span><span class="n">vars</span><span class="p">,</span><span class="o">&amp;</span><span class="n">signal_th1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">wspace</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">signal_hist</span><span class="p">);</span>
 
-    RooArgList bkg_CR_bins;
-    bkg_CR_bins.add(CRbin1);
-    bkg_CR_bins.add(CRbin2);
-    bkg_CR_bins.add(CRbin3);
-    bkg_CR_bins.add(CRbin4);
-    RooParametricHist p_CRbkg(&quot;bkg_CR&quot;, &quot;Background PDF in control region&quot;,met,bkg_CR_bins,data_th1);
-    RooAddition p_CRbkg_norm(&quot;bkg_CR_norm&quot;,&quot;Total Number of events from background in control region&quot;,bkg_CR_bins);
-    // -------------------------------------------------------------------------------------------------------------//
+<span class="w">    </span><span class="c1">// -------------------------------------------------------------------------------------------------------------//</span>
+<span class="w">    </span><span class="c1">// ---------------------------- CONTROL REGION -----------------------------------------------------------------//</span>
+<span class="w">    </span><span class="n">TH1F</span><span class="w"> </span><span class="n">data_CRth1</span><span class="p">(</span><span class="s">&quot;data_obs_CR&quot;</span><span class="p">,</span><span class="s">&quot;Data observed in control region&quot;</span><span class="p">,</span><span class="n">nbins</span><span class="p">,</span><span class="n">xbins</span><span class="p">);</span>
 
+<span class="w">    </span><span class="n">data_CRth1</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">200</span><span class="p">);</span>
+<span class="w">    </span><span class="n">data_CRth1</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">100</span><span class="p">);</span>
+<span class="w">    </span><span class="n">data_CRth1</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">50</span><span class="p">);</span>
+<span class="w">    </span><span class="n">data_CRth1</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">20</span><span class="p">);</span>
 
-    // we can also use the standard interpolation from combine by providing alternative shapes (as RooDataHists)
-    // here we're adding two of them (JES and ISR)
-    TH1F background_up(&quot;tbkg_CR_JESUp&quot;,&quot;&quot;,nbins,xbins);
-    background_up.SetBinContent(1,CRbin1.getVal()*1.01);
-    background_up.SetBinContent(2,CRbin2.getVal()*1.02);
-    background_up.SetBinContent(3,CRbin3.getVal()*1.03);
-    background_up.SetBinContent(4,CRbin4.getVal()*1.04);
-    RooDataHist bkg_CRhist_sysUp(&quot;bkg_CR_JESUp&quot;,&quot;Bkg sys up&quot;,vars,&amp;background_up);
-    wspace.import(bkg_CRhist_sysUp);
+<span class="w">    </span><span class="n">RooDataHist</span><span class="w"> </span><span class="n">data_CRhist</span><span class="p">(</span><span class="s">&quot;data_obs_CR&quot;</span><span class="p">,</span><span class="s">&quot;Data observed&quot;</span><span class="p">,</span><span class="n">vars</span><span class="p">,</span><span class="o">&amp;</span><span class="n">data_CRth1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">wspace</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">data_CRhist</span><span class="p">);</span>
 
-    TH1F background_down(&quot;bkg_CR_JESDown&quot;,&quot;&quot;,nbins,xbins);
-    background_down.SetBinContent(1,CRbin1.getVal()*0.90);
-    background_down.SetBinContent(2,CRbin2.getVal()*0.98);
-    background_down.SetBinContent(3,CRbin3.getVal()*0.97);
-    background_down.SetBinContent(4,CRbin4.getVal()*0.96);
-    RooDataHist bkg_CRhist_sysDown(&quot;bkg_CR_JESDown&quot;,&quot;Bkg sys down&quot;,vars,&amp;background_down);
-    wspace.import(bkg_CRhist_sysDown);
+<span class="w">    </span><span class="c1">// This time, the background process will be dependent on the yields of the background in the signal region.</span>
+<span class="w">    </span><span class="c1">// The transfer factor TF must account for acceptance/efficiency etc differences in the signal to control</span>
+<span class="w">    </span><span class="c1">// In this example lets assume the control region is populated by the same process decaying to clean daughters with 2xBR</span>
+<span class="w">    </span><span class="c1">// compared to the signal region</span>
 
-    TH1F background_2up(&quot;tbkg_CR_ISRUp&quot;,&quot;&quot;,nbins,xbins);
-    background_2up.SetBinContent(1,CRbin1.getVal()*0.85);
-    background_2up.SetBinContent(2,CRbin2.getVal()*0.9);
-    background_2up.SetBinContent(3,CRbin3.getVal()*0.95);
-    background_2up.SetBinContent(4,CRbin4.getVal()*0.99);
-    RooDataHist bkg_CRhist_sys2Up(&quot;bkg_CR_ISRUp&quot;,&quot;Bkg sys 2up&quot;,vars,&amp;background_2up);
-    wspace.import(bkg_CRhist_sys2Up);
+<span class="w">    </span><span class="c1">// NB You could have a different transfer factor for each bin represented by a completely different RooRealVar</span>
 
-    TH1F background_2down(&quot;bkg_CR_ISRDown&quot;,&quot;&quot;,nbins,xbins);
-    background_2down.SetBinContent(1,CRbin1.getVal()*1.15);
-    background_2down.SetBinContent(2,CRbin2.getVal()*1.1);
-    background_2down.SetBinContent(3,CRbin3.getVal()*1.05);
-    background_2down.SetBinContent(4,CRbin4.getVal()*1.01);
-    RooDataHist bkg_CRhist_sys2Down(&quot;bkg_CR_ISRDown&quot;,&quot;Bkg sys 2down&quot;,vars,&amp;background_2down);
-    wspace.import(bkg_CRhist_sys2Down);
-
-    // import the pdfs
-    wspace.import(p_bkg);
-    wspace.import(p_bkg_norm,RooFit::RecycleConflictNodes());
-    wspace.import(p_CRbkg);
-    wspace.import(p_CRbkg_norm,RooFit::RecycleConflictNodes());
-    fOut-&gt;cd();
-    wspace.Write();
-
-    // Clean up
-    fOut-&gt;Close();
-    fOut-&gt;Delete();
+<span class="w">    </span><span class="c1">// We can imagine that the transfer factor could be associated with some uncertainty - lets say a 1% uncertainty due to efficiency and 2% due to acceptance.</span>
+<span class="w">    </span><span class="c1">// We need to make these nuisance parameters ourselves and give them a nominal value of 0</span>
 
 
-}
-</code></pre>
+<span class="w">    </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">efficiency</span><span class="p">(</span><span class="s">&quot;efficiency&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;efficiency nuisance parameter&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">acceptance</span><span class="p">(</span><span class="s">&quot;acceptance&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;acceptance nuisance parameter&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
 
+<span class="w">    </span><span class="c1">// We would need to make the transfer factor a function of those too. Here we&#39;ve assumed Log-normal effects (i.e the same as putting lnN in the CR datacard)</span>
+<span class="w">    </span><span class="c1">// but note that we could use any function which could be used to parameterise the effect - eg if the systematic is due to some alternate template, we could</span>
+<span class="w">    </span><span class="c1">// use polynomials for example.</span>
+
+
+<span class="w">    </span><span class="n">RooFormulaVar</span><span class="w"> </span><span class="n">TF</span><span class="p">(</span><span class="s">&quot;TF&quot;</span><span class="p">,</span><span class="s">&quot;Trasnfer factor&quot;</span><span class="p">,</span><span class="s">&quot;2*TMath::Power(1.01,@0)*TMath::Power(1.02,@1)&quot;</span><span class="p">,</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">efficiency</span><span class="p">,</span><span class="n">acceptance</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Finally, we need to make each bin of the background in the control region a function of the background in the signal and the transfer factor</span>
+<span class="w">    </span><span class="c1">// N_CR = N_SR x TF</span>
+
+<span class="w">    </span><span class="n">RooFormulaVar</span><span class="w"> </span><span class="n">CRbin1</span><span class="p">(</span><span class="s">&quot;bkg_CR_bin1&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in control region, bin 1&quot;</span><span class="p">,</span><span class="s">&quot;@0*@1&quot;</span><span class="p">,</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">TF</span><span class="p">,</span><span class="n">bin1</span><span class="p">));</span>
+<span class="w">    </span><span class="n">RooFormulaVar</span><span class="w"> </span><span class="n">CRbin2</span><span class="p">(</span><span class="s">&quot;bkg_CR_bin2&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in control region, bin 2&quot;</span><span class="p">,</span><span class="s">&quot;@0*@1&quot;</span><span class="p">,</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">TF</span><span class="p">,</span><span class="n">bin2</span><span class="p">));</span>
+<span class="w">    </span><span class="n">RooFormulaVar</span><span class="w"> </span><span class="n">CRbin3</span><span class="p">(</span><span class="s">&quot;bkg_CR_bin3&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in control region, bin 3&quot;</span><span class="p">,</span><span class="s">&quot;@0*@1&quot;</span><span class="p">,</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">TF</span><span class="p">,</span><span class="n">bin3</span><span class="p">));</span>
+<span class="w">    </span><span class="n">RooFormulaVar</span><span class="w"> </span><span class="n">CRbin4</span><span class="p">(</span><span class="s">&quot;bkg_CR_bin4&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in control region, bin 4&quot;</span><span class="p">,</span><span class="s">&quot;@0*@1&quot;</span><span class="p">,</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">TF</span><span class="p">,</span><span class="n">bin4</span><span class="p">));</span>
+
+<span class="w">    </span><span class="n">RooArgList</span><span class="w"> </span><span class="n">bkg_CR_bins</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bkg_CR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">CRbin1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bkg_CR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">CRbin2</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bkg_CR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">CRbin3</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bkg_CR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">CRbin4</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooParametricHist</span><span class="w"> </span><span class="n">p_CRbkg</span><span class="p">(</span><span class="s">&quot;bkg_CR&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Background PDF in control region&quot;</span><span class="p">,</span><span class="n">met</span><span class="p">,</span><span class="n">bkg_CR_bins</span><span class="p">,</span><span class="n">data_th1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooAddition</span><span class="w"> </span><span class="n">p_CRbkg_norm</span><span class="p">(</span><span class="s">&quot;bkg_CR_norm&quot;</span><span class="p">,</span><span class="s">&quot;Total Number of events from background in control region&quot;</span><span class="p">,</span><span class="n">bkg_CR_bins</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// -------------------------------------------------------------------------------------------------------------//</span>
+
+
+<span class="w">    </span><span class="c1">// we can also use the standard interpolation from combine by providing alternative shapes (as RooDataHists)</span>
+<span class="w">    </span><span class="c1">// here we&#39;re adding two of them (JES and ISR)</span>
+<span class="w">    </span><span class="n">TH1F</span><span class="w"> </span><span class="n">background_up</span><span class="p">(</span><span class="s">&quot;tbkg_CR_JESUp&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="n">nbins</span><span class="p">,</span><span class="n">xbins</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_up</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">CRbin1</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">1.01</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_up</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">CRbin2</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">1.02</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_up</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">CRbin3</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">1.03</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_up</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="n">CRbin4</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">1.04</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooDataHist</span><span class="w"> </span><span class="n">bkg_CRhist_sysUp</span><span class="p">(</span><span class="s">&quot;bkg_CR_JESUp&quot;</span><span class="p">,</span><span class="s">&quot;Bkg sys up&quot;</span><span class="p">,</span><span class="n">vars</span><span class="p">,</span><span class="o">&amp;</span><span class="n">background_up</span><span class="p">);</span>
+<span class="w">    </span><span class="n">wspace</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">bkg_CRhist_sysUp</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">TH1F</span><span class="w"> </span><span class="n">background_down</span><span class="p">(</span><span class="s">&quot;bkg_CR_JESDown&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="n">nbins</span><span class="p">,</span><span class="n">xbins</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_down</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">CRbin1</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">0.90</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_down</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">CRbin2</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">0.98</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_down</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">CRbin3</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">0.97</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_down</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="n">CRbin4</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">0.96</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooDataHist</span><span class="w"> </span><span class="n">bkg_CRhist_sysDown</span><span class="p">(</span><span class="s">&quot;bkg_CR_JESDown&quot;</span><span class="p">,</span><span class="s">&quot;Bkg sys down&quot;</span><span class="p">,</span><span class="n">vars</span><span class="p">,</span><span class="o">&amp;</span><span class="n">background_down</span><span class="p">);</span>
+<span class="w">    </span><span class="n">wspace</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">bkg_CRhist_sysDown</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">TH1F</span><span class="w"> </span><span class="n">background_2up</span><span class="p">(</span><span class="s">&quot;tbkg_CR_ISRUp&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="n">nbins</span><span class="p">,</span><span class="n">xbins</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_2up</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">CRbin1</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">0.85</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_2up</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">CRbin2</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">0.9</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_2up</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">CRbin3</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">0.95</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_2up</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="n">CRbin4</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">0.99</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooDataHist</span><span class="w"> </span><span class="n">bkg_CRhist_sys2Up</span><span class="p">(</span><span class="s">&quot;bkg_CR_ISRUp&quot;</span><span class="p">,</span><span class="s">&quot;Bkg sys 2up&quot;</span><span class="p">,</span><span class="n">vars</span><span class="p">,</span><span class="o">&amp;</span><span class="n">background_2up</span><span class="p">);</span>
+<span class="w">    </span><span class="n">wspace</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">bkg_CRhist_sys2Up</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">TH1F</span><span class="w"> </span><span class="n">background_2down</span><span class="p">(</span><span class="s">&quot;bkg_CR_ISRDown&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="n">nbins</span><span class="p">,</span><span class="n">xbins</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_2down</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">CRbin1</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">1.15</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_2down</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">CRbin2</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">1.1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_2down</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">CRbin3</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">1.05</span><span class="p">);</span>
+<span class="w">    </span><span class="n">background_2down</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="n">CRbin4</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">1.01</span><span class="p">);</span>
+<span class="w">    </span><span class="n">RooDataHist</span><span class="w"> </span><span class="n">bkg_CRhist_sys2Down</span><span class="p">(</span><span class="s">&quot;bkg_CR_ISRDown&quot;</span><span class="p">,</span><span class="s">&quot;Bkg sys 2down&quot;</span><span class="p">,</span><span class="n">vars</span><span class="p">,</span><span class="o">&amp;</span><span class="n">background_2down</span><span class="p">);</span>
+<span class="w">    </span><span class="n">wspace</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">bkg_CRhist_sys2Down</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// import the pdfs</span>
+<span class="w">    </span><span class="n">wspace</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">p_bkg</span><span class="p">);</span>
+<span class="w">    </span><span class="n">wspace</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">p_bkg_norm</span><span class="p">,</span><span class="n">RooFit</span><span class="o">::</span><span class="n">RecycleConflictNodes</span><span class="p">());</span>
+<span class="w">    </span><span class="n">wspace</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">p_CRbkg</span><span class="p">);</span>
+<span class="w">    </span><span class="n">wspace</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">p_CRbkg_norm</span><span class="p">,</span><span class="n">RooFit</span><span class="o">::</span><span class="n">RecycleConflictNodes</span><span class="p">());</span>
+<span class="w">    </span><span class="n">fOut</span><span class="o">-&gt;</span><span class="n">cd</span><span class="p">();</span>
+<span class="w">    </span><span class="n">wspace</span><span class="p">.</span><span class="n">Write</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Clean up</span>
+<span class="w">    </span><span class="n">fOut</span><span class="o">-&gt;</span><span class="n">Close</span><span class="p">();</span>
+<span class="w">    </span><span class="n">fOut</span><span class="o">-&gt;</span><span class="n">Delete</span><span class="p">();</span>
+
+
+<span class="p">}</span>
+</code></pre></div>
 
 </details>
 
 <p>We will now discuss what the script is doing. First, the observable for the search is the missing energy, so we create a parameter to represent this observable.</p>
-<pre><code class="language-c++">   RooRealVar met(&quot;met&quot;,&quot;E_{T}^{miss}&quot;,xmin,xmax);
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">met</span><span class="p">(</span><span class="s">&quot;met&quot;</span><span class="p">,</span><span class="s">&quot;E_{T}^{miss}&quot;</span><span class="p">,</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">);</span>
+</code></pre></div>
 <p>The following lines create a freely floating parameter for each of our bins (in this example, there are only 4 bins, defined for our observable <code>met</code>).</p>
-<pre><code class="language-c++">   RooRealVar bin1(&quot;bkg_SR_bin1&quot;,&quot;Background yield in signal region, bin 1&quot;,100,0,500);
-   RooRealVar bin2(&quot;bkg_SR_bin2&quot;,&quot;Background yield in signal region, bin 2&quot;,50,0,500);
-   RooRealVar bin3(&quot;bkg_SR_bin3&quot;,&quot;Background yield in signal region, bin 3&quot;,25,0,500);
-   RooRealVar bin4(&quot;bkg_SR_bin4&quot;,&quot;Background yield in signal region, bin 4&quot;,10,0,500);
+<div class="highlight"><pre><span></span><code><span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">bin1</span><span class="p">(</span><span class="s">&quot;bkg_SR_bin1&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in signal region, bin 1&quot;</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">500</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">bin2</span><span class="p">(</span><span class="s">&quot;bkg_SR_bin2&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in signal region, bin 2&quot;</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">500</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">bin3</span><span class="p">(</span><span class="s">&quot;bkg_SR_bin3&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in signal region, bin 3&quot;</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">500</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">bin4</span><span class="p">(</span><span class="s">&quot;bkg_SR_bin4&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in signal region, bin 4&quot;</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">500</span><span class="p">);</span>
 
-   RooArgList bkg_SR_bins;
-   bkg_SR_bins.add(bin1);
-   bkg_SR_bins.add(bin2);
-   bkg_SR_bins.add(bin3);
-   bkg_SR_bins.add(bin4);
-</code></pre>
+<span class="w">   </span><span class="n">RooArgList</span><span class="w"> </span><span class="n">bkg_SR_bins</span><span class="p">;</span>
+<span class="w">   </span><span class="n">bkg_SR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">bin1</span><span class="p">);</span>
+<span class="w">   </span><span class="n">bkg_SR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">bin2</span><span class="p">);</span>
+<span class="w">   </span><span class="n">bkg_SR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">bin3</span><span class="p">);</span>
+<span class="w">   </span><span class="n">bkg_SR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">bin4</span><span class="p">);</span>
+</code></pre></div>
 <p>They are put into a list so that we can create a <code>RooParametricHist</code> and its normalisation from that list</p>
-<pre><code class="language-c++">  RooParametricHist p_bkg(&quot;bkg_SR&quot;, &quot;Background PDF in signal region&quot;,met,bkg_SR_bins,data_th1);
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="n">RooParametricHist</span><span class="w"> </span><span class="n">p_bkg</span><span class="p">(</span><span class="s">&quot;bkg_SR&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Background PDF in signal region&quot;</span><span class="p">,</span><span class="n">met</span><span class="p">,</span><span class="n">bkg_SR_bins</span><span class="p">,</span><span class="n">data_th1</span><span class="p">);</span>
 
-  RooAddition p_bkg_norm(&quot;bkg_SR_norm&quot;,&quot;Total Number of events from background in signal region&quot;,bkg_SR_bins);
-</code></pre>
+<span class="w">  </span><span class="n">RooAddition</span><span class="w"> </span><span class="n">p_bkg_norm</span><span class="p">(</span><span class="s">&quot;bkg_SR_norm&quot;</span><span class="p">,</span><span class="s">&quot;Total Number of events from background in signal region&quot;</span><span class="p">,</span><span class="n">bkg_SR_bins</span><span class="p">);</span>
+</code></pre></div>
 <p>For the control region, the background process will be dependent on the yields of the background in the signal region using a <em>transfer factor</em>. The transfer factor <code>TF</code> must account for acceptance/efficiency/etc differences between the signal region and the control regions.</p>
 <p>In this example we will assume the control region is populated by the same process decaying to a different final state with twice as large branching fraction as the one in the signal region.</p>
 <p>We could imagine that the transfer factor could be associated with some uncertainty - for example a 1% uncertainty due to efficiency and a 2% uncertainty due to acceptance differences. We need to make nuisance parameters ourselves to model this, and give them a nominal value of 0.</p>
-<pre><code class="language-c++">   RooRealVar efficiency(&quot;efficiency&quot;, &quot;efficiency nuisance parameter&quot;,0);
-   RooRealVar acceptance(&quot;acceptance&quot;, &quot;acceptance nuisance parameter&quot;,0);
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">efficiency</span><span class="p">(</span><span class="s">&quot;efficiency&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;efficiency nuisance parameter&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooRealVar</span><span class="w"> </span><span class="n">acceptance</span><span class="p">(</span><span class="s">&quot;acceptance&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;acceptance nuisance parameter&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+</code></pre></div>
 <p>We need to make the transfer factor a function of these parameters, since variations in these uncertainties will lead to variations of the transfer factor. Here we have assumed Log-normal effects (i.e the same as putting lnN in the CR datacard), but we could use <em>any function</em> which could be used to parameterize the effect - for example if the systematic uncertainty is due to some alternate template, we could use polynomials.</p>
-<pre><code class="language-c++">   RooFormulaVar TF(&quot;TF&quot;,&quot;Trasnfer factor&quot;,&quot;2*TMath::Power(1.01,@0)*TMath::Power(1.02,@1)&quot;,RooArgList(efficiency,acceptance) );
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="w">   </span><span class="n">RooFormulaVar</span><span class="w"> </span><span class="n">TF</span><span class="p">(</span><span class="s">&quot;TF&quot;</span><span class="p">,</span><span class="s">&quot;Trasnfer factor&quot;</span><span class="p">,</span><span class="s">&quot;2*TMath::Power(1.01,@0)*TMath::Power(1.02,@1)&quot;</span><span class="p">,</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">efficiency</span><span class="p">,</span><span class="n">acceptance</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+</code></pre></div>
 <p>Then, we need to make each bin of the background in the control region a function of the background in the signal region and the transfer factor - i.e $N<em>{CR} = N</em>{SR} \times TF $.</p>
-<pre><code class="language-c++">   RooFormulaVar CRbin1(&quot;bkg_CR_bin1&quot;,&quot;Background yield in control region, bin 1&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin1));
-   RooFormulaVar CRbin2(&quot;bkg_CR_bin2&quot;,&quot;Background yield in control region, bin 2&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin2));
-   RooFormulaVar CRbin3(&quot;bkg_CR_bin3&quot;,&quot;Background yield in control region, bin 3&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin3));
-   RooFormulaVar CRbin4(&quot;bkg_CR_bin4&quot;,&quot;Background yield in control region, bin 4&quot;,&quot;@0*@1&quot;,RooArgList(TF,bin4));
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="w">   </span><span class="n">RooFormulaVar</span><span class="w"> </span><span class="n">CRbin1</span><span class="p">(</span><span class="s">&quot;bkg_CR_bin1&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in control region, bin 1&quot;</span><span class="p">,</span><span class="s">&quot;@0*@1&quot;</span><span class="p">,</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">TF</span><span class="p">,</span><span class="n">bin1</span><span class="p">));</span>
+<span class="w">   </span><span class="n">RooFormulaVar</span><span class="w"> </span><span class="n">CRbin2</span><span class="p">(</span><span class="s">&quot;bkg_CR_bin2&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in control region, bin 2&quot;</span><span class="p">,</span><span class="s">&quot;@0*@1&quot;</span><span class="p">,</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">TF</span><span class="p">,</span><span class="n">bin2</span><span class="p">));</span>
+<span class="w">   </span><span class="n">RooFormulaVar</span><span class="w"> </span><span class="n">CRbin3</span><span class="p">(</span><span class="s">&quot;bkg_CR_bin3&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in control region, bin 3&quot;</span><span class="p">,</span><span class="s">&quot;@0*@1&quot;</span><span class="p">,</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">TF</span><span class="p">,</span><span class="n">bin3</span><span class="p">));</span>
+<span class="w">   </span><span class="n">RooFormulaVar</span><span class="w"> </span><span class="n">CRbin4</span><span class="p">(</span><span class="s">&quot;bkg_CR_bin4&quot;</span><span class="p">,</span><span class="s">&quot;Background yield in control region, bin 4&quot;</span><span class="p">,</span><span class="s">&quot;@0*@1&quot;</span><span class="p">,</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">TF</span><span class="p">,</span><span class="n">bin4</span><span class="p">));</span>
+</code></pre></div>
 <p>As before, we also need to create the <code>RooParametricHist</code> for this process in the control region but this time the bin yields will be the <code>RooFormulaVars</code> we just created instead of freely floating parameters.</p>
-<pre><code class="language-c++">   RooArgList bkg_CR_bins;
-   bkg_CR_bins.add(CRbin1);
-   bkg_CR_bins.add(CRbin2);
-   bkg_CR_bins.add(CRbin3);
-   bkg_CR_bins.add(CRbin4);
+<div class="highlight"><pre><span></span><code><span class="w">   </span><span class="n">RooArgList</span><span class="w"> </span><span class="n">bkg_CR_bins</span><span class="p">;</span>
+<span class="w">   </span><span class="n">bkg_CR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">CRbin1</span><span class="p">);</span>
+<span class="w">   </span><span class="n">bkg_CR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">CRbin2</span><span class="p">);</span>
+<span class="w">   </span><span class="n">bkg_CR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">CRbin3</span><span class="p">);</span>
+<span class="w">   </span><span class="n">bkg_CR_bins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">CRbin4</span><span class="p">);</span>
 
-   RooParametricHist p_CRbkg(&quot;bkg_CR&quot;, &quot;Background PDF in control region&quot;,met,bkg_CR_bins,data_th1);
-   RooAddition p_CRbkg_norm(&quot;bkg_CR_norm&quot;,&quot;Total Number of events from background in control region&quot;,bkg_CR_bins);
-</code></pre>
+<span class="w">   </span><span class="n">RooParametricHist</span><span class="w"> </span><span class="n">p_CRbkg</span><span class="p">(</span><span class="s">&quot;bkg_CR&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Background PDF in control region&quot;</span><span class="p">,</span><span class="n">met</span><span class="p">,</span><span class="n">bkg_CR_bins</span><span class="p">,</span><span class="n">data_th1</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooAddition</span><span class="w"> </span><span class="n">p_CRbkg_norm</span><span class="p">(</span><span class="s">&quot;bkg_CR_norm&quot;</span><span class="p">,</span><span class="s">&quot;Total Number of events from background in control region&quot;</span><span class="p">,</span><span class="n">bkg_CR_bins</span><span class="p">);</span>
+</code></pre></div>
 <p>Finally, we can also create alternative shape variations (Up/Down) that can be fed to <span style="font-variant:small-caps;">Combine</span> as we do with <code>TH1</code> or <code>RooDataHist</code> type workspaces. These need
 to be of type <code>RooDataHist</code>. The example below is for a Jet Energy Scale type shape uncertainty.</p>
-<pre><code class="language-c++">   TH1F background_up(&quot;tbkg_CR_JESUp&quot;,&quot;&quot;,nbins,xbins);
-   background_up.SetBinContent(1,CRbin1.getVal()*1.01);
-   background_up.SetBinContent(2,CRbin2.getVal()*1.02);
-   background_up.SetBinContent(3,CRbin3.getVal()*1.03);
-   background_up.SetBinContent(4,CRbin4.getVal()*1.04);
-   RooDataHist bkg_CRhist_sysUp(&quot;bkg_CR_JESUp&quot;,&quot;Bkg sys up&quot;,vars,&amp;background_up);
-   wspace.import(bkg_CRhist_sysUp);
+<div class="highlight"><pre><span></span><code><span class="w">   </span><span class="n">TH1F</span><span class="w"> </span><span class="n">background_up</span><span class="p">(</span><span class="s">&quot;tbkg_CR_JESUp&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="n">nbins</span><span class="p">,</span><span class="n">xbins</span><span class="p">);</span>
+<span class="w">   </span><span class="n">background_up</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">CRbin1</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">1.01</span><span class="p">);</span>
+<span class="w">   </span><span class="n">background_up</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">CRbin2</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">1.02</span><span class="p">);</span>
+<span class="w">   </span><span class="n">background_up</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">CRbin3</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">1.03</span><span class="p">);</span>
+<span class="w">   </span><span class="n">background_up</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="n">CRbin4</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">1.04</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooDataHist</span><span class="w"> </span><span class="n">bkg_CRhist_sysUp</span><span class="p">(</span><span class="s">&quot;bkg_CR_JESUp&quot;</span><span class="p">,</span><span class="s">&quot;Bkg sys up&quot;</span><span class="p">,</span><span class="n">vars</span><span class="p">,</span><span class="o">&amp;</span><span class="n">background_up</span><span class="p">);</span>
+<span class="w">   </span><span class="n">wspace</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">bkg_CRhist_sysUp</span><span class="p">);</span>
 
-   TH1F background_down(&quot;bkg_CR_JESDown&quot;,&quot;&quot;,nbins,xbins);
-   background_down.SetBinContent(1,CRbin1.getVal()*0.90);
-   background_down.SetBinContent(2,CRbin2.getVal()*0.98);
-   background_down.SetBinContent(3,CRbin3.getVal()*0.97);
-   background_down.SetBinContent(4,CRbin4.getVal()*0.96);
-   RooDataHist bkg_CRhist_sysDown(&quot;bkg_CR_JESDown&quot;,&quot;Bkg sys down&quot;,vars,&amp;background_down);
-   wspace.import(bkg_CRhist_sysDown);
-</code></pre>
+<span class="w">   </span><span class="n">TH1F</span><span class="w"> </span><span class="n">background_down</span><span class="p">(</span><span class="s">&quot;bkg_CR_JESDown&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="n">nbins</span><span class="p">,</span><span class="n">xbins</span><span class="p">);</span>
+<span class="w">   </span><span class="n">background_down</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">CRbin1</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">0.90</span><span class="p">);</span>
+<span class="w">   </span><span class="n">background_down</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">CRbin2</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">0.98</span><span class="p">);</span>
+<span class="w">   </span><span class="n">background_down</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">CRbin3</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">0.97</span><span class="p">);</span>
+<span class="w">   </span><span class="n">background_down</span><span class="p">.</span><span class="n">SetBinContent</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="n">CRbin4</span><span class="p">.</span><span class="n">getVal</span><span class="p">()</span><span class="o">*</span><span class="mf">0.96</span><span class="p">);</span>
+<span class="w">   </span><span class="n">RooDataHist</span><span class="w"> </span><span class="n">bkg_CRhist_sysDown</span><span class="p">(</span><span class="s">&quot;bkg_CR_JESDown&quot;</span><span class="p">,</span><span class="s">&quot;Bkg sys down&quot;</span><span class="p">,</span><span class="n">vars</span><span class="p">,</span><span class="o">&amp;</span><span class="n">background_down</span><span class="p">);</span>
+<span class="w">   </span><span class="n">wspace</span><span class="p">.</span><span class="k">import</span><span class="p">(</span><span class="n">bkg_CRhist_sysDown</span><span class="p">);</span>
+</code></pre></div>
 <p>Below are datacards (for signal and control regions) which can be used in conjunction with the workspace built above. In order to "use" the control region, simply combine the two cards as usual using <code>combineCards.py</code>.</p>
 <details>
 <summary><b>Show Signal Region Datacard</b></summary>
-
-<pre><code>Signal Region Datacard -- signal category
+<div class="highlight"><pre><span></span><code>Signal Region Datacard -- signal category
 
 imax _ number of bins
 jmax _ number of processes minus 1
@@ -2602,15 +2672,11 @@ bkg_SR_bin1 flatParam
 bkg_SR_bin2 flatParam
 bkg_SR_bin3 flatParam
 bkg_SR_bin4 flatParam
-
-</code></pre>
-
+</code></pre></div>
 </details>
 <details>
 <summary><b>Show Control Region Datacard</b></summary>
-
-<pre><code>
-Control Region Datacard -- control category
+<div class="highlight"><pre><span></span><code>Control Region Datacard -- control category
 
 imax _ number of bins
 jmax _ number of processes minus 1
@@ -2641,15 +2707,12 @@ JES shape 1
 ISR shape 1
 efficiency param 0 1
 acceptance param 0 1
-
-</code></pre>
-
+</code></pre></div>
 </details>
 
 <p>Note that for the control region, our nuisance parameters appear as <code>param</code> types, so that <span style="font-variant:small-caps;">Combine</span> will correctly constrain them.</p>
 <p>If we combine the two cards and fit the result with <code>-M MultiDimFit -v 3</code> we can see that the parameters that give the rate of background in each bin of the signal region, along with the nuisance parameters and signal strength, are determined by the fit - i.e we have properly included the constraint from the control region, just as with the 1-bin <code>gmN</code>.</p>
-<pre><code>
-acceptance = 0.00374312 +/- 0.964632 (limited)
+<div class="highlight"><pre><span></span><code>acceptance = 0.00374312 +/- 0.964632 (limited)
 bkg_SR_bin1 = 99.9922 +/- 5.92062 (limited)
 bkg_SR_bin2 = 49.9951 +/- 4.13535 (limited)
 bkg_SR_bin3 = 24.9915 +/- 2.9267 (limited)
@@ -2657,8 +2720,7 @@ bkg_SR_bin4 = 9.96478 +/- 2.1348 (limited)
 efficiency = 0.00109195 +/- 0.979334 (limited)
 lumi_8TeV = -0.0025911 +/- 0.994458
 r = 0.00716347 +/- 12.513 (limited)
-
-</code></pre>
+</code></pre></div>
 <p>The example given here is extremely basic and it should be noted that additional complexity in the transfer factors, as well as additional uncertainties/backgrounds etc in the cards are, as always, supported.</p>
 <div class="admonition danger">
 <p class="admonition-title">Danger</p>
