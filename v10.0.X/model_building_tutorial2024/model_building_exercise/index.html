@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.28">
     
     
       
@@ -1677,9 +1677,9 @@ Now the <code>htt_tt_combined.txt</code> contains signal and control regions. To
 <div class="highlight"><pre><span></span><code>&lt;rate_param_name&gt; rateParam &lt;category&gt; &lt;process&gt; &lt;initial_value&gt; [min_value,max_value]
 </code></pre></div>
 <p>The following lines define <code>rate_TT</code> and <code>rate_ZMM</code> rate parameters scaling TT and ZLL processes in all regions simultaneously: 
-<div class="highlight"><pre><span></span><code>rate_TT                 rateParam  *          TT         1 [0, 5]
-rate_TT                 rateParam  *          TTT         1 [0, 5]
-rate_ZMM                rateParam  *          ZLL        1 [0, 2]
+<div class="highlight"><pre><span></span><code>rate_TT                 rateParam  *          TT         1 [0,5]
+rate_TT                 rateParam  *          TTT        1 [0,5]
+rate_ZMM                rateParam  *          ZLL        1 [0,2]
 </code></pre></div></p>
 <p>Note that by default rate parameters are freely floating (unconstrained) parameters in Combine, however it is possible to add a constrain term to the likelihood by adding the <code>param</code> modifier with the same name as rate parameter: </p>
 <p><div class="highlight"><pre><span></span><code>rate_TT param &lt;mean&gt; &lt;sigma&gt;  
@@ -1961,7 +1961,7 @@ plot1DScan.py higgsCombineTest.MultiDimFit.mH120.root --POI chg
     <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       
