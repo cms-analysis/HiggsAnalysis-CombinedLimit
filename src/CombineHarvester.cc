@@ -476,6 +476,7 @@ void CombineHarvester::LoadShapes(Process* entry,
     // Post-condition #4
     // Import any paramters of the RooAbsPdf and the RooRealVar
     RooAbsData const* data_obj = FindMatchingData(entry);
+    bool twoD_flag = false;
     if (data_obj) {
       if (verbosity_ >= 2) LOGLINE(log(), "Matching RooAbsData has been found");
       if (pdf&&!data) {
@@ -483,21 +484,30 @@ void CombineHarvester::LoadShapes(Process* entry,
         ImportParameters(&argset);
         if (!entry->observable()) {
           std::string var_name;
-          // Custom code start - LC 5/14/19
           std::string var_name_y;
+          
           if (data_obj) {
             var_name = data_obj->get()->first()->GetName();
             RooArgSet* temp_vars = (RooArgSet*)data_obj->get()->Clone();
-            RooAbsArg* temp_xvar = data_obj->get()->first();
-            temp_vars->remove(*temp_xvar,true,true);
-            var_name_y = temp_vars->first()->GetName();
+
+
+            twoD_flag = temp_vars->getSize()>1;
+            std::cout<<"2D flag in harvester: "<<twoD_flag<<"\n";
+            if(twoD_flag){
+              RooAbsArg* temp_xvar = data_obj->get()->first();
+              temp_vars->remove(*temp_xvar,true,true);
+              twoD_flag = temp_vars->getSize()>1;
+              var_name_y = temp_vars->first()->GetName();
+              }
+            //delete temp_vars;
           }
           // if (data_obj) var_name = data_obj->get()->first()->GetName();
           entry->set_observable(
               (RooRealVar*)entry->pdf()->findServer(var_name.c_str()));
-          entry->set_observable_y(
-              (RooRealVar*)entry->pdf()->findServer(var_name_y.c_str()));
-        } // Custom code end
+          if(twoD_flag)
+            entry->set_observable_y(
+                (RooRealVar*)entry->pdf()->findServer(var_name_y.c_str()));
+        }
       }
       if (norm) {
         RooArgSet argset = ParametersByName(norm, data_obj->get());
