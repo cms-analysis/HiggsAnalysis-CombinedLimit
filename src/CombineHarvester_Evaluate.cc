@@ -725,7 +725,7 @@ TH2F CombineHarvester::GetObserved2DShape() {
       proc_shape = *tmp;
       //delete &tmp;
       proc_shape.Scale(1. / proc_shape.Integral());
-      //delete temp_vars;
+      delete temp_vars;
     }
     proc_shape.Scale(p_rate);
     if (!shape_init) {
@@ -1094,7 +1094,7 @@ void CombineHarvester::Set2DPdfBins(unsigned nbinsx, unsigned nbinsy) {
         RooRealVar temp_xvar = *(RooRealVar*)temp_vars->first();
         temp_vars->remove(temp_xvar,true,true);
         var_name_y = temp_vars->first()->GetName();
-        //delete temp_vars;
+        delete temp_vars;
       }
       binning_varsx.insert(var_name);
       binning_varsy.insert(var_name_y);

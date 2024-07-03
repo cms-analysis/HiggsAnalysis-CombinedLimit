@@ -489,15 +489,13 @@ void CombineHarvester::LoadShapes(Process* entry,
           if (data_obj) {
             var_name = data_obj->get()->first()->GetName();
             RooArgSet* temp_vars = (RooArgSet*)data_obj->get()->Clone();
-
-
             twoD_flag = temp_vars->getSize()>1;
             if(twoD_flag){
               RooAbsArg* temp_xvar = data_obj->get()->first();
               temp_vars->remove(*temp_xvar,true,true);
               var_name_y = temp_vars->first()->GetName();
               }
-            //delete temp_vars;
+            delete temp_vars;
           }
           // if (data_obj) var_name = data_obj->get()->first()->GetName();
           entry->set_observable(
