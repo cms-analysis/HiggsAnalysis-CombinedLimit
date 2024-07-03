@@ -26,6 +26,7 @@ Process::Process()
       data_(nullptr),
       norm_(nullptr),
       cached_obs_(nullptr),
+      cached_obsy_(nullptr),
       cached_int_(nullptr) {
   }
 
@@ -42,6 +43,7 @@ void swap(Process& first, Process& second) {
   swap(first.data_, second.data_);
   swap(first.norm_, second.norm_);
   swap(first.cached_obs_, second.cached_obs_);
+  swap(first.cached_obsy_, second.cached_obsy_);
   swap(first.cached_int_, second.cached_int_);
 }
 
@@ -52,6 +54,7 @@ Process::Process(Process const& other)
       data_(other.data_),
       norm_(other.norm_),
       cached_obs_(other.cached_obs_),
+      cached_obsy_(other.cached_obsy_),
       cached_int_(nullptr) {
   TH1 *h = nullptr;
   if (other.shape_) {
@@ -69,6 +72,7 @@ Process::Process(Process&& other)
       data_(nullptr),
       norm_(nullptr),
       cached_obs_(nullptr),
+      cached_obsy_(nullptr),
       cached_int_(nullptr) {
   swap(*this, other);
 }
