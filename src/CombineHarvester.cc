@@ -492,11 +492,9 @@ void CombineHarvester::LoadShapes(Process* entry,
 
 
             twoD_flag = temp_vars->getSize()>1;
-            std::cout<<"2D flag in harvester: "<<twoD_flag<<"\n";
             if(twoD_flag){
               RooAbsArg* temp_xvar = data_obj->get()->first();
               temp_vars->remove(*temp_xvar,true,true);
-              twoD_flag = temp_vars->getSize()>1;
               var_name_y = temp_vars->first()->GetName();
               }
             //delete temp_vars;
