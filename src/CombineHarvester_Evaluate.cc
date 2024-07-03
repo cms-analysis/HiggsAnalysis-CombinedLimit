@@ -589,26 +589,36 @@ TH2F CombineHarvester::Get2DShapeInternal(ProcSystMap const& lookup,
       shape.Add(&proc_shape);
     } else if (procs_[i]->pdf()) {
       if (!procs_[i]->observable()) {
+        bool twoD_flag = false;
         RooAbsData const* data_obj = FindMatchingData(procs_[i].get());
         std::string var_name = "CMS_th1x";
-        // CUSTOM CODE
         std::string var_name_y = "CMS_th1y";
         if (data_obj) {
           var_name = data_obj->get()->first()->GetName();
           RooArgSet* temp_vars = (RooArgSet*)data_obj->get()->Clone();
-          RooAbsArg* temp_xvar = data_obj->get()->first();
-          temp_vars->remove(*temp_xvar,true,true);
-          var_name_y = temp_vars->first()->GetName();
+          twoD_flag = temp_vars->getSize()>1;
+          std::cout<<"2D flag in harvester_evaluate: "<<twoD_flag<<"\n";
+          if(twoD_flag){
+            RooAbsArg* temp_xvar = data_obj->get()->first();
+            temp_vars->remove(*temp_xvar,true,true);
+            twoD_flag = temp_vars->getSize()>1;
+            var_name_y = temp_vars->first()->GetName();
+            }
+          //delete temp_vars;
         }
         if (procs_[i]->pdf()->findServer(var_name.c_str())) {
             procs_[i]->set_observable((RooRealVar *)procs_[i]->pdf()->findServer(var_name.c_str()));
-            procs_[i]->set_observable_y((RooRealVar *)procs_[i]->pdf()->findServer(var_name_y.c_str()));
+            if(twoD_flag){
+              procs_[i]->set_observable_y((RooRealVar *)procs_[i]->pdf()->findServer(var_name_y.c_str()));
+            }
         }
         else {
             VerticalInterpPdf* proc_pdf = (VerticalInterpPdf*)procs_[i]->pdf();
             auto nom_template = proc_pdf->funcList().at(0);
             procs_[i]->set_observable((RooRealVar *)nom_template->findServer(var_name.c_str()));
+            if(twoD_flag){
             procs_[i]->set_observable_y((RooRealVar *)nom_template->findServer(var_name_y.c_str()));
+            }
         }
       }
 
@@ -715,6 +725,7 @@ TH2F CombineHarvester::GetObserved2DShape() {
       proc_shape = *tmp;
       //delete &tmp;
       proc_shape.Scale(1. / proc_shape.Integral());
+      //delete temp_vars;
     }
     proc_shape.Scale(p_rate);
     if (!shape_init) {
@@ -1083,6 +1094,7 @@ void CombineHarvester::Set2DPdfBins(unsigned nbinsx, unsigned nbinsy) {
         RooRealVar temp_xvar = *(RooRealVar*)temp_vars->first();
         temp_vars->remove(temp_xvar,true,true);
         var_name_y = temp_vars->first()->GetName();
+        //delete temp_vars;
       }
       binning_varsx.insert(var_name);
       binning_varsy.insert(var_name_y);
