@@ -33,20 +33,20 @@ class ProcessNormalization : public RooAbsReal {
 
     private:
         // ---- PERSISTENT ----
-        double nominalValue_;                         
+        double nominalValue_;
         std::vector<double> logKappa_; // Logarithm of symmetric kappas
         RooListProxy thetaList_;        // List of nuisances for symmetric kappas
         std::vector<std::pair<double,double> > logAsymmKappa_; // Logarithm of asymmetric kappas (low, high)
         RooListProxy asymmThetaList_;                           // List of nuisances for asymmetric kappas
-        RooListProxy otherFactorList_;     // Other multiplicative terms 
+        RooListProxy otherFactorList_;     // Other multiplicative terms
         std::vector<RooAbsReal *> thetaListVec_; //! Don't serialize me
         std::vector<RooAbsReal *> asymmThetaListVec_; //! Don't serialize me
         std::vector<RooAbsReal *> otherFactorListVec_; //! Don't serialize me
 
         // get the kappa for the appropriate x
-        Double_t logKappaForX(double x, const std::pair<double,double> &logKappas ) const ;
+        Double_t logKappaForX(double x, const double &kappaHigh, const double &kappaLow) const ;
 
-  ClassDefOverride(ProcessNormalization,1) // Process normalization interpolator 
+  ClassDefOverride(ProcessNormalization,1) // Process normalization interpolator
 };
 
 #endif
