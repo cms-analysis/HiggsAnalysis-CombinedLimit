@@ -34,8 +34,8 @@ jobs:
           - python: "3.10"
             root: "6.26.4"
           # python 3.10 root 6.32 (not available yet)
-          #- python: "3.10"
-          #  root: "6.32" # version 6.30.07 where the conflicting classes were removed from root is not available, so compiling with 6.32.00 where this issue is resolved
+          - python: "3.10"
+            root: "6.32.2" # version 6.30.07 where the conflicting classes were removed from root is not available, so compiling with 6.32.2 where this issue is resolved
 
     runs-on: ubuntu-latest
     name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
