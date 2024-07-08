@@ -368,6 +368,9 @@ public:
   Double_t maxVal(Int_t code) const override ;
 
   Double_t evaluate() const override ;
+
+  void translate(RooFit::Detail::CodeSquashContext &ctx) const override;
+
 protected:
   RooRealProxy _x, _y;
   bool _conditional;
