@@ -1,6 +1,6 @@
 #include "../interface/ProcessNormalization.h"
 
-#include <RooFit/Detail/MathFuncs.h>
+#include "../interface/CombineMathFuncs.h"
 
 #include <cmath>
 #include <cassert>

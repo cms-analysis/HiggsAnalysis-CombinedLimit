@@ -1,6 +1,6 @@
 #include "../interface/AsymPow.h"
 
-#include <RooFit/Detail/MathFuncs.h>
+#include "../interface/CombineMathFuncs.h"
 
 #include <cmath>
 #include <cassert>
