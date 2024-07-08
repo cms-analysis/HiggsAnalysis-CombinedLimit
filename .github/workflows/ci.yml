@@ -55,7 +55,7 @@ jobs:
     - name: Install build environment
       shell: bash -l {0}
       run: |
-        mamba install -c conda-forge python==${{ matrix.python }} pip pandas root==${{ matrix.root }} gsl tbb vdt boost-cpp boost pcre eigen
+        mamba install -c conda-forge python==${{ matrix.python }} pip pandas root==${{ matrix.root }} gsl tbb vdt boost-cpp pcre eigen
         cd HiggsAnalysis/CombinedLimit
         bash set_conda_env_vars.sh
     - name: Build
