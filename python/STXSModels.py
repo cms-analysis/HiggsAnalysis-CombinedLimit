@@ -84,6 +84,7 @@ class STXSBaseModel(PhysicsModel):
         self.mergeBins = False
         self.mergeJson = ""
         self.addStage0 = False
+        self.addHbbBoostedSplitting = False
 
     def preProcessNuisances(self, nuisances):
         # add here any pre-processed nuisances such as constraint terms for the mass profiling?
@@ -105,6 +106,9 @@ class STXSBaseModel(PhysicsModel):
                 self.mergeJson = po.replace("mergejson=", "")
             if po.startswith("addStage0="):
                 self.addStage0 = po.replace("addStage0=", "") in ["yes", "1", "Yes", "True", "true"]
+            if po.startswith("addHbbBoostedSplitting="):
+                self.addHbbBoostedSplitting = po.replace("addHbbBoostedSplitting=", "") in ["yes", "1", "Yes", "True", "true"]
+
 
 
     def doMH(self):
@@ -222,6 +226,11 @@ class StageOnePTwo(STXSBaseModel):
         STXSBaseModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
         self.POIs = "mu"
         from HiggsAnalysis.CombinedLimit.STXS import stage1_2_procs, stage1_2_fine_procs
+
+        if self.addHbbBoostedSplitting:
+            stage1_2_fine_procs["qqH_GE2J_MJJ_1000_1500_PTH_GT200"] = ["qqH_GE2J_MJJ_1000_1500_PTH_GT200_PTHJJ_0_25", "qqH_GE2J_MJJ_1000_1500_PTH_GT200_PTHJJ_GT25"]
+            stage1_2_fine_procs["qqH_GE2J_MJJ_GT1500_PTH_GT200"] = ["qqH_GE2J_MJJ_GT1500_PTH_GT200_PTHJJ_0_25", "qqH_GE2J_MJJ_GT1500_PTH_GT200_PTHJJ_GT25"]
+
         self.stage1_2_fine_procs = stage1_2_fine_procs
         self.PROCESSES = [x for v in six.itervalues(stage1_2_procs) for x in v]
         self.FINEPROCESSES = [x for v in six.itervalues(stage1_2_fine_procs) for x in v]
@@ -271,6 +280,15 @@ class StageOnePTwo(STXSBaseModel):
         for dec in SM_HIGG_DECAYS:
             D = CMS_to_LHCHCG_DecSimple[dec]
             self.doVar("mu_BR_%s[1,0,5]" % (D))
+
+        if self.addHbbBoostedSplitting:
+            for registered_proc in ["qqH_GE2J_MJJ_1000_1500_PTH_GT200", "qqH_GE2J_MJJ_GT1500_PTH_GT200"]:
+                P = registered_proc
+                allProds.append(P)
+                self.doVar("mu_XS_%s[1,0,5]" % (P))
+                for dec in SM_HIGG_DECAYS:
+                    D = CMS_to_LHCHCG_DecSimple[dec]
+                    self.doVar("mu_XS_%s_BR_%s[1,0,5]" % (P, D))
 
         self.doMH()
         self.doVar("mu[1,0,5]")
