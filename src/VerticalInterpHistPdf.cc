@@ -1148,6 +1148,11 @@ void FastVerticalInterpHistPdf2D2::syncTotal() const {
     //printf("Normalized result\n");  _cache.Dump();
 }
 
+void FastVerticalInterpHistPdf2D2::translate(RooFit::Detail::CodeSquashContext &ctx) const
+{
+   ctx.addResult(this, "1.0");
+}
+
 Int_t FastVerticalInterpHistPdf2D2::getMaxVal(const RooArgSet& vars) const {
     //static int ncalls = 0;
     //if (++ncalls < 100) {
