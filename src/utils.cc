@@ -610,7 +610,6 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
 	      if (rebinFactor>1) ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
 	      else ds->plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson),RooFit::Binning(""));
 	    }
-            delete ds;
         }
         delete datasets;
     } else if (pdf.canBeExtended()) {
