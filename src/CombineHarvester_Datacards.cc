@@ -119,7 +119,6 @@ int CombineHarvester::ParseDatacard(std::string const& filename,
   std::vector<HistMapping> hist_mapping;
   // std::map<std::string, RooAbsData*> data_map;
   std::map<std::string, std::shared_ptr<TFile>> file_store;
-  std::map<std::string, std::shared_ptr<RooWorkspace>> ws_store;
 
   bool start_nuisance_scan = false;
   unsigned r = 0;

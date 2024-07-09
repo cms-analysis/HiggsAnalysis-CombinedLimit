@@ -480,6 +480,7 @@ class CombineHarvester {
   std::vector<std::shared_ptr<Systematic>> systs_;
   std::map<std::string, std::shared_ptr<Parameter>> params_;
   std::map<std::string, std::shared_ptr<RooWorkspace>> wspaces_;
+  std::map<std::string, std::shared_ptr<RooWorkspace>> ws_store;
 
   std::unordered_map<std::string, bool> flags_;
 
