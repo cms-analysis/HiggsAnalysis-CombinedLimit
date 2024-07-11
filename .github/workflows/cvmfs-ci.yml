@@ -56,6 +56,7 @@ jobs:
         name: tests on Combine paper inputs
         with:
           image: ${{ matrix.IMAGE }}
+          shell: bash
           options: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:rw -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
           run: |
             ls
