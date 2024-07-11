@@ -60,7 +60,6 @@ jobs:
           run: |
             ls
             ls cmssw/*
-  
             pwd
             cd /home/cmsusr/${CMSSW_VERSION}/src
             cmsenv
