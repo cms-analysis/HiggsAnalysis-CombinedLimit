@@ -37,6 +37,7 @@ jobs:
           run: | 
             pwd 
             cd /home/cmsusr/
+            ls .
             pwd
             ls /work/CombinedLimit
             source /cvmfs/cms.cern.ch/cmsset_default.sh
