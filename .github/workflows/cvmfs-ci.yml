@@ -33,7 +33,7 @@ jobs:
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  -v /home/cmsusr:/home/cmsusr:rw  -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
+          options: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  -v ../cmsusr:/home/cmsusr:rw  -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
           run: | 
             pwd 
             cd /home/cmsusr/
@@ -56,7 +56,7 @@ jobs:
         name: tests on Combine paper inputs
         with:
           image: ${{ matrix.IMAGE }}
-          options: -v /cvmfs:/cvmfs:shared -v /home/cmsusr:/home/cmsusr:rw  -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
+          options: -v /cvmfs:/cvmfs:shared -v ../cmsusr:/home/cmsusr:rw  -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
           run: |
             ls 
             pwd
