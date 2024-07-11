@@ -62,7 +62,8 @@ jobs:
             ls
             ls cmssw/*
             pwd
-            cd /home/cmsusr/cmssw/${CMSSW_VERSION}/src
+            mv cmssw/${CMSSW_VERSION} . 
+            cd /home/cmsusr/${CMSSW_VERSION}/src
             source /cvmfs/cms.cern.ch/cmsset_default.sh
             pwd            
             cmsenv
