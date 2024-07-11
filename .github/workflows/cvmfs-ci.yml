@@ -72,3 +72,18 @@ jobs:
             combine HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-5-multi-signal.txt -M ChannelCompatibilityCheck --mass 125
             text2workspace.py  HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
             combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root
+
+
+      - uses: rhaschke/docker-run-action@v5
+        name: CMSHistSum
+        with:
+          image: ${{ matrix.IMAGE }}
+          shell: bash
+          options: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:rw -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
+          run: |
+            mv cmssw/${CMSSW_VERSION} .
+            cd /home/cmsusr/${CMSSW_VERSION}/src
+            source /cvmfs/cms.cern.ch/cmsset_default.sh
+            cmsenv
+            text2workspace.py HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-5-multi-signal.txt --for-fits --no-wrappers --use-histsum  -o datacard-5-multi-signal.root --mass 125 
+            combine -M MultiDimFit datacard-5-multi-signal.root --algo singles 
