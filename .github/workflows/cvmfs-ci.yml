@@ -23,7 +23,7 @@ jobs:
             CMSSW_VERSION: "CMSSW_14_0_0_pre1" # ROOT v6.26/11
             SCRAM_ARCH: "el9_amd64_gcc12"
 
-    name: Test with ${{ matrix.CMSSW_VERSION }
+    name: Test with ${{ matrix.CMSSW_VERSION }}
     steps:
       - uses: actions/checkout@v4
       - uses: cvmfs-contrib/github-action-cvmfs@v4
