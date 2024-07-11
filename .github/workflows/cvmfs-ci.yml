@@ -61,7 +61,7 @@ jobs:
             ls
             ls cmssw/*
             pwd
-            cd /home/cmsusr/${CMSSW_VERSION}/src
+            cd /home/cmsusr/cmssw/src
             cmsenv
             combine HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01
             combine HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M HybridNew --LHCmode LHC-significance -T 100 --mass 125
