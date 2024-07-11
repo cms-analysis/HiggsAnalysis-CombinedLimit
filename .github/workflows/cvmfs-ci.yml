@@ -23,8 +23,7 @@ jobs:
             CMSSW_VERSION: "CMSSW_14_0_0_pre1" # ROOT v6.26/11
             SCRAM_ARCH: "el9_amd64_gcc12"
 
-    name: Test with ${{ matrix.CMSSW_VERSION }}
-    using: "composite"
+    name: Test with ${{ matrix.CMSSW_VERSION }
     steps:
       - uses: actions/checkout@v4
       - uses: cvmfs-contrib/github-action-cvmfs@v4
@@ -53,6 +52,10 @@ jobs:
       - name: tests on Combine paper inputs
         shell: bash -l {0}
         run: |
+            ls /work/CombinedLimit
+            cd ${CMSSW_VERSION}/src
+            cmsenv
+            pwd
             combine HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01
             combine HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M HybridNew --LHCmode LHC-significance -T 100 --mass 125
             combine HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M Significance --mass 125
