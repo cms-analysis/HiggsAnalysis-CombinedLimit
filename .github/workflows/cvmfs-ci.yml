@@ -49,9 +49,11 @@ jobs:
             root --version
             combine --help
             pwd
-      - name: tests on Combine paper inputs
+      - uses: rhaschke/docker-run-action@v5
+        name: tests on Combine paper inputs
         with:
-          options: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
+          image: ${{ matrix.IMAGE }}
+          options: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/${matrix.CMSSW_VERSION} -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
           run: |
             ls 
             pwd
