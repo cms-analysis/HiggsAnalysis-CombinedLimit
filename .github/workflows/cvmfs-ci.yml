@@ -57,9 +57,9 @@ jobs:
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:rw -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
+          options: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:ro -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
           run: |
-            mv cmssw/${CMSSW_VERSION} . 
+            cp -r cmssw/${CMSSW_VERSION} . 
             cd /home/cmsusr/${CMSSW_VERSION}/src
             source /cvmfs/cms.cern.ch/cmsset_default.sh           
             cmsenv
@@ -79,9 +79,9 @@ jobs:
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:rw -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
+          options: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:ro -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
           run: |
-            mv cmssw/${CMSSW_VERSION} .
+            cp -r cmssw/${CMSSW_VERSION} . 
             cd /home/cmsusr/${CMSSW_VERSION}/src
             source /cvmfs/cms.cern.ch/cmsset_default.sh
             cmsenv
