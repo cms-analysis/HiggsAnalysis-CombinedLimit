@@ -33,8 +33,9 @@ jobs:
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  -v /home/cmsusr:/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
+          options: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  -v /home/cmsusr:/home/cmsusr  -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
           run: | 
+            cd /home/cmsusr/
             ls /work/CombinedLimit
             ls /cvmfs/cms.cern.ch | grep common
             source /cvmfs/cms.cern.ch/cmsset_default.sh
@@ -53,11 +54,11 @@ jobs:
         name: tests on Combine paper inputs
         with:
           image: ${{ matrix.IMAGE }}
-          options: -v /cvmfs:/cvmfs:shared -v /home/cmsusr:/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
+          options: -v /cvmfs:/cvmfs:shared -v /home/cmsusr:/home/cmsusr  -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
           run: |
             ls 
             pwd
-            cd ${CMSSW_VERSION}/src
+            cd /home/cmsusr/${CMSSW_VERSION}/src
             cmsenv
             combine HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01
             combine HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M HybridNew --LHCmode LHC-significance -T 100 --mass 125
