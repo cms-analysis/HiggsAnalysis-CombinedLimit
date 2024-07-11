@@ -24,6 +24,7 @@ jobs:
             SCRAM_ARCH: "el9_amd64_gcc12"
 
     name: Test with ${{ matrix.CMSSW_VERSION }}
+    using: "composite"
     steps:
       - uses: actions/checkout@v4
       - uses: cvmfs-contrib/github-action-cvmfs@v4
