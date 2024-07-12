@@ -7,7 +7,7 @@ on:
     branches:
       - main
 
-inputs:
+env:
   docker_opt_rw: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  --mount source=cmsusr,destination=/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
   docker_opt_ro: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:ro -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
 
@@ -37,7 +37,7 @@ jobs:
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: ${{inputs.docker_opt_rw}}
+          options: ${{env.docker_opt_rw}}
           run: | 
             cd /home/cmsusr/
             source /cvmfs/cms.cern.ch/cmsset_default.sh
@@ -56,7 +56,7 @@ jobs:
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: ${{inputs.docker_opt_ro}}
+          options: ${{env.docker_opt_ro}}
           run: |
             cp -r cmssw/${CMSSW_VERSION} .
             cd /home/cmsusr/${CMSSW_VERSION}/src
@@ -70,7 +70,7 @@ jobs:
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: ${{inputs.docker_opt_ro}}
+          options: ${{env.docker_opt_ro}}
           run: |
             cp -r cmssw/${CMSSW_VERSION} .
             cd /home/cmsusr/${CMSSW_VERSION}/src
@@ -85,7 +85,7 @@ jobs:
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: ${{inputs.docker_opt_ro}}
+          options: ${{env.docker_opt_ro}}
           run: |
             cp -r cmssw/${CMSSW_VERSION} . 
             cd /home/cmsusr/${CMSSW_VERSION}/src
@@ -100,7 +100,7 @@ jobs:
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: ${{inputs.docker_opt_ro}}
+          options: ${{env.docker_opt_ro}}
           run: |
             cp -r cmssw/${CMSSW_VERSION} .
             cd /home/cmsusr/${CMSSW_VERSION}/src
@@ -114,7 +114,7 @@ jobs:
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: ${{inputs.docker_opt_ro}}
+          options: ${{env.docker_opt_ro}}
           run: |
             cp -r cmssw/${CMSSW_VERSION} .
             cd /home/cmsusr/${CMSSW_VERSION}/src
@@ -129,7 +129,7 @@ jobs:
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: ${{inputs.docker_opt_ro}}
+          options: ${{env.docker_opt_ro}}
           run: |
             cp -r cmssw/${CMSSW_VERSION} .
             cd /home/cmsusr/${CMSSW_VERSION}/src
@@ -144,7 +144,7 @@ jobs:
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: ${{inputs.docker_opt_ro}}
+          options: ${{env.docker_opt_ro}}
           run: |
             cp -r cmssw/${CMSSW_VERSION} .
             cd /home/cmsusr/${CMSSW_VERSION}/src
