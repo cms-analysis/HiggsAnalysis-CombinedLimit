@@ -31,6 +31,7 @@ jobs:
         with:
           cvmfs_repositories: 'cms.cern.ch'
       - uses: rhaschke/docker-run-action@v5
+        name: Build Combine
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
