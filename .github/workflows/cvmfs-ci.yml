@@ -12,7 +12,7 @@ env:
   docker_opt_ro: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:ro -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
 
 jobs:
-  test_workflow:
+  test_workflow:      
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -26,7 +26,9 @@ jobs:
         #  - IMAGE: "cmscloud/al9-cms"
         #    CMSSW_VERSION: "CMSSW_14_0_0_pre1" # ROOT v6.26/11
         #    SCRAM_ARCH: "el9_amd64_gcc12"
-
+    env:
+      docker_opt_rw: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  --mount source=cmsusr,destination=/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
+      docker_opt_ro: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:ro -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}     
     name: Test with ${{ matrix.CMSSW_VERSION }}
     steps:
       - uses: actions/checkout@v4
