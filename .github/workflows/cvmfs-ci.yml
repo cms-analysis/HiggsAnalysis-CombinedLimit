@@ -14,13 +14,13 @@ jobs:
         IMAGE: ["cmscloud/al9-cms"]
         CMSSW_VERSION: ["CMSSW_14_1_0_pre4"] # ROOT v6.30/07
         SCRAM_ARCH: ["el9_amd64_gcc12"]
-        #include:
-        #  - IMAGE: "cmscloud/cc7-cms"
-        #    CMSSW_VERSION: "CMSSW_11_3_4" # ROOT v6.22
-        #    SCRAM_ARCH: "slc7_amd64_gcc900"
-        #  - IMAGE: "cmscloud/al9-cms"
-        #    CMSSW_VERSION: "CMSSW_14_0_0_pre1" # ROOT v6.26/11
-        #    SCRAM_ARCH: "el9_amd64_gcc12"
+        include:
+          - IMAGE: "cmscloud/cc7-cms"
+            CMSSW_VERSION: "CMSSW_11_3_4" # ROOT v6.22
+            SCRAM_ARCH: "slc7_amd64_gcc900"
+          - IMAGE: "cmscloud/al9-cms"
+            CMSSW_VERSION: "CMSSW_14_0_0_pre1" # ROOT v6.26/11
+            SCRAM_ARCH: "el9_amd64_gcc12"
     env:
       docker_opt_rw: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  --mount source=cmsusr,destination=/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
       docker_opt_ro: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:ro -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
@@ -74,7 +74,7 @@ jobs:
             source /cvmfs/cms.cern.ch/cmsset_default.sh
             cmsenv
             text2workspace.py HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -o ws_parametric-analysis.root --mass 125
-            combine -M MultiDimFit ws_parametric-analysis.root  --algo singles --setParameterRanges r=-1,1
+            combine -M MultiDimFit ws_parametric-analysis.root  --algo singles --setParameterRanges r=-2,1
 
 
       - uses: rhaschke/docker-run-action@v5
@@ -90,7 +90,7 @@ jobs:
             cmsenv
             text2workspace.py HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-2-template-analysis.txt -o ws_template-analysis.root --mass 125 
             combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1
-            combine -M FitDiagnostics ws_template-analysis.root  --plots  --setParameterRanges r=-1,1
+            combine -M FitDiagnostics ws_template-analysis.root  -t -1 --setParameters r=1 --plots  --setParameterRanges r=-1,1
 
       - uses: rhaschke/docker-run-action@v5
         name: Template analysis CMSHistSum
