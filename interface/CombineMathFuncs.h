@@ -19,9 +19,15 @@ inline double smoothStepFunc(double x, double smoothRegion)
 template <int NBins>
 double
 fastVerticalInterpHistPdf2(int binIdx, int nCoefs, double const *coefs, double const *nominal, double const *binWidth,
-                           double const *morphsSum, double const *morphsDiff, double smoothRegion)
+                           double const *morphsSum, double const *morphsDiff, double smoothRegion, int offsetIdx)
 {
    double out[NBins];
+
+   coefs = coefs + offsetIdx;
+   nominal = nominal + offsetIdx;
+   binWidth = binWidth + offsetIdx;
+   morphsSum = morphsSum + offsetIdx;
+   morphsDiff = morphsDiff + offsetIdx;
 
    for (int iBin = 0; iBin < NBins; ++iBin) {
       out[iBin] = nominal[iBin];
