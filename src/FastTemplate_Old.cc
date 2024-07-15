@@ -6,6 +6,8 @@
 #include <cstdio>
 #include <algorithm>
 
+#include <iostream>
+
 FastTemplate::T FastTemplate::Integral() const {
     DefaultAccumulator<double> total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i];
@@ -146,6 +148,7 @@ FastHisto2D::T FastHisto2D::GetAt(const T &x, const T &y) const {
     auto matchy = std::lower_bound(binEdgesY_.begin(), binEdgesY_.end(), y);
     if (matchy == binEdgesY_.begin() || matchy == binEdgesY_.end()) return T(0.0);
     int iy = (matchy - binEdgesY_.begin() - 1);
+    //std::cout << "ix " << ix << " iy " << iy << std::endl;
     return values_[ix * binY_ + iy];
 }
 
