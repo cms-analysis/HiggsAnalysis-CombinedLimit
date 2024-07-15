@@ -12,19 +12,22 @@ jobs:
     strategy:
       matrix:
         IMAGE: ["cmscloud/al9-cms"]
-        CMSSW_VERSION: ["CMSSW_14_1_0_pre4"] # ROOT v6.30/07
+        CMSSW_VERSION: ["CMSSW_14_1_0_pre4"] 
         SCRAM_ARCH: ["el9_amd64_gcc12"]
+        ROOT: ["ROOT v6.30"]
         include:
           - IMAGE: "cmscloud/cc7-cms"
-            CMSSW_VERSION: "CMSSW_11_3_4" # ROOT v6.22
+            CMSSW_VERSION: "CMSSW_11_3_4" 
             SCRAM_ARCH: "slc7_amd64_gcc900"
+            ROOT: "ROOT v6.22/08"
           - IMAGE: "cmscloud/al9-cms"
-            CMSSW_VERSION: "CMSSW_14_0_0_pre1" # ROOT v6.26/11
+            CMSSW_VERSION: "CMSSW_14_0_0_pre1" 
             SCRAM_ARCH: "el9_amd64_gcc12"
+            ROOT: "ROOT v6.26/11"
     env:
       docker_opt_rw: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  --mount source=cmsusr,destination=/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
       docker_opt_ro: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:ro -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
-    name: Test with ${{ matrix.CMSSW_VERSION }}
+    name: Test with ${{ matrix.CMSSW_VERSION }} and ${{ matrix.ROOT }} 
     steps:
       - uses: actions/checkout@v4
       - uses: cvmfs-contrib/github-action-cvmfs@v4
@@ -108,11 +111,11 @@ jobs:
 
       - uses: rhaschke/docker-run-action@v5
         name: RooMultiPdf
+        if: ${{ startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: ${{env.docker_opt_ro}}
-          if: ${{ startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }} 
+          options: ${{env.docker_opt_ro}} 
           run: |
             cp -r cmssw/${CMSSW_VERSION} .
             cd /home/cmsusr/${CMSSW_VERSION}/src
@@ -128,7 +131,6 @@ jobs:
           image: ${{ matrix.IMAGE }}
           shell: bash
           options: ${{env.docker_opt_ro}}
-          if: ${{ startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
           run: |
             cp -r cmssw/${CMSSW_VERSION} .
             cd /home/cmsusr/${CMSSW_VERSION}/src
@@ -140,11 +142,11 @@ jobs:
 
       - uses: rhaschke/docker-run-action@v5
         name: RooHistPdf
+        if: ${{ startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
           options: ${{env.docker_opt_ro}}
-          if: ${{ startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
           run: |
             cp -r cmssw/${CMSSW_VERSION} .
             cd /home/cmsusr/${CMSSW_VERSION}/src
