@@ -112,7 +112,7 @@ jobs:
           image: ${{ matrix.IMAGE }}
           shell: bash
           options: ${{env.docker_opt_ro}}
-          if: startsWith(matrix.CMSSW_VERSION, 'CMSSW_14')
+          if: ${{ startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }} 
           run: |
             cp -r cmssw/${CMSSW_VERSION} .
             cd /home/cmsusr/${CMSSW_VERSION}/src
@@ -128,7 +128,7 @@ jobs:
           image: ${{ matrix.IMAGE }}
           shell: bash
           options: ${{env.docker_opt_ro}}
-          if: startsWith(matrix.CMSSW_VERSION, 'CMSSW_14')
+          if: ${{ startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
           run: |
             cp -r cmssw/${CMSSW_VERSION} .
             cd /home/cmsusr/${CMSSW_VERSION}/src
@@ -144,7 +144,7 @@ jobs:
           image: ${{ matrix.IMAGE }}
           shell: bash
           options: ${{env.docker_opt_ro}}
-          if: startsWith(matrix.CMSSW_VERSION, 'CMSSW_14')
+          if: ${{ startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
           run: |
             cp -r cmssw/${CMSSW_VERSION} .
             cd /home/cmsusr/${CMSSW_VERSION}/src
