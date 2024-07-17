@@ -72,6 +72,8 @@ public:
   RooArgList wrapperList() const;
   RooArgList const& coefList() const { return coeffs_; }
   RooArgList const& funcList() const { return funcs_; }
+  
+  std::map<std::string, Double_t> getProcessNorms() const;
 
   friend class CMSHistV<CMSHistErrorPropagator>;
 

@@ -49,14 +49,14 @@ parser.add_option(
     type="float",
     help="Only print values if yield is less than this threshold.",
 )
-parser.add_option(
-    "",
-    "--use-cms-histsum",
-    dest="use_cms_histsum",
-    default=False,
-    action="store_true",
-    help="Set to true if workspace built with --use-cms-histsum option.",
-)
+#parser.add_option(
+#    "",
+#    "--use-cms-histsum",
+#    dest="use_cms_histsum",
+#    default=False,
+#    action="store_true",
+#    help="Set to true if workspace built with --use-cms-histsum option.",
+#)
 parser.add_option(
     "",
     "--procFilter",
@@ -169,17 +169,23 @@ for i in range(all_norms.getSize()):
     else:
         chan_procs[chan] = [[proc, norm, 0, 0]]
 
+use_cms_histsum = False 
+
+all_props = ws.allFunctions().selectByName("prop_bin*")
+if all_props.getSize()>0: use_cms_histsum=True
+
 # Look for cases where chan stored as CMSHistSum, set flag
-if options.use_cms_histsum:
+if use_cms_histsum:
     chan_CMSHistSum_norms = {}
-    all_props = ws.allFunctions().selectByName("prop_bin*")
+    #all_props = ws.allFunctions().selectByName("prop_bin*")
     for chan in chan_procs.keys():
         prop_it = all_props.createIterator()
         for i in range(all_props.getSize()):
             prop = prop_it.Next()
             prop_name = prop.GetName()
             if chan == prop_name.split("_bin")[-1]:
-                if type(prop) == ROOT.CMSHistSum:
+                types = [ROOT.CMSHistSum, ROOT.CMSHistErrorPropagator]
+                if type(prop) in types :
                     chan_CMSHistSum_norms[chan] = dict(prop.getProcessNorms())
 
 
@@ -243,7 +249,7 @@ if options.format == "html":
                 continue
             print("<hr>")
             print("Top-level normalization for process {proc0} -> {proc1_name}<br>".format(proc0=proc[0], proc1_name=proc[1].GetName()))
-            if options.use_cms_histsum:
+            if use_cms_histsum:
                 if chan in chan_CMSHistSum_norms:
                     default_val = chan_CMSHistSum_norms[chan][proc[1].GetName()]
                 else:
@@ -253,7 +259,7 @@ if options.format == "html":
             default_norms[chan][proc[1].GetName()] = default_val
 
             if options.printValueOnly:
-                print("default value = {default_val}<br>".format(default_val=default_val))
+                print("default value = {default_val:.5f}<br>".format(default_val=default_val))
             else:
                 if proc[2]:
                     proc_norm_var = ws.function("n_exp_bin%s_proc_%s" % (chan, proc[0]))
@@ -289,7 +295,7 @@ if options.format == "html":
                         print(" ... is a constant (RooRealVar)")
                         printEndExpand()
 
-            print("  default value = ", default_val, "<br>")
+            print("  default value = %.5f "%default_val, "<br>")
             print("</tr>")
 
     print(
@@ -320,7 +326,7 @@ if options.format == "text":
             print("---------------------------------------------------------------------------")
             print("  Top-level normalization for process %s -> %s" % (proc[0], proc[1].GetName()))
             print("---------------------------------------------------------------------------")
-            if options.use_cms_histsum:
+            if use_cms_histsum:
                 if chan in chan_CMSHistSum_norms:
                     default_val = chan_CMSHistSum_norms[chan][proc[1].GetName()]
                 else:
@@ -330,7 +336,7 @@ if options.format == "text":
             default_norms[chan][proc[1].GetName()] = default_val
 
             if options.printValueOnly:
-                print("  default value = ", default_val)
+                print("  default value = %.5f "%default_val)
             # if options.printValueOnly: print " --xcp %s:%s "%(chan,proc[0]),
             else:
                 if proc[2]:
@@ -354,7 +360,7 @@ if options.format == "text":
                         proc[1].Print()
                         print(" ... is a constant (RooRealVar)")
                 print("  -------------------------------------------------------------------------")
-                print("  default value = ", default_val)
+                print("  default value = %.5f "%default_val)
 
 # Save norms to json file
 if options.output_json != "":
