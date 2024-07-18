@@ -16,18 +16,10 @@ inline double smoothStepFunc(double x, double smoothRegion)
    return 0.125 * xnorm * (xnorm2 * (3. * xnorm2 - 10.) + 15);
 }
 
-inline double
-fastVerticalInterpHistPdf2(int nBins, int binIdx, int nCoefs, double const *coefs, double const *nominal, double const *binWidth,
-                           double const *morphsSum, double const *morphsDiff, double smoothRegion, int offsetIdx)
+inline void fastVerticalInterpHistPdf2(int nBins, int nCoefs, double const *coefs, double const *nominal,
+                                       double const *binWidth, double const *morphsSum, double const *morphsDiff,
+                                       double smoothRegion, double *out)
 {
-   double out[nBins];
-
-   coefs = coefs + offsetIdx;
-   nominal = nominal + offsetIdx;
-   binWidth = binWidth + offsetIdx;
-   morphsSum = morphsSum + offsetIdx;
-   morphsDiff = morphsDiff + offsetIdx;
-
    for (int iBin = 0; iBin < nBins; ++iBin) {
       out[iBin] = nominal[iBin];
    }
@@ -56,8 +48,60 @@ fastVerticalInterpHistPdf2(int nBins, int binIdx, int nCoefs, double const *coef
          out[iBin] *= normSumInv;
       }
    }
+}
 
-   return out[binIdx];
+inline double fastVerticalInterpHistPdf2D2(int nBinsY, int binIdxX, int binIdxY, int nCoefs, double const *coefs,
+                                           double const *nominal, double const *binWidth, double const *morphsSum,
+                                           double const *morphsDiff, double smoothRegion)
+{
+   int nBinsX = 1;
+   int offsetIdx = nBinsY * binIdxX;
+
+   double out[nBinsY];
+
+   coefs = coefs + offsetIdx;
+   nominal = nominal + offsetIdx;
+   binWidth = binWidth + offsetIdx;
+   morphsSum = morphsSum + offsetIdx;
+   morphsDiff = morphsDiff + offsetIdx;
+
+   int nBins = nBinsX * nBinsY;
+
+   for (int iBin = 0; iBin < nBins; ++iBin) {
+      out[iBin] = nominal[iBin];
+   }
+
+   for (int iBinX = 0; iBinX < nBinsX; ++iBinX) {
+
+      double normSum = 0.0;
+
+      for (int iBinY = 0; iBinY < nBinsY; ++iBinY) {
+         int iBin = iBinY + nBinsY * iBinX;
+         // apply all morphs one by one
+         for (int iCoef = 0; iCoef < nCoefs; ++iCoef) {
+            double const *sum = morphsSum + iCoef * nBinsY;
+            double const *diff = morphsDiff + iCoef * nBinsY;
+            double x = coefs[iCoef];
+            double a = 0.5 * x;
+            double b = smoothStepFunc(x, smoothRegion);
+
+            out[iBin] += a * (diff[iBin] + b * sum[iBin]);
+         }
+
+         out[iBin] = std::max(1e-9, out[iBin]);
+         normSum += out[iBin] * binWidth[iBin];
+      }
+
+      if (normSum > 0.0) {
+         double normSumInv = 1. / normSum;
+         for (int iBinY = 0; iBinY < nBinsY; ++iBinY) {
+            int iBin = iBinY + nBinsY * iBinX;
+            out[iBin] *= normSumInv;
+         }
+      }
+   }
+
+   return out[binIdxY];
 }
 
 inline double logKappaForX(double theta, double logKappaLow, double logKappaHigh)
@@ -114,8 +158,8 @@ inline double processNormalization(double nominalValue, std::size_t nThetas, std
    return norm;
 }
 
-} // MathFuncs
-} // Detail
-} // RooFit
+} // namespace MathFuncs
+} // namespace Detail
+} // namespace RooFit
 
 #endif
