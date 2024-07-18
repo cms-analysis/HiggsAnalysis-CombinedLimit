@@ -50,21 +50,10 @@ inline void fastVerticalInterpHistPdf2(int nBins, int nCoefs, double const *coef
    }
 }
 
-inline double fastVerticalInterpHistPdf2D2(int nBinsY, int binIdxX, int binIdxY, int nCoefs, double const *coefs,
+inline void fastVerticalInterpHistPdf2D2(int nBinsX, int nBinsY, int nCoefs, double const *coefs,
                                            double const *nominal, double const *binWidth, double const *morphsSum,
-                                           double const *morphsDiff, double smoothRegion)
+                                           double const *morphsDiff, double smoothRegion, double *out)
 {
-   int nBinsX = 1;
-   int offsetIdx = nBinsY * binIdxX;
-
-   double out[nBinsY];
-
-   coefs = coefs + offsetIdx;
-   nominal = nominal + offsetIdx;
-   binWidth = binWidth + offsetIdx;
-   morphsSum = morphsSum + offsetIdx;
-   morphsDiff = morphsDiff + offsetIdx;
-
    int nBins = nBinsX * nBinsY;
 
    for (int iBin = 0; iBin < nBins; ++iBin) {
@@ -100,8 +89,6 @@ inline double fastVerticalInterpHistPdf2D2(int nBinsY, int binIdxX, int binIdxY,
          }
       }
    }
-
-   return out[binIdxY];
 }
 
 inline double logKappaForX(double theta, double logKappaLow, double logKappaHigh)
