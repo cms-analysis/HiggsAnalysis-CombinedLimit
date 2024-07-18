@@ -1216,7 +1216,17 @@ void FastVerticalInterpHistPdf2D2::translate(RooFit::Detail::CodeSquashContext &
    double yHigh = yVar.getMax();
    std::string binIdxY = ctx.buildCall("RooFit::Detail::MathFuncs::getUniformBinning", yLow, yHigh, _y, numBinsY);
 
-   ctx.addResult(this, ctx.buildCall("RooFit::Detail::MathFuncs::fastVerticalInterpHistPdf2D2", numBinsY, binIdxX, binIdxY, _coefList.size(), _coefList, nominalVec, widthVec, morphsVecSum, morphsVecDiff, _smoothRegion));
+   std::stringstream binIdx;
+   binIdx << "(" << binIdxY << " + " << yVar.numBins() << " * " << binIdxX << ")";
+
+   std::string arrName = ctx.getTmpVarName();
+
+   std::stringstream code;
+   code << "double " << arrName << "[" << (numBinsX * numBinsY) << "];\n";
+   code << ctx.buildCall("RooFit::Detail::MathFuncs::fastVerticalInterpHistPdf2D2", numBinsX, numBinsY, _coefList.size(), _coefList, nominalVec, widthVec, morphsVecSum, morphsVecDiff, _smoothRegion, arrName) + ";\n";
+
+   ctx.addToCodeBody(code.str(), true);
+   ctx.addResult(this, arrName + "[" + binIdx.str() + "]");
 }
 
 Int_t FastVerticalInterpHistPdf2D2::getMaxVal(const RooArgSet& vars) const {
