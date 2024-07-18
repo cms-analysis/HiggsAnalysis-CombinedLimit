@@ -16,12 +16,11 @@ inline double smoothStepFunc(double x, double smoothRegion)
    return 0.125 * xnorm * (xnorm2 * (3. * xnorm2 - 10.) + 15);
 }
 
-template <int NBins>
-double
-fastVerticalInterpHistPdf2(int binIdx, int nCoefs, double const *coefs, double const *nominal, double const *binWidth,
+inline double
+fastVerticalInterpHistPdf2(int nBins, int binIdx, int nCoefs, double const *coefs, double const *nominal, double const *binWidth,
                            double const *morphsSum, double const *morphsDiff, double smoothRegion, int offsetIdx)
 {
-   double out[NBins];
+   double out[nBins];
 
    coefs = coefs + offsetIdx;
    nominal = nominal + offsetIdx;
@@ -29,17 +28,17 @@ fastVerticalInterpHistPdf2(int binIdx, int nCoefs, double const *coefs, double c
    morphsSum = morphsSum + offsetIdx;
    morphsDiff = morphsDiff + offsetIdx;
 
-   for (int iBin = 0; iBin < NBins; ++iBin) {
+   for (int iBin = 0; iBin < nBins; ++iBin) {
       out[iBin] = nominal[iBin];
    }
 
    double normSum = 0.0;
 
-   for (int iBin = 0; iBin < NBins; ++iBin) {
+   for (int iBin = 0; iBin < nBins; ++iBin) {
       // apply all morphs one by one
       for (int iCoef = 0; iCoef < nCoefs; ++iCoef) {
-         double const *sum = morphsSum + iCoef * NBins;
-         double const *diff = morphsDiff + iCoef * NBins;
+         double const *sum = morphsSum + iCoef * nBins;
+         double const *diff = morphsDiff + iCoef * nBins;
          double x = coefs[iCoef];
          double a = 0.5 * x;
          double b = smoothStepFunc(x, smoothRegion);
@@ -53,7 +52,7 @@ fastVerticalInterpHistPdf2(int binIdx, int nCoefs, double const *coefs, double c
 
    if (normSum > 0.0) {
       double normSumInv = 1. / normSum;
-      for (int iBin = 0; iBin < NBins; ++iBin) {
+      for (int iBin = 0; iBin < nBins; ++iBin) {
          out[iBin] *= normSumInv;
       }
    }

@@ -1138,7 +1138,7 @@ void FastVerticalInterpHistPdf2::translate(RooFit::Detail::CodeSquashContext &ct
    double xHigh = xVar.getMax();
    std::string binIdx = ctx.buildCall("RooFit::Detail::MathFuncs::getUniformBinning", xLow, xHigh, _x, numBins);
 
-   ctx.addResult(this, ctx.buildCall("RooFit::Detail::MathFuncs::fastVerticalInterpHistPdf2<" + std::to_string(numBins) + ">", binIdx, _coefList.size(), _coefList, nominalVec, widthVec, morphsVecSum, morphsVecDiff, _smoothRegion, 0));
+   ctx.addResult(this, ctx.buildCall("RooFit::Detail::MathFuncs::fastVerticalInterpHistPdf2", numBins, binIdx, _coefList.size(), _coefList, nominalVec, widthVec, morphsVecSum, morphsVecDiff, _smoothRegion, 0));
 }
 
 void FastVerticalInterpHistPdf2D2::syncTotal() const {
@@ -1215,7 +1215,7 @@ void FastVerticalInterpHistPdf2D2::translate(RooFit::Detail::CodeSquashContext &
    std::stringstream binIdxOffset;
    binIdxOffset << "(" << yVar.numBins() << " * " << binIdxX << ")";
 
-   ctx.addResult(this, ctx.buildCall("RooFit::Detail::MathFuncs::fastVerticalInterpHistPdf2<" + std::to_string(numBinsY) + ">", binIdxY, _coefList.size(), _coefList, nominalVec, widthVec, morphsVecSum, morphsVecDiff, _smoothRegion, binIdxOffset.str()));
+   ctx.addResult(this, ctx.buildCall("RooFit::Detail::MathFuncs::fastVerticalInterpHistPdf2", numBinsY, binIdxY, _coefList.size(), _coefList, nominalVec, widthVec, morphsVecSum, morphsVecDiff, _smoothRegion, binIdxOffset.str()));
 }
 
 Int_t FastVerticalInterpHistPdf2D2::getMaxVal(const RooArgSet& vars) const {
