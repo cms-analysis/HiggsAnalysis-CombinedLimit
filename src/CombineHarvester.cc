@@ -476,6 +476,7 @@ void CombineHarvester::LoadShapes(Process* entry,
     // Post-condition #4
     // Import any paramters of the RooAbsPdf and the RooRealVar
     RooAbsData const* data_obj = FindMatchingData(entry);
+    bool twoD_flag = false;
     if (data_obj) {
       if (verbosity_ >= 2) LOGLINE(log(), "Matching RooAbsData has been found");
       if (pdf&&!data) {
@@ -483,9 +484,25 @@ void CombineHarvester::LoadShapes(Process* entry,
         ImportParameters(&argset);
         if (!entry->observable()) {
           std::string var_name;
-          if (data_obj) var_name = data_obj->get()->first()->GetName();
+          std::string var_name_y;
+          
+          if (data_obj) {
+            var_name = data_obj->get()->first()->GetName();
+            RooArgSet* temp_vars = (RooArgSet*)data_obj->get()->Clone();
+            twoD_flag = temp_vars->getSize()>1;
+            if(twoD_flag){
+              RooAbsArg* temp_xvar = data_obj->get()->first();
+              temp_vars->remove(*temp_xvar,true,true);
+              var_name_y = temp_vars->first()->GetName();
+              }
+            delete temp_vars;
+          }
+          // if (data_obj) var_name = data_obj->get()->first()->GetName();
           entry->set_observable(
               (RooRealVar*)entry->pdf()->findServer(var_name.c_str()));
+          if(twoD_flag)
+            entry->set_observable_y(
+                (RooRealVar*)entry->pdf()->findServer(var_name_y.c_str()));
         }
       }
       if (norm) {
@@ -576,7 +593,6 @@ void CombineHarvester::LoadShapes(Systematic* entry,
   } else if (mapping.IsPdf()) {
     if (verbosity_ >= 2) LOGLINE(log(), "Mapping type is RooDataHist");
     // Try and get this as RooAbsData first. If this doesn't work try pdf
-    
     RooDataHist* h =
         (mapping.sys_ws) ? dynamic_cast<RooDataHist*>(mapping.sys_ws->data(mapping.WorkspaceObj().c_str())) : nullptr;
     RooDataHist* h_u =

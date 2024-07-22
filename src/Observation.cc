@@ -125,6 +125,26 @@ TH1F Observation::ShapeAsTH1F() const {
   return res;
 }
 
+TH2F Observation::ShapeAsTH2F() const {
+  if (!shape_) {
+    throw std::runtime_error(
+        FNERROR("Observation object does not contain a shape"));
+  }
+  TH2F res;
+  // Need to get the shape as a concrete type (TH2F or TH2D)
+  // A nice way to do this is just to use TH2D::Copy into a fresh TH2F
+  TH2F const* test_f = dynamic_cast<TH2F const*>(this->shape());
+  TH2D const* test_d = dynamic_cast<TH2D const*>(this->shape());
+  if (test_f) {
+    test_f->Copy(res);
+  } else if (test_d) {
+    test_d->Copy(res);
+  } else {
+    throw std::runtime_error(FNERROR("TH2 shape is not a TH2F or a TH2D"));
+  }
+  return res;
+}
+
 std::ostream& Observation::PrintHeader(std::ostream &out) {
   std::string line =
     (boost::format("%-6s %-9s %-6s %-8s %-28s %-3i %-21s %-10.5g %-5i")

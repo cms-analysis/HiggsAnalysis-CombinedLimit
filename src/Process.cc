@@ -26,6 +26,7 @@ Process::Process()
       data_(nullptr),
       norm_(nullptr),
       cached_obs_(nullptr),
+      cached_obsy_(nullptr),
       cached_int_(nullptr) {
   }
 
@@ -42,6 +43,7 @@ void swap(Process& first, Process& second) {
   swap(first.data_, second.data_);
   swap(first.norm_, second.norm_);
   swap(first.cached_obs_, second.cached_obs_);
+  swap(first.cached_obsy_, second.cached_obsy_);
   swap(first.cached_int_, second.cached_int_);
 }
 
@@ -52,6 +54,7 @@ Process::Process(Process const& other)
       data_(other.data_),
       norm_(other.norm_),
       cached_obs_(other.cached_obs_),
+      cached_obsy_(other.cached_obsy_),
       cached_int_(nullptr) {
   TH1 *h = nullptr;
   if (other.shape_) {
@@ -69,6 +72,7 @@ Process::Process(Process&& other)
       data_(nullptr),
       norm_(nullptr),
       cached_obs_(nullptr),
+      cached_obsy_(nullptr),
       cached_int_(nullptr) {
   swap(*this, other);
 }
@@ -143,6 +147,38 @@ TH1F Process::ShapeAsTH1F() const {
     std::string var_name = this->data()->get()->first()->GetName();
     TH1F *tmp = dynamic_cast<TH1F*>(this->data()->createHistogram(
                            var_name.c_str()));
+    res = *tmp;
+    delete tmp;
+    if (res.Integral() > 0.) res.Scale(1. / res.Integral());
+  }
+  return res;
+}
+
+TH2F Process::ShapeAsTH2F() const {
+  if (!shape_ && !data_) {
+    throw std::runtime_error(
+        FNERROR("Process object does not contain a shape"));
+  }
+  TH2F res;
+  if (this->shape()) {
+    // Need to get the shape as a concrete type (TH2F or TH1D)
+    // A nice way to do this is just to use TH1D::Copy into a fresh TH2F
+    TH2F const* test_f = dynamic_cast<TH2F const*>(this->shape());
+    TH2D const* test_d = dynamic_cast<TH2D const*>(this->shape());
+    if (test_f) {
+      test_f->Copy(res);
+    } else if (test_d) {
+      test_d->Copy(res);
+    } else {
+      throw std::runtime_error(FNERROR("TH2 shape is not a TH2F or a TH2D"));
+    }
+  } else if (this->data()) {
+    RooArgSet* temp_vars = (RooArgSet*)this->data()->get()->Clone();
+    RooRealVar temp_xvar = *(RooRealVar*)temp_vars->first();
+    temp_vars->remove(temp_xvar,true,true);
+    RooRealVar temp_yvar = *(RooRealVar*)temp_vars->first();
+    TH2F *tmp = dynamic_cast<TH2F*>(this->data()->createHistogram("",
+                           temp_xvar,RooFit::YVar(temp_yvar)));
     res = *tmp;
     delete tmp;
     if (res.Integral() > 0.) res.Scale(1. / res.Integral());

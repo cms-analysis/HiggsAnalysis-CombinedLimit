@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include "TH1.h"
+#include "TH2F.h"
 #include "RooAbsData.h"
 #include "CombineHarvester/CombineTools/interface/MakeUnique.h"
 #include "CombineHarvester/CombineTools/interface/Object.h"
@@ -30,6 +31,7 @@ class Observation : public Object {
   std::unique_ptr<TH1> ClonedScaledShape() const;
 
   TH1F ShapeAsTH1F() const;
+  TH2F ShapeAsTH2F() const;
 
   void set_data(RooAbsData* data) { data_ = data; }
   RooAbsData const* data() const { return data_; }

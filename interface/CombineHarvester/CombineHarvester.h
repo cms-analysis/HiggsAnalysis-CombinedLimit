@@ -20,7 +20,7 @@
 #include "CombineHarvester/CombineTools/interface/Observation.h"
 #include "CombineHarvester/CombineTools/interface/Utilities.h"
 #include "CombineHarvester/CombineTools/interface/HistMapping.h"
-
+#include "HiggsAnalysis/CombinedLimit/interface/VerticalInterpPdf.h"
 
 namespace ch {
 
@@ -276,6 +276,7 @@ class CombineHarvester {
   void VariableRebin(std::vector<double> bins);
   void ZeroBins(double min, double max);
   void SetPdfBins(unsigned nbins);
+  void Set2DPdfBins(unsigned nbinsx, unsigned nbinsy);
 
   // 
   double getParFromWs(const std::string name);
@@ -354,6 +355,8 @@ class CombineHarvester {
   TH1F GetShape();
   TH1F GetShapeWithUncertainty();
 
+  TH2F Get2DShape();
+  TH2F Get2DShapeWithUncertainty();
   /**
    * Sum all Process shapes and evaluate bin-wise uncertainty by sampling from
    * the fit convariance matrix
@@ -366,6 +369,10 @@ class CombineHarvester {
   TH1F GetShapeWithUncertainty(RooFitResult const* fit, unsigned n_samples);
   TH1F GetShapeWithUncertainty(RooFitResult const& fit, unsigned n_samples);
   TH1F GetObservedShape();
+
+  TH2F Get2DShapeWithUncertainty(RooFitResult const* fit, unsigned n_samples);
+  TH2F Get2DShapeWithUncertainty(RooFitResult const& fit, unsigned n_samples);
+  TH2F GetObserved2DShape();
 
   TH2F GetRateCovariance(RooFitResult const& fit, unsigned n_samples);
   TH2F GetRateCorrelation(RooFitResult const& fit, unsigned n_samples);
@@ -574,6 +581,9 @@ void FillHistMappings(std::vector<HistMapping> & mappings);
   TH1F GetShapeInternal(ProcSystMap const& lookup,
     std::string const& single_sys = "");
 
+  TH2F Get2DShapeInternal(ProcSystMap const& lookup,
+    std::string const& single_sys = "");
+
   inline double smoothStepFunc(double x) const {
     if (std::fabs(x) >= 1.0/*_smoothRegion*/) return x > 0 ? +1 : -1;
     double xnorm = x/1.0;/*_smoothRegion*/
@@ -590,6 +600,10 @@ void FillHistMappings(std::vector<HistMapping> & mappings);
 
   // bug fix for RooConstVar compatibility between ROOT626 and workspace created with earlier versions
   RooWorkspace* fixRooConstVar(RooWorkspace *win, bool useRooRealVar=true, bool clean=true);
+  void ShapeDiff2D(double x, TH2F* target, TH1 const* nom, TH1 const* low,
+                 TH1 const* high, bool linear);
+  void ShapeDiff2D(double x, TH2F* target, RooDataHist const* nom,
+                 RooDataHist const* low, RooDataHist const* high);
 };
 
 

@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include "TH1.h"
+#include "TH2F.h"
 #include "RooAbsPdf.h"
 #include "RooAbsReal.h"
 #include "RooAbsData.h"
@@ -55,6 +56,7 @@ class Process : public Object {
   std::unique_ptr<TH1> ClonedScaledShape() const;
 
   TH1F ShapeAsTH1F() const;
+  TH2F ShapeAsTH2F() const;
 
   void set_pdf(RooAbsReal* pdf) { pdf_ = pdf; }
   RooAbsReal const* pdf() const { return pdf_; }
@@ -68,6 +70,9 @@ class Process : public Object {
   void set_observable(RooRealVar* obs) { cached_obs_ = obs; }
   RooRealVar * observable() const { return cached_obs_; }
 
+  void set_observable_y(RooRealVar* obs) { cached_obsy_ = obs; }
+  RooRealVar * observable_y() const { return cached_obsy_; }
+
   std::string to_string() const;
   friend std::ostream& operator<< (std::ostream &out, Process const& val);
   static std::ostream& PrintHeader(std::ostream &out);
@@ -79,6 +84,7 @@ class Process : public Object {
   RooAbsData* data_;
   RooAbsReal* norm_;
   RooRealVar* cached_obs_;
+  RooRealVar* cached_obsy_;
   mutable RooAbsReal* cached_int_;
 
   friend void swap(Process& first, Process& second);
