@@ -33,15 +33,10 @@ def split_vals(vals, fmt_spec=None):
 
 def list_from_workspace(file, workspace, set):
     """Create a list of strings from a RooWorkspace set"""
-    res = []
     wsFile = ROOT.TFile(file)
     ws = wsFile.Get(workspace)
-    argSet = ws.set(set)
-    it = argSet.createIterator()
-    var = it.Next()
-    while var:
-        res.append(var.GetName())
-        var = it.Next()
+    argSet = ws.allVars() if set=="variables" else ws.set(set)
+    res = [var.GetName() for var in argSet]
     return res
 
 
