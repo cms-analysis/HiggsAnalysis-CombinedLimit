@@ -35,7 +35,7 @@ def list_from_workspace(file, workspace, set):
     """Create a list of strings from a RooWorkspace set"""
     wsFile = ROOT.TFile(file)
     ws = wsFile.Get(workspace)
-    argSet = ws.allVars() if set=="variables" else ws.set(set)
+    argSet = ws.allVars() if set == "variables" else ws.set(set)
     res = [var.GetName() for var in argSet]
     return res
 
