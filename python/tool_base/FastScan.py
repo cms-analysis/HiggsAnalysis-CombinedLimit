@@ -42,13 +42,6 @@ class FastScan(CombineToolBase):
         group.add_argument("-o", "--output", default="nll", help="Name of the output file, without the .pdf extension")
         group.add_argument("-p", "--points", default=200, type=int, help="Number of NLL points to sample in each scan")
 
-    def RooColIter(self, coll):
-        it = coll.createIterator()
-        var = it.Next()
-        while var:
-            yield var
-            var = it.Next()
-
     def run_method(self):
         ROOT.gROOT.SetBatch(ROOT.kTRUE)
         outfile = ROOT.TFile("%s.root" % self.args.output, "RECREATE")
@@ -83,7 +76,7 @@ class FastScan(CombineToolBase):
         page = 0
         doPars = []
 
-        for par in self.RooColIter(pars):
+        for par in pars:
             if par.isConstant():
                 continue
             if self.args.match is not None:
