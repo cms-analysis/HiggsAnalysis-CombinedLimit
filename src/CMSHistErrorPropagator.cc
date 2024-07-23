@@ -576,9 +576,11 @@ std::map<std::string, Double_t> CMSHistErrorPropagator::getProcessNorms() const 
         }
         if (!normProd) {
           RooAbsReal* integral = shape->createIntegral(*myobs);
-          normProd = new RooProduct(normProdName, "", RooArgList(*integral, *coeff));
-          normProd->addOwnedComponents(*integral);
-          coeff->addOwnedComponents(*normProd);
+      	  RooArgList normProdInputs;
+      	  normProdInputs.add(*integral);
+      	  normProdInputs.add(*coeff);
+          normProd = new RooProduct(normProdName, "", normProdInputs);
+          normProd->addOwnedComponents(normProdInputs);
         }
         vals_[normProdName.Data()] = normProd->getVal();
       }
