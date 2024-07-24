@@ -204,17 +204,17 @@ class Impacts(CombineToolBase):
 
         print("Have parameters: " + str(len(paramList)))
 
-        varList = utils.list_from_workspace(ws, 'w', 'variables')
+        varList = utils.list_from_workspace(ws, "w", "variables")
         if self.args.setParameters is not None:
-            set_parameters = self.args.setParameters.split(',')
-            set_parameters_str = ''
-            for ind,setParam in enumerate(set_parameters):
-                if 'rgx{' in setParam:
+            set_parameters = self.args.setParameters.split(",")
+            set_parameters_str = ""
+            for ind, setParam in enumerate(set_parameters):
+                if "rgx{" in setParam:
                     eqs_to = setParam.split("=")[-1]
                     pattern = setParam.split("=")[0]
-                    pattern = pattern.replace("'rgx{","").replace("}'","")
-                    pattern = pattern.replace("rgx{","").replace("}","")
-                    set_parameters[ind] = ''
+                    pattern = pattern.replace("'rgx{", "").replace("}'", "")
+                    pattern = pattern.replace("rgx{", "").replace("}", "")
+                    set_parameters[ind] = ""
                     for var in varList:
                         if re.search(pattern, var):
                             var_str = var + "=" + eqs_to
@@ -287,5 +287,5 @@ class Impacts(CombineToolBase):
         w = wsFile.Get(wsp)
         config = w.genobj(mc)
         pdfvars = config.GetPdf().getParameters(config.GetObservables())
-        res = [var.GetName() for var in pdfvars if (var.GetName() not in pois and (not var.isConstant()) and var.InheritsFrom("RooRealVar")) ]
+        res = [var.GetName() for var in pdfvars if (var.GetName() not in pois and (not var.isConstant()) and var.InheritsFrom("RooRealVar"))]
         return res
