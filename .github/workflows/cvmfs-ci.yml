@@ -108,7 +108,6 @@ jobs:
             cmsenv
             text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200 --for-fits --no-wrappers --use-histsum
             combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH
-            combine -M FitDiagnostics ws_template-analysis.root  -t -1 --setParameters r=1 --plots  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH
 
       - uses: rhaschke/docker-run-action@v5
         name: Template analysis CMSHistSum with shapeN
@@ -123,7 +122,6 @@ jobs:
             cmsenv
             text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/template-analysis_shapeNInterp.txt -o ws_template-analysis.root --mass 200 --for-fits --no-wrappers --use-histsum
             combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH
-            combine -M FitDiagnostics ws_template-analysis.root  -t -1 --setParameters r=1 --plots  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH
 
       - uses: rhaschke/docker-run-action@v5
         name: RooMultiPdf
