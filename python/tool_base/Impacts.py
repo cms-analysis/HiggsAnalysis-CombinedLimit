@@ -33,7 +33,6 @@ class Impacts(CombineToolBase):
             --output stages. Note the ordering of POIs in the list must also be
             identical in each step.""",
         )
-        group.add_argument("--setPhysicsModelParameters")
         group.add_argument("--setParameters")
         group.add_argument("--name", "-n", default="Test")
 
@@ -101,11 +100,8 @@ class Impacts(CombineToolBase):
         # Put intercepted args back
         passthru.extend(["-m", mh])
         passthru.extend(["-d", ws])
-        if self.args.setPhysicsModelParameters is not None:
-            passthru.extend(["--setPhysicsModelParameters", self.args.setPhysicsModelParameters])
         if self.args.setParameters is not None:
             passthru.extend(["--setParameters", self.args.setParameters])
-            self.args.setPhysicsModelParameters = self.args.setParameters
         pass_str = " ".join(passthru)
 
         paramList = []
@@ -221,9 +217,9 @@ class Impacts(CombineToolBase):
                             set_parameters_str += var_str + ","
                 else:
                     set_parameters_str += setParam + ","
-            self.args.setPhysicsModelParameters = set_parameters_str.rstrip(",")
+            self.args.setParameters = set_parameters_str.rstrip(",")
 
-        prefit = utils.prefit_from_workspace(ws, "w", paramList, self.args.setPhysicsModelParameters)
+        prefit = utils.prefit_from_workspace(ws, "w", paramList, self.args.setParameters)
         res = {}
         if not self.args.noInitialFit:
             res["POIs"] = []
