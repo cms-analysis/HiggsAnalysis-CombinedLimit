@@ -221,7 +221,7 @@ class Impacts(CombineToolBase):
                             set_parameters_str += var_str + ","
                 else:
                     set_parameters_str += setParam + ","
-            self.args.setPhysicsModelParameters = set_parameters_str.rstrip(',')
+            self.args.setPhysicsModelParameters = set_parameters_str.rstrip(",")
 
         prefit = utils.prefit_from_workspace(ws, "w", paramList, self.args.setPhysicsModelParameters)
         res = {}
