@@ -549,5 +549,42 @@ RooArgList CMSHistErrorPropagator::wrapperList() const {
   return result;
 }
 
+std::map<std::string, Double_t> CMSHistErrorPropagator::getProcessNorms() const {
+
+      std::map<std::string, Double_t> vals_;
+      RooArgList clist(coefList());
+      RooArgList plist(funcList());
+      /*if (plist.getSize() == 1) {
+         CMSHistErrorPropagator *err = dynamic_cast<CMSHistErrorPropagator*>(plist.at(0));
+         if (err) {
+           clist.removeAll();
+           plist.removeAll();
+           clist.add(err->coefList());
+           plist.add(err->wrapperList());
+         }
+      }
+      */
+      for (int i = 0, n = clist.getSize(); i < n; ++i) {
+        RooAbsReal *coeff = (RooAbsReal *) clist.at(i);
+        std::string coeffName = coeff->GetName();
+        RooAbsReal* shape = (RooAbsReal*)plist.at(i);
+        std::unique_ptr<RooArgSet> myobs(shape->getObservables(*x_));
+        TString normProdName = TString::Format("%s", coeff->GetName());
+        RooAbsReal * normProd = nullptr;
+        if (coeff->ownedComponents()) {
+          normProd = dynamic_cast<RooAbsReal*>(coeff->ownedComponents()->find(normProdName));
+        }
+        if (!normProd) {
+          RooAbsReal* integral = shape->createIntegral(*myobs);
+      	  RooArgList normProdInputs;
+      	  normProdInputs.add(*integral);
+      	  normProdInputs.add(*coeff);
+          normProd = new RooProduct(normProdName, "", normProdInputs);
+          normProd->addOwnedComponents(normProdInputs);
+        }
+        vals_[normProdName.Data()] = normProd->getVal();
+      }
+      return vals_;
+}
 #undef HFVERBOSE
 
