@@ -146,7 +146,7 @@ MB = None
         print("DC.groups 	= ", self.groups, "#", type(self.groups))
         print("DC.discretes 	= ", self.discretes, "#", type(self.discretes))
         print("DC.pdfnorms 	= ", self.pdfnorms, "#", type(self.pdfnorms))
-        print("DC.toCreateFlatParam = ",self.toCreateFlatParam, "#", type(self.toCreateFlatParam))
+        print("DC.toCreateFlatParam = ", self.toCreateFlatParam, "#", type(self.toCreateFlatParam))
 
         print(
             """
