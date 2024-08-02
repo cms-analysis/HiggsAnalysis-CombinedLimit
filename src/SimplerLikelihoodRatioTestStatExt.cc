@@ -1,5 +1,5 @@
-#include "HiggsAnalysis/CombinedLimit/interface/SimplerLikelihoodRatioTestStatExt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "../interface/SimplerLikelihoodRatioTestStatExt.h"
+#include "../interface/utils.h"
 
 SimplerLikelihoodRatioTestStatOpt::SimplerLikelihoodRatioTestStatOpt(
         const RooArgSet &obs, 
@@ -56,11 +56,10 @@ SimplerLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& nullPOI
     if (paramsAlt_.get() == 0)  paramsAlt_.reset(pdfAlt_->getParameters(data));
 
     // if the dataset is not empty, redirect pdf nodes to the dataset
-    std::auto_ptr<TIterator> iterDepObs(pdfDepObs_.createIterator());
     bool nonEmpty = data.numEntries() > 0;
     if (nonEmpty) {
         const RooArgSet *entry = data.get(0);
-        for (RooAbsArg *a = (RooAbsArg *) iterDepObs->Next(); a != 0; a = (RooAbsArg *) iterDepObs->Next()) {
+        for (RooAbsArg *a : pdfDepObs_) {
             a->redirectServers(*entry);    
         }
     }
@@ -76,8 +75,7 @@ SimplerLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& nullPOI
 
     // put back links in pdf nodes, otherwise if the dataset goes out of scope they have dangling pointers
     if (nonEmpty) {
-        iterDepObs->Reset();
-        for (RooAbsArg *a = (RooAbsArg *) iterDepObs->Next(); a != 0; a = (RooAbsArg *) iterDepObs->Next()) {
+        for (RooAbsArg *a : pdfDepObs_) {
             a->redirectServers(*obs_);    
         }
     }
@@ -87,7 +85,7 @@ SimplerLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& nullPOI
 
 void SimplerLikelihoodRatioTestStatOpt::unrollSimPdf(RooSimultaneous *simpdf, std::vector<RooAbsPdf *> &out) {
     // get a clone of the pdf category, so that I can use it to enumerate the pdf states
-    std::auto_ptr<RooAbsCategoryLValue> catClone((RooAbsCategoryLValue*) simpdf->indexCat().Clone());
+    std::unique_ptr<RooAbsCategoryLValue> catClone((RooAbsCategoryLValue*) simpdf->indexCat().Clone());
     out.resize(catClone->numBins(NULL), 0);
     //std::cout << "Pdf " << pdf->GetName() <<" is a SimPdf over category " << catClone->GetName() << ", with " << out.size() << " bins" << std::endl;
 
@@ -122,7 +120,7 @@ double SimplerLikelihoodRatioTestStatOpt::evalSimNLL(RooAbsData &data,  RooSimul
     for (i = 0; i < n; ++i) {
         data.get(i); 
         double w = data.weight(); if (w == 0) continue;
-        int bin = cat->getBin();
+        int bin = cat->getBin((const char*) 0);
         assert(bin < int(components.size()) && "Bin outside range");
         if (components[bin] == 0) continue;
         sum  += -w*components[bin]->getLogVal(obs_);
@@ -175,8 +173,8 @@ SimplerLikelihoodRatioTestStatExt::~SimplerLikelihoodRatioTestStatExt()
 Double_t
 SimplerLikelihoodRatioTestStatExt::Evaluate(RooAbsData& data, RooArgSet& nullPOI) 
 {
-    std::auto_ptr<RooAbsReal> nllNull_(pdfNull_->createNLL(data));
-    std::auto_ptr<RooAbsReal> nllAlt_(pdfAlt_->createNLL(data));
+    std::unique_ptr<RooAbsReal> nllNull_(pdfNull_->createNLL(data));
+    std::unique_ptr<RooAbsReal> nllAlt_(pdfAlt_->createNLL(data));
 
     *paramsNull_ = snapNull_;
     *paramsNull_ = nullPOI;

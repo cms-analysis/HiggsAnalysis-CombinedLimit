@@ -1,15 +1,21 @@
-import os
-import re
+from __future__ import absolute_import, print_function
+
 import glob
 import math
-import ROOT
+import os
 import random
+import re
 import string
 
-class DatacardPruner(object) :
+from six.moves import range
+
+import ROOT
+
+
+class DatacardPruner(object):
     """
     Description:
-    
+
     This is a class to prune uncertainties of an existing set of datacards. In pruning decision is based on the relative shift
     of the nuisance parameter by the maximum likelihood fit. Nuisance parameters with a shift below a certaint threshold are
     added to a list of parameters to be pruned. The pruning step needs as inputs the directory that contains all datacards,
@@ -27,12 +33,22 @@ class DatacardPruner(object) :
     current implementation the script is meant to be used for datacards for counting experiments or for shape analyses based
     on histograms.
     """
-    def __init__(self, fit_results, metric='max', mass='125', threshold='0.05', blacklist=[], whitelist=[], comment_nuisances=False) :
+
+    def __init__(
+        self,
+        fit_results,
+        metric="max",
+        mass="125",
+        threshold="0.05",
+        blacklist=[],
+        whitelist=[],
+        comment_nuisances=False,
+    ):
         ## list of paths to one or more output files of the max-likelihood fit with combine
         self.fit_results = fit_results
         ## metric to be used for the pruning decision. Expected values are 'b', 's+b', 'max'
         self.metric = metric
-        ## mass value of the Higgs boson, when considering the s+b hypothesis in the metric 
+        ## mass value of the Higgs boson, when considering the s+b hypothesis in the metric
         self.mass = mass
         ## threshold on the relative shift of the parameter, below which a parameters will be pruned
         self.threshold = threshold
@@ -40,77 +56,78 @@ class DatacardPruner(object) :
         self.blacklist = blacklist
         ## list of python style regex for nuisance parameters that should only be considered for pruning
         self.whitelist = whitelist
-        ## is true if the the nuisance parameters should be commented from the test datacards right after the pruning decision has been taken  
+        ## is true if the the nuisance parameters should be commented from the test datacards right after the pruning decision has been taken
         self.comment_nuisances = comment_nuisances
-        
-    def combine_fit_results(self, FITRESULTS) :
+
+    def combine_fit_results(self, FITRESULTS):
         """
         uses: FITRESULTS (list of one or more files containing the pulls of the max-likelihood fit), self.metric
         Create a pseudo file of fit results form a list of fit results based on a subset of datacards. From multiply occuring
         uncertainties larger pulls will replace smaller pulls according to the corresponding metric. The combined pseudo file
-        will be written to the tmp directory. The return value will be the full path to the combined pseudo file. 
+        will be written to the tmp directory. The return value will be the full path to the combined pseudo file.
         """
         output = {}
-        headline = ''
-        pull_pattern = re.compile('[+-]\d+\.\d+(?=sig)')
-        for fit_result in self.fit_results :
-            file= open(fit_result,'r')
-            for line in file :
+        headline = ""
+        pull_pattern = re.compile(r"[+-]\d+\.\d+(?=sig)")
+        for fit_result in self.fit_results:
+            file = open(fit_result, "r")
+            for line in file:
                 ## add headline
-                if 'name' in line :
-                    if headline == '' :
+                if "name" in line:
+                    if headline == "":
                         headline = line
                         continue
-                    else :
+                    else:
                         continue
                 ## fill outputs with uncertainties of this channel
                 key = line.split()[0]
                 ## skip POI
-                if key == 'r' :
+                if key == "r":
                     continue
-                if not key in output.keys() :
+                if key not in list(output.keys()):
                     output[key] = line
-                else :
-                    pulls_old  = pull_pattern.findall(output[key])
-                    pulls_new  = pull_pattern.findall(line)
-                    if pulls_new :
-                        if self.metric == 'b' :
+                else:
+                    pulls_old = pull_pattern.findall(output[key])
+                    pulls_new = pull_pattern.findall(line)
+                    if pulls_new:
+                        if self.metric == "b":
                             value_old = float(pulls_old[0])
                             value_new = float(pulls_new[0])
-                        if self.metric == 's+b' :
+                        if self.metric == "s+b":
                             value_old = float(pulls_old[1])
                             value_new = float(pulls_new[1])
-                        if self.metric == 'max' :
+                        if self.metric == "max":
                             value_old = max(abs(float(pulls_old[0])), float(pulls_old[1]))
-                            value_new = max(abs(float(pulls_new[0])), float(pulls_new[1]))                        
-                        if value_new > value_old :
+                            value_new = max(abs(float(pulls_new[0])), float(pulls_new[1]))
+                        if value_new > value_old:
                             output[key] = line
             file.close()
-        rnd_name=''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
-        file= open("/tmp/{NAME}".format(NAME=rnd_name),'w')
+        rnd_name = "".join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
+        file = open("/tmp/{NAME}".format(NAME=rnd_name), "w")
         file.write(headline)
-        for line in output.values() :
+        for line in output.values():
             file.write(line)
         file.close()
         return "/tmp/{NAME}".format(NAME=rnd_name)
 
-    def determine_shapes(self, DATACARD) :
+    def determine_shapes(self, DATACARD):
         """
         uses: DATACARD (absolute path to the datacard), self.mass
         Determine all shape uncertainties from a given datacard. For all shape uncertainties the largest relative
         uncertainty over all bins is determined and added to a dictionary. Return value is the dictionary mapping
         the name of the uncertainty to the maximal relative uncertainty.
         """
-        def valid(u_value, s_value, exceptions) :
+
+        def valid(u_value, s_value, exceptions):
             """
             Check for a weak equality between u_value and s_value. The argument exceptions corresponds to exceptional
             cases for which '*' is not true. This function is used for proc and bin.
             """
-            if u_value in exceptions :
+            if u_value in exceptions:
                 return u_value == s_value
-            else :
-                return u_value == s_value or s_value == '*'
-        
+            else:
+                return u_value == s_value or s_value == "*"
+
         ## determine list of bin names, list of process names and list of input
         ## files which contain shapes
         bins = []
@@ -120,55 +137,59 @@ class DatacardPruner(object) :
         bin_excepts = []
         proc_excepts = []
         shape_uncerts = {}
-        file = open(DATACARD, 'r')
-        for line in file :
+        file = open(DATACARD, "r")
+        for line in file:
             words = line.split()
-            if words[0] == 'bin' :
-                if len(words[1:]) > len(bins) :
+            if words[0] == "bin":
+                if len(words[1:]) > len(bins):
                     bins = words[1:]
-            if words[0] == 'process' :
-                if not words[1].lstrip('-').isdigit() :
+            if words[0] == "process":
+                if not words[1].lstrip("-").isdigit():
                     procs = words[1:]
-            if words[0] == 'shapes' :
-                if len(words) > 5 :
-                    if not words[2] == '*' :
+            if words[0] == "shapes":
+                if len(words) > 5:
+                    if not words[2] == "*":
                         bin_excepts.append(words[2])
-                    if not words[1] == '*' :
-                        proc_excepts.append(words[1])                    
+                    if not words[1] == "*":
+                        proc_excepts.append(words[1])
                     ## ----------  proc      bin       path      shape     syst
                     shapes.append((words[1], words[2], words[3], words[4], words[5]))
         file.close()
         ## determine shape uncertainties; for shape uncertainties it must be known
         ## for what bin and for what sample they are valid and what value they have
-        file= open(DATACARD,'r')
-        for line in file :
+        file = open(DATACARD, "r")
+        for line in file:
             words = line.split()
-            if len(words)<2 :
+            if len(words) < 2:
                 continue
-            if words[1] == 'shape' :
-                for idx in range(len(words[2:])) :
-                    if not words[idx+2] == '-' :
+            if words[1] == "shape":
+                for idx in range(len(words[2:])):
+                    if not words[idx + 2] == "-":
                         ## -----------  unc       proc        bins       value
-                        uncerts.append((words[0], procs[idx], bins[idx], words[idx+2]))
+                        uncerts.append((words[0], procs[idx], bins[idx], words[idx + 2]))
         file.close()
         ## open root input files, find all shape histograms
-        for (u_unc, u_proc, u_bin, u_value) in uncerts :
-            for (s_proc, s_bin, s_path, s_shape, s_syst) in shapes :
-                if valid(u_bin, s_bin, bin_excepts) :
-                    if valid(u_proc, s_proc, proc_excepts) :
-                        root_file = ROOT.TFile(s_path, 'READ')
-                        value = root_file.Get(s_shape.replace('$CHANNEL', u_bin).replace('$PROCESS', u_proc).replace('$MASS', self.mass))
-                        upper = root_file.Get(s_syst.replace('$CHANNEL', u_bin).replace('$PROCESS', u_proc).replace('$MASS', self.mass).replace('$SYSTEMATIC', u_unc)+'Up')
-                        lower = root_file.Get(s_syst.replace('$CHANNEL', u_bin).replace('$PROCESS', u_proc).replace('$MASS', self.mass).replace('$SYSTEMATIC', u_unc)+'Down')
+        for u_unc, u_proc, u_bin, u_value in uncerts:
+            for s_proc, s_bin, s_path, s_shape, s_syst in shapes:
+                if valid(u_bin, s_bin, bin_excepts):
+                    if valid(u_proc, s_proc, proc_excepts):
+                        root_file = ROOT.TFile(s_path, "READ")
+                        value = root_file.Get(s_shape.replace("$CHANNEL", u_bin).replace("$PROCESS", u_proc).replace("$MASS", self.mass))
+                        upper = root_file.Get(
+                            s_syst.replace("$CHANNEL", u_bin).replace("$PROCESS", u_proc).replace("$MASS", self.mass).replace("$SYSTEMATIC", u_unc) + "Up"
+                        )
+                        lower = root_file.Get(
+                            s_syst.replace("$CHANNEL", u_bin).replace("$PROCESS", u_proc).replace("$MASS", self.mass).replace("$SYSTEMATIC", u_unc) + "Down"
+                        )
                         unc_max = 0
                         ## iterate over bins and find maximal relative difference
-                        for i in range(value.GetNbinsX()) :
-                            if value.GetBinContent(i+1) :
-                                unc_bin = float(u_value)*(upper.GetBinContent(i+1)/value.GetBinContent(i+1)-1.)
-                                if unc_max < unc_bin :
+                        for i in range(value.GetNbinsX()):
+                            if value.GetBinContent(i + 1):
+                                unc_bin = float(u_value) * (upper.GetBinContent(i + 1) / value.GetBinContent(i + 1) - 1.0)
+                                if unc_max < unc_bin:
                                     unc_max = unc_bin
-                                unc_bin = float(u_value)*(1.-lower.GetBinContent(i+1)/value.GetBinContent(i+1))
-                                if unc_max < unc_bin :
+                                unc_bin = float(u_value) * (1.0 - lower.GetBinContent(i + 1) / value.GetBinContent(i + 1))
+                                if unc_max < unc_bin:
                                     unc_max = unc_bin
                         root_file.Close()
                         shape_uncerts[u_unc] = unc_max
@@ -182,27 +203,27 @@ class DatacardPruner(object) :
         mapping the name of the uncertainty to the maximal relative uncertainty.
         """
         lnN_uncerts = {}
-        file= open(DATACARD,'r')
-        for line in file :
+        file = open(DATACARD, "r")
+        for line in file:
             words = line.split()
-            if len(words)<2 :
+            if len(words) < 2:
                 continue
-            if words[1] == 'lnN' :
+            if words[1] == "lnN":
                 unc_max = 0
-                for idx in range(len(words[2:])) :
-                    if not words[idx+2] == '-' :
-                        if unc_max < float(words[idx+2]) :
-                            unc_max = float(words[idx+2])
+                for idx in range(len(words[2:])):
+                    if not words[idx + 2] == "-":
+                        if unc_max < float(words[idx + 2]):
+                            unc_max = float(words[idx + 2])
                 lnN_uncerts[words[0]] = unc_max
         file.close()
         return lnN_uncerts
 
-    def determine_uncerts(self, DATACARD) :
+    def determine_uncerts(self, DATACARD):
         """
         uses: DATACARD (absolute path to the datacard), self.mass
         Determine full list of uncertainties as a dictionary mapping uncertainty name to the maximal relative uncertainty.
         Uncertainties of type shape and lnN are supported. Return value is a dictionary mapping the name of the
-        uncertainty to the maximal relative uncertainty.    
+        uncertainty to the maximal relative uncertainty.
         """
         ## add lnN uncertainties to dictionary
         uncerts = self.determine_lnNs(DATACARD)
@@ -210,19 +231,19 @@ class DatacardPruner(object) :
         uncerts.update(self.determine_shapes(DATACARD))
         return uncerts
 
-    def in_list(self, NAME, LIST) :
+    def in_list(self, NAME, LIST):
         """
         uses: NAME (name of an uncertainty), LIST (a list of regex of names of uncertainties)
         Return True if name does have a correspondence in the list of regular expressions of LIST and False else.
-        Make sure that LIST does not contain empty strings. 
+        Make sure that LIST does not contain empty strings.
         """
         inList = False
-        for unc in LIST :
-            if re.search(unc, NAME) :
+        for unc in LIST:
+            if re.search(unc, NAME):
                 inList = True
         return inList
 
-    def prune(self, UNCERTS) :
+    def prune(self, UNCERTS):
         """
         uses: UNCERTS (dictionary of uncertainty names mapped to uncertainty values, self.fit_results, self.metric,
         self.theshold, self.blacklist, self.whitelist
@@ -235,71 +256,75 @@ class DatacardPruner(object) :
         drop = []
         confused = 0
         file_name = self.combine_fit_results(self.fit_results)
-        file = open(file_name,'r')
-        pull_pattern = re.compile('[+-]\d+\.\d+(?=sig)')
-        for line in file :
+        file = open(file_name, "r")
+        pull_pattern = re.compile(r"[+-]\d+\.\d+(?=sig)")
+        for line in file:
             ## first element is the name of the nuisance parameter
-            name=line.split()[0]
-            if name == 'name' or name == 'r' :
+            name = line.split()[0]
+            if name == "name" or name == "r":
                 continue
             missmatch = False
-            if not name in UNCERTS :
+            if name not in UNCERTS:
                 confused += 1
                 missmatch = True
-                print "Warning: uncertainty:", name,  " found in output file of maximum likelihood fit but NOT in list of uncertainties as defined by datacards."
+                print(
+                    "Warning: uncertainty:",
+                    name,
+                    " found in output file of maximum likelihood fit but NOT in list of uncertainties as defined by datacards.",
+                )
             pulls = pull_pattern.findall(line)
-            if pulls :
-                val = 0.
+            if pulls:
+                val = 0.0
                 ## determine value of pull according to metric
-                if self.metric == 'b' :
+                if self.metric == "b":
                     val = float(pulls[0])
-                if self.metric == 's+b' :
+                if self.metric == "s+b":
                     val = float(pulls[1])
-                if self.metric == 'max' :
+                if self.metric == "max":
                     val = max(abs(float(pulls[0])), float(pulls[1]))
-                if not missmatch :
-                    val*= UNCERTS[name]
-                else :
-                    val = 99999.
-                #print name, "->", abs(val)
-                if abs(val) < float(self.threshold) :
-                    if not len(self.whitelist) == 0 :
-                        if not self.in_list(name, self.whitelist) :
-                            #print "keep --> not in whilelist:", name, self.in_list(name, self.whitelist)
+                if not missmatch:
+                    val *= UNCERTS[name]
+                else:
+                    val = 99999.0
+                # print name, "->", abs(val)
+                if abs(val) < float(self.threshold):
+                    if not len(self.whitelist) == 0:
+                        if not self.in_list(name, self.whitelist):
+                            # print "keep --> not in whilelist:", name, self.in_list(name, self.whitelist)
                             keep.append(name)
-                        else :
-                            if not self.in_list(name, self.blacklist) :
-                                #print "drop -->     in whilelist:", name, self.in_list(name, self.whitelist)
+                        else:
+                            if not self.in_list(name, self.blacklist):
+                                # print "drop -->     in whilelist:", name, self.in_list(name, self.whitelist)
                                 drop.append(name)
-                            else :
-                                #print "keep -->     in blacklist:", name
+                            else:
+                                # print "keep -->     in blacklist:", name
                                 keep.append(name)
-                    else :
-                        if not self.in_list(name, self.blacklist) :
-                            #print "drop --> not in blacklist:", name
+                    else:
+                        if not self.in_list(name, self.blacklist):
+                            # print "drop --> not in blacklist:", name
                             drop.append(name)
-                        else :
-                            #print "keep -->     in blacklist:", name
+                        else:
+                            # print "keep -->     in blacklist:", name
                             keep.append(name)
-                else :
+                else:
                     keep.append(name)
         file.close()
-        #print "wrote combined cards to: {NAME}".format(NAME=file_name)
+        # print "wrote combined cards to: {NAME}".format(NAME=file_name)
         os.system("rm {NAME}".format(NAME=file_name))
         return (drop, keep, confused)
 
-    def list_to_file(self, LIST, FILE) :
+    def list_to_file(self, LIST, FILE):
         """
         uses: LIST (list of elements), FILE (path to an output file in txt format)
-        Write all elements in a LIST to FILE. There is no return value. 
+        Write all elements in a LIST to FILE. There is no return value.
         """
-        file= open(FILE,'w')
-        for element in LIST :
-            file.write(element+'\n')
+        file = open(FILE, "w")
+        for element in LIST:
+            file.write(element + "\n")
         file.close()
         return
-        
-    def manipulate_datacard(self, DATACARD, MANIPULATION, EXCLUDE=None) :
+
+    def manipulate_datacard(self, DATACARD, MANIPULATION, EXCLUDE=None):
         """
         uses: DATACARD (path to the input datacard), MANIPULATION (a manipulation string), EXCLUDE (list of nuicance
         parameters to be commented in the datacard).
@@ -309,28 +334,32 @@ class DatacardPruner(object) :
         None, all uncertainties in the datacards will be commented. Return value is the number of uncertainties that have
         been manipulated. Note that this function will alter DATACARD.
         """
-        excl=0
-        file = open(DATACARD,'r')
-        rnd_name=''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
-        output = open('/tmp/{NAME}'.format(NAME=rnd_name), 'w')
-        for line in file :
+        excl = 0
+        file = open(DATACARD, "r")
+        rnd_name = "".join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
+        output = open("/tmp/{NAME}".format(NAME=rnd_name), "w")
+        for line in file:
             words = line.split()
-            if len(words) > 1 :
-                if 'shape' in words[1] or 'lnN' in words[1] :
+            if len(words) > 1:
+                if "shape" in words[1] or "lnN" in words[1]:
                     name = words[0]
-                    if MANIPULATION == "COMMENT" :
+                    if MANIPULATION == "COMMENT":
                         if EXCLUDE != None:
-                            if name in EXCLUDE :
-                                excl+=1
-                                line = '#'+line                    
-                        else :
-                            excl+=1
-                            line = '#'+line
-                    elif MANIPULATION == "UNCOMMENT" :
-                        excl+=1
-                        line = line.lstrip('#')
-                    else :
-                        print "Warning: MANIPULATION:", MANIPULATION, "unknown. Possible values are: COMMENT, UNCOMMENT."
+                            if name in EXCLUDE:
+                                excl += 1
+                                line = "#" + line
+                        else:
+                            excl += 1
+                            line = "#" + line
+                    elif MANIPULATION == "UNCOMMENT":
+                        excl += 1
+                        line = line.lstrip("#")
+                    else:
+                        print(
+                            "Warning: MANIPULATION:",
+                            MANIPULATION,
+                            "unknown. Possible values are: COMMENT, UNCOMMENT.",
+                        )
             output.write(line)
         file.close()
         output.close()

@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/VectorizedGaussian.h"
+#include "../interface/VectorizedGaussian.h"
 #include "RooMath.h"
 #include "vectorized.h"
 #include <RooRealVar.h>
@@ -34,8 +34,10 @@ VectorizedGaussian::VectorizedGaussian(const RooGaussian &gaus, const RooAbsData
 
 void VectorizedGaussian::fill(std::vector<Double_t> &out) const {
     // calculate normalizatio integral
-    constexpr Double_t root2 = std::sqrt(2.) ;
-    constexpr Double_t rootPiBy2 = std::sqrt(M_PI/2.0);
+    // cannot use constexpr sqrt outside gcc:
+    // https://stackoverflow.com/questions/27744079/is-it-a-conforming-compiler-extension-to-treat-non-constexpr-standard-library-fu
+    constexpr double root2{1.4142135623730951455}; // std::sqrt(2.)
+    constexpr double rootPiBy2{1.2533141373155001208}; // std::sqrt(M_PI/2.0)
     Double_t xscale = root2*sigma_->getVal();
     Double_t mean = mean_->getVal();
     Double_t norm = rootPiBy2*sigma_->getVal()*(RooMath::erf((x_->getMax()-mean)/xscale)-RooMath::erf((x_->getMin()-mean)/xscale));

@@ -1,0 +1,17 @@
+imax 1                         # number of channels
+jmax 1                         # number of backgrounds
+kmax 3                         # number of nuisance parameters
+-------
+shapes * * FAKE
+------
+bin          bin1
+observation     12
+-----
+bin            bin1    bin1
+process         ggH      WW
+process           0       1
+rate            2.3     5.4
+-------
+lumi     lnN   1.01    1.01    # luminosity uncertainty
+xs_ggH   lnN   1.10       -    # gg->H cross section + signal efficiency + other minor ones
+xs_WW    lnN      -    1.16    # WW cross section + signal efficiency + other minor ones

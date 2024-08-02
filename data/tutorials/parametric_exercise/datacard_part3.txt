@@ -1,0 +1,38 @@
+# Datacard example for combine tutorial 2023 (part 1)
+---------------------------------------------
+imax 1
+jmax 1
+kmax *
+---------------------------------------------
+
+shapes      ggH          Tag0      workspace_sig_with_syst.root      workspace_sig:model_ggH_Tag0
+shapes      bkg_mass     Tag0      workspace_bkg.root      workspace_bkg:model_bkg_Tag0
+shapes      data_obs     Tag0      workspace_bkg.root      workspace_bkg:data_Tag0
+
+---------------------------------------------
+bin             Tag0
+observation     -1
+---------------------------------------------
+bin             Tag0         Tag0
+process         ggH          bkg_mass
+process         0            1
+rate            138000       1.0
+---------------------------------------------
+lumi_13TeV                 lnN      1.016            -
+CMS_hgg_trigger            lnN      1.002            -
+CMS_hgg_presel             lnN      1.007            -
+CMS_hgg_phoIdMva           lnN      1.05             -
+CMS_scale_j                lnN      0.951/1.056      -
+CMS_res_j                  lnN      1.01             -
+---------------------------------------------
+BR_hgg                     lnN      0.980/1.021      -
+QCDscale_ggH               lnN      1.039            -
+pdf_Higgs_ggH              lnN      1.019            -
+alphaS_ggH                 lnN      1.026            -
+UnderlyingEvent            lnN      0.989/1.011      -
+PartonShower               lnN      0.971/1.029      -
+---------------------------------------------
+nuisance_scale        param    0.0    1.0
+nuisance_smear        param    0.0    1.0
+---------------------------------------------
+theory group = BR_hgg QCDscale_ggH pdf_Higgs_ggH alphaS_ggH UnderlyingEvent PartonShower

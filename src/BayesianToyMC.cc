@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <cmath>
-#include "HiggsAnalysis/CombinedLimit/interface/BayesianToyMC.h"
+#include "../interface/BayesianToyMC.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooUniform.h"
@@ -13,9 +13,9 @@
 #include "RooStats/RooStatsUtils.h"
 #include <Math/DistFuncMathCore.h>
 
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "../interface/Combine.h"
+#include "../interface/CachingNLL.h"
+#include "../interface/utils.h"
 
 using namespace RooStats;
 
@@ -34,7 +34,7 @@ BayesianToyMC::BayesianToyMC() :
         ("numIters,i", boost::program_options::value<int>(&numIters_)->default_value(numIters_),    "Number of iterations or calls used within iteration (0=ROOT Default)")
         ("hintSafetyFactor",
                 boost::program_options::value<float>(&hintSafetyFactor_)->default_value(hintSafetyFactor_),
-                "set range of integration equal to this number of times the hinted limit")
+                "Set range of integration equal to this number of times the hinted limit")
         ("twoPoints",
                 boost::program_options::value<std::vector<std::string> >(&twoPoints_)->multitoken(), "Compute BF comparing two points in parameter space");
         ;
@@ -61,7 +61,7 @@ bool BayesianToyMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
   }
   double rMax = r->getMax();
   
-  std::auto_ptr<RooStats::ModelConfig> mc_noNuis(0);
+  std::unique_ptr<RooStats::ModelConfig> mc_noNuis(nullptr);
   if (!withSystematics && mc_s->GetNuisanceParameters() != 0) {
     mc_noNuis.reset(new RooStats::ModelConfig(w));
     mc_noNuis->SetPdf(*mc_s->GetPdf());
@@ -70,7 +70,7 @@ bool BayesianToyMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
     mc_noNuis->SetPriorPdf(*mc_s->GetPriorPdf());
     mc_s = mc_noNuis.get();
   }
-  std::auto_ptr<RooAbsPdf> nuisancePdf;
+  std::unique_ptr<RooAbsPdf> nuisancePdf;
   for (;;) {
     limit = 0; limitErr = 0; bool rerun = false;
     for (unsigned int i = 0; i < tries_; ++i) {
@@ -87,7 +87,7 @@ bool BayesianToyMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
             cacheutils::CachingSimNLL::forceUnoptimizedConstraints();
         }
         // get the interval
-        std::auto_ptr<SimpleInterval> bcInterval(bcalc.GetInterval());
+        std::unique_ptr<SimpleInterval> bcInterval(bcalc.GetInterval());
         if (bcInterval.get() == 0) return false;
         double lim = bcInterval->UpperLimit();
         // check against bound
@@ -108,9 +108,9 @@ bool BayesianToyMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
     if (verbose > -1) {
         std::cout << "\n -- BayesianToyMC -- " << "\n";
         if (limitErr > 0) {
-            std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL" << std::endl;
+            std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% credibility" << std::endl;
         } else {
-            std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+            std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% credibility" << std::endl;
         }
     }
     break;
@@ -147,7 +147,7 @@ bool BayesianToyMC::runBayesFactor(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 std::pair<double,double> BayesianToyMC::priorPredictiveDistribution(RooStats::ModelConfig *mc, RooAbsData &data, const RooArgSet *point, double *offset) {
   // factorize away nuisance pdf
   RooAbsPdf *pdf = mc->GetPdf();
-  std::auto_ptr<RooAbsPdf>  nuisancePdf, nonNuisancePdf; 
+  std::unique_ptr<RooAbsPdf>  nuisancePdf, nonNuisancePdf; 
   if (withSystematics) {
     RooArgList constraints;
     nonNuisancePdf.reset(utils::factorizePdf(*data.get(), *pdf, constraints));
@@ -159,8 +159,8 @@ std::pair<double,double> BayesianToyMC::priorPredictiveDistribution(RooStats::Mo
   std::cout << "Factorized PDF, now creating NLL" << std::endl;
   // create NLL
   const RooCmdArg &constrain  = withSystematics  ? RooFit::Constrain(*mc->GetNuisanceParameters()) : RooCmdArg::none();
-  std::auto_ptr<RooAbsReal> nll(pdf->createNLL(data, constrain, RooFit::Extended(pdf->canBeExtended())));
-  std::auto_ptr<RooArgSet>  params(nll->getParameters(data));
+  std::unique_ptr<RooAbsReal> nll(pdf->createNLL(data, constrain, RooFit::Extended(pdf->canBeExtended())));
+  std::unique_ptr<RooArgSet>  params(nll->getParameters(data));
 
   // Determine which POIs we have to generate, if any
   RooArgSet poiToGen; 
@@ -181,7 +181,7 @@ std::pair<double,double> BayesianToyMC::priorPredictiveDistribution(RooStats::Mo
   // start running
   std::vector<double> results; double sum = 0;
   for (unsigned int t = 0; t < tries_; ++t) {
-      std::auto_ptr<RooDataSet> nuisanceValues, poiValues;
+      std::unique_ptr<RooDataSet> nuisanceValues, poiValues;
       if (withSystematics) nuisanceValues.reset(nuisancePdf->generate(*mc->GetNuisanceParameters(), numIters_));
       if (poiToGen.getSize() > 0) {
         if (mc->GetPriorPdf() == 0) throw std::logic_error(std::string("Missing prior in model: ")+ mc->GetName());
@@ -194,7 +194,7 @@ std::pair<double,double> BayesianToyMC::priorPredictiveDistribution(RooStats::Mo
         if (verbose > 2) { std::cout << "\n\n==== POINT "<< t << ","<<i<<" ====" << std::endl; params->Print("V"); }
         double nllVal = nll->getVal();
         if (offset) { 
-            if (isnan(*offset)) *offset = nllVal; 
+            if (std::isnan(*offset)) *offset = nllVal; 
             nllVal -= *offset; 
         }
         if (verbose > 1) std::cout << "nll[" << t << ","<<i<<"] = " << nllVal << ", p = " << std::exp(-nllVal) << std::endl;

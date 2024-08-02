@@ -7,8 +7,9 @@
 #include <cmath>
 #include <math.h>
 
-#include "HiggsAnalysis/CombinedLimit/interface/RooParametricShapeBinPdf.h"
+#include "../interface/RooParametricShapeBinPdf.h"
 #include "RooRealVar.h"
+#include "RooRealVarSharedProperties.h"
 #include "RooArgList.h"
 #include "RooRealProxy.h"
 #include "RooListProxy.h"
@@ -16,6 +17,8 @@
 using namespace std;
 using namespace RooFit;
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,24,0)
+// This (and its later uses) is a performance patch for older root versions
 namespace {
   class RooRealVarSharedPropertiesSmart : public RooRealVarSharedProperties {
     public:
@@ -24,10 +27,11 @@ namespace {
   };
   class RooRealVarSmart : public RooRealVar {
     public:
-      void setHashTableSize(int size) { ((RooRealVarSharedPropertiesSmart*)sharedProp())->setHashTableSize(size); }
-      int getHashTableSize() const { return ((RooRealVarSharedPropertiesSmart*)sharedProp())->getHashTableSize(); }
+      void setHashTableSize(int size) { ((RooRealVarSharedPropertiesSmart*)sharedProp().get())->setHashTableSize(size); }
+      int getHashTableSize() const { return ((RooRealVarSharedPropertiesSmart*)sharedProp().get())->getHashTableSize(); }
   };
 }
+#endif
 
 ClassImp(RooParametricShapeBinPdf)
 //---------------------------------------------------------------------------
@@ -43,18 +47,16 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
   xMin(0)
 {
   memset(&xArray, 0, sizeof(xArray));
-  TIterator *varIter=_pars.createIterator(); 
-  RooAbsReal *fVar;
-  while ( (fVar = (RooAbsReal*)varIter->Next()) ){
-    pars.add(*fVar);
-  }
+  pars.add(_pars);
   setTH1Binning(_shape);
   RooAbsReal* myintegral;
 
-  //modify x to use hash table for range lookup
   RooRealVar x_rrv = dynamic_cast<const RooRealVar &>(x.arg());
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,24,0)
+  //modify x to use hash table for range lookup
   RooRealVarSmart* x_smart(static_cast<RooRealVarSmart*>(&x_rrv));
   x_smart->setHashTableSize(1);
+#endif
 
   RooListProxy obs;
   obs.add(x.arg());
@@ -87,18 +89,8 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const RooParametricShapeBinPd
     xArray[i] = other.xArray[i];
   }
   
-  TIterator *varIter=other.pars.createIterator(); 
-  RooAbsReal *fVar;
-  while ( (fVar = (RooAbsReal*) varIter->Next()) ){
-    pars.add(*fVar);
-  }
-
-  TIterator *intIter=other.myintegrals.createIterator(); 
-  RooAbsReal *fInt;
-  while ( (fInt = (RooAbsReal*) intIter->Next()) ){
-    myintegrals.add(*fInt);
-  }
-  
+  pars.add(other.pars);
+  myintegrals.add(other.myintegrals);
 }
 //---------------------------------------------------------------------------
 void RooParametricShapeBinPdf::setTH1Binning(const TH1 &_Hnominal){
@@ -143,9 +135,11 @@ Double_t RooParametricShapeBinPdf::evaluate() const
   if (!x.arg().hasRange(rangeName.c_str())) {
     RooRealVar x_rrv = dynamic_cast<const RooRealVar &>(x.arg());
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,24,0)
     //modify x to use hash table for range lookup
     RooRealVarSmart* x_smart(static_cast<RooRealVarSmart*>(&x_rrv));
     if(x_smart->getHashTableSize()==0) x_smart->setHashTableSize(1);
+#endif
 
     Double_t xLow = xArray[iBin];
     Double_t xHigh = xArray[iBin+1];

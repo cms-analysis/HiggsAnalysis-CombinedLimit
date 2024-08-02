@@ -30,7 +30,7 @@ END_HTML
 #include "RooMsgService.h"
 #include "TMath.h"
 
-#include "HiggsAnalysis/CombinedLimit/interface/AtlasPdfs.h"
+#include "../interface/AtlasPdfs.h"
 
 ClassImp(RooStats::HistFactory::RooBSplineBases)
 
@@ -433,10 +433,8 @@ RooBSpline::RooBSpline(const char* name, const char* title,
 
   //bool even = fabs(_n/2-_n/2.) < 0.0000000001;
   bool first=1;
-  TIterator* pointIter = controlPoints.createIterator() ;
-  RooAbsArg* point ;
   RooAbsArg* lastPoint=NULL ;
-  while((point = (RooAbsArg*)pointIter->Next())) {
+  for (RooAbsArg * point : controlPoints) {
     if (!dynamic_cast<RooAbsReal*>(point)) {
       coutE(InputArguments) << "RooBSpline::ctor(" << GetName() << ") ERROR: control point " << point->GetName() 
 			    << " is not of type RooAbsReal" << std::endl ;
@@ -456,19 +454,9 @@ RooBSpline::RooBSpline(const char* name, const char* title,
     lastPoint=point;
   }
   for (int i=0;i<(_n)/2;i++) _controlPoints.add(*lastPoint);
-  delete pointIter ;
 
 
-  TIterator* varItr = vars.createIterator();
-  RooAbsArg* arg;
-  while ((arg=(RooAbsArg*)varItr->Next())) {
-    //std::cout << "======== Adding "<<arg->GetName()<<" to list of _vars of "<<name<<"." << std::endl;
-    _vars.add(*arg);
-  }
-//   std::cout << "all _vars: " << std::endl;
-//   _vars.Print("V");
-  delete varItr;
-  //std::cout << "out Ctor" << std::endl;
+  _vars.add(vars);
 }
 
 //_____________________________________________________________________________
@@ -556,10 +544,8 @@ void RooBSpline::setWeights(const RooArgList& weights)
 {
   _weights.removeAll();
   bool first=1;
-  TIterator* pointIter = weights.createIterator() ;
-  RooAbsArg* point ;
   RooAbsArg* lastPoint=NULL ;
-  while((point = (RooAbsArg*)pointIter->Next())) {
+  for (RooAbsArg *point : weights) {
     if (!dynamic_cast<RooAbsReal*>(point)) {
       coutE(InputArguments) << "RooBSpline::ctor(" << GetName() << ") ERROR: control point " << point->GetName() 
 			    << " is not of type RooAbsReal" << std::endl ;
@@ -577,7 +563,6 @@ void RooBSpline::setWeights(const RooArgList& weights)
     lastPoint=point;
   }
   for (int i=0;i<(_n+1)/2;i++) _weights.add(*lastPoint);
-  delete pointIter;
 }
 
 
@@ -700,10 +685,17 @@ Double_t RooBSpline::analyticalIntegralWN(Int_t code, const RooArgSet* /*normSet
      if (cache==0) {
        // cache got sterilized, trigger repopulation of this slot, then try again...
        //std::cout << "Cache got sterilized" << std::endl;
-       std::auto_ptr<RooArgSet> vars( getParameters(RooArgSet()) );
-       std::auto_ptr<RooArgSet> iset(  _cacheMgr.nameSet2ByIndex(code-2)->select(*vars) );
+       std::unique_ptr<RooArgSet> vars( getParameters(RooArgSet()) );
        RooArgSet dummy;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
+       std::unique_ptr<RooArgSet> iset(  _cacheMgr.nameSet2ByIndex(code-2)->select(*vars) );
        Int_t code2 = getAnalyticalIntegral(*iset,dummy,rangeName);
+#else
+       // In ROOT 6.26, the RooNameSet was removed and the "selectFromSet*"
+       // functions were introduced to replace its functionality
+       RooArgSet iset{  _cacheMgr.selectFromSet2(*vars, code-2) };
+       Int_t code2 = getAnalyticalIntegral(iset,dummy,rangeName);
+#endif
        assert(code==code2); // must have revived the right (sterilized) slot...
        return analyticalIntegral(code2,rangeName);
      }
@@ -1228,9 +1220,6 @@ RooStarMomentMorph::RooStarMomentMorph() :
 {
 
   // coverity[UNINIT_CTOR]
-  _parItr    = _parList.createIterator() ;
-  _obsItr    = _obsList.createIterator() ;
-  _pdfItr    = _pdfList.createIterator() ; 
 }
 
 
@@ -1262,45 +1251,31 @@ RooStarMomentMorph::RooStarMomentMorph(const char *name, const char *title,
   // CTOR
 
   // fit parameters
-  TIterator* parItr = parList.createIterator() ;
-  RooAbsArg* par ;
-  for (Int_t i=0; (par = (RooAbsArg*)parItr->Next()); ++i) {
+  for (RooAbsArg *par : parList) {
     if (!dynamic_cast<RooAbsReal*>(par)) {
       coutE(InputArguments) << "RooStarMomentMorph::ctor(" << GetName() << ") ERROR: parameter " << par->GetName() << " is not of type RooAbsReal" << endl ;
       throw std::string("RooStarMomentMorh::ctor() ERROR parameter is not of type RooAbsReal") ;
     }
     _parList.add(*par) ;
   }
-  delete parItr ;
 
   // observables
-  TIterator* obsItr = obsList.createIterator() ;
-  RooAbsArg* var ;
-  for (Int_t i=0; (var = (RooAbsArg*)obsItr->Next()); ++i) {
+  for (RooAbsArg *var : obsList) {
     if (!dynamic_cast<RooAbsReal*>(var)) {
       coutE(InputArguments) << "RooStarMomentMorph::ctor(" << GetName() << ") ERROR: variable " << var->GetName() << " is not of type RooAbsReal" << endl ;
       throw std::string("RooStarMomentMorh::ctor() ERROR variable is not of type RooAbsReal") ;
     }
     _obsList.add(*var) ;
   }
-  delete obsItr ;
 
   // reference p.d.f.s
-  TIterator* pdfItr = pdfList.createIterator() ;
-  RooAbsPdf* pdf ;
-  for (Int_t i=0; (pdf = dynamic_cast<RooAbsPdf*>(pdfItr->Next())); ++i) {
-    if (!pdf) {
+  for (RooAbsArg *pdf : pdfList) {
+    if (!dynamic_cast<RooAbsPdf*>(pdf)) {
       coutE(InputArguments) << "RooStarMomentMorph::ctor(" << GetName() << ") ERROR: pdf " << pdf->GetName() << " is not of type RooAbsPdf" << endl ;
       throw std::string("RooStarMomentMorph::ctor() ERROR pdf is not of type RooAbsPdf") ;
     }
     _pdfList.add(*pdf) ;
   }
-  delete pdfItr ;
-
-  _parItr    = _parList.createIterator() ;
-  _obsItr    = _obsList.createIterator() ;
-  _pdfItr    = _pdfList.createIterator() ; 
-
 
   // initialization
   initialize();
@@ -1322,12 +1297,6 @@ RooStarMomentMorph::RooStarMomentMorph(const RooStarMomentMorph& other, const ch
   _nnuisvar(other._nnuisvar),
   _useHorizMorph(other._useHorizMorph)
 { 
- 
-
-  _parItr    = _parList.createIterator() ;
-  _obsItr    = _obsList.createIterator() ;
-  _pdfItr    = _pdfList.createIterator() ; 
-
   // nref is resized in initialize, so reduce the size here
   if (_nref.size()>0) {
     _nref.resize( _nref.size()-1 );
@@ -1340,9 +1309,6 @@ RooStarMomentMorph::RooStarMomentMorph(const RooStarMomentMorph& other, const ch
 //_____________________________________________________________________________
 RooStarMomentMorph::~RooStarMomentMorph() 
 {
-  if (_parItr) delete _parItr;
-  if (_obsItr) delete _obsItr;
-  if (_pdfItr) delete _pdfItr;
   if (_M)      delete _M;
 }
 
@@ -1495,7 +1461,8 @@ RooStarMomentMorph::CacheElem* RooStarMomentMorph::getCache(const RooArgSet* /*n
       mypos[j] = new RooAddition(myposName.c_str(),myposName.c_str(),meanList,coefList2);
       myrms[j] = new RooAddition(myrmsName.c_str(),myrmsName.c_str(),rmsList,coefList3);
       
-      ownedComps.add(RooArgSet(*myrms[j],*mypos[j])) ;
+      ownedComps.add(*myrms[j]) ;
+      ownedComps.add(*mypos[j]) ;
     }
   }
 
@@ -1505,15 +1472,11 @@ RooStarMomentMorph::CacheElem* RooStarMomentMorph::getCache(const RooArgSet* /*n
   //}
 
   // construction of unit pdfs
-  _pdfItr->Reset();
-  RooAbsPdf* pdf;
   RooArgList transPdfList;
 
   for (Int_t i=0; i<nPdf; ++i) {
-    _obsItr->Reset() ;
-    RooRealVar* var ;
 
-    pdf = (RooAbsPdf*)_pdfItr->Next();
+    RooAbsPdf* pdf = &(RooAbsPdf&)_pdfList[i];
 
     std::string pdfName = Form("pdf_%d",i);
     RooCustomizer cust(*pdf,pdfName.c_str());
@@ -1524,21 +1487,26 @@ RooStarMomentMorph::CacheElem* RooStarMomentMorph::getCache(const RooArgSet* /*n
       std::string slopeName  = Form("%s_slope_%d_%d", GetName(),i,j);
       std::string offsetName = Form("%s_offset_%d_%d",GetName(),i,j);
 
-      slope[sij(i,j)]  = _useHorizMorph ? 
-	(RooAbsReal*)new RooFormulaVar(slopeName.c_str(),"@0/@1",
-				       RooArgList(*sigmarv[sij(i,j)],*myrms[j])) : 
-	(RooAbsReal*)new RooConstVar(slopeName.c_str(),slopeName.c_str(),1.0); // 
+      if (_useHorizMorph) {
+	  RooArgList slopeInputs;
+	  slopeInputs.add(*sigmarv[sij(i,j)]);
+	  slopeInputs.add(*myrms[j]);
+          slope[sij(i,j)] = new RooFormulaVar(slopeName.c_str(),"@0/@1", slopeInputs);
+	  RooArgList offsetInputs;
+	  offsetInputs.add(*meanrv[sij(i,j)]);
+	  offsetInputs.add(*mypos[j]);
+	  offsetInputs.add(*slope[sij(i,j)]);
+          offsetVar[sij(i,j)] = new RooFormulaVar(offsetName.c_str(),"@0-(@1*@2)", offsetInputs);
+      } else {
+          slope[sij(i,j)] = new RooConstVar(slopeName.c_str(),slopeName.c_str(),1.0);
+          offsetVar[sij(i,j)] = new RooConstVar(offsetName.c_str(),offsetName.c_str(),0.0);
+      }
       
-      
-      offsetVar[sij(i,j)] = _useHorizMorph ? 
-	(RooAbsReal*)new RooFormulaVar(offsetName.c_str(),"@0-(@1*@2)",
-				       RooArgList(*meanrv[sij(i,j)],*mypos[j],*slope[sij(i,j)])) : 	
-	(RooAbsReal*)new RooConstVar(offsetName.c_str(),offsetName.c_str(),0.0); // 
-      
-      ownedComps.add(RooArgSet(*slope[sij(i,j)],*offsetVar[sij(i,j)])) ;
+      ownedComps.add(*slope[sij(i,j)]);
+      ownedComps.add(*offsetVar[sij(i,j)]);
       
       // linear transformations, so pdf can be renormalized easily
-      var = (RooRealVar*)(_obsItr->Next());
+      RooRealVar *var = (RooRealVar*)(_obsList[j]);
       std::string transVarName = Form("%s_transVar_%d_%d",GetName(),i,j);
       transVar[sij(i,j)] = new RooLinearVar(transVarName.c_str(),transVarName.c_str(),*var,*slope[sij(i,j)],*offsetVar[sij(i,j)]);
 
@@ -1673,7 +1641,6 @@ void RooStarMomentMorph::CacheElem::calculateFractions(const RooStarMomentMorph&
       //int nObs=self._obsList.getSize();
       
       // loop over parList
-      self._parItr->Reset();
       int nnuis=0;
       
       // zero all fractions
@@ -1684,7 +1651,7 @@ void RooStarMomentMorph::CacheElem::calculateFractions(const RooStarMomentMorph&
       }
       for (Int_t j=0; j<self._parList.getSize(); j++) {
 	
-	RooRealVar* m = (RooRealVar*)(self._parItr->Next());
+	RooRealVar* m = &(RooRealVar&)self._parList[j];
 	double m0=m->getVal();
 	
 	if (m0==0.) continue;

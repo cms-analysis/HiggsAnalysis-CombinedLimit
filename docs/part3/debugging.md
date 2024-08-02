@@ -1,6 +1,6 @@
 # Debugging fits
 
-When a fit fails there are several things you can do to investigate. Have a look at [these slides](https://indico.cern.ch/event/976099/contributions/4138476/attachments/2163625/3651175/CombineTutorial-2020-debugging.pdf) from the combine tutorial.
+When a fit fails there are several things you can do to investigate. CMS users can have a look at [these slides](https://indico.cern.ch/event/976099/contributions/4138476/attachments/2163625/3651175/CombineTutorial-2020-debugging.pdf) from a previous <span style="font-variant:small-caps;">Combine</span> tutorial.
 This section contains a few pointers for some of the methods mentioned in the slides.
 
 ## Analyzing the NLL shape in each parameter

@@ -1,0 +1,19 @@
+imax 2
+jmax 2 
+kmax *
+------------
+shapes *  dijet  FAKE
+shapes *  incl   FAKE
+------------
+bin           incl dijet   
+observation   166  8 
+------------
+bin               incl    incl    incl    dijet   dijet   dijet  
+process           ggH_hgg qqH_hgg bkg     ggH_hgg qqH_hgg bkg
+process            -1     0       1       -1      0        1
+rate              21      1.6     140     0.4     0.95     3.2 
+------------
+QCDscale_ggH lnN  1.12    -       -       1.12    -        -
+pdf_gg       lnN  1.08    -       -       1.08    -        -
+pdf_qqbar    lnN   -      1.025   -       -       1.025    -
+bg_incl      lnN   -      -       1.05    -       -        -  

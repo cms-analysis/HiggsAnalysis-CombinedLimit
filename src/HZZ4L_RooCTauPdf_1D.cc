@@ -31,16 +31,13 @@ _coefList("coefList", "List of funcficients", this),
 ctau_min(_ctau_min),
 ctau_max(_ctau_max)
 {
-	TIterator* coefIter = inCoefList.createIterator();
-	RooAbsArg* func;
-	while ((func = (RooAbsArg*)coefIter->Next())) {
+	for (RooAbsArg* func : inCoefList) {
 		if (!dynamic_cast<RooAbsReal*>(func)) {
 			coutE(InputArguments) << "ERROR: :HZZ4L_RooCTauPdf_1D(" << GetName() << ") funcficient " << func->GetName() << " is not of type RooAbsReal" << endl;
 			assert(0);
 		}
 		_coefList.add(*func);
 	}
-	delete coefIter;
 
 	nbins_ctau = _coefList.getSize();
 	for(int mp=0;mp<(nbins_ctau>101 ? 101 : nbins_ctau);mp++) Integral_T[mp] = dynamic_cast<const RooHistFunc*>(_coefList.at(mp))->analyticalIntegral(1000);
@@ -126,7 +123,7 @@ Double_t HZZ4L_RooCTauPdf_1D::evaluate() const
 }
 Int_t HZZ4L_RooCTauPdf_1D::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* /*rangeName*/) const
 {
-  if (matchArgs(allVars,analVars,RooArgSet(*kd.absArg()))) return 1;
+  if (matchArgs(allVars,analVars,kd)) return 1;
   return 0 ;
 }
 Double_t HZZ4L_RooCTauPdf_1D::analyticalIntegral(Int_t code, const char* rangeName) const

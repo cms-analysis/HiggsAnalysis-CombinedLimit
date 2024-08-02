@@ -18,10 +18,10 @@ public:
               RooAbsReal& _n2
            );
   RooDoubleCBFast(const RooDoubleCBFast& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooDoubleCBFast(*this,newname); }
-  inline virtual ~RooDoubleCBFast() { }
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
+  TObject* clone(const char* newname) const override { return new RooDoubleCBFast(*this,newname); }
+  inline ~RooDoubleCBFast() override { }
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
 
 protected:
 
@@ -33,10 +33,10 @@ protected:
   RooRealProxy alpha2;
   RooRealProxy n2;
   
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 
 private:
 
-  ClassDef(RooDoubleCBFast,1)
+  ClassDefOverride(RooDoubleCBFast,1)
 };
 #endif

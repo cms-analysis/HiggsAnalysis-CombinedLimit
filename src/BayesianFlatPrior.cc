@@ -1,12 +1,12 @@
 #include <stdexcept>
-#include "HiggsAnalysis/CombinedLimit/interface/BayesianFlatPrior.h"
+#include "../interface/BayesianFlatPrior.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooUniform.h"
 #include "RooWorkspace.h"
 #include "RooPlot.h"
 #include "TCanvas.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
+#include "../interface/Combine.h"
 #include "RooStats/BayesianCalculator.h"
 #include "RooStats/SimpleInterval.h"
 #include "RooStats/ModelConfig.h"
@@ -36,13 +36,13 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooSta
                  "             N(params) = " << dim << ", maxDim = " << maxDim_ << "\n" <<
                  "       Please use MarkovChainMC or BayesianToyMC method to compute Bayesian limits instead of BayesianSimple.\n" <<
                  "       If you really want to run BayesianSimple, change the value of the 'maxDim' option, \n" 
-                 "       but note that it's really not supposed to work for N(params) above 5 or so " << std::endl;
+                 "       but note that it is not expected to work for N(params) above O(5). " << std::endl;
     throw std::logic_error("Too many parameters for BayesianSimple method. Use MarkovChainMC or BayesianToyMC method to compute Bayesian limits instead.");
   }
 
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
   double rMax = r->getMax();
-  std::auto_ptr<RooStats::ModelConfig> mc_noNuis(0);
+  std::unique_ptr<RooStats::ModelConfig> mc_noNuis(nullptr);
   if (!withSystematics && mc_s->GetNuisanceParameters() != 0) {
     mc_noNuis.reset(new RooStats::ModelConfig(w));
     mc_noNuis->SetPdf(*mc_s->GetPdf());
@@ -55,7 +55,7 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooSta
     BayesianCalculator bcalc(data, *mc_s);
     bcalc.SetLeftSideTailFraction(0);
     bcalc.SetConfidenceLevel(cl); 
-    std::auto_ptr<SimpleInterval> bcInterval(bcalc.GetInterval());
+    std::unique_ptr<SimpleInterval> bcInterval(bcalc.GetInterval());
     if (bcInterval.get() == 0) return false;
     limit = bcInterval->UpperLimit();
     if (limit >= 0.5*r->getMax()) { 
@@ -66,12 +66,12 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooSta
     }
     if (verbose > -1) {
         std::cout << "\n -- BayesianSimple -- " << "\n";
-        std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+        std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% credibility" << std::endl;
     }
     if (verbose > 200) {
       // FIXME!!!!!
       TCanvas c1("c1", "c1");
-      std::auto_ptr<RooPlot> bcPlot(bcalc.GetPosteriorPlot(true, 0.1)); 
+      std::unique_ptr<RooPlot> bcPlot(bcalc.GetPosteriorPlot(true, 0.1)); 
       bcPlot->Draw(); 
       c1.Print("plots/bc_plot.png");
     }

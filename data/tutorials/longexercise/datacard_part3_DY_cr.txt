@@ -12,7 +12,7 @@ process                  W               QCD             Zmumu           ttbar  
 process                  1               2               3               4               5               6               
 rate                     59.9999         141.725         305423          34341.1         5273.43         115.34          
 --------------------------------------------------------------------------------
-CMS_eff_m        lnN     -               -               1.04            1.04            -               -               
-acceptance_DY_cr lnN     -               -               1.02            -               -               -               
+CMS_eff_m        lnN     -               -               -               1.04            -               -               
+acceptance_DY_cr lnN     -               -               1.005           -               -               -               
 lumi_13TeV       lnN     1.025           -               -               -               1.025           1.025           
 * autoMCStats 0

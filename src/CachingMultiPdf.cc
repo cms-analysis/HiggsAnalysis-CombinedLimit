@@ -1,6 +1,6 @@
-#include "HiggsAnalysis/CombinedLimit/interface/CachingMultiPdf.h"
+#include "../interface/CachingMultiPdf.h"
 #include "vectorized.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "../interface/utils.h"
 
 // Uncomment do do regression testing wrt uncached multipdf
 //#define CachingMultiPdf_VALIDATE
@@ -134,7 +134,11 @@ void cacheutils::CachingAddPdf::setIncludeZeroWeights(bool includeZeroWeights)
 cacheutils::CachingProduct::CachingProduct(const RooProduct &pdf, const RooArgSet &obs) :
     pdf_(&pdf)
 {
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,28,0)
     const RooArgList & pdfs = utils::factors(pdf);
+#else
+    const RooArgList & pdfs = pdf.realComponents();
+#endif
     //std::cout << "Making a CachingProduct for " << pdf.GetName() << " with " << pdfs.getSize() << " pdfs, " << coeffs.getSize() << " coeffs." << std::endl;
     for (int i = 0, n = pdfs.getSize(); i < n; ++i) {
         RooAbsReal *pdfi = (RooAbsReal*) pdfs.at(i);

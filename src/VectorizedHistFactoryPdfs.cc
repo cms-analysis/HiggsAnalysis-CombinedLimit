@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/VectorizedHistFactoryPdfs.h"
+#include "../interface/VectorizedHistFactoryPdfs.h"
 #include <memory>
 #include <RooRealVar.h>
 
@@ -11,7 +11,7 @@ void
 cacheutils::VectorizedHistFunc::fill() 
 {
     RooArgSet obs(*data_->get());
-    std::auto_ptr<RooArgSet> params(pdf_->getObservables(obs));
+    std::unique_ptr<RooArgSet> params(pdf_->getObservables(obs));
 
     yvals_.reserve(data_->numEntries());
     for (unsigned int i = 0, n = data_->numEntries(); i < n; ++i) {
@@ -37,7 +37,7 @@ cacheutils::VectorizedHistFunc::VectorizedHistFunc(const RooHistFunc &pdf, const
     
 {
     RooArgSet obs(*data.get());
-    std::auto_ptr<RooArgSet> params(pdf.getParameters(data));
+    std::unique_ptr<RooArgSet> params(pdf.getParameters(data));
     if (params->getSize() != 0) throw std::invalid_argument("HistFunc with parameters !?");
 
     //const RooRealVar * x_ = dynamic_cast<const RooRealVar*>(obs.first());
@@ -67,8 +67,7 @@ cacheutils::VectorizedParamHistFunc::VectorizedParamHistFunc(const ParamHistFunc
     for (unsigned int i = 0, n = data.numEntries(); i < n; ++i) {
         obs.assignValueOnly(*data.get(i), true);
         if (data.weight() || includeZeroWeights) {
-            RooRealVar * rrv = & pdf.getParameter();
-            yvars_.push_back(rrv);        
+            yvars_.push_back(&pdf.getParameter());
         }
     }
 }
@@ -82,24 +81,32 @@ cacheutils::VectorizedParamHistFunc::fill(std::vector<Double_t> &out) const
     }
 }
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,30,0)
 namespace {
     class PiecewiseInterpolationWithAccessor : public PiecewiseInterpolation {
         public:
             PiecewiseInterpolationWithAccessor(const PiecewiseInterpolation &p) :
                 PiecewiseInterpolation(p) {}
-            const RooAbsReal & nominal() const { return _nominal.arg(); }
-            int getInterpCode(int i) const { return _interpCode[i]; }
+            const RooAbsReal* nominalHist() const { return &_nominal.arg(); }
+            const std::vector<int>&  interpolationCodes() const { return _interpCode; }
             bool positiveDefinite() const { return _positiveDefinite; }
     };
 }
+#endif
 
 cacheutils::CachingPiecewiseInterpolation::CachingPiecewiseInterpolation(const PiecewiseInterpolation &pdf, const RooArgSet &obs) :
     pdf_(&pdf)
 {
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,30,0)
+    // Since ROOT 6.30, the public accessors are in upstream RooFit and we
+    // don't need this hack.
     PiecewiseInterpolationWithAccessor fixme(pdf);
+#else
+    auto& fixme = pdf;
+#endif
     const RooArgList & highList  = pdf.highList();
     const RooArgList & lowList   = pdf.lowList();
-    const RooAbsReal & nominal   = fixme.nominal(); 
+    const RooAbsReal & nominal   = *fixme.nominalHist();
     const RooArgList & coeffs = pdf.paramList();
     //std::cout << "Making a CachingPiecewiseInterpolation for " << pdf.GetName() << " with " << highList.getSize() << " pdfs, " << coeffs.getSize() << " coeffs." << std::endl;
     positiveDefinite_ = fixme.positiveDefinite();
@@ -110,7 +117,7 @@ cacheutils::CachingPiecewiseInterpolation::CachingPiecewiseInterpolation(const P
         RooAbsReal *pdfiLo = (RooAbsReal*) lowList.at(i);
         cachingPdfsLow_.push_back(makeCachingPdf(pdfiLo, &obs));
         coeffs_.push_back((RooAbsReal*) coeffs.at(i));
-        codes_.push_back(fixme.getInterpCode(i));
+        codes_.push_back(fixme.interpolationCodes()[i]);
         //std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Hi    : " << pdfiHi->ClassName() << " " << pdfiHi->GetName() << " using " << typeid(cachingPdfsHi_.back()).name() << std::endl;
         //std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Hi    : " << pdfiHi->ClassName() << " " << pdfiHi->GetName() << " using " << typeid(cachingPdfsHi_.back()).name() << std::endl;
         //std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Coeff : " << coeffs_.back()->ClassName() << " " << coeffs_.back()->GetName()  << std::endl;

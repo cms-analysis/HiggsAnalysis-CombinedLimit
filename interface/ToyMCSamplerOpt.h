@@ -3,14 +3,14 @@
 
 #include <memory>
 #include <RooStats/ToyMCSampler.h>
-struct RooProdPdf;
-struct RooPoisson;
+class RooProdPdf;
+class RooPoisson;
 
 namespace toymcoptutils {
     class SinglePdfGenInfo {
         public:
             enum Mode { Binned, BinnedNoWorkaround, Poisson, Unbinned, Counting };
-            SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
+            SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0, bool canUseSpec = true) ;
             ~SinglePdfGenInfo() ;
             RooAbsData *generate(const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             RooDataSet *generateAsimov(RooRealVar *&weightVar, double weightScale = 1.0, int verbose = 0) ;
@@ -22,6 +22,7 @@ namespace toymcoptutils {
             Mode mode_;
             RooAbsPdf *pdf_; 
             RooArgSet observables_;
+            bool       canUseSpec_;
             RooAbsPdf::GenSpec *spec_;
             TH1        *histoSpec_;
             bool        keepHistoSpec_;
@@ -33,7 +34,7 @@ namespace toymcoptutils {
     };
     class SimPdfGenInfo {
         public:
-            SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
+            SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0, bool canUseSpec = true) ;
             ~SimPdfGenInfo() ;
             RooAbsData *generate(RooRealVar *&weightVar, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             RooAbsData *generateAsimov(RooRealVar *&weightVar, int verbose = 0 ) ;
@@ -56,13 +57,16 @@ namespace toymcoptutils {
 class ToyMCSamplerOpt : public RooStats::ToyMCSampler{
     public:
         ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAbsPdf *globalObsPdf = 0, bool generateNuisances = false) ;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,24,0)
+// A private std::unique_ptr was introduced in RooStats::ToyMCSampler, disallowing copy construction
         ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) ;
         ToyMCSamplerOpt(const ToyMCSamplerOpt &other) ;
-        ~ToyMCSamplerOpt() ;
-        virtual void SetPdf(RooAbsPdf& pdf) ;
+#endif
+        ~ToyMCSamplerOpt() override ;
+        void SetPdf(RooAbsPdf& pdf) override ;
         void setGlobalObsPdf(RooAbsPdf *pdf) { globalObsPdf_ = pdf; }
-        virtual RooAbsData* GenerateToyData(RooArgSet& /*nullPOI*/, double& weight) const ;
-        virtual RooDataSet* GetSamplingDistributionsSingleWorker(RooArgSet& paramPointIn) ;
+        RooAbsData* GenerateToyData(RooArgSet& /*nullPOI*/, double& weight) const override ;
+        RooDataSet* GetSamplingDistributionsSingleWorker(RooArgSet& paramPointIn) override ;
     private:
         RooAbsData* GenerateToyDataWithImportanceSampling(RooArgSet& /*nullPOI*/, double& weight) const ;
 
@@ -74,11 +78,12 @@ class ToyMCSamplerOpt : public RooStats::ToyMCSampler{
         // We can't use the NuisanceParameterSampler because, even if public, there's no interface file for it
         mutable RooDataSet *nuisValues_; 
         mutable int nuisIndex_;
+        bool genNuis_;
 
         mutable RooRealVar *weightVar_;
         mutable std::map<RooAbsPdf *, toymcoptutils::SimPdfGenInfo *> genCache_;
 
-        mutable std::auto_ptr<RooArgSet> paramsForImportanceSampling_;
+        mutable std::unique_ptr<RooArgSet> paramsForImportanceSampling_;
         mutable std::vector<RooArgSet *> importanceSnapshots_;
 };
 

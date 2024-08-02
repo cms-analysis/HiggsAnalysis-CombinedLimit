@@ -3,7 +3,7 @@
 
 #include <RooExponential.h>
 #include <RooAbsData.h>
-#include "HiggsAnalysis/CombinedLimit/interface/HGGRooPdfs.h"
+#include "HGGRooPdfs.h"
 #include <vector>
 
 class VectorizedExponential {

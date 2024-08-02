@@ -33,9 +33,9 @@
 
 	<class name="std::map<int, std::vector<double>>"/>
 	<class name="std::map<int, std::pair<double,double>>"/>
+        <class name="std::map<std::vector<RooAbsReal*>, double>" />
 
 	<class name="AsymPow" />
-	<class name="AsymQuad" />
 
 	<class name="FastTemplate" />
 	<class name="FastHisto" />
@@ -87,13 +87,6 @@
 	<class name="HZZ4L_RooSpinZeroPdf_phase_fast" />
 	<class name="VVHZZ4L_RooSpinZeroPdf_1D_fast" />
 
-	<class name="RooPiecewisePolynomial" />
-
-	<class name="RooNCSplineCore" />
-	<class name="RooNCSpline_1D_fast" />
-	<class name="RooNCSpline_2D_fast" />
-	<class name="RooNCSpline_3D_fast" />
-	<class name="RooFuncPdf" />
 
 	<class name="ProcessNormalization" />
 	<class name="Roo2ExpPdf" />
@@ -153,7 +146,6 @@
 	<class name="RooPowerFunction" />
 	<class name="RooPowerLaw" />
 	<class name="RooQCDPdf" />
-	<class name="RooRealFlooredSumPdf" />
 	<class name="RooRelBW" />
 	<class name="RooRelBW1" />
 	<class name="RooRelBWHighMass" />
@@ -211,7 +203,6 @@
 	<class name="CombDataSetFactory"  transient="true" />
 	<class name="DebugProposal"  transient="true" />
 	<class name="cmsmath::SequentialMinimizer"  transient="true" />
-	<class name="rVrFLikelihood"  transient="true" />
         <class name="TestProposal"  transient="true" />
   <class name="RooCheapProduct" />
   <class name="CMSHggFormulaA1" />
@@ -222,4 +213,12 @@
   <class name="CMSHggFormulaD1" />
   <class name="CMSHggFormulaD2" />
   <class name="SimpleProdPdf" />
+  <class name="CMSExternalMorph" />
+  <class name="CMSInterferenceFunc" />
+  <class name="RooEFTScalingFunction" />
+  <class name="RooModZPdf" />
+  <class name="RooExpPdf" />
+  <class name="RooSumTwoExpPdf" />
+  <class name="RooPowerLawPdf" />
+  <class name="RooSumTwoPowerLawPdf" />
 </lcgdict>
