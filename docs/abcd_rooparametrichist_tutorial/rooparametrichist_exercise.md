@@ -458,5 +458,5 @@ The same exercise can be repeated generating a workspace where the control regio
 
 The analysis illustrated so far can be run for all mass point, and finally the typical brazil exclusion plot can be produced. As we can see the expected limit without signal in the control regions is better compared to the one taking into account the signal, showing that in this example there is an impact from the signal contamination of the control regions affecting the final sensitivity. Instead, the observed line is showing the impact of the non-closure of the ABCD method: mainly the background is overestimated, thus leading to slightly worse expected limits (equivalent to an underfluctuation of the data).
 
-In our single mass point analysis one can check indeed the behaviour illustrated in the limit plot above by looking at the $50 \%$ quantile on $r$ after running the limit with and without signal injection in the control regions. Moreover, the effect of non-closure can be seen looking at the observed limit on $r$.
+In our single mass point analysis one can check indeed the behaviour illustrated in the limit plot above by looking at the $50$ % quantile on $r$ after running the limit with and without signal injection in the control regions. Moreover, the effect of non-closure can be seen looking at the observed limit on $r$.
 
