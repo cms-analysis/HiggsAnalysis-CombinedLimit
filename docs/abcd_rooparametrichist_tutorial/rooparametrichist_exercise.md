@@ -382,7 +382,7 @@ combine -M FitDiagnostics combinedExclusion_mPhi1500_2018.txt -m 1500 --saveShap
 
 ```
 
-Using the output ```higgsCombineTest.FitDiagnostics.mH1500.root```, one can run the script ```utils/mlfitNormsToText.py``` to get the predictions for the normalizations.
+Using the output ```higgsCombineTest.FitDiagnostics.mH1500.root```, one can run the script ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/mlfitNormsToText.py``` to get the predictions for the normalizations.
 
 <details>
 <summary> Normalizations predictions </summary>
@@ -402,7 +402,7 @@ ch4                                      Bkg                                 146
 ```
 </details>
 
-Moreover, one can run the script ```utils/postFitPlot.py``` to get pre-fit and post-fit plots in the signal region (in the combined datacard ```ch_4```).
+Moreover, you can run the script in ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/postFitPlot.py``` to get pre-fit and post-fit plots in the signal region (in the combined datacard ```ch4```).
 
 ![input distributions](figures/post_fit_plots_A.png)
 
