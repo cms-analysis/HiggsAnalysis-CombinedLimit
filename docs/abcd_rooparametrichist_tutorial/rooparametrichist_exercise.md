@@ -16,7 +16,7 @@ The tutorial has 4 main parts:
 ## Generate input data
 <a id="inputs"></a>
 
-The histograms for the $z$ observable in the different regions A,B,C,D can be produced using the [python script](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/blob/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/utils/produce_input_histograms_and_analyse.py). In the script the expected rates for different signal hypothesis (as a function of $\Phi$ mass $m_{\Phi} \in \{1500, 2000, 3000, 4000, 5000 \}$ GeV) and the background yields are specified, as well as the distributions in $x,y,z$ of the signals and backgrounds. In $x,y$, the signal and the background are assumed to be distributed as multivariate gaussians, with the background centred at $(0,2,0.2)$ in $(x,y)$ while the signals centred in the upper-right corner of the plane ($x,y>0.5$). For the $z$ feature, the background and the signal distributions are sampled from an exponential, for the signal the tails of the exponential get enhance with the mass parameter $m_{\Phi}$. 
+The histograms for the $z$ observable in the different regions A,B,C,D can be produced using the [python script](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/blob/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/utils/produce_input_histograms_and_analyse.py). In the script the expected rates for different signal hypothesis (as a function of $\Phi$ mass $m_{\Phi} \in \{1500, 2000, 3000, 4000, 5000 \}$ GeV) and the background yields are specified, as well as the distributions in $x,y,z$ of the signals and backgrounds. In the following steps of the tutorial we will just consider one of the mass points generated, $m_{\Phi} = 1500$ GeV, but the same analysis can be run separatelly on other mass points as well. In $x,y$, the signal and the background are assumed to be distributed as multivariate gaussians, with the background centred at $(0,2,0.2)$ in $(x,y)$ while the signals centred in the upper-right corner of the plane ($x,y>0.5$). For the $z$ feature, the background and the signal distributions are sampled from an exponential, for the signal the tails of the exponential get enhance with the mass parameter $m_{\Phi}$. 
 
 ![input distributions](figures/inputs.png)
 
@@ -43,7 +43,7 @@ A ```RooParamtricHist``` can be initialized as follows:
 RooParametricHist parametric_hist("paramtric_hist", "Parametric Hist",variable,roo_arg_list_bins,data_th1)
 
 ```
-where ```variable``` is a ```RooRealVar``` defining the observable we want to fit, ```roo_arg_list_bins``` is a ```RooArgList``` containing bins defined as ```RooRealVar``` or ```RooFormulaVar``` and ```data_th1``` is a ```TH1``` used to initialize the ```RooParamtricHist```. We remark that it is also possible to define a normalization parameter for the parametric histogram as follows:
+where ```variable``` is a ```RooRealVar``` defining the observable we want to fit, ```roo_arg_list_bins``` is a ```RooArgList``` containing bins defined as ```RooRealVar``` or ```RooFormulaVar``` and ```data_th1``` is a ```TH1``` used to initialize the ```RooParametricHist```. We remark that it is also possible to define a normalization parameter for the parametric histogram as follows:
 
 ```
 RooAddition parametric_hist_norm("paramtric_hist_norm","Total Number of events for Parametric Hist",roo_arg_list_bins)
@@ -61,7 +61,7 @@ In the following we describe how to build parametric histograms for our ABCD met
 <a id="datacards"></a>
 
 From the input histograms, for each signal hypothesis, 4 datacards can be built, one for each region of the ABCD plane. Examples of the templates for the datacards (for a signal mass point at 1500 GeV) can be found in the following. All the example datacards are stored in the directory [datacards](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/tree/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/datacards). We consider for now the datacards stored in the directory ```sgn_CRs```, for which the signal is present in the control regions.
-Let's take as an example the cards for the $m_{\Phi} = 1500$ in the [directory](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/tree/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/datacards/sgn_CRs/mPhi1500):
+Let's take as an example the cards for the $m_{\Phi} = 1500$ GeV in the [directory](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/tree/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/datacards/sgn_CRs/mPhi1500):
 
 <details>
 <summary> Datacard Region A (Signal Region) </summary>
@@ -422,5 +422,7 @@ The same exercise can be repeated generating a workspace where the control regio
 
 <img src="figures/limits.png" width="600" />
 
-As we can see the expected limit without signal in the control regions is better compared to the one taking into account the signal, showing that in this example there is an impact from the signal contamination of the control regions affecting the final sensitivity. Instead, the observed line is showing the impact of the non-closure of the ABCD method: mainly the background is overestimated, thus leading to slightly worse expected limits (equivalent to an underfluctuation of the data).
+The analysis illustrated so far can be run for all mass point, and finally the typical brazil exclusion plot can be produced. As we can see the expected limit without signal in the control regions is better compared to the one taking into account the signal, showing that in this example there is an impact from the signal contamination of the control regions affecting the final sensitivity. Instead, the observed line is showing the impact of the non-closure of the ABCD method: mainly the background is overestimated, thus leading to slightly worse expected limits (equivalent to an underfluctuation of the data).
+
+In our single mass point analysis one can check indeed the behaviour illustrated in the limit plot above by looking at the $50%$ quantile on $r$ after running the limit with and without signal injection in the control regions. Moreover, the effect of non-closure can be seen looking at the observed limit on $r$.
 
