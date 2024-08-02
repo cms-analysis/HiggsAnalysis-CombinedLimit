@@ -18,7 +18,7 @@ The tutorial has 4 main parts:
 
 The histograms for the $z$ observable in the different regions A,B,C,D can be produced using the [python script](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/blob/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/utils/produce_input_histograms_and_analyse.py). In the script the expected rates for different signal hypothesis (as a function of $\Phi$ mass $m_{\Phi} \in \{1500, 2000, 3000, 4000, 5000 \}$ GeV) and the background yields are specified, as well as the distributions in $x,y,z$ of the signals and backgrounds. In $x,y$, the signal and the background are assumed to be distributed as multivariate gaussians, with the background centred at $(0,2,0.2)$ in $(x,y)$ while the signals centred in the upper-right corner of the plane ($x,y>0.5$). For the $z$ feature, the background and the signal distributions are sampled from an exponential, for the signal the tails of the exponential get enhance with the mass parameter $m_{\Phi}$. 
 
-![input distributions](docs/inputs.png)
+![input distributions](figures/inputs.png)
 
 The ABCD boundaries are chosen in the example to be $(0.5,0.5)$, and A is defined as the signal region, while the others are control regions used for the estimation of the background. From the example provided, the signal contamination in the control regions is expected to be low, and the non-closure of the background estimation to be small. The histograms for the different regions are saved in separate root files for each signal hypothesis and total background. 
 
@@ -401,7 +401,7 @@ ch4                                      Bkg                                 146
 
 Moreover, one can run the script ```utils/postFitPlot.py``` to get pre-fit and post-fit plots in the signal region (in the combined datacard ```ch_4```).
 
-![input distributions](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/tree/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/docs/post_fit_plots_A.png)
+![input distributions](figures/post_fit_plots_A.png)
 
 ## Produce limits
 <a id="limits"></a>
@@ -417,7 +417,7 @@ Both the observed (from nominal Monte Carlo) and the expected limits are compute
 
 The same exercise can be repeated generating a workspace where the control regions are depleted from the signal (see datacards [here](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/tree/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/datacards/no_sgn_CRs) ), and re-running the limits. This should give a hint of how much the signal contamination in the control regions is worsening the limits.  If you want to generate by your self the workspace and the cards where the signal is removed from the CRs, just run the scripts ```create_workspace.py``` and ```create_datacards.py``` with the flag ```--deplete_crs_from_signal```.
 
-<img src="docs/limits.png" width="600" />
+<img src="figures/limits.png" width="600" />
 
 As we can see the expected limit without signal in the control regions is better compared to the one taking into account the signal, showing that in this example there is an impact from the signal contamination of the control regions affecting the final sensitivity. Instead, the observed line is showing the impact of the non-closure of the ABCD method: mainly the background is overestimated, thus leading to slightly worse expected limits (equivalent to an underfluctuation of the data).
 
