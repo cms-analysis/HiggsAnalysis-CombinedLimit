@@ -313,13 +313,12 @@ For the signal region A, create a ```RooParametricHist``` with each bin made fro
 
 ```
 #Relate the signal region (A) to control region B via transfer factors
-#Define RooArgList for
+#Define RooArgList for expected yields in region A after applying transfer factors
 process_AB_region_bins = RooArgList()
-#Define list to save transfer factors
+#Define list for transfer factors
 TF_list = []
-#Define list for
+#Define list for expected yields in region A after applying transfer factors
 process_AB_region_bins_list = []
-
 
 #Compute per-bin transfer factor
 #Loop over the bins of the transfering region B, and compute the transfer factors as C/D
