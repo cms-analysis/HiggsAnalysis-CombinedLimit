@@ -16,7 +16,7 @@ The tutorial has 4 main parts:
 ## Generate input data
 <a id="inputs"></a>
 
-The histograms for the $z$ observable in the different regions A,B,C,D can be produced using the [python script](https://github.com/cesarecazzaniga/combine_tutorial_ABCD_rooParametricHist/blob/main/utils/produce_input_histograms_and_analyse.py)). In the script the expected rates for different signal hypothesis (as a function of $\Phi$ mass $m_{\Phi} \in \{1500, 2000, 3000, 4000, 5000 \}$ GeV) and the background yields are specified, as well as the distributions in $x,y,z$ of the signals and backgrounds. In $x,y$, the signal and the background are assumed to be distributed as multivariate gaussians, with the background centred at $(0,2,0.2)$ in $(x,y)$ while the signals centred in the upper-right corner of the plane ($x,y>0.5$). For the $z$ feature, the background and the signal distributions are sampled from an exponential, for the signal the tails of the exponential get enhance with the mass parameter $m_{\Phi}$. 
+The histograms for the $z$ observable in the different regions A,B,C,D can be produced using the [python script](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/blob/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/utils/produce_input_histograms_and_analyse.py). In the script the expected rates for different signal hypothesis (as a function of $\Phi$ mass $m_{\Phi} \in \{1500, 2000, 3000, 4000, 5000 \}$ GeV) and the background yields are specified, as well as the distributions in $x,y,z$ of the signals and backgrounds. In $x,y$, the signal and the background are assumed to be distributed as multivariate gaussians, with the background centred at $(0,2,0.2)$ in $(x,y)$ while the signals centred in the upper-right corner of the plane ($x,y>0.5$). For the $z$ feature, the background and the signal distributions are sampled from an exponential, for the signal the tails of the exponential get enhance with the mass parameter $m_{\Phi}$. 
 
 ![input distributions](docs/inputs.png)
 
@@ -57,8 +57,8 @@ In the following we describe how to build parametric histograms for our ABCD met
 ## Prepare Combine datacards 
 <a id="datacards"></a>
 
-From the input histograms, for each signal hypothesis, 4 datacards can be built, one for each region of the ABCD plane. Examples of the templates for the datacards (for a signal mass point at 1500 GeV) can be found in the following. All the example datacards are stored in the directory [datacards](https://github.com/cesarecazzaniga/combine_tutorial_ABCD_rooParametricHist/tree/main/datacards). We consider for now the datacards stored in the directory ```sgn_CRs```, for which the signal is present in the control regions.
-Let's take as an example the cards for the $m_{\Phi} = 1500$ in the [directory](https://github.com/cesarecazzaniga/combine_tutorial_ABCD_rooParametricHist/tree/main/datacards/no_sgn_CRs/mPhi1500):
+From the input histograms, for each signal hypothesis, 4 datacards can be built, one for each region of the ABCD plane. Examples of the templates for the datacards (for a signal mass point at 1500 GeV) can be found in the following. All the example datacards are stored in the directory [datacards](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/tree/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/datacards). We consider for now the datacards stored in the directory ```sgn_CRs```, for which the signal is present in the control regions.
+Let's take as an example the cards for the $m_{\Phi} = 1500$ in the [directory](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/tree/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/datacards/sgn_CRs/mPhi1500):
 
 <details>
 <summary> Datacard Region A (Signal Region) </summary>
@@ -167,7 +167,7 @@ lumi                lnN                 -                                       
 As an example, for each datacard, we have assigned a systematic uncertainty of 1.6% due to lumi to the signal processes, and a systematic of 5% to background in the SR (to take into account of non-closure of the method). 
 Notice that each datacard for each region has a ```shapes``` section for the observed data ```data_obs```, for the background ```Bkg``` and for the signal. The signal and data shapes are stored in a workspace ```wspace``` linked to the shapes section in the datacard, while the background shapes are stored in a ```RooParametricHist``` object. In the following we show how to build the workspace. 
 
-We follow the main steps implemented in a working code to create the workspace [create_workspace.py](https://github.com/cesarecazzaniga/combine_tutorial_ABCD_rooParametricHist/blob/main/utils/create_workspace.py).
+We follow the main steps implemented in a working code to create the workspace [create_workspace.py](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/blob/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/utils/create_workspace.py).
 First create a RooWorkspace, implement a function ```__get_histograms_regions``` to read the input histograms from the A,B,C,D regions and import them as ```RooDataHist``` in the workspace.
 
 <details>
@@ -315,7 +315,7 @@ python utils/create_workspace.py -m 1500
 
 ```
 
-where ```-m``` is the flag for the mass point you want to run the script on. The script will use by default the histograms stored in ```generated_histograms```. To use the ones that you created, change the path [here](https://github.com/cesarecazzaniga/combine_tutorial_ABCD_rooParametricHist/blob/dc89f99a1c7a1f5705888ae00971176ec35463c5/utils/create_workspace.py#L49).
+where ```-m``` is the flag for the mass point you want to run the script on. The script will use by default the histograms stored in ```generated_histograms```. To use the ones that you created, change the path [here](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/blob/bff1d00ecb6bec5cdbbfa0768dc5442486499114/data/tutorials/abcd_rooparametrichist_exercise/utils/create_workspace.py#L59).
 After running the script, the workspace will be saved in ```example_analysis/datacards/```. To create the datacards automatically fatching the corret workspace, run:
 
 ```
@@ -401,7 +401,7 @@ ch4                                      Bkg                                 146
 
 Moreover, one can run the script ```utils/postFitPlot.py``` to get pre-fit and post-fit plots in the signal region (in the combined datacard ```ch_4```).
 
-![input distributions](docs/post_fit_plots_A.png)
+![input distributions](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/tree/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/docs/post_fit_plots_A.png)
 
 ## Produce limits
 <a id="limits"></a>
@@ -415,7 +415,7 @@ combine -M AsymptoticLimits -n combinedExclusion_mPhi1500_2018 -m 1500  combined
 
 Both the observed (from nominal Monte Carlo) and the expected limits are computed for each mass point. 
 
-The same exercise can be repeated generating a workspace where the control regions are depleted from the signal (see datacards [here](https://github.com/cesarecazzaniga/combine_tutorial_ABCD_rooParametricHist/tree/main/datacards/no_sgn_CRs) ), and re-running the limits. This should give a hint of how much the signal contamination in the control regions is worsening the limits.  If you want to generate by your self the workspace and the cards where the signal is removed from the CRs, just run the scripts ```create_workspace.py``` and ```create_datacards.py``` with the flag ```--deplete_crs_from_signal```.
+The same exercise can be repeated generating a workspace where the control regions are depleted from the signal (see datacards [here](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/tree/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/datacards/no_sgn_CRs) ), and re-running the limits. This should give a hint of how much the signal contamination in the control regions is worsening the limits.  If you want to generate by your self the workspace and the cards where the signal is removed from the CRs, just run the scripts ```create_workspace.py``` and ```create_datacards.py``` with the flag ```--deplete_crs_from_signal```.
 
 <img src="docs/limits.png" width="600" />
 
