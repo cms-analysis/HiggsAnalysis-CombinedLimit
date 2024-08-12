@@ -254,30 +254,23 @@ process_D_region_bins_list = []
 for i in range(1,histB_obs.GetNbinsX()+1):
     bin_B_i = RooRealVar("Bkg_B_region_bin_"+str(i),"Background yield in control region B bin " + str(i),histB_obs.GetBinContent(i),0.,2.0*histB_obs.GetBinContent(i))
     process_B_region_bins_list.append(bin_B_i)
+    process_B_region_bins.add(process_B_region_bins_list[i-1])
 
-#Add bins to RooArgList for the RooParametricHist in the B Region
-for idx,binB_i in enumerate(process_B_region_bins_list):
-    process_B_region_bins.add(binB_i)
 
-#Add yields for each bin for the RooParametricHist in the B Region
+#Add yields for each bin for the RooParametricHist in the C Region
 #each bin is defined as a RooRealVar initialized at the nominal bin content, and with a range between 0 and 2 times the nominal rate
 for i in range(1,histC_obs.GetNbinsX()+1):
     bin_C_i = RooRealVar("Bkg_C_region_bin_"+str(i),"Background yield in control region C bin " + str(i),histC_obs.GetBinContent(i),0.,2.0*histC_obs.GetBinContent(i))
     process_C_region_bins_list.append(bin_C_i)
+    process_C_region_bins.add(process_C_region_bins_list[i-1])
 
-#Add bins to RooArgList for the RooParametricHist in the C Region
-for idx,binC_i in enumerate(process_C_region_bins_list):
-    process_C_region_bins.add(binC_i)
 
 #Add yields for each bin for the RooParametricHist in the D Region
 #each bin is defined as a RooRealVar initialized at the nominal bin content, and with a range between 0 and 2 times the nominal rate
 for i in range(1,histD_obs.GetNbinsX()+1):
     bin_D_i = RooRealVar("Bkg_D_region_bin_"+str(i),"Background yield in control region D bin " + str(i),histD_obs.GetBinContent(i),0.,2.0*histD_obs.GetBinContent(i))
     process_D_region_bins_list.append(bin_D_i)
-
-#Add bins to RooArgList for the RooParametricHist in the D Region
-for idx,binD_i in enumerate(process_D_region_bins_list):
-    process_D_region_bins.add(binD_i)
+    process_D_region_bins.add(process_D_region_bins_list[i-1])
 
 
 #Define the parametric histogram for control region B.
@@ -339,8 +332,7 @@ for i in range(1,histB_pr.GetNbinsX()+1):
     #Compute the expected yield in the signal region as A = B * TF. This will be used to initialise the RooParametricHist in the Signal Region
     bin_AB_i = RooFormulaVar("Bkg_AB_region_bin_"+str(i),"Background yield in SR A region bin " + str(i), "@0*@1", RooArgList(TF_i, ws.obj("Bkg_B_region_bin_"+str(i)) ))
     process_AB_region_bins_list.append(bin_AB_i)
-for binAB_i in process_AB_region_bins_list:
-    process_AB_region_bins.add(binAB_i)
+    process_AB_region_bins.add(process_AB_region_bins_list[i-1])
 
 #Create parametric histogram for signal region (A) using bin contents saved in process_AB_region_bins
 param_hist_A_region = RooParametricHist("bkg_A", "Background PDF in A region",variable_z,process_AB_region_bins,histB_pr)
@@ -363,7 +355,7 @@ python utils/create_workspace.py -m 1500
 ```
 
 where ```-m``` is the flag for the mass point you want to run the script on. The script will use by default the histograms stored in ```generated_histograms```. To use the ones that you created, change the path [here](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/blob/bff1d00ecb6bec5cdbbfa0768dc5442486499114/data/tutorials/abcd_rooparametrichist_exercise/utils/create_workspace.py#L59).
-After running the script, the workspace will be saved in ```example_analysis/datacards/```. To create the datacards automatically fatching the corret workspace, run:
+After running the script, the workspace will be saved in ```example_analysis/datacards/```. To create the datacards automatically fetching the corret workspace, run:
 
 ```
 python utils/create_datacards.py -m 1500
