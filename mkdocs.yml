@@ -34,6 +34,7 @@ nav:
           - "Likelihood Based Unfolding": tutorial2023_unfolding/unfolding_exercise.md
           - "Statitiscal Tests Basics": tutorial_stat_routines/stat_routines.md
           - "Model building": model_building_tutorial2024/model_building_exercise.md
+          - "Per-bin Transfer Factors with Parametric Histograms": abcd_rooparametrichist_tutorial/rooparametrichist_exercise.md
         - Links & FAQ: part4/usefullinks.md
 
 theme:
