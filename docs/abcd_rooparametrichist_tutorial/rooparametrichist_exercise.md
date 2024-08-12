@@ -53,7 +53,7 @@ A ```RooParamtricHist``` can be initialized as follows:
 RooParametricHist parametric_hist("paramtric_hist", "Parametric Hist",variable,roo_arg_list_bins,data_th1)
 
 ```
-where ```variable``` is a ```RooRealVar``` defining the observable which is being binned, ```roo_arg_list_bins``` is a ```RooArgList``` containing bins defined as ```RooRealVar``` or ```RooFormulaVar``` and ```data_th1``` is a ```TH1``` used to initialize the ```RooParametricHist```. We remark that it is also possible to define a normalization parameter for the parametric histogram as follows:
+where ```variable``` is a ```RooRealVar``` defining the observable which is being binned, ```roo_arg_list_bins``` is a ```RooArgList``` containing bins defined as ```RooRealVar``` or ```RooFormulaVar``` and ```data_th1``` is a ```TH1``` used to initialize the ```RooParametricHist```. It is also possible to define a normalization parameter for the parametric histogram as follows:
 
 ```
 RooAddition parametric_hist_norm("paramtric_hist_norm","Total Number of events for Parametric Hist",roo_arg_list_bins)
