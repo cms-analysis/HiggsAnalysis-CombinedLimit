@@ -1,16 +1,25 @@
-#include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
+#include "../interface/RooSimultaneousOpt.h"
+#include "../interface/CachingNLL.h"
 #include <RooCmdConfig.h>
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,30,0)
 RooAbsReal* 
 RooSimultaneousOpt::createNLL(RooAbsData& data, const RooLinkedList& cmdList) 
+#else
+std::unique_ptr<RooAbsReal>
+RooSimultaneousOpt::createNLLImpl(RooAbsData& data, const RooLinkedList& cmdList) 
+#endif
 {
     RooCmdConfig pc(Form("RooSimultaneousOpt::createNLL(%s)",GetName())) ;
     pc.defineSet("cPars","Constrain",0,0);
     RooArgSet *cPars = pc.getSet("cPars");
-    cacheutils::CachingSimNLL *nll =  new cacheutils::CachingSimNLL(this, &data, cPars);
+    auto nll =  std::make_unique<cacheutils::CachingSimNLL>(this, &data, cPars);
     nll->setChannelMasks(this->channelMasks());
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,30,0)
+    return nll.release();
+#else
     return nll;
+#endif
 }
 
 RooSimultaneousOpt::~RooSimultaneousOpt()
@@ -31,8 +40,7 @@ RooSimultaneousOpt::addExtraConstraints(const RooAbsCollection &pdfs)
         _extraConstraints.add(pdfs);
     } else {
         // slow
-        RooLinkedListIter iter = pdfs.iterator();
-        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+        for (RooAbsArg *a : pdfs) {
             if (!_extraConstraints.contains(*a)) _extraConstraints.add(*a);
         }
     }

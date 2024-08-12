@@ -8,8 +8,8 @@
 #include "RooRealProxy.h"
 #include "RooListProxy.h"
 #include "TH1.h"
-#include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/FastTemplate_Old.h"
+#include "SimpleCacheSentry.h"
+#include "FastTemplate_Old.h"
 #include <cmath>
 
 class FastVerticalInterpHistPdf;
@@ -23,12 +23,12 @@ public:
   VerticalInterpHistPdf() ;
   VerticalInterpHistPdf(const char *name, const char *title, const RooRealVar &x, const RooArgList& funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) ;
   VerticalInterpHistPdf(const VerticalInterpHistPdf& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new VerticalInterpHistPdf(*this,newname) ; }
-  virtual ~VerticalInterpHistPdf() ;
+  TObject* clone(const char* newname) const override { return new VerticalInterpHistPdf(*this,newname) ; }
+  ~VerticalInterpHistPdf() override ;
 
-  Bool_t selfNormalized() const { return kTRUE; }
+  Bool_t selfNormalized() const override { return kTRUE; }
 
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 
   const RooArgList& funcList() const { return _funcList ; }
   const RooArgList& coefList() const { return _coefList ; }
@@ -41,8 +41,6 @@ protected:
   RooListProxy _coefList ;  //  List of coefficients
   Double_t     _smoothRegion;
   Int_t        _smoothAlgo;
-  TIterator* _funcIter ;     //! Iterator over FUNC list
-  TIterator* _coefIter ;    //! Iterator over coefficient list
 
   // TH1 containing the histogram of this pdf
   mutable SimpleCacheSentry _sentry; // !not to be serialized
@@ -53,7 +51,7 @@ protected:
   mutable int  *_cacheSingleGood; //! not to be serialized
 private:
 
-  ClassDef(VerticalInterpHistPdf,1) // 
+  ClassDefOverride(VerticalInterpHistPdf,1) // 
 
 protected:
   void setupCaches() const ;
@@ -73,12 +71,12 @@ public:
   FastVerticalInterpHistPdfBase() ;
   FastVerticalInterpHistPdfBase(const char *name, const char *title, const RooArgSet &obs, const RooArgList& funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) ;
   FastVerticalInterpHistPdfBase(const FastVerticalInterpHistPdfBase& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const = 0; 
-  virtual ~FastVerticalInterpHistPdfBase() ;
+  TObject* clone(const char* newname) const override = 0; 
+  ~FastVerticalInterpHistPdfBase() override ;
 
-  Bool_t selfNormalized() const { return kTRUE; }
+  Bool_t selfNormalized() const override { return kTRUE; }
 
-  Double_t evaluate() const = 0;
+  Double_t evaluate() const override = 0;
 
   const RooArgList& funcList() const { return _funcList ; }
   const RooArgList& coefList() const { return _coefList ; }
@@ -93,8 +91,6 @@ protected:
   RooListProxy _coefList ;  //  List of coefficients
   Double_t     _smoothRegion;
   Int_t        _smoothAlgo;
-  TIterator* _funcIter ;     //! Iterator over FUNC list
-  TIterator* _coefIter ;    //! Iterator over coefficient list
 
   // TH1 containing the histogram of this pdf
   mutable bool              _init; //! not to be serialized
@@ -120,7 +116,7 @@ protected:
   }
 
 private:
-  ClassDef(FastVerticalInterpHistPdfBase,2) // 
+  ClassDefOverride(FastVerticalInterpHistPdfBase,2) // 
 };
 
 
@@ -137,10 +133,10 @@ public:
     FastVerticalInterpHistPdfBase(other, name),
     _x("x",this,other._x),
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
-  virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf(*this,newname) ; }
-  virtual ~FastVerticalInterpHistPdf() {}
+  TObject* clone(const char* newname) const override { return new FastVerticalInterpHistPdf(*this,newname) ; }
+  ~FastVerticalInterpHistPdf() override {}
 
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 
   Bool_t hasCache()     const { return _cache.size() > 0; }
   Bool_t isCacheReady() const { return _cache.size() > 0 && _init; }
@@ -162,7 +158,7 @@ protected:
   void syncComponents(int dimension) const ;
 
 private:
-  ClassDef(FastVerticalInterpHistPdf,1) // 
+  ClassDefOverride(FastVerticalInterpHistPdf,1) // 
 };
 
 class FastVerticalInterpHistPdfV {
@@ -196,14 +192,14 @@ public:
     FastVerticalInterpHistPdfBase(other, name),
     _x("x",this,other._x), _y("y",this,other._y), _conditional(other._conditional),
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
-  virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf2D(*this,newname) ; }
-  virtual ~FastVerticalInterpHistPdf2D() {}
+  TObject* clone(const char* newname) const override { return new FastVerticalInterpHistPdf2D(*this,newname) ; }
+  ~FastVerticalInterpHistPdf2D() override {}
 
   const RooRealVar & x() const { return dynamic_cast<const RooRealVar &>(_x.arg()); }
   const RooRealVar & y() const { return dynamic_cast<const RooRealVar &>(_y.arg()); }
   Bool_t conditional() const { return _conditional; }
 
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 
   Bool_t hasCache()     const { return _cache.size() > 0; }
   Bool_t isCacheReady() const { return _cache.size() > 0 && _init; }
@@ -226,7 +222,7 @@ protected:
   void syncComponents(int dimension) const ;
 
 private:
-  ClassDef(FastVerticalInterpHistPdf2D,1) // 
+  ClassDefOverride(FastVerticalInterpHistPdf2D,1) // 
 };
 
 
@@ -237,12 +233,12 @@ public:
   FastVerticalInterpHistPdf2Base(const char *name, const char *title, const RooArgSet &obs, const TList & funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) ;
   FastVerticalInterpHistPdf2Base(const FastVerticalInterpHistPdf2Base& other, const char* name=0) ;
   explicit FastVerticalInterpHistPdf2Base(const FastVerticalInterpHistPdfBase& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const = 0; 
-  virtual ~FastVerticalInterpHistPdf2Base() ;
+  TObject* clone(const char* newname) const override = 0; 
+  ~FastVerticalInterpHistPdf2Base() override ;
 
-  Bool_t selfNormalized() const { return kTRUE; }
+  Bool_t selfNormalized() const override { return kTRUE; }
 
-  Double_t evaluate() const = 0;
+  Double_t evaluate() const override = 0;
 
   const RooArgList& coefList() const { return _coefList ; }
 
@@ -286,10 +282,10 @@ protected:
 
   // initialize the morphParams and the sentry. to be called by the daughter class, sets also _initBase to true
   void initBase() const ; 
-  virtual Bool_t  importWorkspaceHook(RooWorkspace& ws);
+  Bool_t  importWorkspaceHook(RooWorkspace& ws) override;
 
 private:
-  ClassDef(FastVerticalInterpHistPdf2Base,1) // 
+  ClassDefOverride(FastVerticalInterpHistPdf2Base,1) // 
 };
 
 
@@ -305,11 +301,11 @@ public:
     _x("x",this,other._x),
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
   explicit FastVerticalInterpHistPdf2(const FastVerticalInterpHistPdf& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf2(*this,newname) ; }
-  virtual ~FastVerticalInterpHistPdf2() {}
+  TObject* clone(const char* newname) const override { return new FastVerticalInterpHistPdf2(*this,newname) ; }
+  ~FastVerticalInterpHistPdf2() override {}
 
-  virtual void setActiveBins(unsigned int bins) ;
-  Double_t evaluate() const ;
+  void setActiveBins(unsigned int bins) override ;
+  Double_t evaluate() const override ;
 
   FastHisto const& cache() const { return _cache; }
 
@@ -329,7 +325,7 @@ protected:
   void initComponent(int which, TObject *hi, TObject *lo) ;
 
 private:
-  ClassDef(FastVerticalInterpHistPdf2,1) // 
+  ClassDefOverride(FastVerticalInterpHistPdf2,1) // 
 };
 class FastVerticalInterpHistPdf2V {
     public: 
@@ -359,17 +355,17 @@ public:
     _x("x",this,other._x), _y("y",this,other._y), _conditional(other._conditional),
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
   explicit FastVerticalInterpHistPdf2D2(const FastVerticalInterpHistPdf2D& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf2D2(*this,newname) ; }
-  virtual ~FastVerticalInterpHistPdf2D2() {}
+  TObject* clone(const char* newname) const override { return new FastVerticalInterpHistPdf2D2(*this,newname) ; }
+  ~FastVerticalInterpHistPdf2D2() override {}
 
   const RooRealVar & x() const { return dynamic_cast<const RooRealVar &>(_x.arg()); }
   const RooRealVar & y() const { return dynamic_cast<const RooRealVar &>(_y.arg()); }
   Bool_t conditional() const { return _conditional; }
 
-  Int_t getMaxVal(const RooArgSet& vars) const ;
-  Double_t maxVal(Int_t code) const ;
+  Int_t getMaxVal(const RooArgSet& vars) const override ;
+  Double_t maxVal(Int_t code) const override ;
 
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 protected:
   RooRealProxy _x, _y;
   bool _conditional;
@@ -386,7 +382,7 @@ protected:
   void initComponent(int which, TObject *hi, TObject *lo) ;
 
 private:
-  ClassDef(FastVerticalInterpHistPdf2D2,1) // 
+  ClassDefOverride(FastVerticalInterpHistPdf2D2,1) // 
 };
 
 
@@ -407,15 +403,15 @@ public:
     FastVerticalInterpHistPdfBase(other, name),
     _x("x",this,other._x), _y("y",this,other._y), _z("z",this,other._z), _conditional(other._conditional),
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
-  virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf3D(*this,newname) ; }
-  virtual ~FastVerticalInterpHistPdf3D() {}
+  TObject* clone(const char* newname) const override { return new FastVerticalInterpHistPdf3D(*this,newname) ; }
+  ~FastVerticalInterpHistPdf3D() override {}
 
   const RooRealVar & x() const { return dynamic_cast<const RooRealVar &>(_x.arg()); }
   const RooRealVar & y() const { return dynamic_cast<const RooRealVar &>(_y.arg()); }
   const RooRealVar & z() const { return dynamic_cast<const RooRealVar &>(_z.arg()); }
   Bool_t conditional() const { return _conditional; }
 
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 
   Bool_t hasCache()     const { return _cache.size() > 0; }
   Bool_t isCacheReady() const { return _cache.size() > 0 && _init; }
@@ -438,7 +434,7 @@ protected:
   void syncComponents(int dimension) const ;
 
 private:
-  ClassDef(FastVerticalInterpHistPdf3D,1) // 
+  ClassDefOverride(FastVerticalInterpHistPdf3D,1) // 
 };
 
 

@@ -8,7 +8,7 @@
  *
  *
  */
-#include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
+#include "LimitAlgo.h"
 #include <TList.h>
 class RooArgSet;
 namespace RooStats { class MarkovChain; }
@@ -16,9 +16,9 @@ namespace RooStats { class MarkovChain; }
 class MarkovChainMC : public LimitAlgo {
 public:
   MarkovChainMC() ;
-  virtual void applyOptions(const boost::program_options::variables_map &vm) ;
-  bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
-  virtual const std::string & name() const {
+  void applyOptions(const boost::program_options::variables_map &vm) override ;
+  bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) override;
+  const std::string & name() const override {
     static const std::string name("MarkovChainMC");
     return name;
   }

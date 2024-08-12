@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/GoodnessOfFit.h"
+#include "../interface/GoodnessOfFit.h"
 #include <RooRealVar.h>
 #include <RooArgSet.h>
 #include <RooRandom.h>
@@ -17,13 +17,13 @@
 #include <TFile.h>
 #include <RooCategory.h>
 #include <RooStats/ModelConfig.h>
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Significance.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
+#include "../interface/Combine.h"
+#include "../interface/Significance.h"
+#include "../interface/CascadeMinimizer.h"
+#include "../interface/CloseCoutSentry.h"
+#include "../interface/RooSimultaneousOpt.h"
+#include "../interface/utils.h"
+#include "../interface/CachingNLL.h"
 
 #include <numeric>
 #include <memory>
@@ -51,12 +51,12 @@ GoodnessOfFit::GoodnessOfFit() :
 {
     options_.add_options()
         ("algorithm",          boost::program_options::value<std::string>(&algo_), "Goodness of fit algorithm. Supported algorithms are 'saturated', 'KS' and 'AD'.")
-        ("setParametersForFit",   boost::program_options::value<std::string>(&setParametersForFit_)->default_value(""), "Set parameters values for the saturated model fitting step")
+        ("setParametersForFit",   boost::program_options::value<std::string>(&setParametersForFit_)->default_value(""), "Set parameter values for the saturated model fitting step")
         ("setParametersForEval",   boost::program_options::value<std::string>(&setParametersForEval_)->default_value(""), "Set parameter values for the saturated model NLL eval step")
   //      ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer (Minuit vs Minuit2)")
   //      ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer")
   //      ("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
-        ("fixedSignalStrength", boost::program_options::value<float>(&mu_)->default_value(mu_),  "Compute the goodness of fit for a fixed signal strength. If not specified, it's left floating")
+        ("fixedSignalStrength", boost::program_options::value<float>(&mu_)->default_value(mu_),  "Compute the goodness of fit for a fixed signal strength. If not specified, it is left floating")
         ("plots",  "Make plots containing information of the computation of the Anderson-Darling or Kolmogorov-Smirnov test statistic")
     ;
 }
@@ -65,7 +65,7 @@ void GoodnessOfFit::applyOptions(const boost::program_options::variables_map &vm
 {
     fixedMu_ = !vm["fixedSignalStrength"].defaulted();
     if (algo_ == "saturated") {
-      std::cout << "Will use saturated models to compute goodness of fit for a binned likelihood" << std::endl;
+      std::cout << "Will use saturated model to compute goodness of fit for a binned likelihood" << std::endl;
     } else if (algo_ == "AD") {
       std::cout << "Will use the Anderson-Darling test to compute goodness of fit for a binned likelihood" << std::endl;
     } else if (algo_ == "KS") {
@@ -103,7 +103,7 @@ bool GoodnessOfFit::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
 void GoodnessOfFit::initKSandAD(RooStats::ModelConfig *mc_s) {
   RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(mc_s->GetPdf());
   if (sim) {
-    std::auto_ptr<RooAbsCategoryLValue> cat(
+    std::unique_ptr<RooAbsCategoryLValue> cat(
         static_cast<RooAbsCategoryLValue *>(sim->indexCat().Clone()));
     int nbins = cat->numBins((const char *)0);
     binNames_.resize(nbins);
@@ -120,7 +120,7 @@ void GoodnessOfFit::initKSandAD(RooStats::ModelConfig *mc_s) {
 bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
   RooAbsPdf *pdf_nominal = mc_s->GetPdf();
   // now I need to make the saturated pdf
-  std::auto_ptr<RooAbsPdf> saturated;
+  std::unique_ptr<RooAbsPdf> saturated;
   // factorize away constraints anyway
   RooArgList constraints;
   RooAbsPdf *obsOnlyPdf = utils::factorizePdf(*mc_s->GetObservables(), *pdf_nominal, constraints);
@@ -128,7 +128,7 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
   RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(obsOnlyPdf);
   if (sim) {
       RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
-      std::auto_ptr<TList> datasets(data.split(*cat, true));
+      std::unique_ptr<TList> datasets(data.split(*cat, true));
       int nbins = cat->numBins((const char *)0);
       RooArgSet newPdfs;
       TString satname = TString::Format("%s_saturated", sim->GetName());
@@ -146,11 +146,11 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
           if (constraints.getSize() > 0) {
             RooArgList terms(constraints); terms.add(*saturatedPdfi);
             RooProdPdf *prodpdf = new RooProdPdf(TString::Format("%s_constr", saturatedPdfi->GetName()), "", terms);
-            prodpdf->addOwnedComponents(RooArgSet(*saturatedPdfi));
+            prodpdf->addOwnedComponents(*saturatedPdfi);
             saturatedPdfi = prodpdf;
           }
           satsim->addPdf(*saturatedPdfi, cat->getLabel());
-          satsim->addOwnedComponents(RooArgSet(*saturatedPdfi));
+          satsim->addOwnedComponents(*saturatedPdfi);
       }
       // Transfer the channel masks manually
       RooSimultaneousOpt* satsimopt = dynamic_cast<RooSimultaneousOpt*>(satsim);
@@ -164,7 +164,7 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
       if (constraints.getSize() > 0) {
           RooArgList terms(constraints); terms.add(*saturatedPdfi);
           RooProdPdf *prodpdf = new RooProdPdf(TString::Format("%s_constr", saturatedPdfi->GetName()), "", terms);
-          prodpdf->addOwnedComponents(RooArgSet(*saturatedPdfi));
+          prodpdf->addOwnedComponents(*saturatedPdfi);
           saturatedPdfi = prodpdf;
       }
       saturated.reset(saturatedPdfi);
@@ -173,8 +173,8 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
   CloseCoutSentry sentry(verbose < 2);
 
   const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
-  std::auto_ptr<RooAbsReal> nominal_nll(pdf_nominal->createNLL(data, constrainCmdArg));
-  std::auto_ptr<RooAbsReal> saturated_nll(saturated->createNLL(data, constrainCmdArg));
+  std::unique_ptr<RooAbsReal> nominal_nll(pdf_nominal->createNLL(data, constrainCmdArg));
+  std::unique_ptr<RooAbsReal> saturated_nll(saturated->createNLL(data, constrainCmdArg));
 
   if (setParametersForFit_ != "") {
     utils::setModelParameters(setParametersForFit_, w->allVars());
@@ -239,12 +239,12 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
                                              ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
   int minimizerStrategy_  = ROOT::Math::MinimizerOptions::DefaultStrategy();
 
-  std::auto_ptr<RooFitResult> result(pdf->fitTo(data, RooFit::Save(1), minim, RooFit::Strategy(minimizerStrategy_), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+  std::unique_ptr<RooFitResult> result(pdf->fitTo(data, RooFit::Save(1), minim, RooFit::Strategy(minimizerStrategy_), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
   sentry.clear();
   */
 
   const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
-  std::auto_ptr<RooAbsReal> nll(pdf->createNLL(data, constrainCmdArg));
+  std::unique_ptr<RooAbsReal> nll(pdf->createNLL(data, constrainCmdArg));
   CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained);
   //minims.setStrategy(minimizerStrategy_);
   minim.minimize(verbose-2);
@@ -259,7 +259,7 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
   if (binNames_.size()) {
     RooAbsCategoryLValue const &cat = sim->indexCat();    
     // Split the data using the option "true" to include empty datasets
-    std::auto_ptr<TList> datasets(data.split(cat, true));
+    std::unique_ptr<TList> datasets(data.split(cat, true));
     
     // Number of categories should always equal the number of datasets
     if (datasets->GetSize() != int(binNames_.size())) {
@@ -270,7 +270,7 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
     for (unsigned i = 0; i < binNames_.size(); i++) {
       RooAbsData *cat_data = dynamic_cast<RooAbsData *>(datasets->At(i));
       RooAbsPdf *cat_pdf = sim->getPdf(binNames_[i].c_str());
-      std::auto_ptr<RooArgSet> observables(cat_pdf->getObservables(cat_data));
+      std::unique_ptr<RooArgSet> observables(cat_pdf->getObservables(cat_data));
       if (observables->getSize() > 1) {
         std::cout << "Warning, KS and AD statistics are not well defined for "
                      "models with more than one observable\n";
@@ -281,7 +281,7 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
     limit = std::accumulate(qVals_.begin(), qVals_.end(), 0.);
   } else {
     RooRealVar *obs = dynamic_cast<RooRealVar *>(
-        std::auto_ptr<RooArgSet>(pdf->getObservables(data))->first());
+        std::unique_ptr<RooArgSet>(pdf->getObservables(data))->first());
     limit = EvaluateADDistance(*pdf, data, *obs, kolmo);
   }
 
@@ -328,7 +328,7 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
     // CDF of the PDF
     // If RooFit needs to use the scanning technique then increase the number
     // of sampled bins from 1000 to 10000
-    std::auto_ptr<RooAbsReal> cdf(pdf.createCdf(observable, RooFit::ScanAllCdf(), RooFit::ScanParameters(10000, 2)));
+    std::unique_ptr<RooAbsReal> cdf(pdf.createCdf(observable, RooFit::ScanAllCdf(), RooFit::ScanParameters(10000, 2)));
     TH1 * hCdf = nullptr;
     TH1 * hEdf = nullptr;
     TH1 * hDiff = nullptr;
@@ -426,8 +426,8 @@ RooAbsPdf * GoodnessOfFit::makeSaturatedPdf(RooAbsData &data) {
   RooConstVar *norm = new RooConstVar(TString::Format("%s_norm", data.GetName()), "", data.sumEntries());
   // we use RooAddPdf because this works with CachingNLL
   RooAddPdf *ret = new RooAddPdf(TString::Format("%s_saturated", data.GetName()), "", RooArgList(*hpdf), RooArgList(*norm));
-  ret->addOwnedComponents(RooArgSet(*norm));
-  ret->addOwnedComponents(RooArgSet(*hpdf));
+  ret->addOwnedComponents(*norm);
+  ret->addOwnedComponents(*hpdf);
   return ret;
 }
 

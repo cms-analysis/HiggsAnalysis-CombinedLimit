@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
+#include "../interface/CMSHistFuncWrapper.h"
 #include <vector>
 #include <ostream>
 #include "RooRealProxy.h"
@@ -35,7 +35,7 @@ CMSHistFuncWrapper::CMSHistFuncWrapper(CMSHistFuncWrapper const& other, const ch
       err_("err", this, other.err_),
       cache_(other.cache_),
       idx_(other.idx_),
-      sentry_(name ? TString(name) + "_sentry" : TString(other.sentry_.GetName()), ""),
+      sentry_(name ? TString(name) + "_sentry" : TString(other.GetName())+"_sentry", ""),
       pfunc_(nullptr),
       perr_(nullptr),
       initialized_(false) {
@@ -47,9 +47,7 @@ void CMSHistFuncWrapper::initialize() const {
   pfunc_ = dynamic_cast<CMSHistFunc const*>(&(func_.arg()));
   perr_ = dynamic_cast<CMSHistErrorPropagator *>(err_.absArg());
   auto sentry_args = perr_->getSentryArgs();
-  RooFIter iter = sentry_args->fwdIterator() ;
-  RooAbsArg* arg;
-  while((arg = iter.next())) {
+  for (RooAbsArg *arg : *sentry_args) {
     sentry_.addArg(*arg);
   }
   sentry_.setValueDirty();

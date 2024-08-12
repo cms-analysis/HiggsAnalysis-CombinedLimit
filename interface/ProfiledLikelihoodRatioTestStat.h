@@ -19,9 +19,9 @@ class ProfiledLikelihoodRatioTestStat : public RooStats::TestStatistic {
             if (nuisances) nuisances_.addClone(*nuisances);
         }
 
-        virtual Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) ;
+        Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) override ;
 
-        virtual const TString GetVarName() const {
+        const TString GetVarName() const override {
             return TString::Format("-log(%s/%s)", pdfNull_->GetName(), pdfAlt_->GetName()); 
         }
 
@@ -29,7 +29,7 @@ class ProfiledLikelihoodRatioTestStat : public RooStats::TestStatistic {
         RooAbsPdf *pdfNull_, *pdfAlt_;
         RooArgSet snapNull_, snapAlt_; 
         RooArgSet nuisances_; 
-        std::auto_ptr<RooArgSet> paramsNull_, paramsAlt_;
+        std::unique_ptr<RooArgSet> paramsNull_, paramsAlt_;
 }; // TestSimpleStatistics
 
 

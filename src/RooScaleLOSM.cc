@@ -1,6 +1,6 @@
 using namespace std;
 
-#include "HiggsAnalysis/CombinedLimit/interface/RooScaleLOSM.h"
+#include "../interface/RooScaleLOSM.h"
 
 const double RooScaleLOSM::mt_ = 172.50;
 const double RooScaleLOSM::mW_ = 80.398;

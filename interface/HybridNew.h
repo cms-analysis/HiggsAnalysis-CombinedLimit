@@ -8,7 +8,7 @@
  *
  *
  */
-#include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
+#include "LimitAlgo.h"
 #include <algorithm> 
 #include <RooStats/ModelConfig.h>
 #include <RooStats/HybridCalculator.h>
@@ -22,15 +22,15 @@ class TDirectory;
 class HybridNew : public LimitAlgo {
 public:
   HybridNew() ; 
-  virtual void applyOptions(const boost::program_options::variables_map &vm) ;
-  virtual void applyDefaultOptions() ; 
+  void applyOptions(const boost::program_options::variables_map &vm) override ;
+  void applyDefaultOptions() override ; 
 
-  virtual bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) override;
   virtual bool runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual bool runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual bool runSinglePoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual bool runTestStatistics(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
-  virtual const std::string & name() const {
+  const std::string & name() const override {
     static const std::string name("HybridNew");
     return name;
   }
@@ -77,20 +77,20 @@ private:
 
   static double EPS;
   // graph, used to compute the limit, not just for plotting!
-  std::auto_ptr<TGraphErrors> limitPlot_;
+  std::unique_ptr<TGraphErrors> limitPlot_;
  
   // performance counter: remember how many toys have been thrown
   unsigned int perf_totalToysRun_;
 
   //----- extra variables used for cross-checking the implementation of frequentist toy tossing in RooStats
   // mutable RooAbsData *realData_;
-  // std::auto_ptr<RooAbsCollection>  snapGlobalObs_;
+  // std::unique_ptr<RooAbsCollection>  snapGlobalObs_;
 
   struct Setup {
     RooStats::ModelConfig modelConfig, modelConfig_bonly;
-    std::auto_ptr<RooStats::TestStatistic> qvar;
-    std::auto_ptr<RooStats::ToyMCSampler>  toymcsampler;
-    std::auto_ptr<RooStats::ProofConfig> pc;
+    std::unique_ptr<RooStats::TestStatistic> qvar;
+    std::unique_ptr<RooStats::ToyMCSampler>  toymcsampler;
+    std::unique_ptr<RooStats::ProofConfig> pc;
     RooArgSet cleanupList;
   };
 
@@ -105,13 +105,13 @@ private:
   std::pair<double,double> eval(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, bool adaptive=false, double clsTarget=-1)  ;
 
   /// generic version
-  std::auto_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, const RooAbsCollection & rVals, Setup &setup);
+  std::unique_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, const RooAbsCollection & rVals, Setup &setup);
   /// specific version used in unidimensional searches (calls the generic one)
-  std::auto_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, Setup &setup);
+  std::unique_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, Setup &setup);
 
   std::pair<double,double> eval(RooStats::HybridCalculator &hc, const RooAbsCollection & rVals, bool adaptive=false, double clsTarget=-1) ;
 
-  // Compute CLs or CLsb from a HypoTestResult. In the case of the LHCFC test statistics, do the proper transformation to LHC or Profile (which needs to know the POI)
+  // Compute CLs or Pmu from a HypoTestResult. In the case of the LHCFC test statistics, do the proper transformation to LHC or Profile (which needs to know the POI)
   std::pair<double,double> eval(const RooStats::HypoTestResult &hcres, const RooAbsCollection & rVals) ;
   std::pair<double,double> eval(const RooStats::HypoTestResult &hcres, double rVal) ;
 

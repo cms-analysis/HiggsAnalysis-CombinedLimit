@@ -6,7 +6,7 @@
 
 #include "Riostream.h" 
 
-#include "HiggsAnalysis/CombinedLimit/interface/HWWLVJRooPdfs.h"
+#include "../interface/HWWLVJRooPdfs.h"
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
 #include "RooExponential.h" 
@@ -25,7 +25,6 @@
 #include "TString.h"
 #include "TRandom3.h"
 #include "TCanvas.h"
-#include "TIterator.h"
 #include "RooHist.h"
 #include "RooRealVar.h"
 #include "RooFitResult.h"

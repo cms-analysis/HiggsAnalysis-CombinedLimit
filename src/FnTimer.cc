@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/FnTimer.h"
+#include "../interface/FnTimer.h"
 #include <string>
 #include <iostream>
 #include "boost/lexical_cast.hpp"
@@ -19,8 +19,7 @@ std::string GetQualififedName(std::string const& str) {
       ++apos;
     }
   }
-  std::string cpy = str.substr(apos, bpos - apos);
-  return cpy;
+  return str.substr(apos, bpos - apos);
 }
 
 

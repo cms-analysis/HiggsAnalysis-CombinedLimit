@@ -17,6 +17,7 @@
 #include "TH1.h"
 #include "RooDataHist.h"
 #include "RooHistFunc.h"
+#include "RooListProxy.h"
 using namespace RooFit;
 class HZZ4L_RooSpinZeroPdf : public RooAbsPdf {
 protected:
@@ -27,7 +28,7 @@ protected:
   RooRealProxy fai ;
   RooListProxy _coefList ;  //  List of funcficients
 //  TIterator* _coefIter ;    //! Iterator over funcficient lis
-  Double_t evaluate() const ;
+  Double_t evaluate() const override ;
 public:
   HZZ4L_RooSpinZeroPdf() {} ; 
   HZZ4L_RooSpinZeroPdf(const char *name, const char *title,
@@ -38,11 +39,11 @@ public:
 			const RooArgList& inCoefList);
 		    
   HZZ4L_RooSpinZeroPdf(const HZZ4L_RooSpinZeroPdf& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new HZZ4L_RooSpinZeroPdf(*this,newname); }
-  inline virtual ~HZZ4L_RooSpinZeroPdf() {}
+  TObject* clone(const char* newname) const override { return new HZZ4L_RooSpinZeroPdf(*this,newname); }
+  inline ~HZZ4L_RooSpinZeroPdf() override {}
   
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
   const RooArgList& coefList() const { return _coefList ; }
 
   double Integral_T1;
@@ -51,7 +52,7 @@ public:
 
 private:
 
-	ClassDef(HZZ4L_RooSpinZeroPdf,1) // Your description goes here...
+	ClassDefOverride(HZZ4L_RooSpinZeroPdf,1) // Your description goes here...
 
 };
  

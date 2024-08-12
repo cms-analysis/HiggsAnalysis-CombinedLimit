@@ -9,10 +9,10 @@
 #include "RooRealProxy.h"
 #include "Rtypes.h"
 #include "TH1F.h"
-#include "HiggsAnalysis/CombinedLimit/interface/FastTemplate_Old.h"
-#include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistV.h"
+#include "FastTemplate_Old.h"
+#include "SimpleCacheSentry.h"
+#include "CMSHistFunc.h"
+#include "CMSHistV.h"
 
 class CMSHistSum : public RooAbsReal {
 private:
@@ -42,13 +42,13 @@ public:
 
   CMSHistSum(CMSHistSum const& other, const char* name = 0);
 
-  virtual TObject* clone(const char* newname) const {
+  TObject* clone(const char* newname) const override {
     return new CMSHistSum(*this, newname);
   }
 
-  virtual ~CMSHistSum() {;}
+  ~CMSHistSum() override {;}
 
-  Double_t evaluate() const;
+  Double_t evaluate() const override;
 
   std::map<std::string, Double_t> getProcessNorms() const;
 
@@ -57,12 +57,12 @@ public:
   std::unique_ptr<RooArgSet> getSentryArgs() const;
 
   void printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
-                      TString indent) const;
+                      TString indent) const override;
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
-                              const char* rangeName = 0) const;
+                              const char* rangeName = 0) const override;
 
-  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const override;
 
   void setData(RooAbsData const& data) const;
 
@@ -73,8 +73,12 @@ public:
   RooArgList const& coefList() const { return coeffpars_; }
   // RooArgList const& funcList() const { return funcs_; }
 
+  RooAbsReal const& getXVar() const { return x_.arg(); }
+
   static void EnableFastVertical();
   friend class CMSHistV<CMSHistSum>;
+
+  void injectExternalMorph(int idx, CMSExternalMorph& morph);
 
  protected:
   RooRealProxy x_;
@@ -128,6 +132,9 @@ public:
   mutable int fast_mode_; //! not to be serialized
   static bool enable_fast_vertical_; //! not to be serialized
 
+  RooListProxy external_morphs_;
+  std::vector<int> external_morph_indices_;
+
   inline int& morphField(int const& ip, int const& iv) {
     return vmorph_fields_[ip * n_morphs_ + iv];
   }
@@ -143,7 +150,7 @@ public:
 
 
  private:
-  ClassDef(CMSHistSum,1)
+  ClassDefOverride(CMSHistSum,2)
 };
 
 #endif

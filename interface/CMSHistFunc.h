@@ -12,9 +12,10 @@
 #include "Rtypes.h"
 #include "TH1F.h"
 #include "TMatrix.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistV.h"
-#include "HiggsAnalysis/CombinedLimit/interface/FastTemplate_Old.h"
-#include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
+#include "CMSHistV.h"
+#include "FastTemplate_Old.h"
+#include "SimpleCacheSentry.h"
+#include "CMSExternalMorph.h"
 
 class CMSHistFuncWrapper;
 
@@ -82,10 +83,10 @@ class CMSHistFunc : public RooAbsReal {
 
   CMSHistFunc(CMSHistFunc const& other, const char* name = 0);
 
-  virtual TObject* clone(const char* newname) const {
+  TObject* clone(const char* newname) const override {
     return new CMSHistFunc(*this, newname);
   }
-  virtual ~CMSHistFunc() {}
+  ~CMSHistFunc() override;
 
   void addHorizontalMorph(RooAbsReal& hvar, TVectorD hpoints);
 
@@ -98,19 +99,19 @@ class CMSHistFunc : public RooAbsReal {
   void setShape(unsigned hindex, unsigned hpoint, unsigned vindex,
                 unsigned vpoint, TH1 const& hist);
 
-  Double_t evaluate() const;
+  Double_t evaluate() const override;
 
   void updateCache() const;
 
   std::unique_ptr<RooArgSet> getSentryArgs() const;
 
   void printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
-                      TString indent) const;
+                      TString indent) const override;
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
-                              const char* rangeName = 0) const;
+                              const char* rangeName = 0) const override;
 
-  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const override;
 
   inline void setMorphStrategy(unsigned strategy) {
     morph_strategy_ = strategy;
@@ -148,6 +149,7 @@ class CMSHistFunc : public RooAbsReal {
   friend class CMSHistV<CMSHistFunc>;
   friend class CMSHistSum;
 
+  void injectExternalMorph(CMSExternalMorph& morph);
   /*
 
   – RooAbsArg::setVerboseEval(Int_t level) • Level 0 – No messages
@@ -190,6 +192,9 @@ class CMSHistFunc : public RooAbsReal {
 
   static bool enable_fast_vertical_; //! not to be serialized
 
+  // This is an "optional proxy", i.e. a list with either zero or one entry
+  RooListProxy external_morph_;
+
  private:
   void initialize() const;
   void setGlobalCache() const;
@@ -214,7 +219,7 @@ class CMSHistFunc : public RooAbsReal {
 
   void applyRebin() const;
 
-  ClassDef(CMSHistFunc, 1)
+  ClassDefOverride(CMSHistFunc, 2)
 };
 
 

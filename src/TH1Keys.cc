@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/TH1Keys.h"
+#include "../interface/TH1Keys.h"
 #include <RooBinning.h>
 #include <RooMsgService.h>
 
@@ -21,7 +21,6 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,Double_t xlow,D
     x_(new RooRealVar("x", "x", min_, max_)),
     w_(new RooRealVar("w", "w", 1.0)),
     point_(*x_),
-    dataset_(new RooDataSet(name, title, RooArgSet(*x_, *w_), "w")),
     underflow_(0.0), overflow_(0.0),
     globalScale_(1.0),
     options_(options),
@@ -29,6 +28,11 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,Double_t xlow,D
     cache_(new TH1F("",title,nbinsx,xlow,xup)),
     isCacheGood_(true)
 {
+    RooArgSet vars;
+    vars.add(*x_);
+    vars.add(*w_);
+    dataset_ = new RooDataSet(name, title, vars, RooFit::WeightVar("w"));
+
     cache_->SetDirectory(0);
     fDimension = 1;
     x_->setBins(nbinsx);
@@ -40,7 +44,6 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Float_t  
     x_(new RooRealVar("x", "x", min_, max_)),
     w_(new RooRealVar("w", "w", 1.0)),
     point_(*x_),
-    dataset_(new RooDataSet(name, title, RooArgSet(*x_, *w_), "w")),
     underflow_(0.0), overflow_(0.0),
     globalScale_(1.0),
     options_(options),
@@ -48,6 +51,11 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Float_t  
     cache_(new TH1F("",title,nbinsx,xbins)),
     isCacheGood_(true)
 {
+    RooArgSet vars;
+    vars.add(*x_);
+    vars.add(*w_);
+    dataset_ = new RooDataSet(name, title, vars, RooFit::WeightVar("w"));
+
     cache_->SetDirectory(0);
     fDimension = 1;
     std::vector<Double_t> boundaries(nbinsx+1);
@@ -61,7 +69,6 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Double_t 
     x_(new RooRealVar("x", "x", min_, max_)),
     w_(new RooRealVar("w", "w", 1.0)),
     point_(*x_),
-    dataset_(new RooDataSet(name, title, RooArgSet(*x_, *w_), "w")),
     underflow_(0.0), overflow_(0.0),
     globalScale_(1.0),
     options_(options),
@@ -69,6 +76,11 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Double_t 
     cache_(new TH1F("",title,nbinsx,xbins)),
     isCacheGood_(true)
 {
+    RooArgSet vars;
+    vars.add(*x_);
+    vars.add(*w_);
+    dataset_ = new RooDataSet(name, title, vars, RooFit::WeightVar("w"));
+
     cache_->SetDirectory(0);
     fDimension = 1;
     x_->setBinning(RooBinning(nbinsx, xbins));
@@ -81,7 +93,6 @@ TH1Keys::TH1Keys(const TH1Keys &other)  :
     x_(new RooRealVar("x", "x", min_, max_)),
     w_(new RooRealVar("w", "w", 1.0)),
     point_(*x_),
-    dataset_(new RooDataSet(other.GetName(), other.GetTitle(), RooArgSet(*x_, *w_), "w")),
     underflow_(other.underflow_), overflow_(other.overflow_),
     globalScale_(other.globalScale_),
     options_(other.options_),
@@ -89,6 +100,11 @@ TH1Keys::TH1Keys(const TH1Keys &other)  :
     cache_((TH1*)other.cache_->Clone()),
     isCacheGood_(other.isCacheGood_)
 {
+    RooArgSet vars;
+    vars.add(*x_);
+    vars.add(*w_);
+    dataset_ = new RooDataSet(other.GetName(), other.GetTitle(), vars, RooFit::WeightVar("w"));
+
     other.Copy(*this);
     fDimension = 1;
     x_->setBinning(other.x_->getBinning());
@@ -175,6 +191,6 @@ void TH1Keys::FillH1() const
 }
 
 void TH1Keys::dont(const char *msg) const {
-    TObject::Error("TH1Keys",msg);
+    TObject::Error("TH1Keys","%s",msg);
     throw std::runtime_error(std::string("Error in TH1Keys: ")+msg);
 }

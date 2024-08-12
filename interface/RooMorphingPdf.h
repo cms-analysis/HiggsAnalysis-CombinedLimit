@@ -9,8 +9,8 @@
 #include "RooAbsReal.h"
 #include "TH1F.h"
 #include "Rtypes.h"
-#include "HiggsAnalysis/CombinedLimit/interface/VerticalInterpHistPdf.h"
-#include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
+#include "VerticalInterpHistPdf.h"
+#include "SimpleCacheSentry.h"
 
 class RooMorphingPdf : public RooAbsPdf {
  protected:
@@ -75,19 +75,19 @@ class RooMorphingPdf : public RooAbsPdf {
   // Copy constructor
   RooMorphingPdf(const RooMorphingPdf& other, const char* name = 0);
   // Destructor
-  virtual ~RooMorphingPdf() {}
+  ~RooMorphingPdf() override {}
   // Clone method
-  virtual TObject* clone(const char* newname) const {
+  TObject* clone(const char* newname) const override {
     return new RooMorphingPdf(*this, newname);
   }
   // void AddPoint(double point, FastVerticalInterpHistPdf & hist);
 
-  Bool_t selfNormalized() const { return kTRUE; }
+  Bool_t selfNormalized() const override { return kTRUE; }
 
-  virtual Double_t evaluate() const;
+  Double_t evaluate() const override;
 
  public:
-  ClassDef(RooMorphingPdf, 1);
+  ClassDefOverride(RooMorphingPdf, 1);
 };
 
 #endif

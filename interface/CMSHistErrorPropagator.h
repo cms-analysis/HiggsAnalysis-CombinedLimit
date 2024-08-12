@@ -9,10 +9,10 @@
 #include "RooRealProxy.h"
 #include "Rtypes.h"
 #include "TH1F.h"
-#include "HiggsAnalysis/CombinedLimit/interface/FastTemplate_Old.h"
-#include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistV.h"
+#include "FastTemplate_Old.h"
+#include "SimpleCacheSentry.h"
+#include "CMSHistFunc.h"
+#include "CMSHistV.h"
 
 class CMSHistErrorPropagator : public RooAbsReal {
 private:
@@ -41,27 +41,27 @@ public:
 
   CMSHistErrorPropagator(CMSHistErrorPropagator const& other, const char* name = 0);
 
-  virtual TObject* clone(const char* newname) const {
+  TObject* clone(const char* newname) const override {
     return new CMSHistErrorPropagator(*this, newname);
   }
 
-  virtual ~CMSHistErrorPropagator() {;}
+  ~CMSHistErrorPropagator() override {;}
 
   void applyErrorShifts(unsigned idx, FastHisto const& nominal, FastHisto & result);
 
-  Double_t evaluate() const;
+  Double_t evaluate() const override;
 
   RooArgList * setupBinPars(double poissonThreshold);
 
   std::unique_ptr<RooArgSet> getSentryArgs() const;
 
   void printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
-                      TString indent) const;
+                      TString indent) const override;
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
-                              const char* rangeName = 0) const;
+                              const char* rangeName = 0) const override;
 
-  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const override;
 
   void setData(RooAbsData const& data) const;
 
@@ -72,6 +72,8 @@ public:
   RooArgList wrapperList() const;
   RooArgList const& coefList() const { return coeffs_; }
   RooArgList const& funcList() const { return funcs_; }
+  
+  std::map<std::string, Double_t> getProcessNorms() const;
 
   friend class CMSHistV<CMSHistErrorPropagator>;
 
@@ -111,7 +113,7 @@ public:
 
 
  private:
-  ClassDef(CMSHistErrorPropagator,1)
+  ClassDefOverride(CMSHistErrorPropagator,1)
 };
 
 #endif

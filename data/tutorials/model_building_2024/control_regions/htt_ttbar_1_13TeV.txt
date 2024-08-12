@@ -1,0 +1,71 @@
+# Datacard produced by CombineHarvester with git status: 8fe0e3c-dirty
+imax    1 number of bins
+jmax    5 number of processes minus 1
+kmax    * number of nuisance parameters
+--------------------------------------------------------------------------------
+shapes * htt_ttbar_1_13TeV htt_input.root htt_ttbar_1_13TeV/$PROCESS htt_ttbar_1_13TeV/$PROCESS_$SYSTEMATIC
+--------------------------------------------------------------------------------
+bin          htt_ttbar_1_13TeV 
+observation  79251.0         
+--------------------------------------------------------------------------------
+bin                                       htt_ttbar_1_13TeV htt_ttbar_1_13TeV htt_ttbar_1_13TeV htt_ttbar_1_13TeV htt_ttbar_1_13TeV htt_ttbar_1_13TeV 
+process                                   W               QCD             ZLL             TT              VV              ZTT             
+process                                   1               2               3               4               5               6               
+rate                                      597.336         308.965         14.3011         67280.4         10589.6         150.025         
+--------------------------------------------------------------------------------
+CMS_eff_e                         lnN     1.02            -               1.02            1.02            1.02            1.02            
+CMS_eff_m                         lnN     1.02            -               1.02            1.02            1.02            1.02            
+CMS_htt_ttbarControlVar_13TeV     lnN     -               -               -               1.01            -               -               
+CMS_htt_ttbarShape_13TeV          shapeU  -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_QCD_bin_10 shape   -               1               -               -               -               -               
+CMS_htt_ttbar_cr_13TeV_QCD_bin_11 shape   -               1               -               -               -               -               
+CMS_htt_ttbar_cr_13TeV_QCD_bin_12 shape   -               1               -               -               -               -               
+CMS_htt_ttbar_cr_13TeV_QCD_bin_13 shape   -               1               -               -               -               -               
+CMS_htt_ttbar_cr_13TeV_QCD_bin_14 shape   -               1               -               -               -               -               
+CMS_htt_ttbar_cr_13TeV_QCD_bin_29 shape   -               1               -               -               -               -               
+CMS_htt_ttbar_cr_13TeV_QCD_bin_3  shape   -               1               -               -               -               -               
+CMS_htt_ttbar_cr_13TeV_QCD_bin_4  shape   -               1               -               -               -               -               
+CMS_htt_ttbar_cr_13TeV_QCD_bin_5  shape   -               1               -               -               -               -               
+CMS_htt_ttbar_cr_13TeV_QCD_bin_7  shape   -               1               -               -               -               -               
+CMS_htt_ttbar_cr_13TeV_QCD_bin_8  shape   -               1               -               -               -               -               
+CMS_htt_ttbar_cr_13TeV_QCD_bin_9  shape   -               1               -               -               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_1   shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_10  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_11  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_12  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_13  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_14  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_15  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_16  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_17  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_18  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_19  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_2   shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_20  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_21  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_22  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_23  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_24  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_25  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_26  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_27  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_28  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_29  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_30  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_31  shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_4   shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_5   shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_6   shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_7   shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_8   shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_TT_bin_9   shape   -               -               -               1               -               -               
+CMS_htt_ttbar_cr_13TeV_VV_bin_31  shape   -               -               -               -               1               -               
+CMS_htt_ttbar_cr_13TeV_W_bin_29   shape   1               -               -               -               -               -               
+CMS_htt_ttbar_cr_13TeV_ZTT_bin_1  shape   -               -               -               -               -               1               
+CMS_htt_ttbar_cr_13TeV_ZTT_bin_2  shape   -               -               -               -               -               1               
+CMS_htt_ttbar_cr_13TeV_ZTT_bin_3  shape   -               -               -               -               -               1               
+CMS_htt_ttbar_cr_13TeV_ZTT_bin_4  shape   -               -               -               -               -               1               
+CMS_htt_ttbar_cr_13TeV_ZTT_bin_6  shape   -               -               -               -               -               1               
+CMS_htt_vvXsec_13TeV              lnN     -               -               -               -               1.05            -               
+CMS_htt_zjXsec_13TeV              lnN     -               -               1.04            -               -               -               
+lumi_13TeV                        lnN     1.025           -               1.025           -               1.025           1.025           

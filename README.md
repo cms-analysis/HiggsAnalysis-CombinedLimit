@@ -3,12 +3,11 @@ HiggsAnalysis-CombinedLimit
 
 ### Official documentation
 
-[Manual to run combine](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/)
+All documentation, including installation instructions, is hosted at
+http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest
 
-### Standalone compilation in `lxplus`
-```
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-source env_standalone.sh 
-make -j 8; make # second make fixes compilation error of first
-```
+The source code of this documentation can be found in the `docs/` folder in this repository.
+
+### Publication 
+
+The `Combine` tool publication can be found [here](https://arxiv.org/abs/2404.06614). Please consider citing this reference if you use the `Combine` tool. 

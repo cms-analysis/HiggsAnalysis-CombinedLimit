@@ -6,8 +6,8 @@
 #include "RooMsgService.h"
 #include <dlfcn.h>
 #include <RooStats/ModelConfig.h>
-#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include "../interface/CachingNLL.h"
+#include "../interface/ProfilingTools.h"
 
 void (*dump_)(const char *);
 
@@ -59,10 +59,8 @@ int main(int argc, char *argv[]) {
 	}
 
 	RooWorkspace *w = (RooWorkspace*)gDirectory->Get(argv[2]);
-	// w->Print();
 	auto allfuncs = w->allFunctions();
-	auto it =allfuncs.fwdIterator();
-	for (RooAbsArg *a = it.next(); a != 0; a = it.next()) {
+	for (auto *a: allfuncs){
 		auto rrv = dynamic_cast<RooAbsReal*>(a);
 		if (rrv) {
 			rrv->getVal();
@@ -76,7 +74,7 @@ int main(int argc, char *argv[]) {
         RooAbsPdf &pdf = *mc_s->GetPdf();
         RooAbsData *dobs = w->data("data_obs");
         const RooCmdArg &constrainCmdArg = RooFit::Constrain(*mc_s->GetNuisanceParameters());
-        std::auto_ptr<RooAbsReal> nll;
+        std::unique_ptr<RooAbsReal> nll;
         nll.reset(pdf.createNLL(*dobs, constrainCmdArg, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true))); // make a new nll
         nll->getVal();
 	if(dump_) {

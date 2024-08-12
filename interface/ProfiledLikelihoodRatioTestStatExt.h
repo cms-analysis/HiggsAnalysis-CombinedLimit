@@ -9,8 +9,8 @@ class RooMinimizer;
 #include <RooAbsData.h>
 #include <RooArgSet.h>
 #include <RooStats/TestStatistic.h>
-#include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
+#include "RooSimultaneousOpt.h"
+#include "CachingNLL.h"
 
 namespace nllutils {
     bool robustMinimize(RooAbsReal &nll, RooMinimizer &minimizer, int verbosity=0, bool zeroPoint=false);
@@ -22,9 +22,9 @@ class ProfiledLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
                 const RooArgSet *nuisances, const RooArgSet & paramsNull = RooArgSet(), const RooArgSet & paramsAlt = RooArgSet(),
                 int verbosity=0) ;
  
-        virtual Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) ;
+        Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) override ;
 
-        virtual const TString GetVarName() const {
+        const TString GetVarName() const override {
             return TString::Format("-log(%s/%s)", pdfNull_->GetName(), pdfAlt_->GetName()); 
         }
 
@@ -35,14 +35,14 @@ class ProfiledLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
         RooAbsPdf *pdfNull_, *pdfAlt_;
         RooArgSet snapNull_, snapAlt_; 
         RooArgSet nuisances_; 
-        std::auto_ptr<RooArgSet> paramsNull_, paramsAlt_;
-        std::auto_ptr<RooAbsReal> nllNull_, nllAlt_;
+        std::unique_ptr<RooArgSet> paramsNull_, paramsAlt_;
+        std::unique_ptr<RooAbsReal> nllNull_, nllAlt_;
         Int_t verbosity_;
 
         // create NLL. if returns true, it can be kept, if false it should be deleted at the end of Evaluate
-        bool createNLL(RooAbsPdf &pdf, RooAbsData &data, std::auto_ptr<RooAbsReal> &nll) ;
+        bool createNLL(RooAbsPdf &pdf, RooAbsData &data, std::unique_ptr<RooAbsReal> &nll) ;
 
-        double minNLL(std::auto_ptr<RooAbsReal> &nll) ;
+        double minNLL(std::unique_ptr<RooAbsReal> &nll) ;
 }; // TestSimpleStatistics
 
 
@@ -55,10 +55,10 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
                 const RooArgSet *nuisances, 
                 const RooArgSet & params, const RooArgSet & poi, const RooArgList &gobsParams, const RooArgList &gobs, int verbosity=0, OneSidedness oneSided = oneSidedDef) ; 
 
-        virtual Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) ;
+        Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) override ;
         virtual std::vector<Double_t> Evaluate(RooAbsData& data, RooArgSet& nullPOI, const std::vector<Double_t> &rVals) ;
 
-        virtual const TString GetVarName() const { return "- log (#lambda)"; }
+        const TString GetVarName() const override { return "- log (#lambda)"; }
 
         // Verbosity (default: 0)
         void setPrintLevel(Int_t level) { verbosity_ = level; }
@@ -68,10 +68,10 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
 
         RooAbsPdf *pdf_;
         RooArgSet snap_, poi_; // snapshot of parameters, and of the subset which are POI
-        std::auto_ptr<RooArgSet>  params_;
+        std::unique_ptr<RooArgSet>  params_;
         RooArgSet                 nuisances_; // subset of params which are nuisances (not a snapshot)
         RooArgSet                 poiParams_; // subset of params which are POI (not a snapshot)
-        std::auto_ptr<RooAbsReal> nll_;
+        std::unique_ptr<RooAbsReal> nll_;
         RooArgList gobsParams_, gobs_;
         Int_t verbosity_;
         OneSidedness oneSided_;

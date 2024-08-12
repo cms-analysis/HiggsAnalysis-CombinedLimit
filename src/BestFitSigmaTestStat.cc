@@ -1,11 +1,11 @@
-#include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/BestFitSigmaTestStat.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "../interface/BestFitSigmaTestStat.h"
+#include "../interface/CascadeMinimizer.h"
+#include "../interface/CloseCoutSentry.h"
+#include "../interface/utils.h"
 #include <stdexcept>
 #include <RooRealVar.h>
-//#include "HiggsAnalysis/CombinedLimit/interface/RooMinimizerOpt.h"
+//#include "../interface/RooMinimizerOpt.h"
 #include <RooMinimizer.h>
 #include <RooFitResult.h>
 #include <RooSimultaneous.h>
@@ -13,7 +13,7 @@
 #include <RooRandom.h>
 #include <Math/MinimizerOptions.h>
 #include <RooStats/RooStatsUtils.h>
-#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include "../interface/ProfilingTools.h"
 
 //---- Uncomment this and run with --perfCounters to get statistics of successful and failed fits
 #define DEBUG_FIT_STATUS

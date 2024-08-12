@@ -1,22 +1,14 @@
-# Introduction
-
-These pages document the [RooStats](https://twiki.cern.ch/twiki/bin/view/RooStats/WebHome) / [RooFit](https://root.cern.ch/roofit) - based software tools used for statistical analysis within the [Higgs PAG](HiggsWG) - **combine**.
-
-Combine provides a command line interface to many different statistical techniques available inside RooFit/RooStats used widely inside CMS.
-
-The package exists in GIT under [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit)
-
-For more information about GIT and its usage in CMS, see [http://cms-sw.github.io/cmssw/faq.html](http://cms-sw.github.io/cmssw/faq.html)
-
-The code can be checked out from GIT and compiled on top of a CMSSW release that includes a recent RooFit/RooStats
-
 # Table of Contents
 
-* [**Getting started**](part1/README.md)   
-  * [For Users](part1/README.md#for-end-users-that-dont-need-to-commit-or-do-any-development)
-  * [For Developers](part1/README.md#for-developers)
-  * [Combine Tool](part1/README.md#combine-tool)
-* [**Setting up the analysis**](part2/README.md)
+Note to developers: navigation bar found in `mkdocs.yml`.
+
+* [**Getting started**](index.md)
+* **What Combine Does**
+  * [Intro](what_combine_does/introduction.md)
+  * [Model and Likelihood](what_combine_does/model_and_likelihood.md)
+  * [Fitting Concepts](what_combine_does/fitting_concepts.md)
+  * [Statistical Tests](what_combine_does/statistical_tests.md)
+* **Setting up the analysis**
   * [Preparing the datacard](part2/settinguptheanalysis.md#preparing-the-datacard)
     * [Counting experiment](part2/settinguptheanalysis.md#a-simple-counting-experiment)
     * [Shape Analysis](part2/settinguptheanalysis.md#shape-analysis)
@@ -33,7 +25,7 @@ The code can be checked out from GIT and compiled on top of a CMSSW release that
       * [_example: Two-hypothesis model_](part2/physicsmodels.md#two-hypothesis-testing) 
       * [_example: Interference model_](part2/physicsmodels.md#interference)
   * [Automatic statistical uncertainties](part2/bin-wise-stats.md)
-* [**Running Combine**](part3/README.md)     
+* **Running Combine**
   * [How to run the Tool](part3/runningthetool.md#how-to-run-the-tool)
     * [Common Command Line Options](part3/runningthetool.md#common-command-line-options)
       * [_Generic Minimizer Options_](part3/runningthetool.md#generic-minimizer-options)
@@ -82,8 +74,8 @@ The code can be checked out from GIT and compiled on top of a CMSSW release that
     * [RooMultiPdf - Bias studies](part3/nonstandard.md#roomultipdf-conventional-bias-studies)
     * [RooSplineND - Multidimensional splines](part3/nonstandard.md#roosplinend-multidimensional-splines)
     * [RooParametricHist - GammaN for shapes](part3/nonstandard.md#rooparametrichist-gamman-for-shapes)    
-* [**Useful Links**](part4/README.md)   
-* [**FAQ**](part4/README.md#faq)   
+* [**Useful Links**](part4/usefullinks.md)   
+* [**FAQ**](part4/usefullinks.md#faq)   
 
 
 

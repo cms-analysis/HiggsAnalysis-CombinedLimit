@@ -9,8 +9,8 @@ class RooMinimizer;
 #include <RooAbsData.h>
 #include <RooArgSet.h>
 #include <RooStats/TestStatistic.h>
-#include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
+#include "RooSimultaneousOpt.h"
+#include "CachingNLL.h"
 
 class BestFitSigmaTestStat : public RooStats::TestStatistic {
     public:
@@ -19,9 +19,9 @@ class BestFitSigmaTestStat : public RooStats::TestStatistic {
                 const RooArgSet *nuisances, 
                 const RooArgSet & params, int verbosity=0) ; 
 
-        virtual Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) ;
+        Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) override ;
 
-        virtual const TString GetVarName() const { return "mu-hat`"; }
+        const TString GetVarName() const override { return "mu-hat`"; }
 
         // Verbosity (default: 0)
         void setPrintLevel(Int_t level) { verbosity_ = level; }
@@ -29,8 +29,8 @@ class BestFitSigmaTestStat : public RooStats::TestStatistic {
 
         RooAbsPdf *pdf_;
         RooArgSet snap_, poi_, nuisances_; 
-        std::auto_ptr<RooArgSet> params_;
-        std::auto_ptr<RooAbsReal> nll_;
+        std::unique_ptr<RooArgSet> params_;
+        std::unique_ptr<RooAbsReal> nll_;
         Int_t verbosity_;
 
         // create NLL. if returns true, it can be kept, if false it should be deleted at the end of Evaluate

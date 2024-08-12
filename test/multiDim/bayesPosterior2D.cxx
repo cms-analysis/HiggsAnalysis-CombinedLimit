@@ -9,8 +9,8 @@ TGraph* smValue(double x0 = 1.0, double y0 = 1.0) {
 void bayesPosterior2D(TH2F *frame, TString x, TString y) { 
     TDirectory *toyDir = gFile->GetDirectory("toys");
     if (toyDir == 0) {
-        std::cerr << "Error in file " << gROOT->GetListOfFiles()->At(i)->GetName() << ": directory /toys not found" << std::endl;
-        continue;
+        std::cerr << "Error in file " << gROOT->GetListOfFiles()->At(0)->GetName() << ": directory /toys not found" << std::endl;
+        return;
     }
     TString prefix = "MarkovChain_";
     TIter next(toyDir->GetListOfKeys()); TKey *k;
@@ -39,8 +39,8 @@ void bayesPosterior2D(const char *name, const char *title, double qqHmax=10., do
     gStyle->SetOptStat(0);
     frame->Draw("COLZ");
     TGraph *sm = smValue(); sm->Draw("P SAME");
-    c1->Print(Form("plots/%s.png", name));
-    TFile *fOut = TFile::Open(Form("plots/%s.root", name), "RECREATE");
+    c1->Print(Form("%s.png", name));
+    TFile *fOut = TFile::Open(Form("%s.root", name), "RECREATE");
     fOut->WriteTObject(frame);
     fOut->Close();
 }

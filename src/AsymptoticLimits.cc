@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-#include "HiggsAnalysis/CombinedLimit/interface/AsymptoticLimits.h"
+#include "../interface/AsymptoticLimits.h"
 #include <RooRealVar.h>
 #include <RooArgSet.h>
 #include <RooAbsPdf.h>
@@ -9,16 +9,16 @@
 #include <RooCategory.h>
 #include <RooStats/ModelConfig.h>
 #include <Math/DistFuncMathCore.h>
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ToyMCSamplerOpt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Significance.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CascadeMinimizer.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/AsimovUtils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Logger.h"
+#include "../interface/Combine.h"
+#include "../interface/CloseCoutSentry.h"
+#include "../interface/RooFitGlobalKillSentry.h"
+#include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "../interface/ToyMCSamplerOpt.h"
+#include "../interface/Significance.h"
+#include "../interface/CascadeMinimizer.h"
+#include "../interface/utils.h"
+#include "../interface/AsimovUtils.h"
+#include "../interface/CombineLogger.h"
 
 #include <boost/bind.hpp>
 
@@ -54,10 +54,10 @@ LimitAlgo("AsymptoticLimits specific options") {
         //("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
         //("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
         ("qtilde", boost::program_options::value<bool>(&qtilde_)->default_value(qtilde_),  "Allow only non-negative signal strengths (default is true).")
-        ("rule",    boost::program_options::value<std::string>(&rule_)->default_value(rule_),            "Rule to use: CLs, CLsplusb")
+        ("rule",    boost::program_options::value<std::string>(&rule_)->default_value(rule_),            "Rule to use: CLs, Pmu")
         ("picky", "Abort on fit failures")
         ("noFitAsimov", "Use the pre-fit asimov dataset")
-	("getLimitFromGrid", boost::program_options::value<std::string>(&gridFileName_), "calculates the limit from a grid of r,cls values")
+	("getLimitFromGrid", boost::program_options::value<std::string>(&gridFileName_), "Calculates the limit from a grid of r,cls values")
         ("newExpected", boost::program_options::value<bool>(&newExpected_)->default_value(newExpected_), "Use the new formula for expected limits (default is true)")
         ("minosAlgo", boost::program_options::value<std::string>(&minosAlgo_)->default_value(minosAlgo_), "Algorithm to use to get the median expected limit: 'minos' (fastest), 'bisection', 'stepping' (default, most robust)")
         ("strictBounds", "Take --rMax as a strict upper bound")
@@ -70,17 +70,17 @@ void AsymptoticLimits::applyOptions(const boost::program_options::variables_map 
         what_ = "singlePoint";
     } else {
         if (what_ != "observed" && what_ != "expected" && what_ != "both" && what_ != "blind") 
-            throw std::invalid_argument("AsymptoticLimits: option 'run' can only be 'observed', 'expected' or 'both' (the default) or 'blind' (a-priori expected)");
+            throw std::invalid_argument("AsymptoticLimits: option 'run' can only be 'observed', 'expected', 'both' (the default) or 'blind' (a-priori expected)");
     }
     picky_ = vm.count("picky");
     noFitAsimov_ = vm.count("noFitAsimov") || vm.count("bypassFrequentistFit"); // aslo pick up base option from combine
 
     if (rule_=="CLs") doCLs_ = true;
-    else if (rule_=="CLsplusb") doCLs_ = false;
-    else throw std::invalid_argument("AsymptoticLimits: Rule must be either 'CLs' or 'CLsplusb'");
+    else if (rule_=="Pmu") doCLs_ = false;
+    else throw std::invalid_argument("AsymptoticLimits: Rule must be either 'CLs' or 'Pmu'");
 
     if (what_ == "blind") { what_ = "expected"; noFitAsimov_ = true; } 
-    if (noFitAsimov_) std::cout << "Will use a-priori expected background instead of a-posteriori one." << std::endl; 
+    if (noFitAsimov_) std::cout << "Will use a-priori instead of a-posteriori expected background." << std::endl; 
     strictBounds_ = vm.count("strictBounds");
     useGrid_ = vm.count("getLimitFromGrid");
 
@@ -107,8 +107,7 @@ bool AsymptoticLimits::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
     */
     hasDiscreteParams_ = false;  
     if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
-    std::auto_ptr<TIterator> itparam(params_->createIterator());
-    for (RooAbsArg *a = (RooAbsArg *) itparam->Next(); a != 0; a = (RooAbsArg *) itparam->Next()) {
+    for (RooAbsArg *a : *params_) {
       if (a->IsA()->InheritsFrom(RooCategory::Class())) { hasDiscreteParams_ = true; break; }
     }
 
@@ -164,8 +163,7 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
   if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
 
   hasFloatParams_ = false;
-  std::auto_ptr<TIterator> itparam(params_->createIterator());
-  for (RooAbsArg *a = (RooAbsArg *) itparam->Next(); a != 0; a = (RooAbsArg *) itparam->Next()) {
+  for (RooAbsArg *a : *params_) {
       RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
       if ( rrv != 0 && rrv != r && rrv->isConstant() == false ) { hasFloatParams_ = true; break; }
   }
@@ -189,8 +187,8 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
   }
   rBestD_ = r->getVal();
   if (verbose > 0) {
-  	std::cout << "NLL at global minimum of data: " << minNllD_ << " (" << r->GetName() << " = " << r->getVal() << ")" << std::endl;
-    	Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- NLL at global minimum of data = %g (%s=%g)",__LINE__,minNllD_,r->GetName(),r->getVal())),Logger::kLogLevelInfo,__func__);
+  	    //std::cout << "NLL at global minimum of data: " << minNllD_ << " (" << r->GetName() << " = " << r->getVal() << ")" << std::endl;
+    	CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("NLL at global minimum of data = %g (%s=%g)",minNllD_,r->GetName(),r->getVal())),__func__);
   }
   double rErr = std::max<double>(r->getError(), 0.02 * (r->getMax() - r->getMin()));
 
@@ -209,10 +207,10 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
     sentry.clear();
   }
   if (verbose > 0) {
-  	std::cout << "NLL at global minimum of asimov: " << minNllA_ << " (" << r->GetName() << " = " << r->getVal() << ")" << std::endl;
-    	Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- NLL at global minimum of asimov = %g (%s=%g)",__LINE__,minNllA_,r->GetName(),r->getVal())),Logger::kLogLevelInfo,__func__);
+  	    //std::cout << "NLL at global minimum of asimov: " << minNllA_ << " (" << r->GetName() << " = " << r->getVal() << ")" << std::endl;
+    	CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("NLL at global minimum of asimov = %g (%s=%g)",minNllA_,r->GetName(),r->getVal())),__func__);
   }
-  if (verbose > 1) fitFreeA_.Print("V");
+  if (verbose > 2) fitFreeA_.Print("V");
 
   fitFreeD_.writeTo(*params_);
   r->setConstant(true);
@@ -230,13 +228,14 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
   for (int tries = 0; tries < 5; ++tries) {
     double cls = getCLs(*r, rMax);
     if (cls == -999) { 
-    	std::cerr << "Minimization failed in an unrecoverable way" << std::endl;
-    	if (verbose>0)  Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- Minimization failed in an unrecoverable way for calculation of limit",__LINE__)),Logger::kLogLevelError,__func__);
+    	//std::cerr << "Minimization failed in an unrecoverable way" << std::endl;
+    	CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,"[ERROR] Minimization failed in an unrecoverable way for calculation of limit",__func__);
 	break; 
     }
     if (cls < clsTarget) { clsMin = cls; break; }
     if (strictBounds_ && rMax == r->getMax()) {
-        std::cout << rule_ << " at upper bound " << r->GetName() << " = " << r->getVal() << " is " << cls << ". Stopping search and using that as a limit.\n" << std::endl; 
+        //std::cout << rule_ << " at upper bound " << r->GetName() << " = " << r->getVal() << " is " << cls << ". Stopping search and using that as a limit.\n" << std::endl; 
+        CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form(" %s at upper bound %s = %g is %g. Stopping search and using upper bound as limit.",rule_.data(),r->GetName(),r->getVal(),cls)),__func__);
         limit = rMax; limitErr = -1.0;
         return true;
     }
@@ -258,8 +257,8 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
     }
     double cls = getCLs(*r, limit);
     if (cls == -999) { 
-    	std::cerr << "Minimization failed in an unrecoverable way" << std::endl; 
-	if (verbose>0)  Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- Minimization failed in an unrecoverable way for calculation of limit",__LINE__)),Logger::kLogLevelError,__func__);
+    	//std::cerr << "Minimization failed in an unrecoverable way" << std::endl; 
+	    CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__, "Minimization failed in an unrecoverable way for calculation of limit",__func__);
 	break; 
     }
     if (cls > clsTarget) {
@@ -301,11 +300,7 @@ double AsymptoticLimits::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected
   // qmu is zero when mu < mu^ (CMS NOTE-2011/005)
   // --> prevents us excluding from below
   if (what_ == "singlePoint" && rVal < rBestD_) {
-    if (verbose > 0) {
-      std::cout << "Value being tested (" << r.GetName() << " = " << rValue_
-                << ") is lower than the best fit (" << r.GetName() << " = "
-                << rBestD_ << "). Setting q_mu to zero.\n";
-    }
+    if (verbose > 0) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("Value being tested (%s=%f) is lower than the best fit(%s=%f). Setting q_mu to zero.",r.GetName(),rValue_,r.GetName(),rBestD_)),__func__);
     qmu = 0.;
   }
 
@@ -328,34 +323,33 @@ double AsymptoticLimits::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected
   }
   double qA  = 2*(nllA_->getVal() - minNllA_); if (qA < 0) qA = 0;
 
-  double CLsb = ROOT::Math::normal_cdf_c(sqrt(qmu));
-  double CLb  = ROOT::Math::normal_cdf(sqrt(qA)-sqrt(qmu));
+  double Pmu = ROOT::Math::normal_cdf_c(sqrt(qmu));
+  double OnemPb  = ROOT::Math::normal_cdf(sqrt(qA)-sqrt(qmu));
   if (qtilde_ && qmu > qA) {
     // In this region, things are tricky
     double mos = sqrt(qA); // mu/sigma
-    CLsb = ROOT::Math::normal_cdf_c( (qmu + qA)/(2*mos) );
-    CLb  = ROOT::Math::normal_cdf_c( (qmu - qA)/(2*mos) );
+    Pmu = ROOT::Math::normal_cdf_c( (qmu + qA)/(2*mos) );
+    OnemPb  = ROOT::Math::normal_cdf_c( (qmu - qA)/(2*mos) );
   }
-  double CLs  = (CLb == 0 ? 0 : CLsb/CLb);
+  double CLs  = (OnemPb == 0 ? 0 : Pmu/OnemPb);
   sentry.clear();
   if (verbose > 0) {
-  	printf("At %s = %f:\tq_mu = %.5f\tq_A  = %.5f\tCLsb = %7.5f\tCLb  = %7.5f\tCLs  = %7.5f\n", r.GetName(), rVal, qmu, qA, CLsb, CLb, CLs);
-  	Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- At %s = %f:\tq_mu = %.5f\tq_A  = %.5f\tCLsb = %7.5f\tCLb  = %7.5f\tCLs  = %7.5f",__LINE__,r.GetName(), rVal, qmu, qA, CLsb, CLb, CLs)),Logger::kLogLevelInfo,__func__);
+  	CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tq_mu = %.5f\tq_A  = %.5f\tPmu = %7.5f\t1-Pb  = %7.5f\tCLs  = %7.5f",r.GetName(), rVal, qmu, qA, Pmu, OnemPb, CLs)),__func__);
   }
 
   if (getAlsoExpected) {
     const double quantiles[5] = { 0.025, 0.16, 0.50, 0.84, 0.975 };
     for (int iq = 0; iq < 5; ++iq) {
         double N = ROOT::Math::normal_quantile(quantiles[iq], 1.0);
-        double clb = quantiles[iq];
-        double clsplusb = ROOT::Math::normal_cdf_c( sqrt(qA) - N, 1.);
-        if (doCLs_) { *limit = (clb != 0 ? clsplusb/clb : 0); *limitErr = 0 ; }
-	else { *limit = (clsplusb); *limitErr = 0; }
+        double pb = quantiles[iq]; // note that this is really 1-pb !
+        double pmu = ROOT::Math::normal_cdf_c( sqrt(qA) - N, 1.);
+        if (doCLs_) { *limit = (pb != 0 ? pmu/pb : 0); *limitErr = 0 ; }
+	else { *limit = (pmu); *limitErr = 0; }
         Combine::commitPoint(true, quantiles[iq]);
-        if (verbose > 0) printf("Expected %4.1f%%: CLsb = %.5f  CLb = %.5f   CLs = %.5f\n", quantiles[iq]*100, clsplusb, clb, clsplusb/clb);
+        if (verbose > 0) printf("Expected %4.1f%%: Pmu = %.5f  1-Pb = %.5f   CLs = %.5f\n", quantiles[iq]*100, pmu, pb, pmu/pb);
     }
   }
-  return doCLs_ ? CLs : CLsb ; 
+  return doCLs_ ? CLs : Pmu ; 
 }   
 
 std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
@@ -403,7 +397,7 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
     r->setError(0.1*r->getMax());
     //r->removeMax();
     
-    std::auto_ptr<RooAbsReal> nll(mc_s->GetPdf()->createNLL(*asimov, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+    std::unique_ptr<RooAbsReal> nll(mc_s->GetPdf()->createNLL(*asimov, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained, r);
     //minim.setStrategy(minimizerStrategy_);
     minim.setErrorLevel(0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0), 2)); // the 0.5 is because qmu is -2*NLL
@@ -413,15 +407,13 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
     sentry.clear();
     if (verbose > 1) {
         std::cout << "Fit to asimov dataset:" << std::endl;
-        std::auto_ptr<RooFitResult> res(minim.save());
+        std::unique_ptr<RooFitResult> res(minim.save());
         res->Print("V");
     }
     if (r->getVal()/r->getMax() > 1e-3) {
         if (verbose) {
-		printf("WARNING: Best fit of asimov dataset is at %s = %f (%f times %sMax), while it should be at zero\n",
-                r->GetName(), r->getVal(), r->getVal()/r->getMax(), r->GetName());
-		Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- Best fit of asimov dataset is at %s = %f (%f times %sMax), while it should be at zero",__LINE__,r->GetName(), r->getVal(), r->getVal()/r->getMax(), r->GetName())),Logger::kLogLevelDebug,__func__);
-	}
+		    CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("[WARNING] Best fit of asimov dataset is at %s = %f (%f times %sMax), while it should be at zero",r->GetName(), r->getVal(), r->getVal()/r->getMax(), r->GetName())),__func__);
+	    }
     }
 
 
@@ -431,9 +423,9 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
     double sigma  = median / ROOT::Math::normal_quantile(1-(doCLs_ ? 0.5:1.0)*(1-cl),1.0);
     double alpha = 1-cl;
     if (verbose > 0) { 
-        std::cout << "Median for expected limits: " << median << std::endl; 
-        std::cout << "Sigma  for expected limits: " << sigma  << std::endl; 
-    	Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- Median for expected limits = %g (Sigma for expected limits = %g)",__LINE__,median,sigma)),Logger::kLogLevelInfo,__func__);
+        //std::cout << "Median for expected limits: " << median << std::endl; 
+        //std::cout << "Sigma  for expected limits: " << sigma  << std::endl; 
+    	CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("Median for expected limits = %g, Sigma for expected limits = %g",median,sigma)),__func__);
     }
 
     const double quantiles[5] = { 0.025, 0.16, 0.50, 0.84, 0.975 };
@@ -462,17 +454,17 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
 
 }
 
-float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, double rMin, double rMax, double nll0, double clb) {
+float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, double rMin, double rMax, double nll0, double pb) {
     // EQ 37 of CMS NOTE 2011-005:
     //   mu_N = sigma * ( normal_quantile_c( (1-cl) * normal_cdf(N) ) + N )
-    // --> (mu_N/sigma) = N + normal_quantile_c( (1-cl) * clb )
+    // --> (mu_N/sigma) = N + normal_quantile_c( (1-cl) * (1-Pb) ) but in our code here we refer to pb=1-Pb
     // but qmu = (mu_N/sigma)^2
-    // --> qmu = [ N + normal_quantile_c( (1-cl)*CLb ) ]^2
+    // --> qmu = [ N + normal_quantile_c( (1-cl)*(1-Pb) ) ]^2
     // remember that qmu = 2*nll
     
 
-    double N = ROOT::Math::normal_quantile(clb, 1.0);
-    double errorlevel = 0.5 * pow(N+ROOT::Math::normal_quantile_c((doCLs_ ? clb:1.)*(1-cl),1.0), 2);
+    double N = ROOT::Math::normal_quantile(pb, 1.0);
+    double errorlevel = 0.5 * pow(N+ROOT::Math::normal_quantile_c((doCLs_ ? pb:1.)*(1-cl),1.0), 2);
     int minosStat = -1;
     if (minosAlgo_ == "minos") {
         double rMax0 = r->getMax();
@@ -520,7 +512,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
         CascadeMinimizer minim2(nll, CascadeMinimizer::Constrained);
         //minim2.setStrategy(minimizerStrategy_);
         if (minosAlgo_ == "bisection") {
-            if (verbose > 1) printf("Will search for NLL crossing by bisection\n");
+            if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,"Will search for NLL crossing by bisection",__func__);
             if (strictBounds_) minosStat = 0; // the bracket is correct by construction in this case
             while (rErr > std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
                 if (!strictBounds_ && rCross >= r->getMax()) r->setMax(rCross*1.1);
@@ -533,13 +525,13 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                 }
                 if (!ok && picky_) break; else minosStat = 0;
                 double here = nll.getVal();
-                if (verbose > 1) printf("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0);
+                if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0)),__func__);
                 if (fabs(here - threshold) < 0.05*minim2.tolerance()) break;
                 if (here < threshold) rMin = rCross; else rMax = rCross;
                 rCross = 0.5*(rMin+rMax); rErr = 0.5*(rMax-rMin);
             } 
         } else if (minosAlgo_ == "stepping") {
-            if (verbose > 1) printf("Will search for NLL crossing by stepping.\n");
+            if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,"Will search for NLL crossing by stepping",__func__);
             rCross = 0.05 * rMax; rErr = rMax; 
             double stride = rCross; bool overstepped = false;
             while (rErr > std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
@@ -557,12 +549,12 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                 }
                 if (!ok && picky_) break; else minosStat = 0;
                 double here = nll.getVal();
-                if (verbose > 1) printf("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0);
+                if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0)),__func__);
                 if (fabs(here - threshold) < 0.05*minim2.tolerance()) break;
                 if (here < threshold) { 
                     if ((threshold-here) < 0.5*fabs(threshold-there)) stride *= 0.5;
                     if (strictBounds_ && rCross == r->getMax()) {
-                        if (verbose > 1) printf("reached hard bound at %s = %f\n", r->GetName(), rCross);
+                        if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("reached hard bound at %s = %f\n", r->GetName(), rCross)),__func__);
                         return rCross;
                     }
                     rCross += stride; 
@@ -574,7 +566,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
             }
         } else if (minosAlgo_ == "new") {
             if (strictBounds_) throw std::invalid_argument("AsymptoticLimits: --minosAlgo=new doesn't work with --strictBounds\n"); 
-            if (verbose > 1) printf("Will search for NLL crossing with new algorithm.\n");
+            if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,"Will search for NLL crossing with new algorithm",__func__);
             // 
             // Let X(x,y) = (x-a*y)^2 / s^2 + y^2    be the chi-square in case of correlations
             // then yhat(x) = a*x / (a^2 + s^2)
@@ -605,7 +597,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                 bool binNLLchange = (nll_1 < threshold && nll_1 - nll_0 > 0.5);
                 bool aboveThresh  = (nll_1 > threshold + kappa*std::pow(r_1-r_0,2));
                 if (binNLLchange || aboveThresh) { 
-                    if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\t                         \tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, kappa);
+                    if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tdelta(nll unprof) = %.5f\t\tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, kappa)),__func__);
                     { 
                         CloseCoutSentry sentry2(verbose < 3);
                         bool ok=true;
@@ -615,7 +607,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                     }
                     double nll_1_prof = nll.getVal();
                     kappa = (nll_1 - nll_1_prof) / std::pow(r_1 - r_0,2);
-                    if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, nll.getVal()-nll0, kappa);
+                    if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, nll.getVal()-nll0, kappa)),__func__);
                     if (nll_1_prof > threshold) { 
                         nll_1 = nll_1_prof; 
                         break; 
@@ -625,13 +617,13 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                         if (aboveThresh) rStep *= 2;
                     }
                 } else {
-                    if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\t                         \tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, kappa);
+                    if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tdelta(nll unprof) = %.5f\t                         \tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, kappa)),__func__);
                 }
                 if (r_1 > rMax0) return std::numeric_limits<float>::quiet_NaN();
             } while (true);
             // now crossing is bracketed, do bisection
-            if (verbose > 1) printf("At %s = %f:\t                         \tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_0, nll_0-nll0, kappa);
-            if (verbose > 1) printf("At %s = %f:\t                         \tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, kappa);
+            if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\t                         \tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_0, nll_0-nll0, kappa)),__func__);
+            if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\t                         \tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_0, nll_1-nll0, kappa)),__func__);
             minosStat = 0;
             do {
                // LOOP PRECONDITIONS:
@@ -644,7 +636,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                    double r_2 = 0.5*(r_hi+r_lo); 
                    r->setVal(r_2);
                    double y0 = nll.getVal(), y = y0 - kappa*std::pow(r_2-r_1,2);
-                   if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll appr) = %.5f\tkappa=%.5f\n", r->GetName(), r_2, y0-nll0, y-nll0, kappa);
+                   if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll appr) = %.5f\tkappa=%.5f\n", r->GetName(), r_2, y0-nll0, y-nll0, kappa)),__func__);
                    if (y < threshold) { r_lo = r_2; } else { r_hi = r_2; }
                } 
                // profile at that point
@@ -658,7 +650,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                }
                if (!ok && picky_) return std::numeric_limits<float>::quiet_NaN();
                double nll_prof = nll.getVal();
-               if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll prof) = %.5f\tdelta(nll appr) = %.5f\n", r->GetName(), rCross, nll_unprof-nll0, nll_prof-nll0, nll_unprof-nll0 - kappa*std::pow(rCross-r_1,2));
+               if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll prof) = %.5f\tdelta(nll appr) = %.5f\n", r->GetName(), rCross, nll_unprof-nll0, nll_prof-nll0, nll_unprof-nll0 - kappa*std::pow(rCross-r_1,2))),__func__);
                if (fabs(nll_prof - threshold) < 0.1*minim2.tolerance()) { break; }
                // not yet bang on, so update r_0, kappa
                kappa = (nll_unprof - nll_prof)/std::pow(rCross-r_1,2);
@@ -674,8 +666,8 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
         }
         if (minosStat != -1) return rCross;
     }
-    if (verbose > 1) printf("fail search for crossing of %s between %f and %f\n", r->GetName(), rMin, rMax);
-    if (verbose > 0) Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- fail search for crossing of %s between %f and %f",__LINE__, r->GetName(), rMin, rMax)),Logger::kLogLevelDebug,__func__);
+    //if (verbose > 1) printf("fail search for crossing of %s between %f and %f\n", r->GetName(), rMin, rMax);
+    if (verbose > 1) CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("[WARNING] search for crossing of %s between %f and %f failed", r->GetName(), rMin, rMax)),__func__);
     return std::numeric_limits<float>::quiet_NaN();
 }
 
@@ -723,13 +715,13 @@ float AsymptoticLimits::calculateLimitFromGrid(RooRealVar *r , double quantile, 
 	}
 	
 	if (!rminfound){
-		std::cout << "Cannot Find r with CL above threshold for quantile " << quantiles[iq] << ", using lowest value of r found" << std::endl;
-		if (verbose) Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- Cannot Find r with CL above threshold for quantile %g, using lowest value of r found",__LINE__,quantiles[iq])),Logger::kLogLevelDebug,__func__);
+		//std::cout << "Cannot Find r with CL above threshold for quantile " << quantiles[iq] << ", using lowest value of r found" << std::endl;
+		CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("Cannot find r with CL above threshold for quantile %g, using lowest value of r found",quantiles[iq])),__func__);
 		return rlower;
 	}
 	if (!rmaxfound){
-		std::cout << "Cannot Find r with CL below threshold for quantile " << quantiles[iq] << ", using largest value of r found" << std::endl;
-		if (verbose) Logger::instance().log(std::string(Form("AsymptoticLimits.cc: %d -- Cannot Find r with CL below threshold for quantile %g, using largest value of r found",__LINE__,quantiles[iq])),Logger::kLogLevelDebug,__func__);
+		//std::cout << "Cannot Find r with CL below threshold for quantile " << quantiles[iq] << ", using largest value of r found" << std::endl;
+		CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("Cannot find r with CL below threshold for quantile %g, using largest value of r found",quantiles[iq])),__func__);
 		return rupper;
 	}
 

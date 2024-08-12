@@ -1,5 +1,5 @@
-#include "HiggsAnalysis/CombinedLimit/interface/SimpleConstraintGroup.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Accumulators.h"
+#include "../interface/SimpleConstraintGroup.h"
+#include "../interface/Accumulators.h"
 
 SimpleConstraintGroup::SimpleConstraintGroup() :
     RooAbsReal("unnamedGroup",""),

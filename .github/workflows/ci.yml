@@ -1,0 +1,74 @@
+name: CI/CD
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Run linter (flake8+black)
+    steps:
+    - uses: actions/checkout@master
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Lint with flake8 and black -l 160
+      run: |
+        python -m pip install -q flake8 black
+        black --version
+        flake8 .
+        black -l 160 --check --diff .
+
+  build:
+    strategy:
+      matrix:
+        python: ["3.8"]
+        root: ["6.22"]  
+        include:
+          # to deprecate (11_2_X py2)
+          - python: "2.7.18"
+            root: "6.22.0" 
+          # python 3.10 root 6.26
+          - python: "3.10"
+            root: "6.26.4"
+          # python 3.10 root 6.32 (not available yet)
+          #- python: "3.10"
+          #  root: "6.32" # version 6.30.07 where the conflicting classes were removed from root is not available, so compiling with 6.32.00 where this issue is resolved
+
+    runs-on: ubuntu-latest
+    name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
+
+    steps:
+    - uses: actions/checkout@master
+      with:
+        path: HiggsAnalysis/CombinedLimit # Required to match compile instructions
+    - name: Set up Conda
+      uses: conda-incubator/setup-miniconda@v2.2.0
+      with:
+        python-version: ${{ matrix.python }}
+        miniforge-variant: Mambaforge
+        channels: conda-forge,defaults
+        channel-priority: true
+        activate-environment: combine
+    - name: Install build environment
+      shell: bash -l {0}
+      run: |
+        mamba install -c conda-forge python==${{ matrix.python }} pip pandas root==${{ matrix.root }} gsl tbb vdt boost-cpp boost pcre eigen
+        cd HiggsAnalysis/CombinedLimit
+        bash set_conda_env_vars.sh
+    - name: Build
+      shell: bash -l {0}
+      run: |
+        cd HiggsAnalysis/CombinedLimit
+        make CONDA=1 -j 2
+    - name: Run tests
+      if: startsWith(matrix.python, '3.')
+      shell: bash -l {0}
+      run: |
+        cd HiggsAnalysis/CombinedLimit/test
+        python test_interference.py

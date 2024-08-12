@@ -1,6 +1,6 @@
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFunc.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CMSHistFuncWrapper.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Accumulators.h"
+#include "../interface/CMSHistFunc.h"
+#include "../interface/CMSHistFuncWrapper.h"
+#include "../interface/Accumulators.h"
 #include <vector>
 #include <ostream>
 #include <memory>
@@ -48,7 +48,8 @@ CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
       vtype_(VerticalSetting::QuadLinear),
       divide_by_width_(divide_by_width),
       vsmooth_par_(1.0),
-      fast_vertical_(false) {
+      fast_vertical_(false),
+      external_morph_("external_morph", "", this) {
   if (divide_by_width_) {
     for (unsigned i = 0; i < cache_.size(); ++i) {
       cache_[i] /= cache_.GetWidth(i);
@@ -102,10 +103,10 @@ CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
       hmorphs_("hmorphs", this, other.hmorphs_),
       hpoints_(other.hpoints_),
       vmorph_sentry_(name ? TString(name) + "_vmorph_sentry"
-                          : TString(other.vmorph_sentry_.GetName()),
+                          : TString(other.GetName())+"_vmorph_sentry",
                      ""),
       hmorph_sentry_(name ? TString(name) + "_hmorph_sentry"
-                          : TString(other.hmorph_sentry_.GetName()),
+                          : TString(other.GetName())+"_hmorph_sentry",
                      ""),
       cache_(other.cache_),
       rebin_cache_(other.rebin_cache_),
@@ -120,9 +121,13 @@ CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
       vtype_(other.vtype_),
       divide_by_width_(other.divide_by_width_),
       vsmooth_par_(other.vsmooth_par_),
-      fast_vertical_(false) {
+      fast_vertical_(false),
+      external_morph_("external_morph", this, other.external_morph_)
+{
   // initialize();
 }
+
+CMSHistFunc::~CMSHistFunc() = default;
 
 void CMSHistFunc::initialize() const {
   if (initialized_) return;
@@ -130,6 +135,11 @@ void CMSHistFunc::initialize() const {
   hmorph_sentry_.SetName(TString(this->GetName()) + "_hmorph_sentry");
   hmorph_sentry_.addVars(hmorphs_);
   vmorph_sentry_.addVars(vmorphs_);
+  if ( external_morph_.getSize() ) {
+    RooArgSet* deps = external_morph_.at(0)->getParameters({*x_});
+    vmorph_sentry_.addVars(*deps);
+    delete deps;
+  }
   hmorph_sentry_.setValueDirty();
   vmorph_sentry_.setValueDirty();
   vmorphs_vec_.resize(vmorphs_.getSize());
@@ -313,7 +323,8 @@ void CMSHistFunc::updateCache() const {
     if (mcache_.size() == 0) mcache_.resize(storage_.size());
   }
 
-  if (step1) {
+  bool external_morph_updated = (external_morph_.getSize() && static_cast<CMSExternalMorph*>(external_morph_.at(0))->hasChanged());
+  if (step1 || external_morph_updated) {
     fast_vertical_ = false;
   }
 
@@ -551,6 +562,16 @@ void CMSHistFunc::updateCache() const {
       }
       if (!fast_vertical_) {
         mcache_[idx].step2 = mcache_[idx].step1;
+        if ( external_morph_.getSize() ) {
+#if HFVERBOSE > 0
+          std::cout << "Template before external morph update:" << mcache_[idx].step2.Integral() << "\n";
+          mcache_[idx].step2.Dump();
+#endif
+          auto& extdata = static_cast<CMSExternalMorph*>(external_morph_.at(0))->batchGetBinValues();
+          for(size_t i=0; i<extdata.size(); ++i) {
+            mcache_[idx].step2[i] *= extdata[i];
+          }
+        }
         if (vtype_ == VerticalSetting::LogQuadLinear) {
           mcache_[idx].step2.Log();
         }
@@ -586,6 +607,7 @@ void CMSHistFunc::updateCache() const {
       cache_.CopyValues(mcache_[idx].step2);
       if (vtype_ == VerticalSetting::LogQuadLinear) {
         cache_.Exp();
+        cache_.Scale(mcache_[idx].step1.Integral() / mcache_[idx].step2.Integral());
       }
       cache_.CropUnderflows();
       if (enable_fast_vertical_) fast_vertical_ = true;
@@ -692,6 +714,7 @@ void CMSHistFunc::updateMomentFractions(double m) const {
 
     case SineLinear:
       mfrac = TMath::Sin(TMath::PiOver2() * mfrac);
+      [[fallthrough]];
     // now fall through to Linear case
 
     case Linear:
@@ -1181,9 +1204,7 @@ Double_t CMSHistFunc::analyticalIntegral(Int_t code,
 }
 
 CMSHistFuncWrapper const* CMSHistFunc::wrapper() const {
-  RooFIter iter = this->valueClientMIterator();
-  RooAbsArg *arg = nullptr;
-  while((arg = iter.next())) {
+  for (RooAbsArg *arg : valueClients()) {
     CMSHistFuncWrapper const* wrapper = dynamic_cast<CMSHistFuncWrapper const*>(arg);
     if (wrapper) return wrapper;
   }
@@ -1196,6 +1217,16 @@ RooAbsReal const& CMSHistFunc::getXVar() const {
 
 void CMSHistFunc::EnableFastVertical() {
   enable_fast_vertical_ = true;
+}
+
+
+void CMSHistFunc::injectExternalMorph(CMSExternalMorph& morph) {
+  if ( morph.batchGetBinValues().size() != cache_.size() ) {
+    throw std::runtime_error("Mismatched binning between external morph and CMSHistFunc");
+    // equal edges are user responsibility for now
+  }
+  external_morph_.removeAll();
+  external_morph_.add(morph);
 }
 
 #undef HFVERBOSE

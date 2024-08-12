@@ -1,27 +1,9 @@
 """
 Python wrapper around RooAddPdfFixer in utils.
-Use this e.g. if you're debugging a RooWorkspace by using python interactively.
-Be careful about using it in scripts, because it loads things globally in root.
-
-usage:
-from HiggsAnalysis.CombinedLimit.RooAddPdfFixer import FixAll
-f = ROOT.TFile("yourworkspace.root")
-w = f.Get("w")
-FixAll(w)
+Deprecated since 112x because ROOT bug has been fixed
+https://sft.its.cern.ch/jira/browse/ROOT-6008
 """
 
-import ROOT
-
-__inited = False
-
-def __init():
-  global __inited
-  if __inited: return
-  __inited = True
-  ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
-  ROOT.gROOT.ProcessLine("#include <HiggsAnalysis/CombinedLimit/interface/utils.h>")
 
 def FixAll(workspace):
-  __init()
-  fixer = ROOT.utils.RooAddPdfFixer()
-  fixer.FixAll(workspace)
+    raise RuntimeError("Since CMSSW_11_2_X, this utility is unnecessary. It will be removed in a future release.")
