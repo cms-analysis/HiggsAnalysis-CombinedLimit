@@ -1,0 +1,91 @@
+# Datacard produced by CombineHarvester with git status: 8fe0e3c-dirty
+imax    1 number of bins
+jmax    6 number of processes minus 1
+kmax    * number of nuisance parameters
+--------------------------------------------------------------------------------
+shapes * htt_tt_8_13TeV htt_input.root htt_tt_8_13TeV/$PROCESS htt_tt_8_13TeV/$PROCESS_$SYSTEMATIC
+shapes bbH htt_tt_8_13TeV htt_input.root htt_tt_8_13TeV/bbH$MASS htt_tt_8_13TeV/bbH$MASS_$SYSTEMATIC
+shapes ggH htt_tt_8_13TeV htt_input.root htt_tt_8_13TeV/ggH$MASS htt_tt_8_13TeV/ggH$MASS_$SYSTEMATIC
+--------------------------------------------------------------------------------
+bin          htt_tt_8_13TeV  
+observation  105545.0        
+--------------------------------------------------------------------------------
+bin                                             htt_tt_8_13TeV  htt_tt_8_13TeV  htt_tt_8_13TeV  htt_tt_8_13TeV  htt_tt_8_13TeV  htt_tt_8_13TeV  htt_tt_8_13TeV  
+process                                         ZL              TTT             VVT             ZTT             jetFakes        ggH             bbH             
+process                                         1               2               3               4               5               -1              0               
+rate                                            2267.87         248.642         307.332         15938.5         89277.7         -1              -1          
+--------------------------------------------------------------------------------
+CMS_eff_b_13TeV                         lnN     -               1.04/0.98       1.01/0.99       -               -               -               1.01/0.99       
+CMS_eff_m                               lnN     -               -               -               0.96            -               -               -               
+CMS_eff_t_13TeV                         lnN     -               1.08            1.08            1.08            -               1.08            1.08            
+CMS_eff_t_mssmHigh_tt_13TeV             shape   -               1               1               1               -               1               1               
+CMS_eff_t_tt_13TeV                      lnN     -               1.092           1.092           1.092           -               1.092           1.092           
+CMS_htt_dyShape_scale_m_13TeV           shape   -               -               -               1               -               -               -               
+CMS_htt_dyShape_stat_m400pt0_13TeV      shape   -               -               -               1               -               -               -               
+CMS_htt_dyShape_stat_m400pt40_13TeV     shape   -               -               -               1               -               -               -               
+CMS_htt_dyShape_stat_m400pt80_13TeV     shape   -               -               -               1               -               -               -               
+CMS_htt_dyShape_tjXsec_13TeV            shape   -               -               -               1               -               -               -               
+CMS_htt_eFakeTau_loose_13TeV            lnN     1.03            -               -               -               -               -               -               
+CMS_htt_mFakeTau_loose_13TeV            lnN     1.05            -               -               -               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_1       shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_10      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_11      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_19      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_2       shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_20      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_21      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_22      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_23      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_24      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_25      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_26      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_27      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_28      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_29      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_3       shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_30      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_31      shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_4       shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_5       shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_6       shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_7       shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_8       shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_ZTT_bin_9       shape   -               -               -               1               -               -               -               
+CMS_htt_tt_nobtag_13TeV_jetFakes_bin_10 shape   -               -               -               -               1               -               -               
+CMS_htt_tt_nobtag_13TeV_jetFakes_bin_11 shape   -               -               -               -               1               -               -               
+CMS_htt_tt_nobtag_13TeV_jetFakes_bin_12 shape   -               -               -               -               1               -               -               
+CMS_htt_tt_nobtag_13TeV_jetFakes_bin_13 shape   -               -               -               -               1               -               -               
+CMS_htt_tt_nobtag_13TeV_jetFakes_bin_14 shape   -               -               -               -               1               -               -               
+CMS_htt_tt_nobtag_13TeV_jetFakes_bin_15 shape   -               -               -               -               1               -               -               
+CMS_htt_tt_nobtag_13TeV_jetFakes_bin_16 shape   -               -               -               -               1               -               -               
+CMS_htt_tt_nobtag_13TeV_jetFakes_bin_17 shape   -               -               -               -               1               -               -               
+CMS_htt_tt_nobtag_13TeV_jetFakes_bin_18 shape   -               -               -               -               1               -               -               
+CMS_htt_tt_nobtag_13TeV_jetFakes_bin_19 shape   -               -               -               -               1               -               -               
+CMS_htt_tt_nobtag_13TeV_jetFakes_bin_20 shape   -               -               -               -               1               -               -               
+CMS_htt_tt_nobtag_13TeV_jetFakes_bin_21 shape   -               -               -               -               1               -               -               
+CMS_htt_tt_nobtag_13TeV_jetFakes_bin_22 shape   -               -               -               -               1               -               -               
+CMS_htt_tt_nobtag_13TeV_jetFakes_bin_9  shape   -               -               -               -               1               -               -               
+CMS_htt_ttbarAccept_tt_nobtag_13TeV     lnN     -               1.01            -               -               -               -               -               
+CMS_htt_ttbarShape_13TeV                shapeU  -               1               -               -               -               -               -               
+CMS_htt_vvXsec_13TeV                    lnN     -               -               1.05            -               -               -               -               
+CMS_htt_zjXsec_13TeV                    lnN     1.04            -               -               -               -               -               -               
+CMS_htt_zttAccept_tt_nobtag_13TeV       lnN     -               -               -               1.07            -               -               -               
+CMS_scale_j_13TeV                       lnN     -               1.01/0.99       -               -               -               -               -               
+CMS_scale_t_1prong0pi0_13TeV            shape   -               1               1               1               -               1               1               
+CMS_scale_t_1prong1pi0_13TeV            shape   -               1               1               1               -               1               1               
+CMS_scale_t_3prong0pi0_13TeV            shape   -               1               1               1               -               1               1               
+QCDScale_QshScale_bbH                   lnN     -               -               -               -               -               -               1.038           
+ff_norm_stat_tt_tt_nobtag               lnN     -               -               -               -               1.023           -               -               
+ff_norm_syst_tt                         lnN     -               -               -               -               1.099           -               -               
+ff_sub_syst_tt_tt_nobtag                lnN     -               -               -               -               1.03            -               -               
+lumi_13TeV                              lnN     1.025           -               1.025           -               -               1.025           1.025           
+norm_ff_dy_frac_tt_syst                 shape   -               -               -               -               1               -               -               
+norm_ff_qcd_dm0_njet0_tt_stat           shape   -               -               -               -               1               -               -               
+norm_ff_qcd_dm0_njet1_tt_stat           shape   -               -               -               -               1               -               -               
+norm_ff_qcd_dm1_njet0_tt_stat           shape   -               -               -               -               1               -               -               
+norm_ff_qcd_dm1_njet1_tt_stat           shape   -               -               -               -               1               -               -               
+norm_ff_qcd_tt_syst                     shape   -               -               -               -               1               -               -               
+norm_ff_tt_frac_tt_syst                 shape   -               -               -               -               1               -               -               
+norm_ff_tt_tt_syst                      shape   -               -               -               -               1               -               -               
+norm_ff_w_frac_tt_syst                  shape   -               -               -               -               1               -               -               
+norm_ff_w_tt_syst                       shape   -               -               -               -               1               -               -               

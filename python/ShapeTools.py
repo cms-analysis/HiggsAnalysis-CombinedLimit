@@ -439,9 +439,7 @@ class ShapeBuilder(ModelBuilder):
             self.out.safe_import(arg, ROOT.RooFit.RecycleConflictNodes())
         if self.options.fixpars:
             pars = self.out.pdf("model_s").getParameters(self.out.obs)
-            iter = pars.createIterator()
-            while True:
-                arg = iter.Next()
+            for arg in pars:
                 if arg == None:
                     break
                 if arg.InheritsFrom("RooRealVar") and arg.GetName() != "r":
@@ -1007,12 +1005,11 @@ class ShapeBuilder(ModelBuilder):
                     pdfs.Add(self.shape2Pdf(shapeUp, channel, process))
                     pdfs.Add(self.shape2Pdf(shapeDown, channel, process))
                 histpdf = nominalPdf if nominalPdf.InheritsFrom("RooDataHist") else nominalPdf.dataHist()
-                varIter = histpdf.get().createIterator()
-                xvar = varIter.Next()
-                yvar = varIter.Next()
-                if varIter.Next():
+                if histpdf.get().getSize() > 2:
                     raise ValueError("No support for 3+ dimensional histpdfs")
-                elif yvar:
+                elif histpdf.get().getSize() > 1:
+                    xvar = histpdf.get().first()
+                    yvar = histpdf.get().second()
                     rhp = ROOT.FastVerticalInterpHistPdf2D2(
                         "shape%s_%s_%s_morph" % (postFix, channel, process),
                         "",
@@ -1025,6 +1022,7 @@ class ShapeBuilder(ModelBuilder):
                         qalgo,
                     )
                 else:
+                    xvar = histpdf.get().first()
                     rhp = ROOT.FastVerticalInterpHistPdf2(
                         "shape%s_%s_%s_morph" % (postFix, channel, process),
                         "",
@@ -1332,9 +1330,7 @@ class ShapeBuilder(ModelBuilder):
 
     def argSetToString(self, argset):
         names = []
-        it = argset.createIterator()
-        while True:
-            arg = it.Next()
+        for arg in argset:
             if not arg:
                 break
             names.append(arg.GetName())

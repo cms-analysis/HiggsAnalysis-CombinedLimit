@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import absolute_import
 from __future__ import print_function
 import ROOT
@@ -254,7 +254,7 @@ pt.SetTextAlign(11)
 pt.SetTextFont(42)
 pt.Draw()
 
-plot.DrawCMSLogo(pads[0], args.logo, args.logo_sub, 11, 0.045, 0.035, 1.2, cmsTextSize=1.0)
+plot.DrawCMSLogo(pads[0], args.logo, args.logo_sub, 11, 0.1, 0.035, 1.2, cmsTextSize=1.0)
 
 legend_l = 0.69
 if len(other_scans) > 0:

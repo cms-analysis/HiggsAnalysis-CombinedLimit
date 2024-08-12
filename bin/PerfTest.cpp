@@ -59,10 +59,8 @@ int main(int argc, char *argv[]) {
 	}
 
 	RooWorkspace *w = (RooWorkspace*)gDirectory->Get(argv[2]);
-	// w->Print();
 	auto allfuncs = w->allFunctions();
-	auto it =allfuncs.fwdIterator();
-	for (RooAbsArg *a = it.next(); a != 0; a = it.next()) {
+	for (auto *a: allfuncs){
 		auto rrv = dynamic_cast<RooAbsReal*>(a);
 		if (rrv) {
 			rrv->getVal();

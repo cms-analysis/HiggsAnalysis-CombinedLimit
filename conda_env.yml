@@ -9,6 +9,6 @@ dependencies:
   - gsl
   - tbb
   - vdt
-  - boost
+  - boost-cpp
   - pcre
   - eigen

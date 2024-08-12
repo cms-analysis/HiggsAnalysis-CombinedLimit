@@ -33,7 +33,6 @@ class Impacts(CombineToolBase):
             --output stages. Note the ordering of POIs in the list must also be
             identical in each step.""",
         )
-        group.add_argument("--setPhysicsModelParameters")
         group.add_argument("--setParameters")
         group.add_argument("--name", "-n", default="Test")
 
@@ -101,11 +100,8 @@ class Impacts(CombineToolBase):
         # Put intercepted args back
         passthru.extend(["-m", mh])
         passthru.extend(["-d", ws])
-        if self.args.setPhysicsModelParameters is not None:
-            passthru.extend(["--setPhysicsModelParameters", self.args.setPhysicsModelParameters])
         if self.args.setParameters is not None:
             passthru.extend(["--setParameters", self.args.setParameters])
-            self.args.setPhysicsModelParameters = self.args.setParameters
         pass_str = " ".join(passthru)
 
         paramList = []
@@ -204,7 +200,26 @@ class Impacts(CombineToolBase):
 
         print("Have parameters: " + str(len(paramList)))
 
-        prefit = utils.prefit_from_workspace(ws, "w", paramList, self.args.setPhysicsModelParameters)
+        varList = utils.list_from_workspace(ws, "w", "variables")
+        if self.args.setParameters is not None:
+            set_parameters = self.args.setParameters.split(",")
+            set_parameters_str = ""
+            for ind, setParam in enumerate(set_parameters):
+                if "rgx{" in setParam:
+                    eqs_to = setParam.split("=")[-1]
+                    pattern = setParam.split("=")[0]
+                    pattern = pattern.replace("'rgx{", "").replace("}'", "")
+                    pattern = pattern.replace("rgx{", "").replace("}", "")
+                    set_parameters[ind] = ""
+                    for var in varList:
+                        if re.search(pattern, var):
+                            var_str = var + "=" + eqs_to
+                            set_parameters_str += var_str + ","
+                else:
+                    set_parameters_str += setParam + ","
+            self.args.setParameters = set_parameters_str.rstrip(",")
+
+        prefit = utils.prefit_from_workspace(ws, "w", paramList, self.args.setParameters)
         res = {}
         if not self.args.noInitialFit:
             res["POIs"] = []
@@ -264,15 +279,9 @@ class Impacts(CombineToolBase):
             print("Missing inputs: " + ",".join(missing))
 
     def all_free_parameters(self, file, wsp, mc, pois):
-        res = []
         wsFile = ROOT.TFile.Open(file)
         w = wsFile.Get(wsp)
         config = w.genobj(mc)
         pdfvars = config.GetPdf().getParameters(config.GetObservables())
-        it = pdfvars.createIterator()
-        var = it.Next()
-        while var:
-            if var.GetName() not in pois and (not var.isConstant()) and var.InheritsFrom("RooRealVar"):
-                res.append(var.GetName())
-            var = it.Next()
+        res = [var.GetName() for var in pdfvars if (var.GetName() not in pois and (not var.isConstant()) and var.InheritsFrom("RooRealVar"))]
         return res
