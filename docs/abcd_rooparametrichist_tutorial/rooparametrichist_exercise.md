@@ -1,6 +1,16 @@
 # combine_tutorial_ABCD_rooParametricHist
 tutorial for Combine using RooParamertricHist to perform the ABCD method
 
+## Getting started
+To get started, you should have a working setup of ```Combine```, please follow the instructions from the [home page](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/tutorial2023/parametric_exercise/). Make sure to use the latest recommended release.
+
+Now let's move to the working directory for this tutorial which contains all of the inputs and scripts needed to run the ABCD method with RooParametricHist exercise:
+
+```
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise
+
+```
+
 ## Introduction
 The goal of this tutorial is to exemplify the usage of ```RooParametricHist``` in [CMS Combine](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/) to implement a bin-by-bin ABCD method.
 In this tutorial we will work with a toy example that could resemble a real physics analysis case. We consider the search for a BSM particle $\Phi$ with a mass range between 1500 and 5000 GeV that leads to some excess in the tails of an observable $z$ (which could be $p_{T,\mathrm{miss}}$ ). We assume that we have found two uncorrelated discriminating features $x$ and $y$ that can be used to build the ABCD plane (the regions A,B,C,D will be defined by cutting on $x,y$), and we assume that $z$ is uncorrelated with respect to these two features. In this way, binning the variable $z$ in the same way in the regions A,B,C,D, per-bin transfer factors in the $z$ variable can be derived with the ABCD method to obtain the estimate of the background in the signal region. In our example, we will generate a set of pseudodata from our background-only model, and then the background will be estimated from these data from the control regions B,C,D and compared to data in the Signal Region A.
@@ -16,7 +26,7 @@ The tutorial has 4 main parts:
 ## Generate input data
 <a id="inputs"></a>
 
-The histograms for the $z$ observable in the different regions A,B,C,D can be produced using the ```produce_input_histograms_and_analyse.py``` in ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/```. In the script the expected rates for different signal hypothesis (as a function of $\Phi$ mass $m_{\Phi} \in \{1500, 2000, 3000, 4000, 5000 \}$ GeV) and the background yields are specified, as well as the distributions in $x,y,z$ of the signals and backgrounds. In the following steps of the tutorial we will just consider one of the mass points generated, $m_{\Phi} = 1500$ GeV, but the same analysis can be run separatelly on other mass points as well. In $x,y$, the signal and the background are assumed to be distributed as multivariate gaussians, with the background centred at $(0,2,0.2)$ in $(x,y)$ while the signals centred in the upper-right corner of the plane ($x,y>0.5$). For the $z$ feature, the background and the signal distributions are sampled from an exponential, for the signal the tails of the exponential get enhance with the mass parameter $m_{\Phi}$. 
+The histograms for the $z$ observable in the different regions A,B,C,D can be produced using the ```produce_input_histograms_and_analyse.py``` script in ```utils/produce_input_histograms_and_analyse.py```. In the script the expected rates for different signal hypotheses (as a function of $\Phi$ mass $m_{\Phi} \in \{1500, 2000, 3000, 4000, 5000 \}$ GeV) and the background yields are specified, as well as the distributions in $x,y,z$ of the signals and backgrounds. In the following steps of the tutorial we will just consider one of the mass points generated, $m_{\Phi} = 1500$ GeV, but the same analysis can be run separatelly on other mass points as well. In $x,y$, the signal and the background are assumed to be distributed as multivariate gaussians, with the background centred at $(0,2,0.2)$ in $(x,y)$ while the signals centred in the upper-right corner of the plane ($x,y>0.5$). For the $z$ feature, the background and the signal distributions are sampled from an exponential, for the signal the tails of the exponential get enhanced with the mass parameter $m_{\Phi}$. 
 
 ![input distributions](figures/inputs.png)
 
