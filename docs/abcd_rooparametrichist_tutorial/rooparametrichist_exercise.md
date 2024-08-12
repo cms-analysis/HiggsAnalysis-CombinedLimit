@@ -8,7 +8,7 @@ In this tutorial we will work with a toy example that could resemble a real phys
 The tutorial has 4 main parts:
 
 1. [Generate input data](#inputs)
-2. [RooParametricHist for ABCD method](#rooparametrichist)
+2. [Create RooParametricHist for ABCD method](#rooparametrichist)
 3. [Prepare Combine datacards](#datacards)
 4. [Run fit](#fit)
 5. [Produce limits](#limits)
@@ -29,7 +29,7 @@ python utils/produce_input_histograms_and_analyse.py
 
 ```
 
-## RooParametricHist for ABCD method
+## Create RooParametricHist for ABCD method
 <a id="rooparametrichist"></a>
 
 In order to prepare the datacards for our ABCD method we will need to pass to the datacards ```shape``` section the histograms of our data in the A,B,C and D regions. 
