@@ -151,7 +151,7 @@ void CombineHarvester::RenameSystematic(CombineHarvester &target, std::string co
  for(unsigned i = 0; i<systs_.size(); ++i){
     if(systs_[i]->name()==old_name){
       systs_[i]->set_name(new_name);
-      target.CreateParameterIfEmpty(systs_[i]->name());
+      target.RenameParameter(old_name, new_name);
     }
   }
 }
