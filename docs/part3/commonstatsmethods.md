@@ -920,8 +920,7 @@ This will produce a plot like the one below,
 
 ![](images/2D_LHScan.png)
 
-Similarly, 1D scans can be drawn directly from the tree, however for 1D likelihood scans.
-A python script to make plots and extract crossing of the `2*deltaNLL`, e.g the 1σ/2σ boundaries, is already available `plot1DScan.py`
+However for 1D likelihood scans, a python script to make plots and extract crossing of the `2*deltaNLL`, e.g the 1σ/2σ boundaries, is already available `plot1DScan.py`
 
 ```
 plot1DScan.py higgsCombineTest.MultiDimFit.mH125.root -o output
