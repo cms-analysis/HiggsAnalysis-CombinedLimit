@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.33">
     
     
       
@@ -2826,7 +2826,9 @@ void plot2D_LHScan(){
 </details>
 <p>This will produce a plot like the one below,</p>
 <p><img alt="" src="../images/2D_LHScan.png" /></p>
-<p>Similarly, 1D scans can be drawn directly from the tree, however for 1D likelihood scans, there is a python script from the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#combine-tool"><code>CombineHarvester/CombineTools</code></a> package <a href="https://github.com/cms-analysis/CombineHarvester/blob/113x/CombineTools/scripts/plot1DScan.py">plot1DScan.py</a> that can be used to make plots and extract the crossings of the <code>2*deltaNLL</code> - e.g the 1σ/2σ boundaries.</p>
+<p>However for 1D likelihood scans, a python script to make plots and extract crossing of the <code>2*deltaNLL</code>, e.g the 1σ/2σ boundaries, is already available <code>plot1DScan.py</code></p>
+<div class="highlight"><pre><span></span><code>plot1DScan.py higgsCombineTest.MultiDimFit.mH125.root -o output
+</code></pre></div>
 <h3 id="useful-options-for-likelihood-scans">Useful options for likelihood scans</h3>
 <p>A number of common, useful options (especially for computing likelihood scans with the <strong>grid</strong> algo) are,</p>
 <ul>
@@ -3104,7 +3106,7 @@ void plot_2DFC(){
     <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      <script src="../../assets/javascripts/bundle.af256bd8.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       
