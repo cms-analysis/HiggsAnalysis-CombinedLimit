@@ -71,15 +71,21 @@ In the following we describe how to build parametric histograms for our ABCD met
 <a id="datacards"></a>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 From the input histograms, for each signal hypothesis, 4 datacards can be built, one for each region of the ABCD plane. Examples of the templates for the datacards (for a signal mass point at 1500 GeV) can be found in the following. All the example datacards are stored in the directory ```sgn_CRs``` in ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/datacards/```. We consider for now the datacards stored in the directory ```sgn_CRs```, for which the signal is present in the control regions.
 Let's take as an example the cards for the $m_{\Phi} = 1500$ GeV in the directory ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/datacards/sgn_CRs/mPhi1500/```:
 =======
+=======
+>>>>>>> ab254f942a3c2d95182bbaee1b0a95613737be1c
 From the input histograms, for each signal hypothesis, 4 datacards can be built, one for each region of the ABCD plane. Examples of the templates for the datacards (for a signal mass point at 1500 GeV) can be found in the following. All the example datacards are stored in the directory [datacards](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/tree/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/datacards). We consider for now the datacards stored in the directory ```sgn_CRs```, for which the signal is present in the control regions.
 Let's take as an example the cards for the $m_{\Phi} = 1500$ GeV in the [directory](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/tree/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/datacards/sgn_CRs/mPhi1500).
 
 We have assigned a systematic uncertainty of 1.6% due to lumi to the signal processes, and a systematic of 5% to background in the SR (to take into account of non-closure of the method). 
 Notice that each datacard for each region has a ```shapes``` section for the observed data ```data_obs```, for the background ```Bkg``` and for the signal. The signal and data shapes are stored in a workspace ```wspace``` linked to the shapes section in the datacard, while the background shapes are stored in a ```RooParametricHist``` object. In the following we will show how to build the workspace. 
+<<<<<<< HEAD
 >>>>>>> updating rooparametrichist section and moving section relating datacards to workspace as suggested
+=======
+>>>>>>> ab254f942a3c2d95182bbaee1b0a95613737be1c
 
 <details>
 <summary> Datacard Region A (Signal Region) </summary>
@@ -185,10 +191,14 @@ lumi                lnN                 -                                       
 ```
 </details>
 
+<<<<<<< HEAD
 As an example, for each datacard, we have assigned a systematic uncertainty of 1.6% due to lumi to the signal processes, and a systematic of 5% to background in the SR (to take into account of non-closure of the method). 
 Notice that each datacard for each region has a ```shapes``` section for the observed data ```data_obs```, for the background ```Bkg``` and for the signal. The signal and data shapes are stored in a workspace ```wspace``` linked to the shapes section in the datacard, while the background shapes are stored in a ```RooParametricHist``` object. In the following we show how to build the workspace. 
 
 We follow the main steps implemented in a working code to create the workspace ```create_workspace.py``` in ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/utils/```.
+=======
+We follow the main steps implemented in a working code to create the workspace [create_workspace.py](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/blob/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/utils/create_workspace.py).
+>>>>>>> ab254f942a3c2d95182bbaee1b0a95613737be1c
 First create a RooWorkspace, implement a function ```__get_histograms_regions``` to read the input histograms from the A,B,C,D regions and import them as ```RooDataHist``` in the workspace.
 
 <details>
@@ -362,8 +372,13 @@ python utils/create_workspace.py -m 1500
 
 ```
 
+<<<<<<< HEAD
 where ```-m``` is the flag for the mass point you want to run the script on. The script will use by default the histograms stored in ```generated_histograms```. To use the ones that you created, change the path in ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/utils/create_datacards.py```.
 After running the script, the workspace will be saved in ```example_analysis/datacards/```. To create the datacards automatically fatching the correct workspace, run:
+=======
+where ```-m``` is the flag for the mass point you want to run the script on. The script will use by default the histograms stored in ```generated_histograms```. To use the ones that you created, change the path [here](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/blob/bff1d00ecb6bec5cdbbfa0768dc5442486499114/data/tutorials/abcd_rooparametrichist_exercise/utils/create_workspace.py#L59).
+After running the script, the workspace will be saved in ```example_analysis/datacards/```. To create the datacards automatically fetching the corret workspace, run:
+>>>>>>> ab254f942a3c2d95182bbaee1b0a95613737be1c
 
 ```
 python utils/create_datacards.py -m 1500
@@ -462,7 +477,11 @@ combine -M AsymptoticLimits -n combinedExclusion_mPhi1500_2018 -m 1500  combined
 
 Both the observed (from nominal Monte Carlo) and the expected limits are computed for each mass point. 
 
+<<<<<<< HEAD
 The same exercise can be repeated generating a workspace where the control regions are depleted from the signal (see datacards in ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/datacards/no_sgn_CRs/```), and re-running the limits. This should give a hint of how much the signal contamination in the control regions is worsening the limits.  If you want to generate by your self the workspace and the cards where the signal is removed from the CRs, just run the scripts ```create_workspace.py``` and ```create_datacards.py``` with the flag ```--deplete_crs_from_signal```.
+=======
+The same exercise can be repeated generating a workspace where the control regions are depleted from the signal (see datacards [here](https://github.com/cesarecazzaniga/HiggsAnalysis-CombinedLimit/tree/tutorial_abcd_rooparametrichist/data/tutorials/abcd_rooparametrichist_exercise/datacards/no_sgn_CRs) ), and re-running the limits. This should give a hint of how much the signal contamination in the control regions is worsening the limits.  If you want to generate the workspace by yourself and the cards where the signal is removed from the CRs, just run the scripts ```create_workspace.py``` and ```create_datacards.py``` with the flag ```--deplete_crs_from_signal```.
+>>>>>>> ab254f942a3c2d95182bbaee1b0a95613737be1c
 
 <img src="figures/limits.png" width="600" />
 
