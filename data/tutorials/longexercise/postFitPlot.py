@@ -49,16 +49,7 @@ legend.AddEntry(h_sig, "Signal", "L")
 legend.AddEntry(h_err, "Background uncertainty", "F")
 legend.Draw()
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-canvas.SaveAs("plot.pdf")
-canvas.SaveAs("plot.png")
-=======
-canvas.SaveAs('plot_%s_%s.png'%(first_dir,second_dir))
-canvas.SaveAs('plot_%s_%s.pdf'%(first_dir,second_dir))
->>>>>>> updating postFitPlot.py
-=======
+
 canvas.SaveAs('plot_%s_%s.png'%(first_dir,second_dir))
 canvas.SaveAs('plot_%s_%s.pdf'%(first_dir,second_dir))
 
->>>>>>> ab254f942a3c2d95182bbaee1b0a95613737be1c
