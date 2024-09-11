@@ -367,7 +367,7 @@ python utils/create_datacards.py -m 1500
 The datacards can be combined then using the usual command:
 
 ```
-combineCards.py mPhi1500_*2018*.txt > combinedExclusion_mPhi1500_2018.txt
+combineCards.py mPhi_1500_*2018*.txt > combined_mPhi_1500_2018.txt
 
 ```
 
@@ -416,11 +416,16 @@ lumi                    lnN     1.016     -         1.016     -         1.016   
 From the combined datacard for all the regions, one can run the usual fit diagnostics as follows:
 
 ```
-combine -M FitDiagnostics combinedExclusion_mPhi1500_2018.txt -m 1500 --saveShapes --saveWithUncertainties --saveNormalizations
+combine -M FitDiagnostics combined_mPhi_1500_2018.txt -m 1500 --saveShapes --saveWithUncertainties --saveNormalizations
 
 ```
 
-Using the output ```higgsCombineTest.FitDiagnostics.mH1500.root```, one can run the script ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/mlfitNormsToText.py``` to get the predictions for the normalizations.
+Using the output ```fitDiagnosticsTest.mH1500.root```, one can run the script ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/mlfitNormsToText.py``` to get the predictions for the normalizations:
+
+```
+python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/mlfitNormsToText.py fitDiagnosticsTest.mH1500.root
+
+```
 
 <details>
 <summary> Normalizations predictions </summary>
@@ -440,7 +445,13 @@ ch4                                      Bkg                                 146
 ```
 </details>
 
-Moreover, you can run the script in ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/postFitPlot.py``` to get pre-fit and post-fit plots in the signal region (in the combined datacard ```ch4```).
+Moreover, you can run the script in ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/postFitPlot.py``` to get pre-fit and post-fit plots in the signal region (in the combined datacard ```ch4```):
+
+```
+python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/postFitPlot.py fitDiagnosticsTest.mH1500.root
+
+```
+
 
 ![input distributions](figures/post_fit_plots_A.png)
 
