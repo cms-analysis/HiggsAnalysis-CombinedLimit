@@ -35,7 +35,7 @@ The ABCD boundaries are chosen in the example to be $(0.5,0.5)$, and A is define
 To generate your own input data, run: 
 
 ```
-python utils/produce_input_histograms_and_analyse.py
+python3 utils/produce_input_histograms_and_analyse.py
 
 ```
 
@@ -351,7 +351,7 @@ getattr(ws, "import")(param_bkg_A_norm, RooFit.Rename("bkg_A"+"_norm"),RooFit.Re
 To run the workspace creation script:
 
 ```
-python utils/create_workspace.py -m 1500
+python3 utils/create_workspace.py -m 1500
 
 ```
 
