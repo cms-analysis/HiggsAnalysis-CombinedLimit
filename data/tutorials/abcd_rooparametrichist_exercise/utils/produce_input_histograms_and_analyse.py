@@ -15,9 +15,10 @@ ROOT.gStyle.SetOptStat(0)
 ROOT.gStyle.SetOptTitle(False)
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 from array import array
+import os
 
 #Saving the distributions in ROOT files
-def save_histograms_in_root_files(bkg_A,bkg_B,bkg_C,bkg_D,new_bin_edges,signals_expected_rates,signals_A,signals_B,signals_C,signals_D):
+def save_histograms_in_root_files(bkg_A,bkg_B,bkg_C,bkg_D,new_bin_edges,signals_expected_rates,signals_A,signals_B,signals_C,signals_D,out_dir):
 
     #use FillN to fill the histograms with weights
     h_A_bkg = ROOT.TH1F('h_bkg_A', 'h_bkg_A', len(new_bin_edges)-1, array('d',new_bin_edges))
@@ -50,7 +51,8 @@ def save_histograms_in_root_files(bkg_A,bkg_B,bkg_C,bkg_D,new_bin_edges,signals_
 
 
     #save histograms in a root file (create directory for background in current directory and separate one for signals)
-    f = ROOT.TFile('background.root', 'recreate')
+    #create in current directory a new directory called generated_histograms
+    f = ROOT.TFile(out_dir + '/background.root', 'recreate')
     #save each histogram in a tdirectory with the region name
     d_A = f.mkdir('A')
     d_A.cd()
@@ -72,7 +74,7 @@ def save_histograms_in_root_files(bkg_A,bkg_B,bkg_C,bkg_D,new_bin_edges,signals_
 
     #save each signal in a separate file
     for signal, rate in signals_expected_rates.items():
-        f = ROOT.TFile(f'{signal}.root', 'recreate')
+        f = ROOT.TFile(out_dir + f'/{signal}.root', 'recreate')
         d_A = f.mkdir('A')
         d_A.cd()
         h_A_signals[signal].Write()
@@ -92,7 +94,7 @@ def save_histograms_in_root_files(bkg_A,bkg_B,bkg_C,bkg_D,new_bin_edges,signals_
 
 
 #plot the expected yields for signal as a function of the mass
-def plot_expected_signal_yields(signals_expected_rates):
+def plot_expected_signal_yields(signals_expected_rates, out_dir ):
     masses = []
     rates = []
     for key, value in signals_expected_rates.items():
@@ -103,10 +105,10 @@ def plot_expected_signal_yields(signals_expected_rates):
     plt.ylabel('Expected Signal Yield')
     
     #save the plot in current directory
-    plt.savefig('expected_signal_yields.png')
+    plt.savefig(out_dir + '/expected_signal_yields.png')
 
 #make 2D contour plots for background and signal
-def plot_2d_countors(bkg , signals, bkg_weights, signals_weights):
+def plot_2d_countors(bkg , signals, bkg_weights, signals_weights, out_dir ):
     #plot the 2D distributions for background in a 2D histogram
     fig, ax = plt.subplots()
 
@@ -139,7 +141,7 @@ def plot_2d_countors(bkg , signals, bkg_weights, signals_weights):
     plt.title('Signal (1500) vs Background distributions')
     
     #save the plot in current directory
-    plt.savefig('2D_contours.png')
+    plt.savefig(out_dir +'/2D_contours.png')
 
     #plot the 2D distributions for background in a 2D histogram 
     fig, ax = plt.subplots()
@@ -169,12 +171,12 @@ def plot_2d_countors(bkg , signals, bkg_weights, signals_weights):
     plt.title('Signal (5000) vs Background distributions')
     
     #save the plot in current directory
-    plt.savefig('2D_contours_5000.png')
+    plt.savefig(out_dir +'/2D_contours_5000.png')
 
 
 #Here we visualize the distributions of the observables we want to fit
 #plot the 1D distributions for z observable for bkg and signal 
-def plot_1d_distributions(bkg_z, signals_z, bkg_weights, signals_weights, signals_expected_rates):
+def plot_1d_distributions(bkg_z, signals_z, bkg_weights, signals_weights, signals_expected_rates, outdir):
 
     bin_edges = np.arange(200, np.max(signals_z['mPhi_5000']), 100)
     fig, ax = plt.subplots()
@@ -190,10 +192,10 @@ def plot_1d_distributions(bkg_z, signals_z, bkg_weights, signals_weights, signal
     plt.yscale('log')
     
     #save the plot in current directory
-    plt.savefig('1D_distributions.png')
+    plt.savefig(outdir+'/1D_distributions.png')
 
 
-def plot_1d_distributions_regions(bkg_A, bkg_B, bkg_C, bkg_D, signals_A, new_bin_edges):
+def plot_1d_distributions_regions(bkg_A, bkg_B, bkg_C, bkg_D, signals_A, new_bin_edges, out_dir):
 
     #plot the shape of the z observable in the 4 regions for bkg with the optimal binning
     fig, ax = plt.subplots()
@@ -212,7 +214,7 @@ def plot_1d_distributions_regions(bkg_A, bkg_B, bkg_C, bkg_D, signals_A, new_bin
     plt.title('Background distributions for z observable in the 4 regions')
     #set log scale
     plt.yscale('log')
-    plt.savefig('1D_distributions_bkg.png')
+    plt.savefig(out_dir + '/1D_distributions_bkg.png')
 
     #plot signals with the optimal binning (normalize histograms) together with background signals_z[signal]
     fig, ax = plt.subplots()
@@ -228,7 +230,7 @@ def plot_1d_distributions_regions(bkg_A, bkg_B, bkg_C, bkg_D, signals_A, new_bin
     plt.title('Background distributions for z observable in SR vs signals')
     #set log scale
     plt.yscale('log')
-    plt.savefig('1D_distributions_signals_A.png')
+    plt.savefig(out_dir + '/1D_distributions_signals_A.png')
 
 
 def print_signal_significance(signals_expected_rates,n_signals_A, n_signals_B, n_signals_C, n_signals_D, n_bkg_A, n_bkg_B, n_bkg_C, n_bkg_D):
@@ -289,13 +291,23 @@ def print_expected_background_in_regions_and_closure(n_bkg_A, n_bkg_B, n_bkg_C, 
     predicted_A = n_bkg_B * (n_bkg_C/n_bkg_D)
 
     print("predicted A: " , predicted_A)
-    print("closure : " , (np.abs(predicted_A - n_bkg_A)/(n_bkg_A))*100)
+    print("closure (%): " , (np.abs(predicted_A - n_bkg_A)/(n_bkg_A))*100)
 
     print("****************************************************************************************")
 
 
 #main code starting here
 def main():
+
+    #create directories for plots and histograms
+    cwd = os.getcwd()
+    out_dir_plots = os.path.join(cwd, 'plots')
+    if not os.path.exists(out_dir_plots):
+        os.makedirs(out_dir_plots)
+
+    out_dir_histos = os.path.join(cwd, 'generated_histograms')
+    if not os.path.exists(out_dir_histos):
+        os.makedirs(out_dir_histos)
 
     #As a first step we want to produce some toy input data. We imagine some BSM particle Phi decaying in a t-channel topology with an hypothetical mass between 1500 and 5000 GeV. 
     #After applying some selections, we are left with the following expected yields for the different signal points and background.
@@ -316,7 +328,7 @@ def main():
     #bkg expected yields
     bkg_rate = 1000500.5
 
-    plot_expected_signal_yields(signals_expected_rates)
+    plot_expected_signal_yields(signals_expected_rates, out_dir_plots)
 
     #Here generate 2D distributions of the ABCD plane to visualize data
     #generate bkg events distributed as a 2D gaussian centred at (0.3,0.3)
@@ -343,7 +355,7 @@ def main():
         signals_weights[signal] = np.ones(len(signals[signal])) * rate / len(signals[signal])
 
     #plot the 2D distributions for background and signal 
-    plot_2d_countors(bkg , signals, bkg_weights, signals_weights)
+    plot_2d_countors(bkg , signals, bkg_weights, signals_weights, out_dir_plots)
 
     #generate 1D distribution for z observable for bkg (falling exponential in the range 1500-9000)
     bkg_z = np.random.exponential(1000, 100000)
@@ -369,9 +381,10 @@ def main():
             #take an exponential factor that shift with the signal mass
             signals_z[signal] = np.random.exponential(1000 + 150*(float(signal.split('_')[1])/1500), 10000)
             signals_z[signal] = signals_z[signal] + 200
+
 
     #plot the 1D distributions for z observable for bkg and signal
-    plot_1d_distributions(bkg_z, signals_z, bkg_weights, signals_weights, signals_expected_rates)
+    plot_1d_distributions(bkg_z, signals_z, bkg_weights, signals_weights, signals_expected_rates, out_dir_plots)
 
     ################## Part 2 - ABCD method ##################
 
@@ -442,10 +455,10 @@ def main():
 
     #now plot the shape of the z observable in the 4 regions for signal
     new_bin_edges =  [200, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000, 14000]
-    plot_1d_distributions_regions(bkg_A, bkg_B, bkg_C, bkg_D, signals_A, new_bin_edges)
+    plot_1d_distributions_regions(bkg_A, bkg_B, bkg_C, bkg_D, signals_A, new_bin_edges, out_dir_plots)
 
     #save the distributions in ROOT files   
-    save_histograms_in_root_files(bkg_A,bkg_B,bkg_C,bkg_D,new_bin_edges,signals_expected_rates,signals_A,signals_B,signals_C,signals_D)
+    save_histograms_in_root_files(bkg_A,bkg_B,bkg_C,bkg_D,new_bin_edges,signals_expected_rates,signals_A,signals_B,signals_C,signals_D, out_dir_histos)
 
 
 
