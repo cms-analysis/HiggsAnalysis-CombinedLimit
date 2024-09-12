@@ -84,13 +84,13 @@ kmax * number of nuisance parameters
 -----------------------------------------------------------------------------------
 shapes   data_obs  A    param_ws.root    wspace:data_obs_A
 shapes   Bkg  A    param_ws.root    wspace:bkg_A
-shapes   mPhi1500  A    param_ws.root    wspace:mPhi1500_A
+shapes   mPhi_1500  A    param_ws.root    wspace:mPhi_1500_A
 -----------------------------------------------------------------------------------
 bin               A
 observation       -1
 -----------------------------------------------------------------------------------
 bin                                     A                                            A                                          
-process                                 Bkg                                          mPhi1500                                   
+process                                 Bkg                                          mPhi_1500                                   
 process                                 1                                           0                                          
 rate                                    1                                           -1                                         
 -----------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ kmax * number of nuisance parameters
 -----------------------------------------------------------------------------------
 shapes   data_obs  B    param_ws.root    wspace:data_obs_B
 shapes   Bkg  B    param_ws.root    wspace:bkg_B
-shapes   mPhi1500  B    param_ws.root    wspace:mPhi1500_B
+shapes   mPhi_1500  B    param_ws.root    wspace:mPhi_1500_B
 -----------------------------------------------------------------------------------
 bin               B
 observation       -1
@@ -137,7 +137,7 @@ kmax * number of nuisance parameters
 -----------------------------------------------------------------------------------
 shapes   data_obs  C    param_ws.root    wspace:data_obs_C
 shapes   Bkg  C    param_ws.root    wspace:bkg_C
-shapes   mPhi1500  C    param_ws.root    wspace:mPhi1500_C
+shapes   mPhi_1500  C    param_ws.root    wspace:mPhi_1500_C
 -----------------------------------------------------------------------------------
 bin               C
 observation       -1
@@ -163,7 +163,7 @@ kmax * number of nuisance parameters
 -----------------------------------------------------------------------------------
 shapes   data_obs  D    param_ws.root    wspace:data_obs_D
 shapes   Bkg  D    param_ws.root    wspace:bkg_D
-shapes   mPhi1500  D    param_ws.root    wspace:mPhi1500_D
+shapes   mPhi_1500  D    param_ws.root    wspace:mPhi_1500_D
 -----------------------------------------------------------------------------------
 bin               D
 observation       -1
@@ -382,22 +382,22 @@ kmax 2 number of nuisance parameters
 ----------------------------------------------------------------------------------------------------------------------------------
 shapes Bkg       ch1       param_ws.root wspace:bkg_B
 shapes data_obs  ch1       param_ws.root wspace:data_obs_B
-shapes mPhi1500  ch1       param_ws.root wspace:mPhi1500_B
+shapes mPhi_1500  ch1      param_ws.root wspace:mPhi_1500_B
 shapes Bkg       ch2       param_ws.root wspace:bkg_C
 shapes data_obs  ch2       param_ws.root wspace:data_obs_C
-shapes mPhi1500  ch2       param_ws.root wspace:mPhi1500_C
+shapes mPhi_1500  ch2      param_ws.root wspace:mPhi_1500_C
 shapes Bkg       ch3       param_ws.root wspace:bkg_D
 shapes data_obs  ch3       param_ws.root wspace:data_obs_D
-shapes mPhi1500  ch3       param_ws.root wspace:mPhi1500_D
+shapes mPhi_1500  ch3      param_ws.root wspace:mPhi_1500_D
 shapes Bkg       ch4       param_ws.root wspace:bkg_A
 shapes data_obs  ch4       param_ws.root wspace:data_obs_A
-shapes mPhi1500  ch4       param_ws.root wspace:mPhi1500_A
+shapes mPhi_1500  ch4      param_ws.root wspace:mPhi_1500_A
 ----------------------------------------------------------------------------------------------------------------------------------
 bin          ch1    ch2    ch3    ch4  
 observation  -1     -1     -1     -1   
 ----------------------------------------------------------------------------------------------------------------------------------
 bin                             ch1       ch1       ch2       ch2       ch3       ch3       ch4       ch4     
-process                         mPhi1500  Bkg       mPhi1500  Bkg       mPhi1500  Bkg       mPhi1500  Bkg     
+process                         mPhi_1500  Bkg      mPhi_1500  Bkg      mPhi_1500  Bkg      mPhi_1500  Bkg     
 process                         0         1         0         1         0         1         0         1       
 rate                            -1        1         -1        1         -1        1         -1        1       
 ----------------------------------------------------------------------------------------------------------------------------------
@@ -433,14 +433,14 @@ python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/mlfitNormsToText.py fit
 ```
 Channel                                  Process                                Pre-fit              S+B Fit           B-Only Fit
 ---------------------------------------------------------------------------------------------------------------------------------
-ch1                                      mPhi1500                               615.153                0.036                0.000
-ch2                                      mPhi1500                               588.446                0.034                0.000
-ch3                                      mPhi1500                               233.459                0.014                0.000
-ch4                                      mPhi1500                              1563.698                0.092                0.000
-ch1                                      Bkg                                 235694.916           235691.655           235690.631
-ch2                                      Bkg                                 237436.123           237432.755           237431.725
-ch3                                      Bkg                                 382527.975           382533.256           382531.586
-ch4                                      Bkg                                 146323.145           144860.251           144857.582
+ch1                                      mPhi_1500                              594.749               85.434                0.000
+ch2                                      mPhi_1500                              605.251               86.943                0.000
+ch3                                      mPhi_1500                              245.161               35.217                0.000
+ch4                                      mPhi_1500                             1541.786              221.411                0.000
+ch1                                      Bkg                                 236222.924           236441.545           236574.894
+ch2                                      Bkg                                 235703.859           235921.045           236055.818
+ch3                                      Bkg                                 381479.390           381140.139           381128.516
+ch4                                      Bkg                                 145963.042           146352.943           146523.706
 
 ```
 </details>
@@ -461,7 +461,7 @@ python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/
 Limits can be computed from the combined datacard for all the regions using the following command (in case of asymptotic limits):
 
 ```
-combine -M AsymptoticLimits -n combinedExclusion_mPhi1500_2018 -m 1500  combinedExclusion_mPhi1500_2018.txt  2>&1 | tee  asymp_limits_mPhi1500_2018.txt
+combine -M AsymptoticLimits combined_mPhi_1500_2018.txt -m 1500  2>&1 | tee  asymp_limits_mPhi_1500_2018.txt
 
 ```
 
