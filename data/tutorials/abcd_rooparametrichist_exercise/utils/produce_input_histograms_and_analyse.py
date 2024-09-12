@@ -332,7 +332,8 @@ def main():
 
     #Here generate 2D distributions of the ABCD plane to visualize data
     #generate bkg events distributed as a 2D gaussian centred at (0.3,0.3)
-    bkg = np.random.multivariate_normal([0.2,0.2], [[1.0, 0], [0, 1.0]], 100000)
+    np.random.seed(0)
+    bkg = np.random.multivariate_normal([0.2,0.2], [[1.0, 0], [0, 1.0]], 1000000)
 
     #compute weights for bkg events
     bkg_weights = np.ones(len(bkg)) * bkg_rate / len(bkg)
@@ -358,7 +359,7 @@ def main():
     plot_2d_countors(bkg , signals, bkg_weights, signals_weights, out_dir_plots)
 
     #generate 1D distribution for z observable for bkg (falling exponential in the range 1500-9000)
-    bkg_z = np.random.exponential(1000, 100000)
+    bkg_z = np.random.exponential(1000, len(bkg))
     #shift the distribution to start at 1500
     bkg_z = bkg_z + 200
 
@@ -366,20 +367,7 @@ def main():
     signals_z = {}
     for signal, rate in signals_expected_rates.items():
             #take an exponential factor that shift with the signal mass
-            signals_z[signal] = np.random.exponential(1000 + 150*(float(signal.split('_')[1])/1500), 10000)
-            signals_z[signal] = signals_z[signal] + 200
-
-
-    #generate 1D distribution for z observable for bkg (falling exponential in the range 1500-9000)
-    bkg_z = np.random.exponential(1000, 100000)
-    #shift the distribution to start at 1500
-    bkg_z = bkg_z + 200
-
-    #generate 1D distribution for z observable for signal (gaussian in the range 1500-9000)
-    signals_z = {}
-    for signal, rate in signals_expected_rates.items():
-            #take an exponential factor that shift with the signal mass
-            signals_z[signal] = np.random.exponential(1000 + 150*(float(signal.split('_')[1])/1500), 10000)
+            signals_z[signal] = np.random.exponential(1000 + 1500*(float(signal.split('_')[1])/1500), 10000)
             signals_z[signal] = signals_z[signal] + 200
 
 
