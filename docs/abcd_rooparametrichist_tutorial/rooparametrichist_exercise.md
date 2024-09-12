@@ -360,7 +360,7 @@ After running the script, the workspace will be saved in ```example_analysis/dat
 
 
 ```
-python utils/create_datacards.py -m 1500
+python3 utils/create_datacards.py -m 1500
 
 ```
 
