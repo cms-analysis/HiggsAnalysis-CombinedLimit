@@ -36,7 +36,7 @@ def main():
 
 
 
-    signal = "mPhi%s" % int(opt.mass)
+    signal = "mPhi_%s" % int(opt.mass)
 
     #OOpen workspace
     workfile_name = "param_ws.root"
@@ -129,7 +129,7 @@ def main():
 
     #add systematics section
     cardSR_A += "lumi      lnN                          %-43s %-43s\n" % ("--", lumi_sys)
-    cardSR_A += "BkgRate      lnN                       %-43s %-43s\n" % ("--", non_closure_sys)
+    cardSR_A += "BkgRate      lnN                       %-43s %-43s\n" % (non_closure_sys, "--")
 
     cardCR_B += "lumi      lnN                          %-43s %-43s\n" % ("--", lumi_sys)
     
