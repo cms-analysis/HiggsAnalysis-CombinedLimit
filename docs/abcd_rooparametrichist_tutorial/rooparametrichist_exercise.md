@@ -448,10 +448,11 @@ ch4                                      Bkg                                 145
 Moreover, you can run the script in ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/postFitPlot.py``` to get pre-fit and post-fit plots in the signal region (in the combined datacard ```ch4```):
 
 ```
-python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/postFitPlot.py fitDiagnosticsTest.mH1500.root
+python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/postFitPlot.py --input_file fitDiagnosticsTest.mH1500.root --shape_type <shapes_type> --region <region>
 
 ```
 
+where the argument ```<shapes_type>``` can be ```shapes_prefit```, ```shapes_fit_b``` or ```shapes_fit_s``` to get prefit, background-only fit or signal+background fit plots. While the argument ```<region>``` specifies the region, which can be ```ch4``` for the signal region A.
 
 ![input distributions](figures/post_fit_plots_A.png)
 
