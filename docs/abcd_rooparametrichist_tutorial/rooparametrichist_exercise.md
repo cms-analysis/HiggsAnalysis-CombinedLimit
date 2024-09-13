@@ -420,6 +420,17 @@ combine -M FitDiagnostics combined_mPhi_1500_2018.txt -m 1500 --saveShapes --sav
 
 ```
 
+<details>
+<summary> Results FitDiagnostics  </summary>
+
+```
+ --- FitDiagnostics ---
+Best fit r: 2.4196e-05  -2.4196e-05/+0.276209  (68% CL)
+
+```
+</details>
+
+
 Using the output ```fitDiagnosticsTest.mH1500.root```, one can run the script ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/mlfitNormsToText.py``` to get the predictions for the normalizations:
 
 ```
@@ -433,14 +444,14 @@ python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/mlfitNormsToText.py fit
 ```
 Channel                                  Process                                Pre-fit              S+B Fit           B-Only Fit
 ---------------------------------------------------------------------------------------------------------------------------------
-ch1                                      mPhi_1500                              594.749               85.434                0.000
-ch2                                      mPhi_1500                              605.251               86.943                0.000
-ch3                                      mPhi_1500                              245.161               35.217                0.000
-ch4                                      mPhi_1500                             1541.786              221.411                0.000
-ch1                                      Bkg                                 236222.924           236441.545           236574.894
-ch2                                      Bkg                                 235703.859           235921.045           236055.818
-ch3                                      Bkg                                 381479.390           381140.139           381128.516
-ch4                                      Bkg                                 145963.042           146352.943           146523.706
+ch1                                      mPhi_1500                              594.749                0.014                0.000
+ch2                                      mPhi_1500                              605.251                0.015                0.000
+ch3                                      mPhi_1500                              245.161                0.006                0.000
+ch4                                      mPhi_1500                             1541.786                0.037                0.000
+ch1                                      Bkg                                 236222.924           236226.197           236225.436
+ch2                                      Bkg                                 235703.859           235707.150           235706.383
+ch3                                      Bkg                                 381479.390           381476.382           381476.614
+ch4                                      Bkg                                 145963.042           146873.518           146873.251
 
 ```
 </details>
@@ -466,7 +477,23 @@ combine -M AsymptoticLimits combined_mPhi_1500_2018.txt -m 1500  2>&1 | tee  asy
 
 ```
 
-Both the observed (from nominal Monte Carlo) and the expected limits are computed for each mass point. 
+<details>
+<summary> Results AsymptoticLimits  </summary>
+
+```
+ -- AsymptoticLimits ( CLs ) --
+Observed Limit: r < 0.5986
+Expected  2.5%: r < 0.3532
+Expected 16.0%: r < 0.4662
+Expected 50.0%: r < 0.6367
+Expected 84.0%: r < 0.8702
+Expected 97.5%: r < 1.1325
+
+```
+</details>
+
+
+Both the observed (from nominal Monte Carlo) and the expected limits can be computed for each mass point. 
 
 
 The same exercise can be repeated generating a workspace where the control regions are depleted from the signal (see datacards in ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/datacards/no_sgn_CRs/```), and re-running the limits. This should give a hint of how much the signal contamination in the control regions is worsening the limits.  If you want to generate by your self the workspace and the cards where the signal is removed from the CRs, just run the scripts ```create_workspace.py``` and ```create_datacards.py``` with the flag ```--deplete_crs_from_signal```.
