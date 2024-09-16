@@ -431,10 +431,10 @@ Best fit r: 2.4196e-05  -2.4196e-05/+0.276209  (68% CL)
 </details>
 
 
-Using the output ```fitDiagnosticsTest.mH1500.root```, one can run the script ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/mlfitNormsToText.py``` to get the predictions for the normalizations:
+Using the output ```fitDiagnosticsTest.root```, one can run the script ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/mlfitNormsToText.py``` to get the predictions for the normalizations:
 
 ```
-python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/mlfitNormsToText.py fitDiagnosticsTest.mH1500.root
+python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/mlfitNormsToText.py fitDiagnosticsTest.root
 
 ```
 
@@ -459,7 +459,7 @@ ch4                                      Bkg                                 145
 Moreover, you can run the script in ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/postFitPlot.py``` to get pre-fit and post-fit plots in the signal region (in the combined datacard ```ch4```):
 
 ```
-python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/postFitPlot.py --input_file fitDiagnosticsTest.mH1500.root --shape_type <shapes_type> --region <region>
+python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/postFitPlot.py --input_file fitDiagnosticsTest.root --shape_type <shapes_type> --region <region>
 
 ```
 
