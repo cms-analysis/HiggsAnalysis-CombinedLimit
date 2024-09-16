@@ -67,7 +67,7 @@ def main():
         print ("Error: Signal file does not exist. Please generate first histogram for mass point %s." % int(opt.mass))
         exit()
     
-    signal = "mPhi%s" % int(opt.mass)
+    signal = "mPhi_%s" % int(opt.mass)
 
     #Output file and workspace
     #Here we create a TFile where to store the workspace
@@ -94,7 +94,7 @@ def main():
     getattr(ws, "import")(histData_D, RooFit.Rename("data_obs_D"))
 
     #Save the signals in RooDataHist
-    histA_sgn , histB_sgn, histC_sgn, histD_sgn =  __get_histograms_regions("sgn", input_file_sgn)
+    histA_sgn , histB_sgn, histC_sgn, histD_sgn =  __get_histograms_regions("sgn_"+signal, input_file_sgn)
     
     #if depletion of control regions from signal is requested, we deplete the signal histograms in the control regions
     if opt.deplete_crs_from_signal:
