@@ -355,7 +355,7 @@ python3 utils/create_workspace.py -m 1500
 
 ```
 
-where ```-m``` is the flag for the mass point you want to run the script on. The script will use by default the histograms stored in ```generated_histograms```. To use the ones that you created, change the path in ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/utils/create_datacards.py```.
+where ```-m``` is the flag for the mass point you want to run the script on. The script will use by default the histograms stored in ```generated_histograms``` in the tutorial directory.
 After running the script, the workspace will be saved in ```example_analysis/datacards/```. To create the datacards automatically fatching the correct workspace, run:
 
 
@@ -364,7 +364,7 @@ python3 utils/create_datacards.py -m 1500
 
 ```
 
-The datacards can be combined then using the usual command:
+The datacards will be created in the directory ```example_analysis/datacards/mPhi1500/``` inside the tutorial directory. The datacards can be combined then using the usual command:
 
 ```
 combineCards.py mPhi_1500_*2018*.txt > combined_mPhi_1500_2018.txt
