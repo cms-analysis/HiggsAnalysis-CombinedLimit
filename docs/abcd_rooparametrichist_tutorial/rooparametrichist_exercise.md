@@ -364,7 +364,13 @@ python3 utils/create_datacards.py -m 1500
 
 ```
 
-The datacards will be created in the directory ```example_analysis/datacards/mPhi1500/``` inside the tutorial directory. The datacards can be combined then using the usual command:
+The datacards will be created in the directory ```example_analysis/datacards/mPhi1500/``` inside the tutorial directory. Move into the directory where the datacards are stored:
+```
+cd example_analysis/datacards/mPhi1500/
+
+```
+
+The datacards can be combined then using the usual command:
 
 ```
 combineCards.py mPhi_1500_*2018*.txt > combined_mPhi_1500_2018.txt
