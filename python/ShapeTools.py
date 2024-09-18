@@ -97,8 +97,6 @@ class ShapeBuilder(ModelBuilder):
             self.out.obs = ROOT.RooArgSet()
             self.out.obs.add(self.out.binVars)
             self.out.obs.add(self.out.binCat)
-        else:
-            self.out.obs = self.out.binVars
         self.doSet("observables", self.out.obs)
         if len(self.DC.obs) != 0 and not self.options.noData:
             self.doCombinedDataset()
@@ -381,6 +379,7 @@ class ShapeBuilder(ModelBuilder):
             stderr.write("\b\b\b\bdone.\n")
             stderr.flush()
 
+
     def doCombination(self):
         ## Contrary to Number-counting models, here each channel PDF already contains the nuisances
         ## So we just have to build the combined pdf
@@ -563,16 +562,30 @@ class ShapeBuilder(ModelBuilder):
         if shapeTypes.count("TH1"):
             self.TH1Observables = {}
             self.out.binVars = ROOT.RooArgSet()
-            self.out.maxbins = max([shapeBins[k] for k in shapeBins.keys()])
+            shapeBinVals = [shapeBins[k] for k in shapeBins.keys() if shapeBins[k]<self.options.maxOptimizeBinsThreshold]
+            self.out.maxbins = max(shapeBinVals) if len(shapeBinVals) > 0 else 1
             if self.options.optimizeTemplateBins:
-                if self.options.verbose > 1:
-                    stderr.write("Will use binning variable CMS_th1x with %d bins\n" % self.out.maxbins)
+                
                 self.doVar("CMS_th1x[0,%d]" % self.out.maxbins)
                 self.out.var("CMS_th1x").setBins(self.out.maxbins)
+
+                if self.options.verbose > 1:
+                    stderr.write("Will use binning variable CMS_th1x with %d bins\n" % self.out.maxbins)
                 self.out.binVars.add(self.out.var("CMS_th1x"))
                 shapeObs["CMS_th1x"] = self.out.var("CMS_th1x")
+
                 for b in shapeBins:
-                    self.TH1Observables[b] = "CMS_th1x"
+                    if shapeBins[b] > self.options.maxOptimizeBinsThreshold:
+                        binVar = "CMS_th1x_%s" % b
+                        if self.options.verbose > 1:
+                            stderr.write("Binning above max threshold. Switch to use binning variable %s with %d bins\n" % (binVar, shapeBins[b]))
+                        self.doVar("%s[0,%d]" % (binVar, shapeBins[b]))
+                        self.out.var(binVar).setBins(shapeBins[b])
+                        self.out.binVars.add(self.out.var(binVar))
+                        shapeObs["CMS_th1x_%s" % b] = self.out.var(binVar)
+                        self.TH1Observables[b] = binVar
+                    else:
+                        self.TH1Observables[b] = "CMS_th1x"
             else:
                 for b in shapeBins:
                     binVar = "CMS_th1x_%s" % b
@@ -643,6 +656,8 @@ class ShapeBuilder(ModelBuilder):
         combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
         for b in self.DC.bins:
             combiner.addSetAny(b, self.getData(b, self.options.dataname))
+        self.out.obs.Print("v")
+
         self.out.data_obs = combiner.doneUnbinned(self.options.dataname, self.options.dataname)
         self.out.safe_import(self.out.data_obs)
         if self.options.verbose > 2:
@@ -658,6 +673,7 @@ class ShapeBuilder(ModelBuilder):
                     ": entries = ",
                     self.getData(b, self.options.dataname).numEntries(),
                 )
+
 
     ## -------------------------------------
     ## -------- Low level helpers ----------
@@ -1189,7 +1205,7 @@ class ShapeBuilder(ModelBuilder):
         return terms if terms else None
 
     def rebinH1(self, shape):
-        if self.options.optimizeTemplateBins:
+        if (self.options.optimizeTemplateBins) & (shape.GetNbinsX() < self.options.maxOptimizeBinsThreshold):
             rebinh1 = ROOT.TH1F(
                 shape.GetName() + "_rebin",
                 "",

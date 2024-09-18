@@ -267,6 +267,13 @@ def addDatacardParserOptions(parser):
         help="Don't optimize template bins (removes padding from TH1s)",
     )
     parser.add_option(
+        "--X-max-optimize-bins-threshold",
+        dest="maxOptimizeBinsThreshold",
+        default=1000,
+        type='int',
+        help="Maximum number of bins to share CMS_th1x observable. Above threshold will use separate observable (CMS_th1x_{channel})",
+    )
+    parser.add_option(
         "--X-pack-asympows",
         dest="packAsymPows",
         default=False,
