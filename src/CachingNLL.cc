@@ -637,7 +637,11 @@ cacheutils::CachingAddNLL::evaluate() const
             sumCoeff += coeff;
         }
         // get vals
+        //std::cout<<"Silence is gold!"<<std::endl;
+        freopen("/dev/null", "w", stdout); // (bad) Fix RooFit warnings: [#0] WARNING:Eval -- Evaluating RooAddPdf without a defined normalization set.
         const std::vector<Double_t> &pdfvals = itp->eval(*data_);
+        freopen("/dev/tty", "w", stdout); 
+        //std::cout<<"I am alive!"<<std::endl;
         if (basicIntegrals_) {
             double integral = (binWidths_.size() > 1) ? 
                                     vectorized::dot_product(pdfvals.size(), &pdfvals[0], &binWidths_[0]) :
