@@ -204,6 +204,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
     RooCmdArg ay = (y ? RooFit::YVar(*y) : RooCmdArg::none());
     RooCmdArg az = (z ? RooFit::ZVar(*z) : RooCmdArg::none());
 
+    freopen("/dev/null", "w", stdout); // AMARINI
     if (histoSpec_ == 0) {
         histoSpec_ = pdf_->createHistogram("htemp", *x, ay, az); 
         histoSpec_->SetDirectory(0);
@@ -265,6 +266,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
     if (!keepHistoSpec_) { delete histoSpec_; histoSpec_ = 0; }
     //std::cout << "Asimov dataset generated from " << pdf_->GetName() << " (sumw? " << data->sumEntries() << ", expected events " << expectedEvents << ")" << std::endl;
     //utils::printRDH(data);
+    freopen("/dev/tty", "w", stdout); 
     return data;
 }
 
