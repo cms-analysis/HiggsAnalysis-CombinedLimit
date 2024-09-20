@@ -228,7 +228,7 @@ void CheckSizeOfShapeEffect(CombineHarvester& cb){
       }
       if(up_diff<diff_lim && down_diff<diff_lim){
         PrintSystematic(sys);
-        std::cout<<"Uncertainty probably has no genuine shape effect. Summed relative difference per bin between normalised nominal and up shape: "<<up_diff<<" between normalised nominal and down shape: "<<down_diff<<std::endl;
+        std::cout<<"Uncertainty probably has no genuine shape effect. Summed relative difference per bin between normalised nominal and up shape: "<<up_diff<<" between normalised nominal and down shape: "<<down_diff<<" . If you are using 1-bin shapes you can ignore this warning, but you can consider using lnN instead of a shape uncertainty"<<std::endl;
       }
     }
   });
@@ -244,19 +244,22 @@ void CheckSizeOfShapeEffect(CombineHarvester& cb, json& jsobj){
     if(sys->type()=="shape"){
       hist_u = sys->shape_u();
       hist_d = sys->shape_d();
-      hist_nom=cb.cp().bin({sys->bin()}).process({sys->process()}).GetShape();
-      hist_nom.Scale(1./hist_nom.Integral());
-      double up_diff=0;
-      double down_diff=0;
-      for(int i=1;i<=hist_u->GetNbinsX();i++){
-        if(fabs(hist_u->GetBinContent(i))+fabs(hist_nom.GetBinContent(i))>0){
-          up_diff+=2*double(fabs(hist_u->GetBinContent(i)-hist_nom.GetBinContent(i)))/(fabs(hist_u->GetBinContent(i))+fabs(hist_nom.GetBinContent(i)));
+      if (hist_u->GetNbinsX() = 1) jsobj["smallShapeEff1bin"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}};
+      else{
+        hist_nom=cb.cp().bin({sys->bin()}).process({sys->process()}).GetShape();
+        hist_nom.Scale(1./hist_nom.Integral());
+        double up_diff=0;
+        double down_diff=0;
+        for(int i=1;i<=hist_u->GetNbinsX();i++){
+          if(fabs(hist_u->GetBinContent(i))+fabs(hist_nom.GetBinContent(i))>0){
+            up_diff+=2*double(fabs(hist_u->GetBinContent(i)-hist_nom.GetBinContent(i)))/(fabs(hist_u->GetBinContent(i))+fabs(hist_nom.GetBinContent(i)));
+          }
+          if(fabs(hist_d->GetBinContent(i))+fabs(hist_nom.GetBinContent(i))>0){
+            down_diff+=2*double(fabs(hist_d->GetBinContent(i)-hist_nom.GetBinContent(i)))/(fabs(hist_d->GetBinContent(i))+fabs(hist_nom.GetBinContent(i)));
+          }
         }
-        if(fabs(hist_d->GetBinContent(i))+fabs(hist_nom.GetBinContent(i))>0){
-          down_diff+=2*double(fabs(hist_d->GetBinContent(i)-hist_nom.GetBinContent(i)))/(fabs(hist_d->GetBinContent(i))+fabs(hist_nom.GetBinContent(i)));
-        }
+        if(up_diff<diff_lim && down_diff<diff_lim) jsobj["smallShapeEff"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}};
       }
-      if(up_diff<diff_lim && down_diff<diff_lim) jsobj["smallShapeEff"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}};
     } 
   });
 }
