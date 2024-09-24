@@ -244,7 +244,7 @@ void CheckSizeOfShapeEffect(CombineHarvester& cb, json& jsobj){
     if(sys->type()=="shape"){
       hist_u = sys->shape_u();
       hist_d = sys->shape_d();
-      if (hist_u->GetNbinsX() = 1) jsobj["smallShapeEff1bin"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}};
+      if (hist_u->GetNbinsX() == 1) jsobj["smallShapeEff1bin"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}};
       else{
         hist_nom=cb.cp().bin({sys->bin()}).process({sys->process()}).GetShape();
         hist_nom.Scale(1./hist_nom.Integral());
