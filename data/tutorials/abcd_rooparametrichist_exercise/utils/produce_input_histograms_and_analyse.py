@@ -224,7 +224,7 @@ def plot_1d_distributions_regions(bkg_A, bkg_B, bkg_C, bkg_D, signals_A, new_bin
         bins=new_bin_edges,
         weights=signals_A["mPhi_1500"]["w"],
         histtype="step",
-        label=f"Region A - signal mPhi_1500",
+        label="Region A - signal mPhi_1500",
         density=True,
     )
     plt.hist(
@@ -232,7 +232,7 @@ def plot_1d_distributions_regions(bkg_A, bkg_B, bkg_C, bkg_D, signals_A, new_bin
         bins=new_bin_edges,
         weights=signals_A["mPhi_3000"]["w"],
         histtype="step",
-        label=f"Region A - signal mPhi_3000",
+        label="Region A - signal mPhi_3000",
         density=True,
     )
     plt.hist(
@@ -240,7 +240,7 @@ def plot_1d_distributions_regions(bkg_A, bkg_B, bkg_C, bkg_D, signals_A, new_bin
         bins=new_bin_edges,
         weights=signals_A["mPhi_5000"]["w"],
         histtype="step",
-        label=f"Region A - signal mPhi_5000",
+        label="Region A - signal mPhi_5000",
         density=True,
     )
 
