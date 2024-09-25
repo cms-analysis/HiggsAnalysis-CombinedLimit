@@ -59,13 +59,13 @@ def main():
 
     try:
         input_file_bkg = ROOT.TFile.Open(current_directory + "/generated_histograms/background.root")
-    except:
+    except IOError:
         print("Error: Background file does not exist. Please generate first histogram for background.")
         exit()
 
     try:
         input_file_sgn = ROOT.TFile.Open(current_directory + "/generated_histograms/mPhi_%s.root" % int(opt.mass))
-    except:
+    except IOError:
         print("Error: Signal file does not exist. Please generate first histogram for mass point %s." % int(opt.mass))
         exit()
 
