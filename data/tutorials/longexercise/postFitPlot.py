@@ -10,9 +10,11 @@ ROOT.gROOT.SetBatch(ROOT.kTRUE)
 plot.ModTDRStyle()
 
 parser = argparse.ArgumentParser(description="Arguments parser")
-parser.add_argument('--input_file', dest='input_file', help='Input root file from fitDiagnostics', required=True)
-parser.add_argument('--shape_type', dest='shape_type', help='Shape directory in input root file from fitDiagnostics (e.g. shapes_fit_b, shapes_fit_s)', required=True)
-parser.add_argument('--region', dest='cards_dir', help='Region of interest (e.g. signal_region, ch1, ch2, etc.)', required=True)
+parser.add_argument("--input_file", dest="input_file", help="Input root file from fitDiagnostics", required=True)
+parser.add_argument(
+    "--shape_type", dest="shape_type", help="Shape directory in input root file from fitDiagnostics (e.g. shapes_fit_b, shapes_fit_s)", required=True
+)
+parser.add_argument("--region", dest="cards_dir", help="Region of interest (e.g. signal_region, ch1, ch2, etc.)", required=True)
 args = parser.parse_args()
 
 
@@ -50,6 +52,5 @@ legend.AddEntry(h_err, "Background uncertainty", "F")
 legend.Draw()
 
 
-canvas.SaveAs('plot_%s_%s.png'%(first_dir,second_dir))
-canvas.SaveAs('plot_%s_%s.pdf'%(first_dir,second_dir))
-
+canvas.SaveAs("plot_%s_%s.png" % (first_dir, second_dir))
+canvas.SaveAs("plot_%s_%s.pdf" % (first_dir, second_dir))
