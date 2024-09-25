@@ -449,7 +449,6 @@ class Kappas(LHCHCGBaseModel):
                 return self.getHiggsSignalYieldScale("ttH","hzz","13TeV")
             elif process == "crossqqH_0PM":
                 return self.getHiggsSignalYieldScale("ZH","hzz","13TeV")
-            #FIXME: wait for confirmation from Mohit?
             elif process == "offggH_Q_negative":
                 return 1
             elif("off" in process.split("_")[0]):
@@ -639,14 +638,14 @@ class Kappas(LHCHCGBaseModel):
             self.modelBuilder.factory_('expr::c7_Offshellscal_offggH_Qt_positive_13TeV("@0*@1*@2*@2*@3",kappa_Q,kappa_t,kappa_Z,factor_gg)')
             
             # Offshell VBF signal and interference
-            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_ZZ_13TeV("(@0^4)",kappa_Z)')
-            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_WW_13TeV("(@0^2)*(@1^2)",kappa_W,kappa_Z)')
-            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_ZBI_negative_13TeV("-1*(@0^2)",kappa_Z)')
-            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_ZBI_positive_13TeV("(@0^2)",kappa_Z)')
-            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_WBI_negative_13TeV("-1*@0*@1",kappa_W,kappa_Z)')
-            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_WBI_positive_13TeV("@0*@1",kappa_W,kappa_Z)')
-            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_ZWI_negative_13TeV("-1*@0*(@1^3)",kappa_W,kappa_Z)')
-            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_ZWI_positive_13TeV("@0*(@1^3)",kappa_W,kappa_Z)')
+            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_ZZ_13TeV("(@0^4)*@1",kappa_Z,factor_gg)')
+            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_WW_13TeV("(@0^2)*(@1^2)*@2",kappa_W,kappa_Z,factor_gg)')
+            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_ZBI_negative_13TeV("-1*(@0^2)*@1",kappa_Z,factor_gg)')
+            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_ZBI_positive_13TeV("(@0^2)*@1",kappa_Z,factor_gg)')
+            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_WBI_negative_13TeV("-1*@0*@1*@2",kappa_W,kappa_Z,factor_gg)')
+            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_WBI_positive_13TeV("@0*@1*@2",kappa_W,kappa_Z,factor_gg)')
+            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_ZWI_negative_13TeV("-1*@0*(@1^3)*@2",kappa_W,kappa_Z,factor_gg)')
+            self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_ZWI_positive_13TeV("@0*(@1^3)*@2",kappa_W,kappa_Z,factor_gg)')
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = "c7_XSBRscal_%s_%s_%s" % (production, decay, energy)
