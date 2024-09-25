@@ -478,7 +478,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
   gSystem->cd(pwd);
 
-  if (verbose <= 2) RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+  if (verbose <= 2) RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
 
   const RooArgSet * observables = mc->GetObservables();     // not null
   const RooArgSet * POI = mc->GetParametersOfInterest();     // not null
