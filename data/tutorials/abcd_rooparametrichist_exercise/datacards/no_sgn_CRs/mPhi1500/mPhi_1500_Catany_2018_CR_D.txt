@@ -1,0 +1,17 @@
+imax * number of bins 
+jmax * number of processes minus 1 
+kmax * number of nuisance parameters
+-----------------------------------------------------------------------------------
+shapes   data_obs  D    param_ws.root    wspace:data_obs_D
+shapes   Bkg  D    param_ws.root    wspace:bkg_D
+shapes   mPhi_1500  D    param_ws.root    wspace:mPhi_1500_D
+-----------------------------------------------------------------------------------
+bin               D
+observation       -1
+-----------------------------------------------------------------------------------
+bin                                     D                                           D                                          
+process                                 Bkg                                         mPhi_1500                                  
+process                                 1                                           0                                          
+rate                                    1                                           -1                                         
+-----------------------------------------------------------------------------------
+lumi      lnN                          --                                          1.016                                      

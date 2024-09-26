@@ -1,0 +1,28 @@
+Combination of mPhi_1500_Catany_2018_CR_B.txt  mPhi_1500_Catany_2018_CR_C.txt  mPhi_1500_Catany_2018_CR_D.txt  mPhi_1500_Catany_2018_SR.txt
+imax 4 number of bins
+jmax 1 number of processes minus 1
+kmax 2 number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes Bkg        ch1        param_ws.root wspace:bkg_B
+shapes data_obs   ch1        param_ws.root wspace:data_obs_B
+shapes mPhi_1500  ch1        param_ws.root wspace:mPhi_1500_B
+shapes Bkg        ch2        param_ws.root wspace:bkg_C
+shapes data_obs   ch2        param_ws.root wspace:data_obs_C
+shapes mPhi_1500  ch2        param_ws.root wspace:mPhi_1500_C
+shapes Bkg        ch3        param_ws.root wspace:bkg_D
+shapes data_obs   ch3        param_ws.root wspace:data_obs_D
+shapes mPhi_1500  ch3        param_ws.root wspace:mPhi_1500_D
+shapes Bkg        ch4        param_ws.root wspace:bkg_A
+shapes data_obs   ch4        param_ws.root wspace:data_obs_A
+shapes mPhi_1500  ch4        param_ws.root wspace:mPhi_1500_A
+----------------------------------------------------------------------------------------------------------------------------------
+bin          ch1    ch2    ch3    ch4  
+observation  -1     -1     -1     -1   
+----------------------------------------------------------------------------------------------------------------------------------
+bin                             ch1        ch1        ch2        ch2        ch3        ch3        ch4        ch4      
+process                         mPhi_1500  Bkg        mPhi_1500  Bkg        mPhi_1500  Bkg        mPhi_1500  Bkg      
+process                         0          1          0          1          0          1          0          1        
+rate                            -1         1          -1         1          -1         1          -1         1        
+----------------------------------------------------------------------------------------------------------------------------------
+BkgRate                 lnN     -          -          -          -          -          -          -          1.05     
+lumi                    lnN     1.016      -          1.016      -          1.016      -          1.016      -        
