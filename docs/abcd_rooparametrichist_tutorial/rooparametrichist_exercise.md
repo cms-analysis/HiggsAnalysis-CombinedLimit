@@ -517,7 +517,7 @@ Both the observed (from nominal Monte Carlo) and the expected limits can be comp
 The same exercise can be repeated generating a workspace where the control regions are depleted from the signal (see datacards in ```$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/datacards/no_sgn_CRs/```), and re-running the limits. This should give a hint of how much the signal contamination in the control regions is worsening the limits.  If you want to generate by your self the workspace and the cards where the signal is removed from the CRs, just run the scripts ```create_workspace.py``` and ```create_datacards.py``` with the flag ```--deplete_crs_from_signal```.
 
 
-<img src="figures/limits.png" width="600" />
+![limit distributions](figures/limits.png)
 
 The analysis illustrated so far can be run for all mass point, and finally the typical brazil exclusion plot can be produced. As we can see the expected limit without signal in the control regions is better compared to the one taking into account the signal, showing that in this example there is an impact from the signal contamination of the control regions affecting the final sensitivity. Instead, the observed line is showing the impact of statistical fluctuations inducing a non-closure effect of the ABCD method: mainly the background is overestimated, thus leading to slightly worse expected limits (equivalent to an underfluctuation of the data).
 
