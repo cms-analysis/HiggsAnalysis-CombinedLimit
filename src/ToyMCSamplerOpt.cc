@@ -189,6 +189,8 @@ toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, in
     }
 }
 
+//global
+int orig_stdout_fd = fileno(stdout);
 
 RooDataSet *  
 toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool asimov, double weightScale, int verbose) 
@@ -204,7 +206,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
     RooCmdArg ay = (y ? RooFit::YVar(*y) : RooCmdArg::none());
     RooCmdArg az = (z ? RooFit::ZVar(*z) : RooCmdArg::none());
 
-    int stdout_fd = dup(STDOUT_FILENO);
+    int stdout_fd = dup(fileno(stdout));
     freopen("/dev/null", "w", stdout); // AMARINI
     if (histoSpec_ == 0) {
         histoSpec_ = pdf_->createHistogram("htemp", *x, ay, az); 
@@ -267,10 +269,11 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
     if (!keepHistoSpec_) { delete histoSpec_; histoSpec_ = 0; }
     //std::cout << "Asimov dataset generated from " << pdf_->GetName() << " (sumw? " << data->sumEntries() << ", expected events " << expectedEvents << ")" << std::endl;
     //utils::printRDH(data);
-    //freopen("/dev/tty", "w", stdout); 
-    dup2(stdout_fd, STDOUT_FILENO);
-    stdout = fdopen(stdout_fd, "w");
-    close(stdout_fd);
+    //assert(orig_stdout_fd == fileno(stdout)); 
+    close(fileno(stdout));//de-associate dev/null from 1
+    dup2(stdout_fd, orig_stdout_fd);//re-associate stdout to 1
+    stdout = fdopen(orig_stdout_fd, "w");
+    close(stdout_fd); //de-associate the stdout_fd from stream
     return data;
 }
 

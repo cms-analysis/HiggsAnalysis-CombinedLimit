@@ -611,6 +611,8 @@ cacheutils::CachingAddNLL::setIncludeZeroWeights(bool includeZeroWeights)
     }
 }
 
+int orig2_stdout_fd = fileno(stdout);
+
 Double_t 
 cacheutils::CachingAddNLL::evaluate() const 
 {
@@ -638,12 +640,13 @@ cacheutils::CachingAddNLL::evaluate() const
         }
         // get vals
         //std::cout<<"Silence is gold!"<<std::endl;
-        int stdout_fd = dup(STDOUT_FILENO);
+        int stdout_fd = dup(fileno(stdout));
         freopen("/dev/null", "w", stdout); // (bad) Fix RooFit warnings: [#0] WARNING:Eval -- Evaluating RooAddPdf without a defined normalization set.
         const std::vector<Double_t> &pdfvals = itp->eval(*data_);
-        //freopen("/dev/tty", "w", stdout); 
-        dup2(stdout_fd, STDOUT_FILENO);
-        stdout = fdopen(stdout_fd, "w");
+
+        close(fileno(stdout));
+        dup2(stdout_fd, orig2_stdout_fd);
+        stdout = fdopen(orig2_stdout_fd, "w");
         close(stdout_fd);
         //std::cout<<"I am alive!"<<std::endl;
         if (basicIntegrals_) {
