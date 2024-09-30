@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.38">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
     
     
       
@@ -1282,9 +1282,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#create-rooparametrichist-for-abcd-method" class="md-nav__link">
+  <a href="#create-rooparametrichist-objects-for-the-abcd-method" class="md-nav__link">
     <span class="md-ellipsis">
-      Create RooParametricHist for ABCD method
+      Create RooParametricHist objects for the ABCD method
     </span>
   </a>
   
@@ -1407,9 +1407,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#create-rooparametrichist-for-abcd-method" class="md-nav__link">
+  <a href="#create-rooparametrichist-objects-for-the-abcd-method" class="md-nav__link">
     <span class="md-ellipsis">
-      Create RooParametricHist for ABCD method
+      Create RooParametricHist objects for the ABCD method
     </span>
   </a>
   
@@ -1461,15 +1461,15 @@
 
 
 <h1 id="combine_tutorial_abcd_rooparametrichist">combine_tutorial_ABCD_rooParametricHist</h1>
-<p>tutorial for Combine using RooParamertricHist to perform the ABCD method</p>
+<p>The following is a tutorial on how to use the <code>RooParamertricHist</code> class from <span style="font-variant:small-caps;">Combine</span> to perform an ABCD-like background estimation method.</p>
 <h2 id="getting-started">Getting started</h2>
-<p>To get started, you should have a working setup of <code>Combine</code>, please follow the instructions from the <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/tutorial2023/parametric_exercise/">home page</a>. Make sure to use the latest recommended release.</p>
-<p>Now let's move to the working directory for this tutorial which contains all of the inputs and scripts needed to run the ABCD method with RooParametricHist exercise:</p>
+<p>To get started, you should have a working setup of <span style="font-variant:small-caps;">Combine</span>, please follow the instructions from the <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/">home page</a>. Make sure to use the latest recommended release.</p>
+<p>Now let's move to the working directory for this tutorial which contains all of the inputs and scripts needed to run the ABCD method with <code>RooParametricHist</code> exercise:</p>
 <div class="highlight"><pre><span></span><code>cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise
 </code></pre></div>
 <h2 id="introduction">Introduction</h2>
-<p>The goal of this tutorial is to exemplify the usage of <code>RooParametricHist</code> in <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/">CMS Combine</a> to implement a bin-by-bin ABCD method.
-In this tutorial we will work with a toy example that could resemble a real physics analysis case. We consider the search for a BSM particle <span class="arithmatex">\(\Phi\)</span> with a mass range between 1500 and 5000 GeV that leads to some excess in the tails of an observable <span class="arithmatex">\(z\)</span> (which could be <span class="arithmatex">\(p_{T,\mathrm{miss}}\)</span> ). We assume that we have found two uncorrelated discriminating features <span class="arithmatex">\(x\)</span> and <span class="arithmatex">\(y\)</span> that can be used to build the ABCD plane (the regions A,B,C,D will be defined by cutting on <span class="arithmatex">\(x,y\)</span>), and we assume that <span class="arithmatex">\(z\)</span> is uncorrelated with respect to these two features. In this way, binning the variable <span class="arithmatex">\(z\)</span> in the same way in the regions A,B,C,D, per-bin transfer factors in the <span class="arithmatex">\(z\)</span> variable can be derived with the ABCD method to obtain the estimate of the background in the signal region. In our example, we will generate a set of pseudodata from our background-only model, and then the background will be estimated from these data from the control regions B,C,D and compared to data in the Signal Region A.</p>
+<p>The goal of this tutorial is to exemplify the usage of <code>RooParametricHist</code> in <span style="font-variant:small-caps;">Combine</span> to implement a bin-by-bin ABCD method.</p>
+<p>In this tutorial we will work with a toy example that could resemble a real physics analysis case. We consider the search for a BSM particle <span class="arithmatex">\(\Phi\)</span> with a mass between 1500 and 5000 GeV, that results in an excess in the tails of an observable <span class="arithmatex">\(z\)</span> (for example,  <span class="arithmatex">\(p_{T,\mathrm{miss}}\)</span>). We assume that we have found two independent discriminating features <span class="arithmatex">\(x\)</span> and <span class="arithmatex">\(y\)</span> that can be used to construct the ABCD plane (the regions A,B,C,D will be defined by selecting regions in <span class="arithmatex">\(x,y\)</span>), and we assume that <span class="arithmatex">\(z\)</span> is independent of  these two features. In this way, binning the variable <span class="arithmatex">\(z\)</span> in the same way in the regions A,B,C,D, per-bin transfer factors in the <span class="arithmatex">\(z\)</span> variable can be derived with the ABCD method to obtain the estimate of the background in the signal region. In our example, we will generate a set of pseudodata from our background-only model, and then the background will be estimated from these data from the control regions B,C,D and compared to data in the Signal Region A.</p>
 <p>The tutorial has 4 main parts:</p>
 <ol>
 <li><a href="#inputs">Generate input data</a></li>
@@ -1480,29 +1480,29 @@ In this tutorial we will work with a toy example that could resemble a real phys
 </ol>
 <h2 id="generate-input-data">Generate input data</h2>
 <p><a id="inputs"></a></p>
-<p>The histograms for the <span class="arithmatex">\(z\)</span> observable in the different regions A,B,C,D can be produced using the <code>produce_input_histograms_and_analyse.py</code> script in <code>utils/produce_input_histograms_and_analyse.py</code>. In the script the expected rates for different signal hypotheses (as a function of <span class="arithmatex">\(\Phi\)</span> mass <span class="arithmatex">\(m_{\Phi} \in \{1500, 2000, 3000, 4000, 5000 \}\)</span> GeV) and the background yields are specified, as well as the distributions in <span class="arithmatex">\(x,y,z\)</span> of the signals and backgrounds. In the following steps of the tutorial we will just consider one of the mass points generated, <span class="arithmatex">\(m_{\Phi} = 1500\)</span> GeV, but the same analysis can be run separately on other mass points as well. In <span class="arithmatex">\(x,y\)</span>, the signal and the background are assumed to be distributed as multivariate gaussians, with the background centred at <span class="arithmatex">\((0,2,0.2)\)</span> in <span class="arithmatex">\((x,y)\)</span> while the signals centred in the upper-right corner of the plane (<span class="arithmatex">\(x,y&gt;0.5\)</span>). For the <span class="arithmatex">\(z\)</span> feature, the background and the signal distributions are sampled from an exponential, for the signal the tails of the exponential get enhanced with the mass parameter <span class="arithmatex">\(m_{\Phi}\)</span>. </p>
+<p>The histograms for the <span class="arithmatex">\(z\)</span> observable in the different regions A,B,C,D can be produced using the <code>produce_input_histograms_and_analyse.py</code> script in <code>utils/produce_input_histograms_and_analyse.py</code>. In the script the expected rates for different signal hypotheses (as a function of the <span class="arithmatex">\(\Phi\)</span> mass <span class="arithmatex">\(m_{\Phi} \in \{1500, 2000, 3000, 4000, 5000 \}\)</span> GeV) and the background yields are specified, as well as the distributions in <span class="arithmatex">\(x,y,z\)</span> for the signals and backgrounds. In the following steps of the tutorial, we will just consider one of the mass points generated, <span class="arithmatex">\(m_{\Phi} = 1500\)</span> GeV, but the same analysis can be run separately on other mass points. In the <span class="arithmatex">\(x-y\)</span> plane, the signal and the background are assumed to be normally distributed, with the background centred at <span class="arithmatex">\((0,2,0.2)\)</span>, while the signal is centred in the upper-right corner of the plane (<span class="arithmatex">\(x,y&gt;0.5\)</span>). For the <span class="arithmatex">\(z\)</span> feature, the background and the signal distributions are sampled from an exponential function. In the case of the signal, the tails of the exponential get enhanced as we increase the mass parameter <span class="arithmatex">\(m_{\Phi}\)</span>. </p>
 <p><img alt="input distributions" src="../figures/inputs.png" /></p>
-<p>The ABCD boundaries are chosen in the example to be <span class="arithmatex">\((0.5,0.5)\)</span>, and A is defined as the signal region, while the others are control regions used for the estimation of the background. From the example provided, the signal contamination in the control regions is expected to be low, and the non-closure of the background estimation to be small. The histograms for the different regions are saved in separate root files for each signal hypothesis and total background. </p>
-<p>To generate your own input data, run: </p>
+<p>The ABCD boundaries are chosen in the example to be <span class="arithmatex">\((0.5,0.5)\)</span>. A is defined as the signal region, while the others are control regions used for the estimation of the background. From the example provided, the signal contamination in the control regions is expected to be low, and the non-closure of the background estimation to be small. The histograms for the different regions are saved in separate root files for each signal hypothesis and total background. </p>
+<p>To generate your own input data, run the following command in the terminal</p>
 <div class="highlight"><pre><span></span><code>python3 utils/produce_input_histograms_and_analyse.py
 </code></pre></div>
-<h2 id="create-rooparametrichist-for-abcd-method">Create RooParametricHist for ABCD method</h2>
+<h2 id="create-rooparametrichist-objects-for-the-abcd-method">Create RooParametricHist objects for the ABCD method</h2>
 <p><a id="rooparametrichist"></a></p>
-<p>In order to prepare the datacards for our ABCD method we will need to pass the histograms of our data in the A, B, C, and D regions to the datacard to be read in by Combine. 
-Moreover, we will need to relate the bins of our signal region A <span class="arithmatex">\(N_{A}^{bin,i}\)</span> to the bins of the control regions <span class="arithmatex">\(N_{B/C/D}^{bin,i}\)</span> via the ABCD method formula <span class="arithmatex">\(N_{A}^{bin,i} = N_{B}^{bin,i} \cdot TF^{bin,i}\)</span>, where the transfer factor is <span class="arithmatex">\(TF^{bin,i} = N_{C}^{bin,i}/N_{D}^{bin,i}\)</span>. To achieve our goal, we can use <code>RooParametricHist</code> implemented in Combine (for further documentation look <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/part3/nonstandard/?h=rooparametrichist#rooparametrichist-gamman-for-shapes">here</a>). </p>
-<p>A <code>RooParametricHist</code> is a custom implementation within the ROOT framework, specifically designed for handling parametric histograms in a way that integrates with ROOT's RooFit package. This class extends <code>RooAbsPdf</code>, indicating it's meant to represent a probability density function (PDF) that can be parameterized and manipulated within the RooFit framework (see implentation in Combine <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/interface/RooParametricHist.h">here</a>). The idea is that <code>RooParametricHist</code> allows to define histograms as PDFs where each bin can be either a <code>RooRealVar</code> or a <code>RooFormulaVar</code>. This will allow us to relate each bin of our signal region histogram A with the corresponding one of the control regions via the ABCD method formula.</p>
-<p>A <code>RooParamtricHist</code> can be initialized as follows:</p>
+<p>In order to prepare the datacards for our ABCD method we will need to pass the histograms of our data in the A, B, C, and D regions to the datacard to be read in by <span style="font-variant:small-caps;">Combine</span>. 
+Moreover, we will need to relate the bins of our signal region A <span class="arithmatex">\(N_{A}^{bin,i}\)</span> to the bins of the control regions <span class="arithmatex">\(N_{B/C/D}^{bin,i}\)</span> via the ABCD method formula <span class="arithmatex">\(N_{A}^{bin,i} = N_{B}^{bin,i} \cdot TF^{bin,i}\)</span>, where the transfer factor is <span class="arithmatex">\(TF^{bin,i} = N_{C}^{bin,i}/N_{D}^{bin,i}\)</span>. To achieve our goal, we can use the <code>RooParametricHist</code> object implemented in <span style="font-variant:small-caps;">Combine</span> (for further documentation look <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/part3/nonstandard/?h=rooparametrichist#rooparametrichist-gamman-for-shapes">here</a>). </p>
+<p>The <code>RooParametricHist</code> is a custom implementation within the ROOT framework, specifically designed for handling parametric histograms in a way that integrates with RooFit. The idea is that <code>RooParametricHist</code> allows to define histograms as PDFs where each bin can be either a <code>RooRealVar</code> or a <code>RooFormulaVar</code>. This will allow us to relate each bin of our signal region histogram A with the corresponding one of the control regions via the ABCD method formula.</p>
+<p>A <code>RooParamtricHist</code> object can be initialized as follows:</p>
 <p><div class="highlight"><pre><span></span><code>RooParametricHist parametric_hist(&quot;paramtric_hist&quot;, &quot;Parametric Hist&quot;,variable,roo_arg_list_bins,data_th1)
 </code></pre></div>
-where <code>variable</code> is a <code>RooRealVar</code> defining the observable which is being binned, <code>roo_arg_list_bins</code> is a <code>RooArgList</code> containing bins defined as <code>RooRealVar</code> or <code>RooFormulaVar</code> and <code>data_th1</code> is a <code>TH1</code> used to initialize the <code>RooParametricHist</code>. It is also possible to define a normalization parameter for the parametric histogram as follows:</p>
+where <code>variable</code> is a <code>RooRealVar</code> defining the observable which is being binned, <code>roo_arg_list_bins</code> is a <code>RooArgList</code> containing bins defined as <code>RooRealVar</code> or <code>RooFormulaVar</code> and <code>data_th1</code> is a <code>TH1</code> used to initialize the <code>RooParametricHist</code> bin boundaries. It is also possible to define a normalization parameter for the parametric histogram as follows,</p>
 <div class="highlight"><pre><span></span><code>RooAddition parametric_hist_norm(&quot;paramtric_hist_norm&quot;,&quot;Total Number of events for Parametric Hist&quot;,roo_arg_list_bins)
 </code></pre></div>
 <p>This normalization parameter is relevant for our ABCD method since we would like to know also the total predicted background yield in our Signal Region.</p>
-<p>In the following we describe how to build parametric histograms for our ABCD method regions and how to build the worskpace to link to the datacard.</p>
+<p>In the following we describe how to build parametric histograms for our ABCD method regions and how to construct the <code>RooWorskpace</code> which can be referred to in the <span style="font-variant:small-caps;">Combine</span> datacard.</p>
 <h2 id="prepare-combine-datacards">Prepare Combine datacards</h2>
 <p><a id="datacards"></a></p>
-<p>From the input histograms, for each signal hypothesis, 4 datacards can be built, one for each region of the ABCD plane. Examples of the templates for the datacards (for a signal mass point at 1500 GeV) can be found in the following. All the example datacards are stored in the directory <code>sgn_CRs</code> in <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/datacards/</code>. We consider for now the datacards stored in the directory <code>sgn_CRs</code>, for which the signal is present in the control regions.
-Let's take as an example the cards for the <span class="arithmatex">\(m_{\Phi} = 1500\)</span> GeV in the directory <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/datacards/sgn_CRs/mPhi1500/</code>:</p>
+<p>fFor each signal hypothesis, 4 datacards can be built using the input histograms, one for each region of the ABCD plane. Examples of the templates for the datacards (for a signal mass point at 1500 GeV) can be found in the following. All the example datacards are stored in the directory <code>sgn_CRs</code> in <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/datacards/</code>. We consider for now the datacards stored in the directory <code>sgn_CRs</code>, for which the signal is present in the control regions.</p>
+<p>Let's take as an example the cards for the <span class="arithmatex">\(m_{\Phi} = 1500\)</span> GeV in the directory <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/datacards/sgn_CRs/mPhi1500/</code>,</p>
 <details>
 <summary> Datacard Region A (Signal Region) </summary>
 
@@ -1599,10 +1599,10 @@ lumi                lnN                 -                                       
 </code></pre></div>
 </details>
 
-<p>As an example, for each datacard, we have assigned a systematic uncertainty of 1.6% due to lumi to the signal processes, and a systematic of 5% to background in the SR (to take into account of non-closure of the method). 
-Notice that each datacard for each region has a <code>shapes</code> section for the observed data <code>data_obs</code>, for the background <code>Bkg</code> and for the signal. The signal and data shapes are stored in a workspace <code>wspace</code> linked to the shapes section in the datacard, while the background shapes are stored in a <code>RooParametricHist</code> object. In the following we show how to build the workspace. </p>
+<p>For each datacard, we have assigned a systematic uncertainty on the integrated luminosity of 1.6% for the signal processes, and an overall systematic of 5% to background rate in the SR, to account for the non-closure of the method. 
+Notice that each datacard for each region has a <code>shapes</code> section for the observed data <code>data_obs</code>, for the background <code>Bkg</code> and for the signal. The signal and data shapes are stored in a workspace <code>wspace</code>. The background shapes are stored as <code>RooParametricHist</code> objects. In the following we show how to construct the workspace. </p>
 <p>We follow the main steps implemented in a working code to create the workspace <code>create_workspace.py</code> in <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/utils/</code>.
-First create a RooWorkspace, implement a function <code>__get_histograms_regions</code> to read the input histograms from the A,B,C,D regions and import them as <code>RooDataHist</code> in the workspace.</p>
+First, we create a <code>RooWorkspace</code> object then, using the function <code>__get_histograms_regions</code>, read the input histograms from the A,B,C,D regions and import them as <code>RooDataHist</code> objects in the workspace.</p>
 <details>
 <summary> Import histograms in workspace for signal and observed data  </summary>
 
@@ -1645,7 +1645,7 @@ getattr(ws, &quot;import&quot;)(histSgn_D, RooFit.Rename(signal+&quot;_D&quot;))
 </code></pre></div>
 </details>
 
-<p>For B,C,D regions, create a <code>RooParametricHist</code> object, storing the content of the background bins in B,C,D as <code>RooRealVar</code> :</p>
+<p>For the B,C,D regions, we create a <code>RooParametricHist</code> object, storing the content of the background bins in B,C,D as <code>RooRealVar</code>,</p>
 <details>
 <summary> Create RooParametricHist for control regions background templates  </summary>
 
@@ -1724,7 +1724,7 @@ getattr(ws, &quot;import&quot;)(param_Bkg_D_norm, RooFit.Rename(&quot;bkg_D&quot
 </code></pre></div>
 </details>
 
-<p>For the signal region A, create a <code>RooParametricHist</code> with each bin made from a <code>RooFormulaVar</code> relating the C,D,B regions to A via the ABCD formula. </p>
+<p>For the signal region A, we create a <code>RooParametricHist</code> with each content represented by a <code>RooFormulaVar</code> object that relates the C,D,B region yields to the yield in region A via the ABCD formula. </p>
 <details>
 <summary> Create RooParametricHist for SR background template  </summary>
 
@@ -1759,17 +1759,17 @@ getattr(ws, &quot;import&quot;)(param_bkg_A_norm, RooFit.Rename(&quot;bkg_A&quot
 </code></pre></div>
 </details>
 
-<p>To run the workspace creation script:</p>
+<p>To run the workspace creation script, use the following command, </p>
 <div class="highlight"><pre><span></span><code>python3 utils/create_workspace.py -m 1500
 </code></pre></div>
-<p>where <code>-m</code> is the flag for the mass point you want to run the script on. The script will use by default the histograms stored in <code>generated_histograms</code> in the tutorial directory.
-After running the script, the workspace will be saved in <code>example_analysis/datacards/</code>. To create the datacards automatically fatching the correct workspace, run:</p>
+<p>where <code>-m</code> is the flag for the mass point you want to run the script on. The script will use the histograms stored in <code>generated_histograms</code> in the tutorial directory.
+After running the script, the workspace will be saved in <code>example_analysis/datacards/</code>. To create the datacards automatically fatching the correct workspace, run, </p>
 <div class="highlight"><pre><span></span><code>python3 utils/create_datacards.py -m 1500
 </code></pre></div>
-<p>The datacards will be created in the directory <code>example_analysis/datacards/mPhi1500/</code> inside the tutorial directory. Move into the directory where the datacards are stored:
+<p>The datacards will be created in the directory <code>example_analysis/datacards/mPhi1500/</code> inside the tutorial directory. Now we need to move into the directory where the datacards are stored,
 <div class="highlight"><pre><span></span><code>cd example_analysis/datacards/mPhi1500/
 </code></pre></div></p>
-<p>The datacards can be combined then using the usual command:</p>
+<p>The datacards can be combined using the usual command:</p>
 <div class="highlight"><pre><span></span><code>combineCards.py mPhi_1500_*2018*.txt &gt; combined_mPhi_1500_2018.txt
 </code></pre></div>
 <details>
@@ -1808,7 +1808,7 @@ lumi                    lnN     1.016     -         1.016     -         1.016   
 
 <h2 id="run-fit">Run Fit</h2>
 <p><a id="fit"></a></p>
-<p>From the combined datacard for all the regions, one can run the usual fit diagnostics as follows:</p>
+<p>From the combined datacard for all the regions, one can run the usual fit diagnostics as follows,</p>
 <div class="highlight"><pre><span></span><code>combine -M FitDiagnostics combined_mPhi_1500_2018.txt -m 1500 --saveShapes --saveWithUncertainties --saveNormalizations
 </code></pre></div>
 <details>
@@ -1853,11 +1853,11 @@ ch4                                      total_background                    145
 <p>Moreover, you can run the script in <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/postFitPlot.py</code> to get pre-fit and post-fit plots in the signal region (in the combined datacard <code>ch4</code>):</p>
 <div class="highlight"><pre><span></span><code>python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/postFitPlot.py --input_file fitDiagnosticsTest.root --shape_type &lt;shapes_type&gt; --region &lt;region&gt;
 </code></pre></div>
-<p>where the argument <code>&lt;shapes_type&gt;</code> can be <code>shapes_prefit</code>, <code>shapes_fit_b</code> or <code>shapes_fit_s</code> to get prefit, background-only fit or signal+background fit plots. While the argument <code>&lt;region&gt;</code> specifies the region, which can be <code>ch4</code> for the signal region A.</p>
+<p>where the argument <code>&lt;shapes_type&gt;</code> can be <code>shapes_prefit</code>, <code>shapes_fit_b</code> or <code>shapes_fit_s</code> to obtain the prefit, background-only fit or signal+background fit plots. The argument <code>&lt;region&gt;</code> specifies the region, which should be <code>ch4</code> for the signal region A.</p>
 <p><img alt="input distributions" src="../figures/post_fit_plots_A.png" /></p>
 <h2 id="produce-limits">Produce limits</h2>
 <p><a id="limits"></a></p>
-<p>Limits can be computed from the combined datacard for all the regions using the following command (in case of asymptotic limits):</p>
+<p>Limits can be computed from the combined datacard for all the regions using the following command (in case of asymptotic limits),</p>
 <div class="highlight"><pre><span></span><code>combine -M AsymptoticLimits combined_mPhi_1500_2018.txt -m 1500  2&gt;&amp;1 | tee  asymp_limits_mPhi_1500_2018.txt
 </code></pre></div>
 <details>
@@ -1874,10 +1874,10 @@ Expected 97.5%: r &lt; 1.1325
 </details>
 
 <p>Both the observed (from nominal Monte Carlo) and the expected limits can be computed for each mass point. </p>
-<p>The same exercise can be repeated generating a workspace where the control regions are depleted from the signal (see datacards in <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/datacards/no_sgn_CRs/</code>), and re-running the limits. This should give a hint of how much the signal contamination in the control regions is worsening the limits.  If you want to generate by your self the workspace and the cards where the signal is removed from the CRs, just run the scripts <code>create_workspace.py</code> and <code>create_datacards.py</code> with the flag <code>--deplete_crs_from_signal</code>.</p>
+<p>The same exercise can be repeated generating a workspace where the control regions are depleted from the signal (see datacards in <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/datacards/no_sgn_CRs/</code>), and re-running the limits. This should give a hint of how much the signal contamination in the control regions is impacting the limits.  If you want to generate the workspace and the cards where the signal is removed from the CRs, just run the scripts <code>create_workspace.py</code> and <code>create_datacards.py</code> with the flag <code>--deplete_crs_from_signal</code>.</p>
+<p>The analysis illustrated can be run for multiple mass points, and the typical exclusion plot can be produced similar to the one below. </p>
 <p><img alt="limit distributions" src="../figures/limits.png" /></p>
-<p>The analysis illustrated so far can be run for all mass point, and finally the typical brazil exclusion plot can be produced. As we can see the expected limit without signal in the control regions is better compared to the one taking into account the signal, showing that in this example there is an impact from the signal contamination of the control regions affecting the final sensitivity. Instead, the observed line is showing the impact of statistical fluctuations inducing a non-closure effect of the ABCD method: mainly the background is overestimated, thus leading to slightly worse expected limits (equivalent to an underfluctuation of the data).</p>
-<p>In our single mass point analysis one can check indeed the behaviour illustrated in the limit plot above by looking at the <span class="arithmatex">\(50\%\)</span> quantile on <span class="arithmatex">\(r\)</span> after running the limit with and without signal injection in the control regions. Moreover, the effect of statistical fluctuations inducing a non-closure effect can be seen looking at the observed limit on <span class="arithmatex">\(r\)</span>.</p>
+<p>As we can see, the expected limit without signal in the control regions is better when compared to the one taking into account the signal, showing that in this example there is an impact from the signal contamination of the control regions affecting the final sensitivity. </p>
 
 
 
@@ -1973,7 +1973,7 @@ Expected 97.5%: r &lt; 1.1325
     <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d6f25eb3.min.js"></script>
+      <script src="../../assets/javascripts/bundle.525ec568.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       
