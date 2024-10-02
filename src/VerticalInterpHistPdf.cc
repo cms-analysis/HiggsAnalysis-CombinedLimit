@@ -1118,7 +1118,7 @@ void FastVerticalInterpHistPdf2::translate(RooFit::Detail::CodeSquashContext &ct
 
    morphsVecSum.reserve(numBins * _coefList.size());
    morphsVecDiff.reserve(numBins * _coefList.size());
-   for (int j = 0; j < _coefList.size(); ++j) {
+   for (unsigned int j = 0; j < _coefList.size(); ++j) {
        for (int i = 0; i < numBins; ++i) {
            morphsVecSum.push_back(_morphs[j].sum[i]);
            morphsVecDiff.push_back(_morphs[j].diff[i]);
@@ -1197,7 +1197,7 @@ void FastVerticalInterpHistPdf2D2::translate(RooFit::Detail::CodeSquashContext &
 
    morphsVecSum.reserve(numBins * _coefList.size());
    morphsVecDiff.reserve(numBins * _coefList.size());
-   for (int j = 0; j < _coefList.size(); ++j) {
+   for (unsigned int j = 0; j < _coefList.size(); ++j) {
        for (int i = 0; i < numBins; ++i) {
            morphsVecSum.push_back(_morphs[j].sum[i]);
            morphsVecDiff.push_back(_morphs[j].diff[i]);
