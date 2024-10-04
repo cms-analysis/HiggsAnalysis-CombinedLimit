@@ -1224,7 +1224,7 @@ class ShapeBuilder(ModelBuilder):
                     _cache[name] = rdh
                 else:
                     obs.add(self.out.var("CMS_fakeWeight"))
-                    rds = ROOT.RooDataSet(name, name, obs, "CMS_fakeWeight")
+                    rds = ROOT.RooDataSet(name, name, obs, ROOT.RooFit.WeightVar("CMS_fakeWeight"))
                     obs.setRealValue("CMS_fakeWeight", self.DC.obs[channel])
                     rds.add(obs, self.DC.obs[channel])
                     _cache[name] = rds
