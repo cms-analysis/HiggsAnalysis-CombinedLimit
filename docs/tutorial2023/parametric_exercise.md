@@ -215,7 +215,7 @@ f = ROOT.TFile("data_part1.root","r")
 t = f.Get("data_Tag0")
 
 # Convert TTree to a RooDataSet
-data = ROOT.RooDataSet("data_Tag0", "data_Tag0", t, ROOT.RooArgSet(mass), "", "weight")
+data = ROOT.RooDataSet("data_Tag0", "data_Tag0", t, ROOT.RooArgSet(mass, weight), "", "weight")
 
 # Define mass sideband ranges on the mass variable: 100-115 and 135-180
 n_bins = 80
