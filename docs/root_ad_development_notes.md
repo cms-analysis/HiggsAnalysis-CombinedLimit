@@ -3,6 +3,7 @@ This file is created to keep track of issues and tests conducted for integrating
 ## Setup
 
 Using daily CMSSW builds with ROOT 6.32.06: 
+
 ```
 cmssw-el8 
 cmsrel CMSSW_14_2_ROOT632_X_2024-10-06-2300
@@ -13,8 +14,8 @@ cd ../../
 cmsenv
 scram b -j 8
 ```
-
 ## Tested models
+Below you can find test results for several models implemented with classes implemented in Combine. 
 
 ### Discrete profiling 
 
@@ -46,7 +47,7 @@ cppyy.gbl.std.runtime_error: Could not find "createNLL<RooLinkedList const&>" (s
   RooAbsReal* RooAbsPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdArgs) =>
     runtime_error: An analytical integral function for class "RooRealSumPdf" has not yet been implemented.
 ```
-### Template based model without MC stats  
+### Template based model without MC statistical uncertainties (autoMCStats)  
 
 ```
 text2workspace.py data/ci/template-analysis_shapeInterp_womcstats.txt   -o template_ws.root  -m 200
@@ -62,4 +63,45 @@ In module 'RooFitCore':
                                             ^
 /cvmfs/cms-ib.cern.ch/sw/x86_64/nweek-02858/el8_amd64_gcc12/lcg/root/6.32.06-f59fcaa47c786e7268e714e7e477ee41/include/RooFit/Detail/MathFuncs.h:365:45: note: falling back to numerical differentiation for 'LnGamma' since no suitable overload was found and clad
       could not derive it; to disable this feature, compile your programs with -DCLAD_NO_NUM_DIFF
+```
+
+### RooParametricHist 
+
+```
+text2workspace.py data/ci/datacard_RooParametricHist.txt    -o ws_RooParametricHist.root
+python3 scripts/fitRooFitAD.py --input ws_RooParametricHist.root
+```
+Output: 
+```
+[#0] ERROR:InputArguments -- RooHistPdf::weight(shapeBkg_tqq_muonCRfail2016) ERROR: Code Squashing currently only supports uniformly binned cases.
+....
+                                  ^
+[#0] ERROR:InputArguments -- Function roo_func_wrapper_0 could not be compiled. See above for details.
+Traceback (most recent call last):
+  File "/afs/cern.ch/work/a/anigamov/CMSSW_14_2_ROOT632_X_2024-10-06-2300/src/HiggsAnalysis/CombinedLimit/scripts/fitRooFitAD.py", line 29, in <module>
+    nll = pdf.createNLL(data, Constrain=constrain, GlobalObservables=global_observables, EvalBackend="codegen")
+  File "/cvmfs/cms-ib.cern.ch/sw/x86_64/nweek-02858/el8_amd64_gcc12/lcg/root/6.32.06-f59fcaa47c786e7268e714e7e477ee41/lib/ROOT/_pythonization/_roofit/_rooabspdf.py", line 116, in createNLL
+    return self._createNLL["RooLinkedList const&"](args[0], _pack_cmd_args(*args[1:], **kwargs))
+cppyy.gbl.std.runtime_error: Could not find "createNLL<RooLinkedList const&>" (set cppyy.set_debug() for C++ errors):
+  RooAbsReal* RooAbsPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdArgs) =>
+    runtime_error: Function roo_func_wrapper_0 could not be compiled. See above for details.
+```
+### RooHistPdf
+
+```
+ulimit -s unlimited
+text2workspace.py data/ci/datacard_RooHistPdf.txt.gz    -o ws_RooHistPdf.root
+python3 scripts/fitRooFitAD.py --input ws_RooHistPdf.root
+```
+
+```
+[#0] ERROR:Minimization -- An analytical integral function for class "VerticalInterpPdf" has not yet been implemented.
+Traceback (most recent call last):
+  File "/afs/cern.ch/work/a/anigamov/CMSSW_14_2_ROOT632_X_2024-10-06-2300/src/HiggsAnalysis/CombinedLimit/scripts/fitRooFitAD.py", line 29, in <module>
+    nll = pdf.createNLL(data, Constrain=constrain, GlobalObservables=global_observables, EvalBackend="codegen")
+  File "/cvmfs/cms-ib.cern.ch/sw/x86_64/nweek-02858/el8_amd64_gcc12/lcg/root/6.32.06-f59fcaa47c786e7268e714e7e477ee41/lib/ROOT/_pythonization/_roofit/_rooabspdf.py", line 116, in createNLL
+    return self._createNLL["RooLinkedList const&"](args[0], _pack_cmd_args(*args[1:], **kwargs))
+cppyy.gbl.std.runtime_error: Could not find "createNLL<RooLinkedList const&>" (set cppyy.set_debug() for C++ errors):
+  RooAbsReal* RooAbsPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdArgs) =>
+    runtime_error: An analytical integral function for class "VerticalInterpPdf" has not yet been implemented.
 ```
