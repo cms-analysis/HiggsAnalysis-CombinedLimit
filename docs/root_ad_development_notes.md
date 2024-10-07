@@ -105,3 +105,6 @@ cppyy.gbl.std.runtime_error: Could not find "createNLL<RooLinkedList const&>" (s
   RooAbsReal* RooAbsPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdArgs) =>
     runtime_error: An analytical integral function for class "VerticalInterpPdf" has not yet been implemented.
 ```
+### Channel masking 
+
+Channel masking is implemented in [within eval of custom `CachingNLL` class](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/src/CachingNLL.cc#L1078). 
