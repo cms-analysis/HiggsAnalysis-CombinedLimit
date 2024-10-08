@@ -2,12 +2,12 @@
 This file is created to keep track of issues and tests conducted for integrating AD in Combine. 
 ## Setup
 
-Using daily CMSSW builds with ROOT 6.32.06: 
+Using a CMSSW build with ROOT 6.32.06: 
 
 ```
 cmssw-el8 
-cmsrel CMSSW_14_2_ROOT632_X_2024-10-06-2300
-cd CMSSW_14_2_ROOT632_X_2024-10-06-2300/src
+cmsrel CMSSW_14_2_0_pre2_ROOT632
+cd CMSSW_14_2_0_pre2_ROOT632/src
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 git checkout roofit_ad_ichep_2024_63206_comp
 cd ../../
