@@ -24,10 +24,15 @@ Below you can find test results for several models implemented with classes impl
  python3 scripts/fitRooFitAD.py --input multipdf_ws.root
 ```
 Fails because only `RooAbsReal` parameters are allowed, pdf indices in `RooMultiPdf` models are `RooCategory`. 
-```
+<details>
+  <summary><i>Error message</i></summary>
+ 
+```bash
   RooAbsReal* RooAbsPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdArgs) =>
     runtime_error: In creation of function nll_func_wrapper wrapper: input param expected to be of type RooAbsReal.
 ```
+
+</details>
 
 ### autoMCStats 
 
@@ -36,7 +41,10 @@ text2workspace.py data/ci/template-analysis_shapeInterp.txt   -o template_autoMC
 python3 scripts/fitRooFitAD.py --input template_autoMCstats_ws.root
 ```
 Fails because AD is not implemented for "RooRealSumPdf" objects used to model MC statistical (https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/ShapeTools.py#L264) uncertainties with `autoMCstats` 
-```
+<details>
+  <summary><i>Error message</i></summary>
+ 
+```bash
 [#0] ERROR:Minimization -- An analytical integral function for class "RooRealSumPdf" has not yet been implemented.
 Traceback (most recent call last):
   File "/afs/cern.ch/work/a/anigamov/CMSSW_14_2_ROOT632_X_2024-10-06-2300/src/HiggsAnalysis/CombinedLimit/scripts/fitRooFitAD.py", line 29, in <module>
@@ -47,6 +55,8 @@ cppyy.gbl.std.runtime_error: Could not find "createNLL<RooLinkedList const&>" (s
   RooAbsReal* RooAbsPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdArgs) =>
     runtime_error: An analytical integral function for class "RooRealSumPdf" has not yet been implemented.
 ```
+</details>
+ 
 ### Template based model without MC statistical uncertainties (autoMCStats)  
 
 ```
@@ -54,8 +64,10 @@ text2workspace.py data/ci/template-analysis_shapeInterp_womcstats.txt   -o templ
 python3 scripts/fitRooFitAD.py --input template_ws.root
 ```
 The fit runs with the warning shown below, but results are reasonable
-
-```
+<details>
+  <summary><i>Warning:</i></summary>
+ 
+```bash
 In module 'RooFitCore':
 /cvmfs/cms-ib.cern.ch/sw/x86_64/nweek-02858/el8_amd64_gcc12/lcg/root/6.32.06-f59fcaa47c786e7268e714e7e477ee41/include/RooFit/Detail/MathFuncs.h:365:45: warning: function 'LnGamma' was not differentiated because clad failed to differentiate it and no suitable overload
       was found in namespace 'custom_derivatives'
@@ -65,14 +77,19 @@ In module 'RooFitCore':
       could not derive it; to disable this feature, compile your programs with -DCLAD_NO_NUM_DIFF
 ```
 
+</details>
+
 ### RooParametricHist 
 
 ```
 text2workspace.py data/ci/datacard_RooParametricHist.txt    -o ws_RooParametricHist.root
 python3 scripts/fitRooFitAD.py --input ws_RooParametricHist.root
 ```
-Output: 
-```
+
+<details>
+  <summary><i>Error message</i></summary>
+ 
+```bash
 [#0] ERROR:InputArguments -- RooHistPdf::weight(shapeBkg_tqq_muonCRfail2016) ERROR: Code Squashing currently only supports uniformly binned cases.
 ....
                                   ^
@@ -86,6 +103,9 @@ cppyy.gbl.std.runtime_error: Could not find "createNLL<RooLinkedList const&>" (s
   RooAbsReal* RooAbsPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdArgs) =>
     runtime_error: Function roo_func_wrapper_0 could not be compiled. See above for details.
 ```
+
+</details>
+ 
 ### RooHistPdf
 
 ```
@@ -93,8 +113,11 @@ ulimit -s unlimited
 text2workspace.py data/ci/datacard_RooHistPdf.txt.gz    -o ws_RooHistPdf.root
 python3 scripts/fitRooFitAD.py --input ws_RooHistPdf.root
 ```
-
-```
+AD is not implemented for `VerticalInterpPdf` class: https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/roofit_ad_ichep_2024_63206_comp/src/VerticalInterpPdf.cc 
+<details>
+  <summary><i>Error message</i></summary>
+ 
+```bash
 [#0] ERROR:Minimization -- An analytical integral function for class "VerticalInterpPdf" has not yet been implemented.
 Traceback (most recent call last):
   File "/afs/cern.ch/work/a/anigamov/CMSSW_14_2_ROOT632_X_2024-10-06-2300/src/HiggsAnalysis/CombinedLimit/scripts/fitRooFitAD.py", line 29, in <module>
@@ -105,6 +128,9 @@ cppyy.gbl.std.runtime_error: Could not find "createNLL<RooLinkedList const&>" (s
   RooAbsReal* RooAbsPdf::createNLL(RooAbsData& data, const RooLinkedList& cmdArgs) =>
     runtime_error: An analytical integral function for class "VerticalInterpPdf" has not yet been implemented.
 ```
+
+</details>
+ 
 ### Channel masking 
 
-Channel masking is implemented in [within eval of custom `CachingNLL` class](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/src/CachingNLL.cc#L1078). 
+Channel masking is implemented [within eval of custom `CachingNLL` class](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/src/CachingNLL.cc#L1078). 
