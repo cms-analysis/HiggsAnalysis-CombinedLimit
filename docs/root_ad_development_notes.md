@@ -15,7 +15,7 @@ cmsenv
 scram b -j 8
 ```
 ## Tested models
-Below you can find test results for several models implemented with classes implemented in Combine. 
+Below you can find test results for several models with classes implemented in Combine. 
 
 ### Discrete profiling 
 
