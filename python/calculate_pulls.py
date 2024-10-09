@@ -31,7 +31,8 @@ def compat(x, x0, sx, sx0):
 
 def diffPull(x, x0, sx, sx0):
     # as defined in http://physics.rockefeller.edu/luc/technical_reports/cdf5776_pulls.pdf
-    if abs(sx * sx - sx0 * sx0) < 0.001:
+    # The following protection checks the relative size of the constraint wrt the input uncertainty
+    if abs((sx * sx - sx0 * sx0)/(sx0 * sx0)) < 0.001:
         return [0, 999]
     elif sx > sx0:
         return [0, 999]
