@@ -19,7 +19,7 @@ class Quadratic(PhysicsModel):
     >>> np.save('scales.npy', scales)
 
     Example for running:
-    text2workspace.py ttV.txt -P HiggsAnalysis.CombinedLimit.EFT:quad --PO scaling=scales.npy --PO process=ttZ --PO process=ttW --PO coefficient=cuW -o cuW.root
+    text2workspace.py ttV.txt -P HiggsAnalysis.CombinedLimit.QuadraticScaling:quad --PO scaling=scales.npy --PO process=ttZ --PO process=ttW --PO coefficient=cuW -o cuW.root
     combine -M MultiDimFit cuW.root --setParameterRanges=-4,4
     """
 
@@ -37,7 +37,7 @@ class Quadratic(PhysicsModel):
                 self.scaling = value
 
     def setup(self):
-        scaling = np.load(self.scaling)[()]
+        scaling = np.load(self.scaling, allow_pickle=True)[()]
         for process in self.processes:
             self.modelBuilder.out.var(process)
             name = "r_{0}_{1}".format(process, self.coefficient)
