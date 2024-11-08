@@ -167,6 +167,13 @@ def addDatacardParserOptions(parser):
         help="Create channel-masking RooRealVars",
     )
     parser.add_option(
+        "--scale-rate",
+        metavar="'[BIN/]PROCES=NUMBER[,...]'",
+        dest="scaleRates",
+        type="string",
+        help="Scale the rate of processes in comma-separated list with syntax '[<bin>/]<process>=<number>'. Accepts regexp, e.g. '.*/ggH_[78]TeV=0.5'",
+    )
+    parser.add_option(
         "--use-HistPdf",
         dest="useHistPdf",
         type="string",
@@ -369,6 +376,20 @@ def parseCard(file, options):
     if not hasattr(options, "flatParamPrior"):
         setattr(options, "flatParamPrior", False)
 
+    # parse scale factors for process rates
+    if not hasattr(options, "scaleRates") or not options.scaleRates:
+        setattr(options, "scaleRates", {})
+    elif isinstance(options.scaleRates, str):
+        sfexps = options.scaleRates.split(",")
+        options.scaleRates = {}
+        for sfexp in sfexps:
+            assert sfexp.count("=") == 1, "Process %r does not fit [<bin>/]<process>=<number> syntax!" % (sfexp)
+            proc, sf = sfexp.split("=")
+            assert proc.count("/") <= 1, "Process %r in %r does not fit [<bin>/]<process>=<number> syntax!" % (proc, sfexp)
+            b, p = proc.split("/") if proc.count("/") == 1 else (".*", proc)  # split label into bin & process
+            key = (re.compile(b), re.compile(p))  # convert to regular expression, e.g. "ch_.*/ggH_201[78]"
+            options.scaleRates[key] = float(eval(sf))  # evaluate string as math expression, and convert to float
+
     try:
         for lineNumber, l in enumerate(file):
             f = l.split()
@@ -466,6 +487,10 @@ def parseCard(file, options):
                     raise RuntimeError("Malformed rate line: length %d, while bins and process lines have length %d" % (len(f[1:]), len(ret.keyline)))
                 for (b, p, s), r in zip(ret.keyline, f[1:]):
                     ret.exp[b][p] = float(r)
+                    for (bexp, pexp), sf in options.scaleRates.items():
+                        if bexp.match(b) and pexp.match(p):
+                            ret.exp[b][p] *= sf
+                            break
                 break  # rate is the last line before nuisances
         # parse nuisances
         for lineNumber2, l in enumerate(file):

@@ -92,6 +92,12 @@ parser.add_option(
     action="store_true",
     help="Drop regularization terms that would not be correctly combined.",
 )
+parser.add_option(
+    "--scale-rate",
+    metavar="'[BIN/]PROCES=NUMBER[,...]'",
+    dest="scaleRates",
+    help="Scale the rate of processes in comma-separated list with syntax '[<bin>/]<process>=<number>'. Accepts regexp, e.g. '.*/ggH_[78]TeV=0.5'",
+)
 
 (options, args) = parser.parse_args()
 options.bin = True  # fake that is a binary output, so that we parse shape lines
