@@ -415,6 +415,7 @@ class Kappas(LHCHCGBaseModel):
         custodial=False,
         addOffshell=False,
         addGammaHPOI=False,
+        kappaQFormalism=False,
     ):
         LHCHCGBaseModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
         self.doBRU = BRU
@@ -426,6 +427,7 @@ class Kappas(LHCHCGBaseModel):
         self.custodial = custodial
         self.addOffshell = addOffshell
         self.addGammaHPOI = addGammaHPOI
+        self.kappaQFormalism = kappaQFormalism
 
     def setPhysicsOptions(self, physOptions):
         self.setPhysicsOptionsBase(physOptions)
@@ -482,29 +484,69 @@ class Kappas(LHCHCGBaseModel):
         self.modelBuilder.doVar("kappa_mu[1,0.0,5.0]")
         # self.modelBuilder.factory_("expr::kappa_mu_expr(\"@0*@1+(1-@0)*@2\", CMS_use_kmu[0], kappa_mu, kappa_tau)")
         self.modelBuilder.doVar("kappa_t[1,0.0,4.0]")
+
         if not self.resolved:
+
+            # For offshell inclusion
             if self.addOffshell:
-                self.modelBuilder.doVar("kappa_Q[0,0.0,10.0]")
+                self.modelBuilder.doVar("kappa_gam[1,0.0,2.5]")
                 self.modelBuilder.doVar("factor_gg[1.017199,1.017199,1.017199]")
                 self.modelBuilder.out.var("factor_gg").setConstant(True)
-                self.modelBuilder.factory_("expr::kappa_g_sq(\"1.1068*@0*@0+0.0082*@1*@1-0.1150*@0*@1+1.0298*@2*@2+2.1357*@0*@2-0.1109*@1*@2\", kappa_t, kappa_b, kappa_Q)")
-                self.modelBuilder.doVar("kappa_gam[1,0.0,2.5]")
+
+                if self.kappaQFormalism:
+                    self.modelBuilder.doVar("kappa_Q[0,0.0,10.0]")
+                    self.modelBuilder.factory_("expr::kappa_g_sq(\"1.1068*@0*@0+0.0082*@1*@1-0.1150*@0*@1+1.0298*@2*@2+2.1357*@0*@2-0.1109*@1*@2\", kappa_t, kappa_b, kappa_Q)")
+
+                else:
+                    self.modelBuilder.doVar("kappa_g[1,0.0,2.0]")
+                    self.modelBuilder.doVar("kappa_Q_flag[1,-1,1]")
+                    self.modelBuilder.out.var("kappa_Q_flag").setConstant(True)
+                    
+                    # Define factors in kappa_Q formula
+                    factors = {
+                        "kg_A" : "[1.1068, 1.1068, 1.1068]",
+                        "kg_B" : "[0.0082,0.0082,0.0082]",
+                        "kg_C" : "[0.1150,0.1150,0.1150]",
+                        "kg_D" : "[1.0298,1.0298,1.0298]",
+                        "kg_E" : "[2.1357,2.1357,2.1357]",
+                        "kg_F" : "[0.1109,0.1109,0.1109]"
+                    }
+                    for k, v in factors.items():
+                        self.modelBuilder.doVar(f"{k}{v}")
+                        self.modelBuilder.out.var(k).setConstant(True)
+
+                    self.modelBuilder.factory_(
+                        "expr::kappa_Q(\"( @9*@1 - @8*@0 + "
+                        "@3*sqrt( (-@9*@1 + @8*@0)^2"
+                        "- 4*@7*(@5*@1^2-@2^2-@6*@1*@0 + @4*@0^2) )"
+                        ")/(2*@7)   \", "
+                        "kappa_t, kappa_b, kappa_g, kappa_Q_flag"
+                        ",kg_A,kg_B,kg_C,"
+                        "kg_D,kg_E,kg_F)"
+                    )
+                    
                 if self.addGammaHPOI:
                     self.modelBuilder.doVar("GammaH_scal[1,0.05,2.5]")
 
             else:
-                self.modelBuilder.doVar("kappa_g[1,0.0,2.0]")
                 self.modelBuilder.doVar("kappa_gam[1,0.0,2.5]")
+                self.modelBuilder.doVar("kappa_g[1,0.0,2.0]")
+
         self.modelBuilder.doVar("BRinv[0,0,1]")
         self.modelBuilder.doVar("BRundet[0,0,1]")
         if not self.addInvisible:
             self.modelBuilder.out.var("BRinv").setConstant(True)
         if not self.addUndet:
             self.modelBuilder.out.var("BRundet").setConstant(True)
+
         pois = self.kappa_W + "," + self.kappa_Z + ",kappa_tau,kappa_t," + kappa_b
         if not self.resolved:
             if self.addOffshell:
-                pois += ",kappa_Q,kappa_gam"
+                if self.kappaQFormalism:
+                    pois += ",kappa_Q,kappa_gam"
+                else:
+                    pois += ",kappa_g,kappa_gam"
+
                 if self.addGammaHPOI:
                     pois += ",GammaH_scal"
             else:
@@ -554,7 +596,7 @@ class Kappas(LHCHCGBaseModel):
                 self.modelBuilder.factory_('expr::Scaling_hzg("@0*@0", kappa_Zgam)')
             else:
                 self.modelBuilder.factory_('expr::Scaling_hzg("@0*@0", kappa_gam)')
-            if self.addOffshell:
+            if( self.addOffshell )&( self.kappaQFormalism ):
                 self.modelBuilder.factory_('expr::Scaling_hgluglu("@0", kappa_g_sq)')
                 self.modelBuilder.factory_('expr::Scaling_ggH_7TeV("@0", kappa_g_sq)')
                 self.modelBuilder.factory_('expr::Scaling_ggH_8TeV("@0", kappa_g_sq)')
@@ -1401,8 +1443,10 @@ K2InvC = Kappas(resolved=False, addInvisible=True, addUndet=False, addWidth=Fals
 K2InvWidth = Kappas(resolved=False, addInvisible=True, addUndet=False, addWidth=True)
 K2Undet = Kappas(resolved=False, addInvisible=True, addUndet=True)
 K2UndetWidth = Kappas(resolved=False, addInvisible=True, addUndet=True, addWidth=True)
-K2UndetOffshell = Kappas(resolved=False, addInvisible=True, addUndet=True, addOffshell=True)
-K2OffshellGammaH = Kappas(resolved=False, addOffshell=True, addGammaHPOI=True)
+K2UndetOffshell_kappa_Q_formalism = Kappas(resolved=False, addInvisible=True, addUndet=True, addOffshell=True, kappaQFormalism=True)
+K2UndetOffshell_kappa_g_formalism = Kappas(resolved=False, addInvisible=True, addUndet=True, addOffshell=True, kappaQFormalism=False)
+K2OffshellGammaH_kappa_Q_formalism = Kappas(resolved=False, addOffshell=True, addGammaHPOI=True, kappaQFormalism=True)
+K2OffshellGammaH_kappa_g_formalism = Kappas(resolved=False, addOffshell=True, addGammaHPOI=True, kappaQFormalism=False)
 K3 = KappaVKappaF(floatbrinv=False)
 K3Inv = KappaVKappaF(floatbrinv=True)
 L1 = Lambdas()
