@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.11 FATAL_ERROR )
 set(CMAKE_CXX_STANDARD 17)
-project(CMSCombine VERSION 0.0.1)
+project(HiggsAnalysisCombinedLimit VERSION 0.0.1)
 
 option( MODIFY_ROOTMAP "Modify generated Rootmap to take out classes already bundled in StatAnalysis" FALSE )
 
@@ -25,7 +25,7 @@ include_directories(${ROOT_INCLUDE_DIRS})
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(${ROOT_CXX_FLAGS})
 
-set(LIBNAME CMSCombine)
+set(LIBNAME HiggsAnalysisCombinedLimit)
 
 file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} interface/*.h*)
 file(GLOB SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.c*)
