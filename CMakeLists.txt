@@ -3,6 +3,7 @@ set(CMAKE_CXX_STANDARD 17)
 project(HiggsAnalysisCombinedLimit VERSION 0.0.1)
 
 option( MODIFY_ROOTMAP "Modify generated Rootmap to take out classes already bundled in StatAnalysis" FALSE )
+option( INSTALL_PYTHON "Install the Python library and scripts" TRUE )
 
 # Can build with CMake after e.g. setting up StatAnalysis release like this:
 # export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
@@ -103,9 +104,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/HiggsAnalysis/CombinedLimit/src/classe
 # Install the "combine" executable in the bin directory.
 install(TARGETS combine DESTINATION bin)
 
-# Install the scripts like "text2workspace" to the bin directory.
-install(DIRECTORY scripts/ DESTINATION bin)
-
 # This block is commented out for now, while using the less sophisticated location below
 # Check if the Python library installation directory is outside the install
 # prefix. If it is, we error out because CMake should not install files outside
@@ -123,16 +121,20 @@ install(DIRECTORY scripts/ DESTINATION bin)
 ## The the Python library installation directory relative to the install prefix.
 #file(RELATIVE_PATH Python_SITELIB_IN_PREFIX ${CMAKE_INSTALL_PREFIX} ${Python_SITELIB})
 
-set(Python_SITELIB_IN_PREFIX "python")
+if(INSTALL_PYTHON)
+  # Install the scripts like "text2workspace" to the bin directory.
+  install(DIRECTORY scripts/ DESTINATION bin)
 
+  set(Python_SITELIB_IN_PREFIX "python")
 
-message (STATUS "Using Python install location:" ${Python_SITELIB_IN_PREFIX})
-# The python package will be installed in such a way that the original
-# CMSSW-style directory structure is kept, for maximal compatibility.
-install(DIRECTORY python/ DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/CombinedLimit)
+  message (STATUS "Using Python install location:" ${Python_SITELIB_IN_PREFIX})
+  # The python package will be installed in such a way that the original
+  # CMSSW-style directory structure is kept, for maximal compatibility.
+  install(DIRECTORY python/ DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/CombinedLimit)
 
-# Create empty __init__.py files in the Python package subdirectories such that
-# the Python imports work.
-file(TOUCH ${empty_init_py})
-INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis)
-INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/CombinedLimit)
+  # Create empty __init__.py files in the Python package subdirectories such that
+  # the Python imports work.
+  file(TOUCH ${empty_init_py})
+  INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis)
+  INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/CombinedLimit)
+endif()
