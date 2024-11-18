@@ -1,5 +1,7 @@
 #include "../interface/ProcessNormalization.h"
 
+#include "../interface/CombineMathFuncs.h"
+
 #include <cmath>
 #include <cassert>
 #include <cstdio>
@@ -56,74 +58,40 @@ void ProcessNormalization::addOtherFactor(RooAbsReal &factor) {
     otherFactorList_.add(factor);
 }
 
-Double_t ProcessNormalization::evaluate() const {
-    double logVal = 0.0;
-    if (thetaListVec_.empty()) {
-        std::vector<RooAbsReal *> & thetaListVec = const_cast<std::vector<RooAbsReal *>&>(thetaListVec_);
-        thetaListVec.reserve(thetaList_.getSize());
-        for (RooAbsArg *a : thetaList_) {
-            thetaListVec.push_back(dynamic_cast<RooAbsReal *>(a));
-        }
+void ProcessNormalization::fillAsymmKappaVecs() const
+{
+    if (logAsymmKappaLow_.size() != logAsymmKappa_.size()) {
+       logAsymmKappaLow_.reserve(logAsymmKappa_.size());
+       logAsymmKappaLow_.reserve(logAsymmKappa_.size());
+       for (auto [lo, hi] : logAsymmKappa_) {
+          logAsymmKappaLow_.push_back(lo);
+          logAsymmKappaHigh_.push_back(hi);
+       }
     }
-    if (asymmThetaListVec_.empty()) {
-        std::vector<RooAbsReal *> & asymmThetaListVec = const_cast<std::vector<RooAbsReal *>&>(asymmThetaListVec_);
-        asymmThetaListVec.reserve(asymmThetaList_.getSize());
-        for (RooAbsArg *a : asymmThetaList_) {
-            asymmThetaListVec.push_back(dynamic_cast<RooAbsReal *>(a));
-        }
-    }
-    if (otherFactorListVec_.empty()) {
-        std::vector<RooAbsReal *> & otherFactorListVec = const_cast<std::vector<RooAbsReal *>&>(otherFactorListVec_);
-        otherFactorListVec.reserve(otherFactorList_.getSize());
-        for (RooAbsArg *a : otherFactorList_) {
-            otherFactorListVec.push_back(dynamic_cast<RooAbsReal *>(a));
-        }
-    }
-    if (!logKappa_.empty()) {
-        assert(logKappa_.size()==thetaListVec_.size());
-        for(unsigned int i=0; i < thetaListVec_.size() ; i++){
-            const RooAbsReal *theta = thetaListVec_.at(i);
-            const double logKappa = logKappa_.at(i);
-            logVal += theta->getVal() * (logKappa);
-        }
-    }
-    if (!logAsymmKappa_.empty()) {
-        assert(logAsymmKappa_.size()==asymmThetaListVec_.size());
-        for( unsigned int i=0; i < asymmThetaListVec_.size(); i++){
-            const RooAbsReal *theta = asymmThetaListVec_.at(i);
-            const std::pair<double,double> logKappas = logAsymmKappa_.at(i);
-            double x = theta->getVal();
-            logVal +=  x * logKappaForX(x, logKappas);
-        }
-    }
-    double norm = nominalValue_;
-    if (logVal) norm *= std::exp(logVal);
-    if (otherFactorList_.getSize()) {
-        for (const RooAbsReal *fact :otherFactorListVec_){
-            norm *= fact->getVal();
-        }
-    }
-    return norm;
 }
 
-Double_t ProcessNormalization::logKappaForX(double x, const std::pair<double,double> &logKappas) const {
-    if (fabs(x) >= 0.5) return (x >= 0 ? logKappas.second : -logKappas.first);
-    // interpolate between log(kappaHigh) and -log(kappaLow) 
-    //    logKappa(x) = avg + halfdiff * h(2x)
-    // where h(x) is the 3th order polynomial
-    //    h(x) = (3 x^5 - 10 x^3 + 15 x)/8;
-    // chosen so that h(x) satisfies the following:
-    //      h (+/-1) = +/-1 
-    //      h'(+/-1) = 0
-    //      h"(+/-1) = 0
-    double logKhi =  logKappas.second;
-    double logKlo = -logKappas.first;
-    double avg = 0.5*(logKhi + logKlo), halfdiff = 0.5*(logKhi - logKlo);
-    double twox = x+x, twox2 = twox*twox;
-    double alpha = 0.125 * twox * (twox2 * (3*twox2 - 10.) + 15.);
-    double ret = avg + alpha*halfdiff;
-    return ret;
-} 
+Double_t ProcessNormalization::evaluate() const
+{
+    thetaListVec_.resize(thetaList_.size());
+    asymmThetaListVec_.resize(asymmThetaList_.size());
+    otherFactorListVec_.resize(otherFactorList_.size());
+    for (std::size_t i = 0; i < thetaList_.size(); ++i) {
+        thetaListVec_[i] = static_cast<RooAbsReal const&>(thetaList_[i]).getVal();
+    }
+    for (std::size_t i = 0; i < asymmThetaList_.size(); ++i) {
+        asymmThetaListVec_[i] = static_cast<RooAbsReal const&>(asymmThetaList_[i]).getVal();
+    }
+    for (std::size_t i = 0; i < otherFactorList_.size(); ++i) {
+        otherFactorListVec_[i] = static_cast<RooAbsReal const&>(otherFactorList_[i]).getVal();
+    }
+
+    fillAsymmKappaVecs();
+    return RooFit::Detail::MathFuncs::processNormalization(nominalValue_,
+            thetaList_.size(), asymmThetaList_.size(), otherFactorList_.size(),
+            thetaListVec_.data(), logKappa_.data(), asymmThetaListVec_.data(),
+            logAsymmKappaLow_.data(), logAsymmKappaHigh_.data(),
+            otherFactorListVec_.data());
+}
 
 void ProcessNormalization::dump() const {
     std::cout << "Dumping ProcessNormalization " << GetName() << " @ " << (void*)this << std::endl;
