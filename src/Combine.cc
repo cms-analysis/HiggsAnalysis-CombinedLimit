@@ -95,6 +95,7 @@ std::string defineBackgroundOnlyModelParameterExpression_ = "";
 std::string Combine::trackParametersNameString_="";
 std::string Combine::trackErrorsNameString_="";
 std::string Combine::textToWorkspaceString_="";
+std::string Combine::nllBackend_ = "combine";
 
 std::vector<std::pair<RooAbsReal*,float> > Combine::trackedParametersMap_;
 std::vector<std::pair<RooRealVar*,float> > Combine::trackedErrorsMap_;

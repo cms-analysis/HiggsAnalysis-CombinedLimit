@@ -67,6 +67,9 @@ public:
 
   /// Add a branch to the output tree (for advanced use or debugging only)
   static void addBranch(const char *name, void *address, const char *leaflist) ;
+
+  static  std::string nllBackend_;
+
 private:
   bool mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) ;
  
@@ -127,7 +130,6 @@ private:
   static std::string  trackParametersNameString_;
   static std::string  trackErrorsNameString_;
   static std::string  textToWorkspaceString_;
-
 };
 
 #endif
