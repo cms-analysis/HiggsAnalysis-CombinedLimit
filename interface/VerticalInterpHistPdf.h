@@ -304,6 +304,8 @@ public:
   TObject* clone(const char* newname) const override { return new FastVerticalInterpHistPdf2(*this,newname) ; }
   ~FastVerticalInterpHistPdf2() override {}
 
+  const RooRealVar & x() const { return dynamic_cast<const RooRealVar &>(_x.arg()); }
+
   void setActiveBins(unsigned int bins) override ;
   Double_t evaluate() const override ;
 
@@ -366,6 +368,7 @@ public:
   Double_t maxVal(Int_t code) const override ;
 
   Double_t evaluate() const override ;
+
 protected:
   RooRealProxy _x, _y;
   bool _conditional;

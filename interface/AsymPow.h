@@ -37,9 +37,6 @@ class AsymPow : public RooAbsReal {
         RooRealProxy kappaLow_, kappaHigh_;
         RooRealProxy theta_;
 
-        // get the kappa for the appropriate x
-        Double_t logKappaForX(Double_t x) const ;
-
   ClassDefOverride(AsymPow,1) // Asymmetric power	
 };
 

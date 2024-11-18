@@ -169,6 +169,9 @@ class FastHisto2D : public FastTemplate {
 
         void Dump() const ;
 
+        const T & GetBinContent(int bin) const { return values_[bin]; }
+        const T & GetWidth(unsigned int i) const { return binWidths_[i]; }
+
         T GetMaxOnXY() const ;
         T GetMaxOnX(const T &y) const ;
         T GetMaxOnY(const T &x) const ;
