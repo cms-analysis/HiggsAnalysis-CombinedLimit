@@ -1,4 +1,5 @@
 #include "../interface/AsymPow.h"
+#include "../interface/logKappa.h"
 
 #include <cmath>
 #include <cassert>
@@ -6,9 +7,9 @@
 
 AsymPow::AsymPow(const char *name, const char *title, RooAbsReal &kappaLow, RooAbsReal &kappaHigh, RooAbsReal &theta) :
         RooAbsReal(name,title),
-        kappaLow_("kappaLow","Base for theta < 0", this, kappaLow), 
+        kappaLow_("kappaLow","Base for theta < 0", this, kappaLow),
         kappaHigh_("kappaHigh","Base for theta > 0", this, kappaHigh),
-        theta_("theta", "Exponent (unit gaussian)", this, theta) 
+        theta_("theta", "Exponent (unit gaussian)", this, theta)
         { }
 
 AsymPow::AsymPow(const AsymPow &other, const char *newname) :
@@ -20,7 +21,7 @@ AsymPow::AsymPow(const AsymPow &other, const char *newname) :
 
 AsymPow::~AsymPow() {}
 
-TObject *AsymPow::clone(const char *newname) const 
+TObject *AsymPow::clone(const char *newname) const
 {
     return new AsymPow(*this,newname);
 }
@@ -31,28 +32,14 @@ Double_t AsymPow::evaluate() const {
 }
 
 Double_t AsymPow::logKappaForX(Double_t x) const {
+    const double logKhi =  log(kappaHigh_);
+    const double logKlo = -log(kappaLow_);
 #if 0
     // old version with discontinuous derivatives
-    return (x >= 0 ? log(kappaHigh_) : - log(kappaLow_));
+    return (x >= 0 ? logKhi : logKlo);
 #else
-    if (fabs(x) >= 0.5) return (x >= 0 ? log(kappaHigh_) : - log(kappaLow_));
-    // interpolate between log(kappaHigh) and -log(kappaLow) 
-    //    logKappa(x) = avg + halfdiff * h(2x)
-    // where h(x) is the 3th order polynomial
-    //    h(x) = (3 x^5 - 10 x^3 + 15 x)/8;
-    // chosen so that h(x) satisfies the following:
-    //      h (+/-1) = +/-1 
-    //      h'(+/-1) = 0
-    //      h"(+/-1) = 0
-    double logKhi =  log(kappaHigh_);
-    double logKlo = -log(kappaLow_);
-    double avg = 0.5*(logKhi + logKlo), halfdiff = 0.5*(logKhi - logKlo);
-    double twox = x+x, twox2 = twox*twox;
-    double alpha = 0.125 * twox * (twox2 * (3*twox2 - 10.) + 15.);
-    double ret = avg + alpha*halfdiff;
-    //assert(alpha >= -1 && alpha <= 1 && "Something is wrong in the interpolation");
-    return ret;
+    return logKappa(x, logKhi, logKlo);
 #endif
-} 
+}
 
 ClassImp(AsymPow)
