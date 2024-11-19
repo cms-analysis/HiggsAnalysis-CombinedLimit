@@ -20,13 +20,6 @@ AsymPow::AsymPow(const AsymPow &other, const char *newname) :
     theta_("theta",this,other.theta_)
     { }
 
-AsymPow::~AsymPow() {}
-
-TObject *AsymPow::clone(const char *newname) const 
-{
-    return new AsymPow(*this,newname);
-}
-
 Double_t AsymPow::evaluate() const {
    return RooFit::Detail::MathFuncs::asymPow(theta_, kappaLow_, kappaHigh_);
 }

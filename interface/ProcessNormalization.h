@@ -19,7 +19,6 @@ class ProcessNormalization : public RooAbsReal {
       ProcessNormalization(const char *name, const char *title, double nominal=1) ;
       ProcessNormalization(const char *name, const char *title, RooAbsReal &nominal) ;
       ProcessNormalization(const ProcessNormalization &other, const char *newname = 0) ;
-      ~ProcessNormalization() override ;
 
       TObject * clone(const char *newname) const override { return new ProcessNormalization(*this, newname); }
 
@@ -28,6 +27,13 @@ class ProcessNormalization : public RooAbsReal {
       void addAsymmLogNormal(double kappaLo, double kappaHi, RooAbsReal &theta) ;
       void addOtherFactor(RooAbsReal &factor) ;
       void dump() const ;
+
+      double nominalValue() const { return nominalValue_; }
+      std::vector<double> const &logKappa() const { return logKappa_; }
+      RooArgList const &thetaList() const { return thetaList_; }
+      std::vector<std::pair<double, double>> const &logAsymmKappa() const { return logAsymmKappa_; }
+      RooArgList const &asymmThetaList() const { return asymmThetaList_; }
+      RooArgList const &otherFactorList() const { return otherFactorList_; }
 
     protected:
         Double_t evaluate() const override;
