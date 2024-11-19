@@ -15,14 +15,10 @@ ProcessNormalization::ProcessNormalization(const char *name, const char *title, 
 { 
 }
 
-ProcessNormalization::ProcessNormalization(const char *name, const char *title, RooAbsReal &nominal) :
-        RooAbsReal(name,title),
-        nominalValue_(1.0),
-        thetaList_("thetaList", "List of nuisances for symmetric kappas", this), 
-        asymmThetaList_("asymmThetaList", "List of nuisances for asymmetric kappas", this), 
-        otherFactorList_("otherFactorList", "Other multiplicative terms", this)
-{ 
-    otherFactorList_.add(nominal);
+ProcessNormalization::ProcessNormalization(const char *name, const char *title, RooAbsReal &nominal)
+  : ProcessNormalization{name, title, 1.0}
+{
+   otherFactorList_.add(nominal);
 }
 
 ProcessNormalization::ProcessNormalization(const ProcessNormalization &other, const char *newname) :
@@ -35,8 +31,6 @@ ProcessNormalization::ProcessNormalization(const ProcessNormalization &other, co
         otherFactorList_("otherFactorList", this, other.otherFactorList_)
 {
 }
-
-ProcessNormalization::~ProcessNormalization() {}
 
 void ProcessNormalization::addLogNormal(double kappa, RooAbsReal &theta) {
     if (kappa != 0.0 && kappa != 1.0) {
