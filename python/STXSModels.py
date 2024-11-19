@@ -225,18 +225,16 @@ class StageOnePTwo(STXSBaseModel):
     def __init__(self):
         STXSBaseModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
         self.POIs = "mu"
-        from HiggsAnalysis.CombinedLimit.STXS import stage1_2_procs, stage1_2_fine_procs
-
-        if self.addHbbBoostedSplitting:
-            stage1_2_fine_procs["qqH_GE2J_MJJ_1000_1500_PTH_GT200"] = ["qqH_GE2J_MJJ_1000_1500_PTH_GT200_PTHJJ_0_25", "qqH_GE2J_MJJ_1000_1500_PTH_GT200_PTHJJ_GT25"]
-            stage1_2_fine_procs["qqH_GE2J_MJJ_GT1500_PTH_GT200"] = ["qqH_GE2J_MJJ_GT1500_PTH_GT200_PTHJJ_0_25", "qqH_GE2J_MJJ_GT1500_PTH_GT200_PTHJJ_GT25"]
-
+        from HiggsAnalysis.CombinedLimit.STXS import stage1_2_procs, stage1_2_fine_procs, stage1_2_merged_procs
         self.stage1_2_fine_procs = stage1_2_fine_procs
         self.PROCESSES = [x for v in six.itervalues(stage1_2_procs) for x in v]
         self.FINEPROCESSES = [x for v in six.itervalues(stage1_2_fine_procs) for x in v]
         self.mergeSchemes = {}
         self.mergeSchemes["prod_only"] = {}
         self.mergeSchemes["prod_times_dec"] = {}
+        # Fix for HWW (merged procs in datacard)
+        self.stage1_2_merged_procs = stage1_2_merged_procs
+        self.MERGEDPROCESSES = []
 
     def doVar(self, x, constant=True):
         self.modelBuilder.doVar(x)
@@ -260,7 +258,6 @@ class StageOnePTwo(STXSBaseModel):
             for proc_stage0 in PROCESSES_STAGE0:
                 if proc_stage0 not in self.PROCESSES: self.PROCESSES.append(proc_stage0)
 
-
         allProds = []
         for registered_proc in self.PROCESSES:
             P = registered_proc
@@ -281,7 +278,13 @@ class StageOnePTwo(STXSBaseModel):
             D = CMS_to_LHCHCG_DecSimple[dec]
             self.doVar("mu_BR_%s[1,0,5]" % (D))
 
+        # Fix for H->bb boosted to fit split bins
         if self.addHbbBoostedSplitting:
+            # Define finer split bin POIs in dict
+            del self.stage1_2_fine_procs["qqH_GE2J_MJJ_GT350_PTH_GT200"]
+            self.stage1_2_fine_procs["qqH_GE2J_MJJ_1000_1500_PTH_GT200"] = ["qqH_GE2J_MJJ_1000_1500_PTH_GT200_PTHJJ_0_25", "qqH_GE2J_MJJ_1000_1500_PTH_GT200_PTHJJ_GT25"]
+            self.stage1_2_fine_procs["qqH_GE2J_MJJ_GT1500_PTH_GT200"] = ["qqH_GE2J_MJJ_GT1500_PTH_GT200_PTHJJ_0_25", "qqH_GE2J_MJJ_GT1500_PTH_GT200_PTHJJ_GT25"]
+            # Save POIs in workspace
             for registered_proc in ["qqH_GE2J_MJJ_1000_1500_PTH_GT200", "qqH_GE2J_MJJ_GT1500_PTH_GT200"]:
                 P = registered_proc
                 allProds.append(P)
@@ -343,6 +346,33 @@ class StageOnePTwo(STXSBaseModel):
                 self.modelBuilder.factory_("prod::scaling_%s_%s_13TeV(%s)" % (P, D, ",".join(terms)))
                 self.modelBuilder.out.function("scaling_%s_%s_13TeV" % (P, D)).Print("")
 
+        # Fix for merged procs in datacard: e.g. VH leptonic bins in H->WW (STXS)
+        # Must account for merged-bin signal strengths, which complicates the situation
+        for D, merged_bins in self.stage1_2_merged_procs.items():
+            for P, components in merged_bins.items():
+                terms = ["mu", "mu_BR_"+D]
+                terms_sum = []
+                for stxs12binname, frac in components.items():
+                    terms_stxs12 = []
+                    self.doVar("frac_scaling_%s_component_%s_13TeV[%s,%s,%s]" % (stxs12binname, D, frac, frac, frac))
+                    self.modelBuilder.out.var("frac_scaling_%s_component_%s_13TeV"% (stxs12binname, D)).setConstant(True) 
+                    terms_stxs12 += ["frac_scaling_%s_component_%s_13TeV"% (stxs12binname, D), "mu_XS_%s" % stxs12binname, "mu_XS_%s_BR_%s" % (stxs12binname, D)]
+                    for merged_prod_bin in self.mergeSchemes["prod_only"]:
+                        if stxs12binname in self.mergeSchemes["prod_only"][merged_prod_bin]:
+                            terms_stxs12 += ["mu_XS_%s" % merged_prod_bin]
+                    for merged_proddec_bin in self.mergeSchemes["prod_times_dec"]:
+                        if stxs12binname in self.mergeSchemes["prod_times_dec"][merged_proddec_bin]:
+                            terms_stxs12 += ["mu_XS_%s_BR_%s" % (merged_proddec_bin, D)]
+                    self.modelBuilder.factory_("prod::scaling_%s_component_%s_13TeV(%s)" % (stxs12binname, D, ",".join(terms_stxs12)))
+                    terms_sum += ["scaling_%s_component_%s_13TeV" % (stxs12binname, D)]
+    
+                self.modelBuilder.factory_("sum::scaling_%s_sum_%s_13TeV(%s)" % (P, D, ",".join(terms_sum)))
+                terms += ["scaling_%s_sum_%s_13TeV" % (P, D)]
+                self.modelBuilder.factory_("prod::scaling_%s_%s_13TeV(%s)" % (P, D, ",".join(terms)))
+                if P not in self.MERGEDPROCESSES:
+                    self.MERGEDPROCESSES.append(P)
+    
+    
     def getHiggsSignalYieldScale(self, production, decay, energy):
         # Catch for H->Zgam: taken from STXStoSMEFT model
         if (decay == "Zgam") | ("bkg" in production):
@@ -353,6 +383,10 @@ class StageOnePTwo(STXSBaseModel):
                 return "scaling_%s_%s_%s" % (regproc, decay, energy)
 
         for regproc in self.FINEPROCESSES:
+            if fnmatch.fnmatch(production, regproc):
+                return "scaling_%s_%s_%s" % (regproc, decay, energy)
+
+        for regproc in self.MERGEDPROCESSES:
             if fnmatch.fnmatch(production, regproc):
                 return "scaling_%s_%s_%s" % (regproc, decay, energy)
 
@@ -368,13 +402,16 @@ class StageOnePTwoRatio(STXSBaseModel):
         STXSBaseModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
         self.denominator = denominator
         self.POIs = "mu"
-        from HiggsAnalysis.CombinedLimit.STXS import stage1_2_procs, stage1_2_fine_procs
+        from HiggsAnalysis.CombinedLimit.STXS import stage1_2_procs, stage1_2_fine_procs, stage1_2_merged_procs
         self.stage1_2_fine_procs = stage1_2_fine_procs
         self.PROCESSES = [x for v in six.itervalues(stage1_2_procs) for x in v]
         self.FINEPROCESSES = [x for v in six.itervalues(stage1_2_fine_procs) for x in v]
         self.mergeSchemes = {}
         self.mergeSchemes["prod_only"] = {}
         self.mergeSchemes["prod_times_dec"] = {}
+        # Fix for HWW (merged procs in datacard)
+        self.stage1_2_merged_procs = stage1_2_merged_procs
+        self.MERGEDPROCESSES = []
 
     def doVar(self, x, constant=True):
         self.modelBuilder.doVar(x)
@@ -463,6 +500,30 @@ class StageOnePTwoRatio(STXSBaseModel):
                 self.modelBuilder.factory_("prod::scaling_%s_%s_13TeV(%s)" % (P, D, ",".join(terms)))
                 self.modelBuilder.out.function("scaling_%s_%s_13TeV" % (P, D)).Print("")
 
+        # Fix for merged procs in datacard: e.g. VH leptonic bins in H->WW (STXS)
+        # Must account for merged-bin signal strengths, which complicates the situation
+        for D, merged_bins in self.stage1_2_merged_procs.items():
+            for P, components in merged_bins.items():
+                terms = ["mu_BR_%s_r_BR_%s" % (D, self.denominator)]
+                terms_sum = []
+                for stxs12binname, frac in components.items():
+                    terms_stxs12 = []
+                    self.doVar("frac_scaling_%s_component_%s_13TeV[%s,%s,%s]" % (stxs12binname, D, frac, frac, frac))
+                    self.modelBuilder.out.var("frac_scaling_%s_component_%s_13TeV"% (stxs12binname, D)).setConstant(True) 
+                    terms_stxs12 += ["frac_scaling_%s_component_%s_13TeV"% (stxs12binname, D), "mu_XS_%s_x_BR_%s" % (stxs12binname, self.denominator)]
+                    for merged_proddec_bin in self.mergeSchemes["prod_times_dec"]:
+                        if stxs12binname in self.mergeSchemes["prod_times_dec"][merged_proddec_bin]:
+                            terms_stxs12 += ["mu_XS_%s_x_BR_%s" % (merged_proddec_bin, self.denominator)]
+                    self.modelBuilder.factory_("prod::scaling_%s_component_%s_13TeV(%s)" % (stxs12binname, D, ",".join(terms_stxs12)))
+                    terms_sum += ["scaling_%s_component_%s_13TeV" % (stxs12binname, D)]
+    
+                self.modelBuilder.factory_("sum::scaling_%s_sum_%s_13TeV(%s)" % (P, D, ",".join(terms_sum)))
+                terms += ["scaling_%s_sum_%s_13TeV" % (P, D)]
+                self.modelBuilder.factory_("prod::scaling_%s_%s_13TeV(%s)" % (P, D, ",".join(terms)))
+                if P not in self.MERGEDPROCESSES:
+                    self.MERGEDPROCESSES.append(P)
+
+
     def getHiggsSignalYieldScale(self, production, decay, energy):
         # Catch for H->Zgam: taken from STXStoSMEFT model
         if (decay == "Zgam") | ("bkg" in production):
@@ -475,6 +536,11 @@ class StageOnePTwoRatio(STXSBaseModel):
         for regproc in self.FINEPROCESSES:
             if fnmatch.fnmatch(production, regproc):
                 return "scaling_%s_%s_%s" % (regproc, decay, energy)
+
+        for regproc in self.MERGEDPROCESSES:
+            if fnmatch.fnmatch(production, regproc):
+                return "scaling_%s_%s_%s" % (regproc, decay, energy)
+
 
         # raise RuntimeError, "No production process matching %s for Stage0 found !"%production
         print("WARNING: No production process matching %s for Stage1.2 found, will scale by 1 !" % production)

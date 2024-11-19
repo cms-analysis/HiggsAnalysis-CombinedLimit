@@ -176,9 +176,11 @@ stage1_2_fine_procs = {  # Hopefully temporary while VH(bb) haven't provided cor
     "WH_lep_PTV_GT250": ["WH_lep_PTV_250_400", "WH_lep_PTV_GT400"],
     "ZH_lep_PTV_GT250": ["ZH_lep_PTV_250_400", "ZH_lep_PTV_GT400"],
     "ttH_PTH_GT300": ["ttH_PTH_300_450", "ttH_PTH_GT450"],
+    "ggZH_lep_PTV_0_75": ["ggZH_ll_PTV_0_75", "ggZH_nunu_PTV_0_75"],
     "ggZH_lep_PTV_75_150": ["ggZH_ll_PTV_75_150", "ggZH_nunu_PTV_75_150"],
-    "ggZH_lep_PTV_150_250_GE1J": ["ggZH_ll_PTV_150_250_GE1J", "ggZH_nunu_PTV_150_250_GE1J", "ggZH_lep_PTV_250_400", "ggZH_lep_PTV_GT400"],
-    "ggZH_lep_PTV_GT250": ["ggZH_ll_PTV_GT250", "ggZH_nunu_PTV_GT250"],
+    "ggZH_lep_PTV_150_250_0J": ["ggZH_ll_PTV_150_250_0J", "ggZH_nunu_PTV_150_250_0J"],
+    "ggZH_lep_PTV_150_250_GE1J": ["ggZH_ll_PTV_150_250_GE1J", "ggZH_nunu_PTV_150_250_GE1J"],
+    "ggZH_lep_PTV_GT250": ["ggZH_ll_PTV_GT250", "ggZH_nunu_PTV_GT250","ggZH_lep_PTV_250_400", "ggZH_lep_PTV_GT400"],
     "ggH_PTH_200_300": ["ggZH_had_PTH_200_300", "ggH_PTH_200_300_PTHJoverPTH_0_15", "ggH_PTH_200_300_PTHJoverPTH_GT15"],
     "ggH_PTH_300_450": ["ggZH_had_PTH_300_450", "ggH_PTH_300_450_PTHJoverPTH_0_15", "ggH_PTH_300_450_PTHJoverPTH_GT15"],
     "ggH_PTH_450_650": ["ggZH_had_PTH_450_650", "ggH_PTH_450_650_PTHJoverPTH_0_15", "ggH_PTH_450_650_PTHJoverPTH_GT15"],
@@ -195,13 +197,41 @@ stage1_2_fine_procs = {  # Hopefully temporary while VH(bb) haven't provided cor
     "ggH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25": ["ggZH_had_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25"],
     "ggH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25": ["ggZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25"],
     "ggH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25": ["ggZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25"],
-    "WH_lep_PTV_0_75": ["WH_lep_PTV_LT150"],
-    "ZH_lep_PTV_0_75": ["ZH_lep_PTV_LT150"],
-    "ggZH_lep_PTV_0_75": ["ggZH_lep_PTV_LT150", "ggZH_ll_PTV_0_75", "ggZH_nunu_PTV_0_75"],
-    "WH_lep_PTV_150_250_0J": ["WH_lep_PTV_GT150"],
-    "ZH_lep_PTV_150_250_0J": ["ZH_lep_PTV_GT150"],
-    "ggZH_lep_PTV_150_250_0J": ["ggZH_lep_PTV_GT150", "ggZH_ll_PTV_150_250_0J", "ggZH_nunu_PTV_150_250_0J"],
     "qqH_GE2J_MJJ_60_120": ["qqH_GE2J_MJJ_60_120_PTHJJ_0_25", "qqH_GE2J_MJJ_60_120_PTHJJ_GT25"],
     "qqH_GE2J_MJJ_120_350": ["qqH_GE2J_MJJ_120_350_PTHJJ_0_25", "qqH_GE2J_MJJ_120_350_PTHJJ_GT25"],
     "qqH_GE2J_MJJ_GT350_PTH_GT200": ["qqH_GE2J_MJJ_350_700_PTH_GT200_PTHJJ_0_25", "qqH_GE2J_MJJ_350_700_PTH_GT200_PTHJJ_GT25", "qqH_GE2J_MJJ_700_1000_PTH_GT200_PTHJJ_0_25", "qqH_GE2J_MJJ_700_1000_PTH_GT200_PTHJJ_GT25", "qqH_GE2J_MJJ_1000_1500_PTH_GT200_PTHJJ_0_25", "qqH_GE2J_MJJ_1000_1500_PTH_GT200_PTHJJ_GT25", "qqH_GE2J_MJJ_GT1500_PTH_GT200_PTHJJ_0_25", "qqH_GE2J_MJJ_GT1500_PTH_GT200_PTHJJ_GT25"],
+}
+
+# Use weighted-sum for scaling functions
+stage1_2_merged_procs = {
+    # Sums for VH leptonic binning in HWW inputs
+    "WW": {
+        "WH_lep_PTV_LT150" : {
+            "WH_lep_PTV_0_75" : 0.6137112722478577,
+            "WH_lep_PTV_75_150" : 0.3862887277521423,
+        },
+        "ZH_lep_PTV_LT150" : {
+            "ZH_lep_PTV_0_75" : 0.5979043876882776,
+            "ZH_lep_PTV_75_150" : 0.4020956123117223,
+        },
+        "ggZH_lep_PTV_LT150" : {
+            "ggZH_lep_PTV_0_75" : 0.2706576728499157,
+            "ggZH_lep_PTV_75_150" : 0.7293423271500843,
+        },
+        "WH_lep_PTV_GT150" : {
+            "WH_lep_PTV_150_250_0J" : 0.42429284525790345,
+            "WH_lep_PTV_150_250_GE1J" : 0.3302828618968386,
+            "WH_lep_PTV_GT250" : 0.24542429284525788,
+        },
+        "ZH_lep_PTV_GT150" : {
+            "ZH_lep_PTV_150_250_0J" : 0.41479099678456594,
+            "ZH_lep_PTV_150_250_GE1J" : 0.3432475884244373,
+            "ZH_lep_PTV_GT250" : 0.24196141479099678,
+        },
+        "ggZH_lep_PTV_GT150" : {
+            "ggZH_lep_PTV_150_250_0J" : 0.24019994738226785,
+            "ggZH_lep_PTV_150_250_GE1J" : 0.5377532228360957,
+            "ggZH_lep_PTV_GT250" : 0.22204682978163642,
+        }
+    }
 }
