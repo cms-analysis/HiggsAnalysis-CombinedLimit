@@ -28,7 +28,7 @@ RooMultiPdf::RooMultiPdf(const char *name, const char *title, RooCategory& _x, c
   std::unique_ptr<RooAbsCollection> nonConstVariables(variables->selectByAttrib("Constant", false));
 	// Isn't there a better wat to hold on to these values?
 	RooConstVar *tmp = new RooConstVar((std::string{"const"} + pdf->GetName()).c_str(),"",nonConstVariables->size());
-	corr.add(*tmp);
+	corr.addOwned(*tmp);
 	count++;
   }
  _oldIndex=fIndex;
