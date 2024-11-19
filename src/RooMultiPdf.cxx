@@ -45,19 +45,10 @@ RooMultiPdf::RooMultiPdf(const RooMultiPdf& other, const char* name) :
 }
 
 //_____________________________________________________________________________
-Double_t RooMultiPdf::getValV(const RooArgSet* nset) const {
-  double val = getCurrentPdf()->getVal(nset);
+Double_t RooMultiPdf::evaluate() const{
+  double val = getCurrentPdf()->getVal(c.nset());
   _oldIndex=x;
   return val;
-}
-
-//_____________________________________________________________________________
-Double_t RooMultiPdf::evaluate() const{
-  // This is dangerous since if the underlying pdf is a RooAddPdf the meaning of the 
-  // coefficients depends on the normalization set, and we don't really know
-  // how this information is propagated.
-  // So, we just forward the getVal which is anyway the contract for RooMultiPdf.
-  throw std::invalid_argument("RooMultiPdf::evaluate() called\n");
 }
 
 //_____________________________________________________________________________
