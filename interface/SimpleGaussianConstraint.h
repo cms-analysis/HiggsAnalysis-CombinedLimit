@@ -14,9 +14,11 @@ class SimpleGaussianConstraint : public RooGaussian {
         SimpleGaussianConstraint(const RooGaussian &g) : RooGaussian(g, "") { init(); }
 
         TObject* clone(const char* newname) const override { return new SimpleGaussianConstraint(*this,newname); }
-        inline ~SimpleGaussianConstraint() override { }
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
+        // function was upstreamed to RooGaussian in ROOT 6.26
         const RooAbsReal & getX() const { return x.arg(); }
+#endif
 
         double getLogValFast() const { 
             if (_valueDirty) {
@@ -29,7 +31,13 @@ class SimpleGaussianConstraint : public RooGaussian {
             return _value;
         }
 
+        // RooFit should make no attempt to normalize this constraint, as the
+        // "getLogValFast()" function that combined CachingNLL is calling also
+        // doesn't do any normalization.
+        bool selfNormalized() const override { return true; }
+
         static RooGaussian * make(RooGaussian &c) ;
+
     private:
         double scale_;
         void init() ;
