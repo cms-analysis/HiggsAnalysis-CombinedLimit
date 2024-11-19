@@ -24,9 +24,8 @@ public:
   void setCorrectionFactor(double penal) { cFactor = penal; }
   inline int getCurrentIndex() const { return static_cast<int>(x); }
   inline RooAbsPdf *getPdf(int index) const { return static_cast<RooAbsPdf*>(c.at(index)); }
-  Double_t getValV(const RooArgSet* nset) const override ;
-  /// needed since otherwise printValue calls evaluate(), which is taboo
-  void printValue(std::ostream& os) const override { getCurrentPdf()->printValue(os); }
+  // Always normalized because each pdf is normalized
+  bool selfNormalized() const override { return true; }
 protected:
   RooListProxy c;
   RooListProxy corr;
