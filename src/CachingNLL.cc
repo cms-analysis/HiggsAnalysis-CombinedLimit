@@ -672,7 +672,7 @@ cacheutils::CachingAddNLL::evaluate() const
     double ret = constantZeroPoint_;
     if (runtimedef::get("REMOVE_CONSTANT_ZERO_POINT") ) ret = 0; 
     for (its = bgs; its != eds ; ++its) {
-        if (!isnormal(*its) || *its <= 0) {
+        if (!std::isnormal(*its) || *its <= 0) {
             if ((weights_[its-bgs] == 0) && (*its == 0)) {
                 // this special case we don't care, as zero is fine and it will be multiplied by zero afterwards,
                 // we just need to protect it for the logarithm
@@ -1091,7 +1091,7 @@ cacheutils::CachingSimNLL::evaluate() const
         std::vector<double>::const_iterator itz = constrainZeroPoints_.begin();
         for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it, ++itz) { 
             double pdfval = (*it)->getVal(nuis_);
-            if (!isnormal(pdfval) || pdfval <= 0) {
+            if (!std::isnormal(pdfval) || pdfval <= 0) {
                 //std::cout << "WARNING: underflow constraint pdf " << (*it)->GetName() << ", value = " << pdfval << std::endl;
     		    CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("underflow (pdf evaluates to <=0) of constraint pdf %s, value = %g ",(*it)->GetName(), pdfval)),__func__);
                 if (gentleNegativePenalty_) { ret += 25; continue; }
@@ -1208,7 +1208,7 @@ void cacheutils::CachingSimNLL::setZeroPoint() {
     std::vector<double>::iterator itz = constrainZeroPoints_.begin();
     for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it, ++itz) {
         double pdfval = (*it)->getVal(nuis_);
-        if (isnormal(pdfval) || pdfval > 0) *itz = -log(pdfval);
+        if (std::isnormal(pdfval) || pdfval > 0) *itz = -log(pdfval);
     }
     itz = constrainZeroPointsFast_.begin();
     for (std::vector<SimpleGaussianConstraint*>::const_iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++itz) {
