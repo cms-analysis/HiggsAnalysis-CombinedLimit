@@ -12,13 +12,14 @@ ALL_STXS_PROCS = {
     "Stage0": {
         "ggH*": "ggH",
         "bbH*": "ggH",
+        "ggZH_had*": "ggH",
         "qqH*": "qqH",
         "ttH*": "ttH",
-        "tH[Wq]*": "ttH",
-        "ggZH_lep*": "QQ2HLL",
-        "ZH_lep*": "QQ2HLL",
-        "WH_lep*": "QQ2HLNU",
-        "[VWZ]H_had*": "VH2HQQ",
+        "tH[Wq]*": "tH",
+        "ggZH_lep*": "totZH_lep",
+        "ZH_lep*": "totZH_lep",
+        "WH_lep*": "WH_lep",
+        "[VWZ]H_had*": "qqH",
     }
 }
 
@@ -109,8 +110,6 @@ class STXSBaseModel(PhysicsModel):
             if po.startswith("addHbbBoostedSplitting="):
                 self.addHbbBoostedSplitting = po.replace("addHbbBoostedSplitting=", "") in ["yes", "1", "Yes", "True", "true"]
 
-
-
     def doMH(self):
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
@@ -143,13 +142,74 @@ class StageZero(STXSBaseModel):
 
     def __init__(self, denominator="WW"):
         STXSBaseModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
+        self.POIs = ""
+
+    def doVar(self, x, constant=True):
+        self.modelBuilder.doVar(x)
+        vname = re.sub(r"\[.*", "", x)
+        self.modelBuilder.out.var(vname).setConstant(constant)
+        print("SignalStrengths:: declaring %s as %s" % (vname, x))
+
+    def doParametersOfInterest(self):
+        """Create POI out of signal strengths (and MH)"""
+        pois = []
+
+        allProds = []
+        for regproc in ALL_STXS_PROCS["Stage0"].keys():
+            P = ALL_STXS_PROCS["Stage0"][regproc]
+            if P in allProds:
+                continue
+            allProds.append(P)
+            self.doVar("mu_XS_%s[1,0,5]" % P)
+            pois.append("mu_XS_%s" % P)
+
+        print(pois)
+        self.POIs = ",".join(pois)
+
+        self.doMH()
+        print("Default parameters of interest: ", self.POIs)
+        self.modelBuilder.doSet("POI", self.POIs)
+        self.SMH = SMHiggsBuilder(self.modelBuilder)
+        self.setup()
+
+    def setup(self):
+        for d in SM_HIGG_DECAYS + ["hss"]:
+            self.SMH.makeBR(d)
+        allProds = []
+        for regproc in ALL_STXS_PROCS["Stage0"].keys():
+            P = ALL_STXS_PROCS["Stage0"][regproc]
+            if P in allProds:
+                continue
+            allProds.append(P)
+            muXS = "mu_XS_%s" % P
+            self.modelBuilder.factory_("expr::scaling_" + P + '_13TeV("@0",' + muXS + ")")
+
+    def getHiggsSignalYieldScale(self, production, decay, energy):
+        for regproc in ALL_STXS_PROCS["Stage0"].keys():
+            if fnmatch.fnmatch(production, regproc):
+                return "scaling_%s_%s" % (
+                    ALL_STXS_PROCS["Stage0"][regproc],
+                    energy,
+                )
+
+        # raise RuntimeError, "No production process matching %s for Stage0 found !"%production
+        print("WARNING: No production process matching %s for Stage0 found, will scale by 1 !" % production)
+        return 1
+
+
+
+class StageZeroRatio(STXSBaseModel):
+    "Allow different signal strength fits for the stage-0 model"
+
+    def __init__(self, denominator="WW"):
+        STXSBaseModel.__init__(self)  # not using 'super(x,self).__init__' since I don't understand it
         self.denominator = denominator
         self.POIs = ""
 
     def doVar(self, x, constant=True):
         self.modelBuilder.doVar(x)
         vname = re.sub(r"\[.*", "", x)
-        # self.modelBuilder.out.var(vname).setConstant(constant)
+        self.modelBuilder.out.var(vname).setConstant(constant)
         print("SignalStrengths:: declaring %s as %s" % (vname, x))
 
     def doParametersOfInterest(self):
@@ -166,11 +226,11 @@ class StageZero(STXSBaseModel):
                 D = CMS_to_LHCHCG_DecSimple[dec]
                 if D == self.denominator:
                     if not "mu_XS_%s_x_BR_%s" % (P, self.denominator) in pois:
-                        self.modelBuilder.doVar("mu_XS_%s_x_BR_%s[1,0,5]" % (P, self.denominator))
+                        self.doVar("mu_XS_%s_x_BR_%s[1,0,5]" % (P, self.denominator))
                         pois.append("mu_XS_%s_x_BR_%s" % (P, self.denominator))
                 else:
                     if not "mu_BR_%s_r_BR_%s" % (D, self.denominator) in pois:
-                        self.modelBuilder.doVar("mu_BR_%s_r_BR_%s[1,0,5]" % (D, self.denominator))
+                        self.doVar("mu_BR_%s_r_BR_%s[1,0,5]" % (D, self.denominator))
                         pois.append("mu_BR_%s_r_BR_%s" % (D, self.denominator))
 
         print(pois)
@@ -548,6 +608,6 @@ class StageOnePTwoRatio(STXSBaseModel):
 
 
 stage0 = StageZero()
-stage0ZZ = StageZero("ZZ")
+stage0RatioZZ = StageZeroRatio("ZZ")
 stage12 = StageOnePTwo()
 stage12RatioZZ = StageOnePTwoRatio("ZZ")
