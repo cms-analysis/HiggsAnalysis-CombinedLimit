@@ -48,7 +48,7 @@ jobs:
       uses: conda-incubator/setup-miniconda@v2.2.0
       with:
         python-version: ${{ matrix.python }}
-        miniforge-variant: Miniforge
+        miniforge-variant: Miniforge3
         channels: conda-forge,defaults
         channel-priority: true
         activate-environment: combine
