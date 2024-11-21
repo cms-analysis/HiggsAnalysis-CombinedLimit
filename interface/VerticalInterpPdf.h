@@ -28,6 +28,9 @@ public:
   const RooArgList& funcList() const { return _funcList ; }
   const RooArgList& coefList() const { return _coefList ; }
 
+  const Double_t quadraticRegion() const { return _quadraticRegion; }
+  const Int_t quadraticAlgo() const { return _quadraticAlgo; }
+
   void setFloorVals(Double_t const& pdf_val, Double_t const& integral_val);
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,34,06)
