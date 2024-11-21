@@ -10,7 +10,8 @@
 #include "TH1.h"
 #include "SimpleCacheSentry.h"
 #include "FastTemplate_Old.h"
-#include <cmath>
+
+#include "CombineCodegenImpl.h"
 
 class FastVerticalInterpHistPdf;
 class FastVerticalInterpHistPdf2Base;
@@ -34,7 +35,12 @@ public:
   const RooArgList& coefList() const { return _coefList ; }
 
   const RooRealProxy &x() const { return _x; }
+
+  double smoothRegion() const { return _smoothRegion; }
+  int smoothAlgo() const { return _smoothAlgo; }
+
   friend class FastVerticalInterpHistPdf;
+
 protected:
   RooRealProxy   _x;
   RooListProxy _funcList ;   //  List of component FUNCs
@@ -84,6 +90,11 @@ public:
   /// Must be public, for serialization
   struct Morph { FastTemplate sum; FastTemplate diff; };
 
+  std::vector<Morph> const &morphs() const { return _morphs; }
+
+  double smoothRegion() const { return _smoothRegion; }
+  int smoothAlgo() const { return _smoothAlgo; }
+
   friend class FastVerticalInterpHistPdf2Base;
 protected:
   RooRealProxy   _x;
@@ -127,21 +138,22 @@ public:
   FastVerticalInterpHistPdf() : FastVerticalInterpHistPdfBase() {}
   FastVerticalInterpHistPdf(const char *name, const char *title, const RooRealVar &x, const RooArgList& funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) :
     FastVerticalInterpHistPdfBase(name,title,RooArgSet(x),funcList,coefList,smoothRegion,smoothAlgo),
-    _x("x","Independent variable",this,const_cast<RooRealVar&>(x)),
-    _cache(), _cacheNominal(), _cacheNominalLog()  {}
+    _x("x","Independent variable",this,const_cast<RooRealVar&>(x)) {}
   FastVerticalInterpHistPdf(const FastVerticalInterpHistPdf& other, const char* name=0) :
     FastVerticalInterpHistPdfBase(other, name),
     _x("x",this,other._x),
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
   TObject* clone(const char* newname) const override { return new FastVerticalInterpHistPdf(*this,newname) ; }
-  ~FastVerticalInterpHistPdf() override {}
 
   Double_t evaluate() const override ;
 
   Bool_t hasCache()     const { return _cache.size() > 0; }
   Bool_t isCacheReady() const { return _cache.size() > 0 && _init; }
+  FastHisto const &cacheNominal() const { return _cacheNominal; }
+
   friend class FastVerticalInterpHistPdfV;
   friend class FastVerticalInterpHistPdf2;
+
 protected:
   RooRealProxy   _x;
 
@@ -186,14 +198,12 @@ public:
     FastVerticalInterpHistPdfBase(name,title,RooArgSet(x,y),funcList,coefList,smoothRegion,smoothAlgo),
     _x("x","Independent variable",this,const_cast<RooRealVar&>(x)),
     _y("y","Independent variable",this,const_cast<RooRealVar&>(y)),
-    _conditional(conditional),
-    _cache(), _cacheNominal(), _cacheNominalLog()  {}
+    _conditional(conditional) {}
   FastVerticalInterpHistPdf2D(const FastVerticalInterpHistPdf2D& other, const char* name=0) :
     FastVerticalInterpHistPdfBase(other, name),
     _x("x",this,other._x), _y("y",this,other._y), _conditional(other._conditional),
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
   TObject* clone(const char* newname) const override { return new FastVerticalInterpHistPdf2D(*this,newname) ; }
-  ~FastVerticalInterpHistPdf2D() override {}
 
   const RooRealVar & x() const { return dynamic_cast<const RooRealVar &>(_x.arg()); }
   const RooRealVar & y() const { return dynamic_cast<const RooRealVar &>(_y.arg()); }
@@ -203,6 +213,8 @@ public:
 
   Bool_t hasCache()     const { return _cache.size() > 0; }
   Bool_t isCacheReady() const { return _cache.size() > 0 && _init; }
+
+  FastHisto2D const &cacheNominal() const { return _cacheNominal; }
 
   friend class FastVerticalInterpHistPdf2D2;
 protected:
@@ -245,8 +257,15 @@ public:
   virtual void setActiveBins(unsigned int bins) {}
 
   bool cacheIsGood() const { return _sentry.good() && _initBase; }
+
+  double smoothRegion() const { return _smoothRegion; }
+  int smoothAlgo() const { return _smoothAlgo; }
+
   /// Must be public, for serialization
   typedef FastVerticalInterpHistPdfBase::Morph Morph;
+
+  std::vector<Morph> const &morphs() const { return _morphs; }
+
 protected:
   RooListProxy _coefList ;  //  List of coefficients
   Double_t     _smoothRegion;
@@ -302,7 +321,6 @@ public:
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
   explicit FastVerticalInterpHistPdf2(const FastVerticalInterpHistPdf& other, const char* name=0) ;
   TObject* clone(const char* newname) const override { return new FastVerticalInterpHistPdf2(*this,newname) ; }
-  ~FastVerticalInterpHistPdf2() override {}
 
   const RooRealVar & x() const { return dynamic_cast<const RooRealVar &>(_x.arg()); }
 
@@ -310,6 +328,10 @@ public:
   Double_t evaluate() const override ;
 
   FastHisto const& cache() const { return _cache; }
+
+  COMBINE_DECLARE_TRANSLATE;
+
+  FastHisto const &cacheNominal() const { return _cacheNominal; }
 
   friend class FastVerticalInterpHistPdf2V;
 protected:
@@ -358,7 +380,6 @@ public:
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
   explicit FastVerticalInterpHistPdf2D2(const FastVerticalInterpHistPdf2D& other, const char* name=0) ;
   TObject* clone(const char* newname) const override { return new FastVerticalInterpHistPdf2D2(*this,newname) ; }
-  ~FastVerticalInterpHistPdf2D2() override {}
 
   const RooRealVar & x() const { return dynamic_cast<const RooRealVar &>(_x.arg()); }
   const RooRealVar & y() const { return dynamic_cast<const RooRealVar &>(_y.arg()); }
@@ -368,6 +389,10 @@ public:
   Double_t maxVal(Int_t code) const override ;
 
   Double_t evaluate() const override ;
+
+  COMBINE_DECLARE_TRANSLATE;
+
+  FastHisto2D const &cacheNominal() const { return _cacheNominal; }
 
 protected:
   RooRealProxy _x, _y;
@@ -400,14 +425,12 @@ public:
     _x("x","Independent variable",this,const_cast<RooRealVar&>(x)),
     _y("y","Independent variable",this,const_cast<RooRealVar&>(y)),
     _z("z","Independent variable",this,const_cast<RooRealVar&>(z)),
-    _conditional(conditional),
-    _cache(), _cacheNominal(), _cacheNominalLog()  {}
+    _conditional(conditional) {}
   FastVerticalInterpHistPdf3D(const FastVerticalInterpHistPdf3D& other, const char* name=0) :
     FastVerticalInterpHistPdfBase(other, name),
     _x("x",this,other._x), _y("y",this,other._y), _z("z",this,other._z), _conditional(other._conditional),
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
   TObject* clone(const char* newname) const override { return new FastVerticalInterpHistPdf3D(*this,newname) ; }
-  ~FastVerticalInterpHistPdf3D() override {}
 
   const RooRealVar & x() const { return dynamic_cast<const RooRealVar &>(_x.arg()); }
   const RooRealVar & y() const { return dynamic_cast<const RooRealVar &>(_y.arg()); }
@@ -441,5 +464,7 @@ private:
 };
 
 
+COMBINE_DECLARE_CODEGEN_IMPL(FastVerticalInterpHistPdf2);
+COMBINE_DECLARE_CODEGEN_IMPL(FastVerticalInterpHistPdf2D2);
 
 #endif
