@@ -47,10 +47,11 @@ class CascadeMinimizer {
         Mode         mode_;
         static int          strategy_;
         RooRealVar * poi_; 
-        const RooArgSet *nuisances_;
+        const RooArgSet *nuisances_ = nullptr;
         /// automatically enlarge bounds for POIs if they're within 10% from the boundary
-        bool autoBounds_;
-        const RooArgSet *poisForAutoBounds_, *poisForAutoMax_;
+        bool autoBounds_ = false;
+        const RooArgSet *poisForAutoBounds_ = nullptr;
+        const RooArgSet *poisForAutoMax_ = nullptr;
 
         bool improveOnce(int verbose, bool noHesse=false);
         bool autoBoundsOk(int verbose) ;

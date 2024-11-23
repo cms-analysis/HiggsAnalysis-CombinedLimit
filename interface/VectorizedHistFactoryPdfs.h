@@ -17,7 +17,7 @@ namespace cacheutils {
             void  setIncludeZeroWeights(bool includeZeroWeights) override { includeZeroWeights_ = includeZeroWeights; }
         private:
             const RooHistFunc * pdf_;
-            const RooAbsData * data_;
+            const RooAbsData * data_ = nullptr;
             bool includeZeroWeights_;
             std::vector<Double_t> yvals_;
             void fill() ;

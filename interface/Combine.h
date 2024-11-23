@@ -35,8 +35,9 @@ extern  std::string defineBackgroundOnlyModelParameterExpression_;
 
 namespace { 
     struct ToCleanUp {
-        TFile *tfile; std::string file, path;
-        ToCleanUp() : tfile(0), file(""), path("") {}
+        TFile *tfile = nullptr;
+        std::string file;
+        std::string path;
         ~ToCleanUp() {
               if (tfile) { tfile->Close(); delete tfile; }
               if (!file.empty()) {  

@@ -17,7 +17,7 @@ CloseCoutSentry *CloseCoutSentry::owner_ = 0;
 
 
 CloseCoutSentry::CloseCoutSentry(bool silent) :
-    silent_(silent), stdOutIsMine_(false)
+    silent_(silent)
 {
     if (silent_) {
         if (open_) {

@@ -16,7 +16,7 @@ public:
   FastTemplateFunc_t() : RooAbsReal(), obsList("obsList", "obsList", this){}
   FastTemplateFunc_t(const char *name, const char *title, RooArgList& inObsList) : RooAbsReal(name, title), obsList("obsList", "obsList", this){ setProxyList(obsList, inObsList); }
   FastTemplateFunc_t(const FastTemplateFunc_t& other, const char* name=0) : RooAbsReal(other, name), obsList("obsList", this, other.obsList){}
-  inline ~FastTemplateFunc_t() override{}
+  inline ~FastTemplateFunc_t() override {}
 
   void setProxyList(RooListProxy& proxyList, RooArgList& varList){
     for (RooAbsArg *var : varList) {
@@ -53,18 +53,18 @@ public:
     }
   }
   FastHistoFunc_t(const FastHistoFunc_t& other, const char* name=0) : FastTemplateFunc_t<T>(other, name), tpl(other.tpl), fullIntegral(other.fullIntegral){}
-  ~FastHistoFunc_t(){}
-  TObject* clone(const char* newname) const { return new FastHistoFunc_t(*this, newname); }
+  ~FastHistoFunc_t() override {}
+  TObject* clone(const char* newname) const override { return new FastHistoFunc_t(*this, newname); }
 
   FastHisto_t<T,U> getHistogram() const{ return tpl; }
   const Int_t getFullIntegralCode() const{ return 2; }
 
-  Double_t evaluate() const{
+  Double_t evaluate() const override {
     T x = (T)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
     Double_t value=tpl.GetAt(x);
     return value;
   }
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const{
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override {
     Int_t code=1;
     const Int_t code_prime[1]={ 2 };
     for (int ic=0; ic<(this->obsList).getSize(); ic++){
@@ -77,7 +77,7 @@ public:
     if (code==1) code=0;
     return code;
   }
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const{
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override {
     if (code==0) return evaluate();
     U xmin = (U)(dynamic_cast<RooRealVar*>((this->obsList).at(0))->getMin(rangeName));
     U xmax = (U)(dynamic_cast<RooRealVar*>((this->obsList).at(0))->getMax(rangeName));
@@ -114,19 +114,19 @@ public:
     }
   }
   FastHisto2DFunc_t(const FastHisto2DFunc_t& other, const char* name=0) : FastTemplateFunc_t<T>(other, name), tpl(other.tpl), fullIntegral(other.fullIntegral){}
-  ~FastHisto2DFunc_t(){}
-  TObject* clone(const char* newname) const { return new FastHisto2DFunc_t(*this, newname); }
+  ~FastHisto2DFunc_t() override {}
+  TObject* clone(const char* newname) const override { return new FastHisto2DFunc_t(*this, newname); }
 
   FastHisto2D_t<T,U> getHistogram() const{ return tpl; }
   const Int_t getFullIntegralCode() const{ return /*2*3*/6; }
 
-  Double_t evaluate() const{
+  Double_t evaluate() const override {
     U x = (U)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
     U y = (U)(dynamic_cast<RooAbsReal*>((this->obsList).at(1))->getVal());
     Double_t value=tpl.GetAt(x, y);
     return value;
   }
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const{
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override {
     Int_t code=1;
     const Int_t code_prime[2]={ 2, 3 };
     for (int ic=0; ic<(this->obsList).getSize(); ic++){
@@ -139,7 +139,7 @@ public:
     if (code==1) code=0;
     return code;
   }
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const{
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override {
     if (code==0) return evaluate();
     U xmin, xmax, ymin, ymax;
     if (code%2==0){
@@ -206,20 +206,20 @@ public:
     }
   }
   FastHisto3DFunc_t(const FastHisto3DFunc_t& other, const char* name=0) : FastTemplateFunc_t<T>(other, name), tpl(other.tpl), fullIntegral(other.fullIntegral){}
-  ~FastHisto3DFunc_t(){}
-  TObject* clone(const char* newname) const { return new FastHisto3DFunc_t(*this, newname); }
+  ~FastHisto3DFunc_t() override {}
+  TObject* clone(const char* newname) const override { return new FastHisto3DFunc_t(*this, newname); }
 
   FastHisto3D_t<T,U> getHistogram() const{ return tpl; }
   const Int_t getFullIntegralCode() const{ return /*2*3*5*/30; }
 
-  Double_t evaluate() const{
+  Double_t evaluate() const override {
     U x = (U)(dynamic_cast<RooAbsReal*>((this->obsList).at(0))->getVal());
     U y = (U)(dynamic_cast<RooAbsReal*>((this->obsList).at(1))->getVal());
     U z = (U)(dynamic_cast<RooAbsReal*>((this->obsList).at(2))->getVal());
     Double_t value=tpl.GetAt(x, y, z);
     return value;
   }
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const{
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override {
     Int_t code=1;
     const Int_t code_prime[3]={ 2, 3, 5 };
     for (int ic=0; ic<(this->obsList).getSize(); ic++){
@@ -232,7 +232,7 @@ public:
     if (code==1) code=0;
     return code;
   }
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const{
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override {
     if (code==0) return evaluate();
     U xmin, xmax, ymin, ymax, zmin, zmax;
     if (code%2==0){

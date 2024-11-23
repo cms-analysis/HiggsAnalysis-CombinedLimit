@@ -3,7 +3,7 @@
 #include <RooRealVar.h>
 
 cacheutils::VectorizedHistFunc::VectorizedHistFunc(const RooHistFunc &pdf, bool includeZeroWeights) :
-    pdf_(&pdf), data_(0), includeZeroWeights_(includeZeroWeights)
+    pdf_(&pdf), includeZeroWeights_(includeZeroWeights)
 {
 }
 

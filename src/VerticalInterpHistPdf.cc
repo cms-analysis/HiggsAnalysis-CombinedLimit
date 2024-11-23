@@ -650,7 +650,7 @@ void FastVerticalInterpHistPdf3D::setupCaches() const {
 
 
 FastVerticalInterpHistPdfV::FastVerticalInterpHistPdfV(const FastVerticalInterpHistPdf &hpdf, const RooAbsData &data, bool includeZeroWeights) :
-    hpdf_(hpdf),begin_(0),end_(0)
+    hpdf_(hpdf)
 {
     // check init
     if (hpdf._cache.size() == 0) hpdf.setupCaches();
@@ -1141,7 +1141,7 @@ Double_t FastVerticalInterpHistPdf2D2::maxVal(int code) const {
 }
 
 FastVerticalInterpHistPdf2V::FastVerticalInterpHistPdf2V(const FastVerticalInterpHistPdf2 &hpdf, const RooAbsData &data, bool includeZeroWeights) :
-    hpdf_(hpdf),begin_(0),end_(0)
+    hpdf_(hpdf)
 {
     // check init
     if (!hpdf._initBase) hpdf.initBase();

@@ -7,7 +7,6 @@ bool setupIgProfDumpHook() ;
 //#include <boost/unordered_map.hpp>
 class PerfCounter {
     public:
-        PerfCounter() : value_(0) {}
         static PerfCounter & get(const char *name) ;
 
         void   add(double increment=1.0) { value_ += increment; }
@@ -17,7 +16,7 @@ class PerfCounter {
         static void enable() ;
         static void printAll() ;
     private:
-        double value_;
+        double value_ = 0.0;
 };
 
 namespace runtimedef {

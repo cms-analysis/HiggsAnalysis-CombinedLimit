@@ -65,15 +65,7 @@ bool        FitDiagnostics::saveWithUncertsRequested_=false;
 bool        FitDiagnostics::ignoreCovWarning_=false;
 
 
-FitDiagnostics::FitDiagnostics() :
-    FitterAlgoBase("FitDiagnostics specific options"),
-    globalObservables_(0),
-    nuisanceParameters_(0),
-    processNormalizations_(0),
-    processNormalizationsShapes_(0),
-    t_fit_b_(nullptr),
-    t_fit_sb_(nullptr),
-    t_prefit_(nullptr)
+FitDiagnostics::FitDiagnostics() : FitterAlgoBase("FitDiagnostics specific options")
 {
     options_.add_options()
         ("minos",              	boost::program_options::value<std::string>(&minos_)->default_value(minos_), "Compute MINOS errors for: 'none', 'poi', 'all'")
@@ -1405,8 +1397,7 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
 }
 
 FitDiagnostics::ToySampler::ToySampler(RooAbsPdf *pdf, const RooArgSet *nuisances) :
-    pdf_(pdf),
-    data_(0)
+    pdf_(pdf)
 {
     nuisances->snapshot(snapshot_);
 }

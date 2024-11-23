@@ -716,7 +716,7 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
                line=line.substr(string("RooRealVar::").size()) ;//Remove RooRealVar::
                string tosearch=" = ",replace="=";
                line.replace(line.find(tosearch), tosearch.size(), replace);
-               line=line.substr(0,line.find("+"));
+               line=line.substr(0,line.find('+'));
                line=line.substr(0,line.find(" C "));
 
             }
@@ -816,10 +816,10 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
                //RooRealVar::cms_ps = -0.013155 +/- 0.995142  L(-INF - +INF) 
                line=line.substr(string("RooRealVar::").size()) ;//Remove RooRealVar::
                string newline=line.substr(0,line.find(" = "));
-               size_t pos1=line.find("=")+1, pos2=line.find(" +/- ");
+               size_t pos1=line.find('=')+1, pos2=line.find(" +/- ");
                float value=std::atof(line.substr(pos1, pos2-pos1).c_str());
                std::cout<<"->Obtaining value from:"<<pos1<<","<<pos2<<":"<<line.substr(pos1, pos2-pos1).c_str()<<std::endl;
-               size_t pos3=line.find(" ",pos2+5);
+               size_t pos3=line.find(' ',pos2+5);
                float err = std::atof(line.substr(pos2+5,pos3-(pos2+5)).c_str());
                float mult=7; // arbitrary number
                std::cout<<"Range manipulation result: "<<newline<<"="<< value<<"+/-"<<err<<"Mult factor"<<mult<<std::endl;
@@ -908,7 +908,7 @@ void utils::check_inf_parameters(const RooArgSet & params, int verbosity) {
 }
 
 void utils::createSnapshotFromString( const std::string expression, const RooArgSet &allvars, RooArgSet &output, const char *context) {
-    if (expression.find("=") == std::string::npos) {
+    if (expression.find('=') == std::string::npos) {
         if (allvars.getSize() != 1) throw std::invalid_argument(std::string("Error: the argument to ")+context+" is a single value, but there are multiple variables to choose from");
         allvars.snapshot(output);
         errno = 0; // check for errors in str->float conversion
@@ -917,8 +917,8 @@ void utils::createSnapshotFromString( const std::string expression, const RooArg
     } else {
         std::string::size_type eqidx = 0, colidx = 0, colidx2;
         do {
-            eqidx   = expression.find("=", colidx);
-            colidx2 = expression.find(",", colidx+1);
+            eqidx   = expression.find('=', colidx);
+            colidx2 = expression.find(',', colidx+1);
             if (eqidx == std::string::npos || (colidx2 != std::string::npos && colidx2 < eqidx)) {
                 throw std::invalid_argument(std::string("Error: the argument to ")+context+" is not in the form 'value' or 'name1=value1,name2=value2,...'\n");
             }

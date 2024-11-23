@@ -1,6 +1,22 @@
 ---
 Checks: -*,
+  ,boost-use-to-string,
+  ,bugprone-string-constructor,
+  ,misc-definitions-in-headers,
+  ,misc-string-compare,
+  ,misc-uniqueptr-reset-release,
+  ,modernize-use-default-member-init
   ,modernize-use-override,
+  ,performance-faster-string-find,
+  ,performance-inefficient-algorithm,
+  ,performance-inefficient-vector-operation,
+  ,performance-move-const-arg,
+  ,performance-trivially-destructible,
 WarningsAsErrors: '*'
 HeaderFilterRegex: ''
+CheckOptions:
+  - key:             misc-definitions-in-headers.HeaderFileExtensions
+    value:           'h,hh,hpp,hxx,icc'
+  - key:             modernize-use-default-member-init.UseAssignment
+    value:           true
 ...

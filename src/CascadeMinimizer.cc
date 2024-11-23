@@ -47,11 +47,7 @@ CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) 
     nll_(nll),
     mode_(mode),
     //strategy_(0),
-    poi_(poi),
-    nuisances_(0),
-    autoBounds_(false),
-    poisForAutoBounds_(0),
-    poisForAutoMax_(0)
+    poi_(poi)
 {
     remakeMinimizer();
 }
@@ -795,13 +791,13 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
 	    std::string type; 
             float tolerance = Algo::default_tolerance(); 
             int   strategy = Algo::default_strategy(); 
-            string::size_type idx = std::min(algo.find(";"), algo.find(":"));
+            string::size_type idx = std::min(algo.find(';'), algo.find(':'));
             if (idx != string::npos && idx < algo.length()) {
                  tolerance = atof(algo.substr(idx+1).c_str());
                  algo      = algo.substr(0,idx); // DON'T SWAP THESE TWO LINES
 		 type	   = std::string(defaultMinimizerType_);
             }
-            idx = algo.find(",");
+            idx = algo.find(',');
             if (idx != string::npos && idx < algo.length()) {
                 // if after the comma there's a number, then it's a strategy
                 if ( '0' <= algo[idx+1] && algo[idx+1] <= '9' ) {

@@ -22,7 +22,7 @@ class CloseCoutSentry {
         void static reallyClear() ;
         static FILE *trueStdOut_; 
         static CloseCoutSentry *owner_;
-        bool stdOutIsMine_;
+        bool stdOutIsMine_ = false;
 };
 
 #endif
