@@ -333,7 +333,7 @@ protected:
 
   class CacheElem : public RooAbsCacheElement {
   public:
-    CacheElem(RooAbsPdf& sumPdf, RooChangeTracker& tracker, const RooArgList& flist) : _sumPdf(&sumPdf), _tracker(&tracker), _fractionsCalculated(false) { 
+    CacheElem(RooAbsPdf& sumPdf, RooChangeTracker& tracker, const RooArgList& flist) : _sumPdf(&sumPdf), _tracker(&tracker) {
       _frac.add(flist) ; 
     } ;
     void operModeHook(RooAbsArg::OperMode) override {};
@@ -346,7 +346,7 @@ protected:
     RooRealVar* frac(Int_t i ) ;
     const RooRealVar* frac(Int_t i ) const ; 
     void calculateFractions(const RooStarMomentMorph& self, Bool_t verbose=kTRUE) const;
-    mutable bool _fractionsCalculated;
+    mutable bool _fractionsCalculated = false;
   } ;
   mutable RooObjCacheManager _cacheMgr ; // The cache manager
   mutable RooArgSet* _curNormSet ; //! Current normalization set

@@ -60,13 +60,15 @@ protected:
   int fitStatus_, numbadnll_;
   double mu_, muErr_, muLoErr_, muHiErr_, nll_nll0_, nll_bonly_, nll_sb_;
   std::unique_ptr<TFile> fitOut;
-  double* globalObservables_;
-  double* nuisanceParameters_;
-  double* processNormalizations_;
-  double* processNormalizationsShapes_;
+  double* globalObservables_ = nullptr;
+  double* nuisanceParameters_ = nullptr;
+  double* processNormalizations_ = nullptr;
+  double* processNormalizationsShapes_ = nullptr;
 
-  TTree *t_fit_b_, *t_fit_sb_, *t_prefit_;
-   
+  TTree *t_fit_b_ = nullptr;
+  TTree *t_fit_sb_ = nullptr;
+  TTree *t_prefit_ = nullptr;
+
   void getNormalizationsSimple(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out);
   void createFitResultTrees(const RooStats::ModelConfig &,bool,bool);
   void resetFitResultTrees(bool);
@@ -112,7 +114,7 @@ protected:
         const RooAbsCollection & centralValues() override;
     private:
         RooAbsPdf  *pdf_;
-        RooAbsData *data_;
+        RooAbsData *data_ = nullptr;
         RooArgSet  snapshot_; 
   };
 };

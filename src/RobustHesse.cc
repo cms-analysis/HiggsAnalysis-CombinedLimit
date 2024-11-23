@@ -424,9 +424,9 @@ int RobustHesse::hesse() {
     for (int ei = 0; ei < eigenvals.GetNrows(); ++ei) {
       if (eigenvals[ei] < 0.) have_negative_eigenvalues = true;
 
-      std::vector<std::pair<unsigned, double>> eigenvec;
+      std::vector<std::pair<unsigned, double>> eigenvec(eigenvecs.GetNrows());
       for (int ej = 0; ej < eigenvecs.GetNrows(); ++ej) {
-        eigenvec.push_back(std::make_pair(unsigned(ej), eigenvecs[ej][ei]));
+        eigenvec[ej] = std::make_pair(unsigned(ej), eigenvecs[ej][ei]);
       }
       if ((!print_only_negative) || (print_only_negative && eigenvals[ei] < 0.)) {
         std::cout << "Eigenvalue " << ei << " : " << eigenvals[ei] << "\n";

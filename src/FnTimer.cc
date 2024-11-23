@@ -24,7 +24,7 @@ std::string GetQualififedName(std::string const& str) {
 
 
 // Implementation of FnTimer ("Function Timer") class
-FnTimer::FnTimer(std::string name) : name_(name), calls_(0), elapsed_(0.), elapsed_overhead_(0.) {}
+FnTimer::FnTimer(std::string name) : name_(name) {}
 FnTimer::~FnTimer() {
   printf(
       "[Timer] %-40s Calls: %-20u Total [s]: %-20.5g Per-call [s]: %-20.5g\n",

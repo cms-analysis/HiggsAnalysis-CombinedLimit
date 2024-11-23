@@ -180,7 +180,7 @@ public:
         U GetEdge(unsigned int i) const { return GetXmin(i); }
         U GetWidth(unsigned int i) const { return GetBinWidth(i); }
 
-        void Dump() const ;
+        void Dump() const override ;
 
         FastHisto_t() : FastTemplate_t<T>(), axis_(), normX_(false) {}
         FastHisto_t(const TH1 &hist, bool normX=false);
@@ -195,7 +195,7 @@ public:
           else this->CopyValues(other);
           return *this;
         }
-        FastHisto_t<T,U>& operator=(const TH1 &other) {
+        FastHisto_t<T,U>& operator=(const TH1 &other) override {
           if ((int)this->size() != other.GetNbinsX()) {
             FastHisto_t<T,U> fh(other);
             swap(fh);
@@ -203,7 +203,7 @@ public:
           else this->CopyValues(other);
           return *this;
         }
-        ~FastHisto_t(){}
+        ~FastHisto_t() override {}
 };
 template <typename T, typename U=Double_t> class FastHisto2D_t : public FastTemplate_t<T> {
 private:
@@ -260,7 +260,7 @@ public:
         // For each X, normalize along Y
         void NormalizeXSlices() ;
 
-        void Dump() const ;
+        void Dump() const override ;
 
         T GetMaxOnXY() const ;
         T GetMaxOnX(const U &y) const ;
@@ -281,7 +281,7 @@ public:
           else this->CopyValues(other);
           return *this;
         }
-        FastHisto2D_t& operator=(const TH1 &other) {
+        FastHisto2D_t& operator=(const TH1 &other) override {
           if(other.GetDimension() != 2) {
              throw std::invalid_argument("FastHisto2D_t assignment error: right hand histogram must be 2-dimensional");
           }
@@ -292,7 +292,7 @@ public:
           else this->CopyValues(other);
           return *this;
         }
-        ~FastHisto2D_t(){}
+        ~FastHisto2D_t() override {}
 };
 
 template <typename T, typename U=Double_t> class FastHisto3D_t : public FastTemplate_t<T> {
@@ -361,7 +361,7 @@ public:
         // For each X, normalize along Y
         void NormalizeXSlices() ;
 
-        void Dump() const ;
+        void Dump() const override ;
 
         FastHisto3D_t() : FastTemplate_t<T>(), axisX_(), axisY_(), axisZ_(), normX_(false), normY_(false), normZ_(false) {}
         FastHisto3D_t(const TH3 &hist, bool normX=false, bool normY=false, bool normZ=false);
@@ -380,7 +380,7 @@ public:
           else this->CopyValues(other);
           return *this;
         }
-        FastHisto3D_t<T,U>& operator=(const TH1 &other) {
+        FastHisto3D_t<T,U>& operator=(const TH1 &other) override {
           if(other.GetDimension() != 3) {
              throw std::invalid_argument("FastHisto3D_t assignment error: right hand histogram must be 3-dimensional");
           }
@@ -391,7 +391,7 @@ public:
           else this->CopyValues(other);
           return *this;
         }
-        ~FastHisto3D_t(){}
+        ~FastHisto3D_t() override {}
 };
 
 #include "FastTemplate.hpp"

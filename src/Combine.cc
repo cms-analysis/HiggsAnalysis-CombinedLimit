@@ -219,7 +219,7 @@ std::string Combine::parseRegex(std::string instr, const RooArgSet *nuisances, R
   // expand regexps inside the "rgx{}" option
   while (instr.find("rgx{") != std::string::npos) {          
     size_t pos1 = instr.find("rgx{");
-    size_t pos2 = instr.find("}",pos1);
+    size_t pos2 = instr.find('}',pos1);
     std::string prestr = instr.substr(0,pos1);
     std::string poststr = instr.substr(pos2+1,instr.size()-pos2);
     std::string reg_esp = instr.substr(pos1+4,pos2-pos1-4);
@@ -242,7 +242,7 @@ std::string Combine::parseRegex(std::string instr, const RooArgSet *nuisances, R
   // expand regexps inside the "var{}" option        
   while (instr.find("var{") != std::string::npos) {          
     size_t pos1 = instr.find("var{");
-    size_t pos2 = instr.find("}",pos1);
+    size_t pos2 = instr.find('}',pos1);
     std::string prestr = instr.substr(0,pos1);
     std::string poststr = instr.substr(pos2+1,instr.size()-pos2);
     std::string reg_esp = instr.substr(pos1+4,pos2-pos1-4);
@@ -556,18 +556,18 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
   }
 
-  if (dataset.find(":") != std::string::npos) {
+  if (dataset.find(':') != std::string::npos) {
     std::string filename, wspname, dname;
     switch (std::count(dataset.begin(), dataset.end(), ':')) {
         case 2: // file:wsp:dataset
-            filename = dataset.substr(                   0, dataset.find(":"));
-            wspname  = dataset.substr( dataset.find(":")+1, dataset.rfind(":")-dataset.find(":")-1);
-            dname    = dataset.substr(dataset.rfind(":")+1, std::string::npos);
+            filename = dataset.substr(                   0, dataset.find(':'));
+            wspname  = dataset.substr( dataset.find(':')+1, dataset.rfind(':')-dataset.find(':')-1);
+            dname    = dataset.substr(dataset.rfind(':')+1, std::string::npos);
             if (verbose) std::cout << "Will read dataset '" << dname << "' from workspace '" << wspname << "' of file '" << filename << "'" << std::endl;
             break;
         case 1:
-            filename = dataset.substr(                  0, dataset.find(":"));
-            dname    = dataset.substr(dataset.find(":")+1, std::string::npos);
+            filename = dataset.substr(                  0, dataset.find(':'));
+            dname    = dataset.substr(dataset.find(':')+1, std::string::npos);
             if (verbose) std::cout << "Will read dataset '" << dname << "' from file '" << filename << "'" << std::endl;
             break;
         default:

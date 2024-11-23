@@ -167,7 +167,9 @@ class FastVerticalInterpHistPdfV {
         void fill(std::vector<Double_t> &out) const ;
     private:
         const FastVerticalInterpHistPdf & hpdf_;
-        int begin_, end_, nbins_;
+        int begin_ = 0;
+        int end_ = 0;
+        int nbins_;
         struct Block { 
             int index, begin, end; 
             Block(int i, int begin_, int end_) : index(i), begin(begin_), end(end_) {}
@@ -335,7 +337,9 @@ class FastVerticalInterpHistPdf2V {
         void fill(std::vector<Double_t> &out) const ;
     private:
         const FastVerticalInterpHistPdf2 & hpdf_;
-        int begin_, end_, nbins_;
+        int begin_ = 0;
+        int end_ = 0;
+        int nbins_;
         struct Block { 
             int index, begin, end; 
             Block(int i, int begin_, int end_) : index(i), begin(begin_), end(end_) {}

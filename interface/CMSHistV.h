@@ -20,7 +20,9 @@ class CMSHistV {
 
  private:
   const T& hpdf_;
-  int begin_, end_, nbins_;
+  int begin_ = 0;
+  int end_ = 0;
+  int nbins_;
   struct Block {
     int index, begin, end;
     Block(int i, int begin_, int end_) : index(i), begin(begin_), end(end_) {}
@@ -32,7 +34,7 @@ class CMSHistV {
 template <class T>
 CMSHistV<T>::CMSHistV(const T& hpdf, const RooAbsData& data,
                       bool includeZeroWeights)
-    : hpdf_(hpdf), begin_(0), end_(0) {
+    : hpdf_(hpdf) {
   hpdf.updateCache();
   std::vector<int> bins;
   RooArgSet obs(hpdf.x_.arg());

@@ -257,9 +257,7 @@ cacheutils::CachingPdf::CachingPdf(RooAbsReal *pdf, const RooArgSet *obs)
                : (runtimedef::get("CACHINGPDF_NOCHEAPCLONE")
                       ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_)
                       : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_))),
-      lastData_(0),
-      cache_(*pdf_, *obs_),
-      includeZeroWeights_(false) {
+      cache_(*pdf_, *obs_) {
   if (runtimedef::get("CACHINGPDF_DIRECT") || pdf->getAttribute("CachingPdf_Direct")) {
     cache_.setDirectMode(true);
   }
@@ -275,7 +273,6 @@ cacheutils::CachingPdf::CachingPdf(const CachingPdf &other)
                : (runtimedef::get("CACHINGPDF_NOCHEAPCLONE")
                       ? utils::fullCloneFunc(pdfOriginal_, pdfPieces_)
                       : utils::fullCloneFunc(pdfOriginal_, *obs_, pdfPieces_))),
-      lastData_(0),
       cache_(*pdf_, *obs_),
       includeZeroWeights_(other.includeZeroWeights_) {
   if (runtimedef::get("CACHINGPDF_DIRECT") ||
@@ -388,9 +385,7 @@ cacheutils::CachingAddNLL::CachingAddNLL(const char *name, const char *title, Ro
     pdf_(pdf),
     params_("params","parameters",this),
     catParams_("catParams","RooCategory parameters",this),
-    includeZeroWeights_(includeZeroWeights),
-    zeroPoint_(0),
-    constantZeroPoint_(0)
+    includeZeroWeights_(includeZeroWeights)
 {
     if (pdf == 0) throw std::invalid_argument(std::string("Pdf passed to ")+name+" is null");
     setData(*data);
@@ -404,9 +399,7 @@ cacheutils::CachingAddNLL::CachingAddNLL(const CachingAddNLL &other, const char 
     pdf_(other.pdf_),
     params_("params","parameters",this),
     catParams_("catParams","RooCategory parameters",this),
-    includeZeroWeights_(other.includeZeroWeights_),
-    zeroPoint_(0),
-    constantZeroPoint_(0)
+    includeZeroWeights_(other.includeZeroWeights_)
 {
     setData(*other.data_);
     setup_();
@@ -870,8 +863,7 @@ cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data,
     dataOriginal_(data),
     nuis_(nuis),
     params_("params","parameters",this),
-    catParams_("catParams","Category parameters",this),
-    hideRooCategories_(false), hideConstants_(false), maskConstraints_(false), maskingOffset_(0), maskingOffsetZero_(0)
+    catParams_("catParams","Category parameters",this)
 {
     setup_();
 }

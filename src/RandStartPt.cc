@@ -47,9 +47,9 @@ std::vector<std::vector<float>> RandStartPt::vectorOfPointsToTry (){
     int n_prof_params = specifiedvars_.size();
 
     if(!skipdefaultstart_) {
-        std::vector<float> default_start_pt_vec;
+        std::vector<float> default_start_pt_vec(n_prof_params);
         for (int prof_param_idx = 0; prof_param_idx<n_prof_params; prof_param_idx++){
-            default_start_pt_vec.push_back(specifiedvars_[prof_param_idx]->getVal());
+            default_start_pt_vec[prof_param_idx] = specifiedvars_[prof_param_idx]->getVal();
         }
         wc_vals_vec_of_vec.push_back(default_start_pt_vec);
     }
