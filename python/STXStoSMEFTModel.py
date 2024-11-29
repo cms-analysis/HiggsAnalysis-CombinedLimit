@@ -15,6 +15,8 @@ import json
 import yaml
 from collections import OrderedDict as od
 
+from HiggsAnalysis.CombinedLimit.STXS import stxs1p2_fine_smeft_mapping
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Ordered dicts crucial: e.g. choose WH_had before WH
 
@@ -219,6 +221,12 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
     def makeScalingFunction(self, what, is_decay=False, mode=""):
         mode_str = "_%s" % mode if mode != "" else ""
 
+        # Fix for datacards defined for finer-bin splitting
+        what_orig = what
+        if what in stxs1p2_fine_smeft_mapping:
+            print(f" --> [WARNING] Scaling terms for {what} do not exist. Using {stxs1p2_fine_smeft_mapping[what]} (coarse bin) instead")
+            what = stxs1p2_fine_smeft_mapping[what]
+
         # Apply mapping of production mode/decay to match inputs in json file
         k = what
         if is_decay:
@@ -312,11 +320,11 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
         # Make RooEFTScalingFunction
         if is_decay:
             if what != "tot":
-                name = "scaling%s_partial_%s" % (mode_str, what)
+                name = "scaling%s_partial_%s" % (mode_str, what_orig)
             else:
-                name = "scaling%s_%s" % (mode_str, what)
+                name = "scaling%s_%s" % (mode_str, what_orig)
         else:
-            name = "scaling%s_XS_%s" % (mode_str, what)
+            name = "scaling%s_XS_%s" % (mode_str, what_orig)
         eft_scaling = ROOT.RooEFTScalingFunction(name, name, coeffs, arglist_pois)
 
         # Add scaling function as RooAddition into model
@@ -329,6 +337,14 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
 
     # Function to make Taylor-expanded scaling functions in workspace
     def makeScalingFunction_expand(self, what_production, what_decay):
+
+        what_production_orig = what_production
+
+        # Fix for datacards defined for finer-bin splitting
+        if what_production in stxs1p2_fine_smeft_mapping:
+            print(f" --> [WARNING] Scaling terms for {what_production} do not exist. Using {stxs1p2_fine_smeft_mapping[what_production]} (coarse bin) instead")
+            what_production = stxs1p2_fine_smeft_mapping[what_production]
+
         # Apply mapping of production mode/decay to match inputs in json file
         k_production = what_production
         for P in self.map_prod.keys():
@@ -486,7 +502,7 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
             for jpoi in list_lpois:
                 arglist_lpois.add(self.modelBuilder.out.var(jpoi))
             # Make RooEFTScalingFunction
-            name = "scaling_linear_expand_XS_%s_BR_%s" % (what_production, what_decay)
+            name = "scaling_linear_expand_XS_%s_BR_%s" % (what_production_orig, what_decay)
             eft_scaling_linear = ROOT.RooEFTScalingFunction(name, name, lcoeffs, arglist_lpois)
             # Add scaling function into model
             self.modelBuilder.out.Import(eft_scaling_linear)
@@ -497,7 +513,7 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
             for jpoi in list_pois:
                 arglist_pois.add(self.modelBuilder.out.var(jpoi))
             # Make RooEFTScalingFunction
-            name = "scaling_linquad_expand_XS_%s_BR_%s" % (what_production, what_decay)
+            name = "scaling_linquad_expand_XS_%s_BR_%s" % (what_production_orig, what_decay)
             eft_scaling_linquad = ROOT.RooEFTScalingFunction(name, name, coeffs, arglist_pois)
             # Add scaling function into model
             self.modelBuilder.out.Import(eft_scaling_linquad)
