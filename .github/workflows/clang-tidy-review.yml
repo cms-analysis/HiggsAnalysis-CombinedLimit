@@ -7,6 +7,7 @@ on:
       - '**.h'
       - '**.cc'
       - '**.cpp'
+      - '**.cxx'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -37,12 +38,14 @@ jobs:
         with:
           build_dir: build
           apt_packages: cmake,libxml2,libxml2-dev,libtinfo-dev,zlib1g-dev,libzstd-dev
-          exclude: "test/*,unittests/*,benchmark/*,demos/*"
+          exclude: "test/*"
           split_workflow: true
           config_file: .clang-tidy
           cmake_command: >
             CC=$GITHUB_WORKSPACE/llvm/bin/clang CXX=$GITHUB_WORKSPACE/llvm/bin/clang++
-            cmake -DCMAKE_INSTALL_PREFIX=../install -DINSTALL_PYTHON=FALSE -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+            cmake -DCMAKE_INSTALL_PREFIX=../install -DINSTALL_PYTHON=FALSE -DLLVM_DIR="$GITHUB_WORKSPACE/llvm"  
+            -DClang_DIR="$GITHUB_WORKSPACE/llvm" -DCMAKE_BUILD_TYPE="Release" -DLLVM_EXTERNAL_LIT="`which lit`" 
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 
       - name: Upload artifacts
         uses: ZedThree/clang-tidy-review/upload@v0.18.0
