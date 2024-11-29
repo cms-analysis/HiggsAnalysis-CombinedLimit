@@ -1,0 +1,48 @@
+#https://github.com/vgvassilev/clad/blob/master/.github/workflows/clang-tidy-review.yml 
+name: clang-tidy-review
+
+on:
+  pull_request:
+    paths:
+      - '**.h'
+      - '**.cc'
+      - '**.cpp'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v2.0.3
+        with:
+          version: "17.0.6"
+
+      - name: install lit
+        run: pip install lit
+
+      - name: run git config command
+        run: |
+          git config --global --add safe.directory /github/workspace
+
+      - name: Run clang-tidy
+        uses: ZedThree/clang-tidy-review@v0.18.0
+        id: review
+        with:
+          build_dir: build
+          apt_packages: cmake,libxml2,libxml2-dev,libtinfo-dev,zlib1g-dev,libzstd-dev
+          exclude: "test/*,unittests/*,benchmark/*,demos/*"
+          split_workflow: true
+          config_file: .clang-tidy
+          cmake_command: >
+            CC=$GITHUB_WORKSPACE/llvm/bin/clang CXX=$GITHUB_WORKSPACE/llvm/bin/clang++
+            cmake -DCMAKE_INSTALL_PREFIX=../install -DINSTALL_PYTHON=FALSE -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+
+      - name: Upload artifacts
+        uses: ZedThree/clang-tidy-review/upload@v0.18.0
