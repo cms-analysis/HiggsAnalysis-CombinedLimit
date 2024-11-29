@@ -60,6 +60,7 @@ std::string FitterAlgoBase::autoBoundsPOIs_ = "";
 std::string FitterAlgoBase::autoMaxPOIs_ = "";
 double       FitterAlgoBase::nllValue_ = std::numeric_limits<double>::quiet_NaN();
 double       FitterAlgoBase::nll0Value_ = std::numeric_limits<double>::quiet_NaN();
+extern std::string nllBackend_ = "combine";
 FitterAlgoBase::ProfilingMode FitterAlgoBase::profileMode_ = ProfileAll;
 
 FitterAlgoBase::FitterAlgoBase(const char *title) :
@@ -85,6 +86,8 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         ("autoBoundsPOIs", boost::program_options::value<std::string>(&autoBoundsPOIs_)->default_value(autoBoundsPOIs_), "Adjust bounds for these POIs if they end up close to the boundary. Can be a list of POIs, or \"*\" to get all")
         ("autoMaxPOIs", boost::program_options::value<std::string>(&autoMaxPOIs_)->default_value(autoMaxPOIs_), "Adjust maxima for these POIs if they end up close to the boundary. Can be a list of POIs, or \"*\" to get all")
         ("forceRecreateNLL",  "Always recreate NLL when running on multiple toys rather than re-using nll with new dataset")
+        ("nllbackend", boost::program_options::value<std::string>(&nllBackend_)->default_value(nllBackend_), "DEBUG OPTION, DO NOT USE! Set backend to create NLL. Choices: combine (default behavior), cpu, legacy, codegen")      
+
     ;
 }
 
@@ -100,6 +103,13 @@ void FitterAlgoBase::applyOptionsBase(const boost::program_options::variables_ma
     else if (profileMode == "poi")           profileMode_ = ProfilePOI;
     else if (profileMode == "none")          profileMode_ = NoProfiling;
     else throw std::invalid_argument("option 'profilingMode' can only take as values 'all', 'none', 'poi' and 'unconstrained' (at least for now)\n");
+
+    // translate input nllbackend_ parameter into a RooFit option
+    std::string nllbackend = vm["nllbackend"].as<std::string>();
+    std::set<std::string> allowed_nll_options{"combine", "legacy", "cpu", "codegen"};
+    if (allowed_nll_options.find(nllbackend) != allowed_nll_options.end()) {
+        Combine::nllBackend_ = nllbackend;
+    } else throw std::invalid_argument("option 'nllbackend' can only take as values 'combine', 'legacy', 'cpu' and 'codegen' (at least for now)\n");
 
     if (!vm.count("setRobustFitAlgo") || vm["setRobustFitAlgo"].defaulted())  {
        minimizerAlgoForMinos_ = Form("%s,%s",ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str()); 
