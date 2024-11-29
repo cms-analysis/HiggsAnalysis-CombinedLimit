@@ -9,7 +9,11 @@ on:
       - '**.cc'
       - '**.cpp'
       - '**.cxx'
-
+  push:
+    branches:
+      - anigamova-clangci
+      - main
+      
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
