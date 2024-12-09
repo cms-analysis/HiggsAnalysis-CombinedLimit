@@ -26,9 +26,11 @@ class AsymPow : public RooAbsReal {
       AsymPow(const char *name, const char *title, RooAbsReal &kappaLow, RooAbsReal &kappaHigh, RooAbsReal &theta) ;
       AsymPow(const AsymPow &other, const char *newname=0) ;
 
-      ~AsymPow() override ;
+      TObject * clone(const char *newname) const override { return new AsymPow(*this, newname); }
 
-      TObject * clone(const char *newname) const override ;
+      RooAbsReal const &kappaLow() const { return kappaLow_.arg(); }
+      RooAbsReal const &kappaHigh() const { return kappaHigh_.arg(); }
+      RooAbsReal const &theta() const { return theta_.arg(); }
 
     protected:
         Double_t evaluate() const override;
