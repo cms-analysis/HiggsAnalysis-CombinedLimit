@@ -5,13 +5,14 @@ import ROOT
 import math
 import json
 import argparse
+import cmsstyle as CMS
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import HiggsAnalysis.CombinedLimit.tool_base.rounding as rounding
 import HiggsAnalysis.CombinedLimit.calculate_pulls as CP
 import six
 from six.moves import range
+from pathlib import Path
 
-ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 ROOT.TH1.AddDirectory(0)
 
@@ -43,18 +44,19 @@ parser.add_argument("--translate", "-t", help="JSON file for remapping of parame
 parser.add_argument("--units", default=None, help="Add units to the best-fit parameter value")
 parser.add_argument("--per-page", type=int, default=30, help="Number of parameters to show per page")
 parser.add_argument("--max-pages", type=int, default=None, help="Maximum number of pages to write")
-parser.add_argument("--height", type=int, default=600, help="Canvas height, in pixels")
-parser.add_argument("--left-margin", type=float, default=0.4, help="Left margin, expressed as a fraction")
-parser.add_argument("--label-size", type=float, default=0.021, help="Parameter name label size")
+parser.add_argument("--height", type=int, default=625, help="Canvas height, in pixels")
+parser.add_argument("--left-margin", type=float, default=0.35, help="Left margin, expressed as a fraction")
+parser.add_argument("--label-size", type=float, default=0.027, help="Parameter name label size")
 parser.add_argument("--cms-label", default="Internal", help="Label next to the CMS logo")
 parser.add_argument("--checkboxes", action="store_true", help="Draw an extra panel with filled checkboxes")
 parser.add_argument("--blind", action="store_true", help="Do not print best fit signal strength")
 parser.add_argument("--color-groups", default=None, help="Comma separated list of GROUP=COLOR")
 parser.add_argument("--pullDef", default=None, help="Choose the definition of the pull, see HiggsAnalysis/CombinedLimit/python/calculate_pulls.py for options")
 parser.add_argument("--POI", default=None, help="Specify a POI to draw")
-parser.add_argument("--sort", "-s", choices=["impact", "constraint", "pull"], default="impact", help="The metric to sort the list of parameters")
+parser.add_argument("--sort", "-s", default="impact", help="The metric to sort the list of parameters: one of the ['impact', 'pull', 'constraint'] or a path to a text file with listed parameters")
 parser.add_argument("--relative", "-r", action="store_true", help="Show impacts relative to the uncertainty on the POI")
 parser.add_argument("--summary", action="store_true", help="Produce additional summary page, named [output]_summary.pdf")
+parser.add_argument("--dump-order", type=Path, default=None, help="Path to output file to dump parameters in the order used on the plot")
 args = parser.parse_args()
 
 externalPullDef = args.pullDef is not None
@@ -71,7 +73,9 @@ with open(args.input) as jsonfile:
     data = json.load(jsonfile)
 
 # Set the global plotting style
-plot.ModTDRStyle(l=args.left_margin, b=0.10, width=(900 if args.checkboxes else 700), height=args.height)
+CMS.setCMSStyle()
+ROOT.gStyle.SetPadLeftMargin(args.left_margin)
+ROOT.gStyle.SetPadBottomMargin(0.10)
 
 # We will assume the first POI is the one to plot
 POIs = [ele["name"] for ele in data["POIs"]]
@@ -148,8 +152,17 @@ elif args.sort == "impact":
     data["params"].sort(key=lambda x: abs(x["impact_%s" % POI]), reverse=True)
 elif args.sort == "constraint":
     data["params"].sort(key=lambda x: abs(x["constraint"]), reverse=False)
+elif Path(args.sort).is_file():
+    with open(args.sort, 'r') as f:
+        reference_order = f.read()
+    data["params"].sort(key=lambda x: reference_order.index(x["name"]))
 else:
-    raise RuntimeError("This error should not have happened!")
+    raise RuntimeError("Sort argument must be one of the ['impact', 'pull', 'constraint'] or a path to a list of parameters!")
+
+if args.dump_order:
+    with open(args.dump_order, 'w') as f:
+        for line in [x["name"] for x in data["params"]]:
+            f.write(f"{line}\n")
 
 # Now compute each parameters ranking according to: largest pull, strongest constraint, and largest impact
 ranking_pull = sorted([(i, abs(v["pull"])) for i, v in enumerate(params)], reverse=True, key=lambda X: X[1])
@@ -174,8 +187,10 @@ colors = {"Gaussian": 1, "Poisson": 8, "AsymmetricGaussian": 9, "Unconstrained":
 color_hists = {}
 color_group_hists = {}
 
+color_list = [CMS.p10.kBlue, CMS.p10.kYellow, CMS.p10.kRed, CMS.p10.kViolet,
+              CMS.p10.kBrown, CMS.p10.kOrange, CMS.p10.kGreen, CMS.p10.kCyan]
 if args.color_groups is not None:
-    color_groups = {x.split("=")[0]: int(x.split("=")[1]) for x in args.color_groups.split(",")}
+    color_groups = {x.split("=")[0]: color_list[int(x.split("=")[1])] for x in args.color_groups.split(",")}
 
 seen_types = set()
 
@@ -186,7 +201,7 @@ for name, col in six.iteritems(colors):
 if args.color_groups is not None:
     for name, col in six.iteritems(color_groups):
         color_group_hists[name] = ROOT.TH1F()
-        plot.Set(color_group_hists[name], FillColor=col, Title=name)
+        plot.Set(color_group_hists[name], FillColor=col, Title=name, LabelFont=43)
 
 
 def MakeSummaryPage():
@@ -225,27 +240,33 @@ def MakeSummaryPage():
     f_normal.SetParameter(1, 0)
     f_normal.SetParameter(2, 1)
     canv.cd(1)
-    plot.Set(ROOT.gPad, TopMargin=0.12, LeftMargin=0.12, RightMargin=0.05, BottomMargin=0.10)
+    plot.Set(ROOT.gPad, TopMargin=0.12, LeftMargin=0.14, RightMargin=0.05, BottomMargin=0.12)
     plot.Set(h_pulls.GetXaxis(), Title="Pull (s.d.)")
-    plot.Set(h_pulls.GetYaxis(), Title="Number of parameters", TitleOffset=0.9)
+    plot.Set(h_pulls.GetYaxis(), Title="Number of parameters", TitleOffset=1.1)
     h_pulls.Draw("HIST")
     f_normal.Draw("LSAME")
-    legend = ROOT.TLegend(0.62, 0.72, 0.92, 0.85, "", "NBNDC")
+    legend = CMS.cmsLeg(0.62, 0.72, 0.92, 0.85)
     legend.AddEntry(h_pulls, "Pulls", "L")
     legend.AddEntry(f_normal, "Gaussian(0,1)", "L")
     legend.Draw()
     plot.Set(latex, NDC=None, TextFont=42, TextSize=0.04, TextAlign=32)
-    latex.DrawLatex(0.3, 0.85, "N(> 1 s.d.)")
-    latex.DrawLatex(0.3, 0.8, "N(> 2 s.d.)")
-    latex.DrawLatex(0.3, 0.75, "N(> 3 s.d.)")
-    latex.DrawLatex(0.33, 0.85, "{}".format(n_larger[0]))
-    latex.DrawLatex(0.33, 0.8, "{}".format(n_larger[1]))
-    latex.DrawLatex(0.33, 0.75, "{}".format(n_larger[2]))
-    latex.DrawLatex(0.42, 0.85, "#color[2]{{{:.2f}}}".format(n_entries * 2.0 * ROOT.Math.normal_cdf_c(1.0)))
-    latex.DrawLatex(0.42, 0.8, "#color[2]{{{:.2f}}}".format(n_entries * 2.0 * ROOT.Math.normal_cdf_c(2.0)))
-    latex.DrawLatex(0.42, 0.75, "#color[2]{{{:.2f}}}".format(n_entries * 2.0 * ROOT.Math.normal_cdf_c(3.0)))
+    latex.DrawLatex(0.34, 0.8, "N(> 1 s.d.)")
+    latex.DrawLatex(0.34, 0.75, "N(> 2 s.d.)")
+    latex.DrawLatex(0.34, 0.7, "N(> 3 s.d.)")
+    latex.DrawLatex(0.37, 0.8, "{}".format(n_larger[0]))
+    latex.DrawLatex(0.37, 0.75, "{}".format(n_larger[1]))
+    latex.DrawLatex(0.37, 0.7, "{}".format(n_larger[2]))
+    latex.DrawLatex(0.47, 0.8, "#color[2]{{{:.2f}}}".format(n_entries * 2.0 * ROOT.Math.normal_cdf_c(1.0)))
+    latex.DrawLatex(0.47, 0.75, "#color[2]{{{:.2f}}}".format(n_entries * 2.0 * ROOT.Math.normal_cdf_c(2.0)))
+    latex.DrawLatex(0.47, 0.7, "#color[2]{{{:.2f}}}".format(n_entries * 2.0 * ROOT.Math.normal_cdf_c(3.0)))
 
-    plot.DrawCMSLogo(ROOT.gPad, "CMS", args.cms_label, 0, 0.20, 0.00, 0.00)
+    CMS.SetExtraText(args.cms_label) 
+    CMS.SetCmsTextSize(0.7)
+    CMS.CMS_lumi(ROOT.gPad, iPosX = 0, scaleLumi = 0.8)
+    for obj in ROOT.gPad.GetListOfPrimitives():
+        if isinstance(obj, ROOT.TLatex) and "fb" in obj.GetTitle():
+            obj.Delete()
+
     s_nom, s_hi, s_lo = GetRounded(POI_fit[1], POI_fit[2] - POI_fit[1], POI_fit[1] - POI_fit[0])
     if not args.blind:
         plot.DrawTitle(
@@ -342,12 +363,13 @@ def MakeSummaryPage():
     marker = ROOT.TMarker()
 
     marker_styles = []
+    marker_colors = [CMS.p10.kBlue, CMS.p10.kYellow, CMS.p10.kRed, CMS.p10.kGray, CMS.p10.kViolet,
+                     CMS.p10.kBrown, CMS.p10.kOrange, CMS.p10.kGreen, CMS.p10.kAsh, CMS.p10.kCyan]
     for style in [20, 23, 29, 34]:
-        for col in [1, 2, 3, 4, 6, 7, 15, ROOT.kOrange]:
+        for col in marker_colors:
             marker_styles.append((style, col))
     curr_marker = 0
     for parname, entries in six.iteritems(occurances):
-        # print(parname, entries)
         multiple = entries.count(None) <= 1
         if multiple:
             plot.Set(marker, MarkerStyle=marker_styles[curr_marker][0], MarkerColor=marker_styles[curr_marker][1])
@@ -366,12 +388,20 @@ def MakeSummaryPage():
 
     canv.Print("{}_summary.pdf".format(args.output))
 
-
 if args.summary:
     MakeSummaryPage()
 
 for page in range(n):
     canv = ROOT.TCanvas(args.output, args.output)
+    
+    canv.SetCanvasSize(760, args.height)
+    CMS.SetExtraText(args.cms_label) 
+    CMS.SetCmsTextSize(0.9)
+    CMS.CMS_lumi(ROOT.gPad, iPosX = 0)
+    for obj in ROOT.gPad.GetListOfPrimitives():
+        if isinstance(obj, ROOT.TLatex) and "fb" in obj.GetTitle():
+            obj.Delete()
+    
     n_params = len(data["params"][show * page : show * (page + 1)])
     pdata = data["params"][show * page : show * (page + 1)]
     print(">> Doing page %i, have %i parameters" % (page, n_params))
@@ -401,7 +431,6 @@ for page in range(n):
     pads[0].SetTickx(1)
     pads[1].SetGrid(1, 0)
     pads[1].SetTickx(1)
-
     min_pull = -0.9
     max_pull = +0.9
 
@@ -488,9 +517,10 @@ for page in range(n):
     else:
         plot.Set(
             h_pulls.GetXaxis(),
-            TitleSize=0.04,
+            TitleSize=0.045,
             LabelSize=0.03,
-            Title="#scale[0.7]{(#hat{#theta}-#theta_{I})/#sigma_{I} #color[4]{(#hat{#theta}-#theta_{I})/#sqrt{#sigma_{I}^{2} - #sigma^{2}}}}",
+            TitleOffset=0.9,
+            Title="#scale[0.7]{(#hat{#theta}-#theta_{I})/#sigma_{I}      #color[4]{(#hat{#theta}-#theta_{I})/#sqrt{#sigma_{I}^{2} - #sigma^{2}}}}",
         )
 
     plot.Set(h_pulls.GetYaxis(), LabelSize=args.label_size, TickLength=0.0)
@@ -523,7 +553,7 @@ for page in range(n):
     if args.relative:
         impt_x_title = "#Delta#hat{%s}/#sigma_{%s}" % (Translate(POI, translate), Translate(POI, translate))
 
-    plot.Set(h_impacts.GetXaxis(), LabelSize=0.03, TitleSize=0.04, Ndivisions=505, Title=impt_x_title)
+    plot.Set(h_impacts.GetXaxis(), LabelSize=0.03, TitleSize=0.04, Ndivisions=505, Title=impt_x_title, TitleOffset=1.0)
     plot.Set(h_impacts.GetYaxis(), LabelSize=0, TickLength=0.0)
     h_impacts.Draw()
 
@@ -536,7 +566,6 @@ for page in range(n):
         h_checkboxes.GetXaxis().LabelsOption("v")
         plot.Set(h_checkboxes.GetYaxis(), LabelSize=0, TickLength=0.0)
         h_checkboxes.Draw()
-        # g_check.SetFillColor(ROOT.kGreen)
         g_check.Draw("PSAME")
 
     # Back to the first pad to draw the pulls graph
@@ -549,8 +578,8 @@ for page in range(n):
     pads[1].cd()
     alpha = 0.7
 
-    lo_color = {"default": 38, "hesse": ROOT.kOrange - 3, "robust": ROOT.kGreen + 1}
-    hi_color = {"default": 46, "hesse": ROOT.kBlue, "robust": ROOT.kAzure - 5}
+    lo_color = {"default": CMS.p6.kBlue, "hesse": CMS.p6.kYellow, "robust": ROOT.kGreen + 1}
+    hi_color = {"default": CMS.p6.kRed, "hesse": CMS.p6.kBlue, "robust": ROOT.kAzure - 5}
     method = "default"
     if "method" in data and data["method"] in lo_color:
         method = data["method"]
@@ -560,31 +589,33 @@ for page in range(n):
     g_impacts_lo.Draw("2SAME")
     pads[1].RedrawAxis()
 
-    legend = ROOT.TLegend(0.02, 0.02, 0.35, 0.09, "", "NBNDC")
+    legend = CMS.cmsLeg(0.02, 0.015, 0.45, 0.08, textSize=0.03)
     legend.SetNColumns(2)
     legend.AddEntry(g_fit, "Fit", "LP")
     legend.AddEntry(g_impacts_hi, "+1#sigma Impact", "F")
     legend.AddEntry(g_pull, "Pull", "P")
     legend.AddEntry(g_impacts_lo, "-1#sigma Impact", "F")
+    legend.SetBorderSize(0)
     legend.Draw()
 
     leg_width = pads[0].GetLeftMargin() - 0.01
     if args.color_groups is not None:
-        legend2 = ROOT.TLegend(0.01, 0.94, leg_width, 0.99, "", "NBNDC")
+        legend2 = CMS.cmsLeg(0.01, 0.95, leg_width, 0.99, textSize=0.015)
         legend2.SetNColumns(2)
+        legend2.SetBorderSize(0)
         for name, h in six.iteritems(color_group_hists):
             legend2.AddEntry(h, Translate(name, translate), "F")
         legend2.Draw()
     elif len(seen_types) > 1:
-        legend2 = ROOT.TLegend(0.01, 0.94, leg_width, 0.99, "", "NBNDC")
+        legend2 = CMS.cmsLeg(0.01, 0.95, leg_width, 0.99, textSize=0.03)
         legend2.SetNColumns(2)
+        legend2.SetBorderSize(0)
         for name, h in six.iteritems(color_hists):
             if name == "Unrecognised":
                 continue
             legend2.AddEntry(h, name, "F")
         legend2.Draw()
 
-    plot.DrawCMSLogo(pads[0], "CMS", args.cms_label, 0, 0.25, 0.00, 0.00)
     s_nom, s_hi, s_lo = GetRounded(POI_fit[1], POI_fit[2] - POI_fit[1], POI_fit[1] - POI_fit[0])
     if not args.blind:
         plot.DrawTitle(
