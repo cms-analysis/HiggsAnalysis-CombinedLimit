@@ -65,7 +65,6 @@ bool HybridNew::genNuisances_ = true;
 bool HybridNew::genGlobalObs_ = false;
 bool HybridNew::fitNuisances_ = false;
 unsigned int HybridNew::iterations_ = 1;
-unsigned int HybridNew::nCpu_ = 0; // proof-lite mode
 unsigned int HybridNew::fork_ = 0; // fork mode
 std::string         HybridNew::rValue_   = "1.0";
 RooArgSet           HybridNew::rValues_;
@@ -117,7 +116,6 @@ LimitAlgo("HybridNew specific options") {
         ("interpAcc", boost::program_options::value<double>(&interpAccuracy_)->default_value(interpAccuracy_), "Minimum uncertainty from interpolation delta(x)/(max(x)-min(x))")
         ("iterations,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(iterations_), "Number of times to throw 'toysH' toys to compute the p-values (for --singlePoint if clsAcc is set to zero disabling adaptive generation)")
         ("fork",    boost::program_options::value<unsigned int>(&fork_)->default_value(fork_),           "Fork to N processes before running the toys (0 by default == no forking). Only use if you're an expert in combine!")
-        ("nCPU",    boost::program_options::value<unsigned int>(&nCpu_)->default_value(nCpu_),           "Use N CPUs with PROOF Lite (experimental!)")
         ("saveHybridResult",  "Save result in the output file")
         ("readHybridResults", "Read and merge results from file (requires option '--grid' or '--toysFile')")
         ("grid",    boost::program_options::value<std::string>(&gridFile_), "Use the specified file containing a grid of SamplingDistributions for the limit (implies readHybridResults).\n For calculating CLs/pmu values with --singlePoint or if calculating the Signfiicance with LHCmode LHC-significance ( or any option with --signif) use '--toysFile=x.root --readHybridResult' !")
@@ -1016,14 +1014,6 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
   }
 
   if (!mc_b->GetPdf()->canBeExtended()) setup.toymcsampler->SetNEventsPerToy(1);
-
-  if (nCpu_ > 0) {
-    std::cerr << "ALERT: running with proof not validated." << std::endl;
-    CombineLogger::instance().log("HybridNew.cc",__LINE__,"[WARNING] running with proof not validated.",__func__);
-    if (verbose > 1) CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("   Will use %d CPUs.",nCpu_)),__func__);
-    setup.pc.reset(new ProofConfig(*w, nCpu_, "", kFALSE));
-    setup.toymcsampler->SetProofConfig(setup.pc.get());
-  }
 
   std::unique_ptr<HybridCalculator> hc(new HybridCalculator(data, setup.modelConfig, setup.modelConfig_bonly, setup.toymcsampler.get()));
   if (genNuisances_ || !genGlobalObs_) {
