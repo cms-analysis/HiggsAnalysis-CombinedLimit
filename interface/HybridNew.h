@@ -56,7 +56,7 @@ private:
   static bool fullGrid_; 
   static bool saveGrid_; 
   static bool noUpdateGrid_; 
-  static unsigned int nCpu_, fork_;
+  static unsigned int fork_;
   static bool importanceSamplingNull_, importanceSamplingAlt_;
   static std::string algo_;
   static std::string mode_;
@@ -90,7 +90,6 @@ private:
     RooStats::ModelConfig modelConfig, modelConfig_bonly;
     std::unique_ptr<RooStats::TestStatistic> qvar;
     std::unique_ptr<RooStats::ToyMCSampler>  toymcsampler;
-    std::unique_ptr<RooStats::ProofConfig> pc;
     RooArgSet cleanupList;
   };
 
