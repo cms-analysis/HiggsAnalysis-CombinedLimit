@@ -13,7 +13,7 @@ option( INSTALL_PYTHON "Install the Python library and scripts" TRUE )
 # make -j4
 
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
-find_package( ROOT REQUIRED COMPONENTS Core MathMore RooFitCore RooFit RooStats Minuit HistFactory RooFitHS3)
+find_package(ROOT REQUIRED COMPONENTS MathMore RooFitCore RooFit RooStats HistFactory)
 find_package(Eigen3 REQUIRED)
 find_package(Vdt)
 find_package(LCG QUIET) # only used for FindBoost in StatAnalysis
