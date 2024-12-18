@@ -13,11 +13,11 @@ option( INSTALL_PYTHON "Install the Python library and scripts" TRUE )
 # make -j4
 
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
-find_package( ROOT REQUIRED COMPONENTS Core MathMore RooFitCore RooFit RooStats Minuit HistFactory RooFitHS3)
+find_package(ROOT REQUIRED COMPONENTS MathMore RooFitCore RooFit RooStats HistFactory)
 find_package(Eigen3 REQUIRED)
 find_package(Vdt)
 find_package(LCG QUIET) # only used for FindBoost in StatAnalysis
-find_package( Boost REQUIRED COMPONENTS program_options filesystem )
+find_package(Boost CONFIG REQUIRED COMPONENTS program_options filesystem)
 
 message(STATUS "Using ROOT From: ${ROOT_INCLUDE_DIRS}")
 include(${ROOT_USE_FILE})
@@ -39,7 +39,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 ROOT_GENERATE_DICTIONARY(G__${LIBNAME} HiggsAnalysis/CombinedLimit/src/classes.h LINKDEF src/classes_def.xml
         MODULE ${LIBNAME}
-        OPTIONS --deep)
+        OPTIONS ${ROOTCLING_OPTIONS})
 add_library(${LIBNAME} SHARED ${SOURCES} G__${LIBNAME}.cxx)
 set_target_properties(${LIBNAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
 target_link_libraries (${LIBNAME} Eigen3::Eigen ${ROOT_LIBRARIES} ${Boost_LIBRARIES} VDT::VDT)
