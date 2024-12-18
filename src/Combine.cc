@@ -309,7 +309,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   TString tmpDir = "", tmpFile = "", pwd(gSystem->pwd());
   if (makeTempDir_) { 
       tmpDir = "roostats-XXXXXX"; tmpFile = "model";
-      mkdtemp(const_cast<char *>(tmpDir.Data()));
+      if (mkdtemp(const_cast<char *>(tmpDir.Data())) == nullptr) {
+          throw std::runtime_error("Temporary file could not be created");
+      }
       gSystem->cd(tmpDir.Data());
       garbageCollect.path = tmpDir.Data(); // request that we delete this dir when done
   } else if (!hlfFile.EndsWith(".hlf") && !hlfFile.EndsWith(".root")) {
