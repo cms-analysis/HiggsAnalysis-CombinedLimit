@@ -39,7 +39,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 ROOT_GENERATE_DICTIONARY(G__${LIBNAME} HiggsAnalysis/CombinedLimit/src/classes.h LINKDEF src/classes_def.xml
         MODULE ${LIBNAME}
-        OPTIONS --deep)
+        OPTIONS ${ROOTCLING_OPTIONS})
 add_library(${LIBNAME} SHARED ${SOURCES} G__${LIBNAME}.cxx)
 set_target_properties(${LIBNAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
 target_link_libraries (${LIBNAME} Eigen3::Eigen ${ROOT_LIBRARIES} ${Boost_LIBRARIES} VDT::VDT)
