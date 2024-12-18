@@ -14,6 +14,7 @@
 #include <TCanvas.h>
 #include <TGraphErrors.h>
 #include <TStopwatch.h>
+#include <TSystem.h>
 #include <TRandom3.h>
 #include <TTree.h>
 #include "RooRealVar.h"
@@ -294,6 +295,7 @@ bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mode
                                    return runTestStatistics(w, mc_s, mc_b, data, limit, limitErr, hint);
     }
     assert("Shouldn't get here" == 0);
+    return false;
 }
 
 bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
@@ -1372,8 +1374,14 @@ RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &h
         }
     } else {
         RooRandom::randomGenerator()->SetSeed(newSeeds[ich]);
-        freopen(TString::Format("%s.%d.out.txt", tmpfile, ich).Data(), "w", stdout);
-        freopen(TString::Format("%s.%d.err.txt", tmpfile, ich).Data(), "w", stderr);
+        if(freopen(TString::Format("%s.%d.out.txt", tmpfile, ich).Data(), "w", stdout) == nullptr) {
+          SysError("RedirectOutput", "could not freopen stdout (errno: %d)", TSystem::GetErrno());
+          return result.release(); // nullptr at this point
+        }
+        if(freopen(TString::Format("%s.%d.err.txt", tmpfile, ich).Data(), "w", stderr) == nullptr) {
+          SysError("RedirectOutput", "could not freopen stderr (errno: %d)", TSystem::GetErrno());
+          return result.release(); // nullptr at this point
+        }
         CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("  I am child %d, seed %d",ich, newSeeds[ich])),__func__);
         RooStats::HypoTestResult *hcResult = evalGeneric(hc, /*noFork=*/true);
         TFile *f = TFile::Open(TString::Format("%s.%d.root", tmpfile, ich), "RECREATE");

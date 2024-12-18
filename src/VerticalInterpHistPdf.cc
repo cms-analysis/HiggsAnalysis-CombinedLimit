@@ -1138,6 +1138,7 @@ Double_t FastVerticalInterpHistPdf2D2::maxVal(int code) const {
 			  << ") unsupported integration code " << code << "\n" << std::endl;
     assert(0);
 
+    return 0.0;
 }
 
 FastVerticalInterpHistPdf2V::FastVerticalInterpHistPdf2V(const FastVerticalInterpHistPdf2 &hpdf, const RooAbsData &data, bool includeZeroWeights) :
