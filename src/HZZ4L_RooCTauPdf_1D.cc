@@ -128,17 +128,10 @@ Int_t HZZ4L_RooCTauPdf_1D::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& 
 }
 Double_t HZZ4L_RooCTauPdf_1D::analyticalIntegral(Int_t code, const char* rangeName) const
 {
-	switch (code)
-	{
-	case 1:
-		{
-			double integral = interpolateIntegral();
-			if( integral <= 0 ) integral = 1.0e-10;
-			return integral;
-		}
-	default:
-		cerr << "getAnalyticalIntegral failed, so analytical integration did not complete!" << endl;
-		assert(0);
-	}
+  R__ASSERT(code == 1);
+
+  double integral = interpolateIntegral();
+  if( integral <= 0 ) integral = 1.0e-10;
+  return integral;
 }
 
