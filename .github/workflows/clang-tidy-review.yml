@@ -36,7 +36,6 @@ jobs:
         with:
           build_dir: build
           apt_packages: cmake,libxml2,libxml2-dev,libtinfo-dev,zlib1g-dev,libzstd-dev,wget,libvdt-dev
-          split_workflow: true
           config_file: .clang-tidy
           cmake_command: >
             cmake . -B build -DINSTALL_PYTHON=FALSE -DCMAKE_EXPORT_COMPILE_COMMANDS=ON || true && 
