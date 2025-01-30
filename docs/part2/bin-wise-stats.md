@@ -25,10 +25,10 @@ When `threshold` is set to a number of effective unweighted events greater than 
 $n_{\text{tot}} = \sum_{i\,\in\,\text{bkg}}n_i$, $e_{\text{tot}} = \sqrt{\sum_{i\,\in\,\text{bkg}}e_i^{2}}$
  2. If $e_{\text{tot}} = 0$, the bin is skipped and no parameters are created. If this is the case, it is a good idea to check why there is no uncertainty in the background prediction in this bin!
  3. The effective number of unweighted events is defined as $n_{\text{tot}}^{\text{eff}} = n_{\text{tot}}^{2} / e_{\text{tot}}^{2}$, rounded to the nearest integer.
- 4. If $n_{\text{tot}}^{\text{eff}} \leq n^{\text{threshold}}$: separate uncertainties will be created for each process. Processes where $e_{i} = 0$ are skipped. If the number of effective events for a given process is lower than $n^{\text{threshold}}$ a Poisson-constrained parameter will be created. Otherwise a Gaussian-constrained parameter is used.
+ 4. If $n_{\text{tot}}^{\text{eff}} \leq n^{\text{threshold}}$: separate uncertainties will be created for each process. Processes where $n_{i} = 0$ are skipped. In this case a Poisson-constrained parameter will be created per process.
  5. If $n_{\text{tot}}^{\text{eff}} \gt n^{\text{threshold}}$: A single Gaussian-constrained Barlow-Beeston-lite parameter is created that will scale the total yield in the bin.
  6. Note that the values of $e_{i}$, and therefore $e_{tot}$, will be updated automatically in the model whenever the process normalizations change.
- 7. A Gaussian-constrained parameter $\nu$ has a nominal value of zero and scales the yield as $n_{\text{tot}} + \nu \cdot e_{\text{tot}}$. The Poisson-constrained parameters are expressed as a yield multiplier with nominal value one: $n_{\text{tot}} \cdot \nu$.
+ 7. A Gaussian-constrained parameter $\nu$ has a nominal value of zero and scales the yield as $n_{\text{tot}} + \nu \cdot e_{\text{tot}}$. The Poisson-constrained parameters are expressed as a yield multiplier with nominal value one for each process $i$: $n_{i} \cdot \nu$.
 
 The output from `text2workspace.py` will give details on how each bin has been treated by this algorithm, for example:
 
