@@ -492,26 +492,27 @@ class Kappas(LHCHCGBaseModel):
                 self.modelBuilder.doVar("kappa_gam[1,0.0,2.5]")
                 self.modelBuilder.doVar("factor_gg[1.017199,1.017199,1.017199]")
                 self.modelBuilder.out.var("factor_gg").setConstant(True)
-                
+
                 factors = {
-                    "kg_t" : "[1.040,1.040,1.040]",
-                    "kg_b" : "[0.002,0.002,0.002]",
-                    "kg_c" : "[0.00002,0.00002,0.00002]",
-                    "kg_Q" : "[0.979,0.979,0.979]",
-                    
-                    "kg_tb" : "[-0.038,-0.038,-0.038]",
-                    "kg_tc" : "[-0.005,-0.005,-0.005]",
-                    "kg_tQ" : "[2.018,2.018,2.018]",
-                    
-                    "kg_bc" : "[0.0004,0.0004,0.0004]",
-                    "kg_bQ" : "[-0.0037,-0.0037,-0.0037]",
-                    
-                    "kg_cQ" : "[-0.0049,-0.0049,-0.0049]",
+                    "kg_t" : "47.94",
+                    "kg_b" : "0.1",
+                    "kg_c" : "0.0009",
+                    "kg_Q" : "45.12",
+
+                    "kg_tb" : "-1.73",
+                    "kg_tc" : "-0.22",
+                    "kg_tQ" : "93.04",
+
+                    "kg_bc" : "0.02",
+                    "kg_bQ" : "-0.17",
+
+                    "kg_cQ" : "-0.22",
                 }
                 # Define factors in kappa_Q formula
                 for k, v in factors.items():
-                    self.modelBuilder.doVar(f"{k}{v}")
-                    self.modelBuilder.out.var(k).setConstant(True)
+                    self.modelBuilder.factory_(
+                        f"expr::{k}(\"{v}/46.1109\")"
+                    )#The total SM ggH xsec according to YR4 is 46.1109
 
                 if self.kappaQFormalism:
                     fac_str = {
@@ -519,25 +520,25 @@ class Kappas(LHCHCGBaseModel):
                         "kb":"@1",
                         "kc":"@0", #kappa c = kappa t in the combination
                         "kQ":"@2", #kappa Q appears in this one
-                        
+
                         "kg_t":"@3",
                         "kg_b":"@4",
                         "kg_c":"@5",
                         "kg_Q":"@6",
-                        
+
                         "kg_tb":"@7",
                         "kg_tc":"@8",
                         "kg_tQ":"@9",
-                        
+
                         "kg_bc":"@10",
                         "kg_bQ":"@11",
                         "kg_cQ":"@12"
                     }
-                    
+
                     self.modelBuilder.doVar("kappa_Q[0,0.0,10.0]")
                     self.modelBuilder.factory_(
-                        "expr::kappa_g_sq(\"{kg_t}*{kt}^2 + {kg_b}*{kb}^2 + {kg_c}*{kc}^2 + {kg_Q}*{kQ}^2 + ".format(**fac_str) + 
-                        "{kg_tb}*{kt}*{kb} + {kg_tc}*{kt}*{kc} + {kg_tQ}*{kt}*{kQ} + ".format(**fac_str) + 
+                        "expr::kappa_g_sq(\"{kg_t}*{kt}^2 + {kg_b}*{kb}^2 + {kg_c}*{kc}^2 + {kg_Q}*{kQ}^2 + ".format(**fac_str) +
+                        "{kg_tb}*{kt}*{kb} + {kg_tc}*{kt}*{kc} + {kg_tQ}*{kt}*{kQ} + ".format(**fac_str) +
                         "{kg_bc}*{kb}*{kc} + {kg_bQ}*{kb}*{kQ} + {kg_cQ}*{kc}*{kQ}".format(**fac_str) +
                         "\", kappa_t, kappa_b, kappa_c, kappa_Q, kg_t, kg_b, kg_c, kg_q, kg_tb, kg_tc, kg_tq, kg_bc, kg_bq, kg_cq)"
                     )
@@ -553,30 +554,30 @@ class Kappas(LHCHCGBaseModel):
                         "kc":"@0", #kappa c = kappa t in the combination
                         "kg":"@2", #kappa g appears in this one
                         "k_flag":"@3",
-                        
+
                         "kg_t":"@4",
                         "kg_b":"@5",
                         "kg_c":"@6",
                         "kg_Q":"@7",
-                        
+
                         "kg_tb":"@8",
                         "kg_tc":"@9",
                         "kg_tQ":"@10",
-                        
+
                         "kg_bc":"@11",
                         "kg_bQ":"@12",
                         "kg_cQ":"@13"
                     }
 
                     self.modelBuilder.factory_(
-                        "expr::kappa_Q(\"(" + 
-                        "-{kg_bQ}*{kb} - {kg_cQ}*{kc} - {kg_tQ}*{kt} + {k_flag}*".format(**fac_str) + 
-                        "sqrt(({kg_bQ}*{kb} + {kg_cQ}*{kc} + {kg_tQ}*{kt})^2 - ".format(**fac_str) + 
-                        "4*{kg_Q}*({kg_b}*{kb}^2 + {kg_bc}*{kb}*{kc} + {kg_c}*{kc}^2 - {kg}^2 + {kg_tb}*{kb}*{kt} + {kg_tc}*{kc}*{kt} + {kg_t}*{kt}^2)".format(**fac_str) + 
-                        "))/(2*{kg_Q}) \", ".format(**fac_str) + 
+                        "expr::kappa_Q(\"(" +
+                        "-{kg_bQ}*{kb} - {kg_cQ}*{kc} - {kg_tQ}*{kt} + {k_flag}*".format(**fac_str) +
+                        "sqrt(({kg_bQ}*{kb} + {kg_cQ}*{kc} + {kg_tQ}*{kt})^2 - ".format(**fac_str) +
+                        "4*{kg_Q}*({kg_b}*{kb}^2 + {kg_bc}*{kb}*{kc} + {kg_c}*{kc}^2 - {kg}^2 + {kg_tb}*{kb}*{kt} + {kg_tc}*{kc}*{kt} + {kg_t}*{kt}^2)".format(**fac_str) +
+                        "))/(2*{kg_Q}) \", ".format(**fac_str) +
                         "kappa_t, kappa_b, kappa_g, kappa_Q_flag, kg_t, kg_b, kg_c, kg_Q, kg_tb, kg_tc, kg_tQ, kg_bc, kg_bQ, kg_cQ)"
                     )
-                    
+
                 if self.addGammaHPOI:
                     self.modelBuilder.doVar("GammaH_scal[1,0.05,2.5]")
 
@@ -730,7 +731,7 @@ class Kappas(LHCHCGBaseModel):
             self.modelBuilder.factory_('expr::c7_Offshellscal_offggH_QBI_positive_13TeV("@0*@1*@2",kappa_Q,kappa_Z,factor_gg)')
             self.modelBuilder.factory_('expr::c7_Offshellscal_offggH_Qt_negative_13TeV("-1*@0*@1*@2*@2*@3",kappa_Q,kappa_t,kappa_Z,factor_gg)')
             self.modelBuilder.factory_('expr::c7_Offshellscal_offggH_Qt_positive_13TeV("@0*@1*@2*@2*@3",kappa_Q,kappa_t,kappa_Z,factor_gg)')
-            
+
             # Offshell VBF signal and interference
             self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_ZZ_13TeV("(@0^4)*@1",kappa_Z,factor_gg)')
             self.modelBuilder.factory_('expr::c7_Offshellscal_offqqH_WW_13TeV("(@0^2)*(@1^2)*@2",kappa_W,kappa_Z,factor_gg)')
