@@ -497,16 +497,16 @@ class Kappas(LHCHCGBaseModel):
                     "kg_t" : "[1.040,1.040,1.040]",
                     "kg_b" : "[0.002,0.002,0.002]",
                     "kg_c" : "[0.00002,0.00002,0.00002]",
-                    "kg_q" : "[0.979,0.979,0.979]",
+                    "kg_Q" : "[0.979,0.979,0.979]",
                     
                     "kg_tb" : "[-0.038,-0.038,-0.038]",
                     "kg_tc" : "[-0.005,-0.005,-0.005]",
-                    "kg_tq" : "[2.018,2.018,2.018]",
+                    "kg_tQ" : "[2.018,2.018,2.018]",
                     
                     "kg_bc" : "[0.0004,0.0004,0.0004]",
-                    "kg_bq" : "[-0.0037,-0.0037,-0.0037]",
+                    "kg_bQ" : "[-0.0037,-0.0037,-0.0037]",
                     
-                    "kg_cq" : "[-0.0049,-0.0049,-0.0049]",
+                    "kg_cQ" : "[-0.0049,-0.0049,-0.0049]",
                 }
                 # Define factors in kappa_Q formula
                 for k, v in factors.items():
@@ -570,11 +570,11 @@ class Kappas(LHCHCGBaseModel):
 
                     self.modelBuilder.factory_(
                         "expr::kappa_Q(\"(" + 
-                        "(-{kg_bQ}*{kb} - {kg_cQ}*{kc} - {kg_tQ}*{kt} + {k_flag}* ".format(**fac_str) + 
+                        "-{kg_bQ}*{kb} - {kg_cQ}*{kc} - {kg_tQ}*{kt} + {k_flag}*".format(**fac_str) + 
                         "sqrt(({kg_bQ}*{kb} + {kg_cQ}*{kc} + {kg_tQ}*{kt})^2 - ".format(**fac_str) + 
                         "4*{kg_Q}*({kg_b}*{kb}^2 + {kg_bc}*{kb}*{kc} + {kg_c}*{kc}^2 - {kg}^2 + {kg_tb}*{kb}*{kt} + {kg_tc}*{kc}*{kt} + {kg_t}*{kt}^2)".format(**fac_str) + 
-                        ")/(2*{kg_Q})) \", ".format(**fac_str) + 
-                        "kappa_t, kappa_b, kappa_g, kappa_q_flag, kg_t, kg_b, kg_c, kg_Q, kg_tb, kg_tc, kg_tQ, kg_bc, kg_bQ, kg_cQ)"
+                        "))/(2*{kg_Q}) \", ".format(**fac_str) + 
+                        "kappa_t, kappa_b, kappa_g, kappa_Q_flag, kg_t, kg_b, kg_c, kg_Q, kg_tb, kg_tc, kg_tQ, kg_bc, kg_bQ, kg_cQ)"
                     )
                     
                 if self.addGammaHPOI:
