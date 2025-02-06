@@ -492,37 +492,89 @@ class Kappas(LHCHCGBaseModel):
                 self.modelBuilder.doVar("kappa_gam[1,0.0,2.5]")
                 self.modelBuilder.doVar("factor_gg[1.017199,1.017199,1.017199]")
                 self.modelBuilder.out.var("factor_gg").setConstant(True)
+                
+                factors = {
+                    "kg_t" : "[1.040,1.040,1.040]",
+                    "kg_b" : "[0.002,0.002,0.002]",
+                    "kg_c" : "[0.00002,0.00002,0.00002]",
+                    "kg_q" : "[0.979,0.979,0.979]",
+                    
+                    "kg_tb" : "[-0.038,-0.038,-0.038]",
+                    "kg_tc" : "[-0.005,-0.005,-0.005]",
+                    "kg_tq" : "[2.018,2.018,2.018]",
+                    
+                    "kg_bc" : "[0.0004,0.0004,0.0004]",
+                    "kg_bq" : "[-0.0037,-0.0037,-0.0037]",
+                    
+                    "kg_cq" : "[-0.0049,-0.0049,-0.0049]",
+                }
+                # Define factors in kappa_Q formula
+                for k, v in factors.items():
+                    self.modelBuilder.doVar(f"{k}{v}")
+                    self.modelBuilder.out.var(k).setConstant(True)
 
                 if self.kappaQFormalism:
+                    fac_str = {
+                        "kt":"@0",
+                        "kb":"@1",
+                        "kc":"@0", #kappa c = kappa t in the combination
+                        "kQ":"@2", #kappa Q appears in this one
+                        
+                        "kg_t":"@3",
+                        "kg_b":"@4",
+                        "kg_c":"@5",
+                        "kg_Q":"@6",
+                        
+                        "kg_tb":"@7",
+                        "kg_tc":"@8",
+                        "kg_tQ":"@9",
+                        
+                        "kg_bc":"@10",
+                        "kg_bQ":"@11",
+                        "kg_cQ":"@12"
+                    }
+                    
                     self.modelBuilder.doVar("kappa_Q[0,0.0,10.0]")
-                    self.modelBuilder.factory_("expr::kappa_g_sq(\"1.1068*@0*@0+0.0082*@1*@1-0.1150*@0*@1+1.0298*@2*@2+2.1357*@0*@2-0.1109*@1*@2\", kappa_t, kappa_b, kappa_Q)")
+                    self.modelBuilder.factory_(
+                        "expr::kappa_g_sq(\"{kg_t}*{kt}^2 + {kg_b}*{kb}^2 + {kg_c}*{kc}^2 + {kg_Q}*{kQ}^2 + ".format(**fac_str) + 
+                        "{kg_tb}*{kt}*{kb} + {kg_tc}*{kt}*{kc} + {kg_tQ}*{kt}*{kQ} + ".format(**fac_str) + 
+                        "{kg_bc}*{kb}*{kc} + {kg_bQ}*{kb}*{kQ} + {kg_cQ}*{kc}*{kQ}".format(**fac_str) +
+                        "\", kappa_t, kappa_b, kappa_c, kappa_Q, kg_t, kg_b, kg_c, kg_q, kg_tb, kg_tc, kg_tq, kg_bc, kg_bq, kg_cq)"
+                    )
 
                 else:
                     self.modelBuilder.doVar("kappa_g[1,0.0,2.0]")
                     self.modelBuilder.doVar("kappa_Q_flag[1,-1,1]")
                     self.modelBuilder.out.var("kappa_Q_flag").setConstant(True)
-                    
-                    # Define factors in kappa_Q formula
-                    factors = {
-                        "kg_A" : "[1.1068, 1.1068, 1.1068]",
-                        "kg_B" : "[0.0082,0.0082,0.0082]",
-                        "kg_C" : "[0.1150,0.1150,0.1150]",
-                        "kg_D" : "[1.0298,1.0298,1.0298]",
-                        "kg_E" : "[2.1357,2.1357,2.1357]",
-                        "kg_F" : "[0.1109,0.1109,0.1109]"
+
+                    fac_str = {
+                        "kt":"@0",
+                        "kb":"@1",
+                        "kc":"@0", #kappa c = kappa t in the combination
+                        "kg":"@2", #kappa g appears in this one
+                        "k_flag":"@3",
+                        
+                        "kg_t":"@4",
+                        "kg_b":"@5",
+                        "kg_c":"@6",
+                        "kg_Q":"@7",
+                        
+                        "kg_tb":"@8",
+                        "kg_tc":"@9",
+                        "kg_tQ":"@10",
+                        
+                        "kg_bc":"@11",
+                        "kg_bQ":"@12",
+                        "kg_cQ":"@13"
                     }
-                    for k, v in factors.items():
-                        self.modelBuilder.doVar(f"{k}{v}")
-                        self.modelBuilder.out.var(k).setConstant(True)
 
                     self.modelBuilder.factory_(
-                        "expr::kappa_Q(\"( @9*@1 - @8*@0 + "
-                        "@3*sqrt( (-@9*@1 + @8*@0)^2"
-                        "- 4*@7*(@5*@1^2-@2^2-@6*@1*@0 + @4*@0^2) )"
-                        ")/(2*@7)   \", "
-                        "kappa_t, kappa_b, kappa_g, kappa_Q_flag"
-                        ",kg_A,kg_B,kg_C,"
-                        "kg_D,kg_E,kg_F)"
+                        "expr::kappa_Q(\"(" + 
+                        "(-{kg_bQ}*{kb} - {kg_cQ}*{kc} - {kg_tQ}*{kt} + {k_flag}* ".format(**fac_str) + 
+                        "sqrt(({kg_bQ}*{kb} + {kg_cQ}*{kc} + {kg_tQ}*{kt})^2 - ".format(**fac_str) + 
+                        "4*{kg_Q}*({kg_b}*{kb}^2 + {kg_bc}*{kb}*{kc} + {kg_c}*{kc}^2 - {kg}^2 + {kg_tb}*{kb}*{kt} + {kg_tc}*{kc}*{kt} + {kg_t}*{kt}^2)".format(**fac_str) + 
+                        ")/(2*{kg_Q})) \", ".format(**fac_str) + 
+                        "kappa_t, kappa_b, kappa_g, kappa_q_flag, kg_t, kg_b, kg_c, kg_Q, kg_tb, kg_tc, kg_tQ, kg_bc, kg_bQ, kg_cQ)"
                     )
                     
                 if self.addGammaHPOI:
