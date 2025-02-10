@@ -532,6 +532,8 @@ def parseCard(file, options):
             elif pdf == "flatParam":
                 ret.flatParamNuisances[lsyst] = True
                 # for flat parametric uncertainties, code already does the right thing as long as they are non-constant RooRealVars linked to the model
+                if len(f[1:]) > 1:
+                    args = f[2:]
                 if options.flatParamPrior:
                     ret.systs.append([lsyst, nofloat, pdf, args, []])
                     ret.add_syst_id(lsyst)
