@@ -548,7 +548,7 @@ class ModelBuilder(ModelBuilderBase):
                         exit(0)
                     v = float(args[0])
                     try:
-                        x1, x2 = args[1].strip('[]').split(",")
+                        x1, x2 = args[1].strip("[]").split(",")
                     except Exception:
                         print("ERROR in flatParam - you need to include nominal value (v) and range  - name flatParam v [x1,x2] when including flat prior for parameter", c_param_name)
                         exit(0)
