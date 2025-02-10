@@ -542,7 +542,17 @@ class ModelBuilder(ModelBuilderBase):
                     v, x1, x2 = self.out.var(c_param_name).getVal(), self.out.var(c_param_name).getMin(), self.out.var(c_param_name).getMax()
                     self.DC.toCreateFlatParam[c_param_name] = [v, x1, x2]
                 else:
-                    self.DC.toCreateFlatParam[c_param_name] = []
+                    # have to assume the rest of the line is given to specify
+                    if not len(args):
+                        print("ERROR in flatParam - you need to include nominal value (v) and range  - name flatParam v [x1,x2] when including flat prior for parameter", c_param_name)
+                        exit(0)
+                    v = float(args[0])
+                    try:
+                        x1, x2 = args[1].strip('[]').split(",")
+                    except Exception:
+                        print("ERROR in flatParam - you need to include nominal value (v) and range  - name flatParam v [x1,x2] when including flat prior for parameter", c_param_name)
+                        exit(0)
+                    self.DC.toCreateFlatParam[c_param_name] = [v, float(x1), float(x2)]
 
             elif pdf == "dFD" or pdf == "dFD2":
                 dFD_min = -(1 + 8 / args[0])
@@ -832,9 +842,12 @@ class ModelBuilder(ModelBuilderBase):
                 if len(c_param_details):
                     v, x1, x2 = c_param_details
                 else:
-                    v, x1, x2 = self.out.var(c_param_name).getVal(), self.out.var(c_param_name).getMin(), self.out.var(c_param_name).getMax()
+                    print(exit("ERROR - No range set for nuisance parameter prior for ", c_param_name))
+                    exit(0)
                 if self.options.verbose > 2:
                     print("Will create flat prior for parameter ", c_param_name, " with range [", x1, x2, "]")
+                if not self.out.var(c_param_name):
+                    self.doVar("%s[%g,%g,%g]" % (c_param_name, v, x1, x2))
                 self.doExp(
                     "%s_diff_expr" % c_param_name, "%s-%s_In" % (c_param_name, c_param_name), "%s,%s_In[%g,%g,%g]" % (c_param_name, c_param_name, v, x1, x2)
                 )
