@@ -128,12 +128,13 @@ class STXSBaseModel(PhysicsModel):
 
     def getYieldScale(self, bin, process):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds"
-        # if process=="ggH_hzz": return self.getHiggsSignalYieldScale('ggH', 'hzz', '13TeV') # hzz process in the hww datacard is a background
-        # if process=="ggH_hww125": return self.getHiggsSignalYieldScale('ggH', 'hww', '13TeV') # hww process in the htt datacard is a background
-        # if process=="qqH_hww125": return self.getHiggsSignalYieldScale('qqH', 'hww', '13TeV') # hww process in the htt datacard is a background
-        # if process=="H_htt": return self.getHiggsSignalYieldScale('ggH', 'htt', '13TeV') # hack to make combination work, since WW datacrd has an improper naming
         if not self.DC.isSignal[process]:
             return 1
+        
+        # Fix FWDH bins to SM
+        if ("FWDH" in process)|("fwd" in process):
+            return 1
+
         (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode(bin, process, self.options)
         return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
 
