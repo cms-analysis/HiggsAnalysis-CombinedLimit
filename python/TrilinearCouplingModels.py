@@ -623,6 +623,7 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
         if not self.DC.isSignal[process]:
             return 1
         (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode(bin, process, self.options)
+
         # convert decay string back to CMS default syntax
         if foundDecay in list(LHCHCG_DecSimple_to_CMS.keys()):
             foundDecay = LHCHCG_DecSimple_to_CMS[foundDecay]
@@ -642,6 +643,10 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
         m = {
             "ZH_lep": "ZH",
             "WH_lep": "WH",
+            "ZH_had": "ZH",
+            "WH_had": "WH",
+            "ZH_had_fwd": "ZH_had_FWDH",
+            "WH_had_fwd": "WH_had_FWDH",
             "ZH_PTV_0_75": "ZH_lep_PTV_0_75",
             "ZH_PTV_75_150": "ZH_lep_PTV_75_150",
             "ZH_PTV_150_250_0J": "ZH_lep_PTV_150_250_0J",
@@ -653,6 +658,7 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
             "WH_PTV_150_250_GE1J": "WH_lep_PTV_150_250_GE1J",
             "WH_PTV_GT250": "WH_lep_PTV_GT250",
             "ttH_PTH_fwd": "ttH_FWDH",
+            "ttH_fwd": "ttH_FWDH",
             "WH_FWDH": "WH_lep_FWDH",
             "ZH_FWDH": "ZH_lep_FWDH",
             "qqH_QQ2HQQ_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25": "qqH_GE2J_MJJ_350_700_PTH_0_200_PTHJJ_GT25",
@@ -665,12 +671,98 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
             "qqH_QQ2HQQ_GE2J_MJJ_GT350_PTH_GT200": "qqH_GE2J_MJJ_GT350_PTH_GT200",
             "qqH_QQ2HQQ_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25": "qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25",
             "qqH_QQ2HQQ_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25": "qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25",
+            # For H->bb boosted finer split scheme...
+            "qqH_GE2J_MJJ_0_60_PTHJJ_0_25":"qqH_GE2J_MJJ_0_60",
+            "qqH_GE2J_MJJ_0_60_PTHJJ_GT25":"qqH_GE2J_MJJ_0_60",
+            "qqH_GE2J_MJJ_60_120_PTHJJ_0_25":"qqH_GE2J_MJJ_60_120",
+            "qqH_GE2J_MJJ_60_120_PTHJJ_GT25":"qqH_GE2J_MJJ_60_120",
+            "qqH_GE2J_MJJ_120_350_PTHJJ_0_25":"qqH_GE2J_MJJ_120_350",
+            "qqH_GE2J_MJJ_120_350_PTHJJ_GT25":"qqH_GE2J_MJJ_120_350",
+            "qqH_GE2J_MJJ_350_700_PTH_GT200_PTHJJ_0_25":"qqH_GE2J_MJJ_GT350_PTH_GT200",
+            "qqH_GE2J_MJJ_350_700_PTH_GT200_PTHJJ_GT25":"qqH_GE2J_MJJ_GT350_PTH_GT200",
+            "qqH_GE2J_MJJ_700_1000_PTH_GT200_PTHJJ_0_25":"qqH_GE2J_MJJ_GT350_PTH_GT200",
+            "qqH_GE2J_MJJ_700_1000_PTH_GT200_PTHJJ_GT25":"qqH_GE2J_MJJ_GT350_PTH_GT200",
+            "qqH_GE2J_MJJ_1000_1500_PTH_GT200_PTHJJ_0_25":"qqH_GE2J_MJJ_GT350_PTH_GT200",
+            "qqH_GE2J_MJJ_1000_1500_PTH_GT200_PTHJJ_GT25":"qqH_GE2J_MJJ_GT350_PTH_GT200",
+            "qqH_GE2J_MJJ_GT1500_PTH_GT200_PTHJJ_0_25":"qqH_GE2J_MJJ_GT350_PTH_GT200",
+            "qqH_GE2J_MJJ_GT1500_PTH_GT200_PTHJJ_GT25":"qqH_GE2J_MJJ_GT350_PTH_GT200",
+            "qqH_GE2J_MJJ_700_1000_PTH_0_200_PTHJJ_0_25":"qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25",
+            "qqH_GE2J_MJJ_1000_1500_PTH_0_200_PTHJJ_0_25":"qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25",
+            "qqH_GE2J_MJJ_GT1500_PTH_0_200_PTHJJ_0_25":"qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25",
+            "qqH_GE2J_MJJ_700_1000_PTH_0_200_PTHJJ_GT25":"qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25",
+            "qqH_GE2J_MJJ_1000_1500_PTH_0_200_PTHJJ_GT25":"qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25",
+            "qqH_GE2J_MJJ_GT1500_PTH_0_200_PTHJJ_GT25":"qqH_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25",
+            "WH_had_GE2J_MJJ_0_60_PTHJJ_0_25":"WH_had_GE2J_MJJ_0_60",
+            "WH_had_GE2J_MJJ_0_60_PTHJJ_GT25":"WH_had_GE2J_MJJ_0_60",
+            "WH_had_GE2J_MJJ_60_120_PTHJJ_0_25":"WH_had_GE2J_MJJ_60_120",
+            "WH_had_GE2J_MJJ_60_120_PTHJJ_GT25":"WH_had_GE2J_MJJ_60_120",
+            "WH_had_GE2J_MJJ_120_350_PTHJJ_0_25":"WH_had_GE2J_MJJ_120_350",
+            "WH_had_GE2J_MJJ_120_350_PTHJJ_GT25":"WH_had_GE2J_MJJ_120_350",
+            "WH_had_GE2J_MJJ_350_700_PTH_GT200_PTHJJ_0_25":"WH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "WH_had_GE2J_MJJ_350_700_PTH_GT200_PTHJJ_GT25":"WH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "WH_had_GE2J_MJJ_700_1000_PTH_GT200_PTHJJ_0_25":"WH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "WH_had_GE2J_MJJ_700_1000_PTH_GT200_PTHJJ_GT25":"WH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "WH_had_GE2J_MJJ_1000_1500_PTH_GT200_PTHJJ_0_25":"WH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "WH_had_GE2J_MJJ_1000_1500_PTH_GT200_PTHJJ_GT25":"WH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "WH_had_GE2J_MJJ_GT1500_PTH_GT200_PTHJJ_0_25":"WH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "WH_had_GE2J_MJJ_GT1500_PTH_GT200_PTHJJ_GT25":"WH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "WH_had_GE2J_MJJ_700_1000_PTH_0_200_PTHJJ_0_25":"WH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25",
+            "WH_had_GE2J_MJJ_1000_1500_PTH_0_200_PTHJJ_0_25":"WH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25",
+            "WH_had_GE2J_MJJ_GT1500_PTH_0_200_PTHJJ_0_25":"WH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25",
+            "WH_had_GE2J_MJJ_700_1000_PTH_0_200_PTHJJ_GT25":"WH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25",
+            "WH_had_GE2J_MJJ_1000_1500_PTH_0_200_PTHJJ_GT25":"WH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25",
+            "WH_had_GE2J_MJJ_GT1500_PTH_0_200_PTHJJ_GT25":"WH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25",
+            "ZH_had_GE2J_MJJ_0_60_PTHJJ_0_25":"ZH_had_GE2J_MJJ_0_60",
+            "ZH_had_GE2J_MJJ_0_60_PTHJJ_GT25":"ZH_had_GE2J_MJJ_0_60",
+            "ZH_had_GE2J_MJJ_60_120_PTHJJ_0_25":"ZH_had_GE2J_MJJ_60_120",
+            "ZH_had_GE2J_MJJ_60_120_PTHJJ_GT25":"ZH_had_GE2J_MJJ_60_120",
+            "ZH_had_GE2J_MJJ_120_350_PTHJJ_0_25":"ZH_had_GE2J_MJJ_120_350",
+            "ZH_had_GE2J_MJJ_120_350_PTHJJ_GT25":"ZH_had_GE2J_MJJ_120_350",
+            "ZH_had_GE2J_MJJ_350_700_PTH_GT200_PTHJJ_0_25":"ZH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "ZH_had_GE2J_MJJ_350_700_PTH_GT200_PTHJJ_GT25":"ZH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "ZH_had_GE2J_MJJ_700_1000_PTH_GT200_PTHJJ_0_25":"ZH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "ZH_had_GE2J_MJJ_700_1000_PTH_GT200_PTHJJ_GT25":"ZH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "ZH_had_GE2J_MJJ_1000_1500_PTH_GT200_PTHJJ_0_25":"ZH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "ZH_had_GE2J_MJJ_1000_1500_PTH_GT200_PTHJJ_GT25":"ZH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "ZH_had_GE2J_MJJ_GT1500_PTH_GT200_PTHJJ_0_25":"ZH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "ZH_had_GE2J_MJJ_GT1500_PTH_GT200_PTHJJ_GT25":"ZH_had_GE2J_MJJ_GT350_PTH_GT200",
+            "ZH_had_GE2J_MJJ_700_1000_PTH_0_200_PTHJJ_0_25":"ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25",
+            "ZH_had_GE2J_MJJ_1000_1500_PTH_0_200_PTHJJ_0_25":"ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25",
+            "ZH_had_GE2J_MJJ_GT1500_PTH_0_200_PTHJJ_0_25":"ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_0_25",
+            "ZH_had_GE2J_MJJ_700_1000_PTH_0_200_PTHJJ_GT25":"ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25",
+            "ZH_had_GE2J_MJJ_1000_1500_PTH_0_200_PTHJJ_GT25":"ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25",
+            "ZH_had_GE2J_MJJ_GT1500_PTH_0_200_PTHJJ_GT25":"ZH_had_GE2J_MJJ_GT700_PTH_0_200_PTHJJ_GT25",
+            "WH_lep_PTV_0_75_1J" : "WH_lep_PTV_0_75",
+            "WH_lep_PTV_0_75_GE2J" : "WH_lep_PTV_0_75",
+            "WH_lep_PTV_150_250_1J" : "WH_lep_PTV_150_250_GE1J",
+            "WH_lep_PTV_150_250_GE2J" : "WH_lep_PTV_150_250_GE1J",
+            "WH_lep_PTV_250_400_1J" : "WH_lep_PTV_250_400",
+            "WH_lep_PTV_250_400_GE2J" : "WH_lep_PTV_250_400",
+            "WH_lep_PTV_75_150_1J" : "WH_lep_PTV_75_150",
+            "WH_lep_PTV_75_150_GE2J" : "WH_lep_PTV_75_150",
+            "WH_lep_PTV_GT400_0J" : "WH_lep_PTV_GT400",
+            "WH_lep_PTV_GT400_1J" : "WH_lep_PTV_GT400",
+            "WH_lep_PTV_GT400_GE2J" : "WH_lep_PTV_GT400",
+            "ZH_lep_PTV_0_75_GE2J" : "ZH_lep_PTV_0_75",
+            "ZH_lep_PTV_150_250_1J" : "ZH_lep_PTV_150_250_GE1J",
+            "ZH_lep_PTV_150_250_GE2J" : "ZH_lep_PTV_150_250_GE1J",
+            "ZH_lep_PTV_250_400_GE2J" : "ZH_lep_PTV_250_400",
+            "ZH_lep_PTV_250_400_1J" : "ZH_lep_PTV_250_400",
+            "ZH_lep_PTV_250_400" : "ZH_lep_PTV_250_400",
+            "ZH_lep_PTV_75_150_1J" : "ZH_lep_PTV_75_150",
+            "ZH_lep_PTV_75_150_GE2J" : "ZH_lep_PTV_75_150",
+            "ZH_lep_PTV_GT400_0J" : "ZH_lep_PTV_GT400",
+            "ZH_lep_PTV_GT400_1J" : "ZH_lep_PTV_GT400",
+            "ZH_lep_PTV_GT400_GE2J" : "ZH_lep_PTV_GT400",
         }
-
+    
         if processSource in list(m.keys()):
             processSource = m[processSource]
 
         if production in ["ggZH", "tHq", "tHW", "ggH", "bbH"]:  # scale the inclusive XS
+            XSscal = self.STXSScalingFunctions[production]
+        # Catch for H->Zgam
+        elif (decay == "hzg")|("bkg" in processSource):
             XSscal = self.STXSScalingFunctions[production]
         elif production in ["ZH", "WH", "ttH", "qqH"]:  # scale the specific STXS bin
             XSscal = self.STXSScalingFunctions[processSource]

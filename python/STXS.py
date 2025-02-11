@@ -330,6 +330,7 @@ stxs1p2_fine_smeft_mapping = {
     "ZH_lep_PTV_0_75_GE2J" : "ZH_lep_PTV_0_75",
     "ZH_lep_PTV_150_250_1J" : "ZH_lep_PTV_150_250_GE1J",
     "ZH_lep_PTV_150_250_GE2J" : "ZH_lep_PTV_150_250_GE1J",
+    "ZH_lep_PTV_250_400_GE2J" : "ZH_lep_PTV_GT250",
     "ZH_lep_PTV_250_400_1J" : "ZH_lep_PTV_GT250",
     "ZH_lep_PTV_250_400" : "ZH_lep_PTV_GT250",
     "ZH_lep_PTV_75_150_1J" : "ZH_lep_PTV_75_150",

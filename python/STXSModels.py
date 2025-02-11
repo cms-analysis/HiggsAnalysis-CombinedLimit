@@ -19,7 +19,8 @@ ALL_STXS_PROCS = {
         "ggZH_lep*": "totZH_lep",
         "ZH_lep*": "totZH_lep",
         "WH_lep*": "WH_lep",
-        "[VWZ]H_had*": "qqH",
+        #"[VWZ]H_had*": "qqH",
+        "[VWZ]H_had*": "VH_had",
     }
 }
 
