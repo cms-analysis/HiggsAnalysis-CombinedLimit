@@ -113,7 +113,7 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
         self.floatMass = False
         self.fixProcesses = fixProcesses  # Option to fix certain STXS bins: comma separated list of STXS bins
         self.stage0 = False
-        self.parametrisation = "CMS-prelim-SMEFT-topU3l_22_05_05_AccCorr_0p01"
+        self.parametrisation = "CMS-prelim-SMEFT-topU3l_22_05_05_AccCorr_HighPtFineSplit_0p01"
         self.eigenvalueThreshold = -1
         # Configuration of model: taylor expansion vs full, save only linear/linquad
         self.linear_only = False
