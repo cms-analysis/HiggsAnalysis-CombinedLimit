@@ -544,13 +544,19 @@ class ModelBuilder(ModelBuilderBase):
                 else:
                     # have to assume the rest of the line is given to specify
                     if not len(args):
-                        print("ERROR in flatParam - you need to include nominal value (v) and range  - name flatParam v [x1,x2] when including flat prior for parameter", c_param_name)
+                        print(
+                            "ERROR in flatParam - you need to include nominal value (v) and range  - name flatParam v [x1,x2] when including flat prior for parameter",
+                            c_param_name,
+                        )
                         exit(0)
                     v = float(args[0])
                     try:
                         x1, x2 = args[1].strip("[]").split(",")
                     except Exception:
-                        print("ERROR in flatParam - you need to include nominal value (v) and range  - name flatParam v [x1,x2] when including flat prior for parameter", c_param_name)
+                        print(
+                            "ERROR in flatParam - you need to include nominal value (v) and range  - name flatParam v [x1,x2] when including flat prior for parameter",
+                            c_param_name,
+                        )
                         exit(0)
                     self.DC.toCreateFlatParam[c_param_name] = [v, float(x1), float(x2)]
 
