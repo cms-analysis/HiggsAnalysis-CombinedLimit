@@ -4,6 +4,7 @@ project(HiggsAnalysisCombinedLimit VERSION 0.0.1)
 
 option( MODIFY_ROOTMAP "Modify generated Rootmap to take out classes already bundled in StatAnalysis" FALSE )
 option( INSTALL_PYTHON "Install the Python library and scripts" TRUE )
+option( USE_VDT "Use VDT (fast and vectorisable mathematical functions)" TRUE )
 
 # Can build with CMake after e.g. setting up StatAnalysis release like this:
 # export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
@@ -41,7 +42,13 @@ ROOT_GENERATE_DICTIONARY(G__${LIBNAME} HiggsAnalysis/CombinedLimit/src/classes.h
         OPTIONS ${ROOTCLING_OPTIONS})
 add_library(${LIBNAME} SHARED ${SOURCES} G__${LIBNAME}.cxx)
 set_target_properties(${LIBNAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
-target_link_libraries (${LIBNAME} Eigen3::Eigen ${ROOT_LIBRARIES} ${Boost_LIBRARIES} VDT::VDT)
+target_link_libraries (${LIBNAME} Eigen3::Eigen ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
+
+if(NOT USE_VDT)
+  target_compile_definitions(${LIBNAME} PUBLIC COMBINE_NO_VDT)
+else()
+  target_link_libraries (${LIBNAME} VDT::VDT)
+endif()
 
 add_executable(combine bin/combine.cpp)
 target_link_libraries(combine PUBLIC ${LIBNAME})

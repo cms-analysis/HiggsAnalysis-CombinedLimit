@@ -2,13 +2,10 @@
 #include <math.h>
 #include "TMath.h"
 
-//#include "../interface/RooDoubleCBFast.h"
-//#include "../interface/RooFermi.h"
-//#include "../interface/RooRelBW.h"
 #include "../interface/RooDoubleCBFast.h"
 #include "RooRealVar.h"
 #include "RooRealConstant.h"
-#include "../interface/GBRMath.h"
+#include "./MathHeaders.h"
 
 using namespace RooFit;
 
@@ -52,21 +49,21 @@ using namespace RooFit;
  
  double RooDoubleCBFast::evaluate() const 
  { 
-   double t = (x-mean)*vdt::fast_inv(width);
+   double t = (x-mean)*my_inv(width);
    double val = -99.;
    if(t>-alpha1 && t<alpha2){
-     val = vdt::fast_exp(-0.5*t*t);
+     val = my_exp(-0.5*t*t);
    }else if(t<=-alpha1){
-     double alpha1invn1 = alpha1*vdt::fast_inv(n1);
-     val = vdt::fast_exp(-0.5*alpha1*alpha1)*gbrmath::fast_pow(1. - alpha1invn1*(alpha1+t), -n1);
+     double alpha1invn1 = alpha1*my_inv(n1);
+     val = my_exp(-0.5*alpha1*alpha1)*gbrmath::fast_pow(1. - alpha1invn1*(alpha1+t), -n1);
      
 //      double n1invalpha1 = n1*vdt::fast_inv(fabs(alpha1));
 //      double A1 = gbrmath::fast_pow(n1invalpha1,n1)*vdt::fast_exp(-alpha1*alpha1/2.);
 //      double B1 = n1invalpha1-fabs(alpha1);
 //      val = A1*gbrmath::fast_pow(B1-t,-n1);
    }else if(t>=alpha2){
-     double alpha2invn2 = alpha2*vdt::fast_inv(n2);
-     val = vdt::fast_exp(-0.5*alpha2*alpha2)*gbrmath::fast_pow(1. - alpha2invn2*(alpha2-t), -n2);     
+     double alpha2invn2 = alpha2*my_inv(n2);
+     val = my_exp(-0.5*alpha2*alpha2)*gbrmath::fast_pow(1. - alpha2invn2*(alpha2-t), -n2);     
      
 //      double n2invalpha2 = n2*vdt::fast_inv(fabs(alpha2));
 //      double A2 = gbrmath::fast_pow(n2invalpha2,n2)*vdt::fast_exp(-alpha2*alpha2/2.);
@@ -111,7 +108,7 @@ using namespace RooFit;
    static const double rootPiBy2 = sqrt(atan2(0.0,-1.0)/2.0);
    static const double invRoot2 = 1.0/sqrt(2);   
    
-   double invwidth = vdt::fast_inv(width);
+   double invwidth = my_inv(width);
    
    double tmin = (xmin-mean)*invwidth;
    double tmax = (xmax-mean)*invwidth;
@@ -129,7 +126,7 @@ using namespace RooFit;
    }
    //compute left tail;
    if (isfullrange  && (n1-1.0)>1.e-5) {
-    left = width*vdt::fast_exp(-0.5*alpha1*alpha1)*n1*vdt::fast_inv(alpha1*(n1-1.)); 
+    left = width*my_exp(-0.5*alpha1*alpha1)*n1*my_inv(alpha1*(n1-1.)); 
    }
    else {
   
@@ -138,11 +135,11 @@ using namespace RooFit;
     double thigh = (left_high-mean)*invwidth;
     
     if(left_low < left_high){ //is the left tail in range?
-     double n1invalpha1 = n1*vdt::fast_inv(fabs(alpha1));
+     double n1invalpha1 = n1*my_inv(fabs(alpha1));
       if(fabs(n1-1.0)>1.e-5) {
-	double invn1m1 = vdt::fast_inv(n1-1.);
+	double invn1m1 = my_inv(n1-1.);
 	double leftpow = gbrmath::fast_pow(n1invalpha1,-n1*invn1m1);
-	double left0 = width*vdt::fast_exp(-0.5*alpha1*alpha1)*invn1m1;
+	double left0 = width*my_exp(-0.5*alpha1*alpha1)*invn1m1;
 	double left1, left2;
 	
 	if (xmax>(mean-alpha1*width)) left1 = n1invalpha1;
@@ -158,16 +155,16 @@ using namespace RooFit;
 	//left = A1*vdt::fast_inv(-n1+1.0)*width*(gbrmath::fast_pow(B1-(left_low-mean)*invwidth,-n1+1.)-gbrmath::fast_pow(B1-(left_high-mean)*invwidth,-n1+1.));
       }
       else {
-	double A1 = gbrmath::fast_pow(n1invalpha1,n1)*vdt::fast_exp(-0.5*alpha1*alpha1);
+	double A1 = gbrmath::fast_pow(n1invalpha1,n1)*my_exp(-0.5*alpha1*alpha1);
 	double B1 = n1invalpha1-fabs(alpha1);	
-	left = A1*width*(vdt::fast_log(B1-(left_low-mean)*invwidth) - vdt::fast_log(B1-(left_high-mean)*invwidth) );
+	left = A1*width*(my_log(B1-(left_low-mean)*invwidth) - my_log(B1-(left_high-mean)*invwidth) );
       }
     }
    }
  
    //compute right tail;
    if (isfullrange && (n2-1.0)>1.e-5) {
-     right = width*vdt::fast_exp(-0.5*alpha2*alpha2)*n2*vdt::fast_inv(alpha2*(n2-1.));
+     right = width*my_exp(-0.5*alpha2*alpha2)*n2*my_inv(alpha2*(n2-1.));
    }
    else {    
     double right_low=std::max(xmin,mean + alpha2*width);
@@ -175,11 +172,11 @@ using namespace RooFit;
     double tlow = (right_low - mean)*invwidth;
     
     if(right_low < right_high){ //is the right tail in range?
-      double n2invalpha2 = n2*vdt::fast_inv(fabs(alpha2)); 
+      double n2invalpha2 = n2*my_inv(fabs(alpha2)); 
       if(fabs(n2-1.0)>1.e-5) {
-	double invn2m2 = vdt::fast_inv(n2-1.);
+	double invn2m2 = my_inv(n2-1.);
 	double rightpow = gbrmath::fast_pow(n2invalpha2,-n2*invn2m2);
-	double right0 = width*vdt::fast_exp(-0.5*alpha2*alpha2)*invn2m2;
+	double right0 = width*my_exp(-0.5*alpha2*alpha2)*invn2m2;
 	double right1, right2;
 	
 	if (xmin<(mean+alpha2*width)) right1 = n2invalpha2;
@@ -193,9 +190,9 @@ using namespace RooFit;
 	//right = A2*vdt::fast_inv(-n2+1.0)*width*(gbrmath::fast_pow(B2+(right_high-mean)*invwidth,-n2+1.)-gbrmath::fast_pow(B2+(right_low-mean)*invwidth,-n2+1.));
       }
       else {
-	double A2 = gbrmath::fast_pow(n2invalpha2,n2)*vdt::fast_exp(-0.5*alpha2*alpha2);
+	double A2 = gbrmath::fast_pow(n2invalpha2,n2)*my_exp(-0.5*alpha2*alpha2);
 	double B2 = n2invalpha2-fabs(alpha2);
-	right = A2*width*(vdt::fast_log(B2+(right_high-mean)*invwidth) - vdt::fast_log(B2+(right_low-mean)*invwidth) );
+	right = A2*width*(my_log(B2+(right_high-mean)*invwidth) - my_log(B2+(right_low-mean)*invwidth) );
       }
     }
    }
