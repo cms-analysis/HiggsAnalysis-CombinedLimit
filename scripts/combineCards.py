@@ -471,10 +471,12 @@ for pname in six.iterkeys(flatParamNuisances):
     print("%-12s  flatParam" % pname)
 
 # filter rateParams to only include those that are not any formulas
-rateParams_withFormula = list(filter(
-    lambda x: any(entry[0][-1] == 1 for entry in x[-1] if isinstance(entry, list)),
-    rateParamsPerCard,
-))
+rateParams_withFormula = list(
+    filter(
+        lambda x: any(entry[0][-1] == 1 for entry in x[-1] if isinstance(entry, list)),
+        rateParamsPerCard,
+    )
+)
 
 # first process all parameters that do not contain formulars
 for tbin, tproc, params in rateParamsPerCard:
