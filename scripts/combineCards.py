@@ -469,14 +469,31 @@ for pname, pargs in paramSysts.items():
 
 for pname in six.iterkeys(flatParamNuisances):
     print("%-12s  flatParam" % pname)
+
+# filter rateParams to only include those that are not any formulas
+rateParams_withFormula = list(filter(
+    lambda x: any(entry[0][-1] == 1 for entry in x[-1] if isinstance(entry, list)),
+    rateParamsPerCard,
+))
+
+# first process all parameters that do not contain formulars
 for tbin, tproc, params in rateParamsPerCard:
-    for param in params:
+    simple_params = list(filter(lambda x: x[0][-1] != 1, params))
+    for param in simple_params:
         print("%-12s  rateParam %s %s %s" % (param[0][0], tbin + " " + tproc, " ".join(param[0][1:-1]), param[1]))
         # param[0][-1] is parameter type, see DatacardParser:addRateParam()
 for dname in six.iterkeys(discreteNuisances):
     print("%-12s  discrete" % dname)
 for ext in six.iterkeys(extArgs):
     print("%s" % " ".join(extArgs[ext]))
+
+# after including all the 'simple' parameters, include the ones with formulas
+for tbin, tproc, params in rateParams_withFormula:
+    forumla_params = list(filter(lambda x: x[0][-1] == 1, params))
+    for param in forumla_params:
+        print("%-12s  rateParam %s %s %s" % (param[0][0], tbin + " " + tproc, " ".join(param[0][1:-1]), param[1]))
+
+
 for groupName, nuisanceNames in six.iteritems(groups):
     nuisances = " ".join(nuisanceNames)
     print("%(groupName)s group = %(nuisances)s" % locals())
