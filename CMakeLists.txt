@@ -15,7 +15,7 @@ option( INSTALL_PYTHON "Install the Python library and scripts" TRUE )
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 find_package(ROOT REQUIRED COMPONENTS MathMore RooFitCore RooFit RooStats HistFactory)
 find_package(Eigen3 REQUIRED)
-find_package(Vdt)
+# Temp disable vdt as can't be found find_package(Vdt) in clang-tidy workflow
 find_package(LCG QUIET) # only used for FindBoost in StatAnalysis
 find_package(Boost CONFIG REQUIRED COMPONENTS program_options filesystem)
 
@@ -42,7 +42,7 @@ ROOT_GENERATE_DICTIONARY(G__${LIBNAME} HiggsAnalysis/CombinedLimit/src/classes.h
         OPTIONS ${ROOTCLING_OPTIONS})
 add_library(${LIBNAME} SHARED ${SOURCES} G__${LIBNAME}.cxx)
 set_target_properties(${LIBNAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
-target_link_libraries (${LIBNAME} Eigen3::Eigen ${ROOT_LIBRARIES} ${Boost_LIBRARIES} VDT::VDT)
+target_link_libraries (${LIBNAME} Eigen3::Eigen ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(combine bin/combine.cpp)
 target_link_libraries(combine PUBLIC ${LIBNAME})
