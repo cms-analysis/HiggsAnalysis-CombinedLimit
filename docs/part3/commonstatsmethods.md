@@ -140,7 +140,7 @@ The **a-priori** expected significance from the Asimov dataset is calculated as
 combine -M Significance datacard.txt -t -1 --expectSignal=1
 ```
 
-In order to produce the **a-posteriori** expected significance, just generate a post-fit Asimov data set by adding the option `--toysFreq` in the command above.
+In order to produce the **a-posteriori** expected significance, just generate a post-fit Asimov data set by adding the option `--toysFrequentist` in the command above.
 
 The output format is the same as for observed significances: the variable **limit** in the tree will be filled with the significance (or with the p-value if you put also the option `--pvalue`)
 
