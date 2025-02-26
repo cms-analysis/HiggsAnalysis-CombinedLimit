@@ -2243,7 +2243,7 @@ Done in 0.00 min (cpu), 0.01 min (real)
 <p>The <strong>a-priori</strong> expected significance from the Asimov dataset is calculated as</p>
 <div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>Significance<span class="w"> </span>datacard.txt<span class="w"> </span>-t<span class="w"> </span>-1<span class="w"> </span>--expectSignal<span class="o">=</span><span class="m">1</span>
 </code></pre></div>
-<p>In order to produce the <strong>a-posteriori</strong> expected significance, just generate a post-fit Asimov data set by adding the option <code>--toysFreq</code> in the command above.</p>
+<p>In order to produce the <strong>a-posteriori</strong> expected significance, just generate a post-fit Asimov data set by adding the option <code>--toysFrequentist</code> in the command above.</p>
 <p>The output format is the same as for observed significances: the variable <strong>limit</strong> in the tree will be filled with the significance (or with the p-value if you put also the option <code>--pvalue</code>)</p>
 <h2 id="bayesian-limits-and-credible-regions">Bayesian Limits and Credible regions</h2>
 <p>Bayesian calculation of limits requires the user to assume a particular prior distribution for the parameter of interest (default <strong>r</strong>). You can specify the prior using the <code>--prior</code> option, the default is a flat pior in <strong>r</strong>.</p>
