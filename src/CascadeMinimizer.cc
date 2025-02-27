@@ -568,19 +568,6 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     //if (mode!=0) utils::reorderCombinations(myCombos,pdfSizes,bestIndeces);
     utils::reorderCombinations(myCombos,pdfSizes,bestIndeces);
 
-    int numberOfCombinations = 1;
-    if (mode==1 || mode==0) numberOfCombinations=myCombos.size();
-
-    else {
-    	for (int i=0;i<numIndeces;i++){
-	 int nokpdfs=0;
-      	 for (int j=0;j<pdfSizes[i];j++){
-	   nokpdfs+=contributingIndeces[i][j];
-         }
-	 numberOfCombinations*=nokpdfs;
-	}
-    }
-
     std::vector<std::vector<int> >::iterator my_it = myCombos.begin();
     if (mode!=0) my_it++; // already did the best fit case
   
