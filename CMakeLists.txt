@@ -12,7 +12,6 @@ option( INSTALL_PYTHON "Install the Python library and scripts" TRUE )
 # cmake path/to/source # change this path to where-ever you cloned Combine repo to
 # make -j4
 
-list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 find_package(ROOT REQUIRED COMPONENTS MathMore RooFitCore RooFit RooStats HistFactory)
 find_package(Eigen3 REQUIRED)
 find_package(Vdt)
@@ -46,11 +45,6 @@ target_link_libraries (${LIBNAME} Eigen3::Eigen ${ROOT_LIBRARIES} ${Boost_LIBRAR
 
 add_executable(combine bin/combine.cpp)
 target_link_libraries(combine PUBLIC ${LIBNAME})
-
-
-# Create empty __init__.py file in the build directory that will be installed
-# in the Python library directories.
-set(empty_init_py "${CMAKE_CURRENT_BINARY_DIR}/__init__.py")
 
 if(MODIFY_ROOTMAP)
         # edit the generated rootmap in-situ before installation
@@ -104,36 +98,29 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/HiggsAnalysis/CombinedLimit/src/classe
 # Install the "combine" executable in the bin directory.
 install(TARGETS combine DESTINATION bin)
 
-# This block is commented out for now, while using the less sophisticated location below
-# Check if the Python library installation directory is outside the install
-# prefix. If it is, we error out because CMake should not install files outside
-# the prefix. In the future, one can imagine to let the user choose where the
-# Python libraries get installed in the prefix with a CMake configuration flag.
-#find_package(Python COMPONENTS Interpreter Development) # To get the Python library install directory into Python_SITELIB
-#cmake_path(IS_PREFIX CMAKE_INSTALL_PREFIX "${Python_SITELIB}" sitelib_in_prefix)
-#if(NOT ${sitelib_in_prefix})
-#    message( FATAL_ERROR "Your Python library installation directory ${Python_SITELIB} "
-#            "is outside the install prefix ${CMAKE_INSTALL_PREFIX}! "
-#            "This is not supported for now. Consider changing the install prefix "
-#            "with the -DCMAKE_INSTALL_PREFIX:PATH=<path> cmake configuration option.")
-#endif()
-#
-## The the Python library installation directory relative to the install prefix.
-#file(RELATIVE_PATH Python_SITELIB_IN_PREFIX ${CMAKE_INSTALL_PREFIX} ${Python_SITELIB})
 
 if(INSTALL_PYTHON)
-  # Install the scripts like "text2workspace" to the bin directory.
-  install(DIRECTORY scripts/ DESTINATION bin)
+  # In conda-forge cross-compiling builds we hardcode Python_SITELIB because
+  # find_package does not ever find the right version, unfortunately.
+  # In any other environment, find_package should work fine
+  if(NOT DEFINED Python_SITELIB)
+          find_package(Python REQUIRED COMPONENTS Interpreter)
+  endif()
 
-  set(Python_SITELIB_IN_PREFIX "python")
-
+  # The the Python library installation directory relative to the install prefix.
+  file(RELATIVE_PATH Python_SITELIB_IN_PREFIX ${CMAKE_INSTALL_PREFIX} ${Python_SITELIB})
   message (STATUS "Using Python install location:" ${Python_SITELIB_IN_PREFIX})
+
+  # Install the scripts like "text2workspace.py" to the bin directory.
+  install(DIRECTORY scripts/ DESTINATION bin USE_SOURCE_PERMISSIONS)
+
   # The python package will be installed in such a way that the original
   # CMSSW-style directory structure is kept, for maximal compatibility.
   install(DIRECTORY python/ DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/CombinedLimit)
 
-  # Create empty __init__.py files in the Python package subdirectories such that
-  # the Python imports work.
+  # Create empty __init__.py file in the build directory that will be installed
+  # in the Python library directories.
+  set(empty_init_py "${CMAKE_CURRENT_BINARY_DIR}/__init__.py")
   file(TOUCH ${empty_init_py})
   INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis)
   INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/CombinedLimit)
