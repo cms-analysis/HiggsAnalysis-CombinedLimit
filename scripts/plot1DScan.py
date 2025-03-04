@@ -8,14 +8,15 @@ import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import json
 import argparse
 import os.path
+import cmsstyle as CMS
 from six.moves import range
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
-plot.ModTDRStyle(width=700, l=0.13)
-ROOT.gStyle.SetNdivisions(510, "XYZ")
+CMS.setCMSStyle()
 ROOT.gStyle.SetMarkerSize(0.7)
+ROOT.gStyle.SetNdivisions(510, "XYZ")
 
 NAMECOUNTER = 0
 
@@ -56,7 +57,7 @@ def BuildScan(scan, param, files, color, yvals, ycut):
     func.SetLineWidth(3)
     assert bestfit is not None
     crossings = {}
-    cross_1sig = None
+    #cross_1sig = None
     cross_2sig = None
     other_1sig = []
     other_2sig = []
@@ -99,8 +100,8 @@ def BuildScan(scan, param, files, color, yvals, ycut):
 parser = argparse.ArgumentParser()
 
 parser.add_argument("main", help="Main input file for the scan")
-parser.add_argument("--y-cut", type=float, default=7.0, help="Remove points with y > y-cut")
-parser.add_argument("--y-max", type=float, default=8.0, help="y-axis maximum")
+parser.add_argument("--y-cut", type=float, default=6.0, help="Remove points with y > y-cut")
+parser.add_argument("--y-max", type=float, default=7.0, help="y-axis maximum")
 parser.add_argument("--output", "-o", help="output name without file extension", default="scan")
 parser.add_argument("--POI", help="use this parameter of interest", default="r")
 parser.add_argument("--translate", default=None, help="json file with POI name translation")
@@ -136,9 +137,13 @@ if args.others is not None:
         other_scans_opts.append(splitargs)
         other_scans.append(BuildScan(args.output, args.POI, [splitargs[0]], int(splitargs[2]), yvals, args.y_cut))
 
-
 canv = ROOT.TCanvas(args.output, args.output)
+canv.SetCanvasSize(760, 625)
 pads = plot.OnePad()
+
+
+plot.Set(ROOT.gPad, TopMargin=0.08, LeftMargin=0.12, RightMargin=0.02, BottomMargin=0.13)
+
 main_scan["graph"].SetMarkerColor(1)
 main_scan["graph"].Draw("AP")
 
@@ -147,6 +152,7 @@ axishist = plot.GetAxisHist(pads[0])
 axishist.SetMinimum(min(main_scan["graph"].GetY()))
 axishist.SetMaximum(args.y_max)
 axishist.GetYaxis().SetTitle("- 2 #Delta ln L")
+axishist.GetYaxis().SetTitleOffset(1.0)
 axishist.GetXaxis().SetTitle("%s" % fixed_name)
 
 new_min = axishist.GetXaxis().GetXmin()
@@ -171,7 +177,6 @@ for other in other_scans:
 
 line = ROOT.TLine()
 line.SetLineColor(16)
-# line.SetLineStyle(7)
 for yval in yvals:
     plot.DrawHorizontalLine(pads[0], line, yval)
     if len(other_scans) == 0:
@@ -189,7 +194,8 @@ for other in other_scans:
     other["func"].Draw("SAME")
 
 
-box = ROOT.TBox(axishist.GetXaxis().GetXmin(), 0.625 * args.y_max, axishist.GetXaxis().GetXmax(), args.y_max)
+box = ROOT.TBox(axishist.GetXaxis().GetXmin(), 0.725 * args.y_max, axishist.GetXaxis().GetXmax(), args.y_max)
+box.SetFillColor(0)
 box.Draw()
 pads[0].GetFrame().Draw()
 pads[0].RedrawAxis()
@@ -198,11 +204,13 @@ crossings = main_scan["crossings"]
 val_nom = main_scan["val"]
 val_2sig = main_scan["val_2sig"]
 
+latex = ROOT.TLatex()
 textfit = "%s = %.3f{}^{#plus %.3f}_{#minus %.3f}" % (fixed_name, val_nom[0], val_nom[1], abs(val_nom[2]))
-
-
-pt = ROOT.TPaveText(0.59, 0.82 - len(other_scans) * 0.08, 0.95, 0.91, "NDCNB")
-pt.AddText(textfit)
+if other_scans:
+    pt = latex.DrawLatexNDC(0.65, 0.84, textfit)
+else:
+    textfit = "#scale[1.2]{{{}}}".format(textfit)
+    pt = latex.DrawLatexNDC(0.65, 0.81, textfit)
 
 if args.breakdown is None:
     for i, other in enumerate(other_scans):
@@ -213,8 +221,9 @@ if args.breakdown is None:
             other["val"][1],
             abs(other["val"][2]),
         )
-        pt.AddText(textfit)
-
+        pt_oth = latex.DrawLatexNDC(0.65, 0.84 - (i + 1) * 0.08, textfit)
+        pt_oth.SetTextAlign(11)
+        pt_oth.SetTextFont(42)
 
 if args.breakdown is not None:
     pt.SetX1(0.50)
@@ -249,25 +258,30 @@ if args.breakdown is not None:
         textfit += "{}^{#plus %.3f}_{#minus %.3f}(%s)" % (hi, abs(lo), br)
     pt.AddText(textfit)
 
-
 pt.SetTextAlign(11)
 pt.SetTextFont(42)
 pt.Draw()
 
-plot.DrawCMSLogo(pads[0], args.logo, args.logo_sub, 11, 0.1, 0.035, 1.2, cmsTextSize=1.0)
-
-legend_l = 0.69
+legend_l = 0.92
+leg_text_size = 0.06 * 0.85 ** len(other_scans)
 if len(other_scans) > 0:
     legend_l = legend_l - len(other_scans) * 0.04
-legend = ROOT.TLegend(0.15, legend_l, 0.45, 0.78, "", "NBNDC")
+legend = CMS.cmsLeg(0.17, legend_l, 0.41, 0.74, textSize=leg_text_size)
 if len(other_scans) >= 3:
-    legend = ROOT.TLegend(0.46, 0.83, 0.95, 0.93, "", "NBNDC")
+    legend = CMS.cmsLeg(0.15, 0.84, 0.58, 0.74, textSize=leg_text_size)
     legend.SetNColumns(2)
 
 legend.AddEntry(main_scan["func"], args.main_label, "L")
 for i, other in enumerate(other_scans):
     legend.AddEntry(other["func"], other_scans_opts[i][1], "L")
 legend.Draw()
+
+CMS.SetCmsTextSize(0.9)
+CMS.SetExtraText(args.logo_sub) 
+CMS.CMS_lumi(ROOT.gPad, iPosX = 0, scaleLumi = 0.9)
+for obj in ROOT.gPad.GetListOfPrimitives():
+    if isinstance(obj, ROOT.TLatex) and "fb" in obj.GetTitle():
+        obj.Delete()
 
 save_graph = main_scan["graph"].Clone()
 save_graph.GetXaxis().SetTitle("%s = %.3f %+.3f/%+.3f" % (fixed_name, val_nom[0], val_nom[2], val_nom[1]))
@@ -276,3 +290,4 @@ outfile.WriteTObject(save_graph)
 outfile.Close()
 canv.Print(".pdf")
 canv.Print(".png")
+
