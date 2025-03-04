@@ -4,6 +4,7 @@
 #include "../interface/ProfilingTools.h"
 #include <RooRealVar.h>
 #include <stdexcept>
+#include "./MathHeaders.h"
 
 VectorizedCBShape::VectorizedCBShape(const RooCBShape &gaus, const RooAbsData &data, bool includeZeroWeights)
 {
@@ -125,9 +126,9 @@ void VectorizedCBShape::fill(std::vector<Double_t> &out) const {
         } else {
             for (unsigned int i = 0; i < n; ++i) {
                 if(work1_[i]>-alpha1){
-                    out[i] = norm * vdt::fast_exp(-0.5*work1_[i]*work1_[i]);
+                    out[i] = norm * my_exp(-0.5*work1_[i]*work1_[i]);
                 } else {
-                    out[i] = norm2 * vdt::fast_exp(-n1 * vdt::fast_log(1. - alpha1invn1*(alpha1+work1_[i])));
+                    out[i] = norm2 * my_exp(-n1 * my_log(1. - alpha1invn1*(alpha1+work1_[i])));
                 }
             }
         }
@@ -171,7 +172,7 @@ double VectorizedCBShape::getIntegral() const {
 
     //compute left tail;
     if (isfullrange && (n1-1.0)>1.e-5) {
-        left = width*std::exp(-0.5*alpha1*alpha1)*n1*vdt::inv(alpha1*(n1-1.));
+        left = width*std::exp(-0.5*alpha1*alpha1)*n1*(1./(alpha1*(n1-1.)));
     } else {
 
         double left_low=xmin;
@@ -179,9 +180,9 @@ double VectorizedCBShape::getIntegral() const {
         double thigh = (left_high-mean)*invwidth;
 
         if(left_low < left_high){ //is the left tail in range?
-            double n1invalpha1 = n1*vdt::inv(fabs(alpha1));
+            double n1invalpha1 = n1 / std::abs(alpha1);
             if(fabs(n1-1.0)>1.e-5) {
-                double invn1m1 = vdt::inv(n1-1.);
+                double invn1m1 = 1. / (n1-1.);
                 double leftpow = std::pow(n1invalpha1,-n1*invn1m1);
                 double left0 = width*std::exp(-0.5*alpha1*alpha1)*invn1m1;
                 double left1, left2;
@@ -210,42 +211,55 @@ double VectorizedCBShape::getIntegral() const {
 }
 
 void VectorizedCBShape::cbGauss(double* __restrict__ t, unsigned int n, double norm, double* __restrict__ out,  double* __restrict__ work2) const {
+// The fast code code path is only available when VDT is available
+#ifndef COMBINE_NO_VDT
+    if (!hasFast()) {
+#endif
+       for (unsigned int i = 0; i < n; ++i) {
+           out[i] = std::exp(-0.5 * t[i] * t[i]) * norm;
+       }
+#ifndef COMBINE_NO_VDT
+       return;
+    }
     for (unsigned int i = 0; i < n; ++i) {
         work2[i] = -0.5*t[i]*t[i];
     }
-    if (hasFast()) {
-        vdt::fast_expv(n, work2, t);
-    } else {
-        vdt::expv(n, work2, t);
-    }
+    vdt::fast_expv(n, work2, t);
     for (unsigned int i = 0; i < n; ++i) {
         out[i] = t[i]*norm;
     }
+#endif
 }
+
 void VectorizedCBShape::cbCB(double* __restrict__ t, unsigned int n, double norm, double* __restrict__ out,  double* __restrict__ work2) const {
     // val = norm * std::exp(-0.5*alpha1*alpha1) * pow(1. - alpha1/n1 * (alpha1+t), -n1);
     double alpha1 = alpha_->getVal();
-    double n1 = n_->getVal(), notn1 = -n1;
+    double n1 = n_->getVal();
+    double notn1 = -n1;
     double alpha1invn1 = alpha1/n1;
     double prefactor = norm*std::exp(-0.5*std::pow(alpha1, 2));
+
+// The fast code code path is only available when VDT is available
+#ifndef COMBINE_NO_VDT
+    if (!hasFast()) {
+#endif
+       for (unsigned int i = 0; i < n; ++i) {
+           out[i] = prefactor * std::exp(notn1 * std::log(1. - alpha1invn1*(alpha1+t[i])));
+       }
+#ifndef COMBINE_NO_VDT
+       return;
+    }
 
     for (unsigned int i = 0; i < n; ++i) {
         work2[i] = 1 - alpha1invn1*(alpha1+t[i]);
     }
-    if (hasFast()) {
-        vdt::fast_logv(n, work2, t);
-    } else {
-        vdt::logv(n, work2, t);
-    }
+    vdt::fast_logv(n, work2, t);
     for (unsigned int i = 0; i < n; ++i) {
          t[i] *= notn1;
     }
-    if (hasFast()) {
-        vdt::fast_expv(n, t, work2);
-    } else {
-        vdt::expv(n, t, work2);
-    }
+    vdt::fast_expv(n, t, work2);
     for (unsigned int i = 0; i < n; ++i) {
         out[i] = prefactor*work2[i];
     }
+#endif
 }
