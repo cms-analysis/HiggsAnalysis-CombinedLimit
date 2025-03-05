@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import os
 
 import ROOT
@@ -39,7 +37,7 @@ class LambdaWZHiggs(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
             self.modelBuilder.doSet("POI", "kZ,lambdaWZ,kf,MH" if self.floatKF else "kZ,lambdaWZ,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -129,7 +127,7 @@ class LambdaWZHiggs(SMLikeHiggsModel):
         try:
             BRscal = self.decayScaling[decay]
             XSscal = self.productionScaling[production]
-            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, lambdaWZ_BRscal_%s)' % (name, XSscal, BRscal))
+            self.modelBuilder.factory_('expr::{}("@0*@0 * @1", {}, lambdaWZ_BRscal_{})'.format(name, XSscal, BRscal))
             return name
         except KeyError:
             if production == "VH":
@@ -137,7 +135,7 @@ class LambdaWZHiggs(SMLikeHiggsModel):
                     "WARNING: You are trying to use a VH production mode in a model that needs WH and ZH separately. "
                     "The best I can do is to scale [%(production)s, %(decay)s, %(energy)s] with the decay BR only but this is wrong..." % locals()
                 )
-                self.modelBuilder.factory_('expr::%s("1.0*@0", lambdaWZ_BRscal_%s)' % (name, BRscal))
+                self.modelBuilder.factory_('expr::{}("1.0*@0", lambdaWZ_BRscal_{})'.format(name, BRscal))
                 return name
             raise
 
@@ -169,7 +167,7 @@ class RzwHiggs(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
             self.modelBuilder.doSet("POI", "Rzw,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -221,7 +219,7 @@ class RwzHiggs(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
             self.modelBuilder.doSet("POI", "Rwz,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -273,7 +271,7 @@ class CzwHiggs(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
             self.modelBuilder.doSet("POI", "Czw,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -308,23 +306,23 @@ class CzwHiggs(SMLikeHiggsModel):
                 os.path.join(datadir, "couplings/R_VBF_%s.txt" % e),
                 ycol=1,
             )
-            self.modelBuilder.factory_('expr::Czw_XSscal_qqH_%s("(@0 + @1*@2) / (1.0 + @2) ", Cw, Cz, RqqH_%s)' % (e, e))
+            self.modelBuilder.factory_('expr::Czw_XSscal_qqH_{}("(@0 + @1*@2) / (1.0 + @2) ", Cw, Cz, RqqH_{})'.format(e, e))
             self.modelBuilder.factory_('expr::Czw_XSscal_WH_%s("@0", Cw)' % e)
             self.modelBuilder.factory_('expr::Czw_XSscal_ZH_%s("@0", Cz)' % e)
             self.SMH.makeXS("WH", e)
             self.SMH.makeXS("ZH", e)
-            self.modelBuilder.factory_('expr::Czw_XSscal_VH_%s("(@0*@1 + @2*@3) / (@1 + @3) ", Cw, SM_XS_WH_%s, Cz, SM_XS_ZH_%s)' % (e, e, e))
+            self.modelBuilder.factory_('expr::Czw_XSscal_VH_{}("(@0*@1 + @2*@3) / (@1 + @3) ", Cw, SM_XS_WH_{}, Cz, SM_XS_ZH_{})'.format(e, e, e))
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         if decay not in ["hww", "hzz"]:
             return 0
 
-        name = "Czw_XSBRscal_%s_%s_%s" % (production, decay, energy)
+        name = "Czw_XSBRscal_{}_{}_{}".format(production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
             if production in ["ggH", "ttH"]:
-                self.modelBuilder.factory_('expr::%s("@0", Czw_BRscal_%s)' % (name, decay))
+                self.modelBuilder.factory_('expr::{}("@0", Czw_BRscal_{})'.format(name, decay))
             else:
-                self.modelBuilder.factory_('expr::%s("@0 * @1", Czw_XSscal_%s_%s, Czw_BRscal_%s)' % (name, production, energy, decay))
+                self.modelBuilder.factory_('expr::{}("@0 * @1", Czw_XSscal_{}_{}, Czw_BRscal_{})'.format(name, production, energy, decay))
         return name
 
 
@@ -355,7 +353,7 @@ class CwzHiggs(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
             self.modelBuilder.doSet("POI", "Cwz,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -389,21 +387,21 @@ class CwzHiggs(SMLikeHiggsModel):
                 os.path.join(datadir, "couplings/R_VBF_%s.txt" % e),
                 ycol=1,
             )
-            self.modelBuilder.factory_('expr::Cwz_XSscal_qqH_%s("(@0 + @1*@2) / (1.0 + @2) ", Cw, Cz, RqqH_%s)' % (e, e))
+            self.modelBuilder.factory_('expr::Cwz_XSscal_qqH_{}("(@0 + @1*@2) / (1.0 + @2) ", Cw, Cz, RqqH_{})'.format(e, e))
             self.modelBuilder.factory_('expr::Cwz_XSscal_WH_%s("@0", Cw)' % e)
             self.modelBuilder.factory_('expr::Cwz_XSscal_ZH_%s("@0", Cz)' % e)
             self.SMH.makeXS("WH", e)
             self.SMH.makeXS("ZH", e)
-            self.modelBuilder.factory_('expr::Cwz_XSscal_VH_%s("(@0*@1 + @2*@3) / (@1 + @3) ", Cw, SM_XS_WH_%s, Cz, SM_XS_ZH_%s)' % (e, e, e))
+            self.modelBuilder.factory_('expr::Cwz_XSscal_VH_{}("(@0*@1 + @2*@3) / (@1 + @3) ", Cw, SM_XS_WH_{}, Cz, SM_XS_ZH_{})'.format(e, e, e))
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         if decay not in ["hww", "hzz"]:
             return 0
 
-        name = "Cwz_XSBRscal_%s_%s_%s" % (production, decay, energy)
+        name = "Cwz_XSBRscal_{}_{}_{}".format(production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
             if production in ["ggH", "ttH"]:
-                self.modelBuilder.factory_('expr::%s("@0", Cwz_BRscal_%s)' % (name, decay))
+                self.modelBuilder.factory_('expr::{}("@0", Cwz_BRscal_{})'.format(name, decay))
             else:
-                self.modelBuilder.factory_('expr::%s("@0 * @1", Cwz_XSscal_%s_%s, Cwz_BRscal_%s)' % (name, production, energy, decay))
+                self.modelBuilder.factory_('expr::{}("@0 * @1", Cwz_XSscal_{}_{}, Cwz_BRscal_{})'.format(name, production, energy, decay))
         return name
