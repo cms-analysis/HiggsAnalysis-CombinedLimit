@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import
-from __future__ import print_function
 import os
-import six.moves.cPickle as pickle
+import pickle as pickle
 import math
 import json
 import itertools
@@ -16,8 +14,6 @@ from functools import partial
 from HiggsAnalysis.CombinedLimit.tool_base.opts import OPTS
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
 import six
-from six.moves import range
-from six.moves import zip
 
 
 def Eval(obj, x, params):
@@ -44,7 +40,7 @@ def Permutations(indicies):
 def GenerateStencils(d, h, s):
     N = len(s)
     smatrix = np.zeros((N, N))
-    dvec = np.zeros((N))
+    dvec = np.zeros(N)
     for i in range(N):
         for j in range(N):
             smatrix[i, j] = pow(s[j], i)
@@ -118,11 +114,11 @@ class ExpansionTerm:
         sp = " " * indent
         extra = ""
         if self.fundamental:
-            extra = " %s = %f" % (list(self.FormattedPars()), self.fnval)
+            extra = " {} = {:f}".format(list(self.FormattedPars()), self.fnval)
         if coeff is None:
-            print("%s%s%s" % (sp, self.derivatives, extra))
+            print("{}{}{}".format(sp, self.derivatives, extra))
         else:
-            print("%s%+.1f*%s%s" % (sp, coeff, self.derivatives, extra))
+            print("{}{:+.1f}*{}{}".format(sp, coeff, self.derivatives, extra))
         for i in range(len(self.terms)):
             self.terms[i].Print(indent + 2, self.coeffs[i])
 
@@ -242,8 +238,8 @@ class TaylorExpand(CombineToolBase):
 
         if self.args.workspace_bestfit:
             fitvals = self.get_snpashot_pois(dc, POIs)
-            for POI, val in six.iteritems(fitvals):
-                print(">> Updating POI best fit from %f to %f" % (cfg[POI]["BestFit"], val))
+            for POI, val in fitvals.items():
+                print(">> Updating POI best fit from {:f} to {:f}".format(cfg[POI]["BestFit"], val))
                 cfg[POI]["BestFit"] = val
 
         xvec = np.zeros(Nx, dtype=np.float32)
@@ -394,7 +390,7 @@ class TaylorExpand(CombineToolBase):
                 skip_term = False
                 for skip_item in can_skip:
                     has_all_terms = True
-                    for x, freq in six.iteritems(skip_item[1]):
+                    for x, freq in skip_item[1].items():
                         if item.count(x) < freq:
                             has_all_terms = False
                             break
@@ -424,7 +420,7 @@ class TaylorExpand(CombineToolBase):
                 termlist[-1].GatherFundamentalTerms(evallist)
 
             stats[i]["nEvals"] = len(evallist)
-            unique_evallist = [x for x in set(x.FormattedPars() for x in evallist)]
+            unique_evallist = [x for x in {x.FormattedPars() for x in evallist}]
             stats[i]["nUniqueEvals"] = len(unique_evallist)
             actual_evallist = [x for x in unique_evallist if x not in cached_evals]
             stats[i]["nActualUniqueEvals"] = len(actual_evallist)
@@ -439,7 +435,7 @@ class TaylorExpand(CombineToolBase):
                 if self.args.multiple == 1:
                     set_vals = []
                     for POI, val in zip(POIs, vals):
-                        set_vals.append("%s=%f" % (POI, val))
+                        set_vals.append("{}={:f}".format(POI, val))
                         if self.args.test_mode == 1:
                             self.wsp_vars[POI].setVal(val)
                     set_vals_str = ",".join(set_vals)
@@ -461,13 +457,13 @@ class TaylorExpand(CombineToolBase):
                         continue
 
                 hash_id = hashlib.sha1(set_vals_str).hexdigest()
-                filename = "higgsCombine.TaylorExpand.%s.MultiDimFit.mH%s.root" % (hash_id, mass)
-                arg_str = "-M MultiDimFit -n .TaylorExpand.%s --algo fixed --redefineSignalPOIs %s --fixedPointPOIs " % (hash_id, ",".join(POIs))
+                filename = "higgsCombine.TaylorExpand.{}.MultiDimFit.mH{}.root".format(hash_id, mass)
+                arg_str = "-M MultiDimFit -n .TaylorExpand.{} --algo fixed --redefineSignalPOIs {} --fixedPointPOIs ".format(hash_id, ",".join(POIs))
                 arg_str += set_vals_str
 
                 if self.args.do_fits:
                     if self.args.test_mode == 0 and not os.path.isfile(filename):
-                        self.job_queue.append("combine %s %s" % (arg_str, " ".join(self.passthru)))
+                        self.job_queue.append("combine {} {}".format(arg_str, " ".join(self.passthru)))
                     if self.args.test_mode == 1:
                         if idx % 10000 == 0:
                             print("Done %i/%i NLL evaluations..." % (idx, len(actual_evallist)))
@@ -550,7 +546,7 @@ class TaylorExpand(CombineToolBase):
         sorted_terms = []
         for i in range(self.args.order + 1):
             sorted_tmp = []
-            for tracker, val in six.iteritems(cached_terms):
+            for tracker, val in cached_terms.items():
                 if len(tracker) == i:
                     sorted_tmp.append((tracker, val))
                     if i == 2 and save_cov_matrix:

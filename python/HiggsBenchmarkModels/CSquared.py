@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 from HiggsAnalysis.CombinedLimit.PhysicsModel import SMLikeHiggsModel
 
 
@@ -28,7 +26,7 @@ class CSquaredHiggs(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
             self.modelBuilder.doSet("POI", "C,MH")
         else:
             if self.modelBuilder.out.var("MH"):

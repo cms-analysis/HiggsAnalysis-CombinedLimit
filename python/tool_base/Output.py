@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import
-from __future__ import print_function
 import ROOT
 import json
 import os
@@ -61,7 +59,7 @@ class PrintFit(CombineToolBase):
                 val = res[p]
                 print("%-30s = %+.3f" % (p, val))
             if self.args.json is not None:
-                for key, val in six.iteritems(res):
+                for key, val in res.items():
                     js_target[key] = {"Val": val}
                 with open(json_structure[0], "w") as outfile:
                     json.dump(js, outfile, sort_keys=True, indent=4, separators=(",", ": "))
@@ -69,7 +67,7 @@ class PrintFit(CombineToolBase):
             res = utils.get_singles_results(self.args.input, POIs, POIs)
             for p in POIs:
                 val = res[p][p]
-                print("%s = %.3f -%.3f/+%.3f" % (p, val[1], val[1] - val[0], val[2] - val[1]))
+                print("{} = {:.3f} -{:.3f}/+{:.3f}".format(p, val[1], val[1] - val[0], val[2] - val[1]))
         elif self.args.algo == "fixed":
             res = utils.get_fixed_results(self.args.input, POIs)
             print("%-30s   bestfit :   fixed" % (""))
@@ -131,7 +129,7 @@ class CollectLimits(CombineToolBase):
                 limit_sets[label].append(filename)
         # print limit_sets
 
-        for label, filenames in six.iteritems(limit_sets):
+        for label, filenames in limit_sets.items():
             js_out = {}
             for filename in filenames:
                 if plot.TFileIsGood(filename):
@@ -268,7 +266,7 @@ class CollectGoodnessOfFit(CombineToolBase):
                     limit_sets[label] = ([], [])
                 limit_sets[label][0].append(filename)
 
-        for label, (filenames, toyfiles) in six.iteritems(limit_sets):
+        for label, (filenames, toyfiles) in limit_sets.items():
             js_out = {}
             for filename in filenames:
                 file = ROOT.TFile(filename)

@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import
-from __future__ import print_function
 import ROOT
 
 import HiggsAnalysis.CombinedLimit.tool_base.utils as utils
 from HiggsAnalysis.CombinedLimit.tool_base.opts import OPTS
 
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
-from six.moves import range
 import ctypes
 
 
