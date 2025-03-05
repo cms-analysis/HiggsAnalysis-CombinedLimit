@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import
 
 import re
 from optparse import OptionParser
@@ -73,7 +72,7 @@ if options.fileName.endswith(".gz"):
     file = gzip.open(options.fileName, "rt")
     options.fileName = options.fileName[:-3]
 else:
-    file = open(options.fileName, "r")
+    file = open(options.fileName)
 
 ## Parse text file
 DC = parseCard(file, options)
@@ -97,7 +96,7 @@ physics = getattr(mod, physModName)
 if mod == None:
     raise RuntimeError("Physics model module %s not found" % physModMod)
 if physics == None or not isinstance(physics, PhysicsModelBase):
-    raise RuntimeError("Physics model %s in module %s not found, or not inheriting from PhysicsModelBase" % (physModName, physModMod))
+    raise RuntimeError("Physics model {} in module {} not found, or not inheriting from PhysicsModelBase".format(physModName, physModMod))
 physics.setPhysicsOptions(options.physOpt)
 ## Attach to the tools, and run
 MB.setPhysics(physics)
