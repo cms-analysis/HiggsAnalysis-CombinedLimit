@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import os
 
 import ROOT
@@ -36,7 +34,7 @@ class HiggsMinimal(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
             self.modelBuilder.doSet("POI", "kgluon,kgamma,kV,kf,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -106,13 +104,13 @@ class HiggsMinimal(SMLikeHiggsModel):
         # self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "minimal_XSBRscal_%s_%s" % (production, decay)
+        name = "minimal_XSBRscal_{}_{}".format(production, decay)
 
         if self.modelBuilder.out.function(name):
             return name
 
         XSscal = self.productionScaling[production]
         BRscal = self.decayScaling[decay]
-        self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, minimal_BRscal_%s)' % (name, XSscal, BRscal))
+        self.modelBuilder.factory_('expr::{}("@0*@0 * @1", {}, minimal_BRscal_{})'.format(name, XSscal, BRscal))
 
         return name

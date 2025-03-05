@@ -1,10 +1,7 @@
-from __future__ import absolute_import
-from __future__ import print_function
 import os
 import stat
 from functools import partial
 from multiprocessing import Pool
-from six.moves import range
 
 DRY_RUN = False
 
@@ -97,7 +94,7 @@ def run_command(dry_run, command, pre_cmd=""):
         print("[DRY-RUN]: " + command)
 
 
-class CombineToolBase(object):
+class CombineToolBase:
     description = "Base class that passes through all arguments to combine and handles job creation and submission"
     requires_root = False
 
@@ -242,10 +239,10 @@ class CombineToolBase(object):
         if self.job_mode in ["script", "lxbatch", "SGE", "slurm"]:
             if self.prefix_file != "":
                 if self.prefix_file.endswith(".txt"):
-                    job_prefix_file = open(self.prefix_file, "r")
+                    job_prefix_file = open(self.prefix_file)
                 else:
                     job_prefix_file = open(
-                        os.environ["CMSSW_BASE"] + "/src/HiggsAnalysis.CombinedLimit/input/job_prefixes/job_prefix_" + self.prefix_file + ".txt", "r"
+                        os.environ["CMSSW_BASE"] + "/src/HiggsAnalysis.CombinedLimit/input/job_prefixes/job_prefix_" + self.prefix_file + ".txt"
                     )
                 global JOB_PREFIX
                 JOB_PREFIX = job_prefix_file.read() % (
@@ -268,12 +265,12 @@ class CombineToolBase(object):
             for script in script_list:
                 full_script = os.path.abspath(script)
                 logname = full_script.replace(".sh", "_%J.log")
-                run_command(self.dry_run, "bsub -o %s %s %s" % (logname, self.bopts, full_script))
+                run_command(self.dry_run, "bsub -o {} {} {}".format(logname, self.bopts, full_script))
         if self.job_mode == "SGE":
             for script in script_list:
                 full_script = os.path.abspath(script)
                 logname = full_script.replace(".sh", "_%J.log")
-                run_command(self.dry_run, "qsub -o %s %s %s" % (logname, self.bopts, full_script))
+                run_command(self.dry_run, "qsub -o {} {} {}".format(logname, self.bopts, full_script))
         if self.job_mode == "slurm":
             script_name = "slurm_%s.sh" % self.task_name
             if self.job_dir:
@@ -329,7 +326,7 @@ class CombineToolBase(object):
         if self.job_mode == "crab3":
             # import the stuff we need
             from CRABAPI.RawCommand import crabCommand
-            from six.moves.http_client import HTTPException
+            from http.client import HTTPException
 
             print(">> crab3 requestName will be %s" % self.task_name)
             outscriptname = "crab_%s.sh" % self.task_name
@@ -351,7 +348,7 @@ class CombineToolBase(object):
 
                     newline = newline.replace(wsp, os.path.basename(wsp))
                     if wsp.startswith("root://"):
-                        newline = ("./copyRemoteWorkspace.sh %s ./%s; " % (wsp, os.path.basename(wsp))) + newline
+                        newline = ("./copyRemoteWorkspace.sh {} ./{}; ".format(wsp, os.path.basename(wsp))) + newline
                     else:
                         wsp_files.add(wsp)
                     if self.extract_lib_arg(newline.split()) is not None:
@@ -364,7 +361,7 @@ class CombineToolBase(object):
                     outscript.write("  " + newline + "\n")
                 outscript.write("fi")
             if self.custom_crab_post is not None:
-                with open(self.custom_crab_post, "r") as postfile:
+                with open(self.custom_crab_post) as postfile:
                     outscript.write(postfile.read())
             else:
                 outscript.write(CRAB_POSTFIX)

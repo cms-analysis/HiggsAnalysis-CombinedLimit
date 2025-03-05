@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-from __future__ import print_function
 import itertools
 import HiggsAnalysis.CombinedLimit.tool_base.utils as utils
 import json
@@ -8,7 +6,6 @@ import bisect
 from HiggsAnalysis.CombinedLimit.tool_base.opts import OPTS
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
 import six
-from six.moves import zip
 import pandas as pd
 
 
@@ -137,7 +134,7 @@ class EnhancedCombine(CombineToolBase):
                     if header == "n" or header == "name":
                         final_arg.append(e)
                     elif len(e) and e != "!":
-                        final_arg.append("%s %s" % (argname, e))
+                        final_arg.append("{} {}".format(argname, e))
                     else:
                         final_arg.append("")
                 arglist.append(tuple(final_arg))
@@ -161,7 +158,7 @@ class EnhancedCombine(CombineToolBase):
                 # Figure out if the enclosing directory is a mass value
                 dirs = path.split("/")
                 if self.args.mass is None and len(dirs) >= 1 and isfloat(dirs[-1]):
-                    print("Assuming card %s uses mass value %s" % (dc, dirs[-1]))
+                    print("Assuming card {} uses mass value {}".format(dc, dirs[-1]))
                     dc_mass.append((path, file, dirs[-1]))
                 dc_no_mass.append((path, file))
             # If at least one mass value was inferred assume all of them are like this
@@ -196,7 +193,7 @@ class EnhancedCombine(CombineToolBase):
             bound_vals = {}
             for par in bound_pars:
                 bound_vals[par] = list()
-                for mass, bounds in six.iteritems(bnd[par]):
+                for mass, bounds in bnd[par].items():
                     bound_vals[par].append((float(mass), bounds[0], bounds[1]))
                 bound_vals[par].sort(key=lambda x: x[0])
             # find the subbed_vars entry containing the mass
@@ -224,7 +221,7 @@ class EnhancedCombine(CombineToolBase):
                     # point
                     if lower_bound == 0:
                         lower_bound += 1
-                    command.append("%s=%g,%g" % (par, bound_vals[par][lower_bound - 1][1], bound_vals[par][lower_bound - 1][2]))
+                    command.append("{}={:g},{:g}".format(par, bound_vals[par][lower_bound - 1][1], bound_vals[par][lower_bound - 1][2]))
                 new_list.append(entry + (str(":".join(command)),))
             # now remove the current mass information from subbed_vars
             # and replace it with the updated one

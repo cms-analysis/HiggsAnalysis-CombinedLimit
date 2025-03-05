@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import
-from __future__ import print_function
 import sys
 import re
 import json
@@ -9,7 +7,6 @@ import ROOT
 import HiggsAnalysis.CombinedLimit.tool_base.utils as utils
 
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
-from six.moves import map
 
 
 class Impacts(CombineToolBase):
@@ -153,12 +150,12 @@ class Impacts(CombineToolBase):
             initialRes = {}
             if self.args.approx is not None:
                 if self.args.approx == "hesse":
-                    fResult = ROOT.TFile("multidimfit_approxFit_%(name)s.root" % {"name": name})
+                    fResult = ROOT.TFile("multidimfit_approxFit_{name}.root".format(name=name))
                     rfr = fResult.Get("fit_mdf")
                     fResult.Close()
                     initialRes = utils.get_roofitresult(rfr, poiList, poiList)
                 elif self.args.approx == "robust":
-                    fResult = ROOT.TFile("robustHesse_approxFit_%(name)s.root" % {"name": name})
+                    fResult = ROOT.TFile("robustHesse_approxFit_{name}.root".format(name=name))
                     floatParams = fResult.Get("floatParsFinal")
                     rfr = fResult.Get("h_correlation")
                     rfr.SetDirectory(0)
