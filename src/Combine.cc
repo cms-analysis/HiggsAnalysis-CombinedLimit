@@ -42,7 +42,6 @@
 #include <RooWorkspace.h>
 #include <RooCategory.h>
 
-#include <RooStats/HLFactory.h>
 #include <RooStats/RooStatsUtils.h>
 #include <RooStats/ModelConfig.h>
 
@@ -360,7 +359,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (verbose <= 2) RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   // Load the model, but going in a temporary directory to avoid polluting the current one with garbage from 'cexpr'
   RooWorkspace *w = 0; RooStats::ModelConfig *mc = 0, *mc_bonly = 0;
-  std::unique_ptr<RooStats::HLFactory> hlf(nullptr);
 
   if (isBinary) {
     TFile *fIn = TFile::Open(fileToLoad); 
@@ -490,47 +488,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   } else {
     std::cerr << "HLF not validated" << std::endl;
-    assert(0);
-    
-    hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
-    w = hlf->GetWs();
-    if (w == 0) {
-        std::cerr << "Could not read HLF from file " <<  (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile) << std::endl;
-        return;
-    }
-    RooRealVar *MH = w->var("MH");
-    if (MH==0) {
-      std::cerr << "Could not find MH var in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
-      throw std::invalid_argument("Missing MH"); 
-    }
-    MH->setVal(mass_);
-    if (w->set("observables") == 0) throw std::invalid_argument("The model must define a RooArgSet 'observables'");
-    if (w->set("POI")         == 0) throw std::invalid_argument("The model must define a RooArgSet 'POI' for the parameters of interest");
-    if (w->pdf("model_b")     == 0) throw std::invalid_argument("The model must define a RooAbsPdf 'model_b'");
-    if (w->pdf("model_s")     == 0) throw std::invalid_argument("The model must define a RooAbsPdf 'model_s'");
-
-    // create ModelConfig
-    mc = new RooStats::ModelConfig(modelConfigName_.c_str(),"signal",w);
-    mc->SetPdf(*w->pdf("model_s"));
-    mc->SetObservables(*w->set("observables"));
-    mc->SetParametersOfInterest(*w->set("POI"));
-    if (w->set("nuisances"))         mc->SetNuisanceParameters(*w->set("nuisances"));
-    if (w->set("globalObservables")) mc->SetGlobalObservables(*w->set("globalObservables"));
-    if (w->pdf("prior")) mc->SetNuisanceParameters(*w->pdf("prior"));
-    w->import(*mc, modelConfigName_.c_str());
-
-    mc_bonly = new RooStats::ModelConfig(modelConfigNameB_.c_str(),"background",w);
-    mc_bonly->SetPdf(*w->pdf("model_b"));
-    mc_bonly->SetObservables(*w->set("observables"));
-    mc_bonly->SetParametersOfInterest(*w->set("POI"));
-    if (w->set("nuisances"))         mc_bonly->SetNuisanceParameters(*w->set("nuisances"));
-    if (w->set("globalObservables")) mc_bonly->SetGlobalObservables(*w->set("globalObservables"));
-    if (w->pdf("prior")) mc_bonly->SetNuisanceParameters(*w->pdf("prior"));
-    w->import(*mc_bonly, modelConfigNameB_.c_str());
-    if (setPhysicsModelParameterExpression_ != "") {
-	    utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
-    }
-    utils::check_inf_parameters(w->allVars(), verbose);
+    throw std::invalid_argument("HLF not validated");
   }
   gSystem->cd(pwd);
 
