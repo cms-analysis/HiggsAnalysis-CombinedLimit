@@ -42,6 +42,7 @@ jobs:
       with:
         python-version: 3.12
         miniforge-version: latest
+        mamba-version: 2.0.6 # FIXME: Unpin when conda-incubator/setup-miniconda#392 is fixed
     - name: Install build environment
       shell: bash -l {0}
       run: |
@@ -70,7 +71,7 @@ jobs:
             root: "6.26.4"
 
     runs-on: ubuntu-latest
-    name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
+    name: Legacy compile (py${{ matrix.python }}, root${{ matrix.root }})
 
     steps:
     - uses: actions/checkout@master
@@ -81,6 +82,7 @@ jobs:
       with:
         python-version: 3.12
         miniforge-version: latest
+        mamba-version: 2.0.6 # FIXME: Unpin when conda-incubator/setup-miniconda#392 is fixed
     - name: Install build environment
       shell: bash -l {0}
       run: |
