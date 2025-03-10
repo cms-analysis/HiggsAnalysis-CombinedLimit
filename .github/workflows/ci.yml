@@ -42,6 +42,7 @@ jobs:
       with:
         python-version: 3.12
         miniforge-version: latest
+        use-mamba: true
         mamba-version: 2.0.6 # FIXME: Unpin when conda-incubator/setup-miniconda#392 is fixed
     - name: Install build environment
       shell: bash -l {0}
@@ -82,6 +83,7 @@ jobs:
       with:
         python-version: 3.12
         miniforge-version: latest
+        use-mamba: true
         mamba-version: 2.0.6 # FIXME: Unpin when conda-incubator/setup-miniconda#392 is fixed
     - name: Install build environment
       shell: bash -l {0}
