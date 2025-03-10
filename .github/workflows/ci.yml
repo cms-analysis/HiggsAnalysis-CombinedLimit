@@ -45,26 +45,22 @@ jobs:
       with:
         path: HiggsAnalysis/CombinedLimit # Required to match compile instructions
     - name: Set up Conda
-      uses: conda-incubator/setup-miniconda@v2.2.0
+      uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: ${{ matrix.python }}
-        miniforge-variant: Miniforge3
-        channels: conda-forge,defaults
-        channel-priority: true
-        activate-environment: combine
+        python-version: 3.12
+        miniforge-version: latest
     - name: Install build environment
       shell: bash -l {0}
       run: |
-        mamba install -c conda-forge python==${{ matrix.python }} pip pandas root==${{ matrix.root }} gsl tbb vdt boost-cpp boost pcre eigen
-        cd HiggsAnalysis/CombinedLimit
-        bash set_conda_env_vars.sh
+        # Install dependencies (synchronize with cms-combine-feedstock recipe.yaml)
+        mamba install -c conda-forge python==${{ matrix.python }} pandas six gsl root_base==${{ matrix.root }} libboost-devel eigen vdt
     - name: Build
       shell: bash -l {0}
       run: |
-        cd HiggsAnalysis/CombinedLimit
-        make CONDA=1 -j 2
+        cmake -S HiggsAnalysis/CombinedLimit -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DUSE_CXX17=ON
+        cmake --build build --clean-first --parallel="${CPU_COUNT}"
+        cmake --install build  # Install to conda prefix (unsafe but ok for CI)
     - name: Run tests
-      if: startsWith(matrix.python, '3.')
       shell: bash -l {0}
       run: |
         cd HiggsAnalysis/CombinedLimit/test
