@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix:
         python: ["3.12"]
-        root: ["6.32", "6.34"]
+        root: ["6.32.10", "6.34.4"]
 
     runs-on: ubuntu-latest
     name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
@@ -50,7 +50,8 @@ jobs:
     - name: Build
       shell: bash -l {0}
       run: |
-        cmake -S HiggsAnalysis/CombinedLimit -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
+        Python_SITELIB=$(python3 -c "import sysconfig;p=sysconfig.get_path('purelib');print(p)")
+        cmake -S HiggsAnalysis/CombinedLimit -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DPython_SITELIB=$Python_SITELIB
         cmake --build build --clean-first --parallel="${CPU_COUNT}"
         cmake --install build  # Install to conda prefix (unsafe but ok for CI)
     - name: Run tests
@@ -88,7 +89,8 @@ jobs:
     - name: Build
       shell: bash -l {0}
       run: |
-        cmake -S HiggsAnalysis/CombinedLimit -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
+        Python_SITELIB=$(python3 -c "import sysconfig;p=sysconfig.get_path('purelib');print(p)")
+        cmake -S HiggsAnalysis/CombinedLimit -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DPython_SITELIB=$Python_SITELIB -DCMAKE_PREFIX_PATH=$CONDA_PREFIX
         cmake --build build --clean-first --parallel="${CPU_COUNT}"
         cmake --install build  # Install to conda prefix (unsafe but ok for CI)
     - name: Run tests
