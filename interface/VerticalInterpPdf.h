@@ -33,6 +33,10 @@ public:
 
   void setFloorVals(Double_t const& pdf_val, Double_t const& integral_val);
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,34,06)
+  std::unique_ptr<RooAbsArg> compileForNormSet(RooArgSet const &normSet, RooFit::Detail::CompileContext & ctx) const override;
+#endif
+
 protected:
   
   class CacheElem : public RooAbsCacheElement {

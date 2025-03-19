@@ -1,6 +1,10 @@
 #include "../interface/VerticalInterpPdf.h"
 #include "../interface/RooCheapProduct.h"
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,34,06)
+#include "RooFit/Detail/RooNormalizedPdf.h"
+#endif
+
 #include "RooFit.h"
 #include "Riostream.h"
 
@@ -395,3 +399,46 @@ Double_t VerticalInterpPdf::interpolate(Double_t coeff, Double_t central, RooAbs
 
 //_____________________________________________________________________________
 void VerticalInterpPdf::setFloorVals(Double_t const& pdf_val, Double_t const& integral_val){ _pdfFloorVal = pdf_val; _integralFloorVal = integral_val; }
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,34,06)
+
+// In the new RooFit CPU backend, the computation graph is "compiled" for a fixed normalization set.
+// The function RooAbsArg::compileForNormSet() can be overridden to hook into this process.
+//
+// The VerticalInterpPdf is unfortunately a special case, just like the
+// RooRealSumPdf that served as its inspiration. It deliberately breaks the
+// auto-normalization normalization of its input functions in _funcList by
+// explicitly calling getVal() on them without any normalization set.
+//
+// Therefore, we have to override the compilation for a given normSet such that
+// it doesn't propagate the normalization set to the servers.
+//
+// One can surely refactor the VerticalInterpPdf such that the input functions
+// are evaluated with a defined normalization set, but this would take more
+// effort to validate. The new RooFit CPU backend is not even used by Combine
+// yet, so overriding compileForNormSet() doesn't require any validation.
+std::unique_ptr<RooAbsArg>
+VerticalInterpPdf::compileForNormSet(RooArgSet const &normSet, RooFit::Detail::CompileContext &ctx) const
+{
+   if (normSet.empty() || selfNormalized()) {
+      return RooAbsPdf::compileForNormSet({}, ctx);
+   }
+   std::unique_ptr<RooAbsPdf> pdfClone(static_cast<RooAbsPdf *>(this->Clone()));
+
+   ctx.compileServers(*pdfClone, {});
+
+   RooArgSet depList;
+   pdfClone->getObservables(&normSet, depList);
+
+   auto newArg = std::make_unique<RooFit::Detail::RooNormalizedPdf>(*pdfClone, depList);
+
+   // The direct servers are this pdf and the normalization integral, which
+   // don't need to be compiled further.
+   for (RooAbsArg *server : newArg->servers()) {
+      ctx.markAsCompiled(*server);
+   }
+   ctx.markAsCompiled(*newArg);
+   newArg->addOwnedComponents(std::move(pdfClone));
+   return newArg;
+}
+#endif
