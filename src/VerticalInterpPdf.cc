@@ -5,15 +5,9 @@
 #include "RooFit/Detail/RooNormalizedPdf.h"
 #endif
 
-#include "RooFit.h"
 #include "Riostream.h"
 
-#include "TList.h"
-#include "RooRealProxy.h"
-#include "RooPlot.h"
 #include "RooRealVar.h"
-#include "RooAddGenContext.h"
-#include "RooRealConstant.h"
 #include "RooRealIntegral.h"
 #include "RooMsgService.h"
 #include "RooProdPdf.h"
@@ -24,26 +18,13 @@ ClassImp(VerticalInterpPdf)
 
 
 //_____________________________________________________________________________
-VerticalInterpPdf::VerticalInterpPdf() 
-{
-  // Default constructor
-  // coverity[UNINIT_CTOR]
-  _quadraticRegion = 0;
-  _pdfFloorVal = 1e-15;
-  _integralFloorVal = 1e-10;
-}
-
-
-//_____________________________________________________________________________
 VerticalInterpPdf::VerticalInterpPdf(const char *name, const char *title, const RooArgList& inFuncList, const RooArgList& inCoefList, Double_t quadraticRegion, Int_t quadraticAlgo) :
   RooAbsPdf(name,title),
   _normIntMgr(this,10),
   _funcList("!funcList","List of functions",this),
   _coefList("!coefList","List of coefficients",this),
   _quadraticRegion(quadraticRegion),
-  _quadraticAlgo(quadraticAlgo),
-  _pdfFloorVal(1e-15),
-  _integralFloorVal(1e-10)
+  _quadraticAlgo(quadraticAlgo)
 { 
 
   if (inFuncList.getSize()!=2*inCoefList.getSize()+1) {
@@ -52,6 +33,11 @@ VerticalInterpPdf::VerticalInterpPdf(const char *name, const char *title, const 
     assert(0);
   }
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,32,0)
+  // With ROOT 6.32, RooFit can do the type checking for us
+  _funcList.addTyped<RooAbsReal>(inFuncList);
+  _coefList.addTyped<RooAbsReal>(inCoefList);
+#else
   for (RooAbsArg *func : inFuncList) {
     if (!dynamic_cast<RooAbsReal*>(func)) {
       coutE(InputArguments) << "ERROR: VerticalInterpPdf::VerticalInterpPdf(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsReal" << std::endl;
@@ -67,6 +53,7 @@ VerticalInterpPdf::VerticalInterpPdf(const char *name, const char *title, const 
     }
     _coefList.add(*coef) ;    
   }
+#endif
 
   if (_quadraticAlgo == -1) { 
     // multiplicative morphing: no way to do analytical integrals.
@@ -94,10 +81,6 @@ VerticalInterpPdf::VerticalInterpPdf(const VerticalInterpPdf& other, const char*
   // Copy constructor
 }
 
-
-
-//_____________________________________________________________________________
-VerticalInterpPdf::~VerticalInterpPdf() = default;
 
 //_____________________________________________________________________________
 Double_t VerticalInterpPdf::evaluate() const 
@@ -183,12 +166,12 @@ Int_t VerticalInterpPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& 
 
   // Select subset of allVars that are actual dependents
   analVars.add(allVars) ;
-  RooArgSet* normSet = normSet2 ? getObservables(normSet2) : 0 ;
+  std::unique_ptr<RooArgSet> normSet{normSet2 ? getObservables(normSet2) : nullptr};
 
 
   // Check if this configuration was created before
   Int_t sterileIdx(-1) ;
-  CacheElem* cache = (CacheElem*) _normIntMgr.getObj(normSet,&analVars,&sterileIdx,(const char *)0);
+  CacheElem* cache = (CacheElem*) _normIntMgr.getObj(normSet.get(),&analVars,&sterileIdx,(const char *)0);
   if (cache) {
     return _normIntMgr.lastIndex()+1 ;
   }
@@ -214,11 +197,7 @@ Int_t VerticalInterpPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& 
   }
 
   // Store cache element
-  Int_t code = _normIntMgr.setObj(normSet,&analVars,(RooAbsCacheElement*)cache,0) ;
-
-  if (normSet) {
-    delete normSet ;
-  }
+  Int_t code = _normIntMgr.setObj(normSet.get(),&analVars,(RooAbsCacheElement*)cache,0) ;
 
   return code+1 ; 
 }
