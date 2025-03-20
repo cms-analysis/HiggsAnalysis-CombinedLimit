@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import
-from __future__ import print_function
 import argparse
 import os
 import re
@@ -20,7 +18,6 @@ import HiggsAnalysis.CombinedLimit.tool_base.utils as utils
 from HiggsAnalysis.CombinedLimit.tool_base.opts import OPTS
 
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
-from six.moves import range
 import ctypes
 
 
@@ -78,10 +75,10 @@ class ImpactsFromScans(CombineToolBase):
             if not self.args.do_fits:
                 break
             arg_str = "-M MultiDimFit --algo fixed --saveInactivePOI 1 --floatOtherPOIs 1 -P %s" % POI
-            cmd_hi = arg_str + " -n %s --fixedPointPOIs %s=%f" % (self.args.name + ".%s.Hi" % POI, POI, js[POI]["Val"] + js[POI]["ErrorHi"])
-            cmd_lo = arg_str + " -n %s --fixedPointPOIs %s=%f" % (self.args.name + ".%s.Lo" % POI, POI, js[POI]["Val"] + js[POI]["ErrorLo"])
-            self.job_queue.append("combine %s %s" % (cmd_hi, " ".join(self.passthru)))
-            self.job_queue.append("combine %s %s" % (cmd_lo, " ".join(self.passthru)))
+            cmd_hi = arg_str + " -n {} --fixedPointPOIs {}={:f}".format(self.args.name + ".%s.Hi" % POI, POI, js[POI]["Val"] + js[POI]["ErrorHi"])
+            cmd_lo = arg_str + " -n {} --fixedPointPOIs {}={:f}".format(self.args.name + ".%s.Lo" % POI, POI, js[POI]["Val"] + js[POI]["ErrorLo"])
+            self.job_queue.append("combine {} {}".format(cmd_hi, " ".join(self.passthru)))
+            self.job_queue.append("combine {} {}".format(cmd_lo, " ".join(self.passthru)))
         self.flush_queue()
         if self.args.do_fits:
             print(">> Re-run without --do-fits to harvest the results")
@@ -89,8 +86,8 @@ class ImpactsFromScans(CombineToolBase):
         res = {}
         for POI in POIs:
             res[POI] = {}
-            name_hi = "higgsCombine%s.%s.Hi.MultiDimFit.mH%s.root" % (self.args.name, POI, mass)
-            name_lo = "higgsCombine%s.%s.Lo.MultiDimFit.mH%s.root" % (self.args.name, POI, mass)
+            name_hi = "higgsCombine{}.{}.Hi.MultiDimFit.mH{}.root".format(self.args.name, POI, mass)
+            name_lo = "higgsCombine{}.{}.Lo.MultiDimFit.mH{}.root".format(self.args.name, POI, mass)
             res_hi = self.get_fixed_results(name_hi, POIs)
             res_lo = self.get_fixed_results(name_lo, POIs)
             for fPOI in POIs:
@@ -132,7 +129,7 @@ class ImpactsFromScans(CombineToolBase):
                 for x in bf_vals:
                     if x in p:
                         bf_val = bf_vals[x]
-                        print("Using %s=%g" % (x, bf_vals[x]))
+                        print("Using {}={:g}".format(x, bf_vals[x]))
                 covv = d21 if bf_val >= d1 else d10
             if p == "mu_XS_ZH_BR_WW":
                 covv = covv * 0.89
@@ -168,7 +165,9 @@ class ImpactsFromScans(CombineToolBase):
             xres = solve(mtx, yvec)
             # print xres
             covvars.append(
-                ROOT.RooFormulaVar("cov%i" % i, "", "%g*(@0-%g)*(@0-%g)+%g*(@0-%g)+%g" % (xres[0], d1, d1, xres[1], d1, xres[2]), ROOT.RooArgList(xvars[i]))
+                ROOT.RooFormulaVar(
+                    "cov%i" % i, "", "{:g}*(@0-{:g})*(@0-{:g})+{:g}*(@0-{:g})+{:g}".format(xres[0], d1, d1, xres[1], d1, xres[2]), ROOT.RooArgList(xvars[i])
+                )
             )
             # covvars.append(ROOT.RooFormulaVar('cov%i'%i,'', '%g' % (y2), ROOT.RooArgList()))
             covvars[-1].Print()
@@ -259,10 +258,10 @@ class ImpactsFromScans(CombineToolBase):
                     for x in bf_vals:
                         if x in ip:
                             bf_val_i = bf_vals[x]
-                            print("Using %s=%g for POI i" % (x, bf_vals[x]))
+                            print("Using {}={:g} for POI i".format(x, bf_vals[x]))
                         if x in jp:
                             bf_val_j = bf_vals[x]
-                            print("Using %s=%g for POI j" % (x, bf_vals[x]))
+                            print("Using {}={:g} for POI j".format(x, bf_vals[x]))
 
                     val_i = cji_21 if bf_val_i >= di_1 else cji_10
                     val_j = cij_21 if bf_val_j >= dj_1 else cij_10

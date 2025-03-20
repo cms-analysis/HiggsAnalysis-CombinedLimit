@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import glob
 import math
 import os
@@ -7,12 +5,11 @@ import random
 import re
 import string
 
-from six.moves import range
 
 import ROOT
 
 
-class DatacardPruner(object):
+class DatacardPruner:
     """
     Description:
 
@@ -70,7 +67,7 @@ class DatacardPruner(object):
         headline = ""
         pull_pattern = re.compile(r"[+-]\d+\.\d+(?=sig)")
         for fit_result in self.fit_results:
-            file = open(fit_result, "r")
+            file = open(fit_result)
             for line in file:
                 ## add headline
                 if "name" in line:
@@ -137,7 +134,7 @@ class DatacardPruner(object):
         bin_excepts = []
         proc_excepts = []
         shape_uncerts = {}
-        file = open(DATACARD, "r")
+        file = open(DATACARD)
         for line in file:
             words = line.split()
             if words[0] == "bin":
@@ -157,7 +154,7 @@ class DatacardPruner(object):
         file.close()
         ## determine shape uncertainties; for shape uncertainties it must be known
         ## for what bin and for what sample they are valid and what value they have
-        file = open(DATACARD, "r")
+        file = open(DATACARD)
         for line in file:
             words = line.split()
             if len(words) < 2:
@@ -203,7 +200,7 @@ class DatacardPruner(object):
         mapping the name of the uncertainty to the maximal relative uncertainty.
         """
         lnN_uncerts = {}
-        file = open(DATACARD, "r")
+        file = open(DATACARD)
         for line in file:
             words = line.split()
             if len(words) < 2:
@@ -256,7 +253,7 @@ class DatacardPruner(object):
         drop = []
         confused = 0
         file_name = self.combine_fit_results(self.fit_results)
-        file = open(file_name, "r")
+        file = open(file_name)
         pull_pattern = re.compile(r"[+-]\d+\.\d+(?=sig)")
         for line in file:
             ## first element is the name of the nuisance parameter
@@ -335,7 +332,7 @@ class DatacardPruner(object):
         been manipulated. Note that this function will alter DATACARD.
         """
         excl = 0
-        file = open(DATACARD, "r")
+        file = open(DATACARD)
         rnd_name = "".join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
         output = open("/tmp/{NAME}".format(NAME=rnd_name), "w")
         for line in file:

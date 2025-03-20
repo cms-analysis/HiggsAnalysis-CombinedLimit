@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import
-from __future__ import print_function
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import ROOT
 import argparse
-from six.moves import range
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 
@@ -51,9 +49,9 @@ class AllMuiLambdaHiggs(SMLikeHiggsModel):
                 poi.append("mu_" + decay)
             else:
                 self.modelBuilder.doVar("mu_%s[1,0,5]" % decay)
-            self.modelBuilder.factory_('expr::lambdamu_%s("@0*@1",lambda,mu_%s)' % (decay, decay))
-            self.modelBuilder.factory_('expr::lambdavmu_%s("@0*@1",lambdav,mu_%s)' % (decay, decay))
-            self.modelBuilder.factory_('expr::lambdatmu_%s("@0*@1",lambdat,mu_%s)' % (decay, decay))
+            self.modelBuilder.factory_('expr::lambdamu_{}("@0*@1",lambda,mu_{})'.format(decay, decay))
+            self.modelBuilder.factory_('expr::lambdavmu_{}("@0*@1",lambdav,mu_{})'.format(decay, decay))
+            self.modelBuilder.factory_('expr::lambdatmu_{}("@0*@1",lambdat,mu_{})'.format(decay, decay))
         self.modelBuilder.doSet("POI", ",".join(poi))
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
@@ -80,7 +78,7 @@ class AllMuiLambdaHiggs(SMLikeHiggsModel):
                     "and",
                     self.mHRange[1],
                 )
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
                 poi.append("MH")
                 self.modelBuilder.doSet("POI", ",".join(poi))
                 # self.modelBuilder.doSet('POI','poi,MH')
@@ -157,9 +155,9 @@ class AllMuiLambdasHiggs(SMLikeHiggsModel):
             self.modelBuilder.doVar("lambda_%s[1,0,10]" % decay)
             self.modelBuilder.doVar("lambdav_%s[1,0,10]" % decay)
             self.modelBuilder.doVar("lambdat_%s[1,0,10]" % decay)
-            self.modelBuilder.factory_('expr::lambda_%smu_%s("@0*@1",lambda_%s,mu_%s)' % (decay, decay, decay, decay))
-            self.modelBuilder.factory_('expr::lambdav_%smu_%s("@0*@1",lambdav_%s,mu_%s)' % (decay, decay, decay, decay))
-            self.modelBuilder.factory_('expr::lambdat_%smu_%s("@0*@1",lambdat_%s,mu_%s)' % (decay, decay, decay, decay))
+            self.modelBuilder.factory_('expr::lambda_{}mu_{}("@0*@1",lambda_{},mu_{})'.format(decay, decay, decay, decay))
+            self.modelBuilder.factory_('expr::lambdav_{}mu_{}("@0*@1",lambdav_{},mu_{})'.format(decay, decay, decay, decay))
+            self.modelBuilder.factory_('expr::lambdat_{}mu_{}("@0*@1",lambdat_{},mu_{})'.format(decay, decay, decay, decay))
         self.modelBuilder.doSet("POI", ",".join(poi))
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
@@ -186,7 +184,7 @@ class AllMuiLambdasHiggs(SMLikeHiggsModel):
                     "and",
                     self.mHRange[1],
                 )
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
                 poi.append("MH")
                 self.modelBuilder.doSet("POI", ",".join(poi))
                 # self.modelBuilder.doSet('POI','poi,MH')

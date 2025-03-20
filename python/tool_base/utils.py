@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-from __future__ import print_function
 import ROOT
 import re
 
@@ -54,10 +52,10 @@ def prefit_from_workspace(file, workspace, params, setPars=None):
             tmp = allParams.find(par)
             isrvar = tmp.IsA().InheritsFrom(ROOT.RooRealVar.Class())
             if isrvar:
-                print("Setting parameter %s to %g" % (par, float(val)))
+                print("Setting parameter {} to {:g}".format(par, float(val)))
                 tmp.setVal(float(val))
             else:
-                print("Setting index %s to %g" % (par, float(val)))
+                print("Setting index {} to {:g}".format(par, float(val)))
                 tmp.setIndex(int(val))
 
     for p in params:

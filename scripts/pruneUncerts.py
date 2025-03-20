@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from __future__ import absolute_import, print_function
 
 import glob
 import os
@@ -8,7 +7,6 @@ import random
 import string
 from optparse import OptionGroup, OptionParser
 
-from six.moves import range
 
 from HiggsAnalysis.CombinedLimit.DatacardPruner import DatacardPruner
 
