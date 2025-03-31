@@ -1,4 +1,5 @@
 #include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "../interface/Combine.h"
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/CachingNLL.h"
@@ -72,7 +73,7 @@ Double_t ProfiledLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSe
     DBGV(DBG_TestStat_params, (std::cout << "Parameters of null pdf (pre-fit)" << pdfNull_->GetName() << "\n"))
     DBGV(DBG_TestStat_params, (paramsNull_->Print("V")))
 
-    bool canKeepNullNLL = createNLL(*pdfNull_, data, nllNull_);
+    bool canKeepNullNLL = createNLLWrapper(*pdfNull_, data, nllNull_);
     double nullNLL = minNLL(nllNull_);
     if (!canKeepNullNLL) nllNull_.reset();
     
@@ -81,7 +82,7 @@ Double_t ProfiledLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSe
         
     DBGV(DBG_TestStat_params, (std::cout << "Parameters of alt pdf " << pdfAlt_->GetName() << "\n"))
     DBGV(DBG_TestStat_params, (paramsAlt_->Print("V")))
-    bool canKeepAltNLL = createNLL(*pdfAlt_, data, nllAlt_);
+    bool canKeepAltNLL = createNLLWrapper(*pdfAlt_, data, nllAlt_);
     double altNLL = minNLL(nllAlt_);
     if (!canKeepAltNLL) nllAlt_.reset();
     
@@ -94,14 +95,14 @@ Double_t ProfiledLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSe
     return ret;
 }
 
-bool ProfiledLikelihoodRatioTestStatOpt::createNLL(RooAbsPdf &pdf, RooAbsData &data, std::unique_ptr<RooAbsReal> &nll_) 
+bool ProfiledLikelihoodRatioTestStatOpt::createNLLWrapper(RooAbsPdf &pdf, RooAbsData &data, std::unique_ptr<RooAbsReal> &nll_) 
 {
     if (typeid(pdf) == typeid(RooSimultaneousOpt)) {
-        if (nll_.get() == 0) nll_.reset(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
+        if (nll_.get() == 0) nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
         else ((cacheutils::CachingSimNLL&)(*nll_)).setData(data);
         return true;
     } else {
-        nll_.reset(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
+        nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
         return false;
     }
 }
@@ -111,8 +112,7 @@ double ProfiledLikelihoodRatioTestStatOpt::minNLL(std::unique_ptr<RooAbsReal> &n
 {
 #if defined(DBG_TestStat_NOFIT) && (DBG_TestStat_NOFIT > 0)
     if (verbosity_ > 0) std::cout << "Profiling likelihood for pdf " << pdf.GetName() << std::endl;
-    std::unique_ptr<RooAbsReal> nll_(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
-    return nll_->getVal();
+    return combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false)->getVal();
 #endif
     CascadeMinimizer minim(*nll_, CascadeMinimizer::Constrained);
     minim.setStrategy(0);
@@ -191,7 +191,7 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     // Initialize signal strength (or the first parameter)
     RooRealVar *rIn = (RooRealVar *) poi_.first();
     RooRealVar *r   = (RooRealVar *) params_->find(rIn->GetName());
-    bool canKeepNLL = createNLL(*pdf_, data);
+    bool canKeepNLL = createNLLWrapper(*pdf_, data);
     double initialR = rIn->getVal();
 
     // Perform unconstrained minimization (denominator)
@@ -309,7 +309,7 @@ std::vector<Double_t> ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, 
     // Initialize signal strength
     RooRealVar *rIn = (RooRealVar *) poi_.first();
     RooRealVar *r   = (RooRealVar *) params_->find(rIn->GetName());
-    bool canKeepNLL = createNLL(*pdf_, data);
+    bool canKeepNLL = createNLLWrapper(*pdf_, data);
 
     double initialR = rVals.back();
 
@@ -383,14 +383,14 @@ std::vector<Double_t> ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, 
     //return std::min(thisNLL-nullNLL, 0.);
     return ret;
 }
-bool ProfiledLikelihoodTestStatOpt::createNLL(RooAbsPdf &pdf, RooAbsData &data) 
+bool ProfiledLikelihoodTestStatOpt::createNLLWrapper(RooAbsPdf &pdf, RooAbsData &data) 
 {
     if (typeid(pdf) == typeid(RooSimultaneousOpt)) {
-        if (nll_.get() == 0) nll_.reset(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
+        if (nll_.get() == 0) nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
         else ((cacheutils::CachingSimNLL&)(*nll_)).setData(data);
         return true;
     } else {
-        nll_.reset(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
+        nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
         return false;
     }
 }

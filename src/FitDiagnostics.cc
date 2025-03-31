@@ -205,7 +205,21 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
       RooSimultaneousOpt simNuisancePdf("simNuisancePdf", "", dummyCat);
       simNuisancePdf.addExtraConstraints(((RooProdPdf*)(nuisancePdf.get()))->pdfList());
       std::unique_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", RooArgSet(dummyCat)));
-      std::unique_ptr<RooAbsReal> nuisanceNLL(simNuisancePdf.RooAbsPdf::createNLL(*globalData, RooFit::Constrain(*nuis)));
+
+      // For some reason, Combine overrides here the likelihood creation path
+      // of the RooSimultaneousOpt and uses the default RooFit likelihood
+      // backend.
+      std::string prevBackend = Combine::nllBackend();
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 30, 0)
+      // setting the NLL backend to anything other than "combine" will skip the
+      // RooSimultaneousOpt code path:
+      Combine::nllBackend() = "not_combine";
+#else
+      Combine::nllBackend() = RooFit::EvalBackend(RooFit::EvalBackend::defaultValue()).name();
+#endif
+      auto nuisanceNLL = combineCreateNLL(simNuisancePdf, *globalData, nuis);
+      Combine::nllBackend() = prevBackend;
+
       RooFitResult *res_prefit = 0;
        // Fit to nuisance pdf to get fitRes for sampling
       {
@@ -242,7 +256,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   }
  
   RooFitResult *res_b = 0, *res_s = 0;
-  const RooCmdArg &constCmdArg_s = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooFit::NumCPU(1); // use something dummy 
+  const RooCmdArg &constCmdArg_s = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg{}; // use something dummy 
   //const RooCmdArg &minosCmdArg = minos_ == "poi" ?  RooFit::Minos(*mc_s->GetParametersOfInterest())   : RooFit::Minos(minos_ != "none");  //--> dont use fitTo!
   w->loadSnapshot("clean");
 
@@ -254,7 +268,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   r->setConstant(true);
 
   // Setup Nll before calling fits;
-  if (currentToy_<1) nll.reset(mc_s->GetPdf()->createNLL(data,constCmdArg_s));
+  if (currentToy_<1) nll = combineCreateNLL(*mc_s->GetPdf(), data, constCmdArg_s.getSet(0));
   // Get the nll value on the prefit
   double nll0 = nll->getVal();
 
