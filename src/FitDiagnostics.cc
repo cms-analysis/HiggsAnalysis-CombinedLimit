@@ -254,7 +254,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   r->setConstant(true);
 
   // Setup Nll before calling fits;
-  if (currentToy_<1) nll.reset(mc_s->GetPdf()->createNLL(data,constCmdArg_s,RooFit::Extended(mc_s->GetPdf()->canBeExtended())));
+  if (currentToy_<1) nll.reset(mc_s->GetPdf()->createNLL(data,constCmdArg_s));
   // Get the nll value on the prefit
   double nll0 = nll->getVal();
 

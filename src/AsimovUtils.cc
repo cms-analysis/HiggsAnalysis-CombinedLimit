@@ -52,7 +52,7 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
             if (needsFit) {
                 //mc->GetPdf()->fitTo(realdata, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Constrain(*mc->GetNuisanceParameters()));
                 const RooCmdArg &constrain = (mc->GetNuisanceParameters() ? RooFit::Constrain(*mc->GetNuisanceParameters()) : RooCmdArg());
-                std::unique_ptr<RooAbsReal> nll(mc->GetPdf()->createNLL(realdata, constrain, RooFit::Extended(mc->GetPdf()->canBeExtended())));
+                std::unique_ptr<RooAbsReal> nll(mc->GetPdf()->createNLL(realdata, constrain));
                 CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained);
                 minim.setStrategy(1);
                 minim.minimize(verbose-1);

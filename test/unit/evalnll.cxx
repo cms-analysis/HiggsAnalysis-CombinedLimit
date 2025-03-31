@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
     printf("Workspace opened in %.2f min (cpu), %.2f min (real)\n", timer.CpuTime()/60., timer.RealTime()/60.);  fflush(stdout);
     timer.Start();
 
-    RooAbsReal *nll = pdf->createNLL(*d, RooFit::Constrain(*nuisances), RooFit::Extended(pdf->canBeExtended()), RooFit::Offset(true));
+    RooAbsReal *nll = pdf->createNLL(*d, RooFit::Constrain(*nuisances), RooFit::Offset(true));
     cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(nll);
     if (!simnll) {
         std::cerr << "ERROR: not a cacheutils::CachingSimNLL !" << std::endl;
