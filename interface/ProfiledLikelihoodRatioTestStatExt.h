@@ -40,7 +40,7 @@ class ProfiledLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
         Int_t verbosity_;
 
         // create NLL. if returns true, it can be kept, if false it should be deleted at the end of Evaluate
-        bool createNLL(RooAbsPdf &pdf, RooAbsData &data, std::unique_ptr<RooAbsReal> &nll) ;
+        bool createNLLWrapper(RooAbsPdf &pdf, RooAbsData &data, std::unique_ptr<RooAbsReal> &nll) ;
 
         double minNLL(std::unique_ptr<RooAbsReal> &nll) ;
 }; // TestSimpleStatistics
@@ -77,7 +77,7 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
         OneSidedness oneSided_;
 
         // create NLL. if returns true, it can be kept, if false it should be deleted at the end of Evaluate
-        bool createNLL(RooAbsPdf &pdf, RooAbsData &data) ;
+        bool createNLLWrapper(RooAbsPdf &pdf, RooAbsData &data) ;
         double minNLL(bool constrained, RooRealVar *r=0) ;
 }; // TestSimpleStatistics
 

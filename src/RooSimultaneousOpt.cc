@@ -12,17 +12,6 @@ std::unique_ptr<RooAbsReal>
 RooSimultaneousOpt::createNLLImpl(RooAbsData& data, const RooLinkedList& cmdList) 
 #endif
 {
-    // Alternative evaluation backends are only supported from ROOT 6.30.
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,30,0)
-    if (Combine::nllBackend_ != "combine") {
-        RooLinkedList cmdListCopy{cmdList};
-        // Set the RooFit::EvalBackend() of RooFit to what the
-        // Combine::nllBackend_ is set.
-        RooCmdArg evalBackendArg{RooFit::EvalBackend(Combine::nllBackend_)};
-        cmdListCopy.Add(&evalBackendArg);
-        return RooSimultaneous::createNLLImpl(data, cmdListCopy);
-    }
-#endif
     RooCmdConfig pc(Form("RooSimultaneousOpt::createNLL(%s)",GetName())) ;
     pc.defineSet("cPars","Constrain",0,0);
     RooArgSet *cPars = pc.getSet("cPars");
@@ -33,10 +22,6 @@ RooSimultaneousOpt::createNLLImpl(RooAbsData& data, const RooLinkedList& cmdList
 #else
     return nll;
 #endif
-}
-
-RooSimultaneousOpt::~RooSimultaneousOpt()
-{
 }
 
 void

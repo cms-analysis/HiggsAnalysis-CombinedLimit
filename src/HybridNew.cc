@@ -814,7 +814,7 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
         r->setVal(0); pdfB = mc_s->GetPdf();
     }
     timer.Start();
-    std::unique_ptr<RooAbsReal> nll(pdfB->createNLL(data, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+    auto nll = combineCreateNLL(*pdfB, data, mc_s->GetNuisanceParameters(), /*offset=*/false);
     {
         CloseCoutSentry sentry(verbose < 3);
         CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained, r);
@@ -841,7 +841,7 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
     timer.Start();
     if (pdfB != mc_s->GetPdf()) {
         nll.reset(); // first delete old one, to avoid duplicating memory
-        nll.reset(mc_s->GetPdf()->createNLL(data, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+        nll = combineCreateNLL(*mc_s->GetPdf(), data, mc_s->GetNuisanceParameters(), /*offset=*/false);
     }
     {
        CloseCoutSentry sentry(verbose < 3);
