@@ -217,7 +217,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     } else {
         std::cout << "MultiDimFit -- Skipping initial global fit" << std::endl;
         // must still create the NLL
-        nll.reset(pdf.createNLL(data, constrainCmdArg, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true)));
+        nll.reset(pdf.createNLL(data, constrainCmdArg, RooFit::Offset(true)));
     }
 
     //if(w->var("r")) {w->var("r")->Print();}

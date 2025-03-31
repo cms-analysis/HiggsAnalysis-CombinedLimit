@@ -396,8 +396,7 @@ void plotParametersFromToys(std::string inputFile, std::string dataFits="", std:
 			mc_s = (RooStats::ModelConfig*)w->genobj("ModelConfig");
 			std::cout << "make nll"<<std::endl;
 			nll = mc_s->GetPdf()->createNLL(
-				*data,RooFit::Constrain(*mc_s->GetNuisanceParameters())
-				,RooFit::Extended(mc_s->GetPdf()->canBeExtended()));
+				*data,RooFit::Constrain(*mc_s->GetNuisanceParameters()));
 
 			
 			// grab r (mu) from workspace to set to 0 for bonly fit since it wasnt floating. Only if it exists 
