@@ -41,8 +41,8 @@ class SMHiggsBuilder:
         if process == "tHW":
             self.textToSpline("SM_XS_tHW_" + energy, os.path.join(self.xspath, energy + "-tHW.txt"))
         if process == "VH":
-            makeXS("WH", energy)
-            makeXS("ZH", energy)
+            self.makeXS("WH", energy)
+            self.makeXS("ZH", energy)
             self.modelBuilder.factory_("sum::SM_XS_VH_" + energy + "(SM_XS_WH_" + energy + ",SM_XS_ZH_" + energy + ")")
 
     def makeTotalWidth(self):
