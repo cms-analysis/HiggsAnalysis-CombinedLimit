@@ -1,0 +1,3 @@
+CascadeMinimizer.cc[184] : (in function: improveOnce) - Minimization configured with Type=Minuit2, Algo=Migrad, strategy=1, tolerance=0.1
+CascadeMinimizer.cc[211] : (in function: improveOnce) - Minimization finished with status=0
+CascadeMinimizer.cc[215] : (in function: improveOnce) - Minimization success! status=0

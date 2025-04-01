@@ -69,7 +69,53 @@ jobs:
             cmsenv
             text2workspace.py  HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
             combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1
+
+      - uses: rhaschke/docker-run-action@v5
+        name: Counting datacard with nllbackend codegen option
+        with:
+          image: ${{ matrix.IMAGE }}
+          shell: bash
+          options: ${{env.docker_opt_ro}}
+          run: |
+            cp -r cmssw/${CMSSW_VERSION} .
+            cd /home/cmsusr/${CMSSW_VERSION}/src
+            source /cvmfs/cms.cern.ch/cmsset_default.sh
+            cmsenv
+            text2workspace.py  HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
             combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1 --nllbackend codegen
+
+      - uses: rhaschke/docker-run-action@v5
+        name: Counting datacard comparison with and without nllbackend codegen option
+        with:
+          image: ${{ matrix.IMAGE }}
+          shell: bash
+          options: ${{env.docker_opt_ro}}
+          run: |
+            cp -r cmssw/${CMSSW_VERSION} .
+            cd /home/cmsusr/${CMSSW_VERSION}/src
+            source /cvmfs/cms.cern.ch/cmsset_default.sh
+            cmsenv
+            text2workspace.py  HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
+            combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1 -n .without_nllbackend &> without_nllbackend.out 
+            combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1 --nllbackend codegen -n .with_nllbackend &> with_nllbackend.out
+            # Remove the last line with the timing information, which is always different
+            head -n -1 without_nllbackend.out > without_nllbackend_trimmed.out
+            head -n -1 with_nllbackend.out > with_nllbackend_trimmed.out
+            
+            # Remove the warning about the different backend
+            echo "WARNING! You set the NLL evaluation backend to \"codegen\", which is not the default. This code path is not validated. Please don't use it for production!" > forbidden.txt
+            grep -v -x -F -f forbidden.txt with_nllbackend_trimmed.out > with_nllbackend_trimmed_no_warning.out
+            
+            # The remaining diff should be empty
+            DIFF=$(diff without_nllbackend.out with_nllbackend_trimmed_no_warning.ou)
+            
+            if [ "$DIFF" != "" ]
+            then
+                echo "There was a diff, test should fail:"
+                echo $DIFF
+            el
+                echo "All good!"
+            fi
 
       - uses: rhaschke/docker-run-action@v5
         name: Countind datacard Fixed Point from csv
