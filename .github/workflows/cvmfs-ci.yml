@@ -148,6 +148,7 @@ jobs:
             TTree *t = (TTree*) f->Get("limit");
             t->Scan("r");
             EOF
+            )
 
             echo "Scanning branch 'r' from $ROOT_FILE_with_nllbackend..."
             ROOT_OUTPUT2=$(root -l -b -q <<EOF | grep -E "^[[:space:]]*[0-9]+[:space:]+"
@@ -155,6 +156,7 @@ jobs:
             TTree *t = (TTree*) f->Get("limit");
             t->Scan("r");
             EOF
+            )
 
             # Compare the outputs
             if [ "$ROOT_OUTPUT1" == "$ROOT_OUTPUT2" ]; then
