@@ -127,7 +127,7 @@ jobs:
             text2workspace.py  HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
             combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1 -n .without_nllbackend 
             combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1 --nllbackend codegen -n .with_nllbackend
-            python HiggsCombine_MultiDimFit_compare.py  higgsCombine.with_nllbackend.MultiDimFit.mH120.root higgsCombine.without_nllbackend.MultiDimFit.mH120.root r_ggH r_qqH
+            python HiggsAnalysis/CombinedLimit/scripts/HiggsCombine_MultiDimFit_compare.py  higgsCombine.with_nllbackend.MultiDimFit.mH120.root higgsCombine.without_nllbackend.MultiDimFit.mH120.root r_ggH r_qqH
 #           ROOT_FILE_without_nllbackend="higgsCombineTest.without_nllbackend.MultiDimFit.mH120.root"
 #           ROOT_FILE_with_nllbackend="higgsCombineTest.with_nllbackend.MultiDimFit.mH120.root"
 #           if [ ! -f "$ROOT_FILE_without_nllbackend" ] || [ ! -f "$ROOT_FILE_with_nllbackend" ]
