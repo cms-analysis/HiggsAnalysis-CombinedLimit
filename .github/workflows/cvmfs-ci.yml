@@ -168,8 +168,8 @@ jobs:
              ROOT_FILE_with_nllbackend=\"higgsCombineTest.with_nllbackend.MultiDimFit.mH120.root\"; \
              
              if [ ! -f \"\$ROOT_FILE_without_nllbackend\" ] || [ ! -f \"\$ROOT_FILE_with_nllbackend\" ]; then \
-               echo \"Error: ROOT files not found!\"; \
-               exit 1; \
+                 echo \"Error: ROOT files not found!\"; \
+                 exit 1; \
              fi; \
              echo \"Scanning branch 'r' from \$ROOT_FILE_without_nllbackend...\"; \
              ROOT_OUTPUT1=\$(root -l -b -q <<EOF | grep -E \"^[[:space:]]*[0-9]+[:space:]+\"; \
@@ -184,9 +184,9 @@ jobs:
              t->Scan(\"r\"); \
              EOF); \
              if [ \"\$ROOT_OUTPUT1\" == \"\$ROOT_OUTPUT2\" ]; then \
-               echo \"nllbackend test successful\"; \
+                 echo \"nllbackend test successful\"; \
              else \
-               echo \"nllbackend test unsuccessful\"; \
+                 echo \"nllbackend test unsuccessful\"; \
              fi;"
 
       - uses: rhaschke/docker-run-action@v5
