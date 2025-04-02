@@ -110,7 +110,7 @@ jobs:
             then
                 echo "There was a diff, test should fail:"
                 echo $DIFF
-            el
+            else
                 echo "All good!"
             fi
       - uses: rhaschke/docker-run-action@v5
@@ -129,7 +129,8 @@ jobs:
             combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1 --nllbackend codegen -n .with_nllbackend
             ROOT_FILE_without_nllbackend="higgsCombineTest.without_nllbackend.MultiDimFit.mH120.root"
             ROOT_FILE_with_nllbackend="higgsCombineTest.with_nllbackend.MultiDimFit.mH120.root"
-            if [ ! -f "$ROOT_FILE_without_nllbackend" ] || [ ! -f "$ROOT_FILE_with_nllbackend" ]; then
+            if [ ! -f "$ROOT_FILE_without_nllbackend" ] || [ ! -f "$ROOT_FILE_with_nllbackend" ]
+            then
                 echo "Error: ROOT files not found!"
                 exit 1
             fi
@@ -137,17 +138,18 @@ jobs:
             ROOT_OUTPUT1=$(root -l -b -q <<EOF | grep -E "^[[:space:]]*[0-9]+[:space:]+"
             TFile *f = TFile::Open("$ROOT_FILE_without_nllbackend");
             TTree *t = (TTree*) f->Get("limit");
-            t->Scan("r");
+            t->Scan("r_ggH");
             EOF
             );
             echo "Scanning branch 'r' from $ROOT_FILE_with_nllbackend..."
             ROOT_OUTPUT2=$(root -l -b -q <<EOF | grep -E "^[[:space:]]*[0-9]+[:space:]+"
             TFile *f = TFile::Open("$ROOT_FILE_with_nllbackend");
             TTree *t = (TTree*) f->Get("limit");
-            t->Scan("r");
+            t->Scan("r_ggH");
             EOF
             );
-            if [ "$ROOT_OUTPUT1" == "$ROOT_OUTPUT2" ]; then
+            if [ "$ROOT_OUTPUT1" == "$ROOT_OUTPUT2" ]
+            then
                 echo "nllbackend test successful"
             else
                 echo "nllbackend test unsuccessful"
