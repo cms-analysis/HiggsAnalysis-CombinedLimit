@@ -83,7 +83,6 @@ jobs:
             cmsenv
             text2workspace.py  HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
             combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1 --nllbackend codegen
-c
       - uses: rhaschke/docker-run-action@v5
         name: Counting datacard comparison with and without nllbackend codegen option
         with:
