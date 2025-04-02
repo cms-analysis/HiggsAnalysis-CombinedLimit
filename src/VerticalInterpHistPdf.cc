@@ -10,8 +10,6 @@
 #include "RooMsgService.h"
 #include "RooAbsData.h"
 
-#include "RooUniformBinning.h"
-
 //#define TRACE_CALLS
 #ifdef TRACE_CALLS
 #include "../interface/ProfilingTools.h"
