@@ -20,8 +20,6 @@
 #include "../interface/AsimovUtils.h"
 #include "../interface/CombineLogger.h"
 
-#include <boost/bind.hpp>
-
 using namespace RooStats;
 
 double AsymptoticLimits::rAbsAccuracy_ = 0.0005;
@@ -690,7 +688,7 @@ float AsymptoticLimits::calculateLimitFromGrid(RooRealVar *r , double quantile, 
 	}	
 	
 	// Now order the values by r
-	std::sort(thevals.begin(),thevals.end(),boost::bind(&std::pair<float, float>::first, _1)<boost::bind(&std::pair<float, float>::first, _2));
+	std::sort(thevals.begin(),thevals.end(), [](auto const& p1, auto const& p2) { return p1.first < p2.first; });
 	// Now find two values of r below and above the threshold alpha
 	double rlower = r->getMin();
 	double rupper = r->getMax();
