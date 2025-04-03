@@ -138,6 +138,7 @@ private:
 std::unique_ptr<RooAbsReal> combineCreateNLL(RooAbsPdf &pdf,
                                              RooAbsData &data,
                                              RooArgSet const *constraint = nullptr,
-                                             bool offset = false);
+                                             bool offset = false,
+                                             bool warnAboutDifferentBackend = true);
 
 #endif

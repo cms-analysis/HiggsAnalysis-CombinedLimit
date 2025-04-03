@@ -1267,7 +1267,8 @@ void Combine::addBranches(const std::string& trackString, RooWorkspace* w, std::
   }
 }
 
-std::unique_ptr<RooAbsReal> combineCreateNLL(RooAbsPdf &pdf, RooAbsData &data, RooArgSet const *constrain, bool offset) {
+std::unique_ptr<RooAbsReal> combineCreateNLL(
+    RooAbsPdf &pdf, RooAbsData &data, RooArgSet const *constrain, bool offset, bool warnAboutDifferentBackend) {
   RooLinkedList cmdList;
 
   // If "constrain" is a nullptr, it implies automatic constraint parameter selection.
@@ -1301,7 +1302,7 @@ std::unique_ptr<RooAbsReal> combineCreateNLL(RooAbsPdf &pdf, RooAbsData &data, R
     evalBackend = defaultEvalBackend;
 
   // If the evaluation backend is not the default, emit a warnings
-  if (evalBackend != defaultEvalBackend) {
+  if (warnAboutDifferentBackend && evalBackend != defaultEvalBackend) {
     std::cerr << "WARNING! You set the NLL evaluation backend to \"" << evalBackend
               << "\", which is not the default. This code path is not validated. Please don't use it for production!"
               << std::endl;
