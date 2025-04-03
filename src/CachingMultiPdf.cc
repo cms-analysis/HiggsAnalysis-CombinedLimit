@@ -10,7 +10,7 @@ cacheutils::CachingMultiPdf::CachingMultiPdf(const RooMultiPdf &pdf, const RooAr
 {
     //std::cout << "Making a CachingMultiPdf for " << pdf.GetName() << " with " <<  pdf_->getNumPdfs() << " pdfs." << std::endl;
     for (int i = 0, n = pdf_->getNumPdfs(); i < n; ++i) {
-        cachingPdfs_.push_back(makeCachingPdf(pdf_->getPdf(i), &obs));
+        cachingPdfs_.emplace_back(makeCachingPdf(pdf_->getPdf(i), &obs));
         //cachingPdfs_.push_back(new CachingPdf(pdf_->getPdf(i), &obs));
         //std::cout << "      MultiPdfAdding " <<  pdf.GetName() << "[" << i << "]: " << pdf_->getPdf(i)->ClassName() << " " << pdf_->getPdf(i)->GetName() << " using " << typeid(cachingPdfs_.back()).name() << std::endl;
     }
@@ -26,10 +26,10 @@ cacheutils::CachingMultiPdf::~CachingMultiPdf()
 
 const std::vector<Double_t> & cacheutils::CachingMultiPdf::eval(const RooAbsData &data)
 {
-    const std::vector<Double_t> & ret = cachingPdfs_[pdf_->getCurrentIndex()].eval(data);
+    const std::vector<Double_t> & ret = cachingPdfs_[pdf_->getCurrentIndex()]->eval(data);
 #ifdef CachingMultiPdf_VALIDATE
     cachingPdfs_.back().setDataDirty();
-    const std::vector<Double_t> & chk = cachingPdfs_.back().eval(data);
+    const std::vector<Double_t> & chk = cachingPdfs_.back()->eval(data);
     double normratio = 0.0;
     for (unsigned int i = 0, n = ret.size(); i < n; ++i) {
         if (chk[i] > 1e-6) normratio = max(normratio, abs(ret[i]/chk[i]-1));
@@ -57,15 +57,15 @@ const std::vector<Double_t> & cacheutils::CachingMultiPdf::eval(const RooAbsData
 
 void cacheutils::CachingMultiPdf::setDataDirty()
 {
-    for (CachingPdfBase &pdf : cachingPdfs_) {
-        pdf.setDataDirty();
+    for (auto &pdf : cachingPdfs_) {
+        pdf->setDataDirty();
     }
 }
 
 void cacheutils::CachingMultiPdf::setIncludeZeroWeights(bool includeZeroWeights) 
 {
-    for (CachingPdfBase &pdf : cachingPdfs_) {
-        pdf.setIncludeZeroWeights(includeZeroWeights);
+    for (auto &pdf : cachingPdfs_) {
+        pdf->setIncludeZeroWeights(includeZeroWeights);
     }
 }
 
@@ -79,7 +79,7 @@ cacheutils::CachingAddPdf::CachingAddPdf(const RooAddPdf &pdf, const RooArgSet &
     //std::cout << "Making a CachingAddPdf for " << pdf.GetName() << " with " << pdfs.getSize() << " pdfs, " << coeffs.getSize() << " coeffs." << std::endl;
     for (int i = 0, n = pdfs.getSize(); i < n; ++i) {
         RooAbsPdf *pdfi = (RooAbsPdf*) pdfs.at(i);
-        cachingPdfs_.push_back(makeCachingPdf(pdfi, &obs));
+        cachingPdfs_.emplace_back(makeCachingPdf(pdfi, &obs));
         //std::cout << "      AddPdfAdding " << pdf.GetName() << "[" << i << "]: " << pdfi->ClassName() << " " << pdfi->GetName() << " using " << typeid(cachingPdfs_.back()).name() << std::endl;
     }
     for (int i = 0, n = coeffs.getSize(); i < n; ++i) {
@@ -106,12 +106,12 @@ const std::vector<Double_t> & cacheutils::CachingAddPdf::eval(const RooAbsData &
             coefVals[i] /= coefSum;
         }
     }
-    const std::vector<Double_t> & one = cachingPdfs_.front().eval(data);
+    const std::vector<Double_t> & one = cachingPdfs_.front()->eval(data);
     unsigned int size = one.size();
     work_.resize(size);
     std::fill(work_.begin(), work_.end(), 0.0);
     for (int i = 0, n =  coefVals.size(); i < n; ++i) {
-        vectorized::mul_add(size, coefVals[i], &(i ? cachingPdfs_[i].eval(data) : one)[0], &work_[0]);
+        vectorized::mul_add(size, coefVals[i], &(i ? cachingPdfs_[i]->eval(data) : one)[0], &work_[0]);
     }
     //std::cout << "Evaluated " << pdf_->GetName() << " of type CachingAddPdf" << std::endl;
     return work_;
@@ -119,15 +119,15 @@ const std::vector<Double_t> & cacheutils::CachingAddPdf::eval(const RooAbsData &
 
 void cacheutils::CachingAddPdf::setDataDirty()
 {
-    for (CachingPdfBase &pdf : cachingPdfs_) {
-        pdf.setDataDirty();
+    for (auto &pdf : cachingPdfs_) {
+        pdf->setDataDirty();
     }
 }
 
 void cacheutils::CachingAddPdf::setIncludeZeroWeights(bool includeZeroWeights) 
 {
-    for (CachingPdfBase &pdf : cachingPdfs_) {
-        pdf.setIncludeZeroWeights(includeZeroWeights);
+    for (auto &pdf : cachingPdfs_) {
+        pdf->setIncludeZeroWeights(includeZeroWeights);
     }
 }
 
@@ -142,7 +142,7 @@ cacheutils::CachingProduct::CachingProduct(const RooProduct &pdf, const RooArgSe
     //std::cout << "Making a CachingProduct for " << pdf.GetName() << " with " << pdfs.getSize() << " pdfs, " << coeffs.getSize() << " coeffs." << std::endl;
     for (int i = 0, n = pdfs.getSize(); i < n; ++i) {
         RooAbsReal *pdfi = (RooAbsReal*) pdfs.at(i);
-        cachingPdfs_.push_back(makeCachingPdf(pdfi, &obs));
+        cachingPdfs_.emplace_back(makeCachingPdf(pdfi, &obs));
     }
 }
 
@@ -152,27 +152,27 @@ cacheutils::CachingProduct::~CachingProduct()
 
 const std::vector<Double_t> & cacheutils::CachingProduct::eval(const RooAbsData &data)
 {
-    const std::vector<Double_t> & one = cachingPdfs_.front().eval(data);
+    const std::vector<Double_t> & one = cachingPdfs_.front()->eval(data);
     unsigned int size = one.size();
     work_.resize(size);
     std::copy(one.begin(), one.end(), work_.begin());
     for (int i = 1, n =  cachingPdfs_.size(); i < n; ++i) {
-        vectorized::mul_inplace(size, &cachingPdfs_[i].eval(data)[0], &work_[0]);
+        vectorized::mul_inplace(size, &cachingPdfs_[i]->eval(data)[0], &work_[0]);
     }
     return work_;
 }
 
 void cacheutils::CachingProduct::setDataDirty()
 {
-    for (CachingPdfBase &pdf : cachingPdfs_) {
-        pdf.setDataDirty();
+    for (auto &pdf : cachingPdfs_) {
+        pdf->setDataDirty();
     }
 }
 
 void cacheutils::CachingProduct::setIncludeZeroWeights(bool includeZeroWeights) 
 {
-    for (CachingPdfBase &pdf : cachingPdfs_) {
-        pdf.setIncludeZeroWeights(includeZeroWeights);
+    for (auto &pdf : cachingPdfs_) {
+        pdf->setIncludeZeroWeights(includeZeroWeights);
     }
 }
 

@@ -797,8 +797,7 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
 		    
                 } else {
                     // otherwise, it could be Name,subname,strategy
-		    std::vector<std::string> configs;
-		    boost::algorithm::split(configs,algo,boost::is_any_of(","));
+		    std::vector<std::string> configs = Utils::split(algo,",");
 		    if (configs.size()!=3) {
 		    	std::cerr << "The fallback command from --cminFallbackAlgo " << *it << " is malformed. It should be formatted as Type[,Algo],strategy[:tolerance] " << std::endl;
 			exit(0);
