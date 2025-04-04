@@ -19,7 +19,7 @@ namespace cacheutils {
             void  setIncludeZeroWeights(bool includeZeroWeights) override ;
         protected:
             const RooMultiPdf * pdf_;
-            boost::ptr_vector<CachingPdfBase>  cachingPdfs_;
+            std::vector<std::unique_ptr<CachingPdfBase>>  cachingPdfs_;
     };
 
     class CachingAddPdf : public CachingPdfBase {
@@ -33,7 +33,7 @@ namespace cacheutils {
         protected:
             const RooAddPdf * pdf_;
             std::vector<const RooAbsReal *> coeffs_;
-            boost::ptr_vector<CachingPdfBase>  cachingPdfs_;
+            std::vector<std::unique_ptr<CachingPdfBase>>  cachingPdfs_;
             std::vector<Double_t> work_;
     };
 
@@ -47,7 +47,7 @@ namespace cacheutils {
             void  setIncludeZeroWeights(bool includeZeroWeights) override ;
         protected:
             const RooProduct * pdf_;
-            boost::ptr_vector<CachingPdfBase>  cachingPdfs_;
+            std::vector<std::unique_ptr<CachingPdfBase>>  cachingPdfs_;
             std::vector<Double_t> work_;
     };
 

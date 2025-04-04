@@ -4,7 +4,6 @@
 
 bool setupIgProfDumpHook() ;
 
-//#include <boost/unordered_map.hpp>
 class PerfCounter {
     public:
         static PerfCounter & get(const char *name) ;

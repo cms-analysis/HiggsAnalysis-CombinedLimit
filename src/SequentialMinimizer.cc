@@ -11,9 +11,7 @@
 #include "RooLinkedListIter.h"
 #include <Math/MinimizerOptions.h>
 #include <Math/Factory.h>
-#include <boost/foreach.hpp>
 #include "../interface/ProfilingTools.h"
-#define foreach BOOST_FOREACH
 
 #define DEBUG_ODM_printf if (0) printf
 //#define DEBUG_SM_printf   if (0) printf
@@ -315,7 +313,9 @@ void cmsmath::SequentialMinimizer::Clear() {
     minValue_ = std::numeric_limits<double>::quiet_NaN();
     edm_      = std::numeric_limits<double>::infinity();
     state_ = Cleared;
-    foreach(Worker &w, workers_) w.state = Cleared;
+    for (Worker &w : workers_) {
+      w.state = Cleared;
+    }
 }
 
 bool cmsmath::SequentialMinimizer::SetVariable(unsigned int ivar, const std::string & name, double val, double step) {
@@ -378,7 +378,7 @@ bool cmsmath::SequentialMinimizer::improve(int smallsteps)
     std::list<Worker*> doneWorkers;
 
     // start with active workers, for all except constants
-    foreach(Worker &w, workers_) {
+    for (Worker &w : workers_) {
         if (w.state != Fixed) w.state = Active;
     }
 
@@ -387,7 +387,7 @@ bool cmsmath::SequentialMinimizer::improve(int smallsteps)
         DEBUG_SM_printf("Start of loop. Strategy %d, State is %s\n",Strategy(),(state_ == Done ? "DONE" : "ACTIVE"));
         State newstate = Done;
         int oldActiveWorkers = 0, newActiveWorkers = 0;
-        foreach(Worker &w, workers_) {
+        for(Worker &w : workers_) {
             OneDimMinimizer::ImproveRet iret = OneDimMinimizer::Unchanged;
             if (w.state == Done || w.state == Fixed) continue;
             iret = w.improve(smallsteps,ytol); 

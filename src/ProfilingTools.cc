@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 #include <cassert>
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 void (*igProfRequestDump_)(const char *);
 int igProfDumpNumber_ = 0;
@@ -36,7 +36,7 @@ bool setupIgProfDumpHook() {
 }
 
 
-boost::unordered_map<const char *, PerfCounter> perfCounters_;
+std::unordered_map<const char *, PerfCounter> perfCounters_;
 
 PerfCounter & PerfCounter::get(const char *name) 
 {
@@ -45,15 +45,15 @@ PerfCounter & PerfCounter::get(const char *name)
 
 void PerfCounter::printAll() 
 {
-    for (boost::unordered_map<const char *, PerfCounter>::const_iterator it = perfCounters_.begin(), ed = perfCounters_.end(); it != ed; ++it) {
+    for (auto it = perfCounters_.begin(), ed = perfCounters_.end(); it != ed; ++it) {
         fprintf(stderr, "%-40s: %g\n", it->first, it->second.get());
     }
 }
 
 // we define them by string value, but we lookup them by const char *
 namespace runtimedef {
-    boost::unordered_map<const char *, std::pair<int,int> > defines_;
-    boost::unordered_map<std::string,  int>                 definesByString_;
+    std::unordered_map<const char *, std::pair<int,int> > defines_;
+    std::unordered_map<std::string,  int>                 definesByString_;
     int get(const char *name) {
         std::pair<int,int> & ret = defines_[name];
         if (ret.second == 0) {

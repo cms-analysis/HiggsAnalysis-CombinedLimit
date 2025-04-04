@@ -18,7 +18,6 @@
 #include "SimpleGaussianConstraint.h"
 #include "SimplePoissonConstraint.h"
 #include "SimpleConstraintGroup.h"
-#include <boost/ptr_container/ptr_vector.hpp>
 
 class RooMultiPdf;
 
@@ -149,8 +148,8 @@ class CachingAddNLL : public RooAbsReal {
         double               sumWeights_;
         bool includeZeroWeights_;
         mutable std::vector<RooAbsReal*> coeffs_;
-        mutable boost::ptr_vector<CachingPdfBase>  pdfs_;
-        mutable boost::ptr_vector<RooAbsReal>  prods_;
+        mutable std::vector<std::unique_ptr<CachingPdfBase>>  pdfs_;
+        mutable std::vector<std::unique_ptr<RooAbsReal>>  prods_;
         mutable std::vector<RooAbsReal*> integrals_;
         mutable std::vector<std::pair<const RooMultiPdf*,CachingPdfBase*> > multiPdfs_;
         mutable std::vector<Double_t> partialSum_;

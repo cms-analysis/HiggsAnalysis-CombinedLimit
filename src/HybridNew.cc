@@ -47,10 +47,6 @@
 #include "../interface/ProfilingTools.h"
 #include "../interface/CombineLogger.h"
 
-
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
-
 using namespace RooStats;
 using namespace std;
 
@@ -1043,8 +1039,7 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
       	double prob = ROOT::Math::chisquared_cdf_c(qN,poi.getSize());
 
 	std::vector<float>scaleAndConfidences;
-  	std::vector<std::string> scaleAndConfidencesList;
-    	boost::split(scaleAndConfidencesList,scaleAndConfidenceSelection_ , boost::is_any_of(","));
+  	std::vector<std::string> scaleAndConfidencesList = Utils::split(scaleAndConfidenceSelection_ , ",");
 
   	for (UInt_t p = 0; p < scaleAndConfidencesList.size(); ++p) {
 
