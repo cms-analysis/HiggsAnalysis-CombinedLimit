@@ -1,0 +1,58 @@
+name: clang-tidy-review
+
+on: 
+  pull_request:
+    paths:
+      - '**.h'
+      - '**.cc'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v2.0.3
+        with:
+          version: "17.0.6"
+
+      - name: install lit
+        run: pip install lit
+        
+      - name: Run clang-tidy
+        uses: ZedThree/clang-tidy-review@v0.20.1
+        id: review
+        with:
+          build_dir: build
+          apt_packages: cmake,libxml2,libxml2-dev,libtinfo-dev,zlib1g-dev,libzstd-dev,wget,libvdt-dev
+          split_workflow: true
+          config_file: .clang-tidy
+          cmake_command: >
+            cmake . -B build -DINSTALL_PYTHON=FALSE -DCMAKE_EXPORT_COMPILE_COMMANDS=ON || true && 
+            rm -rf build && 
+            set -x && 
+            wget https://github.com/mamba-org/micromamba-releases/releases/download/1.5.10-0/micromamba-linux-64 && 
+            mv ./micromamba-linux-64 ./micromamba && 
+            chmod a+x ./micromamba && 
+            export PATH="$PWD:$PATH" && 
+            eval "$(micromamba shell hook -s posix)" && 
+            micromamba create -n clang-tidy-review -y --log-level warning -f $GITHUB_WORKSPACE/conda_env.yml && 
+            export PATH=${PATH}:/github/home/micromamba/envs/clang-tidy-review/bin && 
+            export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/github/home/micromamba/envs/clang-tidy-review/lib && 
+            export PYTHONPATH=${PYTHONPATH}:/github/home/micromamba/envs/clang-tidy-review/lib/python && 
+            find /github/home/micromamba/ -iname "*vdt" && 
+            micromamba run -n clang-tidy-review cmake . -B build -DINSTALL_PYTHON=FALSE -DUSE_VDT=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_PREFIX_PATH=/github/home/micromamba/envs/clang-tidy-review
+
+      - name: Upload artifacts
+        uses: ZedThree/clang-tidy-review/upload@v0.20.1

@@ -1,22 +1,75 @@
----
-Checks: -*,
-  ,boost-use-to-string,
-  ,bugprone-string-constructor,
-  ,misc-definitions-in-headers,
-  ,misc-string-compare,
-  ,misc-uniqueptr-reset-release,
-  ,modernize-use-default-member-init
-  ,modernize-use-override,
-  ,performance-faster-string-find,
-  ,performance-inefficient-algorithm,
-  ,performance-inefficient-vector-operation,
-  ,performance-move-const-arg,
-  ,performance-trivially-destructible,
-WarningsAsErrors: '*'
-HeaderFilterRegex: ''
+Checks: >
+  -*,
+  bugprone-*,
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  llvm-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -bugprone-narrowing-conversions,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-implicit-widening-of-multiplication-result,
+  -bugprone-unchecked-optional-access,
+  -misc-const-correctness,
+  -misc-unused-parameters,
+  -misc-non-private-member-variables-in-classes,
+  -misc-no-recursion,
+  -misc-use-anonymous-namespace,
+  -modernize-return-braced-init-list,
+  -modernize-use-trailing-return-type,
+  -readability-braces-around-statements,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -readability-named-parameter,
+  -readability-function-cognitive-complexity,
+  -readability-implicit-bool-conversion,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -clang-analyzer-cplusplus.NewDeleteLeaks,
+
 CheckOptions:
-  - key:             misc-definitions-in-headers.HeaderFileExtensions
-    value:           'h,hh,hpp,hxx,icc'
-  - key:             modernize-use-default-member-init.UseAssignment
-    value:           true
-...
+  - key:             readability-identifier-naming.ClassCase
+    value:           aNy_CasE
+  - key:             readability-identifier-naming.FunctionCase
+    value:           aNy_CasE
+  - key:             readability-identifier-naming.MemberCase
+    value:           aNy_CasE
+  - key:             readability-identifier-naming.PrivateMemberPrefix
+    value:           'm_'
+  - key:             readability-identifier-naming.ProtectedMemberPrefix
+    value:           'm_'
+  - key:             readability-identifier-naming.PublicMemberPrefix
+    value:           ''
+  - key:             readability-identifier-naming.ParameterCase
+    value:           aNy_CasE
+  - key:             readability-identifier-naming.UnionCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.VariableCase
+    value:           aNy_CasE
+  - key:             readability-identifier-naming.IgnoreMainLikeFunctions
+    value:           1
+  - key:             readability-implicit-bool-conversion.AllowPointerConditions
+    value:           1
+  - key:             readability-magic-numbers.IgnorePowersOf2IntegerValues
+    value:           1
+  - key:             readability-magic-numbers.IgnoredIntegerValues
+    value:           4;8;16;
+  - key:             bugprone-argument-comment.CommentNullPtrs
+    value:           1
+  - key:             bugprone-argument-comment.CommentBoolLiterals
+    value:           1
+  - key:             bugprone-argument-comment.StrictMode
+    value:           1
+  - key:             bugprone-argument-comment.CommentIntegerLiterals
+    value:           1
+  - key:             bugprone-argument-comment.CommentUserDefinedLiterals
+    value:           1
+  - key:             bugprone-argument-comment.CommentStringLiterals
+    value:           1
+  - key:             bugprone-argument-comment.CommentFloatLiterals
+    value:           1
+  - key:             bugprone-argument-comment.CommentCharacterLiterals
+    value:           1
