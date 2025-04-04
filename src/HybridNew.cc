@@ -805,7 +805,6 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
   int nNonPoiFloatingParameters = utils::countFloating(floatParsModel);
   if (fitNuisances_ && nNonPoiFloatingParameters) {  // We need to fit the model first (to the data) if there are nuisance parameters (constrained or unconstrained)
     TStopwatch timer;
-    bool isExt = mc_s->GetPdf()->canBeExtended();
     utils::setAllConstant(poi, true);
     paramsToFit.reset(mc_s->GetPdf()->getParameters(data));
     RooStats::RemoveConstantParameters(&*paramsToFit);
@@ -815,12 +814,12 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
         r->setVal(0); pdfB = mc_s->GetPdf();
     }
     timer.Start();
-    std::unique_ptr<RooAbsReal> nll(pdfB->createNLL(data, RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+    auto nll = combineCreateNLL(*pdfB, data, mc_s->GetNuisanceParameters(), /*offset=*/false);
     {
         CloseCoutSentry sentry(verbose < 3);
         CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained, r);
         minim.minimize(verbose-3);
-        //pdfB->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
+        //pdfB->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
         fitZero.readFrom(*paramsToFit);
     }
     if (verbose > 1) { std::cout << "Zero signal fit" << std::endl; fitZero.Print("V"); }
@@ -842,13 +841,13 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
     timer.Start();
     if (pdfB != mc_s->GetPdf()) {
         nll.reset(); // first delete old one, to avoid duplicating memory
-        nll.reset(mc_s->GetPdf()->createNLL(data, RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+        nll = combineCreateNLL(*mc_s->GetPdf(), data, mc_s->GetNuisanceParameters(), /*offset=*/false);
     }
     {
        CloseCoutSentry sentry(verbose < 3);
        CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained, r);
        minim.minimize(verbose-3);
-       //mc_s->GetPdf()->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
+       //mc_s->GetPdf()->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
        fitMu.readFrom(*paramsToFit);
     }
     if (verbose > 1) { std::cout << "Reference signal fit" << std::endl; fitMu.Print("V"); }

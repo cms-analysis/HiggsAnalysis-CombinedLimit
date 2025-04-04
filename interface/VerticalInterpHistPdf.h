@@ -10,7 +10,8 @@
 #include "TH1.h"
 #include "SimpleCacheSentry.h"
 #include "FastTemplate_Old.h"
-#include <cmath>
+
+#include "CombineCodegenImpl.h"
 
 class FastVerticalInterpHistPdf;
 class FastVerticalInterpHistPdf2Base;
@@ -20,11 +21,10 @@ class FastVerticalInterpHistPdf2D2;
 class VerticalInterpHistPdf : public RooAbsPdf {
 public:
 
-  VerticalInterpHistPdf() ;
+  VerticalInterpHistPdf() = default;
   VerticalInterpHistPdf(const char *name, const char *title, const RooRealVar &x, const RooArgList& funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) ;
   VerticalInterpHistPdf(const VerticalInterpHistPdf& other, const char* name=0) ;
   TObject* clone(const char* newname) const override { return new VerticalInterpHistPdf(*this,newname) ; }
-  ~VerticalInterpHistPdf() override ;
 
   Bool_t selfNormalized() const override { return kTRUE; }
 
@@ -49,11 +49,11 @@ protected:
 
   // TH1 containing the histogram of this pdf
   mutable SimpleCacheSentry _sentry; // !not to be serialized
-  mutable TH1  *_cacheTotal;     //! not to be serialized
+  mutable std::unique_ptr<TH1> _cacheTotal;     //! not to be serialized
   // For additive morphing, histograms of fNominal, fUp and fDown
   // For multiplicative morphing, histograms of fNominal, log(fUp/fNominal), -log(fDown/fNominal);
-  mutable TH1  **_cacheSingle; //! not to be serialized
-  mutable int  *_cacheSingleGood; //! not to be serialized
+  mutable std::vector<std::unique_ptr<TH1>> _cacheSingle; //! not to be serialized
+  mutable std::vector<int>  _cacheSingleGood; //! not to be serialized
 private:
 
   ClassDefOverride(VerticalInterpHistPdf,1) // 
@@ -330,6 +330,8 @@ public:
 
   FastHisto const& cache() const { return _cache; }
 
+  COMBINE_DECLARE_TRANSLATE;
+
   FastHisto const &cacheNominal() const { return _cacheNominal; }
 
   friend class FastVerticalInterpHistPdf2V;
@@ -390,6 +392,8 @@ public:
   Double_t maxVal(Int_t code) const override ;
 
   Double_t evaluate() const override ;
+
+  COMBINE_DECLARE_TRANSLATE;
 
   FastHisto2D const &cacheNominal() const { return _cacheNominal; }
 
@@ -463,5 +467,7 @@ private:
 };
 
 
+COMBINE_DECLARE_CODEGEN_IMPL(FastVerticalInterpHistPdf2);
+COMBINE_DECLARE_CODEGEN_IMPL(FastVerticalInterpHistPdf2D2);
 
 #endif

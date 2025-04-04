@@ -10,6 +10,8 @@
 #include "TDirectory.h"
 #include "TH2F.h"
 
+#include <ROOT/RConfig.hxx> // for ROOT_VERSION
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -136,6 +138,10 @@ public:
 	RooqqZZPdf_v2(const RooqqZZPdf_v2& other, const char* name=0) ;
 	TObject* clone(const char* newname) const override { return new RooqqZZPdf_v2(*this,newname); }
 	inline ~RooqqZZPdf_v2() override { }
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,32,0)
+    std::unique_ptr<RooAbsArg> compileForNormSet(RooArgSet const &normSet, RooFit::Detail::CompileContext & ctx) const override;
+#endif
 	
 protected:
 	
@@ -299,6 +305,10 @@ public:
 	RooggZZPdf_v2(const RooggZZPdf_v2& other, const char* name=0) ;
 	TObject* clone(const char* newname) const override { return new RooggZZPdf_v2(*this,newname); }
 	inline ~RooggZZPdf_v2() override { }
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,32,0)
+    std::unique_ptr<RooAbsArg> compileForNormSet(RooArgSet const &normSet, RooFit::Detail::CompileContext & ctx) const override;
+#endif
 	
 protected:
 	

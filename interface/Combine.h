@@ -69,7 +69,9 @@ public:
   /// Add a branch to the output tree (for advanced use or debugging only)
   static void addBranch(const char *name, void *address, const char *leaflist) ;
 
-  static  std::string nllBackend_;
+  static std::string& nllBackend();
+
+  static void setNllBackend(std::string const&);
 
 private:
   bool mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) ;
@@ -132,5 +134,11 @@ private:
   static std::string  trackErrorsNameString_;
   static std::string  textToWorkspaceString_;
 };
+
+std::unique_ptr<RooAbsReal> combineCreateNLL(RooAbsPdf &pdf,
+                                             RooAbsData &data,
+                                             RooArgSet const *constraint = nullptr,
+                                             bool offset = false,
+                                             bool warnAboutDifferentBackend = true);
 
 #endif

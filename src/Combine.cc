@@ -25,6 +25,7 @@
 #include <TSystem.h>
 #include <TStopwatch.h>
 #include <TTree.h>
+#include <TInterpreter.h>
 
 #include <RooAbsData.h>
 #include <RooAbsPdf.h>
@@ -94,7 +95,15 @@ std::string defineBackgroundOnlyModelParameterExpression_ = "";
 std::string Combine::trackParametersNameString_="";
 std::string Combine::trackErrorsNameString_="";
 std::string Combine::textToWorkspaceString_="";
-std::string Combine::nllBackend_ = "combine";
+
+std::string& Combine::nllBackend() {
+  static std::string nllBackend_ = "combine";
+  return nllBackend_;
+}
+
+void Combine::setNllBackend(std::string const &val) {
+  nllBackend() = val;
+}
 
 std::vector<std::pair<RooAbsReal*,float> > Combine::trackedParametersMap_;
 std::vector<std::pair<RooRealVar*,float> > Combine::trackedErrorsMap_;
@@ -1256,4 +1265,66 @@ void Combine::addBranches(const std::string& trackString, RooWorkspace* w, std::
     const char * token = (it.first)->GetName();
     addBranch((std::string("tracked")+vtype+"_"+token).c_str(), &(it.second), (std::string("tracked")+vtype+"_"+token+std::string("/F")).c_str());
   }
+}
+
+std::unique_ptr<RooAbsReal> combineCreateNLL(
+    RooAbsPdf &pdf, RooAbsData &data, RooArgSet const *constrain, bool offset, bool warnAboutDifferentBackend) {
+  RooLinkedList cmdList;
+
+  // If "constrain" is a nullptr, it implies automatic constraint parameter selection.
+  RooCmdArg constrainCmdArg = constrain ? RooFit::Constrain(*constrain) : RooCmdArg();
+  cmdList.Add(&constrainCmdArg);
+
+  RooCmdArg offsetCmdArg = RooFit::Offset(offset);
+  cmdList.Add(&offsetCmdArg);
+
+  bool isSimultaneousOpt = dynamic_cast<RooSimultaneousOpt const *>(&pdf);
+  std::string evalBackend = Combine::nllBackend();
+
+  // Alternative evaluation backends are only supported from ROOT 6.30.
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 30, 0)
+  return std::unique_ptr<RooAbsReal>{pdf.createNLL(data, cmdList)};
+#else
+  // If the backend is "combine" we call createNLL without any specific
+  // EvalBackend().
+  if (evalBackend == "combine") {
+    return std::unique_ptr<RooAbsReal>{pdf.createNLL(data, cmdList)};
+  }
+  // The default evaluation backend is "combine" for the RooSimultaneousOpt,
+  // and whatever the default is in RooFit otherwise.
+  std::string defaultEvalBackend =
+      isSimultaneousOpt ? "combine" : RooFit::EvalBackend(RooFit::EvalBackend::defaultValue()).name();
+
+  // Only the RooSimultaneousOpt provides the "combine" backend. If the backend
+  // is set to "combine" but the pdf is not a RooSimultaneousOpt, fall back to
+  // the default in RooFit.
+  if (!isSimultaneousOpt && evalBackend == "combine")
+    evalBackend = defaultEvalBackend;
+
+  // If the evaluation backend is not the default, emit a warnings
+  if (warnAboutDifferentBackend && evalBackend != defaultEvalBackend) {
+    std::cerr << "WARNING! You set the NLL evaluation backend to \"" << evalBackend
+              << "\", which is not the default. This code path is not validated. Please don't use it for production!"
+              << std::endl;
+  }
+
+  RooCmdArg evalBackendCmdArg = RooFit::EvalBackend(evalBackend);
+  cmdList.Add(&evalBackendCmdArg);
+
+  // If we use "codegen", we need to declare the math functions to the
+  // interpreter.
+  static bool declaredMathFuncs = false;
+  if ((evalBackend == "codegen" || evalBackend == "codegen_no_grad") && !declaredMathFuncs) {
+    gInterpreter->Declare("#include <HiggsAnalysis/CombinedLimit/interface/CombineMathFuncs.h>");
+    declaredMathFuncs = true;
+  }
+
+  // If we don't use the "combine" backend, use the base class implementation
+  // (and not the one of the RooSimultaneousOpt).
+  if (isSimultaneousOpt) {
+    return static_cast<RooSimultaneousOpt &>(pdf).createNLLPassthrough(data, cmdList);
+  } else {
+    return std::unique_ptr<RooAbsReal>{pdf.createNLL(data, cmdList)};
+  }
+#endif
 }
