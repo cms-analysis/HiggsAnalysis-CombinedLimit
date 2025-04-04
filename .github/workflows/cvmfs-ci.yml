@@ -97,24 +97,23 @@ jobs:
             text2workspace.py  HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
             combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1 -n .without_nllbackend > without_nllbackend.out 2>&1 
             combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1 --nllbackend codegen -n .with_nllbackend > with_nllbackend.out 2>&1
-
-#            # Remove the last line with the timing information, which is always different
-#            head -n -1 without_nllbackend.out > without_nllbackend_trimmed.out
-#            head -n -1 with_nllbackend.out > with_nllbackend_trimmed.out
-#            # Remove the warning about the different backend
-#            echo "WARNING! You set the NLL evaluation backend to codegen, which is not the default. This code path is not validated. Please don't use it for production!" > forbidden.txt
-#            grep -v -x -F -f forbidden.txt with_nllbackend_trimmed.out > with_nllbackend_trimmed_no_warning.out
-#            # The remaining diff should be empty
-#            DIFF=$(diff without_nllbackend_trimmed.out with_nllbackend_trimmed_no_warning.out)
-#            if [ "$DIFF" != "" ]
-#            then
-#                echo "There was a diff, test should fail:"
-#                echo $DIFF
-#            else
-#                echo "All good!"
-#            fi
       - uses: rhaschke/docker-run-action@v5
-        name: Counting datacard ROOT fit comparison with and without nllbackend codegen option
+        name: Counting datacard screen output fit results comparison
+        with:
+          image: ${{ matrix.IMAGE }}
+          shell: bash
+          options: ${{env.docker_opt_ro}}
+          run: |
+            cp -r cmssw/${CMSSW_VERSION} .
+            cd /home/cmsusr/${CMSSW_VERSION}/src
+            source /cvmfs/cms.cern.ch/cmsset_default.sh
+            cmsenv
+            text2workspace.py  HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
+            combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1 -n .without_nllbackend > without_nllbackend.out 2>&1
+            combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1 --nllbackend codegen -n .with_nllbackend > with_nllbackend.out 2>&1
+
+      - uses: rhaschke/docker-run-action@v5
+        name: Counting datacard ROOT fit results comparison
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
@@ -127,34 +126,7 @@ jobs:
             text2workspace.py  HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
             combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1 -n .without_nllbackend 
             combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1 --nllbackend codegen -n .with_nllbackend
-            python3 HiggsAnalysis/CombinedLimit/scripts/HiggsCombine_MultiDimFit_compare.py  higgsCombine.with_nllbackend.MultiDimFit.mH120.root higgsCombine.without_nllbackend.MultiDimFit.mH120.root r_ggH r_qqH
-#           ROOT_FILE_without_nllbackend="higgsCombineTest.without_nllbackend.MultiDimFit.mH120.root"
-#           ROOT_FILE_with_nllbackend="higgsCombineTest.with_nllbackend.MultiDimFit.mH120.root"
-#           if [ ! -f "$ROOT_FILE_without_nllbackend" ] || [ ! -f "$ROOT_FILE_with_nllbackend" ]
-#           then
-#               echo "Error: ROOT files not found!"
-#               exit 1
-#           fi
-#           echo "Scanning branch 'r' from $ROOT_FILE_without_nllbackend..."
-#           ROOT_OUTPUT1=$(root -l -b -q <<EOF | grep -E "^[[:space:]]*[0-9]+[:space:]+"
-#           TFile *f = TFile::Open("$ROOT_FILE_without_nllbackend")
-#           TTree *t = (TTree*) f->Get("limit")
-#           t->Scan("r_ggH")
-#           EOF
-#           )
-#           echo "Scanning branch 'r' from $ROOT_FILE_with_nllbackend..."
-#           ROOT_OUTPUT2=$(root -l -b -q <<EOF | grep -E "^[[:space:]]*[0-9]+[:space:]+"
-#           TFile *f = TFile::Open("$ROOT_FILE_with_nllbackend")
-#           TTree *t = (TTree*) f->Get("limit")
-#           t->Scan("r_ggH")
-#           EOF
-#           )
-#           if [ "$ROOT_OUTPUT1" == "$ROOT_OUTPUT2" ]
-#           then
-#               echo "nllbackend test successful"
-#           else
-#               echo "nllbackend test unsuccessful"
-#           fi
+            python3 HiggsAnalysis/CombinedLimit/scripts/HiggsCombine_MultiDimFit_compare.py  -m root -f1 higgsCombine.with_nllbackend.MultiDimFit.mH120.root -f2 higgsCombine.without_nllbackend.MultiDimFit.mH120.root -b1 r_ggH -b2 r_qqH
       - uses: rhaschke/docker-run-action@v5
         name: Countind datacard Fixed Point from csv
         with:

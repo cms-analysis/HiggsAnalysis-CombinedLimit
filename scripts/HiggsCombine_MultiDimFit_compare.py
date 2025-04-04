@@ -42,18 +42,24 @@ def scan_plain_text_files(file1, file2, output_file):
             # Compare lines from both files
             for line1, line2 in zip(f1, f2):
                 if line1 != line2:
-                    output.write(f"Line {line_number}:\nFile 1: {line1}File 2: {line2}\n")
+                    diff_text = f"Line {line_number}:\nFile 1: {line1}File 2: {line2}\n"
+                    output.write(diff_text)
+                    print(diff_text)  # Print the content being written
                     differences_found = True
                 line_number += 1
 
             # Handle remaining lines in case the files are of unequal length
             for line in f1:
-                output.write(f"Line {line_number}:\nFile 1: {line}File 2: <No line>\n")
+                diff_text = f"Line {line_number}:\nFile 1: {line}File 2: <No line>\n"
+                output.write(diff_text)
+                print(diff_text)  # Print the content being written
                 line_number += 1
                 differences_found = True
 
             for line in f2:
-                output.write(f"Line {line_number}:\nFile 1: <No line>\nFile 2: {line}\n")
+                diff_text = f"Line {line_number}:\nFile 1: <No line>\nFile 2: {line}\n"
+                output.write(diff_text)
+                print(diff_text)  # Print the content being written
                 line_number += 1
                 differences_found = True
 
@@ -70,7 +76,9 @@ def scan_plain_text_files(file1, file2, output_file):
 
         if last_line_f1 != last_line_f2:
             with open(output_file, 'a') as output:  # Append to avoid overwriting previous results
-                output.write(f"Last Line:\nFile 1: {last_line_f1 or '<No line>'}File 2: {last_line_f2 or '<No line>'}\n")
+                diff_text = f"Last Line:\nFile 1: {last_line_f1 or '<No line>'}File 2: {last_line_f2 or '<No line>'}\n"
+                output.write(diff_text)
+                print(diff_text)  # Print the content being written
             differences_found = True
 
         # Output result based on whether differences were found
