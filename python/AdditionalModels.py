@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import os
 
 import ROOT
@@ -51,7 +49,7 @@ class C8(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
             self.modelBuilder.doSet("POI", pois + ",MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -106,7 +104,7 @@ class C8(SMLikeHiggsModel):
             self.modelBuilder.factory_('expr::c8_BRscal_hinv("@0>=0?@0:-100", BRInv)')
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "c8_XSBRscal_%s_%s" % (production, decay)
+        name = "c8_XSBRscal_{}_{}".format(production, decay)
         print("[LOFullParametrization::C7]")
         print(name, production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
@@ -124,7 +122,7 @@ class C8(SMLikeHiggsModel):
                 BRscal = "hzg"
             if self.doHInv and decay == "hinv":
                 BRscal = "hinv"
-            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, c8_BRscal_%s)' % (name, XSscal, BRscal))
+            self.modelBuilder.factory_('expr::{}("@0*@0 * @1", {}, c8_BRscal_{})'.format(name, XSscal, BRscal))
         return name
 
 
@@ -177,7 +175,7 @@ class CWidth(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
             self.modelBuilder.doSet("POI", pois + ",MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -265,7 +263,7 @@ class CWidth(SMLikeHiggsModel):
             self.modelBuilder.factory_('expr::c7_BRscal_hinv("@0>=0?@0:-100", BRInvUndet)')
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "c7_XSBRscal_%s_%s" % (production, decay)
+        name = "c7_XSBRscal_{}_{}".format(production, decay)
         print("[LOFullParametrization::C7]")
         print(name, production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
@@ -283,7 +281,7 @@ class CWidth(SMLikeHiggsModel):
                 BRscal = "hzg"
             if self.doHInv and decay == "hinv":
                 BRscal = "hinv"
-            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, c7_BRscal_%s)' % (name, XSscal, BRscal))
+            self.modelBuilder.factory_('expr::{}("@0*@0 * @1", {}, c7_BRscal_{})'.format(name, XSscal, BRscal))
         return name
 
 
@@ -321,7 +319,7 @@ class TwoHDM(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
             self.modelBuilder.doSet("POI", "cosbma,tanbeta,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -437,9 +435,9 @@ class TwoHDM(SMLikeHiggsModel):
         XSscal = self.productionScaling[production]
         BRscal = self.decayScaling[decay]
         if "Scaling_" in XSscal:  # it's a Scaling, which means it's already squared
-            self.modelBuilder.factory_('expr::%s("@0 * @1", %s, twohdm_BRscal_%s)' % (name, XSscal, BRscal))
+            self.modelBuilder.factory_('expr::{}("@0 * @1", {}, twohdm_BRscal_{})'.format(name, XSscal, BRscal))
         else:  # It's a kappa, so it's linear and I must square it
-            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, twohdm_BRscal_%s)' % (name, XSscal, BRscal))
+            self.modelBuilder.factory_('expr::{}("@0*@0 * @1", {}, twohdm_BRscal_{})'.format(name, XSscal, BRscal))
         return name
 
 

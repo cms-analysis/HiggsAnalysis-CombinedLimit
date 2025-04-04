@@ -4,11 +4,8 @@ Performs rounding of values with uncertainties and produces output that can be u
 Written by andre.david@cern.ch
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
 from math import *
 from decimal import *
-from six.moves import range
 
 
 ###
@@ -231,7 +228,7 @@ def toROOTorLatex(valStr, uncsStr, mag, uncLbls=None, units=None, mode=None):
     if mode == "Latex":
         t = {
             "sep": "\\",
-            "space": "\;",  # noqa: W605
+            "space": r"\;",  # noqa: W605
             "times": "\\times",
             "left": "\\left",
             "right": "\\right",
@@ -306,7 +303,7 @@ class PDGRoundingTests(unittest.TestCase):
         """Uncertainty roundings according to the PDG rules"""
         for toround, rounded in self.knownValues:
             result = PDGRoundUnc(toround)
-            self.assertEquals(result, rounded)
+            self.assertEqual(result, rounded)
 
 
 class RoundSymUncTests(unittest.TestCase):
@@ -326,7 +323,7 @@ class RoundSymUncTests(unittest.TestCase):
         """PDG rules: symmetric errors"""
         for toround, rounded in self.knownValues:
             result = PDGRoundSym(toround[0], toround[1])
-            self.assertEquals(result, rounded)
+            self.assertEqual(result, rounded)
 
 
 class RoundAsymUncTests(unittest.TestCase):
@@ -340,7 +337,7 @@ class RoundAsymUncTests(unittest.TestCase):
         """PDG rules: asymmetric errors"""
         for toround, rounded in self.knownValues:
             result = PDGRoundAsym(toround[0], toround[1], toround[2])
-            self.assertEquals(result, rounded)
+            self.assertEqual(result, rounded)
 
 
 class RoundMultipleTests(unittest.TestCase):
@@ -357,7 +354,7 @@ class RoundMultipleTests(unittest.TestCase):
         """Human rules: multiple symmetric and/or asymmetric errors"""
         for toround, rounded in self.knownValues:
             result = roundMultiple(toround[0], toround[1])
-            self.assertEquals(result, rounded)
+            self.assertEqual(result, rounded)
 
 
 if __name__ == "__main__":

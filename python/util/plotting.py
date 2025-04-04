@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-from __future__ import print_function
 import ROOT as R
 import math
 from array import array
@@ -8,7 +6,6 @@ import json
 import types
 import six
 import ctypes
-from six.moves import range
 
 COL_STORE = []
 
@@ -281,7 +278,7 @@ def CreateTransparentColor(color, alpha):
 
 
 def Set(obj, **kwargs):
-    for key, value in six.iteritems(kwargs):
+    for key, value in kwargs.items():
         if value is None:
             getattr(obj, "Set" + key)()
         elif isinstance(value, (list, tuple)):
@@ -944,7 +941,7 @@ def ApplyGraphYOffset(graph, y_off):
 def RemoveGraphYAll(graph, val):
     for i in range(graph.GetN()):
         if graph.GetY()[i] == val:
-            print("[RemoveGraphYAll] Removing point (%f, %f)" % (graph.GetX()[i], graph.GetY()[i]))
+            print("[RemoveGraphYAll] Removing point ({:f}, {:f})".format(graph.GetX()[i], graph.GetY()[i]))
             graph.RemovePoint(i)
             RemoveGraphYAll(graph, val)
             break
@@ -954,7 +951,7 @@ def RemoveSmallDelta(graph, val):
     for i in range(graph.GetN()):
         diff = abs(graph.GetY()[i])
         if diff < val:
-            print("[RemoveSmallDelta] Removing point (%f, %f)" % (graph.GetX()[i], graph.GetY()[i]))
+            print("[RemoveSmallDelta] Removing point ({:f}, {:f})".format(graph.GetX()[i], graph.GetY()[i]))
             graph.RemovePoint(i)
             RemoveSmallDelta(graph, val)
             break
@@ -1002,8 +999,8 @@ def ImproveMinimum(graph, func, doIt=False):
     search_max = fit_i + 2 if fit_i + 2 < graph.GetN() else fit_i + 1
     min_x = func.GetMinimumX(graph.GetX()[search_min], graph.GetX()[search_max])
     min_y = func.Eval(min_x)
-    print("[ImproveMinimum] Fit minimum was (%f, %f)" % (fit_x, fit_y))
-    print("[ImproveMinimum] Better minimum was (%f, %f)" % (min_x, min_y))
+    print("[ImproveMinimum] Fit minimum was ({:f}, {:f})".format(fit_x, fit_y))
+    print("[ImproveMinimum] Better minimum was ({:f}, {:f})".format(min_x, min_y))
     if doIt:
         for i in range(graph.GetN()):
             before = graph.GetY()[i]
@@ -1063,8 +1060,8 @@ def ReZeroTGraph(gr, doIt=False):
             min_y = gr.GetY()[i]
             min_x = gr.GetX()[i]
     if min_y < fit_y:
-        print("[ReZeroTGraph] Fit minimum was (%f, %f)" % (fit_x, fit_y))
-        print("[ReZeroTGraph] Better minimum was (%f, %f)" % (min_x, min_y))
+        print("[ReZeroTGraph] Fit minimum was ({:f}, {:f})".format(fit_x, fit_y))
+        print("[ReZeroTGraph] Better minimum was ({:f}, {:f})".format(min_x, min_y))
         if doIt:
             for i in range(gr.GetN()):
                 # before = gr.GetY()[i]
@@ -1122,7 +1119,7 @@ def RemoveNearMin(graph, val, spacing=None):
         if i == bf_i:
             continue
         if abs(graph.GetX()[i] - bf) < (val * spacing):
-            print("[RemoveNearMin] Removing point (%f, %f) close to minimum at %f" % (graph.GetX()[i], graph.GetY()[i], bf))
+            print("[RemoveNearMin] Removing point ({:f}, {:f}) close to minimum at {:f}".format(graph.GetX()[i], graph.GetY()[i], bf))
             graph.RemovePoint(i)
             RemoveNearMin(graph, val, spacing)
             break
@@ -1854,7 +1851,7 @@ def higgsConstraint(model, higgstype):
     massstep = 10
     n = 0
     for mass in range(masslow, masshigh, massstep):
-        myfile = open("../../HiggsAnalysis/HiggsToTauTau/data/Higgs125/" + model + "/higgs_" + str(mass) + ".dat", "r")
+        myfile = open("../../HiggsAnalysis/HiggsToTauTau/data/Higgs125/" + model + "/higgs_" + str(mass) + ".dat")
         for line in myfile:
             tanb = (line.split())[0]
             mh = float((line.split())[1])
