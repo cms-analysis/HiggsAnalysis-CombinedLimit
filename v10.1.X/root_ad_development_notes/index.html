@@ -16,7 +16,7 @@
     
     
       
-        <title>Release notes - Combine</title>
+        <title>Introduction - Combine</title>
       
     
     
@@ -60,7 +60,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#release-notes" class="md-skip">
+        <a href="#introduction" class="md-skip">
           Skip to content
         </a>
       
@@ -113,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Release notes
+              Introduction
             
           </span>
         </div>
@@ -1353,20 +1353,80 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#cmssw-10_2_x-v800" class="md-nav__link">
+  <a href="#setup" class="md-nav__link">
     <span class="md-ellipsis">
-      CMSSW 10_2_X - v8.0.0
+      Setup
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#cmssw-8_1_x-v7013" class="md-nav__link">
+  <a href="#tested-models" class="md-nav__link">
     <span class="md-ellipsis">
-      CMSSW 8_1_X - v7.0.13
+      Tested models
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Tested models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#discrete-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Discrete profiling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automcstats" class="md-nav__link">
+    <span class="md-ellipsis">
+      autoMCStats
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#template-based-model-without-mc-statistical-uncertainties-automcstats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Template based model without MC statistical uncertainties (autoMCStats)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rooparametrichist" class="md-nav__link">
+    <span class="md-ellipsis">
+      RooParametricHist
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#roohistpdf" class="md-nav__link">
+    <span class="md-ellipsis">
+      RooHistPdf
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#channel-masking" class="md-nav__link">
+    <span class="md-ellipsis">
+      Channel masking
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1389,22 +1449,121 @@
   
 
 
-<h1 id="release-notes">Release notes</h1>
-<h2 id="cmssw-10_2_x-v800">CMSSW 10_2_X - v8.0.0</h2>
-<p>This release contains all of the changes listed for v7.0.13 below. In addition:</p>
-<ul>
-<li>New <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/">documentation pages</a>, using the <a href="http://mkdocs.org">mkdocs</a> framework. The documentation source is included in the repository as <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/102x/docs">simple markdown files</a>. Users are welcome to make additions and corrections as pull requests to this repo.</li>
-<li>It is now possible to include additional constraint terms for regularisiation when unfolding using combine. Detailed documentation for this is given <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/regularisation/">here</a>.</li>
-<li>The option <code>-S 0</code> to remove all systematic uncertainties has been removed. Instead, to freeze all constrained nuisance parameters the option <code>--freezeParameters allConstrainedNuisances</code> should be used, which replaces the previous shortcut of <code>--freezeParameters all</code>.</li>
-<li>The possibility to use some old method names has now been fully removed. When setting the <code>-M</code> option, <code>FitDiagnostics</code>, <code>AsymptoticLimits</code> and <code>Significance</code> must be used instead of, respectively, <code>MaxLikelihoodFit</code>, <code>Asymptotic</code> and <code>ProfileLikelihood</code>.</li>
-</ul>
-<h2 id="cmssw-8_1_x-v7013">CMSSW 8_1_X - v7.0.13</h2>
-<ul>
-<li>Nuisance <code>edit</code> selections for bins, processes or systematic names now require a complete string match. For example, <code>nuisance edit add procA binA [...]</code> will no longer match <code>procAB</code> and <code>binAB</code>. Note that regex selections can still be used to match multiple labels, but again are now required to match the full strings.</li>
-<li>Nuisance parameters can now be frozen using attributes that have been assigned to the corresponding RooRealVars. Syntax is <code>--freezeWithAttributes attr1,attr2,...,attrN</code>.</li>
-<li>For Higgs analyses: added YR4 cross sections, branching ratios and partial width uncertainties in <code>data/lhc-hxswg/sm/</code>, as used in HIG-17-031</li>
-<li><strong>[EXPERIMENTAL]</strong> For binned analyses using autoMCStats a faster implementation of the vertical template morphing for shape uncertainties can be enabled at runtime with the option <code>--X-rtd FAST_VERTICAL_MORPH</code>. Any results using this flag should be validated carefully against the default.</li>
-</ul>
+<h1 id="introduction">Introduction</h1>
+<p>This file is created to keep track of issues and tests conducted for integrating AD in Combine. </p>
+<h2 id="setup">Setup</h2>
+<p>Using a CMSSW build with ROOT 6.32.06: </p>
+<div class="highlight"><pre><span></span><code>cmssw-el8 
+cmsrel CMSSW_14_2_0_pre2_ROOT632
+cd CMSSW_14_2_0_pre2_ROOT632/src
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+git checkout roofit_ad_ichep_2024_63206_comp
+cd ../../
+cmsenv
+scram b -j 8
+</code></pre></div>
+<h2 id="tested-models">Tested models</h2>
+<p>Below you can find test results for several models with classes implemented in Combine. </p>
+<h3 id="discrete-profiling">Discrete profiling</h3>
+<p><div class="highlight"><pre><span></span><code> text2workspace.py data/ci/datacard_RooMultiPdf.txt.gz -o multipdf_ws.root
+ python3 scripts/fitRooFitAD.py --input multipdf_ws.root
+</code></pre></div>
+Fails because only <code>RooAbsReal</code> parameters are allowed, pdf indices in <code>RooMultiPdf</code> models are <code>RooCategory</code>. </p>
+<details>
+  <summary><i>Error message</i></summary>
+
+<div class="highlight"><pre><span></span><code><span class="w">  </span>RooAbsReal*<span class="w"> </span>RooAbsPdf::createNLL<span class="o">(</span>RooAbsData<span class="p">&amp;</span><span class="w"> </span>data,<span class="w"> </span>const<span class="w"> </span>RooLinkedList<span class="p">&amp;</span><span class="w"> </span>cmdArgs<span class="o">)</span><span class="w"> </span><span class="o">=</span>&gt;
+<span class="w">    </span>runtime_error:<span class="w"> </span>In<span class="w"> </span>creation<span class="w"> </span>of<span class="w"> </span><span class="k">function</span><span class="w"> </span>nll_func_wrapper<span class="w"> </span>wrapper:<span class="w"> </span>input<span class="w"> </span>param<span class="w"> </span>expected<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>of<span class="w"> </span><span class="nb">type</span><span class="w"> </span>RooAbsReal.
+</code></pre></div>
+
+</details>
+
+<h3 id="automcstats">autoMCStats</h3>
+<p><div class="highlight"><pre><span></span><code>text2workspace.py data/ci/template-analysis_shapeInterp.txt   -o template_autoMCstats_ws.root  -m 200
+python3 scripts/fitRooFitAD.py --input template_autoMCstats_ws.root
+</code></pre></div>
+Fails because AD is not implemented for "RooRealSumPdf" objects used to model MC statistical (https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/ShapeTools.py#L264) uncertainties with <code>autoMCstats</code> </p>
+<details>
+  <summary><i>Error message</i></summary>
+
+<div class="highlight"><pre><span></span><code><span class="o">[</span><span class="c1">#0] ERROR:Minimization -- An analytical integral function for class &quot;RooRealSumPdf&quot; has not yet been implemented.</span>
+Traceback<span class="w"> </span><span class="o">(</span>most<span class="w"> </span>recent<span class="w"> </span>call<span class="w"> </span>last<span class="o">)</span>:
+<span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/afs/cern.ch/work/a/anigamov/CMSSW_14_2_ROOT632_X_2024-10-06-2300/src/HiggsAnalysis/CombinedLimit/scripts/fitRooFitAD.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">29</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>&lt;module&gt;
+<span class="w">    </span><span class="nv">nll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>pdf.createNLL<span class="o">(</span>data,<span class="w"> </span><span class="nv">Constrain</span><span class="o">=</span>constrain,<span class="w"> </span><span class="nv">GlobalObservables</span><span class="o">=</span>global_observables,<span class="w"> </span><span class="nv">EvalBackend</span><span class="o">=</span><span class="s2">&quot;codegen&quot;</span><span class="o">)</span>
+<span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/cvmfs/cms-ib.cern.ch/sw/x86_64/nweek-02858/el8_amd64_gcc12/lcg/root/6.32.06-f59fcaa47c786e7268e714e7e477ee41/lib/ROOT/_pythonization/_roofit/_rooabspdf.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">116</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>createNLL
+<span class="w">    </span><span class="k">return</span><span class="w"> </span>self._createNLL<span class="o">[</span><span class="s2">&quot;RooLinkedList const&amp;&quot;</span><span class="o">](</span>args<span class="o">[</span><span class="m">0</span><span class="o">]</span>,<span class="w"> </span>_pack_cmd_args<span class="o">(</span>*args<span class="o">[</span><span class="m">1</span>:<span class="o">]</span>,<span class="w"> </span>**kwargs<span class="o">))</span>
+cppyy.gbl.std.runtime_error:<span class="w"> </span>Could<span class="w"> </span>not<span class="w"> </span>find<span class="w"> </span><span class="s2">&quot;createNLL&lt;RooLinkedList const&amp;&gt;&quot;</span><span class="w"> </span><span class="o">(</span><span class="nb">set</span><span class="w"> </span>cppyy.set_debug<span class="o">()</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>C++<span class="w"> </span>errors<span class="o">)</span>:
+<span class="w">  </span>RooAbsReal*<span class="w"> </span>RooAbsPdf::createNLL<span class="o">(</span>RooAbsData<span class="p">&amp;</span><span class="w"> </span>data,<span class="w"> </span>const<span class="w"> </span>RooLinkedList<span class="p">&amp;</span><span class="w"> </span>cmdArgs<span class="o">)</span><span class="w"> </span><span class="o">=</span>&gt;
+<span class="w">    </span>runtime_error:<span class="w"> </span>An<span class="w"> </span>analytical<span class="w"> </span>integral<span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>class<span class="w"> </span><span class="s2">&quot;RooRealSumPdf&quot;</span><span class="w"> </span>has<span class="w"> </span>not<span class="w"> </span>yet<span class="w"> </span>been<span class="w"> </span>implemented.
+</code></pre></div>
+</details>
+
+<h3 id="template-based-model-without-mc-statistical-uncertainties-automcstats">Template based model without MC statistical uncertainties (autoMCStats)</h3>
+<p><div class="highlight"><pre><span></span><code>text2workspace.py data/ci/template-analysis_shapeInterp_womcstats.txt   -o template_ws.root  -m 200
+python3 scripts/fitRooFitAD.py --input template_ws.root
+</code></pre></div>
+The fit runs with the warning shown below, but results are reasonable</p>
+<details>
+  <summary><i>Warning:</i></summary>
+
+<div class="highlight"><pre><span></span><code>In<span class="w"> </span>module<span class="w"> </span><span class="s1">&#39;RooFitCore&#39;</span>:
+/cvmfs/cms-ib.cern.ch/sw/x86_64/nweek-02858/el8_amd64_gcc12/lcg/root/6.32.06-f59fcaa47c786e7268e714e7e477ee41/include/RooFit/Detail/MathFuncs.h:365:45:<span class="w"> </span>warning:<span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="s1">&#39;LnGamma&#39;</span><span class="w"> </span>was<span class="w"> </span>not<span class="w"> </span>differentiated<span class="w"> </span>because<span class="w"> </span>clad<span class="w"> </span>failed<span class="w"> </span>to<span class="w"> </span>differentiate<span class="w"> </span>it<span class="w"> </span>and<span class="w"> </span>no<span class="w"> </span>suitable<span class="w"> </span>overload
+<span class="w">      </span>was<span class="w"> </span>found<span class="w"> </span><span class="k">in</span><span class="w"> </span>namespace<span class="w"> </span><span class="s1">&#39;custom_derivatives&#39;</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span>pdf<span class="w"> </span>-<span class="w"> </span>weight<span class="w"> </span>*<span class="w"> </span>std::log<span class="o">(</span>pdf<span class="o">)</span><span class="w"> </span>+<span class="w"> </span>TMath::LnGamma<span class="o">(</span>weight<span class="w"> </span>+<span class="w"> </span><span class="m">1</span><span class="o">)</span><span class="p">;</span>
+<span class="w">                                            </span>^
+/cvmfs/cms-ib.cern.ch/sw/x86_64/nweek-02858/el8_amd64_gcc12/lcg/root/6.32.06-f59fcaa47c786e7268e714e7e477ee41/include/RooFit/Detail/MathFuncs.h:365:45:<span class="w"> </span>note:<span class="w"> </span>falling<span class="w"> </span>back<span class="w"> </span>to<span class="w"> </span>numerical<span class="w"> </span>differentiation<span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="s1">&#39;LnGamma&#39;</span><span class="w"> </span>since<span class="w"> </span>no<span class="w"> </span>suitable<span class="w"> </span>overload<span class="w"> </span>was<span class="w"> </span>found<span class="w"> </span>and<span class="w"> </span>clad
+<span class="w">      </span>could<span class="w"> </span>not<span class="w"> </span>derive<span class="w"> </span>it<span class="p">;</span><span class="w"> </span>to<span class="w"> </span>disable<span class="w"> </span>this<span class="w"> </span>feature,<span class="w"> </span>compile<span class="w"> </span>your<span class="w"> </span>programs<span class="w"> </span>with<span class="w"> </span>-DCLAD_NO_NUM_DIFF
+</code></pre></div>
+
+</details>
+
+<h3 id="rooparametrichist">RooParametricHist</h3>
+<div class="highlight"><pre><span></span><code>text2workspace.py data/ci/datacard_RooParametricHist.txt    -o ws_RooParametricHist.root
+python3 scripts/fitRooFitAD.py --input ws_RooParametricHist.root
+</code></pre></div>
+<details>
+  <summary><i>Error message</i></summary>
+
+<div class="highlight"><pre><span></span><code><span class="o">[</span><span class="c1">#0] ERROR:InputArguments -- RooHistPdf::weight(shapeBkg_tqq_muonCRfail2016) ERROR: Code Squashing currently only supports uniformly binned cases.</span>
+....
+<span class="w">                                  </span>^
+<span class="o">[</span><span class="c1">#0] ERROR:InputArguments -- Function roo_func_wrapper_0 could not be compiled. See above for details.</span>
+Traceback<span class="w"> </span><span class="o">(</span>most<span class="w"> </span>recent<span class="w"> </span>call<span class="w"> </span>last<span class="o">)</span>:
+<span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/afs/cern.ch/work/a/anigamov/CMSSW_14_2_ROOT632_X_2024-10-06-2300/src/HiggsAnalysis/CombinedLimit/scripts/fitRooFitAD.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">29</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>&lt;module&gt;
+<span class="w">    </span><span class="nv">nll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>pdf.createNLL<span class="o">(</span>data,<span class="w"> </span><span class="nv">Constrain</span><span class="o">=</span>constrain,<span class="w"> </span><span class="nv">GlobalObservables</span><span class="o">=</span>global_observables,<span class="w"> </span><span class="nv">EvalBackend</span><span class="o">=</span><span class="s2">&quot;codegen&quot;</span><span class="o">)</span>
+<span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/cvmfs/cms-ib.cern.ch/sw/x86_64/nweek-02858/el8_amd64_gcc12/lcg/root/6.32.06-f59fcaa47c786e7268e714e7e477ee41/lib/ROOT/_pythonization/_roofit/_rooabspdf.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">116</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>createNLL
+<span class="w">    </span><span class="k">return</span><span class="w"> </span>self._createNLL<span class="o">[</span><span class="s2">&quot;RooLinkedList const&amp;&quot;</span><span class="o">](</span>args<span class="o">[</span><span class="m">0</span><span class="o">]</span>,<span class="w"> </span>_pack_cmd_args<span class="o">(</span>*args<span class="o">[</span><span class="m">1</span>:<span class="o">]</span>,<span class="w"> </span>**kwargs<span class="o">))</span>
+cppyy.gbl.std.runtime_error:<span class="w"> </span>Could<span class="w"> </span>not<span class="w"> </span>find<span class="w"> </span><span class="s2">&quot;createNLL&lt;RooLinkedList const&amp;&gt;&quot;</span><span class="w"> </span><span class="o">(</span><span class="nb">set</span><span class="w"> </span>cppyy.set_debug<span class="o">()</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>C++<span class="w"> </span>errors<span class="o">)</span>:
+<span class="w">  </span>RooAbsReal*<span class="w"> </span>RooAbsPdf::createNLL<span class="o">(</span>RooAbsData<span class="p">&amp;</span><span class="w"> </span>data,<span class="w"> </span>const<span class="w"> </span>RooLinkedList<span class="p">&amp;</span><span class="w"> </span>cmdArgs<span class="o">)</span><span class="w"> </span><span class="o">=</span>&gt;
+<span class="w">    </span>runtime_error:<span class="w"> </span>Function<span class="w"> </span>roo_func_wrapper_0<span class="w"> </span>could<span class="w"> </span>not<span class="w"> </span>be<span class="w"> </span>compiled.<span class="w"> </span>See<span class="w"> </span>above<span class="w"> </span><span class="k">for</span><span class="w"> </span>details.
+</code></pre></div>
+
+</details>
+
+<h3 id="roohistpdf">RooHistPdf</h3>
+<p><div class="highlight"><pre><span></span><code>ulimit -s unlimited
+text2workspace.py data/ci/datacard_RooHistPdf.txt.gz    -o ws_RooHistPdf.root
+python3 scripts/fitRooFitAD.py --input ws_RooHistPdf.root
+</code></pre></div>
+AD is not implemented for <code>VerticalInterpPdf</code> class: https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/roofit_ad_ichep_2024_63206_comp/src/VerticalInterpPdf.cc </p>
+<details>
+  <summary><i>Error message</i></summary>
+
+<div class="highlight"><pre><span></span><code><span class="o">[</span><span class="c1">#0] ERROR:Minimization -- An analytical integral function for class &quot;VerticalInterpPdf&quot; has not yet been implemented.</span>
+Traceback<span class="w"> </span><span class="o">(</span>most<span class="w"> </span>recent<span class="w"> </span>call<span class="w"> </span>last<span class="o">)</span>:
+<span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/afs/cern.ch/work/a/anigamov/CMSSW_14_2_ROOT632_X_2024-10-06-2300/src/HiggsAnalysis/CombinedLimit/scripts/fitRooFitAD.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">29</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>&lt;module&gt;
+<span class="w">    </span><span class="nv">nll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>pdf.createNLL<span class="o">(</span>data,<span class="w"> </span><span class="nv">Constrain</span><span class="o">=</span>constrain,<span class="w"> </span><span class="nv">GlobalObservables</span><span class="o">=</span>global_observables,<span class="w"> </span><span class="nv">EvalBackend</span><span class="o">=</span><span class="s2">&quot;codegen&quot;</span><span class="o">)</span>
+<span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/cvmfs/cms-ib.cern.ch/sw/x86_64/nweek-02858/el8_amd64_gcc12/lcg/root/6.32.06-f59fcaa47c786e7268e714e7e477ee41/lib/ROOT/_pythonization/_roofit/_rooabspdf.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">116</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>createNLL
+<span class="w">    </span><span class="k">return</span><span class="w"> </span>self._createNLL<span class="o">[</span><span class="s2">&quot;RooLinkedList const&amp;&quot;</span><span class="o">](</span>args<span class="o">[</span><span class="m">0</span><span class="o">]</span>,<span class="w"> </span>_pack_cmd_args<span class="o">(</span>*args<span class="o">[</span><span class="m">1</span>:<span class="o">]</span>,<span class="w"> </span>**kwargs<span class="o">))</span>
+cppyy.gbl.std.runtime_error:<span class="w"> </span>Could<span class="w"> </span>not<span class="w"> </span>find<span class="w"> </span><span class="s2">&quot;createNLL&lt;RooLinkedList const&amp;&gt;&quot;</span><span class="w"> </span><span class="o">(</span><span class="nb">set</span><span class="w"> </span>cppyy.set_debug<span class="o">()</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>C++<span class="w"> </span>errors<span class="o">)</span>:
+<span class="w">  </span>RooAbsReal*<span class="w"> </span>RooAbsPdf::createNLL<span class="o">(</span>RooAbsData<span class="p">&amp;</span><span class="w"> </span>data,<span class="w"> </span>const<span class="w"> </span>RooLinkedList<span class="p">&amp;</span><span class="w"> </span>cmdArgs<span class="o">)</span><span class="w"> </span><span class="o">=</span>&gt;
+<span class="w">    </span>runtime_error:<span class="w"> </span>An<span class="w"> </span>analytical<span class="w"> </span>integral<span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>class<span class="w"> </span><span class="s2">&quot;VerticalInterpPdf&quot;</span><span class="w"> </span>has<span class="w"> </span>not<span class="w"> </span>yet<span class="w"> </span>been<span class="w"> </span>implemented.
+</code></pre></div>
+
+</details>
+
+<h3 id="channel-masking">Channel masking</h3>
+<p>Channel masking is implemented <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/src/CachingNLL.cc#L1078">within eval of custom <code>CachingNLL</code> class</a>. </p>
 
 
 
