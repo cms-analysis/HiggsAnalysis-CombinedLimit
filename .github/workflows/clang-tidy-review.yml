@@ -5,6 +5,7 @@ on:
     paths:
       - '**.h'
       - '**.cc'
+      - '**.cxx'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -31,7 +32,7 @@ jobs:
         run: pip install lit
         
       - name: Run clang-tidy
-        uses: ZedThree/clang-tidy-review@v0.20.1
+        uses: ZedThree/clang-tidy-review@v0.21.0
         id: review
         with:
           build_dir: build
@@ -55,4 +56,4 @@ jobs:
             micromamba run -n clang-tidy-review cmake . -B build -DINSTALL_PYTHON=FALSE -DUSE_VDT=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_PREFIX_PATH=/github/home/micromamba/envs/clang-tidy-review
 
       - name: Upload artifacts
-        uses: ZedThree/clang-tidy-review/upload@v0.20.1
+        uses: ZedThree/clang-tidy-review/upload@v0.21.0
