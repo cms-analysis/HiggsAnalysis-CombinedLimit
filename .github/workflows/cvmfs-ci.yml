@@ -191,3 +191,32 @@ jobs:
             ulimit -s unlimited
             text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/datacard_RooHistPdf.txt.gz -o ws_RooHistPdf.root
             combine -M MultiDimFit ws_RooHistPdf.root --algo singles -v -2  --setParameterRanges r=-1,2.
+
+      - uses: rhaschke/docker-run-action@v5
+        name: Template analysis with large integrals
+        with:
+          image: ${{ matrix.IMAGE }}
+          shell: bash
+          options: ${{env.docker_opt_ro}}
+          run: |
+            cp -r cmssw/${CMSSW_VERSION} .
+            cd /home/cmsusr/${CMSSW_VERSION}/src
+            source /cvmfs/cms.cern.ch/cmsset_default.sh
+            cmsenv
+            text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/templ_datacard_largeYields.txt -o ws_template-analysis.root
+            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1
+
+      - uses: rhaschke/docker-run-action@v5
+        name: Template analysis with large integrals using CMSHistSum
+        with:
+          image: ${{ matrix.IMAGE }}
+          shell: bash
+          options: ${{env.docker_opt_ro}}
+          run: |
+            cp -r cmssw/${CMSSW_VERSION} .
+            cd /home/cmsusr/${CMSSW_VERSION}/src
+            source /cvmfs/cms.cern.ch/cmsset_default.sh
+            cmsenv
+            text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/templ_datacard_largeYields.txt -o ws_template-analysis.root  --for-fits --no-wrappers --use-histsum
+            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH
+
