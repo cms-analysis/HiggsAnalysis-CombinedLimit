@@ -623,7 +623,7 @@ cacheutils::CachingAddNLL::evaluate() const
         Double_t coeff = (*itc)->getVal();
         if (isRooRealSum_ && basicIntegrals_ < 2) {
             sumCoeff += coeff * integrals_[itc - coeffs_.begin()]->getVal();
-            std::cout << "  coefficient = " << coeff << ", integral = " << std::setprecision(10) <<integrals_[itc - coeffs_.begin()]->getVal() << integrals_[itc]->getVal() << std::endl;
+            std::cout << "  coefficient = " << coeff << ", integral = " << std::setprecision(10) << integrals_[itc - coeffs_.begin()]->getVal() << "; size = "<<integrals_.size() << std::endl;
         } else {
             sumCoeff += coeff;
         }
