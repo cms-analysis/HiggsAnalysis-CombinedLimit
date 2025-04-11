@@ -24,6 +24,8 @@
 #include "../interface/Accumulators.h"
 #include "../interface/CombineLogger.h"
 #include "vectorized.h"
+#include <iomanip>
+#include <iostream>
 
 namespace cacheutils {
     typedef OptimizedCachingPdfT<FastVerticalInterpHistPdf,FastVerticalInterpHistPdfV> CachingHistPdf;
@@ -621,7 +623,7 @@ cacheutils::CachingAddNLL::evaluate() const
         Double_t coeff = (*itc)->getVal();
         if (isRooRealSum_ && basicIntegrals_ < 2) {
             sumCoeff += coeff * integrals_[itc - coeffs_.begin()]->getVal();
-            std::cout << "  coefficient = " << coeff << ", integral = " << integrals_[itc - coeffs_.begin()]->getVal() << std::endl;
+            std::cout << "  coefficient = " << coeff << ", integral = " << std::setprecision(10) <<integrals_[itc - coeffs_.begin()]->getVal() << std::endl;
         } else {
             sumCoeff += coeff;
         }
