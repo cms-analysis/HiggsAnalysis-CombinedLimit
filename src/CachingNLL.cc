@@ -422,7 +422,7 @@ cacheutils::CachingAddNLL::clone(const char *name) const
 void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, const RooArgList & basecoeffs)
 {
     int npdf = addpdf->pdfList().getSize();
-    //std::cout << "Unpacking RooAddPdf " << addpdf->GetName() << " with " << npdf << " components:" << std::endl;
+    std::cout << "Unpacking RooAddPdf " << addpdf->GetName() << " with " << npdf << " components:" << std::endl;
     RooAbsReal *lastcoeff = 0;
     if (npdf == addpdf->coefList().getSize()) {
         lastcoeff =  dynamic_cast<RooAbsReal*>(addpdf->coefList().at(npdf-1));
@@ -430,7 +430,7 @@ void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, cons
         prods_.emplace_back(new ReminderSum((std::string("reminder_of_")+addpdf->GetName()).c_str(),"", addpdf->coefList()));
         lastcoeff = prods_.back().get();
     }
-    //std::cout << "   Last coefficient is a " << lastcoeff->ClassName() << " aka " << typeid(*lastcoeff).name() << ": "; lastcoeff->Print("");
+    std::cout << "   Last coefficient is a " << lastcoeff->ClassName() << " aka " << typeid(*lastcoeff).name() << ": "; lastcoeff->Print("");
     for (int i = 0; i < npdf; ++i) {
         RooAbsReal * coeff = (i < npdf-1 ? dynamic_cast<RooAbsReal*>(addpdf->coefList().at(i)) : lastcoeff);
         RooAbsPdf  * pdfi  = dynamic_cast<RooAbsPdf *>(addpdf->pdfList().at(i));
@@ -438,7 +438,7 @@ void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, cons
             RooAddPdf *apdfi = static_cast<RooAddPdf*>(pdfi);
             RooArgList list(*coeff);
             if (basecoeffs.getSize()) list.add(basecoeffs);
-            //std::cout << "    Invoking recursive unpack on " << addpdf->GetName() << "[" << i << "]: RooAddPdf " << apdfi->GetName() << std::endl;
+            std::cout << "    Invoking recursive unpack on " << addpdf->GetName() << "[" << i << "]: RooAddPdf " << apdfi->GetName() << std::endl;
             addPdfs_(apdfi, recursive, list);
             continue;
         } 
@@ -449,12 +449,12 @@ void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, cons
             list.add(basecoeffs);
             prods_.emplace_back(new RooProduct((pdfi->GetName()+std::string("cachingnll")).c_str(),"",list));
             coeffs_.push_back(prods_.back().get());
-            //std::cout << "Coefficient of " << pdfi->GetName() << std::endl; prods_.back().Print("");
+            std::cout << "Coefficient of " << pdfi->GetName() << std::endl; //prods_.back().Print("");
         }
         const RooArgSet *obs = data_->get();
         pdfs_.emplace_back(makeCachingPdf(pdfi,obs));
         pdfs_.back()->setIncludeZeroWeights(includeZeroWeights_);
-        //std::cout << "    Adding " << addpdf->GetName() << "[" << i << "]: " << pdfi->ClassName() << " " << pdfi->GetName() << " using " << typeid(pdfs_.back()).name() << std::endl;
+        std::cout << "    Adding " << addpdf->GetName() << "[" << i << "]: " << pdfi->ClassName() << " " << pdfi->GetName() << " using " << typeid(pdfs_.back()).name() << std::endl;
     }
 }
 
@@ -563,6 +563,7 @@ cacheutils::CachingAddNLL::setup_()
             coeffs_.push_back(coeff);
             pdfs_.emplace_back(makeCachingPdf(funci, obs));
             pdfs_.back()->setIncludeZeroWeights(includeZeroWeights_);
+            std::cout << "createIntegral() called for funci in setup" << funci->GetName() << funci->ClassName() << std::endl;
             integrals_.push_back(funci->createIntegral(*obs));
         }
     } else {
@@ -614,18 +615,19 @@ cacheutils::CachingAddNLL::evaluate() const
     std::vector<Double_t>::iterator       its, bgs = partialSum_.begin(), eds = partialSum_.end();
     double sumCoeff = 0;
     bool allBasicIntegralsOk = (basicIntegrals_ == 1);
-    //std::cout << "Performing evaluation of " << GetName() << std::endl;
+    std::cout << "Performing evaluation of " << GetName() << std::endl;
     for ( ; itc != edc; ++itp, ++itc ) {
         // get coefficient
         Double_t coeff = (*itc)->getVal();
         if (isRooRealSum_ && basicIntegrals_ < 2) {
             sumCoeff += coeff * integrals_[itc - coeffs_.begin()]->getVal();
-            //std::cout << "  coefficient = " << coeff << ", integral = " << integrals_[itc - coeffs_.begin()]->getVal() << std::endl;
+            std::cout << "  coefficient = " << coeff << ", integral = " << integrals_[itc - coeffs_.begin()]->getVal() << std::endl;
         } else {
             sumCoeff += coeff;
         }
         // get vals
         const std::vector<Double_t> &pdfvals = (*itp)->eval(*data_);
+        (*itp)->pdf()->printMultiline(std::cout, 1, true, " ");
         if (basicIntegrals_) {
             double integral = (binWidths_.size() > 1) ? 
                                     vectorized::dot_product(pdfvals.size(), &pdfvals[0], &binWidths_[0]) :
@@ -634,7 +636,7 @@ cacheutils::CachingAddNLL::evaluate() const
                 double refintegral = integrals_[itc - coeffs_.begin()]->getVal();
                 if (refintegral > 0) {
                     if (std::abs((integral - refintegral)/refintegral) > 1e-5) {
-                        CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("integrals don't match: %+10.6f  %+10.6f  %10.7f %s\n", refintegral, integral, refintegral ? std::abs((integral - refintegral)/refintegral) : 0,  (*itp)->pdf()->GetName()  )),__func__);
+                        CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("integrals don't match: %+10.6f  %+10.6f  %10.7f %s %s\n", refintegral, integral, refintegral ? std::abs((integral - refintegral)/refintegral) : 0,  (*itp)->pdf()->GetName(), (*itp)->pdf()->ClassName())), __func__);
                         allBasicIntegralsOk = false;
                         basicIntegrals_ = 0; // don't waste time on this anymore
                     }
