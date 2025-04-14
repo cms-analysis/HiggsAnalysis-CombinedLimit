@@ -565,9 +565,9 @@ for n in names:
     if sigsub != None:
         v = [re.sub(sigsub[0], sigsub[1], i) for i in v]
     if (n, "b") in isFlagged:
-        v[-2] = highlighters[isFlagged[(n, "b")]] % v[-2]
+        v[-4] = highlighters[isFlagged[(n, "b")]] % v[-4]
     if (n, "s") in isFlagged:
-        v[-1] = highlighters[isFlagged[(n, "s")]] % v[-1]
+        v[-3] = highlighters[isFlagged[(n, "s")]] % v[-3]
     if options.format == "latex":
         n = n.replace(r"_", r"\_")
     if options.absolute_values:
