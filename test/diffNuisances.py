@@ -232,7 +232,7 @@ gr_fit_b.SetTitle("fit_b_g")
 gr_fit_s = ROOT.TGraphAsymmErrors()
 gr_fit_s.SetTitle("fit_b_s")
 
-error_poi = fpf_s.find(options.poi).getError()
+if not options.skipFitS: error_poi = fpf_s.find(options.poi).getError()
 
 # loop over all fitted parameters
 for i in range(fpf_s.getSize()):
@@ -405,8 +405,8 @@ for i in range(fpf_s.getSize()):
 
     # end of loop over s and b
 
-    row += ["%+4.2f" % fit_s.correlation(name, options.poi)]
-    row += ["%+4.3f" % (nuis_x.getError() * fit_s.correlation(name, options.poi) * error_poi)]
+    if not options.skipFitS: row += ["%+4.2f" % fit_s.correlation(name, options.poi)]
+    if not options.skipFitS: row += ["%+4.3f" % (nuis_x.getError() * fit_s.correlation(name, options.poi) * error_poi)]
     if flag or options.show_all_parameters:
         table[name] = row
 
@@ -541,15 +541,21 @@ elif options.format == "html":
 names = list(table.keys())
 names.sort()
 if options.sortBy == "correlation":
-    names = [[abs(float(table[t][-2])), t] for t in table.keys()]
-    names.sort()
-    names.reverse()
-    names = [n[1] for n in names]
+    if not options.skipFitS:
+        names = [[abs(float(table[t][-2])), t] for t in table.keys()]
+        names.sort()
+        names.reverse()
+        names = [n[1] for n in names]
+    else:
+        print(" option '--skipFitS' set true. Since post-fit r is not considered, correlation (rho) cannot be estimated and won't used for sorting")
 elif options.sortBy == "impact":
-    names = [[abs(float(table[t][-1])), t] for t in table.keys()]
-    names.sort()
-    names.reverse()
-    names = [n[1] for n in names]
+    if not options.skipFitS:
+        names = [[abs(float(table[t][-1])), t] for t in table.keys()]
+        names.sort()
+        names.reverse()
+        names = [n[1] for n in names]
+    else:
+        print(" option '--skipFitS' set true. Since post-fit r is not considered, impact cannot be estimated and won't be used for sorting")
 
 highlighters = {1: highlight, 2: morelight}
 for n in names:
@@ -559,15 +565,21 @@ for n in names:
     if sigsub != None:
         v = [re.sub(sigsub[0], sigsub[1], i) for i in v]
     if (n, "b") in isFlagged:
-        v[-3] = highlighters[isFlagged[(n, "b")]] % v[-3]
+        v[-2] = highlighters[isFlagged[(n, "b")]] % v[-2]
     if (n, "s") in isFlagged:
-        v[-2] = highlighters[isFlagged[(n, "s")]] % v[-2]
+        v[-1] = highlighters[isFlagged[(n, "s")]] % v[-1]
     if options.format == "latex":
         n = n.replace(r"_", r"\_")
     if options.absolute_values:
-        print(fmtstring % (n, v[0], v[1], v[2], v[3], v[4]))
+        if not options.skipFitS:
+            print(fmtstring % (n, v[0], v[1], v[2], v[3], v[4]))
+        else:
+            print(fmtstring % (n, v[0], v[1], v[2], -1, -1))
     else:
-        print(fmtstring % (n, v[0], v[1], v[2], v[3]))
+        if not options.skipFitS:
+            print(fmtstring % (n, v[0], v[1], v[2], v[3]))
+        else:
+            print(fmtstring % (n, v[0], v[1], -1, -1))
 
 if options.format == "latex":
     print(" \\hline\n\\end{tabular}")
