@@ -624,7 +624,7 @@ cacheutils::CachingAddNLL::evaluate() const
         if (isRooRealSum_ && basicIntegrals_ < 2) {
             sumCoeff += coeff * integrals_[itc - coeffs_.begin()]->getVal();
             std::cout << "  coefficient = " << coeff << ", integral = " << std::setprecision(10) << integrals_[itc - coeffs_.begin()]->getVal() << "; size = "<<integrals_.size() << std::endl;
-            integrals_[itc - coeffs_.begin()]>printMultiline(std::cout, 1, true, " ");
+            integrals_[itc - coeffs_.begin()]->printMultiline(std::cout, 1, true, " ");
         } else {
             sumCoeff += coeff;
         }
