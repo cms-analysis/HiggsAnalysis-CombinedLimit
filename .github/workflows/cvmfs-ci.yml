@@ -29,7 +29,7 @@ jobs:
             SCRAM_ARCH: "el8_amd64_gcc12"
             ROOT: "ROOT v6.32/06"
           - IMAGE: "cmscloud/al8-cms"
-            CMSSW_VERSION: "CMSSW_15_1_ROOT6_X_2025-03-30-2300"
+            CMSSW_VERSION: "CMSSW_15_1_ROOT6_X_2025-04-14-2300"
             SCRAM_ARCH: "el8_amd64_gcc12"
             ROOT: "ROOT v6.35/01"
     env:
