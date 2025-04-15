@@ -506,6 +506,7 @@ void CMSHistErrorPropagator::printMultiline(std::ostream& os, Int_t contents, Bo
 Int_t CMSHistErrorPropagator::getAnalyticalIntegral(RooArgSet& allVars,
                                          RooArgSet& analVars,
                                          const char* /*rangeName*/) const {
+  analVars.Print();  allVars.Print();
   if (matchArgs(allVars, analVars, x_)) return 1;
   return 0;
 }
