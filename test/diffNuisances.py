@@ -232,7 +232,8 @@ gr_fit_b.SetTitle("fit_b_g")
 gr_fit_s = ROOT.TGraphAsymmErrors()
 gr_fit_s.SetTitle("fit_b_s")
 
-if not options.skipFitS: error_poi = fpf_s.find(options.poi).getError()
+if not options.skipFitS:
+    error_poi = fpf_s.find(options.poi).getError()
 
 # loop over all fitted parameters
 for i in range(fpf_s.getSize()):
@@ -405,8 +406,10 @@ for i in range(fpf_s.getSize()):
 
     # end of loop over s and b
 
-    if not options.skipFitS: row += ["%+4.2f" % fit_s.correlation(name, options.poi)]
-    if not options.skipFitS: row += ["%+4.3f" % (nuis_x.getError() * fit_s.correlation(name, options.poi) * error_poi)]
+    if not options.skipFitS:
+        row += ["%+4.2f" % fit_s.correlation(name, options.poi)]
+    if not options.skipFitS:
+        row += ["%+4.3f" % (nuis_x.getError() * fit_s.correlation(name, options.poi) * error_poi)]
     if flag or options.show_all_parameters:
         table[name] = row
 
