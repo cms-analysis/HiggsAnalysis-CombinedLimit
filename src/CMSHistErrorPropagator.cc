@@ -506,9 +506,7 @@ void CMSHistErrorPropagator::printMultiline(std::ostream& os, Int_t contents, Bo
 Int_t CMSHistErrorPropagator::getAnalyticalIntegral(RooArgSet& allVars,
                                          RooArgSet& analVars,
                                          const char* /*rangeName*/) const {
-  #if ROOT_VERSION_CODE >= ROOT_VERSION(6,32,0) // force x_ as CMSHistErrorPropagator dependent (needed since ROOT 6.32 to support analytic integration)
-  allVars.add(x_.arg());
-  #endif
+  if (allVars.find(x_.arg().GetName()) == nullptr) allVars.add(x_.arg());
   if (matchArgs(allVars, analVars, x_)) return 1;
   return 0;
 }

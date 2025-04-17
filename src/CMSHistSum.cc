@@ -747,6 +747,7 @@ void CMSHistSum::printMultiline(std::ostream& os, Int_t contents, Bool_t verbose
 Int_t CMSHistSum::getAnalyticalIntegral(RooArgSet& allVars,
                                          RooArgSet& analVars,
                                          const char* /*rangeName*/) const {
+  if (allVars.find(x_.arg().GetName()) == nullptr) allVars.add(x_.arg());
   if (matchArgs(allVars, analVars, x_)) return 1;
   return 0;
 }
