@@ -3,6 +3,7 @@
     "version": "v10.2.X",
     "title": "v10.2.X",
     "aliases": [
+      "push",
       "latest"
     ]
   },
