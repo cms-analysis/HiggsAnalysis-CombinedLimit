@@ -1,7 +1,10 @@
 name: CI with CVMFS for AD tests 
 
 on:
-  pull_request:
+  pull_request_target:
+    types: [ labeled ]
+    branches: [ main ]
+
 
 jobs:
   test_workflow:
