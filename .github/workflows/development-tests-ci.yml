@@ -1,0 +1,80 @@
+name: CI with CVMFS for AD tests 
+
+on:
+  pull_request:
+
+jobs:
+  test_workflow:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        IMAGE: ["cmscloud/al8-cms"]
+        CMSSW_VERSION: ["CMSSW_15_1_ROOT6_X_2025-04-27-2300"] 
+        SCRAM_ARCH: ["el9_amd64_gcc12"]
+        ROOT: ["ROOT v6.35/01"]
+        include:
+          - IMAGE: "cmscloud/al8-cms"
+            CMSSW_VERSION: "CMSSW_14_2_0_pre2_ROOT632" 
+            SCRAM_ARCH: "el8_amd64_gcc12"
+            ROOT: "ROOT v6.32/06"
+
+    env:
+      docker_opt_rw: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  --mount source=cmsusr,destination=/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
+      docker_opt_ro: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:ro -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
+    name: Test with ${{ matrix.CMSSW_VERSION }} and ${{ matrix.ROOT }} 
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cvmfs-contrib/github-action-cvmfs@v4
+        with:
+          cvmfs_repositories: 'cms.cern.ch'
+      - uses: rhaschke/docker-run-action@v5
+        name: Build Combine
+        with:
+          image: ${{ matrix.IMAGE }}
+          shell: bash
+          options: ${{env.docker_opt_rw}}
+          if: github.event.label.name == 'testAD' 
+          run: | 
+            cd /home/cmsusr/
+            source /cvmfs/cms.cern.ch/cmsset_default.sh
+            scram project ${CMSSW_VERSION}
+            cd ${CMSSW_VERSION}/src
+            cmsenv
+            mkdir -p HiggsAnalysis
+            cp -r /work/CombinedLimit HiggsAnalysis/
+            scramv1 b -j$(nproc)
+            echo ${PATH}
+            root --version
+            combine --help
+
+      - uses: rhaschke/docker-run-action@v5
+        name: Counting datacard
+        with:
+          image: ${{ matrix.IMAGE }}
+          shell: bash
+          options: ${{env.docker_opt_ro}}
+          if: github.event.label.name == 'testAD' 
+          run: |
+            cp -r cmssw/${CMSSW_VERSION} .
+            cd /home/cmsusr/${CMSSW_VERSION}/src
+            source /cvmfs/cms.cern.ch/cmsset_default.sh
+            cmsenv
+            text2workspace.py  HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
+            combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1
+
+      - uses: rhaschke/docker-run-action@v5
+        name: RooHistPdf
+        if: ${{ startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
+        with:
+          image: ${{ matrix.IMAGE }}
+          shell: bash
+          options: ${{env.docker_opt_ro}}
+          if: github.event.label.name == 'testAD' 
+          run: |
+            cp -r cmssw/${CMSSW_VERSION} .
+            cd /home/cmsusr/${CMSSW_VERSION}/src
+            source /cvmfs/cms.cern.ch/cmsset_default.sh
+            cmsenv
+            ulimit -s unlimited
+            text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/datacard_RooHistPdf.txt.gz -o ws_RooHistPdf.root
+            combine -M MultiDimFit ws_RooHistPdf.root --algo singles -v -2  --setParameterRanges r=-1,2.
