@@ -130,5 +130,6 @@ if args.printLevel > 0:
             print_process(data,"emptyProcessShape","\'Empty process\'")
             print_bin(data,"emptyBkgBin","\'Bins of the template empty in background\'")
             print_process_info(data,"smallSignalProc","\'Small signal process\'")
+            print_process_info(data,"smallShapeEff1bin","\'Shape uncertainties with 1 bin only. You can consider replacing them with lnN\'")
 
 
