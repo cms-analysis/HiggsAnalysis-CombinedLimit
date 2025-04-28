@@ -28,10 +28,6 @@ jobs:
             CMSSW_VERSION: "CMSSW_14_2_0_pre2_ROOT632" 
             SCRAM_ARCH: "el8_amd64_gcc12"
             ROOT: "ROOT v6.32/06"
-          - IMAGE: "cmscloud/al8-cms"
-            CMSSW_VERSION: "CMSSW_15_1_ROOT6_X_2025-04-14-2300"
-            SCRAM_ARCH: "el8_amd64_gcc12"
-            ROOT: "ROOT v6.35/01"
     env:
       docker_opt_rw: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  --mount source=cmsusr,destination=/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
       docker_opt_ro: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:ro -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
