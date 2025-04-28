@@ -12,9 +12,14 @@ jobs:
     strategy:
       matrix:
         IMAGE: ["cmscloud/al8-cms"]
-        CMSSW_VERSION: ["CMSSW_15_1_ROOT6_X_2025-04-27-2300"] 
-        SCRAM_ARCH: ["el9_amd64_gcc12"]
-        ROOT: ["ROOT v6.35/01"]
+        CMSSW_VERSION: ["CMSSW_15_1_ROOT634_X_2025-04-25-2300"]
+        SCRAM_ARCH: ["el8_amd64_gcc12"]
+        ROOT: ["ROOT v6.34/09"]
+        include:
+          - IMAGE: "cmscloud/al8-cms"
+            CMSSW_VERSION: "CMSSW_15_1_ROOT6_X_2025-04-27-2300"
+            SCRAM_ARCH: "el8_amd64_gcc12"
+            ROOT: "ROOT v6.35/01"
 
     env:
       docker_opt_rw: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  --mount source=cmsusr,destination=/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
