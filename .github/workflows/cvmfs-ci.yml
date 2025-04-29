@@ -75,6 +75,19 @@ jobs:
             cmsenv
             text2workspace.py  HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
             combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1
+ 
+      - uses: rhaschke/docker-run-action@v5
+        name: Counting datacard w/ large yields 
+        with:
+          image: ${{ matrix.IMAGE }}
+          shell: bash
+          options: ${{env.docker_opt_ro}}
+          run: |
+            cp -r cmssw/${CMSSW_VERSION} .
+            cd /home/cmsusr/${CMSSW_VERSION}/src
+            source /cvmfs/cms.cern.ch/cmsset_default.sh
+            cmsenv
+            combine -M MultiDimFit --setParameters r=20 --freezeParameters r HiggsAnalysis/CombinedLimit/data/ci/simplecard.txt --saveWorkspace
 
       - uses: rhaschke/docker-run-action@v5
         name: Countind datacard Fixed Point from csv
