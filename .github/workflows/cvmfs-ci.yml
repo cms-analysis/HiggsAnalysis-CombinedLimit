@@ -8,6 +8,7 @@ on:
       - '**.cc'
       - '**.cxx'
       - '**.py'
+      - '**.yml'
   push:
     branches:
       - main
