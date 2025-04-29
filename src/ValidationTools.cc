@@ -257,7 +257,7 @@ void CheckSizeOfShapeEffect(CombineHarvester& cb, json& jsobj){
         }
       }
       if (hist_u->GetNbinsX() == 1) jsobj["smallShapeEff1bin"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}};
-      else {if(up_diff<diff_lim && down_diff<diff_lim) jsobj["smallShapeEff"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}} };
+      else {if(up_diff<diff_lim && down_diff<diff_lim) jsobj["smallShapeEff"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}}; }
     } 
   });
 }
