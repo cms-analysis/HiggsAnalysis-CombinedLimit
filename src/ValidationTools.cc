@@ -244,22 +244,20 @@ void CheckSizeOfShapeEffect(CombineHarvester& cb, json& jsobj){
     if(sys->type()=="shape"){
       hist_u = sys->shape_u();
       hist_d = sys->shape_d();
-      if (hist_u->GetNbinsX() == 1) jsobj["smallShapeEff1bin"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}};
-      else{
-        hist_nom=cb.cp().bin({sys->bin()}).process({sys->process()}).GetShape();
-        hist_nom.Scale(1./hist_nom.Integral());
-        double up_diff=0;
-        double down_diff=0;
-        for(int i=1;i<=hist_u->GetNbinsX();i++){
-          if(fabs(hist_u->GetBinContent(i))+fabs(hist_nom.GetBinContent(i))>0){
-            up_diff+=2*double(fabs(hist_u->GetBinContent(i)-hist_nom.GetBinContent(i)))/(fabs(hist_u->GetBinContent(i))+fabs(hist_nom.GetBinContent(i)));
-          }
-          if(fabs(hist_d->GetBinContent(i))+fabs(hist_nom.GetBinContent(i))>0){
-            down_diff+=2*double(fabs(hist_d->GetBinContent(i)-hist_nom.GetBinContent(i)))/(fabs(hist_d->GetBinContent(i))+fabs(hist_nom.GetBinContent(i)));
-          }
+      hist_nom=cb.cp().bin({sys->bin()}).process({sys->process()}).GetShape();
+      hist_nom.Scale(1./hist_nom.Integral());
+      double up_diff=0;
+      double down_diff=0;
+      for(int i=1;i<=hist_u->GetNbinsX();i++){
+        if(fabs(hist_u->GetBinContent(i))+fabs(hist_nom.GetBinContent(i))>0){
+          up_diff+=2*double(fabs(hist_u->GetBinContent(i)-hist_nom.GetBinContent(i)))/(fabs(hist_u->GetBinContent(i))+fabs(hist_nom.GetBinContent(i)));
         }
-        if(up_diff<diff_lim && down_diff<diff_lim) jsobj["smallShapeEff"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}};
+        if(fabs(hist_d->GetBinContent(i))+fabs(hist_nom.GetBinContent(i))>0){
+          down_diff+=2*double(fabs(hist_d->GetBinContent(i)-hist_nom.GetBinContent(i)))/(fabs(hist_d->GetBinContent(i))+fabs(hist_nom.GetBinContent(i)));
+        }
       }
+      if (hist_u->GetNbinsX() == 1) jsobj["smallShapeEff1bin"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}};
+      else {if(up_diff<diff_lim && down_diff<diff_lim) jsobj["smallShapeEff"][sys->name()][sys->bin()][sys->process()]={{"diff_u",up_diff},{"diff_d",down_diff}}; }
     } 
   });
 }
