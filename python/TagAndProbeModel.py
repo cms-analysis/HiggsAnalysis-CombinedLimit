@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import re
 
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
@@ -25,7 +23,7 @@ class TagAndProbe(PhysicsModel):
                         exp_pass = self.DC.exp[b][p]
                     if re.search("fail", b):
                         exp_fail = self.DC.exp[b][p]
-        self.modelBuilder.factory_('expr::fail_scale("(%f+%f-(%f*@0))/%f", SF)' % (exp_pass, exp_fail, exp_pass, exp_fail))
+        self.modelBuilder.factory_(f'expr::fail_scale("({exp_pass:f}+{exp_fail:f}-({exp_pass:f}*@0))/{exp_fail:f}", SF)')
 
     def getYieldScale(self, bin, process):
         "Return the name of a RooAbsReal to scale this yield by, or the two special values 1 and 0 (do not scale, and set to zero)"

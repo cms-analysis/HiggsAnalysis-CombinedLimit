@@ -41,7 +41,7 @@ class HiggsLoops(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             myPOIs.append("MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -120,7 +120,7 @@ class HiggsLoops(SMLikeHiggsModel):
         # self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "loopGluonGamma_XSBRscal_{}_{}".format(production, decay)
+        name = f"loopGluonGamma_XSBRscal_{production}_{decay}"
 
         if self.modelBuilder.out.function(name):
             return name
@@ -128,9 +128,9 @@ class HiggsLoops(SMLikeHiggsModel):
         BRscal = self.decayScaling[decay]
 
         if production == "ggH":
-            self.modelBuilder.factory_('expr::{}("@0*@0 * @1", kgluon, loopGluonGamma_BRscal_{})'.format(name, BRscal))
+            self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", kgluon, loopGluonGamma_BRscal_{BRscal})')
         else:
-            self.modelBuilder.factory_('expr::{}("1.0 * @0", loopGluonGamma_BRscal_{})'.format(name, BRscal))
+            self.modelBuilder.factory_(f'expr::{name}("1.0 * @0", loopGluonGamma_BRscal_{BRscal})')
 
         return name
 
@@ -163,7 +163,7 @@ class HiggsLoopsInvisible(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", "kgluon,kgamma,BRInvUndet,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -224,7 +224,7 @@ class HiggsLoopsInvisible(SMLikeHiggsModel):
         # self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "loopGluonGamma_XSBRscal_{}_{}".format(production, decay)
+        name = f"loopGluonGamma_XSBRscal_{production}_{decay}"
 
         if self.modelBuilder.out.function(name):
             return name
@@ -232,8 +232,8 @@ class HiggsLoopsInvisible(SMLikeHiggsModel):
         BRscal = self.decayScaling[decay]
 
         if production == "ggH":
-            self.modelBuilder.factory_('expr::{}("@0*@0 * @1", kgluon, loopGluonGamma_BRscal_{})'.format(name, BRscal))
+            self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", kgluon, loopGluonGamma_BRscal_{BRscal})')
         else:
-            self.modelBuilder.factory_('expr::{}("1.0 * @0", loopGluonGamma_BRscal_{})'.format(name, BRscal))
+            self.modelBuilder.factory_(f'expr::{name}("1.0 * @0", loopGluonGamma_BRscal_{BRscal})')
 
         return name

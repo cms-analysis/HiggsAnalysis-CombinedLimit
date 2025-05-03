@@ -151,7 +151,7 @@ else:
 # Now compute each parameters ranking according to: largest pull, strongest constraint, and largest impact
 ranking_pull = sorted([(i, abs(v["pull"])) for i, v in enumerate(params)], reverse=True, key=lambda X: X[1])
 ranking_constraint = sorted([(i, abs(v["constraint"])) for i, v in enumerate(params)], reverse=False, key=lambda X: X[1])
-ranking_impact = sorted([(i, abs(v["impact_{}".format(POI)])) for i, v in enumerate(params)], reverse=True, key=lambda X: X[1])
+ranking_impact = sorted([(i, abs(v[f"impact_{POI}"])) for i, v in enumerate(params)], reverse=True, key=lambda X: X[1])
 for i in range(len(params)):
     params[ranking_pull[i][0]]["rank_pull"] = i + 1
     params[ranking_impact[i][0]]["rank_impact"] = i + 1
@@ -235,12 +235,12 @@ def MakeSummaryPage():
     latex.DrawLatex(0.3, 0.85, "N(> 1 s.d.)")
     latex.DrawLatex(0.3, 0.8, "N(> 2 s.d.)")
     latex.DrawLatex(0.3, 0.75, "N(> 3 s.d.)")
-    latex.DrawLatex(0.33, 0.85, "{}".format(n_larger[0]))
-    latex.DrawLatex(0.33, 0.8, "{}".format(n_larger[1]))
-    latex.DrawLatex(0.33, 0.75, "{}".format(n_larger[2]))
-    latex.DrawLatex(0.42, 0.85, "#color[2]{{{:.2f}}}".format(n_entries * 2.0 * ROOT.Math.normal_cdf_c(1.0)))
-    latex.DrawLatex(0.42, 0.8, "#color[2]{{{:.2f}}}".format(n_entries * 2.0 * ROOT.Math.normal_cdf_c(2.0)))
-    latex.DrawLatex(0.42, 0.75, "#color[2]{{{:.2f}}}".format(n_entries * 2.0 * ROOT.Math.normal_cdf_c(3.0)))
+    latex.DrawLatex(0.33, 0.85, f"{n_larger[0]}")
+    latex.DrawLatex(0.33, 0.8, f"{n_larger[1]}")
+    latex.DrawLatex(0.33, 0.75, f"{n_larger[2]}")
+    latex.DrawLatex(0.42, 0.85, f"#color[2]{{{n_entries * 2.0 * ROOT.Math.normal_cdf_c(1.0):.2f}}}")
+    latex.DrawLatex(0.42, 0.8, f"#color[2]{{{n_entries * 2.0 * ROOT.Math.normal_cdf_c(2.0):.2f}}}")
+    latex.DrawLatex(0.42, 0.75, f"#color[2]{{{n_entries * 2.0 * ROOT.Math.normal_cdf_c(3.0):.2f}}}")
 
     plot.DrawCMSLogo(ROOT.gPad, "CMS", args.cms_label, 0, 0.20, 0.00, 0.00)
     s_nom, s_hi, s_lo = GetRounded(POI_fit[1], POI_fit[2] - POI_fit[1], POI_fit[1] - POI_fit[0])
@@ -320,7 +320,7 @@ def MakeSummaryPage():
     SetTitleText(latex)
     latex.DrawLatex(0.03, 0.95, "Largest impacts")
     SetFormulaText(latex)
-    latex.DrawLatex(0.97, 0.95, "#Delta{}(#pm#sigma_{{#theta}})/#sigma_{{{}}}".format(POI, POI))
+    latex.DrawLatex(0.97, 0.95, f"#Delta{POI}(#pm#sigma_{{#theta}})/#sigma_{{{POI}}}")
     DrawBoxes(ROOT.kBlue - 10)
     for i in range(nDraw):
         par = params[ranking_impact[i][0]]
@@ -361,7 +361,7 @@ def MakeSummaryPage():
             if curr_marker >= len(marker_styles):
                 curr_marker = 0
 
-    canv.Print("{}_summary.pdf".format(args.output))
+    canv.Print(f"{args.output}_summary.pdf")
 
 
 if args.summary:
@@ -453,7 +453,7 @@ for page in range(n):
             y1 = y1 + ((float(i) + 0.5) * h)
             x1 = x1 + (1 - pads[0].GetRightMargin() - x1) / 2.0
             s_nom, s_hi, s_lo = GetRounded(fit[1], fit[2] - fit[1], fit[1] - fit[0])
-            text_entries.append((x1, y1, "{}^{{#plus{}}}_{{#minus{}}}".format(s_nom, s_hi, s_lo)))
+            text_entries.append((x1, y1, f"{s_nom}^{{#plus{s_hi}}}_{{#minus{s_lo}}}"))
             redo_boxes.append(i)
         g_impacts_hi.SetPoint(i, 0, float(i) + 0.5)
         g_impacts_lo.SetPoint(i, 0, float(i) + 0.5)
@@ -518,7 +518,7 @@ for page in range(n):
     h_impacts = ROOT.TH2F("impacts", "impacts", 6, -max_impact * 1.1, max_impact * 1.1, n_params, 0, n_params)
     impt_x_title = "#Delta#hat{%s}" % (Translate(POI, translate))
     if args.relative:
-        impt_x_title = "#Delta#hat{{{}}}/#sigma_{{{}}}".format(Translate(POI, translate), Translate(POI, translate))
+        impt_x_title = f"#Delta#hat{{{Translate(POI, translate)}}}/#sigma_{{{Translate(POI, translate)}}}"
 
     plot.Set(h_impacts.GetXaxis(), LabelSize=0.03, TitleSize=0.04, Ndivisions=505, Title=impt_x_title)
     plot.Set(h_impacts.GetYaxis(), LabelSize=0, TickLength=0.0)

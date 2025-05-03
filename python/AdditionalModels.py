@@ -49,7 +49,7 @@ class C8(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", pois + ",MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -104,7 +104,7 @@ class C8(SMLikeHiggsModel):
             self.modelBuilder.factory_('expr::c8_BRscal_hinv("@0>=0?@0:-100", BRInv)')
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "c8_XSBRscal_{}_{}".format(production, decay)
+        name = f"c8_XSBRscal_{production}_{decay}"
         print("[LOFullParametrization::C7]")
         print(name, production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
@@ -122,7 +122,7 @@ class C8(SMLikeHiggsModel):
                 BRscal = "hzg"
             if self.doHInv and decay == "hinv":
                 BRscal = "hinv"
-            self.modelBuilder.factory_('expr::{}("@0*@0 * @1", {}, c8_BRscal_{})'.format(name, XSscal, BRscal))
+            self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", {XSscal}, c8_BRscal_{BRscal})')
         return name
 
 
@@ -175,7 +175,7 @@ class CWidth(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", pois + ",MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -263,7 +263,7 @@ class CWidth(SMLikeHiggsModel):
             self.modelBuilder.factory_('expr::c7_BRscal_hinv("@0>=0?@0:-100", BRInvUndet)')
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "c7_XSBRscal_{}_{}".format(production, decay)
+        name = f"c7_XSBRscal_{production}_{decay}"
         print("[LOFullParametrization::C7]")
         print(name, production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
@@ -281,7 +281,7 @@ class CWidth(SMLikeHiggsModel):
                 BRscal = "hzg"
             if self.doHInv and decay == "hinv":
                 BRscal = "hinv"
-            self.modelBuilder.factory_('expr::{}("@0*@0 * @1", {}, c7_BRscal_{})'.format(name, XSscal, BRscal))
+            self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", {XSscal}, c7_BRscal_{BRscal})')
         return name
 
 
@@ -319,7 +319,7 @@ class TwoHDM(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", "cosbma,tanbeta,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -435,9 +435,9 @@ class TwoHDM(SMLikeHiggsModel):
         XSscal = self.productionScaling[production]
         BRscal = self.decayScaling[decay]
         if "Scaling_" in XSscal:  # it's a Scaling, which means it's already squared
-            self.modelBuilder.factory_('expr::{}("@0 * @1", {}, twohdm_BRscal_{})'.format(name, XSscal, BRscal))
+            self.modelBuilder.factory_(f'expr::{name}("@0 * @1", {XSscal}, twohdm_BRscal_{BRscal})')
         else:  # It's a kappa, so it's linear and I must square it
-            self.modelBuilder.factory_('expr::{}("@0*@0 * @1", {}, twohdm_BRscal_{})'.format(name, XSscal, BRscal))
+            self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", {XSscal}, twohdm_BRscal_{BRscal})')
         return name
 
 

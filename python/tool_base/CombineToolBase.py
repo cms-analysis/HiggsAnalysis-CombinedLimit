@@ -265,12 +265,12 @@ class CombineToolBase:
             for script in script_list:
                 full_script = os.path.abspath(script)
                 logname = full_script.replace(".sh", "_%J.log")
-                run_command(self.dry_run, "bsub -o {} {} {}".format(logname, self.bopts, full_script))
+                run_command(self.dry_run, f"bsub -o {logname} {self.bopts} {full_script}")
         if self.job_mode == "SGE":
             for script in script_list:
                 full_script = os.path.abspath(script)
                 logname = full_script.replace(".sh", "_%J.log")
-                run_command(self.dry_run, "qsub -o {} {} {}".format(logname, self.bopts, full_script))
+                run_command(self.dry_run, f"qsub -o {logname} {self.bopts} {full_script}")
         if self.job_mode == "slurm":
             script_name = "slurm_%s.sh" % self.task_name
             if self.job_dir:
@@ -348,7 +348,7 @@ class CombineToolBase:
 
                     newline = newline.replace(wsp, os.path.basename(wsp))
                     if wsp.startswith("root://"):
-                        newline = ("./copyRemoteWorkspace.sh {} ./{}; ".format(wsp, os.path.basename(wsp))) + newline
+                        newline = (f"./copyRemoteWorkspace.sh {wsp} ./{os.path.basename(wsp)}; ") + newline
                     else:
                         wsp_files.add(wsp)
                     if self.extract_lib_arg(newline.split()) is not None:

@@ -67,7 +67,7 @@ class PrintFit(CombineToolBase):
             res = utils.get_singles_results(self.args.input, POIs, POIs)
             for p in POIs:
                 val = res[p][p]
-                print("{} = {:.3f} -{:.3f}/+{:.3f}".format(p, val[1], val[1] - val[0], val[2] - val[1]))
+                print(f"{p} = {val[1]:.3f} -{val[1] - val[0]:.3f}/+{val[2] - val[1]:.3f}")
         elif self.args.algo == "fixed":
             res = utils.get_fixed_results(self.args.input, POIs)
             print("%-30s   bestfit :   fixed" % (""))

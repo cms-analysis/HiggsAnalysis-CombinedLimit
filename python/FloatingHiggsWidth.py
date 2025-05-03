@@ -42,7 +42,7 @@ class FloatingHiggsWidth(SMLikeHiggsModel):
                     self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                     self.modelBuilder.out.var("MH").setConstant(False)
                 else:
-                    self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
+                    self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
                 POIs = "r,MH,HiggsDecayWidth"
             else:
                 if self.modelBuilder.out.var("MH"):
@@ -58,7 +58,7 @@ class FloatingHiggsWidth(SMLikeHiggsModel):
                     self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                     self.modelBuilder.out.var("MH").setConstant(False)
                 else:
-                    self.modelBuilder.doVar("MH[{},{}]".format(self.mHRange[0], self.mHRange[1]))
+                    self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
                 POIs = "MH,HiggsDecayWidth"
             else:
                 if self.modelBuilder.out.var("MH"):
@@ -73,7 +73,7 @@ class FloatingHiggsWidth(SMLikeHiggsModel):
             self.modelBuilder.out.var("HiggsDecayWidth").setRange(float(self.widthRange[0]), float(self.widthRange[1]))
             self.modelBuilder.out.var("HiggsDecayWidth").setConstant(False)
         else:
-            self.modelBuilder.doVar("HiggsDecayWidth[{},{}]".format(self.widthRange[0], self.widthRange[1]))
+            self.modelBuilder.doVar(f"HiggsDecayWidth[{self.widthRange[0]},{self.widthRange[1]}]")
         self.modelBuilder.doSet("POI", POIs)
 
     def getHiggsSignalYieldScale(self, production, decay, energy):

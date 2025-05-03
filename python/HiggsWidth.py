@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 ### This is the base python class to study the Higgs width

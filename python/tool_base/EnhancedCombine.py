@@ -134,7 +134,7 @@ class EnhancedCombine(CombineToolBase):
                     if header == "n" or header == "name":
                         final_arg.append(e)
                     elif len(e) and e != "!":
-                        final_arg.append("{} {}".format(argname, e))
+                        final_arg.append(f"{argname} {e}")
                     else:
                         final_arg.append("")
                 arglist.append(tuple(final_arg))
@@ -158,7 +158,7 @@ class EnhancedCombine(CombineToolBase):
                 # Figure out if the enclosing directory is a mass value
                 dirs = path.split("/")
                 if self.args.mass is None and len(dirs) >= 1 and isfloat(dirs[-1]):
-                    print("Assuming card {} uses mass value {}".format(dc, dirs[-1]))
+                    print(f"Assuming card {dc} uses mass value {dirs[-1]}")
                     dc_mass.append((path, file, dirs[-1]))
                 dc_no_mass.append((path, file))
             # If at least one mass value was inferred assume all of them are like this
@@ -221,7 +221,7 @@ class EnhancedCombine(CombineToolBase):
                     # point
                     if lower_bound == 0:
                         lower_bound += 1
-                    command.append("{}={:g},{:g}".format(par, bound_vals[par][lower_bound - 1][1], bound_vals[par][lower_bound - 1][2]))
+                    command.append(f"{par}={bound_vals[par][lower_bound - 1][1]:g},{bound_vals[par][lower_bound - 1][2]:g}")
                 new_list.append(entry + (str(":".join(command)),))
             # now remove the current mass information from subbed_vars
             # and replace it with the updated one

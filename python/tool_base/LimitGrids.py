@@ -88,22 +88,22 @@ class AsymptoticGrid(CombineToolBase):
         for p in points:
             file_dict[p] = []
 
-        for f in glob.glob("higgsCombine.{}.*.{}.*.AsymptoticLimits.mH*.root".format(POIs[0], POIs[1])):
+        for f in glob.glob(f"higgsCombine.{POIs[0]}.*.{POIs[1]}.*.AsymptoticLimits.mH*.root"):
             # print f
-            rgx = re.compile(r"higgsCombine\.{}\.(?P<p1>.*)\.{}\.(?P<p2>.*)\.AsymptoticLimits\.mH.*\.root".format(POIs[0], POIs[1]))
+            rgx = re.compile(rf"higgsCombine\.{POIs[0]}\.(?P<p1>.*)\.{POIs[1]}\.(?P<p2>.*)\.AsymptoticLimits\.mH.*\.root")
             matches = rgx.search(f)
             p = (matches.group("p1"), matches.group("p2"))
             if p in file_dict:
                 file_dict[p].append(f)
 
         for key, val in file_dict.items():
-            name = "{}.{}.{}.{}".format(POIs[0], key[0], POIs[1], key[1])
+            name = f"{POIs[0]}.{key[0]}.{POIs[1]}.{key[1]}"
             print(">> Point %s" % name)
             if len(val) == 0:
-                print("Going to run limit for point {}".format(key))
-                set_arg = ",".join(["{}={},{}={}".format(POIs[0], key[0], POIs[1], key[1])] + to_set)
-                freeze_arg = ",".join(["{},{}".format(POIs[0], POIs[1])] + to_freeze)
-                point_args = "-n .{} --setParameters {} --freezeParameters {}".format(name, set_arg, freeze_arg)
+                print(f"Going to run limit for point {key}")
+                set_arg = ",".join([f"{POIs[0]}={key[0]},{POIs[1]}={key[1]}"] + to_set)
+                freeze_arg = ",".join([f"{POIs[0]},{POIs[1]}"] + to_freeze)
+                point_args = f"-n .{name} --setParameters {set_arg} --freezeParameters {freeze_arg}"
                 cmd = " ".join(["combine -M AsymptoticLimits", opts, point_args] + self.passthru)
                 self.job_queue.append(cmd)
 
@@ -271,7 +271,7 @@ class HybridNewGrid(CombineToolBase):
         signif_results = {}
 
         if verbose:
-            print(">>> CLs target is a significance of {:.1f} standard deviations from {:.3f}".format(signif, crossing))
+            print(f">>> CLs target is a significance of {signif:.1f} standard deviations from {crossing:.3f}")
 
         for contour in contours:
             # Start by assuming this contour passes, we'll set it to False if it fails
@@ -281,7 +281,7 @@ class HybridNewGrid(CombineToolBase):
             if "exp" in contour:
                 quantile = ROOT.Math.normal_cdf(float(contour.replace("exp", "")))
                 if verbose:
-                    print(">>> Checking the {} contour at quantile={:f}".format(contour, quantile))
+                    print(f">>> Checking the {contour} contour at quantile={quantile:f}")
                 if hyp_res is not None:
                     # Get the stat statistic value at this quantile by rounding to the nearest b-only toy
                     testStat = btoys[int(min(floor(quantile * len(btoys) + 0.5), len(btoys) - 1))]
@@ -312,12 +312,12 @@ class HybridNewGrid(CombineToolBase):
             dist = 0.0
             if CLsErr == 0.0:
                 if verbose:
-                    print(">>>> CLs = {:g} +/- {:g} (infinite significance), will treat as passing".format(CLs, CLsErr))
+                    print(f">>>> CLs = {CLs:g} +/- {CLsErr:g} (infinite significance), will treat as passing")
                 dist = 999.0
             else:
                 dist = abs(CLs - crossing) / CLsErr
                 if verbose:
-                    print(">>>> CLs = {:g} +/- {:g}, reached {:.1f} sigma signifance".format(CLs, CLsErr, dist))
+                    print(f">>>> CLs = {CLs:g} +/- {CLsErr:g}, reached {dist:.1f} sigma signifance")
                 if dist < signif:
                     signif_results[contour] = False
             results[contour] = (CLs, CLsErr, dist, testStatObs)
@@ -405,7 +405,7 @@ class HybridNewGrid(CombineToolBase):
                 min_limit = max(0.0, min_limit - width * 0.3)
                 nsteps = from_asymptotic_settings.get("points", 100)
                 step_width = (max_limit - min_limit) / nsteps
-                grids.append([m, "{:g}:{:g}|{:g}".format(min_limit, max_limit, step_width), ""])
+                grids.append([m, f"{min_limit:g}:{max_limit:g}|{step_width:g}", ""])
                 boundlist_file = from_asymptotic_settings.get("boundlist", "")
                 if boundlist_file:
                     with open(boundlist_file) as json_file:
@@ -444,7 +444,7 @@ class HybridNewGrid(CombineToolBase):
             file_dict[p] = {}
 
         # The regex we will use to identify output files and extract POI values
-        rgx = re.compile(r"higgsCombine\.{}\.(?P<p1>.*)\.{}\.(?P<p2>.*)\.HybridNew\.mH.*\.(?P<toy>.*)\.root".format(POIs[0], POIs[1]))
+        rgx = re.compile(rf"higgsCombine\.{POIs[0]}\.(?P<p1>.*)\.{POIs[1]}\.(?P<p2>.*)\.HybridNew\.mH.*\.(?P<toy>.*)\.root")
 
         stats = {}
         if statfile and os.path.isfile(statfile):
@@ -471,7 +471,7 @@ class HybridNewGrid(CombineToolBase):
                         file_dict[p][seed] = zipname + "#" + f
 
         # Now look for files in the local directory
-        for f in glob.glob("higgsCombine.{}.*.{}.*.HybridNew.mH*.root".format(POIs[0], POIs[1])):
+        for f in glob.glob(f"higgsCombine.{POIs[0]}.*.{POIs[1]}.*.HybridNew.mH*.root"):
             matches = rgx.search(f)
             p = (matches.group("p1"), matches.group("p2"))
             seed = int(matches.group("toy"))
@@ -485,7 +485,7 @@ class HybridNewGrid(CombineToolBase):
                     # file with incomplete or failed jobs
                     if zipname and plot.TFileIsGood(f):
                         zipf.write(f)  # assume this throws if it fails
-                        print("Adding {} to {}".format(f, zipname))
+                        print(f"Adding {f} to {zipname}")
                         file_dict[p][seed] = zipname + "#" + f
                         os.remove(f)
                     else:  # otherwise just add the file to the dict in the normal way
@@ -517,7 +517,7 @@ class HybridNewGrid(CombineToolBase):
             status_changed = True
             total_points += 1
             status_key = ":".join(key)
-            name = "{}.{}.{}.{}".format(POIs[0], key[0], POIs[1], key[1])
+            name = f"{POIs[0]}.{key[0]}.{POIs[1]}.{key[1]}"
 
             # First check if we use the status json
             all_files = list(val.values())
@@ -603,19 +603,19 @@ class HybridNewGrid(CombineToolBase):
                 # Build to combine command. Here we'll take responsibility for setting the name and the
                 # model parameters, making sure the latter are frozen
                 if not feldman_cousins:
-                    set_arg = ",".join(["{}={},{}={}".format(POIs[0], key[0], POIs[1], key[1])] + to_set)
-                    freeze_arg = ",".join(["{},{}".format(POIs[0], POIs[1])] + to_freeze)
-                    point_args = "-n .{} --setParameters {} --freezeParameters {}".format(name, set_arg, freeze_arg)
+                    set_arg = ",".join([f"{POIs[0]}={key[0]},{POIs[1]}={key[1]}"] + to_set)
+                    freeze_arg = ",".join([f"{POIs[0]},{POIs[1]}"] + to_freeze)
+                    point_args = f"-n .{name} --setParameters {set_arg} --freezeParameters {freeze_arg}"
                 else:
-                    single_point_arg = ".".join(["{}={},{}={}".format(POIs[0], key[0], POIs[1], key[1])])
+                    single_point_arg = ".".join([f"{POIs[0]}={key[0]},{POIs[1]}={key[1]}"])
                     if len(to_set) > 0 and len(to_freeze) > 0:
-                        point_args = "-n .{} --singlePoint {} --setParameters {} --freezeParameters {}".format(name, single_point_arg, to_set, to_freeze)
+                        point_args = f"-n .{name} --singlePoint {single_point_arg} --setParameters {to_set} --freezeParameters {to_freeze}"
                     elif len(to_set) > 0:
-                        point_args = "-n .{} --singlePoint {} --setParameters {}".format(name, single_point_arg, to_set)
+                        point_args = f"-n .{name} --singlePoint {single_point_arg} --setParameters {to_set}"
                     elif len(to_freeze) > 0:
-                        point_args = "-n .{} --singlePoint {} --freezeParameters {}".format(name, single_point_arg, to_freeze)
+                        point_args = f"-n .{name} --singlePoint {single_point_arg} --freezeParameters {to_freeze}"
                     else:
-                        point_args = "-n .{} --singlePoint {} ".format(name, single_point_arg)
+                        point_args = f"-n .{name} --singlePoint {single_point_arg} "
 
                 if self.args.from_asymptotic:
                     mval = key[0]
@@ -630,7 +630,7 @@ class HybridNewGrid(CombineToolBase):
                         # point
                         if lower_bound == 0:
                             lower_bound += 1
-                        command.append("{}={:g},{:g}".format(par, bound_vals[par][lower_bound - 1][1], bound_vals[par][lower_bound - 1][2]))
+                        command.append(f"{par}={bound_vals[par][lower_bound - 1][1]:g},{bound_vals[par][lower_bound - 1][2]:g}")
                     if len(command) > 0:
                         point_args += " --setParameterRanges %s" % (":".join(command))
                     # print per_mass_point_args
@@ -674,7 +674,7 @@ class HybridNewGrid(CombineToolBase):
                     files_by_mass[key[0]] = list()
                 files_by_mass[key[0]].extend(list(val.values()))
             for m, files in files_by_mass.items():
-                gridfile = "higgsCombine.gridfile.{}.{}.{}.root".format(POIs[0], m, POIs[1])
+                gridfile = f"higgsCombine.gridfile.{POIs[0]}.{m}.{POIs[1]}.root"
                 self.job_queue.append("hadd -f {} {}".format(gridfile, " ".join(files)))
                 for exp in ["", "0.025", "0.160", "0.500", "0.840", "0.975"]:
                     self.job_queue.append(
@@ -683,7 +683,7 @@ class HybridNewGrid(CombineToolBase):
                                 "combine -M HybridNew --rAbsAcc 0",
                                 opts,
                                 "--grid %s" % gridfile,
-                                "-n .final.{}.{}.{}".format(POIs[0], m, POIs[1]),
+                                f"-n .final.{POIs[0]}.{m}.{POIs[1]}",
                                 "-m %s" % (m),
                                 ("--expectedFromGrid %s" % exp) if exp else "--noUpdateGrid",
                             ]
@@ -764,9 +764,9 @@ class HybridNewGrid(CombineToolBase):
         pt_r.AddText(
             "%i (%s) + %i (%s)" % (result.GetNullDistribution().GetSize(), opts["null_label"], result.GetAltDistribution().GetSize(), opts["alt_label"])
         )
-        pt_r.AddText("{:.3f} #pm {:.3f}".format(result.CLsplusb(), result.CLsplusbError()))
-        pt_r.AddText("{:.3f} #pm {:.3f}".format(result.CLb(), result.CLbError()))
-        pt_r.AddText("{:.3f} #pm {:.3f}".format(result.CLs(), result.CLsError()))
+        pt_r.AddText(f"{result.CLsplusb():.3f} #pm {result.CLsplusbError():.3f}")
+        pt_r.AddText(f"{result.CLb():.3f} #pm {result.CLbError():.3f}")
+        pt_r.AddText(f"{result.CLs():.3f} #pm {result.CLsError():.3f}")
         # if point_info is not None:
         #     for exp in ['exp-2', 'exp-1', 'exp0', 'exp+1', 'exp+2']:
         #         pt_r.AddText('%.3f #pm %.3f' % (point_info[exp][0], point_info[exp][1]))

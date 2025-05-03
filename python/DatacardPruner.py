@@ -100,12 +100,12 @@ class DatacardPruner:
                             output[key] = line
             file.close()
         rnd_name = "".join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
-        file = open("/tmp/{NAME}".format(NAME=rnd_name), "w")
+        file = open(f"/tmp/{rnd_name}", "w")
         file.write(headline)
         for line in output.values():
             file.write(line)
         file.close()
-        return "/tmp/{NAME}".format(NAME=rnd_name)
+        return f"/tmp/{rnd_name}"
 
     def determine_shapes(self, DATACARD):
         """
@@ -307,7 +307,7 @@ class DatacardPruner:
                     keep.append(name)
         file.close()
         # print "wrote combined cards to: {NAME}".format(NAME=file_name)
-        os.system("rm {NAME}".format(NAME=file_name))
+        os.system(f"rm {file_name}")
         return (drop, keep, confused)
 
     def list_to_file(self, LIST, FILE):
@@ -334,7 +334,7 @@ class DatacardPruner:
         excl = 0
         file = open(DATACARD)
         rnd_name = "".join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
-        output = open("/tmp/{NAME}".format(NAME=rnd_name), "w")
+        output = open(f"/tmp/{rnd_name}", "w")
         for line in file:
             words = line.split()
             if len(words) > 1:
@@ -360,5 +360,5 @@ class DatacardPruner:
             output.write(line)
         file.close()
         output.close()
-        os.system("mv /tmp/{NAME} {DATACARD}".format(NAME=rnd_name, DATACARD=DATACARD))
+        os.system(f"mv /tmp/{rnd_name} {DATACARD}")
         return excl
