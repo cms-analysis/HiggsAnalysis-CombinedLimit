@@ -114,11 +114,11 @@ class ExpansionTerm:
         sp = " " * indent
         extra = ""
         if self.fundamental:
-            extra = " {} = {:f}".format(list(self.FormattedPars()), self.fnval)
+            extra = f" {list(self.FormattedPars())} = {self.fnval:f}"
         if coeff is None:
-            print("{}{}{}".format(sp, self.derivatives, extra))
+            print(f"{sp}{self.derivatives}{extra}")
         else:
-            print("{}{:+.1f}*{}{}".format(sp, coeff, self.derivatives, extra))
+            print(f"{sp}{coeff:+.1f}*{self.derivatives}{extra}")
         for i in range(len(self.terms)):
             self.terms[i].Print(indent + 2, self.coeffs[i])
 
@@ -435,7 +435,7 @@ class TaylorExpand(CombineToolBase):
                 if self.args.multiple == 1:
                     set_vals = []
                     for POI, val in zip(POIs, vals):
-                        set_vals.append("{}={:f}".format(POI, val))
+                        set_vals.append(f"{POI}={val:f}")
                         if self.args.test_mode == 1:
                             self.wsp_vars[POI].setVal(val)
                     set_vals_str = ",".join(set_vals)
@@ -457,7 +457,7 @@ class TaylorExpand(CombineToolBase):
                         continue
 
                 hash_id = hashlib.sha1(set_vals_str).hexdigest()
-                filename = "higgsCombine.TaylorExpand.{}.MultiDimFit.mH{}.root".format(hash_id, mass)
+                filename = f"higgsCombine.TaylorExpand.{hash_id}.MultiDimFit.mH{mass}.root"
                 arg_str = "-M MultiDimFit -n .TaylorExpand.{} --algo fixed --redefineSignalPOIs {} --fixedPointPOIs ".format(hash_id, ",".join(POIs))
                 arg_str += set_vals_str
 

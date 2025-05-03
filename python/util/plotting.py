@@ -941,7 +941,7 @@ def ApplyGraphYOffset(graph, y_off):
 def RemoveGraphYAll(graph, val):
     for i in range(graph.GetN()):
         if graph.GetY()[i] == val:
-            print("[RemoveGraphYAll] Removing point ({:f}, {:f})".format(graph.GetX()[i], graph.GetY()[i]))
+            print(f"[RemoveGraphYAll] Removing point ({graph.GetX()[i]:f}, {graph.GetY()[i]:f})")
             graph.RemovePoint(i)
             RemoveGraphYAll(graph, val)
             break
@@ -951,7 +951,7 @@ def RemoveSmallDelta(graph, val):
     for i in range(graph.GetN()):
         diff = abs(graph.GetY()[i])
         if diff < val:
-            print("[RemoveSmallDelta] Removing point ({:f}, {:f})".format(graph.GetX()[i], graph.GetY()[i]))
+            print(f"[RemoveSmallDelta] Removing point ({graph.GetX()[i]:f}, {graph.GetY()[i]:f})")
             graph.RemovePoint(i)
             RemoveSmallDelta(graph, val)
             break
@@ -999,8 +999,8 @@ def ImproveMinimum(graph, func, doIt=False):
     search_max = fit_i + 2 if fit_i + 2 < graph.GetN() else fit_i + 1
     min_x = func.GetMinimumX(graph.GetX()[search_min], graph.GetX()[search_max])
     min_y = func.Eval(min_x)
-    print("[ImproveMinimum] Fit minimum was ({:f}, {:f})".format(fit_x, fit_y))
-    print("[ImproveMinimum] Better minimum was ({:f}, {:f})".format(min_x, min_y))
+    print(f"[ImproveMinimum] Fit minimum was ({fit_x:f}, {fit_y:f})")
+    print(f"[ImproveMinimum] Better minimum was ({min_x:f}, {min_y:f})")
     if doIt:
         for i in range(graph.GetN()):
             before = graph.GetY()[i]
@@ -1060,8 +1060,8 @@ def ReZeroTGraph(gr, doIt=False):
             min_y = gr.GetY()[i]
             min_x = gr.GetX()[i]
     if min_y < fit_y:
-        print("[ReZeroTGraph] Fit minimum was ({:f}, {:f})".format(fit_x, fit_y))
-        print("[ReZeroTGraph] Better minimum was ({:f}, {:f})".format(min_x, min_y))
+        print(f"[ReZeroTGraph] Fit minimum was ({fit_x:f}, {fit_y:f})")
+        print(f"[ReZeroTGraph] Better minimum was ({min_x:f}, {min_y:f})")
         if doIt:
             for i in range(gr.GetN()):
                 # before = gr.GetY()[i]
@@ -1119,7 +1119,7 @@ def RemoveNearMin(graph, val, spacing=None):
         if i == bf_i:
             continue
         if abs(graph.GetX()[i] - bf) < (val * spacing):
-            print("[RemoveNearMin] Removing point ({:f}, {:f}) close to minimum at {:f}".format(graph.GetX()[i], graph.GetY()[i], bf))
+            print(f"[RemoveNearMin] Removing point ({graph.GetX()[i]:f}, {graph.GetY()[i]:f}) close to minimum at {bf:f}")
             graph.RemovePoint(i)
             RemoveNearMin(graph, val, spacing)
             break

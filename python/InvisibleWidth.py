@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import os
 
 import ROOT
@@ -39,7 +37,7 @@ class InvisibleWidth(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", "kV,ktau,ktop,kbottom,kgluon,kgamma,BRInvUndet,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -87,7 +85,7 @@ class InvisibleWidth(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::invisibleWidth_BRscal_hgg("@0*@0/@1", kgamma, invisibleWidth_Gscal_tot)')
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "invisibleWidth_XSBRscal_%s_%s" % (production, decay)
+        name = f"invisibleWidth_XSBRscal_{production}_{decay}"
         print(name, production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
             XSscal = "kgluon"
@@ -96,7 +94,7 @@ class InvisibleWidth(SMLikeHiggsModel):
             if production == "ttH":
                 XSscal = "ktop"
             if decay == "hinv":
-                self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, BRInvUndet)' % (name, XSscal))
+                self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", {XSscal}, BRInvUndet)')
             else:
                 if decay in ["hbb", "htt", "hgg"]:
                     BRscal = decay
@@ -104,5 +102,5 @@ class InvisibleWidth(SMLikeHiggsModel):
                     BRscal = "hvv"
                 else:
                     print("Unknown decay mode:", decay)
-                self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, invisibleWidth_BRscal_%s)' % (name, XSscal, BRscal))
+                self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", {XSscal}, invisibleWidth_BRscal_{BRscal})')
         return name

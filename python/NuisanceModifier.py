@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import re
 import sys
 from math import exp, hypot, log
@@ -37,9 +35,9 @@ def fullmatch(regex, line):
 
 def quadratureAdd(pdf, val1, val2, context=None):
     if type(val1) == list and len(val1) != 2:
-        raise RuntimeError("{} is a list of length != 2".format(val1))
+        raise RuntimeError(f"{val1} is a list of length != 2")
     if type(val2) == list and len(val2) != 2:
-        raise RuntimeError("{} is a list of length != 2".format(val2))
+        raise RuntimeError(f"{val2} is a list of length != 2")
 
     if type(val1) == list and type(val2) == list:
         return [
@@ -58,13 +56,11 @@ def quadratureAdd(pdf, val1, val2, context=None):
         ]
     if pdf in ["lnN", "lnU"]:
         if log(val1) * log(val2) < 0:
-            raise RuntimeError(
-                "Can't add in quadrature nuisances of pdf %s with values %s, %s that go in different directions (at %s)" % (pdf, val1, val2, context)
-            )
+            raise RuntimeError(f"Can't add in quadrature nuisances of pdf {pdf} with values {val1}, {val2} that go in different directions (at {context})")
         ret = exp(hypot(abs(log(val1)), abs(log(val2))))
         return ret if val1 > 1 else 1.0 / ret
     else:
-        raise RuntimeError("Quadrature add not implemented for pdf %s (at %s)" % (pdf, context))
+        raise RuntimeError(f"Quadrature add not implemented for pdf {pdf} (at {context})")
 
 
 def doAddNuisance(datacard, args):
@@ -77,11 +73,11 @@ def doAddNuisance(datacard, args):
         cchannel = re.compile(channel.replace("+", r"\+"))
     opts = args[5:]
     found = False
-    errline = dict([(b, dict([(p, 0) for p in datacard.exp[b]])) for b in datacard.bins])
+    errline = {b: {p: 0 for p in datacard.exp[b]} for b in datacard.bins}
     for lsyst, nofloat, pdf0, args0, errline0 in datacard.systs:
         if lsyst == name:
             if pdf != pdf0:
-                raise RuntimeError("Can't add nuisance %s with pdf %s ad it already exists as %s" % (name, pdf, pdf0))
+                raise RuntimeError(f"Can't add nuisance {name} with pdf {pdf} ad it already exists as {pdf0}")
             found = True
             errline = errline0
     if not found:
@@ -204,7 +200,7 @@ def doRenameNuisance(datacard, args):
                 )
             if newname in list(datacard.systIDMap.keys()):
                 if not checkRenameSafety(id, datacard, newname):
-                    raise RuntimeError("Error: Cannot rename %s to %s, which exists and is incompatible" % (oldname, newname))
+                    raise RuntimeError(f"Error: Cannot rename {oldname} to {newname}, which exists and is incompatible")
 
             if isGlobal:  # easy case
                 # print " global command, ", " looking at "
@@ -226,7 +222,7 @@ def doRenameNuisance(datacard, args):
                 if pdf0 == "param":
                     continue
                 # for dcs in datacard.systs: print " --> ", dcs
-                errline2 = dict([(b, dict([(p, 0) for p in datacard.exp[b]])) for b in datacard.bins])
+                errline2 = {b: {p: 0 for p in datacard.exp[b]} for b in datacard.bins}
                 found = False
                 if newname in list(datacard.systIDMap.keys()):
                     for id2 in datacard.systIDMap[newname]:
@@ -316,7 +312,7 @@ def doChangeNuisancePdf(datacard, args):
             if ok:
                 datacard.systs[i][2] = newpdf
             else:
-                raise RuntimeError("I can't convert pdf %s from pdf %s to %s" % (lsyst, pdf, newpdf))
+                raise RuntimeError(f"I can't convert pdf {lsyst} from pdf {pdf} to {newpdf}")
     if not found:
         sys.stderr.write("Warning: no pdf found for changepdf with args %s\n" % args)
 
@@ -425,7 +421,7 @@ def doFlipNuisance(datacard, args):
     for lsyst, nofloat, pdf, args0, errline in datacard.systs:
         if fullmatch(name, lsyst):
             if pdf not in ["lnN"]:
-                raise RuntimeError("Error: nuisance edit flip %s currently not support pdftype %s" % (args, pdf))
+                raise RuntimeError(f"Error: nuisance edit flip {args} currently not support pdftype {pdf}")
             for b in errline.keys():
                 if channel == "*" or fullmatch(cchannel, b):
                     for p in datacard.exp[b]:
@@ -474,4 +470,4 @@ def doEditNuisance(datacard, command, args):
     elif command == "flip":
         doFlipNuisance(datacard, args)
     else:
-        raise RuntimeError("Error, unknown nuisance edit command %s (args %s)" % (command, args))
+        raise RuntimeError(f"Error, unknown nuisance edit command {command} (args {args})")

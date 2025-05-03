@@ -215,7 +215,7 @@ for ich, fname in enumerate(args):
                     import warnings
 
                     warning_message = (
-                        "\nYou probably have one or more regularization term(s) in datacard {}.\n".format(fname)
+                        f"\nYou probably have one or more regularization term(s) in datacard {fname}.\n"
                         + "A constraint term is a line that looks like the following:\n\n"
                         + "\tconstr0 constr @3*(@0-2*@1+@2) r_0,r_1,r_2,regularize[0.] delta[10.]\n\n"
                     )
@@ -259,9 +259,7 @@ for ich, fname in enumerate(args):
                     for b, v in systeffect.items():
                         othereffect[b] = v
                 else:
-                    raise RuntimeError(
-                        "File {} defines systematic {} as using pdf {}, while a previous file defines it as using {}".format(fname, lsyst, pdf, otherpdf)
-                    )
+                    raise RuntimeError(f"File {fname} defines systematic {lsyst} as using pdf {pdf}, while a previous file defines it as using {otherpdf}")
             else:
                 if pdf == "gmN" and int(pdfargs[0]) != int(otherargs[0]):
                     raise RuntimeError(
@@ -501,7 +499,7 @@ for bpf in binParFlags.keys():
     if isVetoed(bpf_new2old[bpf], options.channelVetos) or not isIncluded(bpf_new2old[bpf], options.channelIncludes):
         continue
     if len(binParFlags[bpf]) == 1:
-        print("{} autoMCStats {:g}".format(bpf, binParFlags[bpf][0]))
+        print(f"{bpf} autoMCStats {binParFlags[bpf][0]:g}")
     if len(binParFlags[bpf]) == 2:
         print("%s autoMCStats %g %i" % (bpf, binParFlags[bpf][0], binParFlags[bpf][1]))
     if len(binParFlags[bpf]) == 3:

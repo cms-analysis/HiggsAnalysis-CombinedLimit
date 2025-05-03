@@ -332,7 +332,7 @@ def addRateParam(lsyst, f, ret):
     # check for malformed bin/process
     if f[2] not in ret.bins or f[3] not in ret.processes:
         raise RuntimeError(" No such channel/process '{}/{}', malformed line:\n   {}".format(f[2], f[3], " ".join(f)))
-    key = "{}AND{}".format(f[2], f[3])
+    key = f"{f[2]}AND{f[3]}"
     if key in ret.rateParams:
         ret.rateParams[key].append(tmp_exp)
     else:
@@ -385,7 +385,7 @@ def parseCard(file, options):
                 if f[2] not in ret.shapeMap:
                     ret.shapeMap[f[2]] = {}
                 if f[1] in ret.shapeMap[f[2]]:
-                    raise RuntimeError("Duplicate definition for process '{}', channel '{}'".format(f[1], f[2]))
+                    raise RuntimeError(f"Duplicate definition for process '{f[1]}', channel '{f[2]}'")
                 ret.shapeMap[f[2]][f[1]] = f[3:]
                 if "$CHANNEL" in l:
                     shapesUseBin = True
@@ -427,7 +427,7 @@ def parseCard(file, options):
                     ret.keyline.append((b, processline[i], s))
                     if hadBins:
                         if b not in ret.bins:
-                            raise RuntimeError("Bin {} not among the declared bins {}".format(b, ret.bins))
+                            raise RuntimeError(f"Bin {b} not among the declared bins {ret.bins}")
                     else:
                         if b not in ret.bins:
                             ret.bins.append(b)
@@ -495,7 +495,7 @@ def parseCard(file, options):
                 nofloat = True
             if options.nuisancesToExclude and isVetoed(lsyst, options.nuisancesToExclude):
                 if options.verbose > 0:
-                    stderr.write("Excluding nuisance {} selected by a veto pattern among {}\n".format(lsyst, options.nuisancesToExclude))
+                    stderr.write(f"Excluding nuisance {lsyst} selected by a veto pattern among {options.nuisancesToExclude}\n")
                 if nuisances != -1:
                     nuisances -= 1
                 continue
@@ -554,7 +554,7 @@ def parseCard(file, options):
                             addRateParam(lsyst, f_tmp, ret)
                             found = True
                     if not found:
-                        raise RuntimeError("rateParam {} with process {!r} bin {!r} doesn't match anything.".format(lsyst, f[3], f[2]))
+                        raise RuntimeError(f"rateParam {lsyst} with process {f[3]!r} bin {f[2]!r} doesn't match anything.")
                 else:
                     addRateParam(lsyst, f, ret)
                 continue
@@ -590,7 +590,7 @@ def parseCard(file, options):
                 defToks = ("=", "+=")
                 defTok = groupNuisances.pop(0)
                 if defTok not in defToks:
-                    raise RuntimeError("Syntax error for group '{}': first thing after 'group' is not '[+]=' but '{}'.".format(groupName, defTok))
+                    raise RuntimeError(f"Syntax error for group '{groupName}': first thing after 'group' is not '[+]=' but '{defTok}'.")
 
                 if groupName not in ret.groups:
                     if defTok == "=":
@@ -639,16 +639,14 @@ def parseCard(file, options):
                     errline[b][p] = [float(x) for x in r.split("/")]
                     for v in errline[b][p]:
                         if v <= 0.00:
-                            raise ValueError(
-                                'Found "{}" in the nuisances affecting {} for {}. This would lead to NANs later on, so please fix it.'.format(r, p, b)
-                            )
+                            raise ValueError(f'Found "{r}" in the nuisances affecting {p} for {b}. This would lead to NANs later on, so please fix it.')
                 else:
                     if r == "-" * len(r):
                         r = 0.0
                     errline[b][p] = float(r)
                     # values of 0.0 are treated as 1.0; scrap negative values.
                     if pdf not in ["trG", "dFD", "dFD2"] and errline[b][p] < 0:
-                        raise ValueError('Found "{}" in the nuisances affecting {} in {}. This would lead to NANs later on, so please fix it.'.format(r, p, b))
+                        raise ValueError(f'Found "{r}" in the nuisances affecting {p} in {b}. This would lead to NANs later on, so please fix it.')
                 # set the rate to epsilon for backgrounds with zero observed sideband events.
                 if pdf == "gmN" and ret.exp[b][p] == 0 and float(r) != 0:
                     ret.exp[b][p] = 1e-6

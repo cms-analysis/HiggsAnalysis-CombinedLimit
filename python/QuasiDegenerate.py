@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 # class for testing two near mass-degenerate Higgs model
@@ -108,7 +106,7 @@ class QuasiDegenerate(PhysicsModel):
                 self.modelBuilder.out.var("DMH").setVal(float(self.DMH))
                 self.modelBuilder.out.var("DMH").setConstant(True)
         else:
-            self.modelBuilder.doVar("DMH[%s,%s,%s]" % (self.DMH, self.DMHRange[0], self.DMHRange[1]))
+            self.modelBuilder.doVar(f"DMH[{self.DMH},{self.DMHRange[0]},{self.DMHRange[1]}]")
             if self.floatDMH:
                 if self.DMHAsPOI:
                     poi += ",DMH"
@@ -139,7 +137,7 @@ class QuasiDegenerate(PhysicsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             if self.mHAsPOI:
                 poi += ",MH"
         else:

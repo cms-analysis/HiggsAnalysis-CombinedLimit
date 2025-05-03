@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import os
 import os.path
 import re
@@ -8,7 +6,6 @@ from math import *
 from sys import exit, stderr, stdout
 
 import six
-from six.moves import range
 
 import ROOT
 
@@ -120,23 +117,23 @@ class ModelBuilderBase:
 
     def doExp(self, name, expression, vars):
         if self.options.bin:
-            self.factory_('expr::%s("%s",%s)' % (name, expression, vars))
+            self.factory_(f'expr::{name}("{expression}",{vars})')
         else:
-            self.out.write('%s = expr::%s("%s",%s)' % (name, name, expression, vars) + ";\n")
+            self.out.write(f'{name} = expr::{name}("{expression}",{vars})' + ";\n")
 
     def doSet(self, name, vars):
         if self.options.bin:
             self.out.defineSet(name, vars)
         else:
-            self.out.write("%s = set(%s);\n" % (name, vars))
+            self.out.write(f"{name} = set({vars});\n")
 
     def doObj(self, name, type, X, ignoreExisting=False):
         if self.out.obj(name) and ignoreExisting:
             return 1  # Still complain if not explicitly told to ignore the existing object
         if self.options.bin:
-            return self.factory_("%s::%s(%s)" % (type, name, X))
+            return self.factory_(f"{type}::{name}({X})")
         else:
-            self.out.write("%s = %s(%s);\n" % (name, type, X))
+            self.out.write(f"{name} = {type}({X});\n")
 
     def addDiscrete(self, var):
         if self.options.removeMultiPdf:
@@ -234,7 +231,7 @@ class ModelBuilder(ModelBuilderBase):
                 if (fin, wsn) in open_files:
                     wstmp = open_files[(fin, wsn)]
                     if not wstmp.arg(rp):
-                        raise RuntimeError("No parameter '%s' found for extArg in workspace %s from file %s" % (rp, wsn, fin))
+                        raise RuntimeError(f"No parameter '{rp}' found for extArg in workspace {wsn} from file {fin}")
                     self.out.safe_import(wstmp.arg(rp), *importargs)
                 else:
                     fitmp = ROOT.TFile.Open(fin)
@@ -242,9 +239,9 @@ class ModelBuilder(ModelBuilderBase):
                         raise RuntimeError("No File '%s' found for extArg" % fin)
                     wstmp = fitmp.Get(wsn)
                     if not wstmp:
-                        raise RuntimeError("Workspace '%s' not in file %s" % (wsn, fin))
+                        raise RuntimeError(f"Workspace '{wsn}' not in file {fin}")
                     if not wstmp.arg(rp):
-                        raise RuntimeError("No parameter '%s' found for extArg in workspace %s from file %s" % (rp, wsn, fin))
+                        raise RuntimeError(f"No parameter '{rp}' found for extArg in workspace {wsn} from file {fin}")
                     self.out.safe_import(wstmp.arg(rp), *importargs)
                     open_files[(fin, wsn)] = wstmp
             else:
@@ -261,10 +258,10 @@ class ModelBuilder(ModelBuilderBase):
                 setConst = param_range == "const"
                 if param_range in ["", "const"]:
                     v = float(param_val)
-                    param_range = "%g,%g" % (-2.0 * abs(v), 2.0 * abs(v))
+                    param_range = f"{-2.0 * abs(v):g},{2.0 * abs(v):g}"
                     removeRange = True
 
-                self.doVar("%s[%s,%s]" % (rp, float(param_val), param_range))
+                self.doVar(f"{rp}[{float(param_val)},{param_range}]")
                 if removeRange:
                     self.out.var(rp).removeRange()
                 self.out.var(rp).setConstant(False)
@@ -292,7 +289,7 @@ class ModelBuilder(ModelBuilderBase):
                 if (fin, wsn) in open_files:
                     wstmp = open_files[(fin, wsn)]
                     if not wstmp.arg(argu):
-                        raise RuntimeError("No parameter '%s' found for rateParam in workspace %s from file %s" % (argu, wsn, fin))
+                        raise RuntimeError(f"No parameter '{argu}' found for rateParam in workspace {wsn} from file {fin}")
                     self.out.safe_import(wstmp.arg(argu), ROOT.RooFit.RecycleConflictNodes())
                 else:
                     fitmp = ROOT.TFile.Open(fin)
@@ -300,9 +297,9 @@ class ModelBuilder(ModelBuilderBase):
                         raise RuntimeError("No File '%s' found for rateParam" % fin)
                     wstmp = fitmp.Get(wsn)
                     if not wstmp:
-                        raise RuntimeError("Workspace '%s' not in file %s" % (wsn, fin))
+                        raise RuntimeError(f"Workspace '{wsn}' not in file {fin}")
                     if not wstmp.arg(argu):
-                        raise RuntimeError("No parameter '%s' found for rateParam in workspace %s from file %s" % (argu, wsn, fin))
+                        raise RuntimeError(f"No parameter '{argu}' found for rateParam in workspace {wsn} from file {fin}")
                     self.out.safe_import(wstmp.arg(argu), ROOT.RooFit.RecycleConflictNodes())
                     open_files[(fin, wsn)] = wstmp
                     # fitmp.Close()
@@ -331,13 +328,13 @@ class ModelBuilder(ModelBuilderBase):
                             + "' without specifying a range [a,b]. Please fix in the datacard"
                         )
                     ## check range. The parameter needs to be created in range. Then we will remove it
-                    param_range = "%g,%g" % (-2.0 * abs(v), 2.0 * abs(v))
+                    param_range = f"{-2.0 * abs(v):g},{2.0 * abs(v):g}"
                 # additional check for range requested
                 lo_r, hi_r = map(float, param_range.split(","))
                 if v < lo_r or v > hi_r:
                     raise ValueError("Parameter: " + argu + " asked to be created out-of-range (it will lead to an error): " + argv + ":" + param_range)
 
-                self.doVar("%s[%s,%s]" % (argu, argv, param_range))
+                self.doVar(f"{argu}[{argv},{param_range}]")
                 if removeRange:
                     self.out.var(argu).removeRange()
                 self.out.var(argu).setConstant(False)
@@ -406,13 +403,13 @@ class ModelBuilder(ModelBuilderBase):
                     is_func_scaled = True
                     func_scaler = pf
                     if self.options.verbose > 1:
-                        print("Rescaling %s constraint as %s" % (n, pf))
+                        print(f"Rescaling {n} constraint as {pf}")
             for pn, pf in self.options.nuisanceGroupFunctions:
                 if pn in self.DC.groups and n in self.DC.groups[pn]:
                     is_func_scaled = True
                     func_scaler = pf
                     if self.options.verbose > 1:
-                        print("Rescaling %s constraint (in group %s) as %s" % (n, pn, pf))
+                        print(f"Rescaling {n} constraint (in group {pn}) as {pf}")
             if pdf == "lnN" or (pdf.startswith("shape") and pdf != "shapeU"):
                 r = "-4,4" if pdf == "shape" else "-7,7"
                 sig = 1.0
@@ -420,7 +417,7 @@ class ModelBuilder(ModelBuilderBase):
                     if re.match(pn, n):
                         sig = float(pf)
                         sigscale = sig * (4 if pdf == "shape" else 7)
-                        r = "-%g,%g" % (sigscale, sigscale)
+                        r = f"-{sigscale:g},{sigscale:g}"
                 sig = "%g" % sig
                 if is_func_scaled:
                     sig = func_scaler
@@ -429,7 +426,7 @@ class ModelBuilder(ModelBuilderBase):
                     self.doObj(
                         "%s_Pdf" % n,
                         "Gaussian",
-                        "%s%s, %s_In[0,%s], %s" % (n, r_exp, n, r, sig),
+                        f"{n}{r_exp}, {n}_In[0,{r}], {sig}",
                         True,
                     )
                     # Use existing constraint since it could be a param
@@ -441,7 +438,7 @@ class ModelBuilder(ModelBuilderBase):
                     self.doObj(
                         "%s_Pdf" % n,
                         "SimpleGaussianConstraint",
-                        "%s%s, %s_In[0,%s], %s" % (n, r_exp, n, r, sig),
+                        f"{n}{r_exp}, {n}_In[0,{r}], {sig}",
                         True,
                     )
                     # Use existing constraint since it could be a param
@@ -458,7 +455,7 @@ class ModelBuilder(ModelBuilderBase):
                     for v in c.values():  # list effects in each channel
                         if v != 0:
                             if val != 0 and v != val:
-                                raise RuntimeError("Error: line %s contains two different uncertainties %g, %g, which is not supported for gmM" % (n, v, val))
+                                raise RuntimeError(f"Error: line {n} contains two different uncertainties {v:g}, {val:g}, which is not supported for gmM")
                             val = v
                 if val == 0:
                     raise RuntimeError("Error: line %s contains all zeroes")
@@ -527,15 +524,15 @@ class ModelBuilder(ModelBuilderBase):
                             trG_min = -1.0 / v
                         if v < 0 and 1.0 + trG_max * v < 0:
                             trG_max = -1.0 / v
-                r = "%f,%f" % (trG_min, trG_max)
-                self.doObj("%s_Pdf" % n, "Gaussian", "%s[0,%s], %s_In[0,%s], 1" % (n, r, n, r))
+                r = f"{trG_min:f},{trG_max:f}"
+                self.doObj("%s_Pdf" % n, "Gaussian", f"{n}[0,{r}], {n}_In[0,{r}], 1")
                 self.globalobs.append("%s_In" % n)
                 if self.options.bin:
                     self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "lnU" or pdf == "shapeU":
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[-1,1]" % n)
             elif pdf == "unif":
-                self.doObj("%s_Pdf" % n, "Uniform", "%s[%f,%f]" % (n, args[0], args[1]))
+                self.doObj("%s_Pdf" % n, "Uniform", f"{n}[{args[0]:f},{args[1]:f}]")
             elif pdf == "flatParam" and self.options.flatParamPrior:
                 c_param_name = self.getSafeNormName(n)
                 if self.out.var(c_param_name):
@@ -569,20 +566,20 @@ class ModelBuilder(ModelBuilderBase):
                             dFD_min = -1.0 / v
                         if v < 0 and 1.0 + dFD_max * v < 0:
                             dFD_max = -1.0 / v
-                r = "%f,%f" % (dFD_min, dFD_max)
+                r = f"{dFD_min:f},{dFD_max:f}"
                 # r = "%f,%f" % (-(1+8/args[0]), +(1+8/args[0]));
                 # r = "-1,1"
                 if pdf == "dFD":
                     self.doObj(
                         "%s_Pdf" % n,
                         ROOFIT_EXPR_PDF,
-                        "'1/(2*(1+exp(%f*((@0-@1)-1)))*(1+exp(-%f*((@0-@1)+1))))', %s[0,%s], %s_In[0,%s]" % (args[0], args[0], n, r, n, r),
+                        f"'1/(2*(1+exp({args[0]:f}*((@0-@1)-1)))*(1+exp(-{args[0]:f}*((@0-@1)+1))))', {n}[0,{r}], {n}_In[0,{r}]",
                     )
                 else:
                     self.doObj(
                         "%s_Pdf" % n,
                         ROOFIT_EXPR_PDF,
-                        "'1/(2*(1+exp(%f*(@0-1)))*(1+exp(-%f*(@0+1))))', %s[0,%s], %s_In[0,%s]" % (args[0], args[0], n, r, n, r),
+                        f"'1/(2*(1+exp({args[0]:f}*(@0-1)))*(1+exp(-{args[0]:f}*(@0+1))))', {n}[0,{r}], {n}_In[0,{r}]",
                     )
                 self.globalobs.append("%s_In" % n)
                 if self.options.bin:
@@ -607,7 +604,7 @@ class ModelBuilder(ModelBuilderBase):
                 if len(args) > 2:
                     d["depend"] = args[1] if args[1][0] == "{" else "{" + args[1] + "}"
                 else:
-                    remove = set(["TMath", "Exp", "::", ""])
+                    remove = {"TMath", "Exp", "::", ""}
                     l = list(set(re.split("\\+|-|\\*|/|\\(|\\)", d["formula"])) - remove)
                     l2 = []  ## remove all the non-float expressions
                     for x in l:
@@ -664,7 +661,7 @@ class ModelBuilder(ModelBuilderBase):
                                 )
                             self.out.var(n).setRange(bounds[0], bounds[1])
                         else:
-                            self.doVar("%s%s" % (n, args[2]))
+                            self.doVar(f"{n}{args[2]}")
                     else:
                         if self.out.var(n):
                             self.out.var(n).setConstant(False)
@@ -686,8 +683,8 @@ class ModelBuilder(ModelBuilderBase):
                     if is_func_scaled:
                         sigmaStrL = "%s_WidthScaledL" % n
                         sigmaStrR = "%s_WidthScaledR" % n
-                        self.doObj(sigmaStrL, "prod", "%g, %s" % (float(sigmaL), func_scaler))
-                        self.doObj(sigmaStrR, "prod", "%g, %s" % (float(sigmaR), func_scaler))
+                        self.doObj(sigmaStrL, "prod", f"{float(sigmaL):g}, {func_scaler}")
+                        self.doObj(sigmaStrR, "prod", f"{float(sigmaR):g}, {func_scaler}")
                     self.doObj(
                         "%s_Pdf" % n,
                         "BifurGauss",
@@ -707,12 +704,12 @@ class ModelBuilder(ModelBuilderBase):
                     if is_func_scaled:
                         self.doExp(
                             "%s_BoundHi" % n,
-                            "%g+%g*@0" % (mean, self.out.var(n).getMax() - mean),
+                            f"{mean:g}+{self.out.var(n).getMax() - mean:g}*@0",
                             "%s" % (func_scaler),
                         )
                         self.doExp(
                             "%s_BoundLo" % n,
-                            "%g-%g*@0" % (mean, mean - self.out.var(n).getMin()),
+                            f"{mean:g}-{mean - self.out.var(n).getMin():g}*@0",
                             "%s" % (func_scaler),
                         )
                         self.out.var(n).setRange(
@@ -738,20 +735,20 @@ class ModelBuilder(ModelBuilderBase):
                                 )
                                 self.out.var(n).setRange(bounds[0], bounds[1])
                         else:
-                            self.doVar("%s%s" % (n, args[2]))
+                            self.doVar(f"{n}{args[2]}")
                     else:
                         sigma = float(args[1])
                         if self.out.var(n):
                             self.out.var(n).setConstant(False)
                             self.out.var(n).setRange(mean - 4 * sigma, mean + 4 * sigma)
                         else:
-                            self.doVar("%s[%g,%g]" % (n, mean - 4 * sigma, mean + 4 * sigma))
+                            self.doVar(f"{n}[{mean - 4 * sigma:g},{mean + 4 * sigma:g}]")
                     self.out.var(n).setVal(mean)
                     self.out.var(n).setError(sigma)
                     sigmaStr = args[1]
                     if is_func_scaled:
                         sigmaStr = "%s_WidthScaled" % n
-                        self.doObj(sigmaStr, "prod", "%g, %s" % (float(args[1]), func_scaler))
+                        self.doObj(sigmaStr, "prod", f"{float(args[1]):g}, {func_scaler}")
                     if self.options.noOptimizePdf or is_func_scaled:
                         self.doObj(
                             "%s_Pdf" % n,
@@ -786,12 +783,12 @@ class ModelBuilder(ModelBuilderBase):
                     if is_func_scaled:
                         boundHi = self.doExp(
                             "%s_BoundHi" % n,
-                            "%g+%g*@0" % (mean, self.out.var(n).getMax() - mean),
+                            f"{mean:g}+{self.out.var(n).getMax() - mean:g}*@0",
                             "%s" % (func_scaler),
                         )
                         boundLo = self.doExp(
                             "%s_BoundLo" % n,
-                            "%g-%g*@0" % (mean, mean - self.out.var(n).getMin()),
+                            f"{mean:g}-{mean - self.out.var(n).getMin():g}*@0",
                             "%s" % (func_scaler),
                         )
                         self.out.var(n).setRange(
@@ -822,7 +819,7 @@ class ModelBuilder(ModelBuilderBase):
                 if p != "constr":
                     nuisVars.add(self.out.var(c_param_name))
                 setNuisPdf.append(c_param_name)
-            setNuisPdf = list(dict.fromkeys((setNuisPdf)))
+            setNuisPdf = list(dict.fromkeys(setNuisPdf))
             for n in setNuisPdf:
                 nuisPdfs.add(self.out.pdf(n + "_Pdf"))
             self.out.defineSet("nuisances", nuisVars)
@@ -853,10 +850,8 @@ class ModelBuilder(ModelBuilderBase):
                 if self.options.verbose > 2:
                     print("Will create flat prior for parameter ", c_param_name, " with range [", x1, x2, "]")
                 if not self.out.var(c_param_name):
-                    self.doVar("%s[%g,%g,%g]" % (c_param_name, v, x1, x2))
-                self.doExp(
-                    "%s_diff_expr" % c_param_name, "%s-%s_In" % (c_param_name, c_param_name), "%s,%s_In[%g,%g,%g]" % (c_param_name, c_param_name, v, x1, x2)
-                )
+                    self.doVar(f"{c_param_name}[{v:g},{x1:g},{x2:g}]")
+                self.doExp("%s_diff_expr" % c_param_name, f"{c_param_name}-{c_param_name}_In", f"{c_param_name},{c_param_name}_In[{v:g},{x1:g},{x2:g}]")
                 self.doObj("%s_Pdf" % c_param_name, "Uniform", "%s_diff_expr" % c_param_name)
                 self.out.var("%s_In" % c_param_name).setConstant(True)
                 self.globalobs.append("%s_In" % c_param_name)
@@ -866,7 +861,7 @@ class ModelBuilder(ModelBuilderBase):
         groupsFor = {}
         # existingNuisanceNames = tuple(set([syst[0] for syst in self.DC.systs]+self.DC.flatParamNuisances.keys()+self.DC.rateParams.keys()+self.DC.extArgs.keys()+self.DC.discretes))
         existingNuisanceNames = self.DC.getAllVariables()
-        for groupName, nuisanceNames in six.iteritems(self.DC.groups):
+        for groupName, nuisanceNames in self.DC.groups.items():
             for nuisanceName in nuisanceNames:
                 if nuisanceName not in existingNuisanceNames:
                     raise RuntimeError(
@@ -893,7 +888,7 @@ class ModelBuilder(ModelBuilderBase):
                         raise RuntimeError('Nuisance group "%(groupName)s" refers to nuisance but it is not an independent parameter.' % locals())
                     var.setAttribute("group_" + groupName, True)
 
-        for groupName, nuisanceNames in six.iteritems(self.DC.groups):
+        for groupName, nuisanceNames in self.DC.groups.items():
             nuisanceargset = ROOT.RooArgSet()
             for nuisanceName in nuisanceNames:
                 nuisanceargset.add(self.out.var(nuisanceName))
@@ -905,12 +900,12 @@ class ModelBuilder(ModelBuilderBase):
             for p in self.DC.exp[b].keys():  # so that we get only self.DC.processes contributing to this bin
                 # if it's a zero background, write a zero and move on
                 if self.DC.exp[b][p] == 0:
-                    self.doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, self.DC.exp[b][p]))
+                    self.doVar(f"n_exp_bin{b}_proc_{p}[{self.DC.exp[b][p]:g}]")
                     continue
                 # get model-dependent scale factor
                 scale = self.physics.getYieldScale(b, p)
                 if scale == 0:
-                    self.doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, 0))
+                    self.doVar(f"n_exp_bin{b}_proc_{p}[{0:g}]")
                     continue
                 # collect multiplicative corrections
                 nominal = self.DC.exp[b][p]
@@ -927,9 +922,9 @@ class ModelBuilder(ModelBuilderBase):
                     raise RuntimeError("Physics model returned something that is neither a name, nor 0, nor 1.")
 
                 # look for rate param for this bin
-                if "%sAND%s" % (b, p) in list(self.DC.rateParams.keys()):
-                    for rk in range(len(self.DC.rateParams["%sAND%s" % (b, p)])):
-                        argu = self.DC.rateParams["%sAND%s" % (b, p)][rk][0][0]
+                if f"{b}AND{p}" in list(self.DC.rateParams.keys()):
+                    for rk in range(len(self.DC.rateParams[f"{b}AND{p}"])):
+                        argu = self.DC.rateParams[f"{b}AND{p}"][rk][0][0]
                         if self.out.arg(argu):
                             factors.append(argu)
                         else:
@@ -963,8 +958,8 @@ class ModelBuilder(ModelBuilderBase):
                         factors.append(n)
                     # elif pdf == "trG" or pdf == "unif" or pdf == "flatParam" or pdf == "dFD" or pdf == "dFD2":
                     elif pdf == "trG" or pdf == "unif" or pdf == "dFD" or pdf == "dFD2":
-                        myname = "n_exp_shift_bin%s_proc_%s_%s" % (b, p, n)
-                        self.doObj(myname, ROOFIT_EXPR, "'1+%f*@0', %s" % (errline[b][p], n))
+                        myname = f"n_exp_shift_bin{b}_proc_{p}_{n}"
+                        self.doObj(myname, ROOFIT_EXPR, f"'1+{errline[b][p]:f}*@0', {n}")
                         factors.append(myname)
                     elif pdf == "gmN":
                         factors.append(n)
@@ -986,11 +981,11 @@ class ModelBuilder(ModelBuilderBase):
                 # optimize constants
                 if len(factors) + len(logNorms) + len(alogNorms) == 0:
                     norm = selfNormRate if b in self.selfNormBins else self.DC.exp[b][p]
-                    self.doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, norm))
+                    self.doVar(f"n_exp_bin{b}_proc_{p}[{norm:g}]")
                 else:
                     norm = selfNormRate if b in self.selfNormBins else nominal
                     # print "Process %s of bin %s depends on:\n\tlog-normals: %s\n\tasymm log-normals: %s\n\tother factors: %s\n" % (p,b,logNorms, alogNorms, factors)
-                    procNorm = ROOT.ProcessNormalization("n_exp_bin%s_proc_%s" % (b, p), "", norm)
+                    procNorm = ROOT.ProcessNormalization(f"n_exp_bin{b}_proc_{p}", "", norm)
                     for kappa, thetaName in logNorms:
                         procNorm.addLogNormal(kappa, self.out.function(thetaName))
                     for kappaLo, kappaHi, thetaName in alogNorms:
@@ -1011,7 +1006,7 @@ class ModelBuilder(ModelBuilderBase):
                                 )
                             )
                         else:
-                            raise RuntimeError("Cannot add nonexistent factor %s for process %s, bin %s" % (factorName, p, b))
+                            raise RuntimeError(f"Cannot add nonexistent factor {factorName} for process {p}, bin {b}")
 
                     # take care of any variables which were renamed (eg for "param")
                     (
@@ -1041,7 +1036,7 @@ class ModelBuilder(ModelBuilderBase):
             raise RuntimeException
         if self.options.out == None:
             raise RuntimeException
-        for nuis, warn in six.iteritems(self.DC.flatParamNuisances):
+        for nuis, warn in self.DC.flatParamNuisances.items():
             if self.out.var(nuis):
                 self.out.var(nuis).setAttribute("flatParam")
             elif warn:
@@ -1097,7 +1092,7 @@ class CountingModelBuilder(ModelBuilder):
         if len(self.DC.obs):
             self.doComment(" ----- observables (already set to observed values) -----")
             for b in self.DC.bins:
-                self.doVar("n_obs_bin%s[%f]" % (b, self.DC.obs[b]))
+                self.doVar(f"n_obs_bin{b}[{self.DC.obs[b]:f}]")
                 self.out.var("n_obs_bin%s" % b).setMin(0)
         else:
             self.doComment(" ----- observables -----")
@@ -1118,18 +1113,18 @@ class CountingModelBuilder(ModelBuilder):
             self.doObj(
                 "n_exp_bin%s_bonly" % b,
                 "sum",
-                ", ".join(["n_exp_bin%s_proc_%s" % (b, p) for p in self.DC.exp[b].keys() if not self.DC.isSignal[p]]),
+                ", ".join([f"n_exp_bin{b}_proc_{p}" for p in self.DC.exp[b].keys() if not self.DC.isSignal[p]]),
             )
             self.doObj(
                 "n_exp_bin%s" % b,
                 "sum",
-                ", ".join(["n_exp_bin%s_proc_%s" % (b, p) for p in self.DC.exp[b].keys()]),
+                ", ".join([f"n_exp_bin{b}_proc_{p}" for p in self.DC.exp[b].keys()]),
             )
-            self.doObj("pdf_bin%s" % b, "Poisson", "n_obs_bin%s, n_exp_bin%s, 1" % (b, b))
+            self.doObj("pdf_bin%s" % b, "Poisson", f"n_obs_bin{b}, n_exp_bin{b}, 1")
             self.doObj(
                 "pdf_bin%s_bonly" % b,
                 "Poisson",
-                "n_obs_bin%s, n_exp_bin%s_bonly, 1" % (b, b),
+                f"n_obs_bin{b}, n_exp_bin{b}_bonly, 1",
             )
 
     def doCombination(self):

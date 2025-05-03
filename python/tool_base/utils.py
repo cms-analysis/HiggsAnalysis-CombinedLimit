@@ -52,10 +52,10 @@ def prefit_from_workspace(file, workspace, params, setPars=None):
             tmp = allParams.find(par)
             isrvar = tmp.IsA().InheritsFrom(ROOT.RooRealVar.Class())
             if isrvar:
-                print("Setting parameter {} to {:g}".format(par, float(val)))
+                print(f"Setting parameter {par} to {float(val):g}")
                 tmp.setVal(float(val))
             else:
-                print("Setting index {} to {:g}".format(par, float(val)))
+                print(f"Setting index {par} to {float(val):g}")
                 tmp.setIndex(int(val))
 
     for p in params:

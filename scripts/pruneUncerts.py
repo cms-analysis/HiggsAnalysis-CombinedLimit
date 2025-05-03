@@ -120,7 +120,7 @@ def main():
 
     ## create a combined datacard from input datacards
     rnd_name = "".join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
-    os.system("combineCards.py -S {PATH}/*.txt > /tmp/{NAME}".format(PATH=args[0], NAME=rnd_name))
+    os.system(f"combineCards.py -S {args[0]}/*.txt > /tmp/{rnd_name}")
 
     pruner = DatacardPruner(
         fit_results,
@@ -132,7 +132,7 @@ def main():
         options.comment_nuisances,
     )
     ## determine list of all uncertainties from input datacards
-    uncerts = pruner.determine_uncerts("/tmp/{NAME}".format(NAME=rnd_name))
+    uncerts = pruner.determine_uncerts(f"/tmp/{rnd_name}")
     ## determine list of dropped and kept uncertainties from input datacards
     (dropped, kept, confused) = pruner.prune(uncerts)
     ## write dropped and kept uncertainties to file

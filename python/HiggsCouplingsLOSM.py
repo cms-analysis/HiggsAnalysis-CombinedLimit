@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import os
 
 import ROOT
@@ -35,7 +33,7 @@ class CvCfHiggsLOSM(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", "CV,CF,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -90,7 +88,7 @@ class CvCfHiggsLOSM(SMLikeHiggsModel):
         self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "CvCf_XSBRscal_%s_%s" % (production, decay)
+        name = f"CvCf_XSBRscal_{production}_{decay}"
         if self.modelBuilder.out.function(name) == None:
             XSscal = "CF" if production in ["ggH", "ttH"] else "CV"
             BRscal = "hgg"
@@ -98,7 +96,7 @@ class CvCfHiggsLOSM(SMLikeHiggsModel):
                 BRscal = "hv"
             if decay in ["hbb", "htt"]:
                 BRscal = "hf"
-            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, CvCf_BRscal_%s)' % (name, XSscal, BRscal))
+            self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", {XSscal}, CvCf_BRscal_{BRscal})')
         return name
 
 
@@ -131,7 +129,7 @@ class CvCfXgHiggsLOSM(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", "CV,CF,XG,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -187,7 +185,7 @@ class CvCfXgHiggsLOSM(SMLikeHiggsModel):
         self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "CvCfXg_XSBRscal_%s_%s" % (production, decay)
+        name = f"CvCfXg_XSBRscal_{production}_{decay}"
         if self.modelBuilder.out.function(name) == None:
             XSscal = "CF" if production in ["ggH", "ttH"] else "CV"
             BRscal = "hgg"
@@ -195,7 +193,7 @@ class CvCfXgHiggsLOSM(SMLikeHiggsModel):
                 BRscal = "hv"
             if decay in ["hbb", "htt"]:
                 BRscal = "hf"
-            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, CvCfXg_BRscal_%s)' % (name, XSscal, BRscal))
+            self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", {XSscal}, CvCfXg_BRscal_{BRscal})')
         return name
 
 
@@ -228,7 +226,7 @@ class CfXgHiggsLOSM(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", "CF,XG,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -284,7 +282,7 @@ class CfXgHiggsLOSM(SMLikeHiggsModel):
         self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "CfXg_XSBRscal_%s_%s" % (production, decay)
+        name = f"CfXg_XSBRscal_{production}_{decay}"
         if self.modelBuilder.out.function(name) == None:
             XSscal = "CF" if production in ["ggH", "ttH"] else "CV"
             BRscal = "hgg"
@@ -292,7 +290,7 @@ class CfXgHiggsLOSM(SMLikeHiggsModel):
                 BRscal = "hv"
             if decay in ["hbb", "htt"]:
                 BRscal = "hf"
-            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, CfXg_BRscal_%s)' % (name, XSscal, BRscal))
+            self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", {XSscal}, CfXg_BRscal_{BRscal})')
         return name
 
 

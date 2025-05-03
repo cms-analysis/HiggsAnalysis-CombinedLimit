@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import six
 
 from .PhysicsModel import PhysicsModelBase_NiceSubclasses
@@ -66,7 +64,7 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
         self.anomalouscoupling = None
         self.dofa3gg = None
         self.adjustmuVbyfai = None
-        super(Anomalous_Interference_JHU_rw, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def getPOIList(self):
         myxsecs = {
@@ -138,7 +136,7 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
         if not self.modelBuilder.out.var("RV"):
             self.modelBuilder.doVar("RV[1.0,0.0,10.0]")
         if self.adjustmuVbyfai is not None:
-            self.modelBuilder.factory_('expr::muVc("@1/(1+{}*abs(@0))", CMS_zz4l_fai1,RV)'.format(self.adjustmuVbyfai))
+            self.modelBuilder.factory_(f'expr::muVc("@1/(1+{self.adjustmuVbyfai}*abs(@0))", CMS_zz4l_fai1,RV)')
             myxsecs["muV"] = "muVc"
         else:
             myxsecs["muV"] = "RV"
@@ -196,7 +194,7 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
         else:
             self.modelBuilder.out.var("muTT").setConstant()
 
-        return pois + super(Anomalous_Interference_JHU_rw, self).getPOIList()
+        return pois + super().getPOIList()
 
     def getYieldScale(self, bin, process):
         if process in [
@@ -224,7 +222,7 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
 
         pureBSMs = {"fa3": "0M", "fa2": "0PH", "fL1": "0L1", "fL1Zg": "0L1Zg"}
 
-        for anomalouscoupling, pureBSM in six.iteritems(pureBSMs):
+        for anomalouscoupling, pureBSM in pureBSMs.items():
             if anomalouscoupling != self.anomalouscoupling and (process.endswith(pureBSM) or process.endswith(pureBSM + "f05ph0")):
                 raise ValueError("Can't have " + process + " for " + self.anomalouscoupling + " (it's for " + anomalouscoupling + ")")
             if process in [
@@ -249,14 +247,14 @@ class Anomalous_Interference_JHU_rw(PhysicsModelBase_NiceSubclasses):
         if "reweighted_" in process or "GGH2Jets" in process:
             raise ValueError("Don't know what to do with " + process)
 
-        return super(Anomalous_Interference_JHU_rw, self).getYieldScale(bin, process)
+        return super().getYieldScale(bin, process)
 
     def processPhysicsOptions(self, physOptions):
-        processed = super(Anomalous_Interference_JHU_rw, self).processPhysicsOptions(physOptions)
+        processed = super().processPhysicsOptions(physOptions)
         for po in physOptions:
             if po in ("fa3", "fa2", "fL1", "fL1Zg"):
                 if self.anomalouscoupling is not None:
-                    raise ValueError("Multiple anomalous couplings provided as physics options ({}, {})".format(self.anomalouscoupling, po))
+                    raise ValueError(f"Multiple anomalous couplings provided as physics options ({self.anomalouscoupling}, {po})")
                 self.anomalouscoupling = po
                 processed.append(po)
             if po.lower() == "dofa3gg=true":
@@ -282,7 +280,7 @@ class Anomalous_Interference_JHU_rw_HTTHZZ(Anomalous_Interference_JHU_rw, MultiS
     usemuTT = True  # because it's now needed to float the TT vs. ZZ BR
 
     def processPhysicsOptions(self, physOptions):
-        result = super(Anomalous_Interference_JHU_rw_HTTHZZ, self).processPhysicsOptions(physOptions)
+        result = super().processPhysicsOptions(physOptions)
         if self.scaledifferentsqrtsseparately:
             raise ValueError("Can't scale different sqrts separately for HZZ+HTT combination")
         if not self.scalemuvfseparately:
@@ -292,13 +290,13 @@ class Anomalous_Interference_JHU_rw_HTTHZZ(Anomalous_Interference_JHU_rw, MultiS
         return result
 
     def getPOIList(self):
-        result = super(Anomalous_Interference_JHU_rw_HTTHZZ, self).getPOIList()
+        result = super().getPOIList()
         if self.adjustmuVbyfai is not None:
             self.modelBuilder.factory_('expr::newmuVoveroldmuV("@0/@1", muVc, RV)')
         return result
 
     def getYieldScale(self, bin, process):
-        result = super(Anomalous_Interference_JHU_rw_HTTHZZ, self).getYieldScale(bin, process)
+        result = super().getYieldScale(bin, process)
         if self.adjustmuVbyfai is not None and process in ("qqH", "ZH", "WH", "VVH"):
             assert result == 1, result  # from MultiSignalSpinZeroHiggs
             return "newmuVoveroldmuV"

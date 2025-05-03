@@ -150,12 +150,12 @@ class Impacts(CombineToolBase):
             initialRes = {}
             if self.args.approx is not None:
                 if self.args.approx == "hesse":
-                    fResult = ROOT.TFile("multidimfit_approxFit_{name}.root".format(name=name))
+                    fResult = ROOT.TFile(f"multidimfit_approxFit_{name}.root")
                     rfr = fResult.Get("fit_mdf")
                     fResult.Close()
                     initialRes = utils.get_roofitresult(rfr, poiList, poiList)
                 elif self.args.approx == "robust":
-                    fResult = ROOT.TFile("robustHesse_approxFit_{name}.root".format(name=name))
+                    fResult = ROOT.TFile(f"robustHesse_approxFit_{name}.root")
                     floatParams = fResult.Get("floatParsFinal")
                     rfr = fResult.Get("h_correlation")
                     rfr.SetDirectory(0)

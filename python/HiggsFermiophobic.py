@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import os
 
 import ROOT
@@ -32,7 +30,7 @@ class FermiophobicHiggs(SMLikeHiggsModel):
             self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
             self.modelBuilder.out.var("MH").setConstant(False)
         else:
-            self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+            self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
         self.modelBuilder.doSet("POI", "r,MH")
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
@@ -47,7 +45,7 @@ class FermiophobicHiggs(SMLikeHiggsModel):
 
         for decay in ["hww", "hzz", "hgg", "hzg"]:
             self.SMH.makeBR(decay)
-            self.modelBuilder.factory_('expr::FP_BRScal_%s("@0*@1/@2",r,FP_BR_%s,SM_BR_%s)' % (decay, decay, decay))
+            self.modelBuilder.factory_(f'expr::FP_BRScal_{decay}("@0*@1/@2",r,FP_BR_{decay},SM_BR_{decay})')
 
         self.modelBuilder.out.Print()
 
