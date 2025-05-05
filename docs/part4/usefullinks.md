@@ -97,6 +97,7 @@ The paper for the <span style="font-variant:small-caps;">Combine</span> tool is 
     * One-sided impacts can be legitimate, depending on the details of your model. If you are evaluating the impacts on the boundary of your POI, you would expect them to be one sided as you can't cross the boundary. Also, some nuisance parameters might have one-sided effects. For example, a parameter encoding the position of a mass peak can have a one-sided impact as any change to the parameter deteriorates the peak position evaluation. Outsides of these or similar cases, one-sided impact can point to problems in the nuisance or model definitions and are worth investigating. A common source of one-sided shape uncertainties impact is due to both the down- and up- variations changing the yield in the same direction, something that is usually cathed by the validateDatacards routine.
 * _I get Segmentation fault during the workspace creation_
     * Workspaces can be relatively large objects. If you see this message you need to increase or remove the limits on your stack size. On lxplus, you can issue the command `ulimit -s unlimited` before running `text2workspace.py` to remove it.
- * _My templates are very noisy, how do I account for it properly?_
- * _My fit does not converge_ or _How do I solve the no crossing message?_ 
-
+ * _My templates are very noisy, how do I account for it properly?_ or _How can I smooth out my templates?_
+ * _My fit does not converge_ or _How do I solve the no crossing found message?_ 
+ * _Can I get the actual value of the Likelihood function before/after the fit?_
+    * Quick answer: No, combine does not provides it. This is because the objects with good statistical properties are only likelihood _ratios_, so publishing the full likelihood value does not provide any particular insight. On top of this, Combine does not even compute the full likelihood function. Both Combine and RooFit neglect some terms that do not depend on the POIs and that would disappear in the likelihood ratios or log-likelihood differences to increase fit stability and performances.
