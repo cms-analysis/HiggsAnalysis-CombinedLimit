@@ -113,9 +113,9 @@ cacheutils::CachingPiecewiseInterpolation::CachingPiecewiseInterpolation(const P
     cachingPdfNominal_.reset(makeCachingPdf(const_cast<RooAbsReal*>(&nominal),&obs));
     for (int i = 0, n = highList.getSize(); i < n; ++i) {
         RooAbsReal *pdfiHi = (RooAbsReal*) highList.at(i);
-        cachingPdfsHi_.push_back(makeCachingPdf(pdfiHi, &obs));
+        cachingPdfsHi_.emplace_back(makeCachingPdf(pdfiHi, &obs));
         RooAbsReal *pdfiLo = (RooAbsReal*) lowList.at(i);
-        cachingPdfsLow_.push_back(makeCachingPdf(pdfiLo, &obs));
+        cachingPdfsLow_.emplace_back(makeCachingPdf(pdfiLo, &obs));
         coeffs_.push_back((RooAbsReal*) coeffs.at(i));
         codes_.push_back(fixme.interpolationCodes()[i]);
         //std::cout << "      PiecewiseInterpolation Adding " << pdf.GetName() << "[" << i << "] Hi    : " << pdfiHi->ClassName() << " " << pdfiHi->GetName() << " using " << typeid(cachingPdfsHi_.back()).name() << std::endl;
@@ -143,12 +143,12 @@ const std::vector<Double_t> & cacheutils::CachingPiecewiseInterpolation::eval(co
             case 0: 
                 {
                     if (param > 0) {
-                        const std::vector<Double_t> & hi = cachingPdfsHi_[i].eval(data);
+                        const std::vector<Double_t> & hi = cachingPdfsHi_[i]->eval(data);
                         for (unsigned int j = 0; j < size; ++j) {
                             work_[j] += param * (hi[j] - nominal[j]);
                         }
                     } else {
-                        const std::vector<Double_t> & lo = cachingPdfsLow_[i].eval(data);
+                        const std::vector<Double_t> & lo = cachingPdfsLow_[i]->eval(data);
                         for (unsigned int j = 0; j < size; ++j) {
                             work_[j] += param * (nominal[j] - lo[j]);
                         }
@@ -157,12 +157,12 @@ const std::vector<Double_t> & cacheutils::CachingPiecewiseInterpolation::eval(co
             case 2:
                 {
                     if (param > 0) {
-                        const std::vector<Double_t> & hi = cachingPdfsHi_[i].eval(data);
+                        const std::vector<Double_t> & hi = cachingPdfsHi_[i]->eval(data);
                         for (unsigned int j = 0; j < size; ++j) {
                             work_[j] *= std::pow(hi[j]/nominal[j], param);
                         }
                     } else {
-                        const std::vector<Double_t> & lo = cachingPdfsLow_[i].eval(data);
+                        const std::vector<Double_t> & lo = cachingPdfsLow_[i]->eval(data);
                         for (unsigned int j = 0; j < size; ++j) {
                             work_[j] *= std::pow(lo[j]/nominal[j], -param);
                         }
@@ -171,18 +171,18 @@ const std::vector<Double_t> & cacheutils::CachingPiecewiseInterpolation::eval(co
             case 4:
                 {
                     if (param > 1.) {
-                        const std::vector<Double_t> & hi = cachingPdfsHi_[i].eval(data);
+                        const std::vector<Double_t> & hi = cachingPdfsHi_[i]->eval(data);
                         for (unsigned int j = 0; j < size; ++j) {
                             work_[j] += param * (hi[j] - nominal[j]);
                         }
                     } else if (param < -1.){
-                        const std::vector<Double_t> & lo = cachingPdfsLow_[i].eval(data);
+                        const std::vector<Double_t> & lo = cachingPdfsLow_[i]->eval(data);
                         for (unsigned int j = 0; j < size; ++j) {
                             work_[j] += param * (nominal[j] - lo[j]);
                         }
                     } else {
-                        const std::vector<Double_t> & hi = cachingPdfsHi_[i].eval(data);
-                        const std::vector<Double_t> & lo = cachingPdfsLow_[i].eval(data);
+                        const std::vector<Double_t> & hi = cachingPdfsHi_[i]->eval(data);
+                        const std::vector<Double_t> & lo = cachingPdfsLow_[i]->eval(data);
                         for (unsigned int j = 0; j < size; ++j) {
                             double eps_plus  = (hi[j]-nominal[j]);
                             double eps_minus = (nominal[j] - lo[j]);
@@ -210,15 +210,15 @@ const std::vector<Double_t> & cacheutils::CachingPiecewiseInterpolation::eval(co
 void cacheutils::CachingPiecewiseInterpolation::setDataDirty()
 {
     cachingPdfNominal_->setDataDirty();
-    for (CachingPdfBase &pdf : cachingPdfsHi_) pdf.setDataDirty();
-    for (CachingPdfBase &pdf : cachingPdfsLow_) pdf.setDataDirty();
+    for (auto &pdf : cachingPdfsHi_) pdf->setDataDirty();
+    for (auto &pdf : cachingPdfsLow_) pdf->setDataDirty();
 }
 
 void cacheutils::CachingPiecewiseInterpolation::setIncludeZeroWeights(bool includeZeroWeights) 
 {
     cachingPdfNominal_->setIncludeZeroWeights(includeZeroWeights);
-    for (CachingPdfBase &pdf : cachingPdfsHi_) pdf.setIncludeZeroWeights(includeZeroWeights);
-    for (CachingPdfBase &pdf : cachingPdfsLow_) pdf.setIncludeZeroWeights(includeZeroWeights);
+    for (auto &pdf : cachingPdfsHi_) pdf->setIncludeZeroWeights(includeZeroWeights);
+    for (auto &pdf : cachingPdfsLow_) pdf->setIncludeZeroWeights(includeZeroWeights);
 }
 
 

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import os
 
 import six
@@ -44,15 +42,15 @@ class MepsHiggs(SMLikeHiggsModel):
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI ---
-        self.modelBuilder.doVar("M[246.22,%s,%s]" % (self.MRange[0], self.MRange[1]))
-        self.modelBuilder.doVar("eps[0,%s,%s]" % (self.epsRange[0], self.epsRange[1]))
+        self.modelBuilder.doVar(f"M[246.22,{self.MRange[0]},{self.MRange[1]}]")
+        self.modelBuilder.doVar(f"eps[0,{self.epsRange[0]},{self.epsRange[1]}]")
 
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", "M,eps,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -75,9 +73,9 @@ class MepsHiggs(SMLikeHiggsModel):
             "Z": (91.1876, (-0.0021, +0.0021)),
         }
 
-        for name, vals in six.iteritems(self.msbar):
+        for name, vals in self.msbar.items():
             # self.modelBuilder.doVar("M%s_MSbar[%s,%s,%s]" % (name, vals[0], vals[0]+vals[1][0], vals[0]+vals[1][1]))
-            self.modelBuilder.doVar("M%s_MSbar[%s]" % (name, vals[0]))
+            self.modelBuilder.doVar(f"M{name}_MSbar[{vals[0]}]")
 
             if name in ("W", "Z"):
                 #                # Ellis cv == v (mv^(2 e)/M^(1 + 2 e))
@@ -216,7 +214,7 @@ class ResolvedC6(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", "MH,CW,CZ,Ctop,Cb,Ctau,Cmu")
         else:
             if self.modelBuilder.out.var("MH"):

@@ -25,6 +25,7 @@
 #include <TSystem.h>
 #include <TStopwatch.h>
 #include <TTree.h>
+#include <TInterpreter.h>
 
 #include <RooAbsData.h>
 #include <RooAbsPdf.h>
@@ -47,8 +48,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/algorithm/string.hpp> 
+
 #include <regex>
 
 #include "../interface/LimitAlgo.h"
@@ -94,7 +94,15 @@ std::string defineBackgroundOnlyModelParameterExpression_ = "";
 std::string Combine::trackParametersNameString_="";
 std::string Combine::trackErrorsNameString_="";
 std::string Combine::textToWorkspaceString_="";
-std::string Combine::nllBackend_ = "combine";
+
+std::string& Combine::nllBackend() {
+  static std::string nllBackend_ = "combine";
+  return nllBackend_;
+}
+
+void Combine::setNllBackend(std::string const &val) {
+  nllBackend() = val;
+}
 
 std::vector<std::pair<RooAbsReal*,float> > Combine::trackedParametersMap_;
 std::vector<std::pair<RooRealVar*,float> > Combine::trackedErrorsMap_;
@@ -214,6 +222,18 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   makeToyGenSnapshot_ = (method == "FitDiagnostics" && !vm.count("justFit"));
 }
 
+namespace {
+  std::string removeDuplicateCommas(std::string const& input) {
+    std::string output;
+    for (std::size_t i = 0; i < input.size(); ++i) {
+      if (i > 0 && input[i] == ',' && input[i] == input[i - 1])
+        continue;
+      output += input[i];
+    }
+    return output;
+  }
+}  // namespace
+
 std::string Combine::parseRegex(std::string instr, const RooArgSet *nuisances, RooWorkspace *w) {
   // expand regexps inside the "rgx{}" option
   while (instr.find("rgx{") != std::string::npos) {          
@@ -235,7 +255,7 @@ std::string Combine::parseRegex(std::string instr, const RooArgSet *nuisances, R
     }
 
     instr = prestr+matchingParams+poststr;
-    instr = boost::replace_all_copy(instr, ",,", ","); 
+    instr = removeDuplicateCommas(instr);
   }
 
   // expand regexps inside the "var{}" option        
@@ -262,7 +282,7 @@ std::string Combine::parseRegex(std::string instr, const RooArgSet *nuisances, R
     }
 
     instr = prestr+matchingParams+poststr;
-    instr = boost::replace_all_copy(instr, ",,", ","); 
+    instr = removeDuplicateCommas(instr);
   }
 
   return instr;
@@ -415,11 +435,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
         if (defineBackgroundOnlyModelParameterExpression_ != "") {
           std::cerr << "Will make one from the signal ModelConfig " << modelConfigName_ << " setting " << std::endl;
-	  vector<string> SetParameterExpressionList;
-	  boost::split(SetParameterExpressionList, defineBackgroundOnlyModelParameterExpression_, boost::is_any_of(","));
+	  vector<string> SetParameterExpressionList = Utils::split(defineBackgroundOnlyModelParameterExpression_, ",");
 	  for (UInt_t p = 0; p < SetParameterExpressionList.size(); ++p) {
-	    vector<string> SetParameterExpression;
-	    boost::split(SetParameterExpression, SetParameterExpressionList[p], boost::is_any_of("="));
+	    vector<string> SetParameterExpression = Utils::split(SetParameterExpressionList[p], "=");
 	    if (SetParameterExpression.size() != 2) {
 		  std::cout << "Error parsing background model parameter expression : " << SetParameterExpressionList[p] << endl;
 	    } else {
@@ -610,8 +628,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (floatNuisances_=="all") {
           toFloat.add(*nuisances);
       } else {
-          std::vector<std::string> nuisToFloat;
-          boost::split(nuisToFloat, floatNuisances_, boost::is_any_of(","), boost::token_compress_on);
+          std::vector<std::string> nuisToFloat = Utils::split(floatNuisances_, "n");
           for (int k=0; k<(int)nuisToFloat.size(); k++) {
               if (nuisToFloat[k]=="") continue;
               else if(nuisToFloat[k]=="all") {
@@ -644,8 +661,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (freezeNuisances_=="allConstrainedNuisances") {
           toFreeze.add(*nuisances);
       } else {
-          std::vector<std::string> nuisToFreeze;
-          boost::split(nuisToFreeze, freezeNuisances_, boost::is_any_of(","), boost::token_compress_on);
+          std::vector<std::string> nuisToFreeze = Utils::split(freezeNuisances_, ",");
           for (int k=0; k<(int)nuisToFreeze.size(); k++) {
               if (nuisToFreeze[k]=="") continue;
               else if(nuisToFreeze[k]=="allConstrainedNuisances") {
@@ -679,11 +695,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   if (freezeNuisanceGroups_ != "") {
-      std::vector<string> nuisanceGroups;
-      boost::algorithm::split(nuisanceGroups,freezeNuisanceGroups_,boost::algorithm::is_any_of(","));
+      std::vector<string> nuisanceGroups = Utils::split(freezeNuisanceGroups_, ",");
       for (std::vector<string>::iterator ng_it=nuisanceGroups.begin();ng_it!=nuisanceGroups.end();ng_it++){
         bool freeze_complement=false;
-      	if (boost::algorithm::starts_with((*ng_it),"^")){
+      	if (Utils::starts_with(*ng_it,"^")){
           freeze_complement=true;
           (*ng_it).erase(0,1);
         } 
@@ -716,8 +731,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   if (freezeWithAttributes_ != "") {
-    std::vector<string> nuisanceAttrs;
-    boost::algorithm::split(nuisanceAttrs,freezeWithAttributes_,boost::algorithm::is_any_of(","));
+    std::vector<string> nuisanceAttrs = Utils::split(freezeWithAttributes_, ",");
     for (auto const& attr : nuisanceAttrs) {
       RooArgSet toFreeze;
       if (nuisances) {
@@ -842,11 +856,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       // Was r also specified in --setPhysicsModelParameters?
       bool rInParamExp = false;
       if (setPhysicsModelParameterExpression_ != "") {
-        vector<string> SetParameterExpressionList;
-        boost::split(SetParameterExpressionList, setPhysicsModelParameterExpression_, boost::is_any_of(","));
+        vector<string> SetParameterExpressionList = Utils::split(setPhysicsModelParameterExpression_, ",");
         for (UInt_t p = 0; p < SetParameterExpressionList.size(); ++p) {
-          vector<string> SetParameterExpression;
-          boost::split(SetParameterExpression, SetParameterExpressionList[p], boost::is_any_of("="));
+          vector<string> SetParameterExpression = Utils::split(SetParameterExpressionList[p], "=");
           if (SetParameterExpression.size() == 2 && SetParameterExpression[0] == "r") {
             rInParamExp = true;
             break;
@@ -1227,7 +1239,7 @@ void Combine::addBranches(const std::string& trackString, RooWorkspace* w, std::
     std::stringstream ss(trackString);
     std::string token;
     while(std::getline(ss,token,',')) {
-      if (boost::starts_with(token, "rgx{") && boost::ends_with(token, "}")) {
+      if (Utils::starts_with(token, "rgx{") && token.back() == '}') {
           std::string reg_esp = token.substr(4, token.size()-5);
           std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
           std::regex rgx( reg_esp, std::regex::ECMAScript);
@@ -1256,4 +1268,75 @@ void Combine::addBranches(const std::string& trackString, RooWorkspace* w, std::
     const char * token = (it.first)->GetName();
     addBranch((std::string("tracked")+vtype+"_"+token).c_str(), &(it.second), (std::string("tracked")+vtype+"_"+token+std::string("/F")).c_str());
   }
+}
+
+std::unique_ptr<RooAbsReal> combineCreateNLL(
+    RooAbsPdf &pdf, RooAbsData &data, RooArgSet const *constrain, bool offset, bool warnAboutDifferentBackend) {
+  RooLinkedList cmdList;
+
+  // If "constrain" is a nullptr, it implies automatic constraint parameter selection.
+  RooCmdArg constrainCmdArg = constrain ? RooFit::Constrain(*constrain) : RooCmdArg();
+  cmdList.Add(&constrainCmdArg);
+
+  RooCmdArg offsetCmdArg = RooFit::Offset(offset);
+  cmdList.Add(&offsetCmdArg);
+
+  bool isSimultaneousOpt = dynamic_cast<RooSimultaneousOpt const *>(&pdf);
+  std::string evalBackend = Combine::nllBackend();
+
+  // Alternative evaluation backends are only supported from ROOT 6.30.
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 30, 0)
+  return std::unique_ptr<RooAbsReal>{pdf.createNLL(data, cmdList)};
+#else
+  // If the backend is "combine" we call createNLL without any specific
+  // EvalBackend().
+  if (evalBackend == "combine") {
+    return std::unique_ptr<RooAbsReal>{pdf.createNLL(data, cmdList)};
+  }
+  // The default evaluation backend is "combine" for the RooSimultaneousOpt,
+  // and whatever the default is in RooFit otherwise.
+  std::string defaultEvalBackend =
+      isSimultaneousOpt ? "combine" : RooFit::EvalBackend(RooFit::EvalBackend::defaultValue()).name();
+
+  // Only the RooSimultaneousOpt provides the "combine" backend. If the backend
+  // is set to "combine" but the pdf is not a RooSimultaneousOpt, fall back to
+  // the default in RooFit.
+  if (!isSimultaneousOpt && evalBackend == "combine")
+    evalBackend = defaultEvalBackend;
+
+  // If the evaluation backend is not the default, emit a warnings
+  if (warnAboutDifferentBackend && evalBackend != defaultEvalBackend) {
+    std::cerr << "WARNING! You set the NLL evaluation backend to \"" << evalBackend
+              << "\", which is not the default. This code path is not validated. Please don't use it for production!"
+              << std::endl;
+  }
+
+  RooCmdArg evalBackendCmdArg = RooFit::EvalBackend(evalBackend);
+  cmdList.Add(&evalBackendCmdArg);
+
+  // If we use "codegen", we need to declare the math functions to the
+  // interpreter.
+  static bool declaredMathFuncs = false;
+  if ((evalBackend == "codegen" || evalBackend == "codegen_no_grad") && !declaredMathFuncs) {
+    gInterpreter->Declare("#include <HiggsAnalysis/CombinedLimit/interface/CombineMathFuncs.h>");
+    declaredMathFuncs = true;
+  }
+
+  // If we don't use the "combine" backend, use the base class implementation
+  // (and not the one of the RooSimultaneousOpt).
+  if (isSimultaneousOpt) {
+    return static_cast<RooSimultaneousOpt &>(pdf).createNLLPassthrough(data, cmdList);
+  } else {
+    return std::unique_ptr<RooAbsReal>{pdf.createNLL(data, cmdList)};
+  }
+#endif
+}
+
+ToCleanUp::~ToCleanUp() {
+      if (tfile) { tfile->Close(); delete tfile; }
+      if (!file.empty()) {  
+         unlink(file.c_str());  // FIXME, we should check that the file deleted safely but currently when running HybridNew, we get a status of -1 even though the file is in fact removed?!
+ //if (unlink(file.c_str()) == -1) std::cerr << "Failed to delete temporary file " << file << ": " << strerror(errno) << std::endl;
+      }
+      if (!path.empty()) {  boost::filesystem::remove_all(path); }
 }

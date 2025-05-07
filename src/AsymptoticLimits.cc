@@ -20,8 +20,6 @@
 #include "../interface/AsimovUtils.h"
 #include "../interface/CombineLogger.h"
 
-#include <boost/bind.hpp>
-
 using namespace RooStats;
 
 double AsymptoticLimits::rAbsAccuracy_ = 0.0005;
@@ -169,8 +167,8 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
   }
 
   RooArgSet constraints; if (withSystematics) constraints.add(*mc_s->GetNuisanceParameters());
-  nllD_.reset(mc_s->GetPdf()->createNLL(data,   RooFit::Constrain(constraints)));
-  nllA_.reset(mc_s->GetPdf()->createNLL(asimov, RooFit::Constrain(constraints)));
+  nllD_ = combineCreateNLL(*mc_s->GetPdf(), data,   &constraints, /*offset=*/false);
+  nllA_ = combineCreateNLL(*mc_s->GetPdf(), asimov, &constraints, /*offset=*/false);
 
   if (verbose > 0) std::cout << (qtilde_ ? "Restricting" : "Not restricting") << " " << r->GetName() << " to positive values." << std::endl;
   if (verbose > 1) params_->Print("V");
@@ -397,7 +395,7 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
     r->setError(0.1*r->getMax());
     //r->removeMax();
     
-    std::unique_ptr<RooAbsReal> nll(mc_s->GetPdf()->createNLL(*asimov, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+    auto nll = combineCreateNLL(*mc_s->GetPdf(), *asimov, /*constrain=*/mc_s->GetNuisanceParameters(), /*offset=*/false);
     CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained, r);
     //minim.setStrategy(minimizerStrategy_);
     minim.setErrorLevel(0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0), 2)); // the 0.5 is because qmu is -2*NLL
@@ -690,7 +688,7 @@ float AsymptoticLimits::calculateLimitFromGrid(RooRealVar *r , double quantile, 
 	}	
 	
 	// Now order the values by r
-	std::sort(thevals.begin(),thevals.end(),boost::bind(&std::pair<float, float>::first, _1)<boost::bind(&std::pair<float, float>::first, _2));
+	std::sort(thevals.begin(),thevals.end(), [](auto const& p1, auto const& p2) { return p1.first < p2.first; });
 	// Now find two values of r below and above the threshold alpha
 	double rlower = r->getMin();
 	double rupper = r->getMax();

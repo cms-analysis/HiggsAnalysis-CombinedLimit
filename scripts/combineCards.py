@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import, print_function
 
 import os.path
 import re
@@ -7,7 +6,6 @@ from optparse import OptionParser
 from sys import argv, exit
 
 import six
-from six.moves import range
 
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 
@@ -102,7 +100,7 @@ options.allowNoBackground = True
 options.evaluateEdits = False
 
 if options.nuisVetoFile:
-    for line in open(options.nuisVetoFile, "r"):
+    for line in open(options.nuisVetoFile):
         options.nuisancesToExclude.append(re.compile(line.strip()))
 
 
@@ -159,7 +157,7 @@ for ich, fname in enumerate(args):
         file = gzip.open(fname, "rt")
         fname = fname[:-3]
     else:
-        file = open(fname, "r")
+        file = open(fname)
     DC = parseCard(file, options)
     singlebin = len(DC.bins) == 1
     if label == ".":
@@ -217,7 +215,7 @@ for ich, fname in enumerate(args):
                     import warnings
 
                     warning_message = (
-                        "\nYou probably have one or more regularization term(s) in datacard {}.\n".format(fname)
+                        f"\nYou probably have one or more regularization term(s) in datacard {fname}.\n"
                         + "A constraint term is a line that looks like the following:\n\n"
                         + "\tconstr0 constr @3*(@0-2*@1+@2) r_0,r_1,r_2,regularize[0.] delta[10.]\n\n"
                     )
@@ -231,7 +229,7 @@ for ich, fname in enumerate(args):
                     warnings.warn(warning_message, RuntimeWarning)
                     break
                 if type(errline[b][p]) == list:
-                    r = "%s/%s" % (
+                    r = "{}/{}".format(
                         FloatToString(errline[b][p][0]),
                         FloatToString(errline[b][p][1]),
                     )
@@ -261,9 +259,7 @@ for ich, fname in enumerate(args):
                     for b, v in systeffect.items():
                         othereffect[b] = v
                 else:
-                    raise RuntimeError(
-                        "File %s defines systematic %s as using pdf %s, while a previous file defines it as using %s" % (fname, lsyst, pdf, otherpdf)
-                    )
+                    raise RuntimeError(f"File {fname} defines systematic {lsyst} as using pdf {pdf}, while a previous file defines it as using {otherpdf}")
             else:
                 if pdf == "gmN" and int(pdfargs[0]) != int(otherargs[0]):
                     raise RuntimeError(
@@ -276,11 +272,11 @@ for ich, fname in enumerate(args):
             pdfargs = [str(x) for x in pdfargs]
             systlines[lsyst] = [pdf, pdfargs, systeffect, nofloat]
     # flat params
-    for K in six.iterkeys(DC.flatParamNuisances):
+    for K in DC.flatParamNuisances.keys():
         flatParamNuisances[K] = True
     for K in DC.extArgs.keys():
         extArgs[K] = DC.extArgs[K]
-    for K in six.iterkeys(DC.binParFlags):
+    for K in DC.binParFlags.keys():
         tbin = label if singlebin else label + K
         binParFlags[tbin] = DC.binParFlags[K]
         bpf_new2old[tbin] = K
@@ -340,7 +336,7 @@ for ich, fname in enumerate(args):
                 continue
             obsline += [FloatToString(DC.obs[b])]
     # get the groups - keep nuisances in a set so that they are never repetitions
-    for groupName, nuisanceNames in six.iteritems(DC.groups):
+    for groupName, nuisanceNames in DC.groups.items():
         if groupName in groups:
             groups[groupName].update(set(nuisanceNames))
         else:
@@ -349,14 +345,14 @@ for ich, fname in enumerate(args):
     # Finally report nuisance edits propagated to end of card
     for editline in DC.nuisanceEditLines:
         if len(editline) == 2:
-            nuisanceEdits.append("%s %s" % (editline[0], " ".join(editline[1])))
+            nuisanceEdits.append("{} {}".format(editline[0], " ".join(editline[1])))
         elif len(editline) == 4 and not editline[3]:
             nuisanceEdits.append(" ".join(editline[0:3]))
         else:
             tmp_chan = editline[2]
             tmp_proc = editline[1]
             if tmp_chan == "*":  # all channels
-                tmp_chan = "%s(%s)" % (label, "|".join(c for c in DC.bins)) if len(DC.bins) > 1 else label
+                tmp_chan = "{}({})".format(label, "|".join(c for c in DC.bins)) if len(DC.bins) > 1 else label
                 if "ifexists" not in editline[3]:
                     editline[3].append("ifexists")
             else:
@@ -365,7 +361,7 @@ for ich, fname in enumerate(args):
                 tmp_proc = "(%s)" % ("|".join(p for p in DC.processes))
                 if "ifexists" not in editline[3]:
                     editline[3].append("ifexists")
-            nuisanceEdits.append("%s %s %s %s" % (editline[0], tmp_proc, tmp_chan, " ".join(editline[3])))
+            nuisanceEdits.append("{} {} {} {}".format(editline[0], tmp_proc, tmp_chan, " ".join(editline[3])))
 
 
 bins = []
@@ -467,7 +463,7 @@ for name in sysnamesSorted:
 for pname, pargs in paramSysts.items():
     print("%-12s  param  %s" % (pname, " ".join(pargs)))
 
-for pname in six.iterkeys(flatParamNuisances):
+for pname in flatParamNuisances.keys():
     print("%-12s  flatParam" % pname)
 
 # filter rateParams to only include those that are not any formulas
@@ -484,9 +480,9 @@ for tbin, tproc, params in rateParamsPerCard:
     for param in simple_params:
         print("%-12s  rateParam %s %s %s" % (param[0][0], tbin + " " + tproc, " ".join(param[0][1:-1]), param[1]))
         # param[0][-1] is parameter type, see DatacardParser:addRateParam()
-for dname in six.iterkeys(discreteNuisances):
+for dname in discreteNuisances.keys():
     print("%-12s  discrete" % dname)
-for ext in six.iterkeys(extArgs):
+for ext in extArgs.keys():
     print("%s" % " ".join(extArgs[ext]))
 
 # after including all the 'simple' parameters, include the ones with formulas
@@ -496,14 +492,14 @@ for tbin, tproc, params in rateParams_withFormula:
         print("%-12s  rateParam %s %s %s" % (param[0][0], tbin + " " + tproc, " ".join(param[0][1:-1]), param[1]))
 
 
-for groupName, nuisanceNames in six.iteritems(groups):
+for groupName, nuisanceNames in groups.items():
     nuisances = " ".join(nuisanceNames)
     print("%(groupName)s group = %(nuisances)s" % locals())
-for bpf in six.iterkeys(binParFlags):
+for bpf in binParFlags.keys():
     if isVetoed(bpf_new2old[bpf], options.channelVetos) or not isIncluded(bpf_new2old[bpf], options.channelIncludes):
         continue
     if len(binParFlags[bpf]) == 1:
-        print("%s autoMCStats %g" % (bpf, binParFlags[bpf][0]))
+        print(f"{bpf} autoMCStats {binParFlags[bpf][0]:g}")
     if len(binParFlags[bpf]) == 2:
         print("%s autoMCStats %g %i" % (bpf, binParFlags[bpf][0], binParFlags[bpf][1]))
     if len(binParFlags[bpf]) == 3:
@@ -519,7 +515,7 @@ for edit in nuisanceEdits:
     print("nuisance edit ", edit)
 
 if options.editNuisFile:
-    file = open(options.editNuisFile, "r")
+    file = open(options.editNuisFile)
     str = file.read()
     print(str)
 

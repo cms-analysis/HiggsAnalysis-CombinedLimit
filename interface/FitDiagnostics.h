@@ -12,7 +12,6 @@
 #include <TTree.h>
 #include <RooArgList.h>
 #include <RooFitResult.h>
-#include <boost/utility.hpp>
 #include <map>
 
 class FitDiagnostics : public FitterAlgoBase {
@@ -105,10 +104,17 @@ protected:
     protected:
         RooFitResult *res_;
   };
-  class ToySampler : public NuisanceSampler, boost::noncopyable {
+  class ToySampler : public NuisanceSampler {
     public:
         ToySampler(RooAbsPdf *pdf, const RooArgSet *nuisances) ;    
         ~ToySampler() override ;
+
+        // Class should be not be copyable
+        ToySampler(ToySampler const&) = delete;
+        ToySampler(ToySampler &&) = delete;
+        ToySampler& operator=(ToySampler const&) = delete;
+        ToySampler& operator=(ToySampler &&) = delete;
+
         void  generate(int ntoys) override;
         const RooAbsCollection & get(int itoy) override;
         const RooAbsCollection & centralValues() override;

@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import
-from __future__ import print_function
 import ROOT
 import math
 import json
@@ -9,7 +7,6 @@ import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import HiggsAnalysis.CombinedLimit.tool_base.rounding as rounding
 import HiggsAnalysis.CombinedLimit.calculate_pulls as CP
 import six
-from six.moves import range
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -154,7 +151,7 @@ else:
 # Now compute each parameters ranking according to: largest pull, strongest constraint, and largest impact
 ranking_pull = sorted([(i, abs(v["pull"])) for i, v in enumerate(params)], reverse=True, key=lambda X: X[1])
 ranking_constraint = sorted([(i, abs(v["constraint"])) for i, v in enumerate(params)], reverse=False, key=lambda X: X[1])
-ranking_impact = sorted([(i, abs(v["impact_{}".format(POI)])) for i, v in enumerate(params)], reverse=True, key=lambda X: X[1])
+ranking_impact = sorted([(i, abs(v[f"impact_{POI}"])) for i, v in enumerate(params)], reverse=True, key=lambda X: X[1])
 for i in range(len(params)):
     params[ranking_pull[i][0]]["rank_pull"] = i + 1
     params[ranking_impact[i][0]]["rank_impact"] = i + 1
@@ -179,12 +176,12 @@ if args.color_groups is not None:
 
 seen_types = set()
 
-for name, col in six.iteritems(colors):
+for name, col in colors.items():
     color_hists[name] = ROOT.TH1F()
     plot.Set(color_hists[name], FillColor=col, Title=name)
 
 if args.color_groups is not None:
-    for name, col in six.iteritems(color_groups):
+    for name, col in color_groups.items():
         color_group_hists[name] = ROOT.TH1F()
         plot.Set(color_group_hists[name], FillColor=col, Title=name)
 
@@ -238,19 +235,19 @@ def MakeSummaryPage():
     latex.DrawLatex(0.3, 0.85, "N(> 1 s.d.)")
     latex.DrawLatex(0.3, 0.8, "N(> 2 s.d.)")
     latex.DrawLatex(0.3, 0.75, "N(> 3 s.d.)")
-    latex.DrawLatex(0.33, 0.85, "{}".format(n_larger[0]))
-    latex.DrawLatex(0.33, 0.8, "{}".format(n_larger[1]))
-    latex.DrawLatex(0.33, 0.75, "{}".format(n_larger[2]))
-    latex.DrawLatex(0.42, 0.85, "#color[2]{{{:.2f}}}".format(n_entries * 2.0 * ROOT.Math.normal_cdf_c(1.0)))
-    latex.DrawLatex(0.42, 0.8, "#color[2]{{{:.2f}}}".format(n_entries * 2.0 * ROOT.Math.normal_cdf_c(2.0)))
-    latex.DrawLatex(0.42, 0.75, "#color[2]{{{:.2f}}}".format(n_entries * 2.0 * ROOT.Math.normal_cdf_c(3.0)))
+    latex.DrawLatex(0.33, 0.85, f"{n_larger[0]}")
+    latex.DrawLatex(0.33, 0.8, f"{n_larger[1]}")
+    latex.DrawLatex(0.33, 0.75, f"{n_larger[2]}")
+    latex.DrawLatex(0.42, 0.85, f"#color[2]{{{n_entries * 2.0 * ROOT.Math.normal_cdf_c(1.0):.2f}}}")
+    latex.DrawLatex(0.42, 0.8, f"#color[2]{{{n_entries * 2.0 * ROOT.Math.normal_cdf_c(2.0):.2f}}}")
+    latex.DrawLatex(0.42, 0.75, f"#color[2]{{{n_entries * 2.0 * ROOT.Math.normal_cdf_c(3.0):.2f}}}")
 
     plot.DrawCMSLogo(ROOT.gPad, "CMS", args.cms_label, 0, 0.20, 0.00, 0.00)
     s_nom, s_hi, s_lo = GetRounded(POI_fit[1], POI_fit[2] - POI_fit[1], POI_fit[1] - POI_fit[0])
     if not args.blind:
         plot.DrawTitle(
             ROOT.gPad,
-            "#hat{%s} = %s^{#plus%s}_{#minus%s}%s" % (Translate(POI, translate), s_nom, s_hi, s_lo, "" if args.units is None else " " + args.units),
+            "#hat{{{}}} = {}^{{#plus{}}}_{{#minus{}}}{}".format(Translate(POI, translate), s_nom, s_hi, s_lo, "" if args.units is None else " " + args.units),
             3,
             0.27,
         )
@@ -323,7 +320,7 @@ def MakeSummaryPage():
     SetTitleText(latex)
     latex.DrawLatex(0.03, 0.95, "Largest impacts")
     SetFormulaText(latex)
-    latex.DrawLatex(0.97, 0.95, "#Delta{}(#pm#sigma_{{#theta}})/#sigma_{{{}}}".format(POI, POI))
+    latex.DrawLatex(0.97, 0.95, f"#Delta{POI}(#pm#sigma_{{#theta}})/#sigma_{{{POI}}}")
     DrawBoxes(ROOT.kBlue - 10)
     for i in range(nDraw):
         par = params[ranking_impact[i][0]]
@@ -346,7 +343,7 @@ def MakeSummaryPage():
         for col in [1, 2, 3, 4, 6, 7, 15, ROOT.kOrange]:
             marker_styles.append((style, col))
     curr_marker = 0
-    for parname, entries in six.iteritems(occurances):
+    for parname, entries in occurances.items():
         # print(parname, entries)
         multiple = entries.count(None) <= 1
         if multiple:
@@ -364,7 +361,7 @@ def MakeSummaryPage():
             if curr_marker >= len(marker_styles):
                 curr_marker = 0
 
-    canv.Print("{}_summary.pdf".format(args.output))
+    canv.Print(f"{args.output}_summary.pdf")
 
 
 if args.summary:
@@ -456,7 +453,7 @@ for page in range(n):
             y1 = y1 + ((float(i) + 0.5) * h)
             x1 = x1 + (1 - pads[0].GetRightMargin() - x1) / 2.0
             s_nom, s_hi, s_lo = GetRounded(fit[1], fit[2] - fit[1], fit[1] - fit[0])
-            text_entries.append((x1, y1, "%s^{#plus%s}_{#minus%s}" % (s_nom, s_hi, s_lo)))
+            text_entries.append((x1, y1, f"{s_nom}^{{#plus{s_hi}}}_{{#minus{s_lo}}}"))
             redo_boxes.append(i)
         g_impacts_hi.SetPoint(i, 0, float(i) + 0.5)
         g_impacts_lo.SetPoint(i, 0, float(i) + 0.5)
@@ -521,7 +518,7 @@ for page in range(n):
     h_impacts = ROOT.TH2F("impacts", "impacts", 6, -max_impact * 1.1, max_impact * 1.1, n_params, 0, n_params)
     impt_x_title = "#Delta#hat{%s}" % (Translate(POI, translate))
     if args.relative:
-        impt_x_title = "#Delta#hat{%s}/#sigma_{%s}" % (Translate(POI, translate), Translate(POI, translate))
+        impt_x_title = f"#Delta#hat{{{Translate(POI, translate)}}}/#sigma_{{{Translate(POI, translate)}}}"
 
     plot.Set(h_impacts.GetXaxis(), LabelSize=0.03, TitleSize=0.04, Ndivisions=505, Title=impt_x_title)
     plot.Set(h_impacts.GetYaxis(), LabelSize=0, TickLength=0.0)
@@ -572,13 +569,13 @@ for page in range(n):
     if args.color_groups is not None:
         legend2 = ROOT.TLegend(0.01, 0.94, leg_width, 0.99, "", "NBNDC")
         legend2.SetNColumns(2)
-        for name, h in six.iteritems(color_group_hists):
+        for name, h in color_group_hists.items():
             legend2.AddEntry(h, Translate(name, translate), "F")
         legend2.Draw()
     elif len(seen_types) > 1:
         legend2 = ROOT.TLegend(0.01, 0.94, leg_width, 0.99, "", "NBNDC")
         legend2.SetNColumns(2)
-        for name, h in six.iteritems(color_hists):
+        for name, h in color_hists.items():
             if name == "Unrecognised":
                 continue
             legend2.AddEntry(h, name, "F")
@@ -589,7 +586,7 @@ for page in range(n):
     if not args.blind:
         plot.DrawTitle(
             pads[1],
-            "#hat{%s} = %s^{#plus%s}_{#minus%s}%s" % (Translate(POI, translate), s_nom, s_hi, s_lo, "" if args.units is None else " " + args.units),
+            "#hat{{{}}} = {}^{{#plus{}}}_{{#minus{}}}{}".format(Translate(POI, translate), s_nom, s_hi, s_lo, "" if args.units is None else " " + args.units),
             3,
             0.27,
         )

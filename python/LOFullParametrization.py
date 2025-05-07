@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import os
 
 import ROOT
@@ -37,7 +35,7 @@ class C5(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", "kV,ktau,kquark,kgluon,kgamma,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -81,7 +79,7 @@ class C5(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::c6_BRscal_hgg("@0*@0/@1", kgamma, c6_Gscal_tot)')
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "c6_XSBRscal_%s_%s" % (production, decay)
+        name = f"c6_XSBRscal_{production}_{decay}"
         print("[LOFullParametrization::C6]")
         print(name, production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
@@ -95,7 +93,7 @@ class C5(SMLikeHiggsModel):
                 BRscal = decay
             if decay in ["hww", "hzz"]:
                 BRscal = "hvv"
-            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, c6_BRscal_%s)' % (name, XSscal, BRscal))
+            self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", {XSscal}, c6_BRscal_{BRscal})')
         return name
 
 
@@ -137,7 +135,7 @@ class C6(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", pois + ",MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -190,7 +188,7 @@ class C6(SMLikeHiggsModel):
             self.modelBuilder.factory_('expr::c6_BRscal_hzg("@0*@0/@1", kZgamma, c6_Gscal_tot)')
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "c6_XSBRscal_%s_%s" % (production, decay)
+        name = f"c6_XSBRscal_{production}_{decay}"
         print("[LOFullParametrization::C6]")
         print(name, production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
@@ -200,7 +198,7 @@ class C6(SMLikeHiggsModel):
             if production == "ttH":
                 XSscal = "ktop"
             if production in ["tHq", "tHW"]:
-                XSscal = "Scaling_%s_%s" % (production, energy)
+                XSscal = f"Scaling_{production}_{energy}"
             BRscal = "hgg"
             if decay in ["hbb", "htt"]:
                 BRscal = decay
@@ -209,9 +207,9 @@ class C6(SMLikeHiggsModel):
             if self.doHZg and decay == "hzg":
                 BRscal = "hzg"
             if "Scaling" in XSscal:  # already squared, just put XSscal
-                self.modelBuilder.factory_('expr::%s("@0 * @1", %s, c6_BRscal_%s)' % (name, XSscal, BRscal))
+                self.modelBuilder.factory_(f'expr::{name}("@0 * @1", {XSscal}, c6_BRscal_{BRscal})')
             else:  # plain coupling, put (XSscal)^2
-                self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, c6_BRscal_%s)' % (name, XSscal, BRscal))
+                self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", {XSscal}, c6_BRscal_{BRscal})')
 
         return name
 
@@ -258,7 +256,7 @@ class C7(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", pois + ",MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -313,7 +311,7 @@ class C7(SMLikeHiggsModel):
             self.modelBuilder.factory_('expr::c7_BRscal_hinv("@0>=0?@0:-100", BRInvUndet)')
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "c7_XSBRscal_%s_%s" % (production, decay)
+        name = f"c7_XSBRscal_{production}_{decay}"
         print("[LOFullParametrization::C7]")
         print(name, production, decay, energy)
         if self.modelBuilder.out.function(name) == None:
@@ -331,7 +329,7 @@ class C7(SMLikeHiggsModel):
                 BRscal = "hzg"
             if self.doHInv and decay == "hinv":
                 BRscal = "hinv"
-            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, c7_BRscal_%s)' % (name, XSscal, BRscal))
+            self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", {XSscal}, c7_BRscal_{BRscal})')
         return name
 
 
@@ -368,7 +366,7 @@ class PartialWidthsModel(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", "r_WZ,r_gZ,r_tZ,r_bZ,r_mZ,r_topglu,r_Zglu,c_gluZ,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -419,7 +417,7 @@ class PartialWidthsModel(SMLikeHiggsModel):
         }
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "c7_XSBRscal_%s_%s" % (production, decay)
+        name = f"c7_XSBRscal_{production}_{decay}"
         if production == "qqH":
             name += "_%s" % energy
         if self.modelBuilder.out.function(name):
@@ -438,5 +436,5 @@ class PartialWidthsModel(SMLikeHiggsModel):
             pscale,
             dscale,
         )
-        self.modelBuilder.factory_("prod::%s(%s,sc_gluZ,%s)" % (name, dscale, pscale))
+        self.modelBuilder.factory_(f"prod::{name}({dscale},sc_gluZ,{pscale})")
         return name

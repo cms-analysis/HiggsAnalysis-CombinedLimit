@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from __future__ import absolute_import
 
 import os
 from optparse import OptionGroup, OptionParser
@@ -25,7 +24,7 @@ if len(args) < 1:
 
 
 drop_uncerts = []
-file = open(options.drop_list, "r")
+file = open(options.drop_list)
 for line in file:
     drop_uncerts.append(line[: line.rfind("\n")])
 file.close()
@@ -34,7 +33,7 @@ for card in os.listdir(args[0]):
     if not card.endswith(".txt"):
         continue
     path = args[0] + "/" + card
-    old_file = open(path, "r")
+    old_file = open(path)
     new_file = open(path + "_tmp", "w")
     for line in old_file:
         words = line.lstrip().split()

@@ -28,12 +28,19 @@ public:
 
   RooSimultaneousOpt *clone(const char* name=0) const override { return new RooSimultaneousOpt(*this, name); }
 
-  ~RooSimultaneousOpt() override ;
-
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,30,0)
   RooAbsReal* createNLL(RooAbsData& data, const RooLinkedList& cmdList) override;
+
+  std::unique_ptr<RooAbsReal> createNLLPassthrough(RooAbsData& data, const RooLinkedList& cmdList) {
+    return std::unique_ptr<RooAbsReal>{RooAbsPdf::createNLL(data, cmdList)};
+  }
 #else
   std::unique_ptr<RooAbsReal> createNLLImpl(RooAbsData& data, const RooLinkedList& cmdList) override;
+
+  // To override the specific likelihood creation code path for the RooSimultaneousOpt.
+  std::unique_ptr<RooAbsReal> createNLLPassthrough(RooAbsData& data, const RooLinkedList& cmdList) {
+    return RooAbsPdf::createNLLImpl(data, cmdList);
+  }
 #endif
 
   const RooArgList & extraConstraints() const { return _extraConstraints; }

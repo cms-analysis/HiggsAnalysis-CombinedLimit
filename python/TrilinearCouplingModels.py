@@ -1,9 +1,6 @@
-from __future__ import absolute_import, print_function
-
 import json
 import os
 
-from six.moves import range, zip
 
 import ROOT
 from HiggsAnalysis.CombinedLimit.LHCHCGModels import LHCHCGBaseModel
@@ -89,7 +86,7 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
         # probably a better way to code this since the partial width expressions are being repeated when we write the BR
         for dec in cGammap.keys():
             valC1 = cGammap[dec]
-            self.modelBuilder.factory_('expr::kl_scalBR_%s("(@0-1)*%g",kappa_lambda)' % (dec, valC1))
+            self.modelBuilder.factory_(f'expr::kl_scalBR_{dec}("(@0-1)*{valC1:g}",kappa_lambda)')
 
         # next make the partial widths, also including the kappas -> we want to include the term from the normal kappas and the one from the self-coupling
         self.modelBuilder.factory_('expr::kVkFkl_Gscal_Z("(@0*@0+@3)*@1*@2", kappa_V, SM_BR_hzz, HiggsDecayWidth_UncertaintyScaling_hzz, kl_scalBR_hzz)')
@@ -144,7 +141,7 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
         )
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "kVkFkl_XSBRscal_%s_%s_%s" % (production, decay, energy)
+        name = f"kVkFkl_XSBRscal_{production}_{decay}_{energy}"
         if self.modelBuilder.out.function(name) == None:
             # now make production scaling --> taken from Tab. 2 of https://arxiv.org/pdf/1607.04251v1.pdf, using formula from https://arxiv.org/pdf/1709.08649.pdf (eqn 18)
             cXSmap_7 = {
@@ -179,7 +176,7 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
             dZH = -1.536e-3
 
             if production in ["ggZH", "tHq", "tHW"]:
-                XSscal = ("@0", "Scaling_%s_%s" % (production, energy))
+                XSscal = ("@0", f"Scaling_{production}_{energy}")
             elif production in ["ggH", "qqH"]:
                 C1_map = cXSmaps[energy]
                 EWK = EWKmap_13[production]
@@ -195,7 +192,7 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
                         energy,
                     )
                 )
-                XSscal = ("@0", "kVkFkl_XSscal_%s_%s, " % (production, energy))
+                XSscal = ("@0", f"kVkFkl_XSscal_{production}_{energy}, ")
             elif production in ["ZH", "WH"]:
                 C1_map = cXSmaps[energy]
                 EWK = EWKmap_13[production]
@@ -203,7 +200,7 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
                     'expr::kVkFkl_XSscal_%s_%s("(@1*@1+(@0-1)*%g/%g)/((1-(@0*@0-1)*%g))",kappa_lambda,kappa_V)'
                     % (production, energy, C1_map[production], EWK, dZH)
                 )
-                XSscal = ("@0", "kVkFkl_XSscal_%s_%s, " % (production, energy))
+                XSscal = ("@0", f"kVkFkl_XSscal_{production}_{energy}, ")
             elif production == "ttH":
                 C1_map = cXSmaps[energy]
                 EWK = EWKmap_13[production]
@@ -211,7 +208,7 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
                     'expr::kVkFkl_XSscal_%s_%s("(@1*@1+(@0-1)*%g/%g)/((1-(@0*@0-1)*%g))",kappa_lambda,kappa_F)'
                     % (production, energy, C1_map[production], EWK, dZH)
                 )
-                XSscal = ("@0", "kVkFkl_XSscal_%s_%s, " % (production, energy))
+                XSscal = ("@0", f"kVkFkl_XSscal_{production}_{energy}, ")
             elif production == "bbH":
                 XSscal = ("@0*@0", "kappa_F")
             else:
@@ -223,7 +220,7 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
             if not self.modelBuilder.out.function("kVkFkl_BRscal_" + BRscal):
                 raise RuntimeError("Decay mode %s not supported" % decay)
 
-            self.modelBuilder.factory_('expr::%s("%s*@1", %s, kVkFkl_BRscal_%s)' % (name, XSscal[0], XSscal[1], BRscal))
+            self.modelBuilder.factory_(f'expr::{name}("{XSscal[0]}*@1", {XSscal[1]}, kVkFkl_BRscal_{BRscal})')
             print("[LHC-HCG Kappas]", name, production, decay, energy, ": ", end=" ")
             self.modelBuilder.out.function(name).Print("")
         return name
@@ -314,9 +311,9 @@ class TrilinearHiggsDifferential(PhysicsModel):
         C1_tH = []
         C1_VH = []
         datadir = os.environ["CMSSW_BASE"] + "/src/HiggsAnalysis/CombinedLimit/data/"
-        f_C1_ttH = open(datadir + "/trilinearHiggsModel/C1_values/ttH_C1.txt", "r")
-        f_C1_tH = open(datadir + "/trilinearHiggsModel/C1_values/tHj_C1.txt", "r")
-        f_C1_VH = open(datadir + "/trilinearHiggsModel/C1_values/VH_C1.txt", "r")
+        f_C1_ttH = open(datadir + "/trilinearHiggsModel/C1_values/ttH_C1.txt")
+        f_C1_tH = open(datadir + "/trilinearHiggsModel/C1_values/tHj_C1.txt")
+        f_C1_VH = open(datadir + "/trilinearHiggsModel/C1_values/VH_C1.txt")
         for genbin in f_C1_ttH:
             C1_ttH.append(float(genbin[genbin.find(":") + 1 : -2]))
         for genbin in f_C1_tH:
@@ -340,9 +337,7 @@ class TrilinearHiggsDifferential(PhysicsModel):
 
         # Loop over processes*gen bins in map to define how cross-section scales
         for proc in C1_map:
-            self.modelBuilder.factory_(
-                'expr::XSscal_%s("(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))",k_lambda)' % (proc, C1_map[proc], dZH, dZH, C1_map[proc], dZH)
-            )
+            self.modelBuilder.factory_(f'expr::XSscal_{proc}("(1+@0*{C1_map[proc]:g}+{dZH:g})/((1-(@0*@0-1)*{dZH:g})*(1+{C1_map[proc]:g}+{dZH:g}))",k_lambda)')
 
         # now do the scaling - taken from Tab. 1 of https://arxiv.org/pdf/1607.04251v1.pdf
         cGammap = {
@@ -360,9 +355,9 @@ class TrilinearHiggsDifferential(PhysicsModel):
         # for dec in ["hgg","hzz","hww","hgluglu","htt","hbb","hcc","hmm"]: # only do hgg for now
         for dec in ["hgg"]:  # only do hgg for now
             valC1 = cGammap[dec]
-            self.modelBuilder.factory_('expr::BRscal_%s("1+((@0-1)*(%g-%g)/(1+(@0-1)*%g))",k_lambda)' % (dec, valC1, cGTot, cGTot))
+            self.modelBuilder.factory_(f'expr::BRscal_{dec}("1+((@0-1)*({valC1:g}-{cGTot:g})/(1+(@0-1)*{cGTot:g}))",k_lambda)')
             for proc in C1_map:
-                self.modelBuilder.factory_('expr::XSBRscal_%s("@0*@1",XSscal_%s,BRscal_%s)' % (proc + "_" + dec, proc, dec))
+                self.modelBuilder.factory_('expr::XSBRscal_{}("@0*@1",XSscal_{},BRscal_{})'.format(proc + "_" + dec, proc, dec))
                 print("Made - ", "XSBRscal_%s" % (proc + "_" + dec))
 
     def getYieldScale(self, bin, process):
@@ -383,7 +378,7 @@ class TrilinearHiggsDifferential(PhysicsModel):
         return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "XSBRscal_%s_%s" % (production, decay)
+        name = f"XSBRscal_{production}_{decay}"
         print(name)
         # If name has been defined in doParameterOfInterest()
         if self.modelBuilder.out.function(name) == None:
@@ -476,7 +471,7 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
         # probably a better way to code this since the partial width expressions are being repeated when we write the BR
         for dec in cGammap.keys():
             valC1 = cGammap[dec]
-            self.modelBuilder.factory_('expr::kl_scalBR_%s("(@0-1)*%g",kappa_lambda)' % (dec, valC1))
+            self.modelBuilder.factory_(f'expr::kl_scalBR_{dec}("(@0-1)*{valC1:g}",kappa_lambda)')
 
         # next make the partial widths, also including the kappas -> we want to include the term from the normal kappas and the one from the self-coupling
         self.modelBuilder.factory_('expr::kVkFkl_Gscal_Z("(@0*@0+@3)*@1*@2", kappa_V, SM_BR_hzz, HiggsDecayWidth_UncertaintyScaling_hzz, kl_scalBR_hzz)')
@@ -534,7 +529,6 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
         trilinearcoeffs = {}
         jsonfile = open(
             os.path.join(self.SMH.datadir, "../trilinearHiggsModel/TrilinearCoeffSTXS.json"),
-            "r",
         )
         trilinearcoeffs = json.load(jsonfile)  # trilinear_coeff[STXSproc]["C1"] and trilinear_coeff[STXSproc]["EWK"]
         dZH = -1.536e-3
@@ -550,7 +544,7 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
                 "ggZH",
                 "tHW",
             ]:  # trilinear scaling is not available --> use only scaling from SMH
-                self.STXSScalingFunctions[production] = "Scaling_%s_%s" % (
+                self.STXSScalingFunctions[production] = "Scaling_{}_{}".format(
                     production,
                     energy,
                 )
@@ -565,7 +559,7 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
                     'expr::kVkFkl_XSscal_%s_%s("(@1+(@0-1)*%g/%g)/((1-(@0*@0-1)*%g))",kappa_lambda,Scaling_%s_%s)'
                     % (production, energy, C1, EWK, dZH, production, energy)
                 )
-                self.STXSScalingFunctions[production] = "kVkFkl_XSscal_%s_%s" % (
+                self.STXSScalingFunctions[production] = "kVkFkl_XSscal_{}_{}".format(
                     production,
                     energy,
                 )
@@ -580,7 +574,7 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
                         'expr::kVkFkl_XSscal_%s_%s("(@1+(@0-1)*%g/%g)/((1-(@0*@0-1)*%g))",kappa_lambda,Scaling_%s_%s)'
                         % (str(STXSprocname), energy, C1, EWK, dZH, production, energy)
                     )
-                    self.STXSScalingFunctions[str(STXSprocname)] = "kVkFkl_XSscal_%s_%s" % (str(STXSprocname), energy)
+                    self.STXSScalingFunctions[str(STXSprocname)] = f"kVkFkl_XSscal_{str(STXSprocname)}_{energy}"
 
             elif production in [
                 "ZH",
@@ -592,9 +586,9 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
                     C1 = trilinearcoeffs[str(STXSprocname)]["C1"]
                     EWK = trilinearcoeffs[str(STXSprocname)]["EWK"]
                     self.modelBuilder.factory_(
-                        'expr::kVkFkl_XSscal_%s_%s("(@1*@1+(@0-1)*%g/%g)/((1-(@0*@0-1)*%g))",kappa_lambda,kappa_V)' % (str(STXSprocname), energy, C1, EWK, dZH)
+                        f'expr::kVkFkl_XSscal_{str(STXSprocname)}_{energy}("(@1*@1+(@0-1)*{C1:g}/{EWK:g})/((1-(@0*@0-1)*{dZH:g}))",kappa_lambda,kappa_V)'
                     )
-                    self.STXSScalingFunctions[str(STXSprocname)] = "kVkFkl_XSscal_%s_%s" % (str(STXSprocname), energy)
+                    self.STXSScalingFunctions[str(STXSprocname)] = f"kVkFkl_XSscal_{str(STXSprocname)}_{energy}"
 
             elif production == "ttH":  # k-scaling combined with trilinear scaling specific for each stxs bin
                 for STXSprocname in trilinearcoeffs.keys():
@@ -603,13 +597,13 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
                     C1 = trilinearcoeffs[str(STXSprocname)]["C1"]
                     EWK = trilinearcoeffs[str(STXSprocname)]["EWK"]
                     self.modelBuilder.factory_(
-                        'expr::kVkFkl_XSscal_%s_%s("(@1*@1+(@0-1)*%g/%g)/((1-(@0*@0-1)*%g))",kappa_lambda,kappa_F)' % (str(STXSprocname), energy, C1, EWK, dZH)
+                        f'expr::kVkFkl_XSscal_{str(STXSprocname)}_{energy}("(@1*@1+(@0-1)*{C1:g}/{EWK:g})/((1-(@0*@0-1)*{dZH:g}))",kappa_lambda,kappa_F)'
                     )
-                    self.STXSScalingFunctions[str(STXSprocname)] = "kVkFkl_XSscal_%s_%s" % (str(STXSprocname), energy)
+                    self.STXSScalingFunctions[str(STXSprocname)] = f"kVkFkl_XSscal_{str(STXSprocname)}_{energy}"
 
             elif production == "bbH":  # k-scaling
-                self.modelBuilder.factory_('expr::kVkFkl_XSscal_%s_%s("@0*@0",kappa_F)' % (production, energy))
-                self.STXSScalingFunctions[production] = "kVkFkl_XSscal_%s_%s" % (
+                self.modelBuilder.factory_(f'expr::kVkFkl_XSscal_{production}_{energy}("@0*@0",kappa_F)')
+                self.STXSScalingFunctions[production] = "kVkFkl_XSscal_{}_{}".format(
                     production,
                     energy,
                 )
@@ -652,9 +646,9 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
         if not self.modelBuilder.out.function(BRscal):
             raise RuntimeError("Decay mode %s not supported" % decay)
 
-        XSBRscaling = "%s_%s" % (XSscal, BRscal)
+        XSBRscaling = f"{XSscal}_{BRscal}"
         if self.modelBuilder.out.function(XSBRscaling) == None:
-            self.modelBuilder.factory_('expr::%s("@0*@1", %s, %s)' % (XSBRscaling, XSscal, BRscal))
+            self.modelBuilder.factory_(f'expr::{XSBRscaling}("@0*@1", {XSscal}, {BRscal})')
             print()
             self.modelBuilder.out.function(XSBRscaling).Print("")
             self.modelBuilder.out.function(XSscal).Print("")

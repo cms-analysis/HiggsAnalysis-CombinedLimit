@@ -1,15 +1,13 @@
 #include "../interface/VerticalInterpPdf.h"
 #include "../interface/RooCheapProduct.h"
 
-#include "RooFit.h"
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,34,06)
+#include "RooFit/Detail/RooNormalizedPdf.h"
+#endif
+
 #include "Riostream.h"
 
-#include "TList.h"
-#include "RooRealProxy.h"
-#include "RooPlot.h"
 #include "RooRealVar.h"
-#include "RooAddGenContext.h"
-#include "RooRealConstant.h"
 #include "RooRealIntegral.h"
 #include "RooMsgService.h"
 #include "RooProdPdf.h"
@@ -20,26 +18,13 @@ ClassImp(VerticalInterpPdf)
 
 
 //_____________________________________________________________________________
-VerticalInterpPdf::VerticalInterpPdf() 
-{
-  // Default constructor
-  // coverity[UNINIT_CTOR]
-  _quadraticRegion = 0;
-  _pdfFloorVal = 1e-15;
-  _integralFloorVal = 1e-10;
-}
-
-
-//_____________________________________________________________________________
 VerticalInterpPdf::VerticalInterpPdf(const char *name, const char *title, const RooArgList& inFuncList, const RooArgList& inCoefList, Double_t quadraticRegion, Int_t quadraticAlgo) :
   RooAbsPdf(name,title),
   _normIntMgr(this,10),
   _funcList("!funcList","List of functions",this),
   _coefList("!coefList","List of coefficients",this),
   _quadraticRegion(quadraticRegion),
-  _quadraticAlgo(quadraticAlgo),
-  _pdfFloorVal(1e-15),
-  _integralFloorVal(1e-10)
+  _quadraticAlgo(quadraticAlgo)
 { 
 
   if (inFuncList.getSize()!=2*inCoefList.getSize()+1) {
@@ -48,6 +33,11 @@ VerticalInterpPdf::VerticalInterpPdf(const char *name, const char *title, const 
     assert(0);
   }
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,32,0)
+  // With ROOT 6.32, RooFit can do the type checking for us
+  _funcList.addTyped<RooAbsReal>(inFuncList);
+  _coefList.addTyped<RooAbsReal>(inCoefList);
+#else
   for (RooAbsArg *func : inFuncList) {
     if (!dynamic_cast<RooAbsReal*>(func)) {
       coutE(InputArguments) << "ERROR: VerticalInterpPdf::VerticalInterpPdf(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsReal" << std::endl;
@@ -63,6 +53,7 @@ VerticalInterpPdf::VerticalInterpPdf(const char *name, const char *title, const 
     }
     _coefList.add(*coef) ;    
   }
+#endif
 
   if (_quadraticAlgo == -1) { 
     // multiplicative morphing: no way to do analytical integrals.
@@ -90,10 +81,6 @@ VerticalInterpPdf::VerticalInterpPdf(const VerticalInterpPdf& other, const char*
   // Copy constructor
 }
 
-
-
-//_____________________________________________________________________________
-VerticalInterpPdf::~VerticalInterpPdf() = default;
 
 //_____________________________________________________________________________
 Double_t VerticalInterpPdf::evaluate() const 
@@ -179,12 +166,12 @@ Int_t VerticalInterpPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& 
 
   // Select subset of allVars that are actual dependents
   analVars.add(allVars) ;
-  RooArgSet* normSet = normSet2 ? getObservables(normSet2) : 0 ;
+  std::unique_ptr<RooArgSet> normSet{normSet2 ? getObservables(normSet2) : nullptr};
 
 
   // Check if this configuration was created before
   Int_t sterileIdx(-1) ;
-  CacheElem* cache = (CacheElem*) _normIntMgr.getObj(normSet,&analVars,&sterileIdx,(const char *)0);
+  CacheElem* cache = (CacheElem*) _normIntMgr.getObj(normSet.get(),&analVars,&sterileIdx,(const char *)0);
   if (cache) {
     return _normIntMgr.lastIndex()+1 ;
   }
@@ -210,11 +197,7 @@ Int_t VerticalInterpPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& 
   }
 
   // Store cache element
-  Int_t code = _normIntMgr.setObj(normSet,&analVars,(RooAbsCacheElement*)cache,0) ;
-
-  if (normSet) {
-    delete normSet ;
-  }
+  Int_t code = _normIntMgr.setObj(normSet.get(),&analVars,(RooAbsCacheElement*)cache,0) ;
 
   return code+1 ; 
 }
@@ -395,3 +378,46 @@ Double_t VerticalInterpPdf::interpolate(Double_t coeff, Double_t central, RooAbs
 
 //_____________________________________________________________________________
 void VerticalInterpPdf::setFloorVals(Double_t const& pdf_val, Double_t const& integral_val){ _pdfFloorVal = pdf_val; _integralFloorVal = integral_val; }
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,34,06)
+
+// In the new RooFit CPU backend, the computation graph is "compiled" for a fixed normalization set.
+// The function RooAbsArg::compileForNormSet() can be overridden to hook into this process.
+//
+// The VerticalInterpPdf is unfortunately a special case, just like the
+// RooRealSumPdf that served as its inspiration. It deliberately breaks the
+// auto-normalization normalization of its input functions in _funcList by
+// explicitly calling getVal() on them without any normalization set.
+//
+// Therefore, we have to override the compilation for a given normSet such that
+// it doesn't propagate the normalization set to the servers.
+//
+// One can surely refactor the VerticalInterpPdf such that the input functions
+// are evaluated with a defined normalization set, but this would take more
+// effort to validate. The new RooFit CPU backend is not even used by Combine
+// yet, so overriding compileForNormSet() doesn't require any validation.
+std::unique_ptr<RooAbsArg>
+VerticalInterpPdf::compileForNormSet(RooArgSet const &normSet, RooFit::Detail::CompileContext &ctx) const
+{
+   if (normSet.empty() || selfNormalized()) {
+      return RooAbsPdf::compileForNormSet({}, ctx);
+   }
+   std::unique_ptr<RooAbsPdf> pdfClone(static_cast<RooAbsPdf *>(this->Clone()));
+
+   ctx.compileServers(*pdfClone, {});
+
+   RooArgSet depList;
+   pdfClone->getObservables(&normSet, depList);
+
+   auto newArg = std::make_unique<RooFit::Detail::RooNormalizedPdf>(*pdfClone, depList);
+
+   // The direct servers are this pdf and the normalization integral, which
+   // don't need to be compiled further.
+   for (RooAbsArg *server : newArg->servers()) {
+      ctx.markAsCompiled(*server);
+   }
+   ctx.markAsCompiled(*newArg);
+   newArg->addOwnedComponents(std::move(pdfClone));
+   return newArg;
+}
+#endif

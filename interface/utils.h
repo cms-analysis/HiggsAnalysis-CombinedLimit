@@ -124,4 +124,13 @@ namespace utils {
     bool freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiPdfs, const RooArgSet & allRooMultiPdfParams, bool freeze=true);
 
 }
+
+namespace Utils {
+
+  bool starts_with(std::string_view str, std::string_view prefix);
+  bool ends_with(std::string_view str, std::string_view suffix);
+  std::vector<std::string> split(std::string const& input, const char* delim);
+
+}
+
 #endif

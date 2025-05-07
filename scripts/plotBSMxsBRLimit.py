@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import
-from __future__ import print_function
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import CombineHarvester.CombineTools.maketable as maketable
 import ROOT
 import math
 import argparse
 import json
-from six.moves import range
 
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 parser = argparse.ArgumentParser()

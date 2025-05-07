@@ -13,7 +13,6 @@
 #include "RooArgList.h"
 #include "RooRealVar.h"
 #include "RooMinimizer.h"
-#include <boost/algorithm/string.hpp>
 
 #include <Math/Minimizer.h>
 #include <Math/MinimizerOptions.h>
@@ -101,11 +100,9 @@ std::vector<std::vector<float>> RandStartPt::vectorOfPointsToTry (){
 // // Assumes the string is formatted with colons like "poi_name1=lo_lim,hi_lim:poi_name2=lo_lim,hi_lim"
 std::map<std::string, std::vector<float>> RandStartPt::getRangesDictFromInString(std::string params_ranges_string_in) {
     std::map<std::string, std::vector<float>> out_range_dict;
-    std::vector<std::string> params_ranges_string_lst;
-    boost::split(params_ranges_string_lst, params_ranges_string_in, boost::is_any_of(":"));
+    std::vector<std::string> params_ranges_string_lst = Utils::split(params_ranges_string_in, ":");
     for (UInt_t p = 0; p < params_ranges_string_lst.size(); ++p) {
-        std::vector<std::string> params_ranges_string;
-        boost::split(params_ranges_string, params_ranges_string_lst[p], boost::is_any_of("=,"));
+        std::vector<std::string> params_ranges_string = Utils::split(params_ranges_string_lst[p], "=,");
         if (params_ranges_string.size() != 3) {
             std::cout << "Error parsing expression : " << params_ranges_string_lst[p] << std::endl;
         }

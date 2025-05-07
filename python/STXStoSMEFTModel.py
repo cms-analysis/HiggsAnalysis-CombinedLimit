@@ -155,7 +155,7 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
         else:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
@@ -181,7 +181,7 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Extract pois from yaml file
     def extractPOIs(self, filename):
-        with open(filename, "r") as fpois:
+        with open(filename) as fpois:
             try:
                 self.pois = yaml.safe_load(fpois)
                 # Apply eigenvector threshold if set
@@ -201,7 +201,7 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
     # Function to extract STXS scaling terms from json file
     def extractSTXSScalingTerms(self, filename=""):
         if filename != "":
-            with open(filename, "r") as jf:
+            with open(filename) as jf:
                 self.STXSScalingTerms = json.load(jf)
         else:
             self.STXSScalingTerms = {}
@@ -209,7 +209,7 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
     # Function to extract decay scaling functions from file
     def extractDecayScalingTerms(self, filename=""):
         if filename != "":
-            with open(filename, "r") as jf:
+            with open(filename) as jf:
                 self.DecayScalingTerms = json.load(jf)
         else:
             self.DecayScalingTerms = {}
@@ -242,8 +242,8 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
 
         # Fix for ttH multilepton: duplicate of proc names
         for P in self.map_prod.values():
-            if "%s_%s" % (P, P) in k:
-                k = re.sub("%s_%s" % (P, P), P, k)
+            if f"{P}_{P}" in k:
+                k = re.sub(f"{P}_{P}", P, k)
 
         # Fix for VH procs without had/lep label: use leptonic scaling function. Is this accurate?
         if k == "WH":
@@ -296,10 +296,10 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
                             kpoi_name = self.poiNameMap[kpoi]
                         e_kpoi = 10 ** (-1 * self.pois[kpoi]["exponent"])
 
-                        if "B_%s_%s" % (jpoi, kpoi) in terms:
-                            coeffs["%s_%s" % (jpoi_name, kpoi_name)] = e_jpoi * e_kpoi * terms["B_%s_%s" % (jpoi, kpoi)]
-                        elif "B_%s_%s" % (kpoi, jpoi) in terms:
-                            coeffs["%s_%s" % (jpoi_name, kpoi_name)] = e_jpoi * e_kpoi * terms["B_%s_%s" % (kpoi, jpoi)]
+                        if f"B_{jpoi}_{kpoi}" in terms:
+                            coeffs[f"{jpoi_name}_{kpoi_name}"] = e_jpoi * e_kpoi * terms[f"B_{jpoi}_{kpoi}"]
+                        elif f"B_{kpoi}_{jpoi}" in terms:
+                            coeffs[f"{jpoi_name}_{kpoi_name}"] = e_jpoi * e_kpoi * terms[f"B_{kpoi}_{jpoi}"]
 
                         if kpoi_name not in list_pois:
                             list_pois.append(kpoi_name)
@@ -312,11 +312,11 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
         # Make RooEFTScalingFunction
         if is_decay:
             if what != "tot":
-                name = "scaling%s_partial_%s" % (mode_str, what)
+                name = f"scaling{mode_str}_partial_{what}"
             else:
-                name = "scaling%s_%s" % (mode_str, what)
+                name = f"scaling{mode_str}_{what}"
         else:
-            name = "scaling%s_XS_%s" % (mode_str, what)
+            name = f"scaling{mode_str}_XS_{what}"
         eft_scaling = ROOT.RooEFTScalingFunction(name, name, coeffs, arglist_pois)
 
         # Add scaling function as RooAddition into model
@@ -325,7 +325,7 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
     # Function to make BR scaling functions: partial width/total width
     def makeBRScalingFunction(self, what, mode=""):
         mode_str = "_%s" % mode if mode != "" else ""
-        self.modelBuilder.factory_('expr::scaling%s_BR_%s("@0/@1", scaling%s_partial_%s, scaling%s_tot)' % (mode_str, what, mode_str, what, mode_str))
+        self.modelBuilder.factory_(f'expr::scaling{mode_str}_BR_{what}("@0/@1", scaling{mode_str}_partial_{what}, scaling{mode_str}_tot)')
 
     # Function to make Taylor-expanded scaling functions in workspace
     def makeScalingFunction_expand(self, what_production, what_decay):
@@ -352,8 +352,8 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
 
         # Fix for ttH multilepton: duplicate of proc names
         for P in self.map_prod.values():
-            if "%s_%s" % (P, P) in k_production:
-                k_production = re.sub("%s_%s" % (P, P), P, k_production)
+            if f"{P}_{P}" in k_production:
+                k_production = re.sub(f"{P}_{P}", P, k_production)
 
         # Fix for VH procs without had/lep label: use leptonic scaling function. Is this accurate?
         if k_production == "WH":
@@ -445,18 +445,18 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
                         Bjk_sum = 0
                         kpoi_name = self.poiNameMap[kpoi]
                         e_kpoi = 10 ** (-1 * self.pois[kpoi]["exponent"])
-                        if "B_%s_%s" % (jpoi, kpoi) in terms_production:
-                            Bjk_sum += terms_production["B_%s_%s" % (jpoi, kpoi)]
-                        elif "B_%s_%s" % (kpoi, jpoi) in terms_production:
-                            Bjk_sum += terms_production["B_%s_%s" % (kpoi, jpoi)]
-                        if "B_%s_%s" % (jpoi, kpoi) in terms_decay:
-                            Bjk_sum += terms_decay["B_%s_%s" % (jpoi, kpoi)]
-                        elif "B_%s_%s" % (kpoi, jpoi) in terms_decay:
-                            Bjk_sum += terms_decay["B_%s_%s" % (kpoi, jpoi)]
-                        if "B_%s_%s" % (jpoi, kpoi) in terms_tot:
-                            Bjk_sum -= terms_tot["B_%s_%s" % (jpoi, kpoi)]
-                        elif "B_%s_%s" % (kpoi, jpoi) in terms_tot:
-                            Bjk_sum -= terms_tot["B_%s_%s" % (kpoi, jpoi)]
+                        if f"B_{jpoi}_{kpoi}" in terms_production:
+                            Bjk_sum += terms_production[f"B_{jpoi}_{kpoi}"]
+                        elif f"B_{kpoi}_{jpoi}" in terms_production:
+                            Bjk_sum += terms_production[f"B_{kpoi}_{jpoi}"]
+                        if f"B_{jpoi}_{kpoi}" in terms_decay:
+                            Bjk_sum += terms_decay[f"B_{jpoi}_{kpoi}"]
+                        elif f"B_{kpoi}_{jpoi}" in terms_decay:
+                            Bjk_sum += terms_decay[f"B_{kpoi}_{jpoi}"]
+                        if f"B_{jpoi}_{kpoi}" in terms_tot:
+                            Bjk_sum -= terms_tot[f"B_{jpoi}_{kpoi}"]
+                        elif f"B_{kpoi}_{jpoi}" in terms_tot:
+                            Bjk_sum -= terms_tot[f"B_{kpoi}_{jpoi}"]
                         if ("A_%s" % jpoi in terms_production) & ("A_%s" % kpoi in terms_decay):
                             Bjk_sum += terms_production["A_%s" % jpoi] * terms_decay["A_%s" % kpoi]
                         if ("A_%s" % kpoi in terms_production) & ("A_%s" % jpoi in terms_decay):
@@ -478,7 +478,7 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
                                 list_pois.append(jpoi_name)
                             if kpoi_name not in list_pois:
                                 list_pois.append(kpoi_name)
-                            coeffs["%s_%s" % (jpoi_name, kpoi_name)] = Bjk_sum
+                            coeffs[f"{jpoi_name}_{kpoi_name}"] = Bjk_sum
 
         if not self.linquad_only:
             # Make RooArgList of pois in equation
@@ -486,7 +486,7 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
             for jpoi in list_lpois:
                 arglist_lpois.add(self.modelBuilder.out.var(jpoi))
             # Make RooEFTScalingFunction
-            name = "scaling_linear_expand_XS_%s_BR_%s" % (what_production, what_decay)
+            name = f"scaling_linear_expand_XS_{what_production}_BR_{what_decay}"
             eft_scaling_linear = ROOT.RooEFTScalingFunction(name, name, lcoeffs, arglist_lpois)
             # Add scaling function into model
             self.modelBuilder.out.Import(eft_scaling_linear)
@@ -497,7 +497,7 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
             for jpoi in list_pois:
                 arglist_pois.add(self.modelBuilder.out.var(jpoi))
             # Make RooEFTScalingFunction
-            name = "scaling_linquad_expand_XS_%s_BR_%s" % (what_production, what_decay)
+            name = f"scaling_linquad_expand_XS_{what_production}_BR_{what_decay}"
             eft_scaling_linquad = ROOT.RooEFTScalingFunction(name, name, coeffs, arglist_pois)
             # Add scaling function into model
             self.modelBuilder.out.Import(eft_scaling_linquad)
@@ -518,28 +518,28 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
         self.SMH = SMHiggsBuilder(self.modelBuilder)
 
         # Read in parameters of interest from yaml file
-        self.extractPOIs("%s/src/HiggsAnalysis/CombinedLimit/data/eft/STXStoSMEFT/%s/pois.yaml" % (os.environ["CMSSW_BASE"], self.parametrisation))
+        self.extractPOIs("{}/src/HiggsAnalysis/CombinedLimit/data/eft/STXStoSMEFT/{}/pois.yaml".format(os.environ["CMSSW_BASE"], self.parametrisation))
 
         # Create list of pois and build RooRealVars
         POIs, lPOIs = [], []
         for poi in self.pois:
             if self.pois[poi]["exponent"] < 0:
-                poi_name = "%sXEm%g" % (poi, abs(self.pois[poi]["exponent"]))
+                poi_name = "{}XEm{:g}".format(poi, abs(self.pois[poi]["exponent"]))
             elif self.pois[poi]["exponent"] >= 1:
-                poi_name = "%sXE%g" % (poi, self.pois[poi]["exponent"])
+                poi_name = "{}XE{:g}".format(poi, self.pois[poi]["exponent"])
             else:
                 poi_name = poi
             self.poiNameMap[poi] = poi_name
 
             if not self.linear_only:
                 POIs.append(poi_name)
-                self.modelBuilder.doVar("%s[%g,%g,%g]" % (poi_name, self.pois[poi]["val"], self.pois[poi]["min"], self.pois[poi]["max"]))
+                self.modelBuilder.doVar("{}[{:g},{:g},{:g}]".format(poi_name, self.pois[poi]["val"], self.pois[poi]["min"], self.pois[poi]["max"]))
                 self.modelBuilder.out.var(poi_name).setConstant(True)
 
             if not self.linquad_only:
                 lpoi_name = "l%s" % poi_name
                 lPOIs.append(lpoi_name)
-                self.modelBuilder.doVar("%s[%g,%g,%g]" % (lpoi_name, self.pois[poi]["val"], self.pois[poi]["min"], self.pois[poi]["max"]))
+                self.modelBuilder.doVar("{}[{:g},{:g},{:g}]".format(lpoi_name, self.pois[poi]["val"], self.pois[poi]["min"], self.pois[poi]["max"]))
                 self.modelBuilder.out.var(lpoi_name).setConstant(True)
 
         # Create POI sets
@@ -562,10 +562,10 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
     def setup(self):
         # Extract scaling terms from json files: inclusive vs reco-level
         self.extractSTXSScalingTerms(
-            filename="%s/src/HiggsAnalysis/CombinedLimit/data/eft/STXStoSMEFT/%s/prod.json" % (os.environ["CMSSW_BASE"], self.parametrisation)
+            filename="{}/src/HiggsAnalysis/CombinedLimit/data/eft/STXStoSMEFT/{}/prod.json".format(os.environ["CMSSW_BASE"], self.parametrisation)
         )
         self.extractDecayScalingTerms(
-            filename="%s/src/HiggsAnalysis/CombinedLimit/data/eft/STXStoSMEFT/%s/decay.json" % (os.environ["CMSSW_BASE"], self.parametrisation)
+            filename="{}/src/HiggsAnalysis/CombinedLimit/data/eft/STXStoSMEFT/{}/decay.json".format(os.environ["CMSSW_BASE"], self.parametrisation)
         )
 
         if not self.expand_equations:
@@ -588,26 +588,26 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
         # For model with Taylor-expanded equations
         if self.expand_equations:
             if self.linear_only:
-                name = "scaling_linear_expand_XS_%s_BR_%s" % (production, decay)
+                name = f"scaling_linear_expand_XS_{production}_BR_{decay}"
                 if self.modelBuilder.out.function(name) == None:
-                    print(" --> [STXStoSMEFT] Making linearised model for (STXS bin,decay): (%s,%s)" % (production, decay))
+                    print(f" --> [STXStoSMEFT] Making linearised model for (STXS bin,decay): ({production},{decay})")
                     self.makeScalingFunction_expand(production, decay)
 
             elif self.linquad_only:
-                name = "scaling_linquad_expand_XS_%s_BR_%s" % (production, decay)
+                name = f"scaling_linquad_expand_XS_{production}_BR_{decay}"
                 if self.modelBuilder.out.function(name) == None:
-                    print(" --> [STXStoSMEFT] Making linear+quad model for (STXS bin,decay): (%s,%s)" % (production, decay))
+                    print(f" --> [STXStoSMEFT] Making linear+quad model for (STXS bin,decay): ({production},{decay})")
                     self.makeScalingFunction_expand(production, decay)
 
             else:
-                name = "stxstosmeft_scaling_expand_XS_%s_BR_%s" % (production, decay)
-                name_lin = "scaling_linear_expand_XS_%s_BR_%s" % (production, decay)
-                name_linquad = "scaling_linquad_expand_XS_%s_BR_%s" % (production, decay)
+                name = f"stxstosmeft_scaling_expand_XS_{production}_BR_{decay}"
+                name_lin = f"scaling_linear_expand_XS_{production}_BR_{decay}"
+                name_linquad = f"scaling_linquad_expand_XS_{production}_BR_{decay}"
                 if (self.modelBuilder.out.function(name_lin) == None) | (self.modelBuilder.out.function(name_linquad) == None):
-                    print(" --> [STXStoSMEFT] Making linearised and linear+quadratic model for (STXS bin,decay): (%s,%s)" % (production, decay))
+                    print(f" --> [STXStoSMEFT] Making linearised and linear+quadratic model for (STXS bin,decay): ({production},{decay})")
                     self.makeScalingFunction_expand(production, decay)
                 # Combine linear and linear+quadratic models into same scaling (use different POIs)
-                self.modelBuilder.factory_("prod::%s(%s)" % (name, ",".join([name_lin, name_linquad])))
+                self.modelBuilder.factory_("prod::{}({})".format(name, ",".join([name_lin, name_linquad])))
 
         # For model with full equations: xs*partial/total
         else:
@@ -621,9 +621,9 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
                     print(" --> [STXStoSMEFT] Making linear scaling function for decay: %s" % decay)
                     self.makeScalingFunction(decay, is_decay=True, mode="linear")
                     self.makeBRScalingFunction(decay, mode="linear")
-                name = "scaling_linear_XS_%s_BR_%s" % (production, decay)
+                name = f"scaling_linear_XS_{production}_BR_{decay}"
                 if self.modelBuilder.out.function(name) == None:
-                    self.modelBuilder.factory_("prod::%s(%s)" % (name, ",".join([name_lin_xs, name_lin_br])))
+                    self.modelBuilder.factory_("prod::{}({})".format(name, ",".join([name_lin_xs, name_lin_br])))
 
             elif self.linquad_only:
                 name_linquad_xs = "scaling_linquad_XS_%s" % production
@@ -635,9 +635,9 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
                     print(" --> [STXStoSMEFT] Making linear+quad scaling function for decay: %s" % decay)
                     self.makeScalingFunction(decay, is_decay=True, mode="linquad")
                     self.makeBRScalingFunction(decay, mode="linquad")
-                name = "scaling_linquad_XS_%s_BR_%s" % (production, decay)
+                name = f"scaling_linquad_XS_{production}_BR_{decay}"
                 if self.modelBuilder.out.function(name) == None:
-                    self.modelBuilder.factory_("prod::%s(%s)" % (name, ",".join([name_linquad_xs, name_linquad_br])))
+                    self.modelBuilder.factory_("prod::{}({})".format(name, ",".join([name_linquad_xs, name_linquad_br])))
 
             # Combine linear and linear+quadratic models into same scaling (use different POIs) as product
             else:
@@ -651,9 +651,9 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
                     print(" --> [STXStoSMEFT] Making linear scaling function for decay: %s" % decay)
                     self.makeScalingFunction(decay, is_decay=True, mode="linear")
                     self.makeBRScalingFunction(decay, mode="linear")
-                name_lin = "scaling_linear_XS_%s_BR_%s" % (production, decay)
+                name_lin = f"scaling_linear_XS_{production}_BR_{decay}"
                 if self.modelBuilder.out.function(name_lin) == None:
-                    self.modelBuilder.factory_("prod::%s(%s)" % (name_lin, ",".join([name_lin_xs, name_lin_br])))
+                    self.modelBuilder.factory_("prod::{}({})".format(name_lin, ",".join([name_lin_xs, name_lin_br])))
 
                 # Linear+quadratic part
                 name_linquad_xs = "scaling_linquad_XS_%s" % production
@@ -665,14 +665,14 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
                     print(" --> [STXStoSMEFT] Making linear+quad scaling function for decay: %s" % decay)
                     self.makeScalingFunction(decay, is_decay=True, mode="linquad")
                     self.makeBRScalingFunction(decay, mode="linquad")
-                name_linquad = "scaling_linquad_XS_%s_BR_%s" % (production, decay)
+                name_linquad = f"scaling_linquad_XS_{production}_BR_{decay}"
                 if self.modelBuilder.out.function(name_linquad) == None:
-                    self.modelBuilder.factory_("prod::%s(%s)" % (name_linquad, ",".join([name_linquad_xs, name_linquad_br])))
+                    self.modelBuilder.factory_("prod::{}({})".format(name_linquad, ",".join([name_linquad_xs, name_linquad_br])))
 
                 # Combination
-                name = "stxstosmeft_scaling_XS_%s_BR_%s" % (production, decay)
+                name = f"stxstosmeft_scaling_XS_{production}_BR_{decay}"
                 if self.modelBuilder.out.function(name) == None:
-                    self.modelBuilder.factory_("prod::%s(%s)" % (name, ",".join([name_lin, name_linquad])))
+                    self.modelBuilder.factory_("prod::{}({})".format(name, ",".join([name_lin, name_linquad])))
 
         return name
 

@@ -56,7 +56,7 @@ void ProcessNormalization::fillAsymmKappaVecs() const
 {
     if (logAsymmKappaLow_.size() != logAsymmKappa_.size()) {
        logAsymmKappaLow_.reserve(logAsymmKappa_.size());
-       logAsymmKappaLow_.reserve(logAsymmKappa_.size());
+       logAsymmKappaHigh_.reserve(logAsymmKappa_.size());
        for (auto [lo, hi] : logAsymmKappa_) {
           logAsymmKappaLow_.push_back(lo);
           logAsymmKappaHigh_.push_back(hi);

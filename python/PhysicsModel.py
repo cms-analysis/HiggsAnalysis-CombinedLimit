@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import re
 from abc import ABCMeta, abstractmethod
 
@@ -13,7 +11,7 @@ import six
 ###   - possibly modifies the systematical uncertainties (does nothing by default)
 
 
-class PhysicsModelBase(six.with_metaclass(ABCMeta, object)):
+class PhysicsModelBase(metaclass=ABCMeta):
     def __init__(self):
         pass
 
@@ -82,7 +80,7 @@ class PhysicsModelBase_NiceSubclasses(PhysicsModelBase):
         for _ in processed:
             physOptions.remove(_)
         if physOptions:
-            raise ValueError("Unknown physicsOptions:\n{}".format(physOptions))
+            raise ValueError(f"Unknown physicsOptions:\n{physOptions}")
 
     @abstractmethod
     def processPhysicsOptions(self, physOptions):
@@ -117,7 +115,7 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
         self.pois = {}
         self.verbose = False
         self.factories = []
-        super(MultiSignalModelBase, self).__init__()
+        super().__init__()
 
     def setPhysicsOptions(self, physOptions):
         for po in physOptions[:]:
@@ -125,7 +123,7 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
                 physOptions.remove(po)
                 turnoff = po.replace("turnoff=", "").split(",")
                 physOptions.append("map=.*/({}):0".format("|".join(turnoff)))
-        super(MultiSignalModelBase, self).setPhysicsOptions(physOptions)
+        super().setPhysicsOptions(physOptions)
 
     def processPhysicsOptions(self, physOptions):
         processed = []
@@ -157,13 +155,13 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
                         print("Mapping ", poiname, " to ", maps, " patterns")
                 self.poiMap.append((poiname, maps))
                 processed.append(po)
-        return processed + super(MultiSignalModelBase, self).processPhysicsOptions(physOptions)
+        return processed + super().processPhysicsOptions(physOptions)
 
     def getPOIList(self):
         """Create POI and other parameters, and define the POI set."""
         # --- Higgs Mass as other parameter ----
         poiNames = []
-        poiNames += super(MultiSignalModelBase, self).getPOIList()
+        poiNames += super().getPOIList()
         # first do all non-factory statements, so all params are defined
         for pn, pf in self.pois.items():
             poiNames.append(pn)
@@ -174,14 +172,14 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
         return poiNames
 
     def getYieldScale(self, bin, process):
-        string = "%s/%s" % (bin, process)
+        string = f"{bin}/{process}"
         poi = None
         for p, list in self.poiMap:
             for l in list:
                 if re.match(l, string):
                     poi = p
         if poi == "super":
-            poi = super(MultiSignalModelBase, self).getYieldScale(bin, process)
+            poi = super().getYieldScale(bin, process)
         if poi is None:
             poi = "1"
         print("Will scale ", string, " by ", poi)
@@ -201,10 +199,10 @@ class CanTurnOffBkgModel(PhysicsModelBase_NiceSubclasses):
 
     def __init__(self, *args, **kwargs):
         self.usebkg = True
-        super(CanTurnOffBkgModel, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def processPhysicsOptions(self, physOptions):
-        processed = super(CanTurnOffBkgModel, self).processPhysicsOptions(physOptions)
+        processed = super().processPhysicsOptions(physOptions)
         for po in physOptions:
             if po.lower() == "nobkg":
                 self.usebkg = False
@@ -213,9 +211,9 @@ class CanTurnOffBkgModel(PhysicsModelBase_NiceSubclasses):
         return processed
 
     def getYieldScale(self, bin, process):
-        result = super(CanTurnOffBkgModel, self).getYieldScale(bin, process)
+        result = super().getYieldScale(bin, process)
         if not self.usebkg and not self.DC.isSignal[process]:
-            print("turning off {}".format(process))
+            print(f"turning off {process}")
             return 0
         return result
 
@@ -223,10 +221,10 @@ class CanTurnOffBkgModel(PhysicsModelBase_NiceSubclasses):
 class HiggsMassRangeModel(PhysicsModelBase_NiceSubclasses):
     def __init__(self):
         self.mHRange = []
-        super(HiggsMassRangeModel, self).__init__()
+        super().__init__()
 
     def processPhysicsOptions(self, physOptions):
-        processed = super(HiggsMassRangeModel, self).processPhysicsOptions(physOptions)
+        processed = super().processPhysicsOptions(physOptions)
         for po in physOptions:
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=", "").split(",")
@@ -239,7 +237,7 @@ class HiggsMassRangeModel(PhysicsModelBase_NiceSubclasses):
 
     def getPOIList(self):
         poiNames = []
-        poiNames += super(HiggsMassRangeModel, self).getPOIList()
+        poiNames += super().getPOIList()
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange):
                 print(
@@ -263,7 +261,7 @@ class HiggsMassRangeModel(PhysicsModelBase_NiceSubclasses):
                     "and",
                     self.mHRange[1],
                 )
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
                 poiNames += ["MH"]
             else:
                 print("MH (not there before) will be assumed to be", self.options.mass)
@@ -313,32 +311,32 @@ def getHiggsProdDecMode(bin, process, options):
                 % (bin, process, decaySource, ALL_HIGGS_DECAYS),
             )
     if processSource not in ALL_HIGGS_PROD:
-        raise RuntimeError("Validation Error in bin %r, process %r: signal process %s not among the allowed ones." % (bin, process, decaySource))
+        raise RuntimeError(f"Validation Error in bin {bin!r}, process {process!r}: signal process {decaySource} not among the allowed ones.")
     #
     foundDecay = None
     for D in ALL_HIGGS_DECAYS:
         if D in decaySource:
             if foundDecay:
-                raise RuntimeError("Validation Error in bin %r, process %r: decay string %s contains multiple known decay names" % (bin, process, decaySource))
+                raise RuntimeError(f"Validation Error in bin {bin!r}, process {process!r}: decay string {decaySource} contains multiple known decay names")
             foundDecay = D
     if not foundDecay:
-        raise RuntimeError("Validation Error in bin %r, process %r: decay string %s does not contain any known decay name" % (bin, process, decaySource))
+        raise RuntimeError(f"Validation Error in bin {bin!r}, process {process!r}: decay string {decaySource} does not contain any known decay name")
     #
     foundEnergy = None
     for D in ["7TeV", "8TeV", "13TeV", "14TeV"]:
         if D in decaySource:
             if foundEnergy:
-                raise RuntimeError("Validation Error in bin %r, process %r: decay string %s contains multiple known energies" % (bin, process, decaySource))
+                raise RuntimeError(f"Validation Error in bin {bin!r}, process {process!r}: decay string {decaySource} contains multiple known energies")
             foundEnergy = D
     if not foundEnergy:
         for D in ["7TeV", "8TeV", "13TeV", "14TeV"]:
             if D in options.fileName + ":" + bin:
                 if foundEnergy:
-                    raise RuntimeError("Validation Error in bin %r, process %r: decay string %s contains multiple known energies" % (bin, process, decaySource))
+                    raise RuntimeError(f"Validation Error in bin {bin!r}, process {process!r}: decay string {decaySource} contains multiple known energies")
                 foundEnergy = D
     if not foundEnergy:
         foundEnergy = "13TeV"  ## if using 81x, chances are its 13 TeV
-        print("Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy))
+        print(f"Warning: decay string {decaySource} does not contain any known energy, assuming {foundEnergy}")
     if processSource == "WPlusH" or processSource == "WMinusH":
         processSource = "WH"  # treat them the same for now
     return (processSource, foundDecay, foundEnergy)
@@ -404,7 +402,7 @@ class FloatingHiggsMass(SMLikeHiggsModel):
             self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
             self.modelBuilder.out.var("MH").setConstant(False)
         else:
-            self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+            self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
         self.modelBuilder.doSet("POI", POIs)
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
@@ -487,17 +485,17 @@ class FloatingXSHiggs(SMLikeHiggsModel):
         """Create POI and other parameters, and define the POI set."""
         # --- Signal Strength as only POI ---
         if "ggH" in self.modes:
-            self.modelBuilder.doVar("r_ggH[1,%s,%s]" % (self.ggHRange[0], self.ggHRange[1]))
+            self.modelBuilder.doVar(f"r_ggH[1,{self.ggHRange[0]},{self.ggHRange[1]}]")
         if "qqH" in self.modes:
-            self.modelBuilder.doVar("r_qqH[1,%s,%s]" % (self.qqHRange[0], self.qqHRange[1]))
+            self.modelBuilder.doVar(f"r_qqH[1,{self.qqHRange[0]},{self.qqHRange[1]}]")
         if "VH" in self.modes:
-            self.modelBuilder.doVar("r_VH[1,%s,%s]" % (self.VHRange[0], self.VHRange[1]))
+            self.modelBuilder.doVar(f"r_VH[1,{self.VHRange[0]},{self.VHRange[1]}]")
         if "WH" in self.modes:
-            self.modelBuilder.doVar("r_WH[1,%s,%s]" % (self.WHRange[0], self.WHRange[1]))
+            self.modelBuilder.doVar(f"r_WH[1,{self.WHRange[0]},{self.WHRange[1]}]")
         if "ZH" in self.modes:
-            self.modelBuilder.doVar("r_ZH[1,%s,%s]" % (self.ZHRange[0], self.ZHRange[1]))
+            self.modelBuilder.doVar(f"r_ZH[1,{self.ZHRange[0]},{self.ZHRange[1]}]")
         if "ttH" in self.modes:
-            self.modelBuilder.doVar("r_ttH[1,%s,%s]" % (self.ttHRange[0], self.ttHRange[1]))
+            self.modelBuilder.doVar(f"r_ttH[1,{self.ttHRange[0]},{self.ttHRange[1]}]")
         poi = ",".join(["r_" + m for m in self.modes])
         if self.pois:
             poi = self.pois
@@ -525,7 +523,7 @@ class FloatingXSHiggs(SMLikeHiggsModel):
                     "and",
                     self.mHRange[1],
                 )
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
                 poi += ",MH"
             else:
                 print("MH (not there before) will be assumed to be", self.options.mass)
@@ -572,7 +570,7 @@ class RvRfXSHiggs(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", "RV,RF,MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -643,7 +641,7 @@ class FloatingBRHiggs(SMLikeHiggsModel):
                     "and",
                     self.mHRange[1],
                 )
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
                 poi += ",MH"
             else:
                 print("MH (not there before) will be assumed to be", self.options.mass)
@@ -690,13 +688,13 @@ class RvfBRHiggs(SMLikeHiggsModel):
         for mode in self.modes:
             poi += ",r_" + mode
             self.modelBuilder.doVar("r_%s[1,0,5]" % mode)
-            self.modelBuilder.factory_('expr::rv_%s("@0*@1",Rvf,r_%s)' % (mode, mode))
+            self.modelBuilder.factory_(f'expr::rv_{mode}("@0*@1",Rvf,r_{mode})')
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", poi + ",MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -744,14 +742,14 @@ class ThetaVFBRHiggs(SMLikeHiggsModel):
         for mode in self.modes:
             poi += ",r_" + mode
             self.modelBuilder.doVar("r_%s[1,0,5]" % mode)
-            self.modelBuilder.factory_('expr::rv_%s("sin(@0)*@1",thetaVF,r_%s)' % (mode, mode))
-            self.modelBuilder.factory_('expr::rf_%s("cos(@0)*@1",thetaVF,r_%s)' % (mode, mode))
+            self.modelBuilder.factory_(f'expr::rv_{mode}("sin(@0)*@1",thetaVF,r_{mode})')
+            self.modelBuilder.factory_(f'expr::rf_{mode}("cos(@0)*@1",thetaVF,r_{mode})')
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", poi + ",MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -812,7 +810,7 @@ class FloatingXSBRHiggs(SMLikeHiggsModel):
                     "and",
                     self.mHRange[1],
                 )
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
                 self.poiNames += ["MH"]
             else:
                 print("MH (not there before) will be assumed to be", self.options.mass)
@@ -820,7 +818,7 @@ class FloatingXSBRHiggs(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         prod = "VH" if production in ["VH", "WH", "WPlusH", "WMinusH", "ZH", "ggZH"] else production
-        name = "r_%s_%s" % (prod, decay)
+        name = f"r_{prod}_{decay}"
         if name not in self.poiNames:
             self.poiNames += [name]
             self.modelBuilder.doVar(name + "[1,0,10]")
@@ -859,16 +857,16 @@ class DoubleRatioHiggs(SMLikeHiggsModel):
         self.modelBuilder.doVar("rho[1,0,4]")
         self.modelBuilder.doVar("Rvf[1,0,4]")
         self.modelBuilder.doVar("rf_%s[1,0,4]" % self.modes[0])
-        self.modelBuilder.factory_("prod::rf_%s(    rho, rf_%s)" % (self.modes[1], self.modes[0]))
-        self.modelBuilder.factory_("prod::rv_%s(Rvf,rho, rf_%s)" % (self.modes[1], self.modes[0]))
-        self.modelBuilder.factory_("prod::rv_%s(Rvf,     rf_%s)" % (self.modes[0], self.modes[0]))
+        self.modelBuilder.factory_(f"prod::rf_{self.modes[1]}(    rho, rf_{self.modes[0]})")
+        self.modelBuilder.factory_(f"prod::rv_{self.modes[1]}(Rvf,rho, rf_{self.modes[0]})")
+        self.modelBuilder.factory_(f"prod::rv_{self.modes[0]}(Rvf,     rf_{self.modes[0]})")
         poi = "rho,Rvf,rf_%s" % self.modes[0]
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", poi + ",MH")
         else:
             if self.modelBuilder.out.var("MH"):
@@ -910,7 +908,7 @@ class RatioBRSMHiggs(SMLikeHiggsModel):
                     raise RuntimeError("Higgs mass range definition requires two extrema.")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger than the first.")
-        self.numerators = tuple(self.modes - set((self.denominator,)))
+        self.numerators = tuple(self.modes - {self.denominator})
         print("denominator: ", self.denominator)
         print("numerators: ", self.numerators)
 
@@ -938,7 +936,7 @@ class RatioBRSMHiggs(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.modelBuilder.doSet("POI", poi + ",MH")
         else:
             if self.modelBuilder.out.var("MH"):

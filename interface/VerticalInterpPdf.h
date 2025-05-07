@@ -6,17 +6,15 @@
 
 #include "RooAbsPdf.h"
 #include "RooListProxy.h"
-#include "RooAICRegistry.h"
 #include "RooObjCacheManager.h"
 
 class VerticalInterpPdf : public RooAbsPdf {
 public:
 
-  VerticalInterpPdf() ;
+  VerticalInterpPdf() = default;
   VerticalInterpPdf(const char *name, const char *title, const RooArgList& funcList, const RooArgList& coefList, Double_t quadraticRegion=0., Int_t quadraticAlgo=0) ;
   VerticalInterpPdf(const VerticalInterpPdf& other, const char* name=0) ;
   TObject* clone(const char* newname) const override { return new VerticalInterpPdf(*this,newname) ; }
-  ~VerticalInterpPdf() override ;
 
   Double_t evaluate() const override ;
   Bool_t checkObservables(const RooArgSet* nset) const override ;	
@@ -28,14 +26,20 @@ public:
   const RooArgList& funcList() const { return _funcList ; }
   const RooArgList& coefList() const { return _coefList ; }
 
+  const Double_t quadraticRegion() const { return _quadraticRegion; }
+  const Int_t quadraticAlgo() const { return _quadraticAlgo; }
+
   void setFloorVals(Double_t const& pdf_val, Double_t const& integral_val);
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,34,06)
+  std::unique_ptr<RooAbsArg> compileForNormSet(RooArgSet const &normSet, RooFit::Detail::CompileContext & ctx) const override;
+#endif
 
 protected:
   
   class CacheElem : public RooAbsCacheElement {
   public:
     CacheElem()  {} ;
-    ~CacheElem() override {} ; 
     RooArgList containedArgs(Action) override { RooArgList ret(_funcIntList) ; ret.add(_funcNormList) ; return ret ; }
     RooArgList _funcIntList ;
     RooArgList _funcNormList ;
@@ -44,11 +48,11 @@ protected:
 
   RooListProxy _funcList ;   //  List of component FUNCs
   RooListProxy _coefList ;  //  List of coefficients
-  Double_t     _quadraticRegion;
+  Double_t     _quadraticRegion = 0;
   Int_t        _quadraticAlgo;
 
-  Double_t _pdfFloorVal; // PDF floor should be customizable, default is 1e-15
-  Double_t _integralFloorVal; // PDF integral floor should be customizable, default is 1e-10
+  Double_t _pdfFloorVal = 1e-15; // PDF floor should be customizable, default is 1e-15
+  Double_t _integralFloorVal = 1e-10; // PDF integral floor should be customizable, default is 1e-10
 
   Double_t interpolate(Double_t coeff, Double_t central, RooAbsReal *fUp, RooAbsReal *fDown) const ; 
 
