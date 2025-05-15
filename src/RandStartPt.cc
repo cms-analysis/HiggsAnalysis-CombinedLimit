@@ -218,9 +218,10 @@ void RandStartPt::doRandomStartPt2DGridScan(double &xval, double &yval, unsigned
             }
             continue;
         }
-        bool ok = fastscan_ || (hasmaxdeltaNLLforprof_ && (nll_.getVal() - nll_init) > maxdeltaNLLforprof_) ?
-                            true :
-                            minimObj.minimize(verbosity_-1);
+        bool ok = fastscan_ || (hasmaxdeltaNLLforprof_ && (nll_.getVal() - nll_init) > maxdeltaNLLforprof_) ||
+                          utils::countFloating(*param) == 0
+                      ? true
+                      : minimObj.minimize(verbosity_ - 1);
         if (ok) {
             deltaNLL = nll_.getVal() - nll_init;
             double qN = 2*(deltaNLL);
