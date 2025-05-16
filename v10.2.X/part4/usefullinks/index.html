@@ -14,7 +14,7 @@
       
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
@@ -22,7 +22,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.2afb09e1.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
       
       
 
@@ -1584,11 +1584,16 @@
 </ul>
 <h1 id="faq">FAQ</h1>
 <ul>
-<li><em>Why does <span style="font-variant:small-caps;">Combine</span> have trouble with bins that have zero expected contents?</em><ul>
-<li>If you are computing only upper limits, and your zero-prediction bins are all empty in data, then you can just set the background to a very small value instead of zero as the computation is regular for background going to zero (e.g. a counting experiment with <span class="arithmatex">\(B\leq1\)</span> will have essentially the same expected limit and observed limit as one with <span class="arithmatex">\(B=0\)</span>). If you are computing anything else, e.g. p-values, or if your zero-prediction bins are not empty in data, you're out of luck, and you should find a way to get a reasonable background prediction there (and set an uncertainty on it, as per the point above)</li>
+<li>
+<p><em>Why does <span style="font-variant:small-caps;">Combine</span> have trouble with bins that have zero expected contents?</em></p>
+<ul>
+<li>If the total number of expected background events is exactly 0 in a bin, observing 1 event is simply impossible, so e.g. you can't compute a p-value for it. If you are computing only upper limits, and your zero-prediction bins are all empty in data, then you can just set the background to a very small value instead of zero as the computation is regular for background going to zero (e.g. a counting experiment with <span class="arithmatex">\(B\leq1\)</span> will have essentially the same expected limit and observed limit as one with <span class="arithmatex">\(B=0\)</span>).
+  If you are computing anything else, e.g. p-values, or if your zero-prediction bins are not empty in data, you're out of luck, and you should find a way to get a reasonable background prediction there (and set an uncertainty on it, as per the point above). Methods can include rebinning, smoothing, generating more MC, data-driven estimation, etc. What will work best for you all depends on the problem you’re considering and the constraints you have.</li>
 </ul>
 </li>
-<li><em>How can an uncertainty be added to a zero quantity?</em><ul>
+<li>
+<p><em>How can an uncertainty be added to a zero quantity?</em></p>
+<ul>
 <li>You can put an uncertainty even on a zero event yield if you use a gamma distribution. That is in fact the more proper way of doing it if the prediction of zero comes from the limited size of your MC or data sample used to compute it.</li>
 </ul>
 </li>
@@ -1743,10 +1748,10 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       
