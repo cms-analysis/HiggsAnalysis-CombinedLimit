@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 
@@ -132,7 +130,7 @@ class TwoHypotesisHiggs(PhysicsModel):
 
                 if self.fqqIncluded:
                     if self.fqqFloating:
-                        self.modelBuilder.doVar("fqq[0,%s,%s]" % (self.fqqRange[0], self.fqqRange[1]))
+                        self.modelBuilder.doVar(f"fqq[0,{self.fqqRange[0]},{self.fqqRange[1]}]")
                     else:
                         self.modelBuilder.doVar("fqq[0]")
                     self.modelBuilder.factory_('expr::r_times_x_times_fqq("@0*@1", r_times_x, fqq)')
@@ -166,7 +164,7 @@ class TwoHypotesisHiggs(PhysicsModel):
                     "and",
                     self.mHRange[1],
                 )
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
                 poi += ",MH"
             else:
                 print("MH (not there before) will be assumed to be", self.options.mass)

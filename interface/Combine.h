@@ -3,12 +3,9 @@
 #include <TString.h>
 #include <TFile.h>
 #include <boost/program_options.hpp>
-#include <boost/filesystem.hpp>
 #include "RooArgSet.h"
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
 
 class TDirectory;
 class TTree;
@@ -33,20 +30,12 @@ extern  std::string setPhysicsModelParameterExpression_;
 extern  std::string setPhysicsModelParameterRangeExpression_;
 extern  std::string defineBackgroundOnlyModelParameterExpression_;
 
-namespace { 
     struct ToCleanUp {
-        TFile *tfile; std::string file, path;
-        ToCleanUp() : tfile(0), file(""), path("") {}
-        ~ToCleanUp() {
-              if (tfile) { tfile->Close(); delete tfile; }
-              if (!file.empty()) {  
-                 unlink(file.c_str());  // FIXME, we should check that the file deleted safely but currently when running HybridNew, we get a status of -1 even though the file is in fact removed?!
-		 //if (unlink(file.c_str()) == -1) std::cerr << "Failed to delete temporary file " << file << ": " << strerror(errno) << std::endl;
-              }
-              if (!path.empty()) {  boost::filesystem::remove_all(path); }
-        }
+        TFile *tfile = nullptr;
+        std::string file;
+        std::string path;
+        ~ToCleanUp();
     };
-}
 
 class Combine {
 public:
@@ -67,6 +56,11 @@ public:
 
   /// Add a branch to the output tree (for advanced use or debugging only)
   static void addBranch(const char *name, void *address, const char *leaflist) ;
+
+  static std::string& nllBackend();
+
+  static void setNllBackend(std::string const&);
+
 private:
   bool mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) ;
  
@@ -127,7 +121,12 @@ private:
   static std::string  trackParametersNameString_;
   static std::string  trackErrorsNameString_;
   static std::string  textToWorkspaceString_;
-
 };
+
+std::unique_ptr<RooAbsReal> combineCreateNLL(RooAbsPdf &pdf,
+                                             RooAbsData &data,
+                                             RooArgSet const *constraint = nullptr,
+                                             bool offset = false,
+                                             bool warnAboutDifferentBackend = true);
 
 #endif

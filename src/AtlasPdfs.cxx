@@ -1640,9 +1640,6 @@ void RooStarMomentMorph::CacheElem::calculateFractions(const RooStarMomentMorph&
     {
       //int nObs=self._obsList.getSize();
       
-      // loop over parList
-      int nnuis=0;
-      
       // zero all fractions
       int nPdf=self._pdfList.getSize();	
       for (Int_t i=0; i<3*nPdf; ++i) {
@@ -1662,9 +1659,6 @@ void RooStarMomentMorph::CacheElem::calculateFractions(const RooStarMomentMorph&
 	double mlo=self._nref[imin];
 	double mhi=self._nref[imax];
 	
-	// get reference for this obs
-	nnuis+=self._nnuis[j];
-	       
 	double mfrac = (imax>imin) ? (mhi-m0)/(mhi-mlo) : (mlo-m0)/(mhi-mlo);
 	if (mfrac> 1.) mfrac= 1.;
 	if (mfrac<-1.) mfrac=-1.;

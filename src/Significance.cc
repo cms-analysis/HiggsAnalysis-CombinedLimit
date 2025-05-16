@@ -90,8 +90,8 @@ Significance::MinimizerSentry::MinimizerSentry(const std::string &minimizerAlgo,
     minimizerTollBackup(ROOT::Math::MinimizerOptions::DefaultTolerance())
 {
   ROOT::Math::MinimizerOptions::SetDefaultTolerance(tolerance);
-  if (minimizerAlgo.find(",") != std::string::npos) {
-      size_t idx = minimizerAlgo.find(",");
+  if (minimizerAlgo.find(',') != std::string::npos) {
+      size_t idx = minimizerAlgo.find(',');
       std::string type = minimizerAlgo.substr(0,idx), algo = minimizerAlgo.substr(idx+1);
       if (verbose > 1) std::cout << "Set default minimizer to " << type << ", algorithm " << algo << ", tolerance " << tolerance << std::endl;
       ROOT::Math::MinimizerOptions::SetDefaultMinimizer(type.c_str(), algo.c_str());
@@ -298,7 +298,7 @@ bool Significance::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 
 
 double Significance::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const {
-    std::unique_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
+    auto nll = combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
     RooMinimizer minim(*nll);
     minim.setStrategy(0);
     minim.setPrintLevel(verbose-1);
@@ -322,7 +322,7 @@ double Significance::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRe
 
 std::pair<double,double> Significance::upperLimitBruteForce(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const {
     poi.setConstant(false);
-    std::unique_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
+    auto nll = combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
     RooMinimizer minim0(*nll);
     minim0.setStrategy(0);
     minim0.setPrintLevel(-1);
@@ -404,7 +404,7 @@ double Significance::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &data, Ro
     poi.setConstant(false);
     //poi.setMin(0); 
     poi.setVal(0.05*poi.getMax());
-    std::unique_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
+    auto nll = combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
     CascadeMinimizer minim0(*nll, CascadeMinimizer::Unconstrained, &poi);
     minim0.setStrategy(0);
     minim0.minimize(verbose-2);
@@ -479,7 +479,7 @@ double Significance::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &data, Ro
 }
 
 double Significance::significanceFromScan(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, int steps) const {
-    std::unique_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
+    auto nll = combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
     double maxScan = poi.getMax()*0.7;
     bool stepDown = (bfAlgo_.find("stepDown") != std::string::npos);
     bool twice    = (bfAlgo_.find("Twice")    != std::string::npos);

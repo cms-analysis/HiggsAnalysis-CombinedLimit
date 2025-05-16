@@ -14,6 +14,7 @@
 #include <TCanvas.h>
 #include <TGraphErrors.h>
 #include <TStopwatch.h>
+#include <TSystem.h>
 #include <TRandom3.h>
 #include <TTree.h>
 #include "RooRealVar.h"
@@ -46,10 +47,6 @@
 #include "../interface/ProfilingTools.h"
 #include "../interface/CombineLogger.h"
 
-
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
-
 using namespace RooStats;
 using namespace std;
 
@@ -65,7 +62,6 @@ bool HybridNew::genNuisances_ = true;
 bool HybridNew::genGlobalObs_ = false;
 bool HybridNew::fitNuisances_ = false;
 unsigned int HybridNew::iterations_ = 1;
-unsigned int HybridNew::nCpu_ = 0; // proof-lite mode
 unsigned int HybridNew::fork_ = 0; // fork mode
 std::string         HybridNew::rValue_   = "1.0";
 RooArgSet           HybridNew::rValues_;
@@ -117,7 +113,6 @@ LimitAlgo("HybridNew specific options") {
         ("interpAcc", boost::program_options::value<double>(&interpAccuracy_)->default_value(interpAccuracy_), "Minimum uncertainty from interpolation delta(x)/(max(x)-min(x))")
         ("iterations,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(iterations_), "Number of times to throw 'toysH' toys to compute the p-values (for --singlePoint if clsAcc is set to zero disabling adaptive generation)")
         ("fork",    boost::program_options::value<unsigned int>(&fork_)->default_value(fork_),           "Fork to N processes before running the toys (0 by default == no forking). Only use if you're an expert in combine!")
-        ("nCPU",    boost::program_options::value<unsigned int>(&nCpu_)->default_value(nCpu_),           "Use N CPUs with PROOF Lite (experimental!)")
         ("saveHybridResult",  "Save result in the output file")
         ("readHybridResults", "Read and merge results from file (requires option '--grid' or '--toysFile')")
         ("grid",    boost::program_options::value<std::string>(&gridFile_), "Use the specified file containing a grid of SamplingDistributions for the limit (implies readHybridResults).\n For calculating CLs/pmu values with --singlePoint or if calculating the Signfiicance with LHCmode LHC-significance ( or any option with --signif) use '--toysFile=x.root --readHybridResult' !")
@@ -296,6 +291,7 @@ bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mode
                                    return runTestStatistics(w, mc_s, mc_b, data, limit, limitErr, hint);
     }
     assert("Shouldn't get here" == 0);
+    return false;
 }
 
 bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
@@ -805,7 +801,6 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
   int nNonPoiFloatingParameters = utils::countFloating(floatParsModel);
   if (fitNuisances_ && nNonPoiFloatingParameters) {  // We need to fit the model first (to the data) if there are nuisance parameters (constrained or unconstrained)
     TStopwatch timer;
-    bool isExt = mc_s->GetPdf()->canBeExtended();
     utils::setAllConstant(poi, true);
     paramsToFit.reset(mc_s->GetPdf()->getParameters(data));
     RooStats::RemoveConstantParameters(&*paramsToFit);
@@ -815,12 +810,12 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
         r->setVal(0); pdfB = mc_s->GetPdf();
     }
     timer.Start();
-    std::unique_ptr<RooAbsReal> nll(pdfB->createNLL(data, RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+    auto nll = combineCreateNLL(*pdfB, data, mc_s->GetNuisanceParameters(), /*offset=*/false);
     {
         CloseCoutSentry sentry(verbose < 3);
         CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained, r);
         minim.minimize(verbose-3);
-        //pdfB->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
+        //pdfB->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
         fitZero.readFrom(*paramsToFit);
     }
     if (verbose > 1) { std::cout << "Zero signal fit" << std::endl; fitZero.Print("V"); }
@@ -842,13 +837,13 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
     timer.Start();
     if (pdfB != mc_s->GetPdf()) {
         nll.reset(); // first delete old one, to avoid duplicating memory
-        nll.reset(mc_s->GetPdf()->createNLL(data, RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+        nll = combineCreateNLL(*mc_s->GetPdf(), data, mc_s->GetNuisanceParameters(), /*offset=*/false);
     }
     {
        CloseCoutSentry sentry(verbose < 3);
        CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained, r);
        minim.minimize(verbose-3);
-       //mc_s->GetPdf()->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
+       //mc_s->GetPdf()->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
        fitMu.readFrom(*paramsToFit);
     }
     if (verbose > 1) { std::cout << "Reference signal fit" << std::endl; fitMu.Print("V"); }
@@ -1017,14 +1012,6 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
 
   if (!mc_b->GetPdf()->canBeExtended()) setup.toymcsampler->SetNEventsPerToy(1);
 
-  if (nCpu_ > 0) {
-    std::cerr << "ALERT: running with proof not validated." << std::endl;
-    CombineLogger::instance().log("HybridNew.cc",__LINE__,"[WARNING] running with proof not validated.",__func__);
-    if (verbose > 1) CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("   Will use %d CPUs.",nCpu_)),__func__);
-    setup.pc.reset(new ProofConfig(*w, nCpu_, "", kFALSE));
-    setup.toymcsampler->SetProofConfig(setup.pc.get());
-  }
-
   std::unique_ptr<HybridCalculator> hc(new HybridCalculator(data, setup.modelConfig, setup.modelConfig_bonly, setup.toymcsampler.get()));
   if (genNuisances_ || !genGlobalObs_) {
       if (withSystematics) {
@@ -1052,8 +1039,7 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
       	double prob = ROOT::Math::chisquared_cdf_c(qN,poi.getSize());
 
 	std::vector<float>scaleAndConfidences;
-  	std::vector<std::string> scaleAndConfidencesList;
-    	boost::split(scaleAndConfidencesList,scaleAndConfidenceSelection_ , boost::is_any_of(","));
+  	std::vector<std::string> scaleAndConfidencesList = Utils::split(scaleAndConfidenceSelection_ , ",");
 
   	for (UInt_t p = 0; p < scaleAndConfidencesList.size(); ++p) {
 
@@ -1382,8 +1368,14 @@ RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &h
         }
     } else {
         RooRandom::randomGenerator()->SetSeed(newSeeds[ich]);
-        freopen(TString::Format("%s.%d.out.txt", tmpfile, ich).Data(), "w", stdout);
-        freopen(TString::Format("%s.%d.err.txt", tmpfile, ich).Data(), "w", stderr);
+        if(freopen(TString::Format("%s.%d.out.txt", tmpfile, ich).Data(), "w", stdout) == nullptr) {
+          SysError("RedirectOutput", "could not freopen stdout (errno: %d)", TSystem::GetErrno());
+          return result.release(); // nullptr at this point
+        }
+        if(freopen(TString::Format("%s.%d.err.txt", tmpfile, ich).Data(), "w", stderr) == nullptr) {
+          SysError("RedirectOutput", "could not freopen stderr (errno: %d)", TSystem::GetErrno());
+          return result.release(); // nullptr at this point
+        }
         CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("  I am child %d, seed %d",ich, newSeeds[ich])),__func__);
         RooStats::HypoTestResult *hcResult = evalGeneric(hc, /*noFork=*/true);
         TFile *f = TFile::Open(TString::Format("%s.%d.root", tmpfile, ich), "RECREATE");

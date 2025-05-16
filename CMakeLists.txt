@@ -1,8 +1,10 @@
 cmake_minimum_required( VERSION 3.11 FATAL_ERROR )
 set(CMAKE_CXX_STANDARD 17)
-project(CMSCombine VERSION 0.0.1)
+project(HiggsAnalysisCombinedLimit VERSION 0.0.1)
 
 option( MODIFY_ROOTMAP "Modify generated Rootmap to take out classes already bundled in StatAnalysis" FALSE )
+option( INSTALL_PYTHON "Install the Python library and scripts" TRUE )
+option( USE_VDT "Use VDT (fast and vectorisable mathematical functions)" TRUE )
 
 # Can build with CMake after e.g. setting up StatAnalysis release like this:
 # export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
@@ -11,12 +13,11 @@ option( MODIFY_ROOTMAP "Modify generated Rootmap to take out classes already bun
 # cmake path/to/source # change this path to where-ever you cloned Combine repo to
 # make -j4
 
-list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
-find_package( ROOT REQUIRED COMPONENTS Core MathMore RooFitCore RooFit RooStats Minuit HistFactory RooFitHS3)
+find_package(ROOT REQUIRED COMPONENTS MathMore RooFitCore RooFit RooStats HistFactory)
 find_package(Eigen3 REQUIRED)
 find_package(Vdt)
 find_package(LCG QUIET) # only used for FindBoost in StatAnalysis
-find_package( Boost REQUIRED COMPONENTS program_options filesystem )
+find_package(Boost CONFIG REQUIRED COMPONENTS program_options filesystem)
 
 message(STATUS "Using ROOT From: ${ROOT_INCLUDE_DIRS}")
 include(${ROOT_USE_FILE})
@@ -25,7 +26,7 @@ include_directories(${ROOT_INCLUDE_DIRS})
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(${ROOT_CXX_FLAGS})
 
-set(LIBNAME CMSCombine)
+set(LIBNAME HiggsAnalysisCombinedLimit)
 
 file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} interface/*.h*)
 file(GLOB SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.c*)
@@ -38,18 +39,19 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 ROOT_GENERATE_DICTIONARY(G__${LIBNAME} HiggsAnalysis/CombinedLimit/src/classes.h LINKDEF src/classes_def.xml
         MODULE ${LIBNAME}
-        OPTIONS --deep)
+        OPTIONS ${ROOTCLING_OPTIONS})
 add_library(${LIBNAME} SHARED ${SOURCES} G__${LIBNAME}.cxx)
 set_target_properties(${LIBNAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
-target_link_libraries (${LIBNAME} Eigen3::Eigen ${ROOT_LIBRARIES} ${Boost_LIBRARIES} VDT::VDT)
+target_link_libraries (${LIBNAME} Eigen3::Eigen ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
+
+if(NOT USE_VDT)
+  target_compile_definitions(${LIBNAME} PUBLIC COMBINE_NO_VDT)
+else()
+  target_link_libraries (${LIBNAME} VDT::VDT)
+endif()
 
 add_executable(combine bin/combine.cpp)
 target_link_libraries(combine PUBLIC ${LIBNAME})
-
-
-# Create empty __init__.py file in the build directory that will be installed
-# in the Python library directories.
-set(empty_init_py "${CMAKE_CURRENT_BINARY_DIR}/__init__.py")
 
 if(MODIFY_ROOTMAP)
         # edit the generated rootmap in-situ before installation
@@ -103,36 +105,30 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/HiggsAnalysis/CombinedLimit/src/classe
 # Install the "combine" executable in the bin directory.
 install(TARGETS combine DESTINATION bin)
 
-# Install the scripts like "text2workspace" to the bin directory.
-install(DIRECTORY scripts/ DESTINATION bin)
 
-# This block is commented out for now, while using the less sophisticated location below
-# Check if the Python library installation directory is outside the install
-# prefix. If it is, we error out because CMake should not install files outside
-# the prefix. In the future, one can imagine to let the user choose where the
-# Python libraries get installed in the prefix with a CMake configuration flag.
-#find_package(Python COMPONENTS Interpreter Development) # To get the Python library install directory into Python_SITELIB
-#cmake_path(IS_PREFIX CMAKE_INSTALL_PREFIX "${Python_SITELIB}" sitelib_in_prefix)
-#if(NOT ${sitelib_in_prefix})
-#    message( FATAL_ERROR "Your Python library installation directory ${Python_SITELIB} "
-#            "is outside the install prefix ${CMAKE_INSTALL_PREFIX}! "
-#            "This is not supported for now. Consider changing the install prefix "
-#            "with the -DCMAKE_INSTALL_PREFIX:PATH=<path> cmake configuration option.")
-#endif()
-#
-## The the Python library installation directory relative to the install prefix.
-#file(RELATIVE_PATH Python_SITELIB_IN_PREFIX ${CMAKE_INSTALL_PREFIX} ${Python_SITELIB})
+if(INSTALL_PYTHON)
+  # In conda-forge cross-compiling builds we hardcode Python_SITELIB because
+  # find_package does not ever find the right version, unfortunately.
+  # In any other environment, find_package should work fine
+  if(NOT DEFINED Python_SITELIB)
+          find_package(Python REQUIRED COMPONENTS Interpreter)
+  endif()
 
-set(Python_SITELIB_IN_PREFIX "python")
+  # The the Python library installation directory relative to the install prefix.
+  file(RELATIVE_PATH Python_SITELIB_IN_PREFIX ${CMAKE_INSTALL_PREFIX} ${Python_SITELIB})
+  message (STATUS "Using Python install location:" ${Python_SITELIB_IN_PREFIX})
 
+  # Install the scripts like "text2workspace.py" to the bin directory.
+  install(DIRECTORY scripts/ DESTINATION bin USE_SOURCE_PERMISSIONS)
 
-message (STATUS "Using Python install location:" ${Python_SITELIB_IN_PREFIX})
-# The python package will be installed in such a way that the original
-# CMSSW-style directory structure is kept, for maximal compatibility.
-install(DIRECTORY python/ DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/CombinedLimit)
+  # The python package will be installed in such a way that the original
+  # CMSSW-style directory structure is kept, for maximal compatibility.
+  install(DIRECTORY python/ DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/CombinedLimit)
 
-# Create empty __init__.py files in the Python package subdirectories such that
-# the Python imports work.
-file(TOUCH ${empty_init_py})
-INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis)
-INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/CombinedLimit)
+  # Create empty __init__.py file in the build directory that will be installed
+  # in the Python library directories.
+  set(empty_init_py "${CMAKE_CURRENT_BINARY_DIR}/__init__.py")
+  file(TOUCH ${empty_init_py})
+  INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis)
+  INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/CombinedLimit)
+endif()

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import math
 
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
@@ -32,7 +30,7 @@ class SpinZeroHiggsCTau(PhysicsModel):
         if self.DC.isSignal[process]:
             self.my_norm = "r"
 
-            print("Process {0} will scale by {1}".format(process, self.my_norm))
+            print(f"Process {process} will scale by {self.my_norm}")
             return self.my_norm
 
         elif not self.DC.isSignal[process]:

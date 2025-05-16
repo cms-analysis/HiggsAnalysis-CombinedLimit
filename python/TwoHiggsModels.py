@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import re
 
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
@@ -35,7 +33,7 @@ class TwoHiggsBase(PhysicsModel):
             (production, decay, energy) = getHiggsProdDecMode(bin, process.replace("_SM", ""), self.options)
             return self.getHiggsYieldScaleSM(production, decay, energy)
         if self.DC.isSignal[process]:
-            raise RuntimeError("Found a signal process '%s' that is not among the supported ones: %s" % (process, self.modes))
+            raise RuntimeError(f"Found a signal process '{process}' that is not among the supported ones: {self.modes}")
         return 1
 
     def setPhysicsOptionsBase(self, physOptions):
@@ -89,7 +87,7 @@ class TwoHiggsBase(PhysicsModel):
                     "and",
                     self.mHRange[1],
                 )
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
                 if self.mHAsPOI:
                     poi += ",MH"
             else:
@@ -120,7 +118,7 @@ class TwoHiggsBase(PhysicsModel):
                     "and",
                     self.mHSMRange[1],
                 )
-                self.modelBuilder.doVar("MH_SM[%s,%s]" % (self.mHSMRange[0], self.mHSMRange[1]))
+                self.modelBuilder.doVar(f"MH_SM[{self.mHSMRange[0]},{self.mHSMRange[1]}]")
                 if self.mHSMAsPOI:
                     poi += ",MH_SM"
             else:
@@ -312,8 +310,8 @@ class TwoHiggsCvCf(TwoHiggsBase):
 
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
-        self.modelBuilder.doVar("CV[1,%s,%s]" % (self.cVRange[0], self.cVRange[1]))
-        self.modelBuilder.doVar("CF[1,%s,%s]" % (self.cFRange[0], self.cFRange[1]))
+        self.modelBuilder.doVar(f"CV[1,{self.cVRange[0]},{self.cVRange[1]}]")
+        self.modelBuilder.doVar(f"CF[1,{self.cFRange[0]},{self.cFRange[1]}]")
 
         self.modelBuilder.doSet("POI", "CV,CF")
 
@@ -373,23 +371,23 @@ class TwoHiggsCvCf(TwoHiggsBase):
         self.modelBuilder.factory_('expr::2HCvCf_BRscal_hvv("@0*@0/@1", CV, 2HCvCf_Gscal_tot)')
 
     def getHiggsYieldScaleSM(self, production, decay, energy):
-        name = "2HCvCf_XSBRscal_%s_%s" % (production, decay)
+        name = f"2HCvCf_XSBRscal_{production}_{decay}"
         if self.modelBuilder.out.function(name):
             return name
 
         XSscal = self.productionScaling[production]
         BRscal = self.decayScaling[decay]
-        self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, 2HCvCf_BRscal_%s)' % (name, XSscal, BRscal))
+        self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", {XSscal}, 2HCvCf_BRscal_{BRscal})')
         return name
 
     def getHiggsYieldScale(self, production, decay, energy):
-        name = "2HCvCf_XSBRscal_%s_%s" % (production, decay)
+        name = f"2HCvCf_XSBRscal_{production}_{decay}"
         if self.modelBuilder.out.function(name):
             return name
 
         XSscal = self.productionScaling[production]
         BRscal = self.decayScaling[decay]
-        self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, 2HCvCf_BRscal_%s)' % (name, XSscal, BRscal))
+        self.modelBuilder.factory_(f'expr::{name}("@0*@0 * @1", {XSscal}, 2HCvCf_BRscal_{BRscal})')
         return name
 
 

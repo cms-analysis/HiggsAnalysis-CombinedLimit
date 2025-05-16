@@ -11,7 +11,7 @@ namespace cmsmath {
 
     /// Basic struct to call a function
     struct MinimizerContext {
-        MinimizerContext(const ROOT::Math::IMultiGenFunction *function) : func(function), x(func->NDim()), nCalls(0) {}
+        MinimizerContext(const ROOT::Math::IMultiGenFunction *function) : func(function), x(func->NDim()) {}
         // convenience methods
         double eval() const { nCalls++; return (*func)(&x[0]); }
         double setAndEval(unsigned int i, double xi) const { x[i] = xi; return eval(); }
@@ -20,7 +20,7 @@ namespace cmsmath {
         const ROOT::Math::IMultiGenFunction * func;
         // data, mutable
         mutable std::vector<double> x;
-        mutable unsigned int nCalls;
+        mutable unsigned int nCalls = 0;
     };
 
     class OneDimMinimizer {
@@ -162,8 +162,7 @@ namespace cmsmath {
             // these have to be public for ROOT to handle
             enum State { Cleared, Ready, Active, Done, Fixed, Unknown };
             struct Worker : public OneDimMinimizer {
-                Worker() : OneDimMinimizer(), state(Unknown) {}
-                State state;
+                State state = Unknown;
                 int   nUnaffected; /// number of consecutive times it has been woken up and set to sleep immediately afterwards
             };
         protected:

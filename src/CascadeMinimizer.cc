@@ -47,11 +47,7 @@ CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) 
     nll_(nll),
     mode_(mode),
     //strategy_(0),
-    poi_(poi),
-    nuisances_(0),
-    autoBounds_(false),
-    poisForAutoBounds_(0),
-    poisForAutoMax_(0)
+    poi_(poi)
 {
     remakeMinimizer();
 }
@@ -572,19 +568,6 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     //if (mode!=0) utils::reorderCombinations(myCombos,pdfSizes,bestIndeces);
     utils::reorderCombinations(myCombos,pdfSizes,bestIndeces);
 
-    int numberOfCombinations = 1;
-    if (mode==1 || mode==0) numberOfCombinations=myCombos.size();
-
-    else {
-    	for (int i=0;i<numIndeces;i++){
-	 int nokpdfs=0;
-      	 for (int j=0;j<pdfSizes[i];j++){
-	   nokpdfs+=contributingIndeces[i][j];
-         }
-	 numberOfCombinations*=nokpdfs;
-	}
-    }
-
     std::vector<std::vector<int> >::iterator my_it = myCombos.begin();
     if (mode!=0) my_it++; // already did the best fit case
   
@@ -795,13 +778,13 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
 	    std::string type; 
             float tolerance = Algo::default_tolerance(); 
             int   strategy = Algo::default_strategy(); 
-            string::size_type idx = std::min(algo.find(";"), algo.find(":"));
+            string::size_type idx = std::min(algo.find(';'), algo.find(':'));
             if (idx != string::npos && idx < algo.length()) {
                  tolerance = atof(algo.substr(idx+1).c_str());
                  algo      = algo.substr(0,idx); // DON'T SWAP THESE TWO LINES
 		 type	   = std::string(defaultMinimizerType_);
             }
-            idx = algo.find(",");
+            idx = algo.find(',');
             if (idx != string::npos && idx < algo.length()) {
                 // if after the comma there's a number, then it's a strategy
                 if ( '0' <= algo[idx+1] && algo[idx+1] <= '9' ) {
@@ -814,8 +797,7 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
 		    
                 } else {
                     // otherwise, it could be Name,subname,strategy
-		    std::vector<std::string> configs;
-		    boost::algorithm::split(configs,algo,boost::is_any_of(","));
+		    std::vector<std::string> configs = Utils::split(algo,",");
 		    if (configs.size()!=3) {
 		    	std::cerr << "The fallback command from --cminFallbackAlgo " << *it << " is malformed. It should be formatted as Type[,Algo],strategy[:tolerance] " << std::endl;
 			exit(0);

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import ROOT
 from HiggsAnalysis.CombinedLimit.LHCHCGModels import *
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
@@ -146,10 +144,10 @@ class KappaVKappaT(LHCHCGBaseModel):
         self.modelBuilder.factory_('expr::c7_BRscal_hinv("@0", BRinv)')
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
-        name = "c7_XSBRscal_%s_%s_%s" % (production, decay, energy)
+        name = f"c7_XSBRscal_{production}_{decay}_{energy}"
         if self.modelBuilder.out.function(name) == None:
             if production in ["ggH", "qqH", "ggZH", "tHq", "tHW"]:
-                XSscal = ("@0", "Scaling_%s_%s" % (production, energy))
+                XSscal = ("@0", f"Scaling_{production}_{energy}")
             elif production == "WH":
                 XSscal = ("@0*@0", "kappa_V")
             elif production == "ZH":
@@ -166,15 +164,13 @@ class KappaVKappaT(LHCHCGBaseModel):
             if decay == "hss":
                 BRscal = "hbb"
             if production in ["tHq", "tHW", "ttH"]:
-                self.modelBuilder.factory_('expr::%s("%s*@1*@2", %s, c7_BRscal_%s, r)' % (name, XSscal[0], XSscal[1], BRscal))
+                self.modelBuilder.factory_(f'expr::{name}("{XSscal[0]}*@1*@2", {XSscal[1]}, c7_BRscal_{BRscal}, r)')
             elif production == "ggH" and (decay in self.add_bbH) and energy in ["7TeV", "8TeV", "13TeV", "14TeV"]:
-                b2g = "CMS_R_bbH_ggH_%s_%s[%g]" % (decay, energy, 0.01)
+                b2g = f"CMS_R_bbH_ggH_{decay}_{energy}[{0.01:g}]"
                 b2gs = "CMS_bbH_scaler_%s" % energy
-                self.modelBuilder.factory_(
-                    'expr::%s("(%s + @1*@1*@2*@3)*@4", %s, kappa_b, %s, %s, c7_BRscal_%s)' % (name, XSscal[0], XSscal[1], b2g, b2gs, BRscal)
-                )
+                self.modelBuilder.factory_(f'expr::{name}("({XSscal[0]} + @1*@1*@2*@3)*@4", {XSscal[1]}, kappa_b, {b2g}, {b2gs}, c7_BRscal_{BRscal})')
             else:
-                self.modelBuilder.factory_('expr::%s("%s*@1*@2", %s, c7_BRscal_%s,r)' % (name, XSscal[0], XSscal[1], BRscal))
+                self.modelBuilder.factory_(f'expr::{name}("{XSscal[0]}*@1*@2", {XSscal[1]}, c7_BRscal_{BRscal},r)')
             print("[LHC-HCG Kappas]", name, production, decay, energy, ": ", end=" ")
             self.modelBuilder.out.function(name).Print("")
         return name

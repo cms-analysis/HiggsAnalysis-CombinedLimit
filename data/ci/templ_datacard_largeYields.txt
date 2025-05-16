@@ -1,0 +1,29 @@
+imax *
+jmax *
+kmax *
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+shapes * * all_histograms_fps4_$CHANNEL.root $PROCESS $PROCESS_$SYSTEMATIC
+shapes ttbar * all_histograms_fps4_$CHANNEL.root ttbar ttbar_$SYSTEMATIC
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+bin          bin4j1b      bin4j2b
+observation  -1           -1
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+bin      bin4j1b  bin4j1b              bin4j1b              bin4j1b          bin4j1b  bin4j2b  bin4j2b              bin4j2b              bin4j2b          bin4j2b
+process  ttbar    single_top_s_chan    single_top_t_chan    single_top_tW    wjets    ttbar    single_top_s_chan    single_top_t_chan    single_top_tW    wjets
+process  0        1                    2                    3                4        0        1                    2                    3                4
+rate     -1       -1                   -1                   -1               -1       -1       -1                   -1                   -1               -1
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+pt_scale   shape 1 1 1 1 1 1 1 1 1 1
+pt_res     shape 1 1 1 1 1 1 1 1 1 1
+btag_var_0 shape 1 1 1 1 1 1 1 1 1 1
+btag_var_1 shape 1 1 1 1 1 1 1 1 1 1
+btag_var_2 shape 1 1 1 1 1 1 1 1 1 1
+btag_var_3 shape 1 1 1 1 1 1 1 1 1 1
+ME_var     shape 1 0 0 0 0 1 0 0 0 0
+PS_var     shape 1 0 0 0 0 1 0 0 0 0
+scale      shape 1 0 0 0 0 1 0 0 0 0
+scale_var  shape 0 0 0 0 1 0 0 0 0 1
+lumi       lnN   1.03 1.03 1.03 1.03 1.03 1.03 1.03 1.03 1.03 1.03
+
+bin4j1b autoMCStats 0
+bin4j2b autoMCStats 0

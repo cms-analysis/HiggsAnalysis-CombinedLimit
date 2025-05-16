@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import fnmatch
 
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
@@ -65,7 +63,7 @@ def getSTXSProdDecMode(bin, process, options):
                 foundEnergy = D
     if not foundEnergy:
         foundEnergy = "13TeV"  ## if using 81x, chances are its 13 TeV
-        print("Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy))
+        print(f"Warning: decay string {decaySource} does not contain any known energy, assuming {foundEnergy}")
     #
     return (processSource, foundDecay, foundEnergy)
 
@@ -98,7 +96,7 @@ class STXSBaseModel(PhysicsModel):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
-                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0], self.mHRange[1]))
+                self.modelBuilder.doVar(f"MH[{self.mHRange[0]},{self.mHRange[1]}]")
             self.POIs += ",MH"
         else:
             if self.modelBuilder.out.var("MH"):
@@ -131,7 +129,7 @@ class StageZero(STXSBaseModel):
         self.modelBuilder.doVar(x)
         vname = re.sub(r"\[.*", "", x)
         # self.modelBuilder.out.var(vname).setConstant(constant)
-        print("SignalStrengths:: declaring %s as %s" % (vname, x))
+        print(f"SignalStrengths:: declaring {vname} as {x}")
 
     def doParametersOfInterest(self):
         """Create POI out of signal strengths (and MH)"""
@@ -146,13 +144,13 @@ class StageZero(STXSBaseModel):
             for dec in SM_HIGG_DECAYS:
                 D = CMS_to_LHCHCG_DecSimple[dec]
                 if D == self.denominator:
-                    if not "mu_XS_%s_x_BR_%s" % (P, self.denominator) in pois:
-                        self.modelBuilder.doVar("mu_XS_%s_x_BR_%s[1,0,5]" % (P, self.denominator))
-                        pois.append("mu_XS_%s_x_BR_%s" % (P, self.denominator))
+                    if f"mu_XS_{P}_x_BR_{self.denominator}" not in pois:
+                        self.modelBuilder.doVar(f"mu_XS_{P}_x_BR_{self.denominator}[1,0,5]")
+                        pois.append(f"mu_XS_{P}_x_BR_{self.denominator}")
                 else:
-                    if not "mu_BR_%s_r_BR_%s" % (D, self.denominator) in pois:
-                        self.modelBuilder.doVar("mu_BR_%s_r_BR_%s[1,0,5]" % (D, self.denominator))
-                        pois.append("mu_BR_%s_r_BR_%s" % (D, self.denominator))
+                    if f"mu_BR_{D}_r_BR_{self.denominator}" not in pois:
+                        self.modelBuilder.doVar(f"mu_BR_{D}_r_BR_{self.denominator}[1,0,5]")
+                        pois.append(f"mu_BR_{D}_r_BR_{self.denominator}")
 
         print(pois)
         self.POIs = ",".join(pois)
@@ -179,17 +177,17 @@ class StageZero(STXSBaseModel):
                     continue
                 allDecs.append(D)
                 if D == self.denominator:
-                    muXSBR = "mu_XS_%s_x_BR_%s" % (P, self.denominator)
+                    muXSBR = f"mu_XS_{P}_x_BR_{self.denominator}"
                     self.modelBuilder.factory_("expr::scaling_" + P + "_" + D + '_13TeV("@0",' + muXSBR + ")")
                 else:
-                    muXSBR = "mu_XS_%s_x_BR_%s" % (P, self.denominator)
-                    muBR = "mu_BR_%s_r_BR_%s" % (D, self.denominator)
+                    muXSBR = f"mu_XS_{P}_x_BR_{self.denominator}"
+                    muBR = f"mu_BR_{D}_r_BR_{self.denominator}"
                     self.modelBuilder.factory_("expr::scaling_" + P + "_" + D + '_13TeV("@0*@1",' + muXSBR + "," + muBR + ")")
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         for regproc in ALL_STXS_PROCS["Stage0"].keys():
             if fnmatch.fnmatch(production, regproc):
-                return "scaling_%s_%s_%s" % (
+                return "scaling_{}_{}_{}".format(
                     ALL_STXS_PROCS["Stage0"][regproc],
                     decay,
                     energy,

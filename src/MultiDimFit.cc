@@ -10,7 +10,6 @@
 #include "RooAbsData.h"
 #include "RooCategory.h"
 #include "RooFitResult.h"
-//#include "../interface/RooMinimizerOpt.h"
 #include "RooMinimizer.h"
 #include <RooStats/ModelConfig.h>
 #include "../interface/Combine.h"
@@ -217,7 +216,8 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     } else {
         std::cout << "MultiDimFit -- Skipping initial global fit" << std::endl;
         // must still create the NLL
-        nll.reset(pdf.createNLL(data, constrainCmdArg, RooFit::Extended(pdf.canBeExtended()), RooFit::Offset(true)));
+        RooArgSet const *cPars = withSystematics ? mc_s->GetNuisanceParameters() : nullptr;
+        nll = combineCreateNLL(pdf, data, /*nuisances=*/cPars, /*offset=*/true);
     }
 
     //if(w->var("r")) {w->var("r")->Print();}
@@ -902,7 +902,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
 
             // now we minimize
             bool skipme = hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_;
-            bool ok = fastScan_ || skipme ? true :  minim.minimize(verbose-1);
+            bool ok = fastScan_ || skipme || utils::countFloating(*params) == 0 ? true : minim.minimize(verbose - 1);
             if (ok) {
                 deltaNLL_ = nll.getVal() - nll0;
                 double qN = 2*(deltaNLL_);
@@ -1195,8 +1195,7 @@ void MultiDimFit::saveResult(RooFitResult &res) {
 
 void MultiDimFit::splitGridPoints(const std::string& s, std::vector<unsigned int>& points) const {
     // split by comma
-    std::vector<std::string> strPoints;
-    boost::split(strPoints, s, boost::is_any_of(","));
+    std::vector<std::string> strPoints = Utils::split(s, ",");
 
     // convert to int and add
     for (const auto& strPoint : strPoints) {
@@ -1208,11 +1207,9 @@ void MultiDimFit::splitGridPoints(const std::string& s, std::vector<unsigned int
 // Assumes the string is formatted with colons like "poi_name1=lo_lim,hi_lim:poi_name2=lo_lim,hi_lim"
 std::map<std::string, std::vector<float>> MultiDimFit::getRangesDictFromInString(std::string params_ranges_string_in) {
     std::map<std::string, std::vector<float>> out_range_dict;
-    std::vector<std::string> params_ranges_string_lst;
-    boost::split(params_ranges_string_lst, params_ranges_string_in, boost::is_any_of(":"));
+    std::vector<std::string> params_ranges_string_lst = Utils::split(params_ranges_string_in, ":");
     for (UInt_t p = 0; p < params_ranges_string_lst.size(); ++p) {
-        std::vector<std::string> params_ranges_string;
-        boost::split(params_ranges_string, params_ranges_string_lst[p], boost::is_any_of("=,"));
+        std::vector<std::string> params_ranges_string = Utils::split(params_ranges_string_lst[p], "=,");
         if (params_ranges_string.size() != 3) {
             std::cout << "Error parsing expression : " << params_ranges_string_lst[p] << std::endl;
         }

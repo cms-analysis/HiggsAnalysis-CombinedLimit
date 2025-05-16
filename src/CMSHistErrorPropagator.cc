@@ -341,7 +341,7 @@ RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
     }
 
     // Now check if we are below the poisson threshold
-    double n = int(0.5 + ((sub_sum * sub_sum) / (sub_err * sub_err)));
+    double n = std::floor(0.5 + ((sub_sum * sub_sum) / (sub_err * sub_err)));
     double alpha = valsum_[j] / n;
     std::cout << TString::Format(
         "%-10i %-15f %-15f %-30s\n", j, n, std::sqrt(n),
@@ -373,7 +373,7 @@ RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
           std::cout << TString::Format("      %-30s\n", "=> Cannot handle negative content, ignore");
           bintypes_[j][i] = 4;
         } else if (v_p > 0. && e_p > 0. && v_p >= (e_p*0.999)) {
-          double n_p_r = int(0.5 + ((v_p * v_p) / (e_p * e_p)));
+          double n_p_r = std::floor(0.5 + ((v_p * v_p) / (e_p * e_p)));
           double alpha_p_r = v_p / n_p_r;
           std::cout << TString::Format(
               "    %-20s %-15f %-15f %-30s\n", "", n_p_r, std::sqrt(n_p_r),
@@ -506,6 +506,7 @@ void CMSHistErrorPropagator::printMultiline(std::ostream& os, Int_t contents, Bo
 Int_t CMSHistErrorPropagator::getAnalyticalIntegral(RooArgSet& allVars,
                                          RooArgSet& analVars,
                                          const char* /*rangeName*/) const {
+  if (allVars.find(x_.arg().GetName()) == nullptr) allVars.add(x_.arg());
   if (matchArgs(allVars, analVars, x_)) return 1;
   return 0;
 }

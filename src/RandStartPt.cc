@@ -13,7 +13,6 @@
 #include "RooArgList.h"
 #include "RooRealVar.h"
 #include "RooMinimizer.h"
-#include <boost/algorithm/string.hpp>
 
 #include <Math/Minimizer.h>
 #include <Math/MinimizerOptions.h>
@@ -47,9 +46,9 @@ std::vector<std::vector<float>> RandStartPt::vectorOfPointsToTry (){
     int n_prof_params = specifiedvars_.size();
 
     if(!skipdefaultstart_) {
-        std::vector<float> default_start_pt_vec;
+        std::vector<float> default_start_pt_vec(n_prof_params);
         for (int prof_param_idx = 0; prof_param_idx<n_prof_params; prof_param_idx++){
-            default_start_pt_vec.push_back(specifiedvars_[prof_param_idx]->getVal());
+            default_start_pt_vec[prof_param_idx] = specifiedvars_[prof_param_idx]->getVal();
         }
         wc_vals_vec_of_vec.push_back(default_start_pt_vec);
     }
@@ -101,11 +100,9 @@ std::vector<std::vector<float>> RandStartPt::vectorOfPointsToTry (){
 // // Assumes the string is formatted with colons like "poi_name1=lo_lim,hi_lim:poi_name2=lo_lim,hi_lim"
 std::map<std::string, std::vector<float>> RandStartPt::getRangesDictFromInString(std::string params_ranges_string_in) {
     std::map<std::string, std::vector<float>> out_range_dict;
-    std::vector<std::string> params_ranges_string_lst;
-    boost::split(params_ranges_string_lst, params_ranges_string_in, boost::is_any_of(":"));
+    std::vector<std::string> params_ranges_string_lst = Utils::split(params_ranges_string_in, ":");
     for (UInt_t p = 0; p < params_ranges_string_lst.size(); ++p) {
-        std::vector<std::string> params_ranges_string;
-        boost::split(params_ranges_string, params_ranges_string_lst[p], boost::is_any_of("=,"));
+        std::vector<std::string> params_ranges_string = Utils::split(params_ranges_string_lst[p], "=,");
         if (params_ranges_string.size() != 3) {
             std::cout << "Error parsing expression : " << params_ranges_string_lst[p] << std::endl;
         }
@@ -221,9 +218,10 @@ void RandStartPt::doRandomStartPt2DGridScan(double &xval, double &yval, unsigned
             }
             continue;
         }
-        bool ok = fastscan_ || (hasmaxdeltaNLLforprof_ && (nll_.getVal() - nll_init) > maxdeltaNLLforprof_) ?
-                            true :
-                            minimObj.minimize(verbosity_-1);
+        bool ok = fastscan_ || (hasmaxdeltaNLLforprof_ && (nll_.getVal() - nll_init) > maxdeltaNLLforprof_) ||
+                          utils::countFloating(*param) == 0
+                      ? true
+                      : minimObj.minimize(verbosity_ - 1);
         if (ok) {
             deltaNLL = nll_.getVal() - nll_init;
             double qN = 2*(deltaNLL);

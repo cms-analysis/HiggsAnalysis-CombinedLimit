@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import math
 
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
@@ -9,7 +7,7 @@ from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
     def __init__(self):
-        super(SpinZeroHiggsBase, self).__init__()
+        super().__init__()
 
         self.fai1Floating = True
         self.fai1POI = True
@@ -30,22 +28,22 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
         self.offshell = False
 
     def setModelBuilder(self, modelBuilder):
-        super(SpinZeroHiggsBase, self).setModelBuilder(modelBuilder)
+        super().setModelBuilder(modelBuilder)
         self.modelBuilder.doModelBOnly = False
 
     def getYieldScale(self, bin, process):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds"
-        result = super(SpinZeroHiggsBase, self).getYieldScale(bin, process)
+        result = super().getYieldScale(bin, process)
         if result not in (0, 1):
-            print("Process {0} will scale by {1}".format(process, result))
+            print(f"Process {process} will scale by {result}")
         return result
 
     def processPhysicsOptions(self, physOptions):
-        processed = super(SpinZeroHiggsBase, self).processPhysicsOptions(physOptions)
+        processed = super().processPhysicsOptions(physOptions)
         for po in physOptions:
             if po.lower() == "fai1fixed" or po.lower() == "fai1notpoi":
                 if not self.fai1POI:
-                    raise ValueError("Specified fai1Fixed and/or fai1NotPOI multiple times!\n{}".format(physOptions))
+                    raise ValueError(f"Specified fai1Fixed and/or fai1NotPOI multiple times!\n{physOptions}")
                 print("CMS_zz4l_fai1 is NOT A POI")
                 self.fai1POI = False
                 if po.lower() == "fai1fixed":
@@ -55,7 +53,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
             if po.lower() == "phiai1floating" or po.lower() == "phiai1aspoi":
                 if self.phiai1Floating:
-                    raise ValueError("Specified phiai1Floating and/or phiai1AsPOI multiple times!\n{}".format(physOptions))
+                    raise ValueError(f"Specified phiai1Floating and/or phiai1AsPOI multiple times!\n{physOptions}")
                 print("Will consider phase ai1 as a floating parameter")
                 self.phiai1Floating = True
                 if po.lower() == "phiai1aspoi":
@@ -65,7 +63,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
             if po.lower() == "fai2floating" or po.lower() == "fai2aspoi":
                 if self.fai2Floating:
-                    raise ValueError("Specified fai2Floating and/or fai2AsPOI multiple times!\n{}".format(physOptions))
+                    raise ValueError(f"Specified fai2Floating and/or fai2AsPOI multiple times!\n{physOptions}")
                 print("Will float CMS_zz4l_fai2")
                 self.fai2Floating = True
                 if po.lower() == "fai2aspoi":
@@ -74,7 +72,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
             if po.lower() == "phiai2floating" or po.lower() == "phiai2aspoi":
                 if self.phiai2Floating:
-                    raise ValueError("Specified phiai2Floating and/or phiai2AsPOI multiple times!\n{}".format(physOptions))
+                    raise ValueError(f"Specified phiai2Floating and/or phiai2AsPOI multiple times!\n{physOptions}")
                 print("Will consider phase ai2 as a floating parameter")
                 self.phiai2Floating = True
                 if po.lower() == "phiai2aspoi":
@@ -98,7 +96,7 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
     def getPOIList(self):
         poi = []
-        poi += super(SpinZeroHiggsBase, self).getPOIList()
+        poi += super().getPOIList()
 
         if self.fai1Floating:
             if self.modelBuilder.out.var("CMS_zz4l_fai1"):
@@ -230,12 +228,12 @@ class SpinZeroHiggsBase(PhysicsModelBase_NiceSubclasses):
 
 class SpinZeroHiggs(SpinZeroHiggsBase):
     def __init__(self):
-        super(SpinZeroHiggs, self).__init__()
+        super().__init__()
         self.muFloating = True
         self.muAsPOI = False
 
     def processPhysicsOptions(self, physOptions):
-        processed = super(SpinZeroHiggs, self).processPhysicsOptions(physOptions)
+        processed = super().processPhysicsOptions(physOptions)
         for po in physOptions:
             if po.lower() == "mufixed":
                 print("Will consider the signal strength as a fixed parameter")
@@ -266,7 +264,7 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
         return processed
 
     def getPOIList(self):
-        poi = super(SpinZeroHiggs, self).getPOIList()
+        poi = super().getPOIList()
         if self.muFloating:
             if self.modelBuilder.out.var("r"):
                 self.modelBuilder.out.var("r").setRange(0.0, 400.0)
@@ -295,7 +293,7 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
 
 class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase, CanTurnOffBkgModel, MultiSignalModel):
     def __init__(self):
-        super(MultiSignalSpinZeroHiggs, self).__init__()
+        super().__init__()
 
         self.scalemuvfseparately = True
         self.scaledifferentsqrtsseparately = False
@@ -311,10 +309,10 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase, CanTurnOffBkgModel, MultiSigna
             # no po started with map --> no manual overriding --> use the defaults
             # can still override with e.g. turnoff=ZH,WH
             physOptions = ["map=.*/(gg|qq|Z|W|tt)H:1"] + physOptions
-        super(MultiSignalSpinZeroHiggs, self).setPhysicsOptions(physOptions)
+        super().setPhysicsOptions(physOptions)
 
     def processPhysicsOptions(self, physOptions):
-        processed = super(MultiSignalSpinZeroHiggs, self).processPhysicsOptions(physOptions)
+        processed = super().processPhysicsOptions(physOptions)
         for po in physOptions:
             if po.lower() == "scalemuvmuftogether":
                 self.scalemuvfseparately = False
@@ -339,23 +337,23 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase, CanTurnOffBkgModel, MultiSigna
 
         if self.scaledifferentsqrtsseparately and self.scalemuvfseparately:
             if self.uservoverrf:
-                self.fixed = ["RV", "RF", "R"] + ["RF_{}TeV".format(_) for _ in self.sqrts]
-                self.floated = ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "") for _2 in self.sqrts]
+                self.fixed = ["RV", "RF", "R"] + [f"RF_{_}TeV" for _ in self.sqrts]
+                self.floated = [f"R{_1}_{_2}TeV" for _1 in ("V", "") for _2 in self.sqrts]
             else:
-                self.fixed = ["RV", "RF", "R"] + ["R_{}TeV".format(_) for _ in self.sqrts]
-                self.floated = ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
+                self.fixed = ["RV", "RF", "R"] + [f"R_{_}TeV" for _ in self.sqrts]
+                self.floated = [f"R{_1}_{_2}TeV" for _1 in ("V", "F") for _2 in self.sqrts]
         elif self.scaledifferentsqrtsseparately and not self.scalemuvfseparately:
-            self.fixed = ["RV", "RF", "R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F") for _2 in self.sqrts]
-            self.floated = ["R_{}TeV".format(_) for _ in self.sqrts]
+            self.fixed = ["RV", "RF", "R"] + [f"R{_1}_{_2}TeV" for _1 in ("V", "F") for _2 in self.sqrts]
+            self.floated = [f"R_{_}TeV" for _ in self.sqrts]
         elif not self.scaledifferentsqrtsseparately and self.scalemuvfseparately:
             if self.uservoverrf:
-                self.fixed = ["RF"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
+                self.fixed = ["RF"] + [f"R{_1}_{_2}TeV" for _1 in ("V", "F", "") for _2 in self.sqrts]
                 self.floated = ["RV", "R"]
             else:
-                self.fixed = ["R"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
+                self.fixed = ["R"] + [f"R{_1}_{_2}TeV" for _1 in ("V", "F", "") for _2 in self.sqrts]
                 self.floated = ["RV", "RF"]
         elif not self.scaledifferentsqrtsseparately and not self.scalemuvfseparately:
-            self.fixed = ["RV", "RF"] + ["R{}_{}TeV".format(_1, _2) for _1 in ("V", "F", "") for _2 in self.sqrts]
+            self.fixed = ["RV", "RF"] + [f"R{_1}_{_2}TeV" for _1 in ("V", "F", "") for _2 in self.sqrts]
             self.floated = ["R"]
         else:
             assert False, "?????"
@@ -363,31 +361,31 @@ class MultiSignalSpinZeroHiggs(SpinZeroHiggsBase, CanTurnOffBkgModel, MultiSigna
         return processed
 
     def getPOIList(self):
-        result = super(MultiSignalSpinZeroHiggs, self).getPOIList()
+        result = super().getPOIList()
 
         fixedorfloated = self.fixed + self.floated
         for variable in fixedorfloated:
             if not self.modelBuilder.out.var(variable):
-                print("{} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option".format(variable))
+                print(f"{variable} does not exist in the workspace!  Check:\n - your datacard maker\n - your sqrts option")
             else:
                 if "r" in variable.lower():
-                    print("Setting {} range to [1.,0.,400.]".format(variable))
+                    print(f"Setting {variable} range to [1.,0.,400.]")
                     self.modelBuilder.out.var(variable).setRange(0.0, 400.0)
                     self.modelBuilder.out.var(variable).setVal(1)
                 elif "ggsm" in variable.lower():
-                    print("Setting {} range to [1.,0.,50.]".format(variable))
+                    print(f"Setting {variable} range to [1.,0.,50.]")
                     self.modelBuilder.out.var(variable).setRange(0.0, 50.0)
                     self.modelBuilder.out.var(variable).setVal(1)
                 else:
-                    print("Setting {} value to 0".format(variable))
+                    print(f"Setting {variable} value to 0")
                     self.modelBuilder.out.var(variable).setVal(0)
         for variable in self.fixed:
             if self.modelBuilder.out.var(variable):
-                print("Fixing {}".format(variable))
+                print(f"Fixing {variable}")
                 self.modelBuilder.out.var(variable).setConstant()
         for variable in self.floated:
             if self.modelBuilder.out.var(variable):
-                print("Floating {} and assigning attribute flatParam".format(variable))
+                print(f"Floating {variable} and assigning attribute flatParam")
                 self.modelBuilder.out.var(variable).setConstant(False)
                 self.modelBuilder.out.var(variable).setAttribute("flatParam")
 

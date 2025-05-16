@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import
-from __future__ import print_function
 import ROOT
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import argparse
 import json
-from six.moves import range
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input", help="""Input json file""")

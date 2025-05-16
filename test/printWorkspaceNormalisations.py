@@ -1,3 +1,5 @@
+#!/usr/bin/env -S python3 -u
+
 from __future__ import absolute_import, print_function
 
 import datetime

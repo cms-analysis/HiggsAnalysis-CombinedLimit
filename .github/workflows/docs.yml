@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**.md'
+      - '**.yml'
 
 jobs:
   docs:
@@ -22,4 +25,4 @@ jobs:
         git fetch origin gh-pages --depth=1
         git config user.name ci-bot
         git config user.email ci-bot@example.com
-        mike deploy --push v10.0.X latest 
+        mike deploy --push v10.2.X latest

@@ -18,7 +18,6 @@
 #include "SimpleGaussianConstraint.h"
 #include "SimplePoissonConstraint.h"
 #include "SimpleConstraintGroup.h"
-#include <boost/ptr_container/ptr_vector.hpp>
 
 class RooMultiPdf;
 
@@ -86,11 +85,11 @@ class CachingPdf : public CachingPdfBase {
         RooAbsReal *pdfOriginal_;
         RooArgSet  pdfPieces_;
         RooAbsReal *pdf_;
-        const RooAbsData *lastData_;
+        const RooAbsData *lastData_ = 0;
         ValuesCache cache_;
         std::vector<uint8_t> nonZeroW_;
         unsigned int         nonZeroWEntries_;
-        bool                 includeZeroWeights_;
+        bool                 includeZeroWeights_ = false;
         virtual void newData_(const RooAbsData &data) ;
         virtual void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
 };
@@ -149,16 +148,16 @@ class CachingAddNLL : public RooAbsReal {
         double               sumWeights_;
         bool includeZeroWeights_;
         mutable std::vector<RooAbsReal*> coeffs_;
-        mutable boost::ptr_vector<CachingPdfBase>  pdfs_;
-        mutable boost::ptr_vector<RooAbsReal>  prods_;
+        mutable std::vector<std::unique_ptr<CachingPdfBase>>  pdfs_;
+        mutable std::vector<std::unique_ptr<RooAbsReal>>  prods_;
         mutable std::vector<RooAbsReal*> integrals_;
         mutable std::vector<std::pair<const RooMultiPdf*,CachingPdfBase*> > multiPdfs_;
         mutable std::vector<Double_t> partialSum_;
         mutable std::vector<Double_t> workingArea_;
         mutable bool isRooRealSum_, fastExit_;
         mutable int canBasicIntegrals_, basicIntegrals_;
-        double zeroPoint_; 
-        double constantZeroPoint_; // this is arbitrary and kept constant for all the lifetime of the PDF
+        double zeroPoint_ = 0;
+        double constantZeroPoint_ = 0; // this is arbitrary and kept constant for all the lifetime of the PDF
 };
 
 class CachingSimNLL  : public RooAbsReal {
@@ -199,7 +198,8 @@ class CachingSimNLL  : public RooAbsReal {
         const RooAbsData  *dataOriginal_;
         const RooArgSet   *nuis_;
         RooSetProxy        params_, catParams_;
-        bool hideRooCategories_, hideConstants_;
+        bool hideRooCategories_ = false;
+        bool hideConstants_ = false;
         RooArgSet piecesForCloning_;
         std::unique_ptr<RooSimultaneous>  factorizedPdf_;
         std::vector<RooAbsPdf *>        constrainPdfs_;
@@ -219,10 +219,10 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<double> constrainZeroPointsFastPoisson_;
         std::vector<RooAbsReal*> channelMasks_;
         std::vector<bool>        internalMasks_;
-        bool                     maskConstraints_;
+        bool                     maskConstraints_ = false;
         RooArgSet                activeParameters_, activeCatParameters_;
-        double                   maskingOffset_;     // offset to ensure that interal or constraint masking doesn't change NLL value
-        double                   maskingOffsetZero_; // and associated zero point
+        double                   maskingOffset_ = 0;     // offset to ensure that interal or constraint masking doesn't change NLL value
+        double                   maskingOffsetZero_ = 0; // and associated zero point
 };
 
 }

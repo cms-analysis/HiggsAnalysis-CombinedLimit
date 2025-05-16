@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import
-from __future__ import print_function
 import sys
 import json
 import ROOT
@@ -10,7 +8,6 @@ import HiggsAnalysis.CombinedLimit.tool_base.utils as utils
 
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
-from six.moves import range
 
 
 class FastScan(CombineToolBase):
@@ -60,8 +57,7 @@ class FastScan(CombineToolBase):
                 data = f_d.Get(ws_d[1])
             else:
                 data = f_d.Get(ws_d[1]).data(ws_d[2])
-        ll = ROOT.RooLinkedList()
-        nll = pdf.createNLL(data, ll)
+        nll = ROOT.combineCreateNLL(pdf, data)
         pars = pdf.getParameters(data)
         pars.Print()
         snap = pars.snapshot()

@@ -25,6 +25,7 @@
 #include <TSystem.h>
 #include <TStopwatch.h>
 #include <TTree.h>
+#include <TInterpreter.h>
 
 #include <RooAbsData.h>
 #include <RooAbsPdf.h>
@@ -42,14 +43,12 @@
 #include <RooWorkspace.h>
 #include <RooCategory.h>
 
-#include <RooStats/HLFactory.h>
 #include <RooStats/RooStatsUtils.h>
 #include <RooStats/ModelConfig.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/algorithm/string.hpp> 
+
 #include <regex>
 
 #include "../interface/LimitAlgo.h"
@@ -95,6 +94,15 @@ std::string defineBackgroundOnlyModelParameterExpression_ = "";
 std::string Combine::trackParametersNameString_="";
 std::string Combine::trackErrorsNameString_="";
 std::string Combine::textToWorkspaceString_="";
+
+std::string& Combine::nllBackend() {
+  static std::string nllBackend_ = "combine";
+  return nllBackend_;
+}
+
+void Combine::setNllBackend(std::string const &val) {
+  nllBackend() = val;
+}
 
 std::vector<std::pair<RooAbsReal*,float> > Combine::trackedParametersMap_;
 std::vector<std::pair<RooRealVar*,float> > Combine::trackedErrorsMap_;
@@ -214,11 +222,23 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   makeToyGenSnapshot_ = (method == "FitDiagnostics" && !vm.count("justFit"));
 }
 
+namespace {
+  std::string removeDuplicateCommas(std::string const& input) {
+    std::string output;
+    for (std::size_t i = 0; i < input.size(); ++i) {
+      if (i > 0 && input[i] == ',' && input[i] == input[i - 1])
+        continue;
+      output += input[i];
+    }
+    return output;
+  }
+}  // namespace
+
 std::string Combine::parseRegex(std::string instr, const RooArgSet *nuisances, RooWorkspace *w) {
   // expand regexps inside the "rgx{}" option
   while (instr.find("rgx{") != std::string::npos) {          
     size_t pos1 = instr.find("rgx{");
-    size_t pos2 = instr.find("}",pos1);
+    size_t pos2 = instr.find('}',pos1);
     std::string prestr = instr.substr(0,pos1);
     std::string poststr = instr.substr(pos2+1,instr.size()-pos2);
     std::string reg_esp = instr.substr(pos1+4,pos2-pos1-4);
@@ -235,13 +255,13 @@ std::string Combine::parseRegex(std::string instr, const RooArgSet *nuisances, R
     }
 
     instr = prestr+matchingParams+poststr;
-    instr = boost::replace_all_copy(instr, ",,", ","); 
+    instr = removeDuplicateCommas(instr);
   }
 
   // expand regexps inside the "var{}" option        
   while (instr.find("var{") != std::string::npos) {          
     size_t pos1 = instr.find("var{");
-    size_t pos2 = instr.find("}",pos1);
+    size_t pos2 = instr.find('}',pos1);
     std::string prestr = instr.substr(0,pos1);
     std::string poststr = instr.substr(pos2+1,instr.size()-pos2);
     std::string reg_esp = instr.substr(pos1+4,pos2-pos1-4);
@@ -262,7 +282,7 @@ std::string Combine::parseRegex(std::string instr, const RooArgSet *nuisances, R
     }
 
     instr = prestr+matchingParams+poststr;
-    instr = boost::replace_all_copy(instr, ",,", ","); 
+    instr = removeDuplicateCommas(instr);
   }
 
   return instr;
@@ -308,7 +328,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   TString tmpDir = "", tmpFile = "", pwd(gSystem->pwd());
   if (makeTempDir_) { 
       tmpDir = "roostats-XXXXXX"; tmpFile = "model";
-      mkdtemp(const_cast<char *>(tmpDir.Data()));
+      if (mkdtemp(const_cast<char *>(tmpDir.Data())) == nullptr) {
+          throw std::runtime_error("Temporary file could not be created");
+      }
       gSystem->cd(tmpDir.Data());
       garbageCollect.path = tmpDir.Data(); // request that we delete this dir when done
   } else if (!hlfFile.EndsWith(".hlf") && !hlfFile.EndsWith(".root")) {
@@ -357,7 +379,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (verbose <= 2) RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   // Load the model, but going in a temporary directory to avoid polluting the current one with garbage from 'cexpr'
   RooWorkspace *w = 0; RooStats::ModelConfig *mc = 0, *mc_bonly = 0;
-  std::unique_ptr<RooStats::HLFactory> hlf(nullptr);
 
   if (isBinary) {
     TFile *fIn = TFile::Open(fileToLoad); 
@@ -414,11 +435,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
         if (defineBackgroundOnlyModelParameterExpression_ != "") {
           std::cerr << "Will make one from the signal ModelConfig " << modelConfigName_ << " setting " << std::endl;
-	  vector<string> SetParameterExpressionList;
-	  boost::split(SetParameterExpressionList, defineBackgroundOnlyModelParameterExpression_, boost::is_any_of(","));
+	  vector<string> SetParameterExpressionList = Utils::split(defineBackgroundOnlyModelParameterExpression_, ",");
 	  for (UInt_t p = 0; p < SetParameterExpressionList.size(); ++p) {
-	    vector<string> SetParameterExpression;
-	    boost::split(SetParameterExpression, SetParameterExpressionList[p], boost::is_any_of("="));
+	    vector<string> SetParameterExpression = Utils::split(SetParameterExpressionList[p], "=");
 	    if (SetParameterExpression.size() != 2) {
 		  std::cout << "Error parsing background model parameter expression : " << SetParameterExpressionList[p] << endl;
 	    } else {
@@ -487,47 +506,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   } else {
     std::cerr << "HLF not validated" << std::endl;
-    assert(0);
-    
-    hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
-    w = hlf->GetWs();
-    if (w == 0) {
-        std::cerr << "Could not read HLF from file " <<  (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile) << std::endl;
-        return;
-    }
-    RooRealVar *MH = w->var("MH");
-    if (MH==0) {
-      std::cerr << "Could not find MH var in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
-      throw std::invalid_argument("Missing MH"); 
-    }
-    MH->setVal(mass_);
-    if (w->set("observables") == 0) throw std::invalid_argument("The model must define a RooArgSet 'observables'");
-    if (w->set("POI")         == 0) throw std::invalid_argument("The model must define a RooArgSet 'POI' for the parameters of interest");
-    if (w->pdf("model_b")     == 0) throw std::invalid_argument("The model must define a RooAbsPdf 'model_b'");
-    if (w->pdf("model_s")     == 0) throw std::invalid_argument("The model must define a RooAbsPdf 'model_s'");
-
-    // create ModelConfig
-    mc = new RooStats::ModelConfig(modelConfigName_.c_str(),"signal",w);
-    mc->SetPdf(*w->pdf("model_s"));
-    mc->SetObservables(*w->set("observables"));
-    mc->SetParametersOfInterest(*w->set("POI"));
-    if (w->set("nuisances"))         mc->SetNuisanceParameters(*w->set("nuisances"));
-    if (w->set("globalObservables")) mc->SetGlobalObservables(*w->set("globalObservables"));
-    if (w->pdf("prior")) mc->SetNuisanceParameters(*w->pdf("prior"));
-    w->import(*mc, modelConfigName_.c_str());
-
-    mc_bonly = new RooStats::ModelConfig(modelConfigNameB_.c_str(),"background",w);
-    mc_bonly->SetPdf(*w->pdf("model_b"));
-    mc_bonly->SetObservables(*w->set("observables"));
-    mc_bonly->SetParametersOfInterest(*w->set("POI"));
-    if (w->set("nuisances"))         mc_bonly->SetNuisanceParameters(*w->set("nuisances"));
-    if (w->set("globalObservables")) mc_bonly->SetGlobalObservables(*w->set("globalObservables"));
-    if (w->pdf("prior")) mc_bonly->SetNuisanceParameters(*w->pdf("prior"));
-    w->import(*mc_bonly, modelConfigNameB_.c_str());
-    if (setPhysicsModelParameterExpression_ != "") {
-	    utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
-    }
-    utils::check_inf_parameters(w->allVars(), verbose);
+    throw std::invalid_argument("HLF not validated");
   }
   gSystem->cd(pwd);
 
@@ -555,18 +534,18 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
   }
 
-  if (dataset.find(":") != std::string::npos) {
+  if (dataset.find(':') != std::string::npos) {
     std::string filename, wspname, dname;
     switch (std::count(dataset.begin(), dataset.end(), ':')) {
         case 2: // file:wsp:dataset
-            filename = dataset.substr(                   0, dataset.find(":"));
-            wspname  = dataset.substr( dataset.find(":")+1, dataset.rfind(":")-dataset.find(":")-1);
-            dname    = dataset.substr(dataset.rfind(":")+1, std::string::npos);
+            filename = dataset.substr(                   0, dataset.find(':'));
+            wspname  = dataset.substr( dataset.find(':')+1, dataset.rfind(':')-dataset.find(':')-1);
+            dname    = dataset.substr(dataset.rfind(':')+1, std::string::npos);
             if (verbose) std::cout << "Will read dataset '" << dname << "' from workspace '" << wspname << "' of file '" << filename << "'" << std::endl;
             break;
         case 1:
-            filename = dataset.substr(                  0, dataset.find(":"));
-            dname    = dataset.substr(dataset.find(":")+1, std::string::npos);
+            filename = dataset.substr(                  0, dataset.find(':'));
+            dname    = dataset.substr(dataset.find(':')+1, std::string::npos);
             if (verbose) std::cout << "Will read dataset '" << dname << "' from file '" << filename << "'" << std::endl;
             break;
         default:
@@ -649,8 +628,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (floatNuisances_=="all") {
           toFloat.add(*nuisances);
       } else {
-          std::vector<std::string> nuisToFloat;
-          boost::split(nuisToFloat, floatNuisances_, boost::is_any_of(","), boost::token_compress_on);
+          std::vector<std::string> nuisToFloat = Utils::split(floatNuisances_, "n");
           for (int k=0; k<(int)nuisToFloat.size(); k++) {
               if (nuisToFloat[k]=="") continue;
               else if(nuisToFloat[k]=="all") {
@@ -683,8 +661,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (freezeNuisances_=="allConstrainedNuisances") {
           toFreeze.add(*nuisances);
       } else {
-          std::vector<std::string> nuisToFreeze;
-          boost::split(nuisToFreeze, freezeNuisances_, boost::is_any_of(","), boost::token_compress_on);
+          std::vector<std::string> nuisToFreeze = Utils::split(freezeNuisances_, ",");
           for (int k=0; k<(int)nuisToFreeze.size(); k++) {
               if (nuisToFreeze[k]=="") continue;
               else if(nuisToFreeze[k]=="allConstrainedNuisances") {
@@ -718,11 +695,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   if (freezeNuisanceGroups_ != "") {
-      std::vector<string> nuisanceGroups;
-      boost::algorithm::split(nuisanceGroups,freezeNuisanceGroups_,boost::algorithm::is_any_of(","));
+      std::vector<string> nuisanceGroups = Utils::split(freezeNuisanceGroups_, ",");
       for (std::vector<string>::iterator ng_it=nuisanceGroups.begin();ng_it!=nuisanceGroups.end();ng_it++){
         bool freeze_complement=false;
-      	if (boost::algorithm::starts_with((*ng_it),"^")){
+      	if (Utils::starts_with(*ng_it,"^")){
           freeze_complement=true;
           (*ng_it).erase(0,1);
         } 
@@ -755,8 +731,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   if (freezeWithAttributes_ != "") {
-    std::vector<string> nuisanceAttrs;
-    boost::algorithm::split(nuisanceAttrs,freezeWithAttributes_,boost::algorithm::is_any_of(","));
+    std::vector<string> nuisanceAttrs = Utils::split(freezeWithAttributes_, ",");
     for (auto const& attr : nuisanceAttrs) {
       RooArgSet toFreeze;
       if (nuisances) {
@@ -881,11 +856,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       // Was r also specified in --setPhysicsModelParameters?
       bool rInParamExp = false;
       if (setPhysicsModelParameterExpression_ != "") {
-        vector<string> SetParameterExpressionList;
-        boost::split(SetParameterExpressionList, setPhysicsModelParameterExpression_, boost::is_any_of(","));
+        vector<string> SetParameterExpressionList = Utils::split(setPhysicsModelParameterExpression_, ",");
         for (UInt_t p = 0; p < SetParameterExpressionList.size(); ++p) {
-          vector<string> SetParameterExpression;
-          boost::split(SetParameterExpression, SetParameterExpressionList[p], boost::is_any_of("="));
+          vector<string> SetParameterExpression = Utils::split(SetParameterExpressionList[p], "=");
           if (SetParameterExpression.size() == 2 && SetParameterExpression[0] == "r") {
             rInParamExp = true;
             break;
@@ -1266,7 +1239,7 @@ void Combine::addBranches(const std::string& trackString, RooWorkspace* w, std::
     std::stringstream ss(trackString);
     std::string token;
     while(std::getline(ss,token,',')) {
-      if (boost::starts_with(token, "rgx{") && boost::ends_with(token, "}")) {
+      if (Utils::starts_with(token, "rgx{") && token.back() == '}') {
           std::string reg_esp = token.substr(4, token.size()-5);
           std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
           std::regex rgx( reg_esp, std::regex::ECMAScript);
@@ -1295,4 +1268,75 @@ void Combine::addBranches(const std::string& trackString, RooWorkspace* w, std::
     const char * token = (it.first)->GetName();
     addBranch((std::string("tracked")+vtype+"_"+token).c_str(), &(it.second), (std::string("tracked")+vtype+"_"+token+std::string("/F")).c_str());
   }
+}
+
+std::unique_ptr<RooAbsReal> combineCreateNLL(
+    RooAbsPdf &pdf, RooAbsData &data, RooArgSet const *constrain, bool offset, bool warnAboutDifferentBackend) {
+  RooLinkedList cmdList;
+
+  // If "constrain" is a nullptr, it implies automatic constraint parameter selection.
+  RooCmdArg constrainCmdArg = constrain ? RooFit::Constrain(*constrain) : RooCmdArg();
+  cmdList.Add(&constrainCmdArg);
+
+  RooCmdArg offsetCmdArg = RooFit::Offset(offset);
+  cmdList.Add(&offsetCmdArg);
+
+  bool isSimultaneousOpt = dynamic_cast<RooSimultaneousOpt const *>(&pdf);
+  std::string evalBackend = Combine::nllBackend();
+
+  // Alternative evaluation backends are only supported from ROOT 6.30.
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 30, 0)
+  return std::unique_ptr<RooAbsReal>{pdf.createNLL(data, cmdList)};
+#else
+  // If the backend is "combine" we call createNLL without any specific
+  // EvalBackend().
+  if (evalBackend == "combine") {
+    return std::unique_ptr<RooAbsReal>{pdf.createNLL(data, cmdList)};
+  }
+  // The default evaluation backend is "combine" for the RooSimultaneousOpt,
+  // and whatever the default is in RooFit otherwise.
+  std::string defaultEvalBackend =
+      isSimultaneousOpt ? "combine" : RooFit::EvalBackend(RooFit::EvalBackend::defaultValue()).name();
+
+  // Only the RooSimultaneousOpt provides the "combine" backend. If the backend
+  // is set to "combine" but the pdf is not a RooSimultaneousOpt, fall back to
+  // the default in RooFit.
+  if (!isSimultaneousOpt && evalBackend == "combine")
+    evalBackend = defaultEvalBackend;
+
+  // If the evaluation backend is not the default, emit a warnings
+  if (warnAboutDifferentBackend && evalBackend != defaultEvalBackend) {
+    std::cerr << "WARNING! You set the NLL evaluation backend to \"" << evalBackend
+              << "\", which is not the default. This code path is not validated. Please don't use it for production!"
+              << std::endl;
+  }
+
+  RooCmdArg evalBackendCmdArg = RooFit::EvalBackend(evalBackend);
+  cmdList.Add(&evalBackendCmdArg);
+
+  // If we use "codegen", we need to declare the math functions to the
+  // interpreter.
+  static bool declaredMathFuncs = false;
+  if ((evalBackend == "codegen" || evalBackend == "codegen_no_grad") && !declaredMathFuncs) {
+    gInterpreter->Declare("#include <HiggsAnalysis/CombinedLimit/interface/CombineMathFuncs.h>");
+    declaredMathFuncs = true;
+  }
+
+  // If we don't use the "combine" backend, use the base class implementation
+  // (and not the one of the RooSimultaneousOpt).
+  if (isSimultaneousOpt) {
+    return static_cast<RooSimultaneousOpt &>(pdf).createNLLPassthrough(data, cmdList);
+  } else {
+    return std::unique_ptr<RooAbsReal>{pdf.createNLL(data, cmdList)};
+  }
+#endif
+}
+
+ToCleanUp::~ToCleanUp() {
+      if (tfile) { tfile->Close(); delete tfile; }
+      if (!file.empty()) {  
+         unlink(file.c_str());  // FIXME, we should check that the file deleted safely but currently when running HybridNew, we get a status of -1 even though the file is in fact removed?!
+ //if (unlink(file.c_str()) == -1) std::cerr << "Failed to delete temporary file " << file << ": " << strerror(errno) << std::endl;
+      }
+      if (!path.empty()) {  boost::filesystem::remove_all(path); }
 }

@@ -158,8 +158,8 @@ std::pair<double,double> BayesianToyMC::priorPredictiveDistribution(RooStats::Mo
   }
   std::cout << "Factorized PDF, now creating NLL" << std::endl;
   // create NLL
-  const RooCmdArg &constrain  = withSystematics  ? RooFit::Constrain(*mc->GetNuisanceParameters()) : RooCmdArg::none();
-  std::unique_ptr<RooAbsReal> nll(pdf->createNLL(data, constrain, RooFit::Extended(pdf->canBeExtended())));
+  auto nll = combineCreateNLL(
+      *pdf, data, /*constraints*/ withSystematics ? mc->GetNuisanceParameters() : nullptr, /*offset=*/false);
   std::unique_ptr<RooArgSet>  params(nll->getParameters(data));
 
   // Determine which POIs we have to generate, if any

@@ -1,83 +1,43 @@
 #ifndef ROO_MULTIPDF
 #define ROO_MULTIPDF
 
-#include "RooAbsArg.h"
 #include "RooAbsPdf.h"
-#include "RooAbsReal.h"
-#include "RooRealProxy.h"
-#include "RooRealVar.h"
-#include "RooArgList.h"
-#include "RooAbsCategory.h"
 #include "RooCategory.h"
 #include "RooCategoryProxy.h"
-#include "RooArgProxy.h"
-#include "RooAbsProxy.h"
-#include "RooFormulaVar.h"
-#include "RooLinkedList.h"
-#include "RooConstVar.h"
-
-
 #include "RooListProxy.h"
 
 #include <iostream>
-#include <vector>
-
-
-using namespace std;
 
 class RooMultiPdf : public RooAbsPdf {
 public:
-  enum PenatlyScheme{PVAL, AIC};
-  RooMultiPdf() {} ;
+  enum PenaltyScheme{PVAL, AIC};
+  RooMultiPdf() {}
   RooMultiPdf(const char *name, const char *title, RooCategory &, const RooArgList& _c);
-  RooMultiPdf(const RooMultiPdf& other, const char* name=0);
+  RooMultiPdf(const RooMultiPdf& other, const char* name=nullptr);
   TObject* clone(const char* newname) const override { return new RooMultiPdf(*this,newname); }
-  inline ~RooMultiPdf() override { }
 
-/*
-  RooAbsReal* createNLL(RooAbsData& data, const RooCmdArg& arg1=RooCmdArg::none(),  const RooCmdArg& arg2=RooCmdArg::none(),  
-                                const RooCmdArg& arg3=RooCmdArg::none(),
-const RooCmdArg& arg4=RooCmdArg::none(), const RooCmdArg&
-arg5=RooCmdArg::none(),  
-                                 const RooCmdArg& arg6=RooCmdArg::none(),
-const RooCmdArg& arg7=RooCmdArg::none(), const RooCmdArg&
-arg8=RooCmdArg::none());
-
-  RooAbsReal* createNLL(RooAbsData &data,const RooLinkedList&);
-*/
-
-//}
-/*
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
-*/
-  bool checkIndexDirty() const;
-  double getCorrection() const;
-  RooAbsPdf *getCurrentPdf() const;
-  int getNumPdfs() const {return nPdfs;};
-  void setCorrectionFactor(PenatlyScheme penal);
-  void setCorrectionFactor(double penal);
-  int getCurrentIndex() const ;
-  RooAbsPdf *getPdf(int index) const ;
-  Double_t getValV(const RooArgSet* nset) const override ;
-  /// needed since otherwise printValue calls evaluate(), which is taboo
-  void printValue(ostream& os) const override { getCurrentPdf()->printValue(os); }
+  inline bool checkIndexDirty() const { return _oldIndex != x; }
+  inline double getCorrection() const { return cFactor * static_cast<RooAbsReal*>(corr.at(x))->getVal(); }
+  inline RooAbsPdf *getCurrentPdf() const { return getPdf(getCurrentIndex()); }
+  int getNumPdfs() const { return c.size(); }
+  void setCorrectionFactor(PenaltyScheme penal) { cFactor = penal == AIC ? 1.0 : 0.5; }
+  void setCorrectionFactor(double penal) { cFactor = penal; }
+  inline int getCurrentIndex() const { return static_cast<int>(x); }
+  inline RooAbsPdf *getPdf(int index) const { return static_cast<RooAbsPdf*>(c.at(index)); }
+  // Always normalized because each pdf is normalized
+  bool selfNormalized() const override { return true; }
 protected:
   RooListProxy c;
   RooListProxy corr;
   RooCategoryProxy x;
-  //RooFormulaVar *cval;
- // RooRealProxy nllcorr;
-//  RooAbsCatgeory *fIndex_r;
 
   int fIndex; // sigh, there should be a better way than this
-  int nPdfs;
+  int nPdfs; // not used, kept so we didn't have to change the class layout for IO
   mutable Int_t _oldIndex;
 
   Double_t evaluate() const override;
-  Double_t getLogVal(const RooArgSet *set = 0) const override;
-  //std::string createCorrectionString();	// should only do this once really
-  double cFactor;
+  Double_t getLogVal(const RooArgSet *set = nullptr) const override;
+  double cFactor = 0.5; // correction to 2*NLL by default is -> 2*0.5 per param
 
 private:
   ClassDefOverride(RooMultiPdf,1) // Multi PDF

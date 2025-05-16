@@ -1,5 +1,7 @@
 #include "../interface/RooSimultaneousOpt.h"
 #include "../interface/CachingNLL.h"
+#include "../interface/Combine.h"
+
 #include <RooCmdConfig.h>
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,30,0)
@@ -20,10 +22,6 @@ RooSimultaneousOpt::createNLLImpl(RooAbsData& data, const RooLinkedList& cmdList
 #else
     return nll;
 #endif
-}
-
-RooSimultaneousOpt::~RooSimultaneousOpt()
-{
 }
 
 void

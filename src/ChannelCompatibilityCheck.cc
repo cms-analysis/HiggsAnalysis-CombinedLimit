@@ -44,8 +44,7 @@ void ChannelCompatibilityCheck::applyOptions(const boost::program_options::varia
     fixedMu_ = !vm["fixedSignalStrength"].defaulted();
     saveFitResult_ = vm.count("saveFitResult");
     for(unsigned int i = 0; i < groups_.size(); i++) {
-        std::vector<std::string> groupExpr;
-        boost::split(groupExpr, groups_[i], boost::is_any_of("=,")); // "-g channel=rMin,rMax" or just "-g channel"
+        std::vector<std::string> groupExpr = Utils::split(groups_[i], "=,"); // "-g channel=rMin,rMax" or just "-g channel"
         if (groupExpr.size() == 3) {
             groups_[i] = groupExpr[0];
             groupRanges_[groupExpr[0]] = {atof(groupExpr[1].c_str()), atof(groupExpr[2].c_str())};

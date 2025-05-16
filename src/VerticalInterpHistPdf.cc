@@ -96,26 +96,13 @@ ClassImp(VerticalInterpHistPdf)
 
 
 //_____________________________________________________________________________
-VerticalInterpHistPdf::VerticalInterpHistPdf() :
-   _cacheTotal(0),
-   _cacheSingle(0),
-   _cacheSingleGood(0) 
-{
-  // Default constructor
-}
-
-
-//_____________________________________________________________________________
 VerticalInterpHistPdf::VerticalInterpHistPdf(const char *name, const char *title, const RooRealVar &x, const RooArgList& inFuncList, const RooArgList& inCoefList, Double_t smoothRegion, Int_t smoothAlgo) :
   RooAbsPdf(name,title),
   _x("x","Independent variable",this,const_cast<RooRealVar&>(x)),
   _funcList("funcList","List of pdfs",this),
   _coefList("coefList","List of coefficients",this), // we should get shapeDirty when coefficients change
   _smoothRegion(smoothRegion),
-  _smoothAlgo(smoothAlgo),
-  _cacheTotal(0),
-  _cacheSingle(0),
-  _cacheSingleGood(0) 
+  _smoothAlgo(smoothAlgo)
 { 
 
   if (inFuncList.getSize()!=2*inCoefList.getSize()+1) {
@@ -130,12 +117,11 @@ VerticalInterpHistPdf::VerticalInterpHistPdf(const char *name, const char *title
       coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsPdf" << std::endl;
       assert(0);
     }
-    RooArgSet *params = pdf->getParameters(RooArgSet(x));
+    std::unique_ptr<RooArgSet> params{pdf->getParameters(RooArgSet(x))};
     if (params->getSize() > 0) {
       coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") pdf  " << func->GetName() << " has some parameters." << std::endl;
       assert(0);
     }
-    delete params;
     _funcList.add(*func) ;
   }
 
@@ -158,32 +144,16 @@ VerticalInterpHistPdf::VerticalInterpHistPdf(const VerticalInterpHistPdf& other,
   _funcList("funcList",this,other._funcList),
   _coefList("coefList",this,other._coefList),
   _smoothRegion(other._smoothRegion),
-  _smoothAlgo(other._smoothAlgo),
-  _cacheTotal(0),
-  _cacheSingle(0),
-  _cacheSingleGood(0) 
+  _smoothAlgo(other._smoothAlgo)
 {
   // Copy constructor
 }
 
 
-
-//_____________________________________________________________________________
-VerticalInterpHistPdf::~VerticalInterpHistPdf()
-{
-  // Destructor
-  if (_cacheTotal) {
-      delete _cacheTotal;
-      for (int i = 0; i < _funcList.getSize(); ++i) delete _cacheSingle[i]; 
-      delete [] _cacheSingle;
-      delete [] _cacheSingleGood;
-  }
-}
-
 //_____________________________________________________________________________
 Double_t VerticalInterpHistPdf::evaluate() const 
 {
-  if (_cacheTotal == 0) setupCaches();
+  if (!_cacheTotal) setupCaches();
 #if 0
   printf("Evaluate called for x %f, cache status %d: ", _x.arg().getVal(), _sentry.good());
   int ndim = _coefList.getSize();
@@ -204,8 +174,7 @@ Double_t VerticalInterpHistPdf::evaluate() const
 
 void VerticalInterpHistPdf::syncComponent(int i) const {
     RooAbsPdf *pdfi = dynamic_cast<RooAbsPdf *>(_funcList.at(i));
-    if (_cacheSingle[i] != 0) delete _cacheSingle[i];
-    _cacheSingle[i] = pdfi->createHistogram("",dynamic_cast<const RooRealVar &>(_x.arg())); 
+    _cacheSingle[i] = std::unique_ptr<TH1>{pdfi->createHistogram("",dynamic_cast<const RooRealVar &>(_x.arg()))};
     _cacheSingle[i]->SetDirectory(0);
     if (_cacheSingle[i]->Integral("width")) { _cacheSingle[i]->Scale(1.0/_cacheSingle[i]->Integral("width")); }
     if (i > 0) {
@@ -265,12 +234,12 @@ void VerticalInterpHistPdf::syncTotal() const {
 
 void VerticalInterpHistPdf::setupCaches() const {
     int ndim = _coefList.getSize();
-    _cacheTotal     = (dynamic_cast<const RooRealVar &>(_x.arg())).createHistogram("total"); 
+    _cacheTotal = std::unique_ptr<TH1>{(dynamic_cast<const RooRealVar &>(_x.arg())).createHistogram("total")};
     _cacheTotal->SetDirectory(0);
-    _cacheSingle     = new TH1*[2*ndim+1]; assert(_cacheSingle);
-    _cacheSingleGood = new int[2*ndim+1];  assert(_cacheSingleGood);
+    _cacheSingle.resize(2*ndim+1);
+    _cacheSingleGood.resize(2*ndim+1);
     for (int i = 0; i < 2*ndim+1; ++i) { 
-        _cacheSingle[i] = 0; 
+        _cacheSingle[i] = nullptr;
         _cacheSingleGood[i] = 0; 
         syncComponent(i);  
     } 
@@ -650,7 +619,7 @@ void FastVerticalInterpHistPdf3D::setupCaches() const {
 
 
 FastVerticalInterpHistPdfV::FastVerticalInterpHistPdfV(const FastVerticalInterpHistPdf &hpdf, const RooAbsData &data, bool includeZeroWeights) :
-    hpdf_(hpdf),begin_(0),end_(0)
+    hpdf_(hpdf)
 {
     // check init
     if (hpdf._cache.size() == 0) hpdf.setupCaches();
@@ -937,10 +906,9 @@ void FastVerticalInterpHistPdf2::initNominal(TObject *templ) {
     } else {
         RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(templ);
         const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
-        hist = pdf->createHistogram("",x);
+        std::unique_ptr<TH1> hist{pdf->createHistogram("",x)};
         hist->SetDirectory(0); 
         _cacheNominal = FastHisto(*hist);
-        delete hist;
     }
     _cacheNominal.Normalize();
     //printf("Normalized nominal templated: \n");  _cacheNominal.Dump(); 
@@ -952,18 +920,16 @@ void FastVerticalInterpHistPdf2::initNominal(TObject *templ) {
 }
 
 void FastVerticalInterpHistPdf2D2::initNominal(TObject *templ) {
-    TH2 *hist = dynamic_cast<TH2*>(templ);
-    if (hist) {
-        _cacheNominal = FastHisto2D(*hist, _conditional);
+    if (TH2 *templHist = dynamic_cast<TH2*>(templ)) {
+        _cacheNominal = FastHisto2D(*templHist, _conditional);
     } else {
         RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(templ);
         const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
         const RooRealVar &y = dynamic_cast<const RooRealVar &>(_y.arg());
         const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
-        hist = dynamic_cast<TH2*>(pdf->createHistogram("", x, RooFit::YVar(y), cond));
+        std::unique_ptr<TH1> hist{pdf->createHistogram("", x, RooFit::YVar(y), cond)};
         hist->SetDirectory(0); 
-        _cacheNominal = FastHisto2D(*hist, _conditional);
-        delete hist;
+        _cacheNominal = FastHisto2D(dynamic_cast<TH2&>(*hist), _conditional);
     }
     if (_conditional) _cacheNominal.NormalizeXSlices(); 
     else              _cacheNominal.Normalize(); 
@@ -1138,10 +1104,11 @@ Double_t FastVerticalInterpHistPdf2D2::maxVal(int code) const {
 			  << ") unsupported integration code " << code << "\n" << std::endl;
     assert(0);
 
+    return 0.0;
 }
 
 FastVerticalInterpHistPdf2V::FastVerticalInterpHistPdf2V(const FastVerticalInterpHistPdf2 &hpdf, const RooAbsData &data, bool includeZeroWeights) :
-    hpdf_(hpdf),begin_(0),end_(0)
+    hpdf_(hpdf)
 {
     // check init
     if (!hpdf._initBase) hpdf.initBase();

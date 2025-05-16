@@ -1,7 +1,6 @@
 # module for calculating various definitions of "pull"
 # each pull definition must return value, error (even if error is set to 0)
 # the Asym version should return value, err hi, err lo
-from __future__ import absolute_import
 
 import sys
 

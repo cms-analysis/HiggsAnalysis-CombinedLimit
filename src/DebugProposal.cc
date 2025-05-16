@@ -1,4 +1,5 @@
 #include "../interface/DebugProposal.h"
+#include "../interface/Combine.h"
 #include <RooAbsData.h>
 #include <RooAbsPdf.h>
 #include <iostream>
@@ -9,11 +10,10 @@ DebugProposal::DebugProposal(RooStats::ProposalFunction *p, RooAbsPdf *pdf, RooA
     RooStats::ProposalFunction(), prop_(p), pdf_(pdf), tries_(tries) 
 {
     if (pdf && data) {
-        nll_.reset(pdf->createNLL(*data));
-        RooArgSet *par = pdf->getParameters(*data);
-        RooStats::RemoveConstantParameters(par);
+        nll_ = combineCreateNLL(*pdf, *data, /*constrain=*/nullptr, /*offset=*/false);
+        std::unique_ptr<RooArgSet> par{pdf->getParameters(*data)};
+        RooStats::RemoveConstantParameters(par.get());
         params_.add(*par);
-        delete par;
     }
     if (tries) {
         p->Print("V");

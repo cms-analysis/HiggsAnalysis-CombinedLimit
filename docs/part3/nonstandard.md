@@ -44,7 +44,7 @@ As well as the values of the constrained nuisance parameters (and their constrai
 fit_status = 100 * hesse_status + 10 * minos_status +  minuit_summary_status
 ```
 
-The `minuit_summary_status` is the usual status from Minuit, details of which can be found [here](https://root.cern.ch/root/htmldoc/ROOT__Minuit2__Minuit2Minimizer.html#ROOT__Minuit2__Minuit2Minimizer:Minimize). For the other status values, check these documentation links for the [`hesse_status`](https://root.cern.ch/root/htmldoc/ROOT__Minuit2__Minuit2Minimizer.html#ROOT__Minuit2__Minuit2Minimizer:Hesse) and the [`minos_status`](https://root.cern.ch/root/htmldoc/ROOT__Minuit2__Minuit2Minimizer.html#ROOT__Minuit2__Minuit2Minimizer:GetMinosError).
+The `minuit_summary_status` is the usual status from Minuit, details of which can be found [here](https://root.cern/doc/master/classROOT_1_1Minuit2_1_1Minuit2Minimizer.html#ad5dfca9a592a7bbbbe0a14b567bb2470). For the other status values, check these documentation links for the [`hesse_status`](https://root.cern/doc/master/classROOT_1_1Minuit2_1_1Minuit2Minimizer.html#a5a7d89e3a2911c4819a6182475d7636c) and the [`minos_status`](https://root.cern/doc/master/classROOT_1_1Minuit2_1_1Minuit2Minimizer.html#a5ef2583ce3beea4b3e192c27d747297b).
 
 A fit status of -1 indicates that the fit failed (Minuit summary was not 0 or 1) and hence the fit result is **not** valid.
 

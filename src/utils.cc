@@ -30,9 +30,12 @@
 #include <RooStats/ModelConfig.h>
 #include <RooStats/RooStatsUtils.h>
 
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/predicate.hpp>
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,26,0)
+#include <ROOT/StringUtils.hxx>
+#else
+#include <boost/algorithm/string.hpp>
+#endif
+
 #include <regex>
 
 #include "../interface/CloseCoutSentry.h"
@@ -695,14 +698,12 @@ void utils::CheapValueSnapshot::Print(const char *fmt) const {
 
 void utils::setModelParameters( const std::string & setPhysicsModelParameterExpression, const RooArgSet & params) {
 
-  vector<string> SetParameterExpressionList;  
-  boost::split(SetParameterExpressionList, setPhysicsModelParameterExpression, boost::is_any_of(","));
+  vector<string> SetParameterExpressionList = Utils::split(setPhysicsModelParameterExpression, ",");
   for (UInt_t p = 0; p < SetParameterExpressionList.size(); ++p) {
-    vector<string> SetParameterExpression;
-    boost::split(SetParameterExpression, SetParameterExpressionList[p], boost::is_any_of("="));
+    vector<string> SetParameterExpression = Utils::split(SetParameterExpressionList[p], "=");
       
     // check for file syntax: file{file.txt}                                                                                                                                   
-    if (boost::starts_with(SetParameterExpression[0], "file{") && boost::ends_with(SetParameterExpression[0], "}")) {
+    if (Utils::starts_with(SetParameterExpression[0], "file{") && SetParameterExpression[0].back() == '}') {
         std::string fname = SetParameterExpression[0].substr(5, SetParameterExpression[0].size()-6);
         std::cout<<"Opening parameter file:"<<fname<<std::endl;
         ifstream file(fname.c_str());
@@ -710,13 +711,13 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
         string line;
         while ( std::getline( file, line) )
         {
-            if (boost::starts_with(line,"RooRealVar::") ) // directly from the print of the ws
+            if (Utils::starts_with(line,"RooRealVar::") ) // directly from the print of the ws
             { 
                if (line.find(" C ") != string::npos) continue; // don't deal with constants
                line=line.substr(string("RooRealVar::").size()) ;//Remove RooRealVar::
                string tosearch=" = ",replace="=";
                line.replace(line.find(tosearch), tosearch.size(), replace);
-               line=line.substr(0,line.find("+"));
+               line=line.substr(0,line.find('+'));
                line=line.substr(0,line.find(" C "));
 
             }
@@ -729,7 +730,7 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
       std::cout << "Error parsing physics model parameter expression : " << SetParameterExpressionList[p] << endl;
     } 
     // check for regex syntax: rgx{regex}                                                                                                                                     
-    else if (boost::starts_with(SetParameterExpression[0], "rgx{") && boost::ends_with(SetParameterExpression[0], "}")) {
+    else if (Utils::starts_with(SetParameterExpression[0], "rgx{") && SetParameterExpression[0].back() == '}') {
 
         std::string reg_esp = SetParameterExpression[0].substr(4, SetParameterExpression[0].size()-5);
         std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
@@ -796,13 +797,11 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
 
 void utils::setModelParameterRanges( const std::string & setPhysicsModelParameterRangeExpression, const RooArgSet & params) {
 
-  vector<string> SetParameterRangeExpressionList;  
-  boost::split(SetParameterRangeExpressionList, setPhysicsModelParameterRangeExpression, boost::is_any_of(":"));
+  vector<string> SetParameterRangeExpressionList = Utils::split(setPhysicsModelParameterRangeExpression, ":");
   for (UInt_t p = 0; p < SetParameterRangeExpressionList.size(); ++p) {
-    vector<string> SetParameterRangeExpression;
-    boost::split(SetParameterRangeExpression, SetParameterRangeExpressionList[p], boost::is_any_of("=,"));
+    vector<string> SetParameterRangeExpression = Utils::split(SetParameterRangeExpressionList[p], "=,");
       
-    if (boost::starts_with(SetParameterRangeExpression[0], "file{") && boost::ends_with(SetParameterRangeExpression[0], "}")) {
+    if (Utils::starts_with(SetParameterRangeExpression[0], "file{") && SetParameterRangeExpression[0].back() == '}') {
         std::string fname = SetParameterRangeExpression[0].substr(5, SetParameterRangeExpression[0].size()-6);
         std::cout<<"Opening parameter file:"<<fname<<std::endl;
         ifstream file(fname.c_str());
@@ -810,16 +809,16 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
         string line;
         while ( std::getline( file, line) )
         {
-            if (boost::starts_with(line,"RooRealVar::") ) // directly from the print of the ws
+            if (Utils::starts_with(line,"RooRealVar::") ) // directly from the print of the ws
             { 
                if (line.find(" C ") != string::npos) continue; // don't deal with constants
                //RooRealVar::cms_ps = -0.013155 +/- 0.995142  L(-INF - +INF) 
                line=line.substr(string("RooRealVar::").size()) ;//Remove RooRealVar::
                string newline=line.substr(0,line.find(" = "));
-               size_t pos1=line.find("=")+1, pos2=line.find(" +/- ");
+               size_t pos1=line.find('=')+1, pos2=line.find(" +/- ");
                float value=std::atof(line.substr(pos1, pos2-pos1).c_str());
                std::cout<<"->Obtaining value from:"<<pos1<<","<<pos2<<":"<<line.substr(pos1, pos2-pos1).c_str()<<std::endl;
-               size_t pos3=line.find(" ",pos2+5);
+               size_t pos3=line.find(' ',pos2+5);
                float err = std::atof(line.substr(pos2+5,pos3-(pos2+5)).c_str());
                float mult=7; // arbitrary number
                std::cout<<"Range manipulation result: "<<newline<<"="<< value<<"+/-"<<err<<"Mult factor"<<mult<<std::endl;
@@ -850,7 +849,7 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
       double PhysicsParameterRangeHigh = atof(SetParameterRangeExpression[2].c_str());
 
       // check for regex syntax: rgx{regex}
-      if (boost::starts_with(SetParameterRangeExpression[0], "rgx{") && boost::ends_with(SetParameterRangeExpression[0], "}")) {
+      if (Utils::starts_with(SetParameterRangeExpression[0], "rgx{") && SetParameterRangeExpression[0].back() == '}') {
           
           std::string reg_esp = SetParameterRangeExpression[0].substr(4, SetParameterRangeExpression[0].size()-5);
           std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
@@ -908,7 +907,7 @@ void utils::check_inf_parameters(const RooArgSet & params, int verbosity) {
 }
 
 void utils::createSnapshotFromString( const std::string expression, const RooArgSet &allvars, RooArgSet &output, const char *context) {
-    if (expression.find("=") == std::string::npos) {
+    if (expression.find('=') == std::string::npos) {
         if (allvars.getSize() != 1) throw std::invalid_argument(std::string("Error: the argument to ")+context+" is a single value, but there are multiple variables to choose from");
         allvars.snapshot(output);
         errno = 0; // check for errors in str->float conversion
@@ -917,8 +916,8 @@ void utils::createSnapshotFromString( const std::string expression, const RooArg
     } else {
         std::string::size_type eqidx = 0, colidx = 0, colidx2;
         do {
-            eqidx   = expression.find("=", colidx);
-            colidx2 = expression.find(",", colidx+1);
+            eqidx   = expression.find('=', colidx);
+            colidx2 = expression.find(',', colidx+1);
             if (eqidx == std::string::npos || (colidx2 != std::string::npos && colidx2 < eqidx)) {
                 throw std::invalid_argument(std::string("Error: the argument to ")+context+" is not in the form 'value' or 'name1=value1,name2=value2,...'\n");
             }
@@ -1101,3 +1100,25 @@ bool utils::freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiP
 
 	return false;
 }
+
+namespace Utils {
+
+  bool starts_with(std::string_view str, std::string_view prefix) {
+    return str.size() >= prefix.size() && 0 == str.compare(0, prefix.size(), prefix);
+  }
+
+  bool ends_with(std::string_view str, std::string_view suffix) {
+    return str.size() >= suffix.size() && 0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
+  }
+
+  std::vector<std::string> split(std::string const& input, const char* delim) {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,26,0)
+    return ROOT::Split(input, delim);
+#else
+    std::vector<std::string> result;
+    boost::split(result, input, boost::is_any_of(delim));
+    return result;
+#endif
+  }
+
+}  // namespace Utils

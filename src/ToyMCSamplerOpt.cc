@@ -21,9 +21,7 @@ using namespace std;
 ToyMCSamplerOpt::ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAbsPdf *globalObsPdf, bool generateNuisances) :
     ToyMCSampler(ts, ntoys),
     globalObsPdf_(globalObsPdf),
-    globalObsValues_(0), globalObsIndex_(-1),
-    nuisValues_(0), nuisIndex_(-1), genNuis_(generateNuisances),
-    weightVar_(0)
+     genNuis_(generateNuisances)
 {
     if (!generateNuisances) fPriorNuisance = 0; // set things straight from the beginning
 }
@@ -66,8 +64,7 @@ ToyMCSamplerOpt::~ToyMCSamplerOpt()
 toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents, bool canUseSpec) :
    mode_(pdf.canBeExtended() ? (preferBinned ? Binned : Unbinned) : Counting),
    pdf_(&pdf),
-   canUseSpec_(canUseSpec),
-   spec_(0),histoSpec_(0),keepHistoSpec_(0),weightVar_(0)
+   canUseSpec_(canUseSpec)
 {
    if (pdf.canBeExtended()) {
        if (pdf.getAttribute("forceGenBinned")) mode_ = Binned;
@@ -318,9 +315,7 @@ toymcoptutils::SinglePdfGenInfo::setToExpected(RooPoisson &pois, RooArgSet &obs)
 
 toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents, bool canUseSpec) :
     pdf_(&pdf),
-    cat_(0),
-    observables_(observables),
-    copyData_(true)
+    observables_(observables)
 {
     assert(forceEvents == 0 && "SimPdfGenInfo: forceEvents must be zero.");
     RooSimultaneous *simPdf = dynamic_cast<RooSimultaneous *>(&pdf);

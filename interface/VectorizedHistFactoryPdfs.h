@@ -17,7 +17,7 @@ namespace cacheutils {
             void  setIncludeZeroWeights(bool includeZeroWeights) override { includeZeroWeights_ = includeZeroWeights; }
         private:
             const RooHistFunc * pdf_;
-            const RooAbsData * data_;
+            const RooAbsData * data_ = nullptr;
             bool includeZeroWeights_;
             std::vector<Double_t> yvals_;
             void fill() ;
@@ -45,8 +45,8 @@ namespace cacheutils {
             std::vector<int>                codes_;
             bool positiveDefinite_;
             std::unique_ptr<CachingPdfBase>    cachingPdfNominal_;
-            boost::ptr_vector<CachingPdfBase>  cachingPdfsHi_;
-            boost::ptr_vector<CachingPdfBase>  cachingPdfsLow_;
+            std::vector<std::unique_ptr<CachingPdfBase>>  cachingPdfsHi_;
+            std::vector<std::unique_ptr<CachingPdfBase>>  cachingPdfsLow_;
             std::vector<Double_t> work_;
     };
 }

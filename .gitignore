@@ -1,3 +1,6 @@
-site
 *.pyc
-*~
+*.wscode.*
+.python/
+build/
+install/
+site

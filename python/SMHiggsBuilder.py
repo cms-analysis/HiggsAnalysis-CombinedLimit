@@ -1,11 +1,8 @@
-from __future__ import absolute_import
-
 import os
 from array import array
 from math import *
 
 import six
-from six.moves import zip
 
 import ROOT
 from HiggsAnalysis.CombinedLimit.PhysicsModel import ALL_HIGGS_DECAYS
@@ -41,8 +38,8 @@ class SMHiggsBuilder:
         if process == "tHW":
             self.textToSpline("SM_XS_tHW_" + energy, os.path.join(self.xspath, energy + "-tHW.txt"))
         if process == "VH":
-            makeXS("WH", energy)
-            makeXS("ZH", energy)
+            self.makeXS("WH", energy)
+            self.makeXS("ZH", energy)
             self.modelBuilder.factory_("sum::SM_XS_VH_" + energy + "(SM_XS_WH_" + energy + ",SM_XS_ZH_" + energy + ")")
 
     def makeTotalWidth(self):
@@ -75,7 +72,7 @@ class SMHiggsBuilder:
     def makePartialWidth(self, decay):
         self.makeTotalWidth()
         self.makeBR(decay)
-        self.modelBuilder.factory_("prod::SM_Gamma_%s(SM_GammaTot,SM_BR_%s)" % (decay, decay))
+        self.modelBuilder.factory_(f"prod::SM_Gamma_{decay}(SM_GammaTot,SM_BR_{decay})")
 
     def makeScaling(
         self,
@@ -124,7 +121,7 @@ class SMHiggsBuilder:
                 "c_kc2": 6,
             }
             for sqrts in ("7TeV", "8TeV", "13TeV", "14TeV"):
-                for qty, column in six.iteritems(structure):
+                for qty, column in structure.items():
                     rooName = prefix + qty + "_" + sqrts
                     self.textToSpline(
                         rooName,
@@ -153,7 +150,7 @@ class SMHiggsBuilder:
                 self.modelBuilder.factory_(rooExpr)
         elif what.startswith("hgluglu"):
             structure = {"Gamma_tt": 2, "Gamma_bb": 3, "Gamma_tb": 4}
-            for qty, column in six.iteritems(structure):
+            for qty, column in structure.items():
                 rooName = prefix + qty
                 self.textToSpline(
                     rooName,
@@ -186,7 +183,7 @@ class SMHiggsBuilder:
                 "Gamma_bl": 10,
                 "Gamma_lW": 11,
             }
-            for qty, column in six.iteritems(structure):
+            for qty, column in structure.items():
                 rooName = prefix + qty
                 self.textToSpline(
                     rooName,
@@ -221,7 +218,7 @@ class SMHiggsBuilder:
                 "c_kbkZ": 6,
             }
             for sqrts in ("7TeV", "8TeV", "13TeV", "14TeV"):
-                for qty, column in six.iteritems(structure):
+                for qty, column in structure.items():
                     rooName = prefix + qty + "_" + sqrts
                     self.textToSpline(
                         rooName,
@@ -251,7 +248,7 @@ class SMHiggsBuilder:
                 scalingName = "Scaling_" + what + "_" + sqrts
                 rooExpr = (
                     "expr::%(scalingName)s" % locals()
-                    + '( "( (@0*@0)*(%g)  + (@1*@1)*(%g) + (@0*@1)*(%g) )/%g"' % tuple((coeffs[sqrts] + [sum(coeffs[sqrts])]))
+                    + '( "( (@0*@0)*(%g)  + (@1*@1)*(%g) + (@0*@1)*(%g) )/%g"' % tuple(coeffs[sqrts] + [sum(coeffs[sqrts])])
                     + ", %(Ctop)s, %(CW)s)" % locals()
                 )
                 self.modelBuilder.factory_(rooExpr)
@@ -266,7 +263,7 @@ class SMHiggsBuilder:
                 scalingName = "Scaling_" + what + "_" + sqrts
                 rooExpr = (
                     "expr::%(scalingName)s" % locals()
-                    + '( "( (@0*@0)*(%g)  + (@1*@1)*(%g) + (@0*@1)*(%g) )/%g"' % tuple((coeffs[sqrts] + [sum(coeffs[sqrts])]))
+                    + '( "( (@0*@0)*(%g)  + (@1*@1)*(%g) + (@0*@1)*(%g) )/%g"' % tuple(coeffs[sqrts] + [sum(coeffs[sqrts])])
                     + ", %(Ctop)s, %(CW)s,)" % locals()
                 )
                 self.modelBuilder.factory_(rooExpr)
@@ -289,7 +286,7 @@ class SMHiggsBuilder:
                 widthUncertaintiesKeys = line.split()[1:]
             else:
                 fields = line.split()
-                widthUncertainties[fields[0]] = dict([(k, 0.01 * float(v)) for (k, v) in zip(widthUncertaintiesKeys, fields[1:])])
+                widthUncertainties[fields[0]] = {k: 0.01 * float(v) for (k, v) in zip(widthUncertaintiesKeys, fields[1:])}
         for K in widthUncertaintiesKeys[:-1]:
             self.modelBuilder.doVar("param_%s[-7,7]" % K)
         for K, DS in THU_GROUPS:
@@ -325,14 +322,14 @@ class SMHiggsBuilder:
         log = open(logfile, "w")
         for x in values:
             xv.setVal(x)
-            log.write("%.3f\t%.7g\n" % (x, yf.getVal()))
+            log.write(f"{x:.3f}\t{yf.getVal():.7g}\n")
 
     def textToSpline(self, name, filename, xvar="MH", ycol=1, xcol=0, skipRows=1, algo="CSPLINE"):
         if self.modelBuilder.out.function(name) != None:
             return
         x = []
         y = []
-        file = open(filename, "r")
+        file = open(filename)
         lines = [l for l in file]
         for line in lines[skipRows:]:
             if len(line.strip()) == 0:

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import glob
 import math
 import os
@@ -7,12 +5,11 @@ import random
 import re
 import string
 
-from six.moves import range
 
 import ROOT
 
 
-class DatacardPruner(object):
+class DatacardPruner:
     """
     Description:
 
@@ -70,7 +67,7 @@ class DatacardPruner(object):
         headline = ""
         pull_pattern = re.compile(r"[+-]\d+\.\d+(?=sig)")
         for fit_result in self.fit_results:
-            file = open(fit_result, "r")
+            file = open(fit_result)
             for line in file:
                 ## add headline
                 if "name" in line:
@@ -103,12 +100,12 @@ class DatacardPruner(object):
                             output[key] = line
             file.close()
         rnd_name = "".join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
-        file = open("/tmp/{NAME}".format(NAME=rnd_name), "w")
+        file = open(f"/tmp/{rnd_name}", "w")
         file.write(headline)
         for line in output.values():
             file.write(line)
         file.close()
-        return "/tmp/{NAME}".format(NAME=rnd_name)
+        return f"/tmp/{rnd_name}"
 
     def determine_shapes(self, DATACARD):
         """
@@ -137,7 +134,7 @@ class DatacardPruner(object):
         bin_excepts = []
         proc_excepts = []
         shape_uncerts = {}
-        file = open(DATACARD, "r")
+        file = open(DATACARD)
         for line in file:
             words = line.split()
             if words[0] == "bin":
@@ -157,7 +154,7 @@ class DatacardPruner(object):
         file.close()
         ## determine shape uncertainties; for shape uncertainties it must be known
         ## for what bin and for what sample they are valid and what value they have
-        file = open(DATACARD, "r")
+        file = open(DATACARD)
         for line in file:
             words = line.split()
             if len(words) < 2:
@@ -203,7 +200,7 @@ class DatacardPruner(object):
         mapping the name of the uncertainty to the maximal relative uncertainty.
         """
         lnN_uncerts = {}
-        file = open(DATACARD, "r")
+        file = open(DATACARD)
         for line in file:
             words = line.split()
             if len(words) < 2:
@@ -256,7 +253,7 @@ class DatacardPruner(object):
         drop = []
         confused = 0
         file_name = self.combine_fit_results(self.fit_results)
-        file = open(file_name, "r")
+        file = open(file_name)
         pull_pattern = re.compile(r"[+-]\d+\.\d+(?=sig)")
         for line in file:
             ## first element is the name of the nuisance parameter
@@ -310,7 +307,7 @@ class DatacardPruner(object):
                     keep.append(name)
         file.close()
         # print "wrote combined cards to: {NAME}".format(NAME=file_name)
-        os.system("rm {NAME}".format(NAME=file_name))
+        os.system(f"rm {file_name}")
         return (drop, keep, confused)
 
     def list_to_file(self, LIST, FILE):
@@ -335,9 +332,9 @@ class DatacardPruner(object):
         been manipulated. Note that this function will alter DATACARD.
         """
         excl = 0
-        file = open(DATACARD, "r")
+        file = open(DATACARD)
         rnd_name = "".join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
-        output = open("/tmp/{NAME}".format(NAME=rnd_name), "w")
+        output = open(f"/tmp/{rnd_name}", "w")
         for line in file:
             words = line.split()
             if len(words) > 1:
@@ -363,5 +360,5 @@ class DatacardPruner(object):
             output.write(line)
         file.close()
         output.close()
-        os.system("mv /tmp/{NAME} {DATACARD}".format(NAME=rnd_name, DATACARD=DATACARD))
+        os.system(f"mv /tmp/{rnd_name} {DATACARD}")
         return excl

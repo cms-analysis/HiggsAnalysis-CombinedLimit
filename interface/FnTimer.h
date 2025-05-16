@@ -77,11 +77,11 @@ class FnTimer {
 
  private:
   std::string name_;
-  unsigned calls_;
+  unsigned calls_ = 0;
   std::chrono::time_point<std::chrono::high_resolution_clock> start_;
   std::chrono::time_point<std::chrono::high_resolution_clock> end_;
-  double elapsed_;
-  double elapsed_overhead_;
+  double elapsed_ = 0.;
+  double elapsed_overhead_ = 0.;
 };
 
 

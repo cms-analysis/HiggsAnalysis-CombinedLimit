@@ -1,11 +1,11 @@
 #include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "../interface/Combine.h"
 #include "../interface/BestFitSigmaTestStat.h"
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/utils.h"
 #include <stdexcept>
 #include <RooRealVar.h>
-//#include "../interface/RooMinimizerOpt.h"
 #include <RooMinimizer.h>
 #include <RooFitResult.h>
 #include <RooSimultaneous.h>
@@ -69,7 +69,7 @@ Double_t BestFitSigmaTestStat::Evaluate(RooAbsData& data, RooArgSet& /*nullPOI*/
     // Initialize signal strength
     RooRealVar *rIn = (RooRealVar *) poi_.first();
     RooRealVar *r   = (RooRealVar *) params_->find(rIn->GetName());
-    bool canKeepNLL = createNLL(*pdf_, data);
+    bool canKeepNLL = createNLLWrapper(*pdf_, data);
 
     double initialR = rIn->getVal();
 
@@ -91,14 +91,14 @@ Double_t BestFitSigmaTestStat::Evaluate(RooAbsData& data, RooArgSet& /*nullPOI*/
     return bestFitR;
 }
 
-bool BestFitSigmaTestStat::createNLL(RooAbsPdf &pdf, RooAbsData &data) 
+bool BestFitSigmaTestStat::createNLLWrapper(RooAbsPdf &pdf, RooAbsData &data) 
 {
     if (typeid(pdf) == typeid(RooSimultaneousOpt)) {
-        if (nll_.get() == 0) nll_.reset(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
+        if (nll_.get() == 0) nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
         else ((cacheutils::CachingSimNLL&)(*nll_)).setData(data);
         return true;
     } else {
-        nll_.reset(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
+        nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
         return false;
     }
 }
