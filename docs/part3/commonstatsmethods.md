@@ -844,7 +844,7 @@ A number of different algorithms can be used with the option `--algo <algo>`,
 
 -   **`random`**: Scan N random points and compute the probability out of the profile likelihood ratio `combine -M MultiDimFit toy-hgg-125.root --algo random --points=20 --cl=0.68`. Again, the best fit will have `quantileExpected` set to -1, while each random point will have `quantileExpected` set to the probability given by the profile likelihood ratio at that point.
 
--   **`fixed`**: Compare the log-likelihood at a fixed point compared to the best fit. `combine -M MultiDimFit toy-hgg-125.root --algo fixed --fixedPointPOIs r=r_fixed,MH=MH_fixed`. The output tree will contain the difference in the negative log-likelihood between the points ($\hat{r},\hat{m}_{H}$) and ($\hat{r}_{fixed},\hat{m}_{H,fixed}$) in the branch `deltaNLL`.
+-   **`fixed`**: Compare the log-likelihood at a fixed point compared to the best fit. `combine -M MultiDimFit toy-hgg-125.root --algo fixed --fixedPointPOIs r_ggH=1,r_qqH=1`. The output tree will contain the difference in the negative log-likelihood between the points ($\hat{r}_{ggH},\hat{r}_{qqH}$) and ($r_{ggH}=1,r_{qqH}=1$) in the branch `deltaNLL`.
 
 	You can use the `combineTool.py` script to run multiple fixed points from a `.csv` file. For example, [data/tutorials/multiDim/fixed.csv](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/multiDim/fixed.csv) contains the points
 
