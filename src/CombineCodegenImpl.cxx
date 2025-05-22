@@ -5,6 +5,8 @@
 #include "../interface/AsymPow.h"
 #include "../interface/ProcessNormalization.h"
 #include "../interface/VerticalInterpHistPdf.h"
+#include "../interface/VerticalInterpPdf.h"
+#include "../interface/CombineMathFuncs.h"
 
 #include <RooUniformBinning.h>
 
@@ -12,9 +14,11 @@
 namespace RooFit {
 namespace Experimental {
 # define CODEGEN_IMPL(CLASS_NAME) void codegenImpl(CLASS_NAME &arg0, CodegenContext &ctx)
+# define CODEGEN_INTEGRAL_IMPL(CLASS_NAME) std::string codegenIntegralImpl(CLASS_NAME &arg0, int code, const char *rangeName, CodegenContext &ctx)
 # define ARG_VAR auto &arg = arg0;
 #else
 # define CODEGEN_IMPL(CLASS_NAME) void CLASS_NAME::translate(RooFit::Detail::CodeSquashContext &ctx) const
+# define CODEGEN_INTEGRAL_IMPL(CLASS_NAME) std::string CLASS_NAME::buildCallToAnalyticIntegral(Int_t code, const char *rangeName, RooFit::Detail::CodeSquashContext &ctx) const
 # define ARG_VAR auto &arg = *this;
 #endif
 
@@ -215,6 +219,33 @@ CODEGEN_IMPL(FastVerticalInterpHistPdf2D2) {
 
   ctx.addToCodeBody(code.str(), true);
   ctx.addResult(&arg, arrName + "[" + binIdx.str() + "]");
+}
+
+CODEGEN_IMPL(VerticalInterpPdf) {
+  ARG_VAR;
+  ctx.addResult(&arg,
+                ctx.buildCall("RooFit::Detail::MathFuncs::verticalInterpolate",
+                              arg.coefList(),
+                              arg.coefList().size(),
+                              arg.funcList(),
+                              arg.funcList().size(),
+                              arg.pdfFloorVal(),
+                              arg.quadraticRegion(),
+                              arg.quadraticAlgo()));
+
+}
+
+CODEGEN_INTEGRAL_IMPL(VerticalInterpPdf) {
+  ARG_VAR;
+  return ctx.buildCall("RooFit::Detail::MathFuncs::verticalInterpPdfIntegral",
+                       arg.coefList(),
+                       arg.coefList().size(),
+                       arg.funcIntListFromCache(),
+                       arg.funcIntListFromCache().size(),
+                       arg.pdfFloorVal(),
+                       arg.integralFloorVal(),
+                       arg.quadraticRegion(),
+                       arg.quadraticAlgo());
 }
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,35,0)
