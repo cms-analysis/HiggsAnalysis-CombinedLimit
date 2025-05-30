@@ -1851,7 +1851,7 @@ scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</
 <p>Pre-compiled versions of the tool are available as container images from the <a href="https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235">CMS cloud</a>. These containers can be downloaded and run using <a href="https://cms-opendata-guide.web.cern.ch/tools/docker/">Docker</a>. If you have docker running you can pull and run the image using, </p>
 <p><div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>combine<span class="w"> </span>-it<span class="w"> </span>gitlab-registry.cern.ch/cms-cloud/combine-standalone:&lt;tag&gt;
 </code></pre></div>
-where you must replace <code>&lt;tag&gt;</code> with a particular version of the tool - eg - <code>v9.2.1</code>. See the top of this page for the latest recommended versions. </p>
+where you must replace <code>&lt;tag&gt;</code> with a particular version of the tool. At the moment the available container versions are <code>v9.2.1</code> and <code>v9.2.1-slim</code>, both build with Combine tag <code>v9.2.1</code>, and the <code>v9.2.1-slim</code> correspond to a slim version. If no tag is specified the latest version of the container will be loaded, which is <code>v9.2.1-slim</code> at the moment. The containers for <code>v10.X.X</code> versions are being developed and are not yet availble for the users.</p>
 <p>You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool. 
 The container can be re-started using <code>docker start -i combine</code>. </p>
 <h4 id="standalone-compilation">Standalone compilation</h4>
