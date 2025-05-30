@@ -133,7 +133,7 @@ Pre-compiled versions of the tool are available as container images from the [CM
 ```sh
 docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:<tag>
 ```
-where you must replace `<tag>` with a particular version of the tool - eg - `v9.2.1`. See the top of this page for the latest recommended versions. 
+where you must replace `<tag>` with a particular version of the tool. At the moment the available container versions are `v9.2.1` and `v9.2.1-slim`, both build with Combine tag `v9.2.1`, and the `v9.2.1-slim` correspond to a slim version. If no tag is specified the latest version of the container will be loaded, which is `v9.2.1-slim` at the moment. The containers for `v10.X.X` versions are being developed and are not yet availble for the users.
 
 You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool. 
 The container can be re-started using `docker start -i combine`. 
