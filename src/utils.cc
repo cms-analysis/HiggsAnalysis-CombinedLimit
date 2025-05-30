@@ -41,7 +41,7 @@
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/ProfilingTools.h"
 #include "../interface/CombineLogger.h"
-#include "../interface/RooMultiPdf.h"
+#include "../interface/RooMultiPdfCombine.h"
 
 using namespace std;
 
