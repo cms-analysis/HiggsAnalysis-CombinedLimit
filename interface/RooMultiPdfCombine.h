@@ -1,7 +1,7 @@
 #ifndef ROO_MULTIPDF_COMBINE
 #define ROO_MULTIPDF_COMBINE
 
-#include <ROOT/RVersion.hxx> // for ROOT_VERSION
+#include <ROOT/RConfig.hxx> // for ROOT_VERSION
 
 // The RooMultiPdf is part of RooFit since the ROOT 6.38 development cycle.
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,37,00)

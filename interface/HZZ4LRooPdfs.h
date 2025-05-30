@@ -10,7 +10,7 @@
 #include "TDirectory.h"
 #include "TH2F.h"
 
-#include <ROOT/RVersion.hxx> // for ROOT_VERSION
+#include <ROOT/RConfig.hxx> // for ROOT_VERSION
 
 #include <iostream>
 #include <fstream>
