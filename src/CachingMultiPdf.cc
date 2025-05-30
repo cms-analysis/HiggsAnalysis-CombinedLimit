@@ -4,7 +4,7 @@
 // END_HTML
 //
 
-#include <ROOT/RVersion.hxx> // for ROOT_VERSION
+#include <ROOT/RConfig.hxx> // for ROOT_VERSION
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,37,00)
 
