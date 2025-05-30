@@ -25,6 +25,8 @@
 #include "../interface/utils.h"
 #include "../interface/CachingNLL.h"
 
+#include <ROOT/RConfig.hxx> // for ROOT_VERSION
+
 #include <numeric>
 #include <memory>
 
@@ -128,7 +130,11 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
   RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(obsOnlyPdf);
   if (sim) {
       RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,37,00)
+      std::vector<std::unique_ptr<RooAbsData>> datasets{data.split(*cat, true)};
+#else
       std::unique_ptr<TList> datasets(data.split(*cat, true));
+#endif
       int nbins = cat->numBins((const char *)0);
       RooArgSet newPdfs;
       TString satname = TString::Format("%s_saturated", sim->GetName());
@@ -137,7 +143,14 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
           cat->setBin(ic);
           RooAbsPdf *pdfi = sim->getPdf(cat->getLabel());
           if (pdfi == 0) continue;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,37,00)
+          auto found = std::find_if(datasets.begin(), datasets.end(), [&](auto const &item) {
+            return std::string{cat->getLabel()} == item->GetName();
+          });
+          RooAbsData *datai = found != datasets.end() ? found->get() : nullptr;
+#else
           RooAbsData *datai = (RooAbsData *) datasets->FindObject(cat->getLabel());
+#endif
           if (datai == 0) throw std::runtime_error(std::string("Error: missing dataset for category label ")+cat->getLabel());
           std::unique_ptr<RooArgSet> data_observables(pdfi->getObservables(datai));
           std::unique_ptr<RooAbsData> data_reduced(datai->reduce(*data_observables));
@@ -259,16 +272,27 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
   if (binNames_.size()) {
     RooAbsCategoryLValue const &cat = sim->indexCat();    
     // Split the data using the option "true" to include empty datasets
-    std::unique_ptr<TList> datasets(data.split(cat, true));
-    
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,37,00)
+    std::vector<std::unique_ptr<RooAbsData>> datasets{data.split(cat, true)};
+#else
+    std::unique_ptr<TList> datasetsList(data.split(cat, true));
+    // The TList is by default non-owning, so we can pass the ownership to our
+    // own unique_ptrs.
+    std::vector<std::unique_ptr<RooAbsData>> datasets;
+    datasets.reserve(datasetsList->GetSize());
+    for (int i = 0; i < datasetsList->GetSize(); ++i) {
+       datasets.emplace_back(dynamic_cast<RooAbsData*>(datasetsList->At(i)));
+    }
+#endif
+
     // Number of categories should always equal the number of datasets
-    if (datasets->GetSize() != int(binNames_.size())) {
+    if (datasets.size() != binNames_.size()) {
       throw std::runtime_error(
           "Numbers of categories and datasets do not match");
     }
 
     for (unsigned i = 0; i < binNames_.size(); i++) {
-      RooAbsData *cat_data = dynamic_cast<RooAbsData *>(datasets->At(i));
+      RooAbsData *cat_data = datasets[i].get();
       RooAbsPdf *cat_pdf = sim->getPdf(binNames_[i].c_str());
       std::unique_ptr<RooArgSet> observables(cat_pdf->getObservables(cat_data));
       if (observables->getSize() > 1) {

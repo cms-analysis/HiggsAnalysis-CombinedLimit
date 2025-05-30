@@ -59,7 +59,7 @@
 #include "../interface/AsimovUtils.h"
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/ProfilingTools.h"
-#include "../interface/RooMultiPdf.h"
+#include "../interface/RooMultiPdfCombine.h"
 #include "../interface/CMSHistFunc.h"
 #include "../interface/CMSHistSum.h"
 

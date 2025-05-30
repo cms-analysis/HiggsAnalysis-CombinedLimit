@@ -1,5 +1,14 @@
-#ifndef ROO_MULTIPDF
-#define ROO_MULTIPDF
+#ifndef ROO_MULTIPDF_COMBINE
+#define ROO_MULTIPDF_COMBINE
+
+#include <ROOT/RConfig.hxx> // for ROOT_VERSION
+
+// The RooMultiPdf is part of RooFit since the ROOT 6.38 development cycle.
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,37,00)
+
+#include <RooMultiPdf.h>
+
+#else
 
 #include "RooAbsPdf.h"
 #include "RooCategory.h"
@@ -42,4 +51,7 @@ protected:
 private:
   ClassDefOverride(RooMultiPdf,1) // Multi PDF
 };
+
+#endif // else branch of ROOT_VERSION_CODE >= ROOT_VERSION(6,37,00)
+
 #endif

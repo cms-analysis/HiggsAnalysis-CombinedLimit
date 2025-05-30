@@ -8,7 +8,7 @@
 #include <RooStats/RooStatsUtils.h>
 
 #include "../interface/ProfilingTools.h"
-#include "../interface/RooMultiPdf.h"
+#include "../interface/RooMultiPdfCombine.h"
 #include "../interface/VerticalInterpHistPdf.h"
 #include "../interface/CMSHistV.h"
 #include "../interface/CMSHistFunc.h"
