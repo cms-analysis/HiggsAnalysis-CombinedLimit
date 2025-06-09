@@ -34,7 +34,7 @@ Note that some additional information on unfolding in `Combine` are available [h
 ## Analysis overview
 
 
-In this tutorial we will look at the cross section measurements of on of the SM Higgs processes VH, in $H\to b\bar{b}$ (VHbb) final state. 
+In this tutorial we will look at the cross section measurements of one of the SM Higgs processes VH, in $H\to b\bar{b}$ (VHbb) final state. 
 
 The measurement is performed within the Simplified Template Cross Section (STXS) framework, which provides the prediction in the bins of generator-level quantities $p_{T}(V)$ and number of additional jets. The maximum likelihood based unfolding is performed to measure the cross section in the generator-level bins defined by STXS scheme. At the detector-level we define appropriate categories to match the STXS bins as closely as possible so that there is a good correspondence between the detector-level observable and the underlying generator-level quantity we are interested in.  
 
