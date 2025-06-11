@@ -26,7 +26,7 @@ nav:
           - "Validating datacards":       part3/validation.md
           - "Debugging fit failures":     part3/debugging.md
         - Tutorials:
-          - "RooFit Basics":              part5/roofit.md
+          - "RooFit Basics":              part5/roofit_basics.md
           - "Main Features":
             - "Exercises":                part5/longexercise.md
             - "Solutions":                part5/longexerciseanswers.md
