@@ -21,7 +21,7 @@ The option `-M` is used to choose the statistical evaluation method. There are s
     - `MultiDimFit`: performs maximum likelihood fits and likelihood scans with an arbitrary number of parameters of interest.
 -   **Miscellaneous** other modules that do not compute limits or confidence intervals, but use the same framework:
     - `GoodnessOfFit`: perform a goodness of fit test for models including shape information. Several GoF tests are implemented.
-    - `ChannelConsistencyCheck`: study the consistency between individual channels in a combination.
+    - `ChannelCompatibilityCheck`: study the consistency between individual channels in a combination.
     - `GenerateOnly`: generate random or asimov toy datasets for use as input to other methods
 
 The command help is organized into five parts:
