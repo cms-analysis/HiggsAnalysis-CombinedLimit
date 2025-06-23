@@ -16,6 +16,8 @@ Tutorial Sessions:
    * [5th tutorial 2nd-4th Dec 2019](https://indico.cern.ch/event/859454/overview)
    * [6th tutorial 14th-16th Dec 2020](https://indico.cern.ch/event/976099/overview) - Latest for `102x` branch
    * [7th tutorial 3rd Feb 2023](https://indico.cern.ch/event/1227742/) - Uses `113x` branch
+   * [8th tutorial 27th Sep 2023](https://indico.cern.ch/event/1311191/) - The focus of this tutorial is unfolding
+   * 9th tutorial 24th+25th Jun 2024: [day 1 basics](https://indico.cern.ch/event/1394373/timetable/?showDate=2024-06-24&view=standard&showSession=3#20240622), [day 2 advanced topics](https://indico.cern.ch/event/1394373/timetable/?showDate=2024-06-25&view=standard&showSession=3#20240622)
 
 
 Worked examples from Higgs analyses using <span style="font-variant:small-caps;">Combine</span>:
