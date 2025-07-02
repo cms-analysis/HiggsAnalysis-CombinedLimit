@@ -14,7 +14,7 @@
       
       
       <link rel="icon" href="logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -1782,16 +1782,13 @@ releases on github under
 <h3 id="combine-v10-recommended-version">Combine v10 - recommended version</h3>
 <p>The nominal installation method is inside CMSSW. The current release targets
 the CMSSW <code>14_1_X</code> series because of the recent switch to el9 at lxplus machines.</p>
-<p><div class="highlight"><pre><span></span><code>cmsrel<span class="w"> </span>CMSSW_14_1_0_pre4
+<p>Currently, the recommended tag is <strong>v10.2.1</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.2.1">see release notes</a>
+The <code>git clone</code> command below contains this tag and is optimised to reduce disk usage.</p>
+<div class="highlight"><pre><span></span><code>cmsrel<span class="w"> </span>CMSSW_14_1_0_pre4
 <span class="nb">cd</span><span class="w"> </span>CMSSW_14_1_0_pre4/src
 cmsenv
-git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
+git<span class="w"> </span>-c<span class="w"> </span>advice.detachedHead<span class="o">=</span><span class="nb">false</span><span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v10.2.1<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
 <span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
-</code></pre></div>
-Update to a recommended tag - currently the recommended tag is <strong>v10.2.1</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.2.1">see release notes</a></p>
-<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit
-git<span class="w"> </span>fetch<span class="w"> </span>origin
-git<span class="w"> </span>checkout<span class="w"> </span>v10.2.1
 scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span><span class="c1"># always make a clean build</span>
 </code></pre></div>
 <h3 id="combine-v9">Combine v9</h3>
@@ -1799,33 +1796,26 @@ scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</
 the CMSSW <code>11_3_X</code> series because this release has both python2 and python3 ROOT
 bindings, allowing a more gradual migration of user code to python3. <span style="font-variant:small-caps;">Combine</span> is
 fully python3-compatible and, with some adaptations, can also work in 12_X releases. </p>
-<p>CMSSW <code>11_3_X</code> runs on slc7, which can be setup using apptainer (<a href="http://cms-sw.github.io/singularity.html">see detailed instructions</a>):
+<p>CMSSW <code>11_3_X</code> runs on slc7, which can be setup using apptainer (<a href="http://cms-sw.github.io/singularity.html">see detailed instructions</a>).
+Currently, the recommended tag is <strong>v9.2.1</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.2.1">see release notes</a>
+The <code>git clone</code> command below contains this tag and is optimised to reduce disk usage.</p>
 <div class="highlight"><pre><span></span><code>cmssw-el7
 cmsrel<span class="w"> </span>CMSSW_11_3_4
 <span class="nb">cd</span><span class="w"> </span>CMSSW_11_3_4/src
 cmsenv
-git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
+git<span class="w"> </span>-c<span class="w"> </span>advice.detachedHead<span class="o">=</span><span class="nb">false</span><span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v9.2.1<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
 <span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
-</code></pre></div>
-Update to a recommended tag - currently the recommended tag is <strong>v9.2.1</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.2.1">see release notes</a></p>
-<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit
-git<span class="w"> </span>fetch<span class="w"> </span>origin
-git<span class="w"> </span>checkout<span class="w"> </span>v9.2.1
 scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span><span class="c1"># always make a clean build</span>
 </code></pre></div>
 <h4 id="combine-v8-cmssw_10_2_x-release-series">Combine v8: <code>CMSSW_10_2_X</code> release series</h4>
-<p>Setting up the environment (once):</p>
-<p><div class="highlight"><pre><span></span><code>cmssw-el7
+<p>Setting up the environment (once) is described below.
+Currently, the recommended tag is <strong>v8.2.0</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v8.2.0">see release notes</a>
+The <code>git clone</code> command below contains this tag and is optimised to reduce disk usage.</p>
+<div class="highlight"><pre><span></span><code>cmssw-el7
 cmsrel<span class="w"> </span>CMSSW_10_2_13
 <span class="nb">cd</span><span class="w"> </span>CMSSW_10_2_13/src
 cmsenv
-git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
-<span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
-</code></pre></div>
-Update to a recommended tag - currently the recommended tag is <strong>v8.2.0</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v8.2.0">see release notes</a></p>
-<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit
-git<span class="w"> </span>fetch<span class="w"> </span>origin
-git<span class="w"> </span>checkout<span class="w"> </span>v8.2.0
+git<span class="w"> </span>-c<span class="w"> </span>advice.detachedHead<span class="o">=</span><span class="nb">false</span><span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v8.2.0<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
 scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span><span class="c1"># always make a clean build</span>
 </code></pre></div>
 <h4 id="slc6cc7-release-cmssw_8_1_x">SLC6/CC7 release <code>CMSSW_8_1_X</code></h4>
@@ -2076,7 +2066,7 @@ scram<span class="w"> </span>b
       <script id="__config" type="application/json">{"base": ".", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="assets/javascripts/bundle.56ea9cef.min.js"></script>
       
         <script src="javascripts/mathjax.js"></script>
       
