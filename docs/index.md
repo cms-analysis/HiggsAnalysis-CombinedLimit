@@ -37,67 +37,51 @@ releases on github under
 The nominal installation method is inside CMSSW. The current release targets
 the CMSSW `14_1_X` series because of the recent switch to el9 at lxplus machines.
 
-
+Currently, the recommended tag is **v10.2.1**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.2.1)
+The `git clone` command below contains this tag and is optimised to reduce disk usage.
 
 ```sh
 cmsrel CMSSW_14_1_0_pre4
 cd CMSSW_14_1_0_pre4/src
 cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+git -c advice.detachedHead=false clone --depth 1 --branch v10.2.1 https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
-```
-Update to a recommended tag - currently the recommended tag is **v10.2.1**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.2.1)
-
-```sh
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v10.2.1
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
-### Combine v9 
+### Combine v9
 
 The nominal installation method is inside CMSSW. The current release targets
 the CMSSW `11_3_X` series because this release has both python2 and python3 ROOT
 bindings, allowing a more gradual migration of user code to python3. <span style="font-variant:small-caps;">Combine</span> is
 fully python3-compatible and, with some adaptations, can also work in 12_X releases. 
 
-CMSSW `11_3_X` runs on slc7, which can be setup using apptainer ([see detailed instructions](http://cms-sw.github.io/singularity.html)):
+CMSSW `11_3_X` runs on slc7, which can be setup using apptainer ([see detailed instructions](http://cms-sw.github.io/singularity.html)).
+Currently, the recommended tag is **v9.2.1**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.2.1)
+The `git clone` command below contains this tag and is optimised to reduce disk usage.
+
 ```sh
 cmssw-el7
 cmsrel CMSSW_11_3_4
 cd CMSSW_11_3_4/src
 cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+git -c advice.detachedHead=false clone --depth 1 --branch v9.2.1 https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
-```
-Update to a recommended tag - currently the recommended tag is **v9.2.1**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.2.1)
-
-```sh
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v9.2.1
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
 #### Combine v8: `CMSSW_10_2_X` release series
 
-Setting up the environment (once):
+Setting up the environment (once) is described below.
+Currently, the recommended tag is **v8.2.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v8.2.0)
+The `git clone` command below contains this tag and is optimised to reduce disk usage.
 
 ```sh
 cmssw-el7
 cmsrel CMSSW_10_2_13
 cd CMSSW_10_2_13/src
 cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-```
-Update to a recommended tag - currently the recommended tag is **v8.2.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v8.2.0)
-
-```sh
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v8.2.0
+git -c advice.detachedHead=false clone --depth 1 --branch v8.2.0 https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
