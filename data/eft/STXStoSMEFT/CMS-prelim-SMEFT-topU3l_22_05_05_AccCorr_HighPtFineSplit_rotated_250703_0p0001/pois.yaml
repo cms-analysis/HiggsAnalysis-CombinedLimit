@@ -1,0 +1,259 @@
+---
+EV0:
+    exponent: 3
+    val: 0.
+    max: 7.776
+    min: -7.776
+    eigenvalue: 413483
+EV1:
+    exponent: 2
+    val: 0.
+    max: 1.171
+    min: -1.171
+    eigenvalue: 182338
+EV2:
+    exponent: 1
+    val: 0.
+    max: 1.026
+    min: -1.026
+    eigenvalue: 2377.08
+EV3:
+    exponent: 1
+    val: 0.
+    max: 1.278
+    min: -1.278
+    eigenvalue: 1531.52
+EV4:
+    exponent: 1
+    val: 0.
+    max: 1.586
+    min: -1.586
+    eigenvalue: 994.294
+EV5:
+    exponent: 1
+    val: 0.
+    max: 8.382
+    min: -8.382
+    eigenvalue: 35.5846
+EV6:
+    exponent: 1
+    val: 0.
+    max: 9.608
+    min: -9.608
+    eigenvalue: 27.0798
+EV7:
+    exponent: 0
+    val: 0.
+    max: 1.614
+    min: -1.614
+    eigenvalue: 9.59107
+EV8:
+    exponent: 0
+    val: 0.
+    max: 2.249
+    min: -2.249
+    eigenvalue: 4.94255
+EV9:
+    exponent: 0
+    val: 0.
+    max: 3.364
+    min: -3.364
+    eigenvalue: 2.20856
+EV10:
+    exponent: 0
+    val: 0.
+    max: 5.690
+    min: -5.690
+    eigenvalue: 0.772261
+EV11:
+    exponent: 0
+    val: 0.
+    max: 5.772
+    min: -5.772
+    eigenvalue: 0.750347
+EV12:
+    exponent: -1
+    val: 0.
+    max: 1.055
+    min: -1.055
+    eigenvalue: 0.224766
+EV13:
+    exponent: -1
+    val: 0.
+    max: 1.588
+    min: -1.588
+    eigenvalue: 0.0991324
+EV14:
+    exponent: -1
+    val: 0.
+    max: 2.422
+    min: -2.422
+    eigenvalue: 0.0426076
+EV15:
+    exponent: -1
+    val: 0.
+    max: 3.091
+    min: -3.091
+    eigenvalue: 0.0261705
+EV16:
+    exponent: -1
+    val: 0.
+    max: 4.519
+    min: -4.519
+    eigenvalue: 0.0122402
+EV17:
+    exponent: -1
+    val: 0.
+    max: 5.947
+    min: -5.947
+    eigenvalue: 0.00706809
+EV18:
+    exponent: -1
+    val: 0.
+    max: 6.982
+    min: -6.982
+    eigenvalue: 0.00512781
+EV19:
+    exponent: -1
+    val: 0.
+    max: 8.750
+    min: -8.750
+    eigenvalue: 0.00326555
+EV20:
+    exponent: -2
+    val: 0.
+    max: 1.413
+    min: -1.413
+    eigenvalue: 0.00125147
+EV21:
+    exponent: -2
+    val: 0.
+    max: 3.183
+    min: -3.183
+    eigenvalue: 0.000246758
+EV22:
+    exponent: -2
+    val: 0.
+    max: 3.972
+    min: -3.972
+    eigenvalue: 0.000158479
+EV23:
+    exponent: -2
+    val: 0.
+    max: 6.518
+    min: -6.518
+    eigenvalue: 5.88465e-05
+EV24:
+    exponent: -2
+    val: 0.
+    max: 7.994
+    min: -7.994
+    eigenvalue: 3.91232e-05
+EV25:
+    exponent: -3
+    val: 0.
+    max: 1.896
+    min: -1.896
+    eigenvalue: 6.95542e-06
+EV26:
+    exponent: -3
+    val: 0.
+    max: 3.005
+    min: -3.005
+    eigenvalue: 2.7689e-06
+EV27:
+    exponent: -3
+    val: 0.
+    max: 3.191
+    min: -3.191
+    eigenvalue: 2.45474e-06
+EV28:
+    exponent: -4
+    val: 0.
+    max: 1.432
+    min: -1.432
+    eigenvalue: 1.21962e-07
+EV29:
+    exponent: -5
+    val: 0.
+    max: 2.625
+    min: -2.625
+    eigenvalue: 3.62783e-10
+EV30:
+    exponent: -6
+    val: 0.
+    max: 2.364
+    min: -2.364
+    eigenvalue: 4.4725e-12
+EV31:
+    exponent: -7
+    val: 0.
+    max: 2.267
+    min: -2.267
+    eigenvalue: 4.8656e-14
+EV32:
+    exponent: -8
+    val: 0.
+    max: 4.761
+    min: -4.761
+    eigenvalue: 1.10299e-16
+EV33:
+    exponent: -8
+    val: 0.
+    max: 4.761
+    min: -4.761
+    eigenvalue: 1.10299e-16
+EV34:
+    exponent: -8
+    val: 0.
+    max: 5.024
+    min: -5.024
+    eigenvalue: 9.90467e-17
+EV35:
+    exponent: -9
+    val: 0.
+    max: 2.749
+    min: -2.749
+    eigenvalue: 3.308e-18
+EV36:
+    exponent: -9
+    val: 0.
+    max: 2.749
+    min: -2.749
+    eigenvalue: 3.308e-18
+EV37:
+    exponent: -9
+    val: 0.
+    max: 1.807
+    min: -1.807
+    eigenvalue: 7.65747e-18
+EV38:
+    exponent: -9
+    val: 0.
+    max: 1.807
+    min: -1.807
+    eigenvalue: 7.65747e-18
+EV39:
+    exponent: -9
+    val: 0.
+    max: 2.316
+    min: -2.316
+    eigenvalue: 4.66174e-18
+EV40:
+    exponent: -9
+    val: 0.
+    max: 6.776
+    min: -6.776
+    eigenvalue: 5.44523e-19
+EV41:
+    exponent: -11
+    val: 0.
+    max: 1.924
+    min: -1.924
+    eigenvalue: 6.75294e-22
+EV42:
+    exponent: -10
+    val: 0.
+    max: 1.075
+    min: -1.075
+    eigenvalue: 2.16398e-19
