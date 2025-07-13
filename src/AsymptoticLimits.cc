@@ -453,13 +453,15 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
 }
 
 float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, double rMin, double rMax, double nll0, double pb) {
-    // EQ 37 of CMS NOTE 2011-005:
+    // EQ 37 of CMS NOTE 2011-005 or CCGV Eqn 88:https://arxiv.org/abs/1007.1727
     //   mu_N = sigma * ( normal_quantile_c( (1-cl) * normal_cdf(N) ) + N )
     // --> (mu_N/sigma) = N + normal_quantile_c( (1-cl) * (1-Pb) ) but in our code here we refer to pb=1-Pb
     // but qmu = (mu_N/sigma)^2
     // --> qmu = [ N + normal_quantile_c( (1-cl)*(1-Pb) ) ]^2
     // remember that qmu = 2*nll
-    
+    // if we assumed that qmu is quadratic then were done. in this function, we dont make this assumption and instead find the 
+    // crossing value of mu that gives the specified qmu in the above.
+    // note that as in CCGV the asymptotic formula for upper limits in qmu and qmutilde are identical so can use qmu here.
 
     double N = ROOT::Math::normal_quantile(pb, 1.0);
     double errorlevel = 0.5 * pow(N+ROOT::Math::normal_quantile_c((doCLs_ ? pb:1.)*(1-cl),1.0), 2);
