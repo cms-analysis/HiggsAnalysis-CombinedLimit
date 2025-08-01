@@ -62,6 +62,7 @@ std::string MultiDimFit::robustHesseLoad_ = "";
 std::string MultiDimFit::robustHesseSave_ = "";
 int MultiDimFit::robustHesseSplit_ = 0;
 unsigned MultiDimFit::robustHesseIdx_ = 0;
+bool        MultiDimFit::skipRobustHesseOutputSave_ = false;
 
 std::string MultiDimFit::saveSpecifiedFuncs_;
 std::string MultiDimFit::saveSpecifiedIndex_;
@@ -113,6 +114,7 @@ MultiDimFit::MultiDimFit() :
     ("robustHesseSave",  boost::program_options::value<std::string>(&robustHesseSave_)->default_value(robustHesseSave_),  "Save the calculated Hessian")
     ("robustHesseSplit",  boost::program_options::value<int>(&robustHesseSplit_)->default_value(robustHesseSplit_),  "Split the Hessian calculation into N jobs")
     ("robustHesseIdx",  boost::program_options::value<unsigned>(&robustHesseIdx_)->default_value(robustHesseIdx_),  "Set job index (0..N-1) in split mode")
+    ("skipRobustHesseOutputSave",  boost::program_options::value<bool>(&skipRobustHesseOutputSave_)->default_value(skipRobustHesseOutputSave_),  "Option to skip saving the robustHesse output when running split jobs")
       ;
 }
 
@@ -252,7 +254,9 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
         if (saveFitResult_) {
             res.reset(robustHesse.GetRooFitResult(res.get()));
         }
-        robustHesse.WriteOutputFile("robustHesse"+name_+".root");
+        if (!skipRobustHesseOutputSave_){
+            robustHesse.WriteOutputFile("robustHesse"+name_+".root");
+        }
     }
 
    
