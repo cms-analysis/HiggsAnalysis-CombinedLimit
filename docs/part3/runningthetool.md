@@ -255,6 +255,8 @@ combineTool.py -d workspace.root -M HybridNew --LHCmode LHC-limits --clsAcc 0  -
 ``` 
 The `--singlePoint` option is over-ridden, so that this will produce a script for each value of the POI in the range 0.2 to 2.0 in steps of 0.05. You can merge multiple points into a script using `--merge` - e.g adding `--merge 10` to the above command will mean that each job contains *at most* 10 of the values. The scripts are labelled by the `--task-name` option. They will be submitted directly to condor, adding any options in `--sub-opts` to the condor submit script. Make sure multiple options are separated by `\n`. The jobs will run and produce output in the **current directory**.
 
+**N.B. Same as [here](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/docs/part3/commonstatsmethods.md#complex-models), if the maximum POI value is greater than 20, the option `--rMax X` (where X is any value greater than or equal to the maximum POI) needs to be specified.**
+
 Below is an example for splitting points in a multi-dimensional likelihood scan.
 
 #### Splitting jobs for a multi-dimensional likelihood scan
