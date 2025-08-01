@@ -558,6 +558,8 @@ For complicated models, it is best to produce a *grid* of test statistic distrib
 combine datacard.txt -M HybridNew --LHCmode LHC-limits --singlePoint X --saveToys --saveHybridResult -T 500 --clsAcc 0
 ```
 
+**N.B. The maximum signal strength is set to 20 by default. Hence, if X is greater than 20, the option `--rMax X1` (where X1 is any value greater than or equal to X) needs to be added to the above command.**
+
 !!! warning
     We have specified the accuracy here by including `--clsAcc=0`, which turns off adaptive sampling, and specifying the number of toys to be 500 with the `-T N` option. For complex models, it may be necessary to internally split the toys over a number of instances of `HybridNew` using the option `--iterations I`. The **total** number of toys will be the product **I*N**.
 
