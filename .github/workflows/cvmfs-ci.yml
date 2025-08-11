@@ -163,7 +163,7 @@ jobs:
             text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/datacard_RooMultiPdf.txt.gz  -o ws_RooMultiPdf.root
             combine -M MultiDimFit -m 125.38  --setParameters pdf_index_ggh=2 --freezeParameters MH --cminDefaultMinimizerStrategy 0 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles ws_RooMultiPdf.root
             combine -M MultiDimFit -m 125.38 -n RooMultiPdfGrid --freezeParameters MH --cminDefaultMinimizerStrategy 0 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo grid ws_RooMultiPdf.root --setParameterRanges r=-1,2 --points 80 -P r
-            plot1DScan.py higgsCombineRooMultiPdfGrid.MultiDimFit.mH125.38.root -o scan_RooMultiPdf -P r
+            plot1DScan.py higgsCombineRooMultiPdfGrid.MultiDimFit.mH125.38.root -o scan_RooMultiPdf 
             mv scan_RooMultiPdf.pdf /work/scan_RooMultiPdf.pdf
       - name: Upload scan_RooMultiPdf.pdf
         uses: actions/upload-artifact@v4
