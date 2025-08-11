@@ -1,5 +1,5 @@
 #ifndef HiggsAnalysis_CombinedLimit_RandStartPt_h
-#define HiggsAnalaysis_CombinedLimit_RandStartPt_h
+#define HiggsAnalysis_CombinedLimit_RandStartPt_h
 
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/MultiDimFit.h"
