@@ -67,7 +67,7 @@ std::vector<std::vector<float>> RandStartPt::vectorOfPointsToTry (){
                 if (rand_ranges_dict.find(specifiedvars_[prof_param_idx]->GetName()) != rand_ranges_dict.end()){   //if the random starting point range for this floating POI was supplied during runtime
                     float rand_range_lo = rand_ranges_dict[specifiedvars_[prof_param_idx]->GetName()][0];
                     float rand_range_hi = rand_ranges_dict[specifiedvars_[prof_param_idx]->GetName()][1];
-                    prof_start_pt_range_max = std::max(abs(rand_range_lo),abs(rand_range_hi));
+                    prof_start_pt_range_max = std::max(std::abs(rand_range_lo), std::abs(rand_range_hi));
                 }
                 else {   //if the random starting point range for this floating POI was not supplied during runtime, set the default low to -20 and high to +20
                     rand_ranges_dict.insert({specifiedvars_[prof_param_idx]->GetName(),{-20.0,20.0}});

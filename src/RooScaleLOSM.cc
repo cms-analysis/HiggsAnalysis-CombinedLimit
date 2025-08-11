@@ -1,5 +1,3 @@
-using namespace std;
-
 #include "../interface/RooScaleLOSM.h"
 
 const double RooScaleLOSM::mt_ = 172.50;
