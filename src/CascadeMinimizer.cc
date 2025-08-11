@@ -114,7 +114,7 @@ RooArgSet freezeDisassiotiatedParams(RooArgSet const &multiPdfs, bool isVerbose 
       changedSet.add(*v);
     } else if (cv && !cv->isConstant()) {
       cv->setConstant();
-      changedSet.add(*v);
+      changedSet.add(*cv);
     }
   }
   return changedSet;
