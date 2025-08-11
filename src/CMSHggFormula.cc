@@ -1,6 +1,8 @@
 #include "../interface/CMSHggFormula.h"
 #include "RooConstVar.h"
 
+#include <cmath>
+
 CMSHggFormulaA1::CMSHggFormulaA1(const char* name, const char* title, RooAbsReal& p0, RooAbsReal& p1,
                                RooAbsReal& p2, RooAbsReal& p3, RooArgList const& terms,
                                std::vector<double> const& coeffs)
@@ -133,12 +135,12 @@ Double_t CMSHggFormulaB1::evaluate() const {
       vterms_[i] = dynamic_cast<RooAbsReal*>(terms_.at(i));
     }
   }
-  // @0*TMath::Max(1.e-2,(1.+@1*@2+@3*@4+@5*@6+@7*@8+@9*@10+@11*@12+@13*@14+@15*@16+@17*@18+@19*@20+@21*@22+@23*@24+@25*@26+@27*@28+@29*@30+@31*@32+@33*@34+@35*@36+@37*@38+@39*@40+@41*@42+@43*@44))
+  // @0*std::max(1.e-2,(1.+@1*@2+@3*@4+@5*@6+@7*@8+@9*@10+@11*@12+@13*@14+@15*@16+@17*@18+@19*@20+@21*@22+@23*@24+@25*@26+@27*@28+@29*@30+@31*@32+@33*@34+@35*@36+@37*@38+@39*@40+@41*@42+@43*@44))
   double ret = 1.;
   for (unsigned i = 0; i < coeffs_.size(); ++i) {
     ret += coeffs_[i] * vterms_[i]->getVal();
   }
-  return p0_ * TMath::Max(1.e-2, ret);
+  return p0_ * std::max(1.e-2, ret);
 }
 
 CMSHggFormulaB2::CMSHggFormulaB2(const char* name, const char* title, double const& p0,
@@ -175,12 +177,12 @@ Double_t CMSHggFormulaB2::evaluate() const {
       vterms_[i] = dynamic_cast<RooAbsReal*>(terms_.at(i));
     }
   }
-  // @0*TMath::Max(1.e-2,(1.+@1*@2+@3*@4+@5*@6+@7*@8+@9*@10+@11*@12+@13*@14+@15*@16+@17*@18+@19*@20+@21*@22+@23*@24+@25*@26+@27*@28+@29*@30+@31*@32+@33*@34+@35*@36+@37*@38+@39*@40+@41*@42+@43*@44))
+  // @0*std::max(1.e-2,(1.+@1*@2+@3*@4+@5*@6+@7*@8+@9*@10+@11*@12+@13*@14+@15*@16+@17*@18+@19*@20+@21*@22+@23*@24+@25*@26+@27*@28+@29*@30+@31*@32+@33*@34+@35*@36+@37*@38+@39*@40+@41*@42+@43*@44))
   double ret = 1.;
   for (unsigned i = 0; i < coeffs_.size(); ++i) {
     ret += coeffs_[i] * vterms_[i]->getVal();
   }
-  return p0_ * TMath::Max(1.e-2, ret);
+  return p0_ * std::max(1.e-2, ret);
 }
 
 CMSHggFormulaC1::CMSHggFormulaC1(const char* name, const char* title, RooArgList const& terms,
@@ -234,8 +236,8 @@ CMSHggFormulaD1::CMSHggFormulaD1(const CMSHggFormulaD1& other, const char* name)
       p1_("p1", this, other.p1_) {}
 
 Double_t CMSHggFormulaD1::evaluate() const {
-  // TMath::Min(@0+@1,1.0) @0[V],@1[V]
-  return TMath::Min(p0_+p1_,1.0);
+  // std::min(@0+@1,1.0) @0[V],@1[V]
+  return std::min(p0_ + p1_, 1.0);
 }
 
 CMSHggFormulaD2::CMSHggFormulaD2(const char* name, const char* title, RooAbsReal& p0, double const& p1)
@@ -249,6 +251,6 @@ CMSHggFormulaD2::CMSHggFormulaD2(const CMSHggFormulaD2& other, const char* name)
       p1_(other.p1_) {}
 
 Double_t CMSHggFormulaD2::evaluate() const {
-  // TMath::Min(@0+@1,1.0) @0[V],@1[V]
-  return TMath::Min(p0_+p1_,1.0);
+  // std::min(@0+@1,1.0) @0[V],@1[V]
+  return std::min(p0_ + p1_, 1.0);
 }
