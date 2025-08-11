@@ -166,7 +166,7 @@ jobs:
             plot1Dscan.py higgsCombineTest.MultiDimFit.mH125.38.root -o scan_RooMultiPdf
 
       - name: Upload scan_RooMultiPdf.pdf
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Scan for RooMultiPdf 
           path: scan_RooMultiPdf.pdf
