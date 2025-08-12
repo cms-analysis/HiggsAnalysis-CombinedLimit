@@ -32,6 +32,7 @@ jobs:
 
   build:
     strategy:
+      fail-fast: false
       matrix:
         python: ["3.8"]
         root: ["6.22"]  
@@ -46,6 +47,8 @@ jobs:
 
     runs-on: ubuntu-latest
     name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
+    steps:
+      - run: echo "Building with Python ${{ matrix.python }} and ROOT ${{ matrix.root }}"
 
     steps:
     - uses: actions/checkout@master
