@@ -684,7 +684,7 @@ cacheutils::CachingAddNLL::evaluate() const
             }
             if (gentleNegativePenalty_ && std::abs(weights_[its - bgs]) < 1e-2) {
               std::cout << "WARNING: gentle underflow to " << *its << " in " << pdf_->GetName() << " for bin "
-                        << its - bgs << ", weight " << weights_[its - bgs] << std::endl;
+                        << its - bgs << ", weight " << weights_[its - bgs] << '\n';
               *its = 1.0;  // skip the log
               ret -= 25;   // add a penalty (negative since we flip 'ret' afterwards)
               continue;
