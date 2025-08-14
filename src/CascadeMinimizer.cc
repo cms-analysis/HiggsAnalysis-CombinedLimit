@@ -53,11 +53,23 @@ CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) 
 }
 
 void CascadeMinimizer::remakeMinimizer() {
-    cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
-    if (simnll) simnll->setHideRooCategories(true);
-    minimizer_.reset(); // avoid two copies in memory
-    minimizer_.reset(new RooMinimizer(nll_));
-    if (simnll) simnll->setHideRooCategories(false);
+  std::unique_ptr<RooArgSet> nllParams(nll_.getParameters((const RooArgSet*)0));
+  RooArgSet changedSet;
+
+  // The RooMinimizer can't deal with floating categories, so we need to set them constant at least while creating the minimizer.
+  for (RooAbsArg *arg : *nllParams) {
+    auto cat = dynamic_cast<RooCategory *>(arg);
+    if (cat && !cat->isConstant()) {
+      cat->setConstant(true);
+      changedSet.add(*cat);
+    }
+  }
+
+  minimizer_.reset();  // avoid two copies in memory
+  minimizer_.reset(new RooMinimizer(nll_));
+
+  // Change categories back to how they were
+  utils::setAllConstant(changedSet, false);
 }
 
 bool CascadeMinimizer::freezeDiscParams(const bool freeze)

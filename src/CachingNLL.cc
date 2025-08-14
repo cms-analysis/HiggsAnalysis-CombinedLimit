@@ -829,7 +829,6 @@ cacheutils::CachingSimNLL::CachingSimNLL(const CachingSimNLL &other, const char 
     nuis_(other.nuis_),
     params_("params","parameters",this),
     catParams_("catParams","Category parameters",this),
-    hideRooCategories_(other.hideRooCategories_),
     hideConstants_(other.hideConstants_),
     internalMasks_(other.internalMasks_),
     maskConstraints_(other.maskConstraints_),
@@ -1220,10 +1219,10 @@ cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripD
     RooArgSet *ret;
     if (internalMasks_.empty()) {
         ret = new RooArgSet(params_); 
-        if (!hideRooCategories_) ret->add(catParams_);
+        ret->add(catParams_);
     } else {
         ret = new RooArgSet(activeParameters_); 
-        if (!hideRooCategories_) ret->add(activeCatParameters_);
+        ret->add(activeCatParameters_);
     }
     if (hideConstants_) RooStats::RemoveConstantParameters(ret);
     return ret;
@@ -1235,10 +1234,10 @@ bool cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList,
 {
     if (internalMasks_.empty()) {
         outputSet.add(params_);
-        if (!hideRooCategories_) outputSet.add(catParams_);
+        outputSet.add(catParams_);
     } else {
         outputSet.add(activeParameters_);
-        if (!hideRooCategories_) outputSet.add(activeCatParameters_);
+        outputSet.add(activeCatParameters_);
     }
     if (hideConstants_) RooStats::RemoveConstantParameters(&outputSet);
     return true;
