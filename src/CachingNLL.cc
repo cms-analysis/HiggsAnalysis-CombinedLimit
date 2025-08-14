@@ -830,35 +830,6 @@ void cacheutils::CachingAddNLL::setAnalyticBarlowBeeston(bool flag) {
     }
 }
 
-RooArgSet* 
-cacheutils::CachingAddNLL::getObservables(const RooArgSet* depList, Bool_t valueOnly) const 
-{
-    return new RooArgSet();
-}
-
-// ROOT 6.26 changed the signature of getParameters to avoid heap allocation,
-// and especially returning an owning pointer that people tend to forget to
-// delete.
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
-RooArgSet* 
-cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList, Bool_t stripDisconnected) const 
-{
-    RooArgSet *ret = new RooArgSet(params_);
-    ret->add(catParams_);
-    return ret;
-}
-#else
-bool cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList,
-                                              RooArgSet& outputSet,
-                                              bool stripDisconnected) const
-{
-    outputSet.add(params_);
-    outputSet.add(catParams_);
-    return true;
-}
-#endif
-
-
 cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, const RooArgSet *nuis) :
     pdfOriginal_(pdf),
     dataOriginal_(data),
@@ -1270,12 +1241,6 @@ void cacheutils::CachingSimNLL::setAnalyticBarlowBeeston(bool flag) {
 
         }
     }
-}
-
-RooArgSet* 
-cacheutils::CachingSimNLL::getObservables(const RooArgSet* depList, Bool_t valueOnly) const 
-{
-    return new RooArgSet();
 }
 
 // ROOT 6.26 changed the signature of getParameters to avoid heap allocation,
