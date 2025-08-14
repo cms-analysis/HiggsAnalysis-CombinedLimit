@@ -847,9 +847,7 @@ cacheutils::CachingSimNLL::CachingSimNLL(const CachingSimNLL &other, const char 
     nuis_(other.nuis_),
     params_("params","parameters",this),
     catParams_("catParams","Category parameters",this),
-    hideConstants_(other.hideConstants_),
     internalMasks_(other.internalMasks_),
-    maskConstraints_(other.maskConstraints_),
     maskingOffset_(other.maskingOffset_),
     maskingOffsetZero_(other.maskingOffsetZero_)
 {
@@ -1048,7 +1046,7 @@ cacheutils::CachingSimNLL::evaluate() const
             ret += nllval;
         }
     }
-    if (!maskConstraints_ && (!constrainPdfs_.empty() || !constrainPdfsFast_.empty() || !constrainPdfsFastPoisson_.empty() || !constrainPdfGroups_.empty())) {
+    if (!constrainPdfs_.empty() || !constrainPdfsFast_.empty() || !constrainPdfsFastPoisson_.empty() || !constrainPdfGroups_.empty()) {
         DefaultAccumulator<double> ret2 = 0;
         /// ============= GENERIC CONSTRAINTS  =========
         std::vector<double>::const_iterator itz = constrainZeroPoints_.begin();
@@ -1257,7 +1255,6 @@ cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList, Bool_t stripD
         ret = new RooArgSet(activeParameters_); 
         ret->add(activeCatParameters_);
     }
-    if (hideConstants_) RooStats::RemoveConstantParameters(ret);
     return ret;
 }
 #else
@@ -1272,19 +1269,9 @@ bool cacheutils::CachingSimNLL::getParameters(const RooArgSet* depList,
         outputSet.add(activeParameters_);
         outputSet.add(activeCatParameters_);
     }
-    if (hideConstants_) RooStats::RemoveConstantParameters(&outputSet);
     return true;
 }
 #endif
-
-void cacheutils::CachingSimNLL::setMaskConstraints(bool flag) {
-    double nllBefore = evaluate();
-    maskConstraints_ = flag;
-    double nllAfter = evaluate();
-    maskingOffset_ += (nllBefore - nllAfter);
-    //printf("CachingSimNLL: setMaskConstraints(%d): nll before %.12g, nll after %.12g (diff %.12g), new maskingOffset %.12g, check = %.12g\n",
-    //            int(flag), nllBefore, nllAfter, (nllBefore-nllAfter), maskingOffset_, evaluate() - nllBefore);
-}
 
 void cacheutils::CachingSimNLL::setMaskNonDiscreteChannels(bool mask) {
     double nllBefore = evaluate();

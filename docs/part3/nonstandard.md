@@ -568,8 +568,6 @@ As expected, the curve obtained by allowing the `pdf_index` to float (labelled "
 
 In general, the performance of <span style="font-variant:small-caps;">Combine</span> can be improved when using the discrete profiling method by including the option `--X-rtd MINIMIZER_freezeDisassociatedParams`. This will stop parameters not associated to the current PDF from floating in the fits. Additionally, you can include the following options:
 
-- `--X-rtd MINIMIZER_multiMin_hideConstants`: hide the constant terms in the likelihood when recreating the minimizer
-- `--X-rtd MINIMIZER_multiMin_maskConstraints`: hide the constraint terms during the discrete minimization process
 - `--X-rtd MINIMIZER_multiMin_maskChannels=<choice>` mask the channels that are not needed from the NLL:
   - `<choice> 1`: keeps unmasked all channels that are participating in the discrete minimization.
   - `<choice> 2`: keeps unmasked only the channel whose index is being scanned at the moment.
