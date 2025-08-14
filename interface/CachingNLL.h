@@ -120,12 +120,6 @@ class CachingAddNLL : public RooAbsReal {
         Bool_t isDerived() const override { return kTRUE; }
         Double_t defaultErrorLevel() const override { return 0.5; }
         void setData(const RooAbsData &data) ;
-        virtual RooArgSet* getObservables(const RooArgSet* depList, Bool_t valueOnly = kTRUE) const ;
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
-        RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const override;
-#else
-        bool getParameters(const RooArgSet* depList, RooArgSet& outputSet, bool stripDisconnected=true) const override;
-#endif
         double  sumWeights() const { return sumWeights_; }
         const RooAbsPdf *pdf() const { return pdf_; }
         void setZeroPoint() ;
@@ -170,7 +164,6 @@ class CachingSimNLL  : public RooAbsReal {
         Bool_t isDerived() const override { return kTRUE; }
         Double_t defaultErrorLevel() const override { return 0.5; }
         void setData(const RooAbsData &data) ;
-        virtual RooArgSet* getObservables(const RooArgSet* depList, Bool_t valueOnly = kTRUE) const ;
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
         RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const override;
 #else
