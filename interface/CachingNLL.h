@@ -182,8 +182,6 @@ class CachingSimNLL  : public RooAbsReal {
         static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
         void setChannelMasks(RooArgList const& args);
         void setAnalyticBarlowBeeston(bool flag);
-        void setHideConstants(bool flag) { hideConstants_ = flag; }
-        void setMaskConstraints(bool flag) ;
         void setMaskNonDiscreteChannels(bool mask) ;
         friend class CachingAddNLL;
         // trap this call, since we don't care about propagating it to the sub-components
@@ -194,7 +192,6 @@ class CachingSimNLL  : public RooAbsReal {
         const RooAbsData  *dataOriginal_;
         const RooArgSet   *nuis_;
         RooSetProxy        params_, catParams_;
-        bool hideConstants_ = false;
         RooArgSet piecesForCloning_;
         std::unique_ptr<RooSimultaneous>  factorizedPdf_;
         std::vector<RooAbsPdf *>        constrainPdfs_;
@@ -214,7 +211,6 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<double> constrainZeroPointsFastPoisson_;
         std::vector<RooAbsReal*> channelMasks_;
         std::vector<bool>        internalMasks_;
-        bool                     maskConstraints_ = false;
         RooArgSet                activeParameters_, activeCatParameters_;
         double                   maskingOffset_ = 0;     // offset to ensure that interal or constraint masking doesn't change NLL value
         double                   maskingOffsetZero_ = 0; // and associated zero point
