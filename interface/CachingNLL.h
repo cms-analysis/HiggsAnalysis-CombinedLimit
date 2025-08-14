@@ -182,7 +182,6 @@ class CachingSimNLL  : public RooAbsReal {
         static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
         void setChannelMasks(RooArgList const& args);
         void setAnalyticBarlowBeeston(bool flag);
-        void setHideRooCategories(bool flag) { hideRooCategories_ = flag; }
         void setHideConstants(bool flag) { hideConstants_ = flag; }
         void setMaskConstraints(bool flag) ;
         void setMaskNonDiscreteChannels(bool mask) ;
@@ -195,7 +194,6 @@ class CachingSimNLL  : public RooAbsReal {
         const RooAbsData  *dataOriginal_;
         const RooArgSet   *nuis_;
         RooSetProxy        params_, catParams_;
-        bool hideRooCategories_ = false;
         bool hideConstants_ = false;
         RooArgSet piecesForCloning_;
         std::unique_ptr<RooSimultaneous>  factorizedPdf_;
