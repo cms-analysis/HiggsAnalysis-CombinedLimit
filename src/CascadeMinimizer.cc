@@ -514,8 +514,6 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
 
 bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, bool& ret, double& minimumNLL, int verbose, bool cascade,int mode, std::vector<std::vector<bool> >&contributingIndeces){
     static bool freezeDisassParams = runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"));
-    static bool hideConstants = freezeDisassParams && runtimedef::get(std::string("MINIMIZER_multiMin_hideConstants"));
-    static bool maskConstraints = freezeDisassParams && runtimedef::get(std::string("MINIMIZER_multiMin_maskConstraints"));
     static int maskChannels = freezeDisassParams ? runtimedef::get(std::string("MINIMIZER_multiMin_maskChannels")) : 0;
     cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
 
@@ -581,11 +579,6 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
     if (maskChannels && simnll) {
         simnll->setMaskNonDiscreteChannels(true);
-    }
-    if (hideConstants && simnll) {
-        simnll->setHideConstants(true);
-        if (maskConstraints) simnll->setMaskConstraints(true);
-        minimizer_.reset(); // will be recreated when needed by whoever needs it
     }
 
     std::vector<std::vector<int> > myCombos;
@@ -723,11 +716,6 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
     if (maskChannels && simnll) {
         simnll->setMaskNonDiscreteChannels(false);
-    }
-    if (hideConstants && simnll) {
-        simnll->setHideConstants(false);
-        if (maskConstraints) simnll->setMaskConstraints(false);
-        minimizer_.reset(); // will be recreated when needed by whoever needs it
     }
 
 
