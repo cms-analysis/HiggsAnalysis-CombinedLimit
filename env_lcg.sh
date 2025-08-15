@@ -4,5 +4,5 @@ LCG_PATH=/cvmfs/sft.cern.ch/lcg/views/$LCG_RELEASE/latest/x86_64-el9-gcc13-opt
 source $LCG_PATH/setup.sh
 source $LCG_PATH/bin/thisroot.sh
 
-export PATH=$PWD/install/bin:$PATH
-export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+export PATH=$PWD/build/bin:$PATH
+export LD_LIBRARY_PATH=$PWD/build/lib:$LD_LIBRARY_PATH
