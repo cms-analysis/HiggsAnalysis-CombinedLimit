@@ -6,7 +6,7 @@ from sys import exit, stderr, stdout
 import six
 
 import ROOT
-from HiggsAnalysis.CombinedLimit.ModelTools import ModelBuilder
+from HiggsAnalysis.CombinedLimit.ModelTools import ModelBuilder, goodpath
 
 from .DataFrameWrapper import DataFrameWrapper
 
@@ -30,6 +30,7 @@ class FileCache:
         self._files = {}
         self._hits = defaultdict(int)
         self._total = 0
+        self._absPath = False
 
     def __getitem__(self, fname):
         self._total += 1
@@ -46,6 +47,7 @@ class FileCache:
                 trueFName = self._basedir + "/" + trueFName
             # interpret file from extension - csv, json, html, pkl, xlsx, h5, parquet
             filepath = trueFName.split(":")[0]
+            goodpath(trueFName, self._absPath)
             filename, ext = os.path.splitext(filepath)
             if ext in [".csv", ".json", ".html", ".pkl", ".xlsx", ".h5", ".parquet"]:
                 filehandle = DataFrameWrapper(trueFName, ext)
@@ -72,6 +74,7 @@ class ShapeBuilder(ModelBuilder):
         self.extraImports = []
         self.norm_rename_map = {}
         self._fileCache = FileCache(self.options.baseDir)
+        self._fileCache._absPath = options.absPath
 
     ## ------------------------------------------
     ## -------- ModelBuilder interface ----------
