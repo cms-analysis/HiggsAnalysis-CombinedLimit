@@ -884,17 +884,31 @@ class ShapeBuilder(ModelBuilder):
                     raise RuntimeError(f"Mismatched shape types for channel {channel}, process {process}, syst {syst}")
                 if shapeDown.ClassName() != shapeNominal.ClassName() and nominalPdf.ClassName() != "RooParametricHist":
                     raise RuntimeError(f"Mismatched shape types for channel {channel}, process {process}, syst {syst}")
+                scale_entry = errline[channel][process]
+                if isinstance(scale_entry, (list, tuple)):
+                    if len(scale_entry) != 2:
+                        raise RuntimeError(
+                            f"Unsupported asymmetric scaling for channel {channel}, process {process}, systematic {syst}: {scale_entry!r}"
+                        )
+                    scale_value = 1.0
+                else:
+                    try:
+                        scale_value = float(scale_entry)
+                    except (TypeError, ValueError):
+                        raise RuntimeError(
+                            f"Non-numeric shape scale for channel {channel}, process {process}, systematic {syst}: {scale_entry!r}"
+                        )
                 if self.options.useHistPdf == "always":
                     morphs.append(
                         (
                             syst,
-                            errline[channel][process],
+                            scale_value,
                             self.shape2Pdf(shapeUp, channel, process),
                             self.shape2Pdf(shapeDown, channel, process),
                         )
                     )
                 else:
-                    morphs.append((syst, errline[channel][process], shapeUp, shapeDown))
+                    morphs.append((syst, scale_value, shapeUp, shapeDown))
         if len(morphs) == 0:
             if self.options.useHistPdf == "always":
                 return nominalPdf
@@ -906,7 +920,7 @@ class ShapeBuilder(ModelBuilder):
         if self.options.useHistPdf != "always":
             pdfs.Add(nominalPdf)
         coeffs = ROOT.RooArgList()
-        minscale = 1
+        minscale = 1.0
         for syst, scale, pdfUp, pdfDown in morphs:
             if self.options.useHistPdf == "always":
                 pdfs.add(pdfUp)
@@ -1152,9 +1166,30 @@ class ShapeBuilder(ModelBuilder):
                 kappaDown /= normNominal
                 if abs(kappaUp - 1) < 1e-3 and abs(kappaDown - 1) < 1e-3:
                     continue
+                err_value = errline[channel][process]
                 # if errline[channel][process] == <x> it means the gaussian should be scaled by <x> before doing pow
                 # for convenience, we scale the kappas
-                kappasScaled = [pow(x, errline[channel][process]) for x in (kappaDown, kappaUp)]
+                if isinstance(err_value, (list, tuple)):
+                    if len(err_value) != 2:
+                        raise RuntimeError(
+                            f"Unsupported asymmetric scaling for channel {channel}, process {process}, systematic {syst}: {err_value!r}"
+                        )
+                    try:
+                        down_scale = float(err_value[0])
+                        up_scale = float(err_value[1])
+                    except (TypeError, ValueError):
+                        raise RuntimeError(
+                            f"Non-numeric asymmetric scaling for channel {channel}, process {process}, systematic {syst}: {err_value!r}"
+                        )
+                    kappasScaled = [kappaDown * down_scale, kappaUp * up_scale]
+                else:
+                    try:
+                        err_power = float(err_value)
+                    except (TypeError, ValueError):
+                        raise RuntimeError(
+                            f"Non-numeric symmetric scaling for channel {channel}, process {process}, systematic {syst}: {err_value!r}"
+                        )
+                    kappasScaled = [pow(x, err_power) for x in (kappaDown, kappaUp)]
                 if self.options.packAsymPows:
                     terms.append((kappasScaled[0], kappasScaled[1], syst))
                 else:
