@@ -721,15 +721,15 @@
             </tr>
             <tr :title="filterHelp">
               <th>Filter</th>
-              <td><textarea v-model="filter_bin" cols="25" :rows="filter_max_length" placeholder="Filters bins"></textarea></div>
-              <td><textarea v-model="filter_proc" cols="25" :rows="filter_max_length" placeholder="Filters processes"></textarea></div>
+              <td><textarea v-model="filter_bin" cols="25" :rows="filter_max_length" placeholder="Filters bins"></textarea></td>
+              <td><textarea v-model="filter_proc" cols="25" :rows="filter_max_length" placeholder="Filters processes"></textarea></td>
               <td><textarea v-model="filter_syst" cols="25" :rows="filter_max_length" placeholder="Filters systematics"></textarea></td>
             </tr>
           </tbody>
         </table>
       </span>
       <table v-if="data" class="content">
-        <caption>Systematic strengths <cscale :info="syst_color"></cscale> <span>Max bin&amp;process pairs <input type="range" min="0" max="3" step="0.1" v-model.number="max_bpLog"></input> {{Math.round(max_bp)}}</span>
+        <caption>Systematic strengths <cscale :info="syst_color"></cscale> <span>Max bin&amp;process pairs <input type="range" min="0" max="3" step="0.1" v-model.number="max_bpLog"/> {{Math.round(max_bp)}}</span>
         </caption>
         <thead>
           <tr>
@@ -752,7 +752,7 @@
                 <span v-text="name"></span>
                 <span v-text="data.syst_type[name]"></span>
               </div>
-            </td>
+            </th>
             <td
               v-for="i in bpIdxLim"
               :key="i"
