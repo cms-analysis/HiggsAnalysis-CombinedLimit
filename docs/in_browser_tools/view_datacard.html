@@ -248,6 +248,8 @@
             unparsed: {},
             counts: {},
             shapes: {},
+            groups: {},
+            group_names: [],
             raw_syst: new Collector(),
             autoMCStats: new Collector(3),
             rateParam: {},
@@ -365,7 +367,14 @@
         *_parse_main([key, type, ...values], rem) {
           if (this.raw_syst._length === undefined)
             this.raw_syst._length = this.raw_proc._length;
-          if (type == "rateParam") {
+          if (type == "group") {
+            const [op, ...vals] = values;
+            const got = key in this.groups;
+            if (op == "=") this.groups[key] = vals;
+            else if (op == "+=") this.groups[key] = (this.groups[key] || []).concat(vals);
+            else {yield `bad group definition`; return;}
+            if (!got) this.group_names.push(key);
+          } else if (type == "rateParam") {
             if (!this.rateParam_keys.includes(key))
               this.rateParam_keys.push(key);
             const [bin, proc] = values;
@@ -423,6 +432,7 @@
           max_rate: "",
           obs_show: false,
           syst_toggle: {},
+          group_toggle: {},
           pid_toggle: "both",
           pid_options: ["both", "signal", "background"],
           syst_color: {
@@ -462,12 +472,15 @@
             immediate: true,
             handler() {
               if (!this.data) return;
-              this.syst_toggle = Object.fromEntries(
-                this.data.syst_types.map(n => [
-                  n,
-                  n in this.syst_toggle ? this.syst_toggle[n] : true,
-                ])
-              );
+              for (const [key, ref] of [
+                ["syst_toggle", this.data.syst_types],
+                ["group_toggle", this.data.group_names],
+              ]) {
+                const old = this[key];
+                this[key] = Object.fromEntries(
+                  ref.map(n => [n, n in old ? old[n] : true])
+                );
+              }
             },
           },
         },
@@ -527,12 +540,18 @@
           },
           syst_names() {
             const Fsyst = ffilter(this.filter_syst);
-            const { syst_toggle } = this;
+            const { syst_toggle, group_toggle, data: { groups } } = this;
+            const hidden = new Set();
+            for (const [grp, tgl] of Object.entries(group_toggle))
+              if (tgl === false)
+                for (const syst of groups[grp])
+                  hidden.add(syst);
 
             const ret = Array
               .from(this.data.st.entries())
               .filter(([_, [syst, type]]) => ![
                 Fsyst(syst),
+                !hidden.has(syst),
                 syst_toggle[type]
               ].includes(false));
 
@@ -691,6 +710,7 @@
         <div>Rate range: <input length="10" placeholder="-∞" type="number" step="any" v-model.number="min_rate"/> &lt; rate &lt; <input length="10" placeholder="+∞" type="number" step="any" v-model.number="max_rate"/></div>
         <div>Process type: <label v-for="v in pid_options"><input type="radio" v-model="pid_toggle" :value="v"/>{{v}}</label></div>
         <div>Systematic type: <label v-for="v in data.syst_types"><input type="checkbox" v-model="syst_toggle[v]"/>{{v}}</label></div>
+        <div v-show="data.group_names.length">Systematic group: <label v-for="v in data.group_names" :title="data.groups[v].join(' ')"><input type="checkbox" v-model="group_toggle[v]">{{v}} ({{data.groups[v].length}})</label></div>
         <table>
           <thead>
             <tr>
