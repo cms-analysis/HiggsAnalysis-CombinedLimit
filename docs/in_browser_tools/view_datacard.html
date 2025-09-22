@@ -25,8 +25,11 @@
               z-index: 2;
             }
           }
-          tbody tr:not(.rateParam) td {
+          &:not(.flat) tbody tr:not(.rateParam) td {
             text-align: right;
+          }
+          &.flat td:not(:first-child) {
+            padding-left: 1em;
           }
           tfoot tr:first-of-type {
             th, td, {
@@ -257,6 +260,9 @@
             syst_type: {},
             syst_types: [],
             syst_names: [],
+            nuisance_edit: [],
+            extArg: {},
+            extArg_names: [],
           });
           // parsing
           for (const [lno, fline] of data.split(/\r?\n/).entries()) {
@@ -367,7 +373,14 @@
         *_parse_main([key, type, ...values], rem) {
           if (this.raw_syst._length === undefined)
             this.raw_syst._length = this.raw_proc._length;
-          if (type == "group") {
+          if (type == "extArg") {
+            if (key in this.extArg) yield `duplicate extArg`;
+            else this.extArg_names.push(key);
+            this.extArg[key] = rem(2);
+          } else if (type == "edit") {
+            if (key !== "nuisance") yield `unexpected name`;
+            this.nuisance_edit.push(values);
+          } else  if (type == "group") {
             const [op, ...vals] = values;
             const got = key in this.groups;
             if (op == "=") this.groups[key] = vals;
@@ -435,6 +448,7 @@
           group_toggle: {},
           pid_toggle: "both",
           pid_options: ["both", "signal", "background"],
+          nuisance_edit_raw: false,
           syst_color: {
             value: 0.01,
             range: [-4, 0],
@@ -808,7 +822,7 @@
             <th v-text="b"></th>
             <td v-for="p in procs" v-text="f2text(rates[b][p])" :style="rate2style(rates[b][p])"></td>
             <td v-text="obs_show ? f2text(obs[b]) : 'blind'" :style="obs_show && rate2style(obs[b])"></td>
-            <td v-for="v in data.autoMCStats[b]" v-text="v"></td>
+            <td v-for="v in (data.autoMCStats[b] ?? data.autoMCStats['*'])" v-text="v"></td>
           </tr>
         </tbody>
         <tfoot>
@@ -818,6 +832,34 @@
             </th>
           </tr>
         </tfoot>
+      </table>
+      <table v-if="data && data.extArg_names.length">
+        <caption>extArg</caption>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Definition</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="n in data.extArg_names">
+            <td v-text="n"></td>
+            <td v-text="data.extArg[n]"></td>
+          </tr>
+        </tbody>
+      </table>
+      <table v-if="data && data.nuisance_edit.length" class="tdl flat">
+        <caption>nuisance edit <label><input type="checkbox" v-model="nuisance_edit_raw"/> raw</label></caption>
+        <tbody>
+          <tr v-if="nuisance_edit_raw">
+            <td>
+              <pre v-text="data.nuisance_edit.map(line => line.join(' ')).join('\n')" />
+            </td>
+          </tr>
+          <tr v-else v-for="line in data.nuisance_edit">
+            <td v-for="row in line" v-text="row"/>
+          </tr>
+        </tbody>
       </table>
     </div>
   </body>
