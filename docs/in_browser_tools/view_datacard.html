@@ -25,7 +25,7 @@
               z-index: 2;
             }
           }
-          tbody td {
+          tbody tr:not(.rateParam) td {
             text-align: right;
           }
           tfoot tr:first-of-type {
@@ -288,7 +288,11 @@
 
           for (const key of this.rateParam_keys) {
             const w = Array.from(this._add_main(key, "rateParam",
-              this.bpir.map(([b, p]) => (this.rateParam[key][b] || {})[p] || "")
+              this.bpir.map(([b, p]) => {
+                const rp = this.rateParam[key];
+                const pp = rp[b] ?? rp["*"] ?? {};
+                return pp[p] ?? pp["*"] ?? "";
+              })
             )).join("; ");
             if (w) this.warns.push(`${w} for rateParam: "${key}"`);
           }
@@ -742,7 +746,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="name in syst_names" :key="name">
+          <tr v-for="name in syst_names" :key="name" :class="data.syst_type[name]">
             <th class="lr">
               <div>
                 <span v-text="name"></span>
