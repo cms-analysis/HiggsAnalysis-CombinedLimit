@@ -90,8 +90,10 @@
           padding: 0px 0.3em;
         }
         input {
-          border: none;
-          border-bottom: 1px solid black;
+          &[type="number"], &[type="text"], &[type="file"] {
+            border: none;
+            border-bottom: 1px solid black;
+          }
           &[type="number"] {
             width: 100px;
             text-align: center;
@@ -564,8 +566,12 @@
           dropped(ev) {
             ev.preventDefault();
             this.dragging = 0;
-            const { files } = ev.dataTransfer;
+            const { target } = ev;
+            const { files } = ev.dataTransfer ?? target;
             if (!files || !files.length) return;
+            const { fs0, fs1 } = this.$refs;
+            for (const fs of [fs0, fs1])
+                fs.files = files;
             const file = files[0];
             const info = {
               name: file.name || "???",
@@ -681,15 +687,16 @@
   <body>
     <div id="app">
       <div
-        v-if="!data || 0 < dragging"
+        v-show="!data || 0 < dragging"
         :class="{overlay: true, dragging: 0 < dragging}"
         @dragenter="dragging++"
         @dragleave="dragging--"
       >
         <h1>Load a Datacard by dragging it onto the page!</h1>
+        <label>... or select it <input ref="fs0" type="file" accept=".txt" @input="dropped"/></label>
       </div>
-      <div v-if="raw_info">
-        Filename: {{raw_info.name}} Size: {{raw_info.size}}kB Date: {{raw_info.date}}
+      <div v-show="raw_info">
+        <input ref="fs1" type="file" accept=".txt" @input="dropped"/> Size: {{raw_info?.size}}kB Date: {{raw_info?.date}}
       </div>
       <span v-if="data" class="ctrl">
         <div>Rate range: <input placeholder="-∞" type="number" step="any" v-model.number="min_rate"/> &lt; rate &lt; <input placeholder="+∞" type="number" step="any" v-model.number="max_rate"/></div>

@@ -125,6 +125,7 @@
       const app = new Vue({
         data: {
           raw: null,
+          info: undefined,
           dragging: 0,
           loading: false,
 
@@ -154,6 +155,7 @@
             return [cov, cor].includes(undefined);
           },
           filtered() {
+            if (!this.raw) return {labels: [], mat: []};
             const {
               which,
               thresh,
@@ -219,8 +221,12 @@
           dropped(ev) {
             ev.preventDefault();
             this.dragging = 0;
-            const { files } = ev.dataTransfer;
+            const { target } = ev;
+            const { files } = ev.dataTransfer ?? target;
             if (!files || !files.length) return;
+            const { fs0, fs1 } = this.$refs;
+            for (const fs of [fs0, fs1])
+                fs.files = files;
             const file = files[0];
             const info = {
               name: file.name || "???",
@@ -334,21 +340,22 @@
   <body>
     <div id="app" :class="{loading}">
       <div
-        v-if="!raw || dragging"
+        v-show="!raw || dragging"
         :class="{overlay: true, dragging}"
         @dragenter="dragging++"
         @dragleave="dragging--"
       >
         <h1>Load a covariance matrix by dragging its <tt>.cov.json</tt> onto the page!</h1>
+        <label>... or select it <input ref="fs0" type="file" accept=".cov.json" @input="dropped"/></label>
       </div>
-      <table v-if="raw">
+      <table v-show="raw">
         <tr>
           <td>
-            <div v-if="info" :title="`Size: ${info.size}kB\nDate: ${info.date}`">
-              {{info.name}}
-              <span v-show="raw.qual !== undefined">(Quality: {{raw.qual}})</span>
+            <div :title="`Size: ${info?.size}kB\nDate: ${info?.date}`">
+              <input ref="fs1" type="file" accept=".cov.json" @input="dropped"/>
+              <span v-show="raw?.qual !== undefined">(Quality: {{raw?.qual}})</span>
             </div>
-            <fieldset>
+            <fieldset v-if="raw">
               <legend>
                 Display
                 <select v-model="which" :disabled="either"
@@ -380,7 +387,7 @@
                   v-model.number="clusterNum" /><input type="color" v-model="clusterColor"
               /></label>
             </fieldset>
-            <fieldset>
+            <fieldset v-if="raw">
               <legend>Filters ({{filtered.original.length}} ➜ {{filtered.labels.length}})</legend>
               <label
                 title="off-diagonals must have at least this value for the row/column to be included"
