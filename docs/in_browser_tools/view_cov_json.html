@@ -105,8 +105,12 @@
               case '"':
                 return [res, (sub) => sub === ref];
               case "/":
-                const re = new RegExp(ref);
-                return [res, (sub) => re.test(sub)];
+                try {
+                  const re = new RegExp(ref);
+                  return [res, (sub) => re.test(sub)];
+                } catch {
+                  return [res, (sub) => false];
+                }
               default:
                 return [res, (sub) => sub.includes(ref)];
             }
@@ -147,7 +151,7 @@
         computed: {
           either() {
             const { cov, cor } = this.raw;
-            return [cov, cor].includes();
+            return [cov, cor].includes(undefined);
           },
           filtered() {
             const {
@@ -335,7 +339,7 @@
         @dragenter="dragging++"
         @dragleave="dragging--"
       >
-        <h1>Load a covariance matrix by dragging it's <tt>.cov.json</tt> onto the page!</h1>
+        <h1>Load a covariance matrix by dragging its <tt>.cov.json</tt> onto the page!</h1>
       </div>
       <table v-if="raw">
         <tr>

@@ -32,7 +32,7 @@
             padding-left: 1em;
           }
           tfoot tr:first-of-type {
-            th, td, {
+            th, td {
               background: white;
               position: sticky;
               bottom: 0;
@@ -118,39 +118,6 @@
     <script src="https://cdn.jsdelivr.net/npm/less@3" charset="utf-8"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2" charset="utf-8"></script>
     <script type="text/javascript">
-      const deepFreeze = object => typeof object === "object" ?
-        Object.freeze(
-        Object.assign(object,
-        Object.fromEntries(
-        Object.getOwnPropertyNames(object).map(prop => [prop, deepFreeze(object[prop])])
-      ))) : object
-
-      const maskify = values => {
-        const value2mask = new Map(
-          Array.from(new Set(values)).map(value => [
-            value,
-            values.reduce((acc, val, idx) => acc + (value === val ? 1<<idx : 0), 0)
-          ])
-        )
-        return values.map(val => value2mask.get(val));
-      }
-
-      const groupProp = kind => ({
-        get() {
-          const vals = Array.from(new Set(Object
-            .entries(this.hosts)
-            .filter(([host,]) => host.startsWith(kind))
-            .map(([, val]) => val)
-          ))
-          return vals.length === 1 ? vals[0] : undefined;
-        },
-        set(val) {
-          for(let host in this.hosts)
-            if (host.startsWith(kind))
-              this.hosts[host] = val
-        }
-      })
-
       const range = (start, stop, step=1) => {
         const length = Math.floor((stop - start) / step);
         return 0 < length ? Array(length).fill(start).map((v, i) => start + i * step) : [];
@@ -176,8 +143,12 @@
               case "$": return [res, sub => sub.endsWith(ref)]
               case '"': return [res, sub => sub === ref]
               case "/":
-                const re = new RegExp(ref)
-                return [res, sub => re.test(sub)]
+                try {
+                  const re = new RegExp(ref)
+                  return [res, sub => re.test(sub)]
+                } catch {
+                  return [res, sub => false]
+                }
               default:  return [res, sub => sub.includes(ref)]
             }
           })
@@ -327,7 +298,7 @@
               {
                 const [, proc, bin] = parts;
                 const s = this.shapes[bin] ||= {};
-                if (proc in s) yield `redifined shape: ${proc} for bin ${bin}`;
+                if (proc in s) yield `redefined shape: ${proc} for bin ${bin}`;
                 s[proc] = lrm(3);
               } break;
             case "bin":
@@ -721,7 +692,7 @@
         Filename: {{raw_info.name}} Size: {{raw_info.size}}kB Date: {{raw_info.date}}
       </div>
       <span v-if="data" class="ctrl">
-        <div>Rate range: <input length="10" placeholder="-∞" type="number" step="any" v-model.number="min_rate"/> &lt; rate &lt; <input length="10" placeholder="+∞" type="number" step="any" v-model.number="max_rate"/></div>
+        <div>Rate range: <input placeholder="-∞" type="number" step="any" v-model.number="min_rate"/> &lt; rate &lt; <input placeholder="+∞" type="number" step="any" v-model.number="max_rate"/></div>
         <div>Process type: <label v-for="v in pid_options"><input type="radio" v-model="pid_toggle" :value="v"/>{{v}}</label></div>
         <div>Systematic type: <label v-for="v in data.syst_types"><input type="checkbox" v-model="syst_toggle[v]"/>{{v}}</label></div>
         <div v-show="data.group_names.length">Systematic group: <label v-for="v in data.group_names" :title="data.groups[v].join(' ')"><input type="checkbox" v-model="group_toggle[v]">{{v}} ({{data.groups[v].length}})</label></div>
