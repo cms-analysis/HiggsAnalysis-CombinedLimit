@@ -347,6 +347,30 @@
       >
         <h1>Load a covariance matrix by dragging its <tt>.cov.json</tt> onto the page!</h1>
         <label>... or select it <input ref="fs0" type="file" accept=".cov.json" @input="dropped"/></label>
+        <fieldset style="margin-top:3em">
+          <legend><b>JSON file layout reference</b></legend>
+          <h4>fields</h4>
+          <dl>
+            <dt><code>labels</code></dt>
+              <dd><code>Array</code> of N <code>String</code>s</dd>
+              <dd>the nuisance/fit parameter labels</dd>
+            <dt><code>cov</code> or <code>cor</code></dt>
+              <dd><code>Array</code> of N <code>Array</code>s of N <code>Number</code>s between -1 and 1</dd>
+              <dd>the covariance/correlation matrix</dd>
+              <dd>at least one of them must be given</dd>
+            <dt><pre>qual</pre></dt>
+              <dd>the fit quality number, optional</dd>
+          </dl>
+          <h4>example</h4>
+          <pre>{
+  "labels": ["lumi", "BR", "r"],
+  "cov": [
+    [1   , 0.1, 0.01],
+    [0.1 , 1  , 0.1 ],
+    [0.01, 0.1, 1   ]
+  ]
+}</pre>
+        </fieldset>
       </div>
       <table v-show="raw">
         <tr>
