@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>view datacard</title>
+    <style type="text/less">
+      #app {
+        table {
+          caption {
+            text-align: left;
+            border-bottom: 3px double black;
+            font-weight: bold;
+            > span {
+              margin-left: 2em;
+            }
+          }
+          thead tr:last-of-type {
+            th, td {
+              background: white;
+              position: sticky;
+              top: 0;
+              border-bottom: 1px solid black;
+            }
+            th:first-child {
+              z-index: 2;
+            }
+          }
+          &:not(.flat) tbody tr:not(.rateParam) td {
+            text-align: right;
+          }
+          &.flat td:not(:first-child) {
+            padding-left: 1em;
+          }
+          tfoot tr:first-of-type {
+            th, td {
+              background: white;
+              position: sticky;
+              bottom: 0;
+              border-top: 1px solid black;
+            }
+            th:first-child {
+              z-index: 2;
+            }
+          }
+          tr th:first-child {
+            background: white;
+            position: sticky;
+            left: 0;
+            border-right: 1px solid black;
+            white-space: nowrap;
+          }
+          .lr > *{
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+          }
+          &.content tr th:first-child {
+            text-align: left;
+          }
+          tr:nth-child(4n+3) > * {
+            border-top: 1px solid #ddd;
+          }
+          tr:nth-child(4n+5) > * {
+            border-top: 1px solid #bbb;
+          }
+        }
+        > table {
+          margin-top: 2em;
+        }
+        .sortable {
+          user-select: none;
+          cursor: pointer;
+        }
+        .overlay {
+          opacity: 0.8;
+          height: 100%;
+          width: 100%;
+          position: fixed;
+          z-index: 100;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          &.dragging {
+            background-color: lightgreen;
+          }
+        }
+        .cscale span {
+          margin-left: 0.5em;
+          padding: 0px 0.3em;
+        }
+        input {
+          &[type="number"], &[type="text"], &[type="file"] {
+            border: none;
+            border-bottom: 1px solid black;
+          }
+          &[type="number"] {
+            width: 100px;
+            text-align: center;
+          }
+          &[type="range"] {
+            vertical-align: middle;
+          }
+        }
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: auto;
+        display: inline-block;
+        white-space: nowrap;
+        /* this comment fixes syntax highlighting */
+      }
+      body {
+        padding: 0;
+        overflow: hidden;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/less@3" charset="utf-8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2" charset="utf-8"></script>
+    <script type="text/javascript">
+      const range = (start, stop, step=1) => {
+        const length = Math.floor((stop - start) / step);
+        return 0 < length ? Array(length).fill(start).map((v, i) => start + i * step) : [];
+      }
+
+      const lsrem = line => num => {
+        const re = /\s+/g;
+        while (num-- && re.test(line));
+        return line.substring(re.lastIndex);
+      }
+
+      const ffilter = filters => {
+        const syntax = /([+-]?)([~"\$\^\/]?)(.+)/
+        const funcs = filters
+          .split("\n")
+          .map(l => l.trim())
+          .filter(l => l && !l.startsWith("#"))
+          .map(l => syntax.exec(l))
+          .map(([, res, cmp, ref]) => {
+            res = res != "-"
+            switch(cmp) {
+              case "^": return [res, sub => sub.startsWith(ref)]
+              case "$": return [res, sub => sub.endsWith(ref)]
+              case '"': return [res, sub => sub === ref]
+              case "/":
+                try {
+                  const re = new RegExp(ref)
+                  return [res, sub => re.test(sub)]
+                } catch {
+                  return [res, sub => false]
+                }
+              default:  return [res, sub => sub.includes(ref)]
+            }
+          })
+        return sub => funcs.reduce((acc, [res, func]) => func(sub) ? res : (acc === undefined && res ? false : acc), undefined) !== false
+      };
+
+      const msort = (idx, nMin) => arr => arr.sort((A, B) => {
+        for (const i of idx) {
+          const j = Math.abs(i) - 1, r = i < 0;
+          const a = A[1][j], b = B[1][j];
+          if (a == b) continue;
+          if (nMin < j) return !r ? a - b : b - a; // number sort
+          return (a < b) == r ? 1 : -1;
+        }
+        return 0;
+      });
+
+      const acollect = (accu, ...others) => {
+        const seen = new Set(accu);
+        for (const other of others) {
+          for (const val of other) {
+            if (!seen.has(val)) {
+              seen.add(val);
+              accu.push(val);
+            }
+          }
+        }
+        return accu;
+      }
+
+      class Collector {
+        constructor(length) {
+          this._length = length;
+        }
+        *_add({
+          parts,
+          key = parts[0],
+          values = parts.slice(1),
+          number = false,
+          unique = false,
+        } = {}) {
+          if (number) {
+            const warns = values.map(
+              (x, i) => isNaN(x) ? `[${i+1}]=${x}` : ""
+            ).filter(x => x).join(", ");
+            if (warns) yield `NaN values: ${warns}`;
+            values = values.map(x => +x);
+          }
+          if (key in this) yield `duplicate value for ${key}` + (parts && parts[0] !== key ? ` (${parts[0]})` : "");
+          if (this._length !== undefined) {
+            if (this._length != values.length) yield `inconsistent length, expected ${this._length} but got ${values.length}`;
+          } else this._length = values.length;
+          if (unique && values.length != new Set(values).size) yield `unexpected duplicate values`;
+          this[key] = values;
+        }
+        get _props() {
+          return Object.getOwnPropertyNames(this).filter(k => !k.startsWith("_"))
+        }
+        get _count() {
+          return this._props.length;
+        }
+        get _length_max() {
+          return Math.max(...this._props.map(k => this[k].length));
+        }
+      }
+
+      class Datacard {
+        constructor(data) {
+          Object.assign(this, {
+            warns: [],
+            unparsed: {},
+            counts: {},
+            shapes: {},
+            groups: {},
+            group_names: [],
+            raw_syst: new Collector(),
+            autoMCStats: new Collector(3),
+            rateParam: {},
+            rateParam_keys: [],
+            syst_type: {},
+            syst_types: [],
+            syst_names: [],
+            nuisance_edit: [],
+            extArg: {},
+            extArg_names: [],
+          });
+          // parsing
+          for (const [lno, fline] of data.split(/\r?\n/).entries()) {
+            const line = fline.trim();
+            if (!line || line.startsWith("#") || line.match(/^-+$/)) continue;
+            try {
+              const w = Array.from(
+                this[
+                  this.raw_bin && this.raw_proc ? "_parse_main" : "_parse_header"
+                ](line.split(/\s+/), lsrem(line), lno)
+              ).join("; ");
+              if (w) this.warns.push(`${w} in line ${lno + 1}: "${line}"`);
+            } catch (e) {
+              e.message += ` in line ${lno + 1}: "${line}"`;
+              throw e;
+            }
+          }
+
+          if (!this.raw_bin) throw new Error("bin + observation header missing");
+          if (!this.raw_proc) throw new Error("bin + process + rate header missing");
+
+          // process them
+          this.bpir = Array(this.raw_proc._length_max || 0).fill(0).map(
+            (_, i) => [
+                this.raw_proc.bin[i],
+                this.raw_proc.process_name[i],
+                this.raw_proc.process_id[i],
+                this.raw_proc.rate[i],
+            ]
+          );
+
+          for (const key of this.rateParam_keys) {
+            const w = Array.from(this._add_main(key, "rateParam",
+              this.bpir.map(([b, p]) => {
+                const rp = this.rateParam[key];
+                const pp = rp[b] ?? rp["*"] ?? {};
+                return pp[p] ?? pp["*"] ?? "";
+              })
+            )).join("; ");
+            if (w) this.warns.push(`${w} for rateParam: "${key}"`);
+          }
+
+          this.bin = acollect([], this.raw_bin.bin, this.raw_proc.bin);
+          this.proc = acollect([], this.raw_proc.process_name);
+          this.syst = acollect([], this.raw_syst._props);
+
+          this.st = this.syst_names.map(n => [n, this.syst_type[n]]);
+        }
+        *_parse_header(parts, lrm, lno) {
+          switch(parts[0]) {
+            case "imax":
+            case "jmax":
+            case "kmax":
+              {
+                const [key, val] = parts;
+                if (isNaN(val) && val != "*") yield `count value is NaN and not "*"`;
+                if (parts.length > 2) yield `unexpected count extra data`;
+                if (key in this.counts) yield `unexpected repetition`;
+                this.counts[key] = isNaN(val) ? val : +val;
+              } break;
+            case "shapes":
+              {
+                const [, proc, bin] = parts;
+                const s = this.shapes[bin] ||= {};
+                if (proc in s) yield `redefined shape: ${proc} for bin ${bin}`;
+                s[proc] = lrm(3);
+              } break;
+            case "bin":
+              {
+                if (this._coll) yield `unexpected early termination of bin block (started in line ${this._coll._lno})`;
+                if (this.raw_bin && this.raw_proc) yield `unexpected additional bin line`;
+                const c = new Collector;
+                c._lno = lno;
+                yield *c._add({ parts, unique: this.raw_bin === undefined });
+                this._coll = c;
+              }
+              break;
+            case "observation":
+              yield *this._parse_coll("observation", { parts, number: true }, "raw_bin");
+              break;
+            case "process":
+              yield *this._parse_coll(
+                "process",
+                parts.slice(1).every(isFinite)
+                  ? {parts, key: "process_id", number: true}
+                  : {parts, key: "process_name"}
+              );
+              break;
+            case "rate":
+              yield *this._parse_coll("process", {parts, number: true}, "raw_proc");
+              break;
+            default:
+              this.unparsed[lno] = lrm(0);
+          }
+        }
+        *_parse_coll(name, args, saveTo) {
+          const key = args.parts[0];
+          if (!this._coll) yield `unexpected ${key} (for ${name} block)`;
+          else {
+            if (saveTo && saveTo in this) yield `unexpected additional ${name} block`;
+            yield *this._coll._add(args);
+            if (saveTo) {
+              this[saveTo] = this._coll;
+              delete this._coll;
+            }
+          }
+        }
+        *_parse_main([key, type, ...values], rem) {
+          if (this.raw_syst._length === undefined)
+            this.raw_syst._length = this.raw_proc._length;
+          if (type == "extArg") {
+            if (key in this.extArg) yield `duplicate extArg`;
+            else this.extArg_names.push(key);
+            this.extArg[key] = rem(2);
+          } else if (type == "edit") {
+            if (key !== "nuisance") yield `unexpected name`;
+            this.nuisance_edit.push(values);
+          } else  if (type == "group") {
+            const [op, ...vals] = values;
+            const got = key in this.groups;
+            if (op == "=") this.groups[key] = vals;
+            else if (op == "+=") this.groups[key] = (this.groups[key] || []).concat(vals);
+            else {yield `bad group definition`; return;}
+            if (!got) this.group_names.push(key);
+          } else if (type == "rateParam") {
+            if (!this.rateParam_keys.includes(key))
+              this.rateParam_keys.push(key);
+            const [bin, proc] = values;
+            const rp = this.rateParam[key] ||= {};
+            const pp = rp[bin] ||= {};
+            if (proc in pp) yield `duplicate rateParam`;
+            pp[proc] = rem(4).replace(/\s+/g, " ");
+            // TODO: check pattern
+          } else if (type == "autoMCStats") {
+            yield* this.autoMCStats._add({key, values});
+          } else {
+            const warns = [];
+            values = values.map((x, i) => {
+              if (x.match(/^-+$/)) return "";
+              const ud = x.split("/").map(Number);
+              if (ud.length > 2 || ud.some(isNaN)) warns.push(`[${i+1}]=${x}`);
+              if (ud.length == 1 && !ud[0]) return "";
+              return x;
+            });
+            if (warns.length) yield `bad values: ${warns.join(", ")}`;
+
+            yield* this._add_main(key, type, values);
+          }
+        }
+        *_add_main(key, type, values, transform) {
+          if (!this.syst_types.includes(type))
+            this.syst_types.push(type);
+          if (!this.syst_names.includes(key))
+            this.syst_names.push(key);
+
+          this.syst_type[key] = type;
+          yield* this.raw_syst._add({key, values});
+        }
+      }
+
+      const app = new Vue({
+        data: {
+          max_bp: 20,
+          filterHelp:`Filter syntax: <I><M><filter>
+           <I>nclusion rule, optional: + include (default), - exclude
+           <M>atch behaviour, optional: ~ anywhere (default), ^ at beginning, $ at end, " exact, / regular expression
+           <filter> string
+          empty lines and lines starting with # are ignored
+          all items are included by default unless the first filter is an include rule (+)
+          `.replace(/^(?:\s\s)+/gm, "").replace(/^\s/gm, "   "),
+          dragging: 0,
+          raw: "",
+          raw_info: undefined,
+          sort_bpir: [1, 2],
+          sort_st: [2, 1],
+          filter_bin: "",
+          filter_proc: "",
+          filter_syst: "",
+          min_rate: "",
+          max_rate: "",
+          obs_show: false,
+          syst_toggle: {},
+          group_toggle: {},
+          pid_toggle: "both",
+          pid_options: ["both", "signal", "background"],
+          nuisance_edit_raw: false,
+          syst_color: {
+            value: 0.01,
+            range: [-4, 0],
+            get vex() {
+              const v = Math.log10(this.value)
+              const r = range(v - 1, v + 3).map(x => 10**x);
+              return [1].concat(r.map(x => 1 + x));
+            },
+            cfunc(v) {
+              v = [v].flat()
+                .map(v => v < 1 ? 1 / v : v)
+                .map(v => Math.log10(v - 1))
+              v = v.reduce((a, x) => a + x, 0) / v.length;
+              v += 1 - Math.log10(+this.value);
+              v = Math.max(0, Math.min(v, 3));
+              return 120 - 60 * v;
+            }
+          },
+          rate_color: {
+            value: 10,
+            range: [-1, 6],
+            get vex() {
+              const v = Math.log10(this.value || NaN);
+              return range(Math.min(-2, v - 1), Math.max(6, v + 4)).map(x => 10**x);
+            },
+            cfunc(v) {
+              v = Math.log10(v / this.value);
+              v = Math.max(-1, Math.min(v, 3));
+              return 120 - 60 * v;
+            }
+          },
+        },
+        watch: {
+          data: {
+            immediate: true,
+            handler() {
+              if (!this.data) return;
+              for (const [key, ref] of [
+                ["syst_toggle", this.data.syst_types],
+                ["group_toggle", this.data.group_names],
+              ]) {
+                const old = this[key];
+                this[key] = Object.fromEntries(
+                  ref.map(n => [n, n in old ? old[n] : true])
+                );
+              }
+            },
+          },
+        },
+        computed: {
+          data() {
+            return this.raw && new Datacard(this.raw) || undefined;
+          },
+          bpIdx() {
+            const Fbin = ffilter(this.filter_bin);
+            const Fproc = ffilter(this.filter_proc);
+
+            let { min_rate, max_rate } = this;
+            min_rate = min_rate && isFinite(min_rate) ? +min_rate : -Infinity;
+            max_rate = max_rate && isFinite(max_rate) ? +max_rate : +Infinity;
+            const Fpid = {
+              both: pid => true,
+              signal: pid => pid <= 0,
+              background: pid => pid > 0,
+            }[this.pid_toggle];
+
+            const ret = Array
+              .from(this.data.bpir.entries())
+              .filter(([_, [bin, proc, pid, rate]]) => ![
+                Fbin(bin),
+                Fproc(proc),
+                Fpid(pid),
+                min_rate < rate,
+                rate < max_rate,
+              ].includes(false));
+
+            msort(this.sort_bpir, 1)(ret);
+
+            return ret.map(a => a[0]);
+          },
+          bpIdxLim() {
+            return this.bpIdx.slice(0, Math.round(this.max_bp));
+          },
+          rates() {
+            const ret = {};
+            for (const [bin, proc, _, rate] of this.data.bpir)
+              (ret[bin] ||= {})[proc] = rate;
+            return ret;
+          },
+          obs() {
+            return Object.fromEntries(
+              this.data.raw_bin.bin.map((b, i) => [
+                b,
+                this.data.raw_bin.observation[i]
+              ])
+            );
+          },
+          bins() {
+            return acollect([], this.bpIdx.map(i => this.data.raw_proc.bin[i]));
+          },
+          procs() {
+            return acollect([], this.bpIdx.map(i => this.data.raw_proc.process_name[i]));
+          },
+          syst_names() {
+            const Fsyst = ffilter(this.filter_syst);
+            const { syst_toggle, group_toggle, data: { groups } } = this;
+            const hidden = new Set();
+            for (const [grp, tgl] of Object.entries(group_toggle))
+              if (tgl === false)
+                for (const syst of groups[grp])
+                  hidden.add(syst);
+
+            const ret = Array
+              .from(this.data.st.entries())
+              .filter(([_, [syst, type]]) => ![
+                Fsyst(syst),
+                !hidden.has(syst),
+                syst_toggle[type]
+              ].includes(false));
+
+            msort(this.sort_st)(ret);
+
+            return ret.map(a => a[1][0]);
+          },
+          max_bpLog: {
+            get() {
+              return Math.log10(this.max_bp);
+            },
+            set(val) {
+              this.max_bp = Math.pow(10, val);
+            },
+          },
+          filter_max_length() {
+            return Math.max(
+              this.filter_bin.split("\n").length,
+              this.filter_proc.split("\n").length,
+              this.filter_syst.split("\n").length,
+            );
+          }
+        },
+        methods: {
+          dropped(ev) {
+            ev.preventDefault();
+            this.dragging = 0;
+            const { target } = ev;
+            const { files } = ev.dataTransfer ?? target;
+            if (!files || !files.length) return;
+            const { fs0, fs1 } = this.$refs;
+            for (const fs of [fs0, fs1])
+                fs.files = files;
+            const file = files[0];
+            const info = {
+              name: file.name || "???",
+              size: file.size ? (file.size / (1<<10)).toFixed(0) : "???",
+              date: file.lastModified ? new Date(file.lastModified).toLocaleString() : "???",
+            };
+            file.text().then(data => {
+              this.raw = data;
+              this.raw_info = info;
+            });
+
+          },
+          f2text(v) {
+            return v ? v.toPrecision(3) : "";
+          },
+          syst2style(v, t) {
+            if (!v) return {};
+            if (t == "shape" && +v == 1)
+              v = 240 // 300
+            else {
+              if (t == "rateParam") v = v.split(/\s/).slice(0, 1);
+              else v = v.split("/");
+              v = this.syst_color.cfunc(v);
+            }
+            return {"background-color": `hsl(${v}, 100%, 90%)`};
+          },
+          rate2style(v) {
+            v = this.rate_color.cfunc(v);
+            return {"background-color": `hsl(${v}, 100%, 90%)`};
+          }
+        },
+        components: {
+          sortable: {
+            template: `
+              <div class="sortable" @click="toggle">
+                <span>{{pos || "–"}} {{sym[dir + 1]}}</span>
+                <slot/>
+              </div>
+            `,
+            props: {
+              arr: Array,
+              idx: Number,
+              sym: {
+                type: String,
+                default: "▼●▲",
+              },
+            },
+            computed: {
+              dir() {
+                if (this.arr.includes(this.idx)) return 1;
+                if (this.arr.includes(-this.idx)) return -1;
+                return 0;
+              },
+              pos() {
+                return Math.max(
+                  this.arr.indexOf(this.idx),
+                  this.arr.indexOf(-this.idx)
+                ) + 1;
+              }
+            },
+            methods: {
+              toggle() {
+                if (this.pos > 1)
+                  this.arr.unshift(...this.arr.splice(this.pos - 1, 1));
+                else {
+                  const want = {
+                    "-1": 0,
+                    "0": 1,
+                    "1": -1,
+                  }[this.dir];
+                  if (want) this.arr.splice(0, this.pos, want * this.idx);
+                  else if (this.pos) this.arr.splice(0, this.pos);
+                }
+              },
+            },
+          },
+          cscale: {
+            template: `
+              <span class="cscale">
+                Color range: <input type="range" :min="info.range[0]" :max="info.range[1]" v-model="valueLog"/> <input type="number" min="0" v-model="info.value" step="any"/>
+                <span v-for="v in info.vex" :style="v2style(v)" v-text="v > 1e3 ? v.toExponential() : v"></span>
+              </span>
+            `,
+            props: {
+              info: Object,
+            },
+            methods: {
+              v2style(v) {
+                return {"background-color": `hsl(${this.info.cfunc(v)}, 100%, 90%)`};
+              }
+            },
+            computed: {
+              valueLog: {
+                get() {
+                  return Math.log10(this.info.value);
+                },
+                set(v) {
+                  this.info.value = 10**v;
+                },
+              },
+            },
+          },
+        },
+      })
+
+      window.onload = () => app.$mount("#app")
+      window.ondragover = ev => ev.preventDefault();
+      window.ondragenter = ev => app.dragging++;
+      window.ondragleave = ev => app.dragging--;
+      window.ondrop = ev => app.dropped(ev);
+    </script>
+  </head>
+  <body>
+    <div id="app">
+      <div
+        v-show="!data || 0 < dragging"
+        :class="{overlay: true, dragging: 0 < dragging}"
+        @dragenter="dragging++"
+        @dragleave="dragging--"
+      >
+        <h1>Load a Datacard by dragging it onto the page!</h1>
+        <label>... or select it <input ref="fs0" type="file" accept=".txt" @input="dropped"/></label>
+      </div>
+      <div v-show="raw_info">
+        <input ref="fs1" type="file" accept=".txt" @input="dropped"/> Size: {{raw_info?.size}}kB Date: {{raw_info?.date}}
+      </div>
+      <span v-if="data" class="ctrl">
+        <div>Rate range: <input placeholder="-∞" type="number" step="any" v-model.number="min_rate"/> &lt; rate &lt; <input placeholder="+∞" type="number" step="any" v-model.number="max_rate"/></div>
+        <div>Process type: <label v-for="v in pid_options"><input type="radio" v-model="pid_toggle" :value="v"/>{{v}}</label></div>
+        <div>Systematic type: <label v-for="v in data.syst_types"><input type="checkbox" v-model="syst_toggle[v]"/>{{v}}</label></div>
+        <div v-show="data.group_names.length">Systematic group: <label v-for="v in data.group_names" :title="data.groups[v].join(' ')"><input type="checkbox" v-model="group_toggle[v]">{{v}} ({{data.groups[v].length}})</label></div>
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Bins</th>
+              <th>Processes</th>
+              <th>Systematics</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr title="Number according to [ijk]max">
+              <th>Header</th>
+              <td v-text="data.counts.imax"></td>
+              <td v-text="data.counts.jmax + 1"></td>
+              <td v-text="data.counts.kmax"></td>
+            </tr>
+            <tr title="Number found total">
+              <th>Total</th>
+              <td v-text="data.bin.length"></td>
+              <td v-text="data.proc.length"></td>
+              <td v-text="data.syst.length"></td>
+            </tr>
+            <tr title="Number after filter">
+              <th>Filtered</th>
+              <td v-text="bins.length"></td>
+              <td v-text="procs.length"></td>
+              <td v-text="syst_names.length"></td>
+            </tr>
+            <tr :title="filterHelp">
+              <th>Filter</th>
+              <td><textarea v-model="filter_bin" cols="25" :rows="filter_max_length" placeholder="Filters bins"></textarea></td>
+              <td><textarea v-model="filter_proc" cols="25" :rows="filter_max_length" placeholder="Filters processes"></textarea></td>
+              <td><textarea v-model="filter_syst" cols="25" :rows="filter_max_length" placeholder="Filters systematics"></textarea></td>
+            </tr>
+          </tbody>
+        </table>
+      </span>
+      <table v-if="data" class="content">
+        <caption>Systematic strengths <cscale :info="syst_color"></cscale> <span>Max bin&amp;process pairs <input type="range" min="0" max="3" step="0.1" v-model.number="max_bpLog"/> {{Math.round(max_bp)}}</span>
+        </caption>
+        <thead>
+          <tr>
+            <th>
+              <sortable :arr="sort_bpir" :idx="1">Bin</sortable>
+              <sortable :arr="sort_bpir" :idx="2">Process</sortable>
+              <sortable :arr="sort_bpir" :idx="3">PID</sortable>
+              <sortable :arr="sort_bpir" :idx="4">Rate</sortable>
+            </th>
+            <th v-for="i in bpIdxLim" :key="i">{{data.raw_proc.bin[i]}}<br>
+              {{data.raw_proc.process_name[i]}}<br>
+              {{data.raw_proc.process_id[i]}}<br>
+              {{Number(data.raw_proc.rate[i]).toPrecision(3)}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="name in syst_names" :key="name" :class="data.syst_type[name]">
+            <th class="lr">
+              <div>
+                <span v-text="name"></span>
+                <span v-text="data.syst_type[name]"></span>
+              </div>
+            </th>
+            <td
+              v-for="i in bpIdxLim"
+              :key="i"
+              v-if="data.raw_syst[name]"
+              :style="syst2style(data.raw_syst[name][i], data.syst_type[name])"
+              v-text="data.raw_syst[name][i]"
+            />
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th class="lr">
+              <div>
+                <sortable :arr="sort_st" :idx="1">Systematic</sortable>
+                <sortable :arr="sort_st" :idx="2">Type</sortable>
+              </div>
+            </th>
+          </tr>
+        </tfoot>
+      </table>
+      <table v-if="data" class="content">
+        <caption>Rates <cscale :info="rate_color"></cscale></caption>
+        <thead>
+          <tr>
+            <th><sortable :arr="sort_bpir" :idx="2">Process</sortable></th>
+            <th v-for="p in procs" v-text="p"></th>
+            <th><label><input type="checkbox" v-model="obs_show" /> Observation</label></th>
+            <th colspan="3">autoMCStats</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="b in bins">
+            <th v-text="b"></th>
+            <td v-for="p in procs" v-text="f2text(rates[b][p])" :style="rate2style(rates[b][p])"></td>
+            <td v-text="obs_show ? f2text(obs[b]) : 'blind'" :style="obs_show && rate2style(obs[b])"></td>
+            <td v-for="v in (data.autoMCStats[b] ?? data.autoMCStats['*'])" v-text="v"></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th>
+              <sortable :arr="sort_bpir" :idx="1">Bin</sortable>
+            </th>
+          </tr>
+        </tfoot>
+      </table>
+      <table v-if="data && data.extArg_names.length">
+        <caption>extArg</caption>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Definition</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="n in data.extArg_names">
+            <td v-text="n"></td>
+            <td v-text="data.extArg[n]"></td>
+          </tr>
+        </tbody>
+      </table>
+      <table v-if="data && data.nuisance_edit.length" class="tdl flat">
+        <caption>nuisance edit <label><input type="checkbox" v-model="nuisance_edit_raw"/> raw</label></caption>
+        <tbody>
+          <tr v-if="nuisance_edit_raw">
+            <td>
+              <pre v-text="data.nuisance_edit.map(line => line.join(' ')).join('\n')" />
+            </td>
+          </tr>
+          <tr v-else v-for="line in data.nuisance_edit">
+            <td v-for="row in line" v-text="row"/>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
