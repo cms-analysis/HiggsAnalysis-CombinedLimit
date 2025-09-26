@@ -2,7 +2,7 @@
 
 The following tools can be used in-browser to explore several of the data files used by <span style="font-variant:small-caps;">Combine</span>
 
-## [jsROOT (external)](https://root.cern/js/latest/)
+## jsROOT (external) <sup>[open](https://root.cern/js/latest/)</sup>
 
 Can display (most) contents of `*.root` files, such as histograms e.g. the [`shapes` files](../part2/settinguptheanalysis.md#binned-shape-analyses).
 
@@ -12,7 +12,7 @@ Can display (most) contents of `*.root` files, such as histograms e.g. the [`sha
 * extensive support for live filtering of table contents
 * numeric values are colored, with configurable scale
 
-### [Datacard Viewer](view_datacard.html)
+### Datacard Viewer <sup>[open](view_datacard.html)</sup>
 
 * for `*.txt` datacards
 * filter by: bin, process, nuisance-name, -type, and -group
@@ -20,7 +20,7 @@ Can display (most) contents of `*.root` files, such as histograms e.g. the [`sha
 * also shows: `autoMCStats`, `nuisance edit`, `extArg` & `rateParam`
 * can detect & report some layout/formatting issue
 
-### [Covariance Viewer](view_cov_json.html)
+### Covariance Viewer <sup>[open](view_cov_json.html)</sup>
 
 * for specific `*.cov.json` files, see following format description
 * configurable filtering of row/columns with only small off-diagonal elements
