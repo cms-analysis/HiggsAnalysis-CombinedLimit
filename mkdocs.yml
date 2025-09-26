@@ -35,6 +35,11 @@ nav:
           - "Statitiscal Tests Basics": tutorial_stat_routines/stat_routines.md
           - "Model building": model_building_tutorial2024/model_building_exercise.md
           - "Per-bin Transfer Factors with Parametric Histograms": abcd_rooparametrichist_tutorial/rooparametrichist_exercise.md
+        - "In-Browser Tools":
+          - "In-Browser Tools":           part6/in_browser_tools.md
+          - "open: jsROOT (external)":     https://root.cern/js/latest/
+          - "open: Datacard Viewer":       part6/view_datacard.html
+          - "open: Covariance Viewer":     part6/view_cov_json.html
         - Links & FAQ: part4/usefullinks.md
 
 theme:
