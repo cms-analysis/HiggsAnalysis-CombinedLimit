@@ -24,7 +24,7 @@ Can display (most) contents of `*.root` files, such as histograms e.g. the [`sha
 
 * for specific `*.cov.json` files, see following format description
 * configurable filtering of row/columns with only small off-diagonal elements
-* automatically higlight common parts in nuisance parameter names in different colors for easier reading
+* automatically highlight common parts in nuisance parameter names in different colors for easier reading
 
 #### File Format
 
@@ -36,7 +36,7 @@ It needs to be a valid JSON file, with the following fields:
 * `cov` or `cor`, at least one of them
     * type: `Array` of N `Array`s of N `Number`s between -1 and 1
     * the covariance/correlation matrix
-    * ordering of rows/columns corresponds to that or `labels`
+    * ordering of rows/columns corresponds to that of `labels`
 * `qual`, optional
     * type: `Number` or `String`
     * the fit result/quality number
