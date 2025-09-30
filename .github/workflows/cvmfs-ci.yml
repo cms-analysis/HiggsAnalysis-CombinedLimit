@@ -234,4 +234,4 @@ jobs:
             source /cvmfs/cms.cern.ch/cmsset_default.sh
             cmsenv
             cd HiggsAnalysis/CombinedLimit/test
-            python test_interference.py
+            python3 test_interference.py
