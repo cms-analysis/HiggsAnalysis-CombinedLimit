@@ -1222,9 +1222,7 @@ void CombineHarvester::WriteDatacard(std::string const& name,
       }
     }
   }
-  for (auto const& par : frozen_params) {
-    txt_file << "nuisance edit freeze " << par << "\n";
-  }
+
   std::set<std::string> all_fn_param_args;
   for (auto const& rp : floating_params) {
     if (!params_.count(rp[0])) {
@@ -1292,6 +1290,9 @@ void CombineHarvester::WriteDatacard(std::string const& name,
             txt_file << format(" [%.4g,%.4g]") % p->range_d() % p->range_u();
           }
           txt_file << "\n";
+          if (p->frozen()) {
+            frozen_params.insert(p->name());
+          }
         }
 
       }
@@ -1308,6 +1309,10 @@ void CombineHarvester::WriteDatacard(std::string const& name,
 
       }
     }
+  }
+
+  for (auto const& par : frozen_params) {
+    txt_file << "nuisance edit freeze " << par << "\n";
   }
 
   std::set<std::string> ws_vars;
