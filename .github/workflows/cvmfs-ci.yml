@@ -1,4 +1,4 @@
-name: CI with CVMFS
+name: CVMFS CI
 
 on:
   workflow_dispatch:
@@ -14,42 +14,83 @@ on:
       - main
 jobs:
   test_workflow:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
-        IMAGE: ["cmscloud/al9-cms"]
-        CMSSW_VERSION: ["CMSSW_14_1_0_pre4"] 
-        SCRAM_ARCH: ["el9_amd64_gcc12"]
-        ROOT: ["ROOT v6.30"]
         include:
-          - IMAGE: "cmscloud/cc7-cms"
-            CMSSW_VERSION: "CMSSW_11_3_4" 
-            SCRAM_ARCH: "slc7_amd64_gcc900"
-            ROOT: "ROOT v6.22/08"
           - IMAGE: "cmscloud/al9-cms"
-            CMSSW_VERSION: "CMSSW_14_0_0_pre1" 
+            CMSSW_VERSION: "CMSSW_14_1_0_pre4"
             SCRAM_ARCH: "el9_amd64_gcc12"
-            ROOT: "ROOT v6.26/11"
+            ROOT: "6.30.07"
+          - IMAGE: "cmscloud/cc7-cms"
+            CMSSW_VERSION: "CMSSW_11_3_4"
+            SCRAM_ARCH: "slc7_amd64_gcc900"
+            ROOT: "6.22.09"
+          - IMAGE: "cmscloud/al9-cms"
+            CMSSW_VERSION: "CMSSW_14_0_0_pre1"
+            SCRAM_ARCH: "el9_amd64_gcc12"
+            ROOT: "6.26.11"
           - IMAGE: "cmscloud/al8-cms"
-            CMSSW_VERSION: "CMSSW_14_2_0_pre2_ROOT632" 
+            CMSSW_VERSION: "CMSSW_14_2_0_pre2_ROOT632"
             SCRAM_ARCH: "el8_amd64_gcc12"
-            ROOT: "ROOT v6.32/06"
+            ROOT: "6.32.06"
+          - LCG_RELEASE: "LCG_108"
+            LCG_ARCH: "x86_64-ubuntu2404-gcc13-opt"
+            ROOT: "6.36.02"
+          - LCG_RELEASE: "dev3/latest"
+            LCG_ARCH: "x86_64-ubuntu2404-gcc13-opt"
+            ROOT: "LCG master"
+    name: ${{ matrix.CMSSW_VERSION }}${{ matrix.LCG_RELEASE }} - ROOT ${{ matrix.ROOT }}
     env:
-      docker_opt_rw: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  --mount source=cmsusr,destination=/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
-      docker_opt_ro: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:ro -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
-    name: Test with ${{ matrix.CMSSW_VERSION }} and ${{ matrix.ROOT }} 
+      CMSSW_VERSION: ${{ matrix.CMSSW_VERSION }}
+      IMAGE: ${{ matrix.IMAGE }}
+      LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
+      LCG_ARCH: ${{ matrix.LCG_ARCH }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: cvmfs-contrib/github-action-cvmfs@v4
         with:
-          cvmfs_repositories: 'cms.cern.ch'
+          cvmfs_repositories: ${{ (env.CMSSW_VERSION != '') && 'cms.cern.ch' || 'sft.cern.ch' }}
+
+      - name: Build Combine (LCG)
+        if: ${{ env.CMSSW_VERSION == '' }}
+        env:
+          LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
+          LCG_ARCH: ${{ matrix.LCG_ARCH }}
+        run: >-
+          source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
+          root --version;
+          mkdir -p .python/HiggsAnalysis;
+          ln -s $PWD/python $PWD/.python/HiggsAnalysis/CombinedLimit;
+          touch $PWD/.python/HiggsAnalysis/__init__.py;
+          touch $PWD/.python/HiggsAnalysis/CombinedLimit/__init__.py;
+          python3 -m venv virtualenv;
+          source virtualenv/bin/activate;
+          python3 -m pip install -e .;
+          mkdir build;
+          cd build;
+          cmake -DCMAKE_CXX_COMPILER=$COMPILER_PATH/bin/g++ \
+                -DCMAKE_C_COMPILER=$COMPILER_PATH/bin/gcc \
+                -DCMAKE_INSTALL_PREFIX=../install \
+                -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+                -DINSTALL_PYTHON=FALSE \
+                ..;
+          make install -j$(nproc);
+          cd ..;
+          export PATH=$PWD/install/bin:$PATH;
+          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH;
+
       - uses: rhaschke/docker-run-action@v5
-        name: Build Combine
+        name: Build Combine (CMSSW)
+        # Only run the CMSSW build step if the CMSSW_VERSION is defined. Otherwise we build for LCG.
+        if: ${{ env.CMSSW_VERSION != '' }}
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: ${{env.docker_opt_rw}}
-          run: | 
+          options: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  --mount source=cmsusr,destination=/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
+          run: |
             cd /home/cmsusr/
             source /cvmfs/cms.cern.ch/cmsset_default.sh
             scram project ${CMSSW_VERSION}
@@ -62,176 +103,89 @@ jobs:
             root --version
             combine --help
 
-      - uses: rhaschke/docker-run-action@v5
+      - uses: ./.github/actions/run-in-cvmfs
         name: Counting datacard
         with:
-          image: ${{ matrix.IMAGE }}
-          shell: bash
-          options: ${{env.docker_opt_ro}}
-          run: |
-            cp -r cmssw/${CMSSW_VERSION} .
-            cd /home/cmsusr/${CMSSW_VERSION}/src
-            source /cvmfs/cms.cern.ch/cmsset_default.sh
-            cmsenv
-            text2workspace.py  HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
-            combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1
+          script: |
+            text2workspace.py  data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
+            combine -M MultiDimFit data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1
 
-      - uses: rhaschke/docker-run-action@v5
+      - uses: ./.github/actions/run-in-cvmfs
         name: Countind datacard Fixed Point from csv
         with:
-          image: ${{ matrix.IMAGE }}
-          shell: bash
-          options: ${{env.docker_opt_ro}}
-          run: |
-            cp -r cmssw/${CMSSW_VERSION} .
-            cd /home/cmsusr/${CMSSW_VERSION}/src
-            source /cvmfs/cms.cern.ch/cmsset_default.sh
-            cmsenv
-            text2workspace.py  HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
-            combineTool.py -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root --fromfile HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/fixed.csv
+          script: |
+            text2workspace.py  data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
+            combineTool.py -M MultiDimFit data/tutorials/multiDim/toy-hgg-125.root --fromfile data/tutorials/multiDim/fixed.csv
 
-      - uses: rhaschke/docker-run-action@v5
+      - uses: ./.github/actions/run-in-cvmfs
         name: Parametric analysis
         with:
-          image: ${{ matrix.IMAGE }}
-          shell: bash
-          options: ${{env.docker_opt_ro}}
-          run: |
-            cp -r cmssw/${CMSSW_VERSION} .
-            cd /home/cmsusr/${CMSSW_VERSION}/src
-            source /cvmfs/cms.cern.ch/cmsset_default.sh
-            cmsenv
-            text2workspace.py HiggsAnalysis/CombinedLimit/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -o ws_parametric-analysis.root --mass 125
+          script: |
+            text2workspace.py data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -o ws_parametric-analysis.root --mass 125
             combine -M MultiDimFit ws_parametric-analysis.root  --algo singles --setParameterRanges r=-2,1
 
-      - uses: rhaschke/docker-run-action@v5
+      - uses: ./.github/actions/run-in-cvmfs
         name: Template analysis
         with:
-          image: ${{ matrix.IMAGE }}
-          shell: bash
-          options: ${{env.docker_opt_ro}}
-          run: |
-            cp -r cmssw/${CMSSW_VERSION} . 
-            cd /home/cmsusr/${CMSSW_VERSION}/src
-            source /cvmfs/cms.cern.ch/cmsset_default.sh
-            cmsenv
-            text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
+          script: |
+            text2workspace.py data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
             combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1
             combine -M FitDiagnostics ws_template-analysis.root  -t -1 --setParameters r=1 --plots  --setParameterRanges r=-1,1
 
-      - uses: rhaschke/docker-run-action@v5
+      - uses: ./.github/actions/run-in-cvmfs
         name: Template analysis CMSHistSum
         with:
-          image: ${{ matrix.IMAGE }}
-          shell: bash
-          options: ${{env.docker_opt_ro}}
-          run: |
-            cp -r cmssw/${CMSSW_VERSION} .
-            cd /home/cmsusr/${CMSSW_VERSION}/src
-            source /cvmfs/cms.cern.ch/cmsset_default.sh
-            cmsenv
-            text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200 --for-fits --no-wrappers --use-histsum
+          script: |
+            text2workspace.py data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200 --for-fits --no-wrappers --use-histsum
             combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH
 
-      - uses: rhaschke/docker-run-action@v5
+      - uses: ./.github/actions/run-in-cvmfs
         name: Template analysis CMSHistSum with shapeN
         with:
-          image: ${{ matrix.IMAGE }}
-          shell: bash
-          options: ${{env.docker_opt_ro}}
-          run: |
-            cp -r cmssw/${CMSSW_VERSION} .
-            cd /home/cmsusr/${CMSSW_VERSION}/src
-            source /cvmfs/cms.cern.ch/cmsset_default.sh
-            cmsenv
-            text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/template-analysis_shapeNInterp.txt -o ws_template-analysis.root --mass 200 --for-fits --no-wrappers --use-histsum
+          script: |
+            text2workspace.py data/ci/template-analysis_shapeNInterp.txt -o ws_template-analysis.root --mass 200 --for-fits --no-wrappers --use-histsum
             combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH
 
-      - uses: rhaschke/docker-run-action@v5
+      - uses: ./.github/actions/run-in-cvmfs
         name: RooMultiPdf
-        if: ${{ startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
+        if: ${{ !matrix.CMSSW_VERSION || startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
         with:
-          image: ${{ matrix.IMAGE }}
-          shell: bash
-          options: ${{env.docker_opt_ro}} 
-          run: |
-            cp -r cmssw/${CMSSW_VERSION} .
-            cd /home/cmsusr/${CMSSW_VERSION}/src
-            source /cvmfs/cms.cern.ch/cmsset_default.sh
-            cmsenv
-            ulimit -s unlimited
-            text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/datacard_RooMultiPdf.txt.gz  -o ws_RooMultiPdf.root
+          script: |
+            text2workspace.py data/ci/datacard_RooMultiPdf.txt.gz  -o ws_RooMultiPdf.root
             combine -M MultiDimFit -m 125.38  --setParameters pdf_index_ggh=2 --freezeParameters MH --cminDefaultMinimizerStrategy 0 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles ws_RooMultiPdf.root
 
-      - uses: rhaschke/docker-run-action@v5
+      - uses: ./.github/actions/run-in-cvmfs
         name: RooParametricHist
         with:
-          image: ${{ matrix.IMAGE }}
-          shell: bash
-          options: ${{env.docker_opt_ro}}
-          run: |
-            cp -r cmssw/${CMSSW_VERSION} .
-            cd /home/cmsusr/${CMSSW_VERSION}/src
-            source /cvmfs/cms.cern.ch/cmsset_default.sh
-            cmsenv
-            ulimit -s unlimited
-            text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/*hcc*:r[1,-500,500]' --PO 'map=.*/zcc:z[1,-5,5]' HiggsAnalysis/CombinedLimit/data/ci/datacard_RooParametricHist.txt -o ws_RooParametricHist.root
+          script: |
+            text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/*hcc*:r[1,-500,500]' --PO 'map=.*/zcc:z[1,-5,5]' data/ci/datacard_RooParametricHist.txt -o ws_RooParametricHist.root
             combine -M MultiDimFit ws_RooParametricHist.root --algo singles
 
-      - uses: rhaschke/docker-run-action@v5
+      - uses: ./.github/actions/run-in-cvmfs
         name: RooHistPdf
-        if: ${{ startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
+        if: ${{ !matrix.CMSSW_VERSION || startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
         with:
-          image: ${{ matrix.IMAGE }}
-          shell: bash
-          options: ${{env.docker_opt_ro}}
-          run: |
-            cp -r cmssw/${CMSSW_VERSION} .
-            cd /home/cmsusr/${CMSSW_VERSION}/src
-            source /cvmfs/cms.cern.ch/cmsset_default.sh
-            cmsenv
-            ulimit -s unlimited
-            text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/datacard_RooHistPdf.txt.gz -o ws_RooHistPdf.root
+          script: |
+            text2workspace.py data/ci/datacard_RooHistPdf.txt.gz -o ws_RooHistPdf.root
             combine -M MultiDimFit ws_RooHistPdf.root --algo singles -v -2  --setParameterRanges r=-1,2.
 
-      - uses: rhaschke/docker-run-action@v5
+      - uses: ./.github/actions/run-in-cvmfs
         name: Template analysis with large integrals
         with:
-          image: ${{ matrix.IMAGE }}
-          shell: bash
-          options: ${{env.docker_opt_ro}}
-          run: |
-            cp -r cmssw/${CMSSW_VERSION} .
-            cd /home/cmsusr/${CMSSW_VERSION}/src
-            source /cvmfs/cms.cern.ch/cmsset_default.sh
-            cmsenv
-            text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/templ_datacard_largeYields.txt -o ws_template-analysis.root
+          script: |
+            text2workspace.py data/ci/templ_datacard_largeYields.txt -o ws_template-analysis.root
             combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1
 
-      - uses: rhaschke/docker-run-action@v5
+      - uses: ./.github/actions/run-in-cvmfs
         name: Template analysis with large integrals using CMSHistSum
         with:
-          image: ${{ matrix.IMAGE }}
-          shell: bash
-          options: ${{env.docker_opt_ro}}
-          run: |
-            cp -r cmssw/${CMSSW_VERSION} .
-            cd /home/cmsusr/${CMSSW_VERSION}/src
-            source /cvmfs/cms.cern.ch/cmsset_default.sh
-            cmsenv
-            text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/templ_datacard_largeYields.txt -o ws_template-analysis.root  --for-fits --no-wrappers --use-histsum
+          script: |
+            text2workspace.py data/ci/templ_datacard_largeYields.txt -o ws_template-analysis.root  --for-fits --no-wrappers --use-histsum
             combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH
 
-      - uses: rhaschke/docker-run-action@v5
+      - uses: ./.github/actions/run-in-cvmfs
         name: InterferenceModel test in CMSSW
         with:
-          image: ${{ matrix.IMAGE }}
-          shell: bash
-          options: ${{env.docker_opt_ro}}
-          run: |
-            cp -r cmssw/${CMSSW_VERSION} .
-            cd /home/cmsusr/${CMSSW_VERSION}/src
-            source /cvmfs/cms.cern.ch/cmsset_default.sh
-            cmsenv
-            cd HiggsAnalysis/CombinedLimit/test
+          script: |
+            cd test
             python3 test_interference.py
