@@ -91,11 +91,8 @@ void AsymptoticLimits::applyOptions(const boost::program_options::variables_map 
 	limitsTree_->SetBranchAddress("limit",&readCL_);
 	limitsTree_->SetBranchAddress("r",&readMU_);
     }
-
-    if (vm.count("signalStrengthForExpected") && !vm["signalStrengthForExpected"].defaulted()) {
-        doNonStandardAsimov_ = true;
-    } else doNonStandardAsimov_ = false;
-   
+    
+    doNonStandardAsimov_ = vm.count("signalStrengthForExpected") && !vm["signalStrengthForExpected"].defaulted();
 }
 
 void AsymptoticLimits::applyDefaultOptions() { 
