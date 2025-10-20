@@ -193,7 +193,7 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
             minimizer_->setPrintLevel(verbose-1); 
         }
         // ensure that at this stage the nll has > 0 parameters
-        std::unique_ptr<RooArgSet> nll_params(nll_.getParameters((const RooArgSet*)nullptr));
+        std::unique_ptr<RooArgSet> nll_params(nll_.getParameters((const RooArgSet *)nullptr));
         int nFloating = 0;
         for (auto arg : *nll_params) {
           if (!arg->isConstant())
@@ -201,13 +201,14 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
         }
         // log warning
         if (nFloating == 0) {
-          std::string warning_msg = 
+          std::string warning_msg =
               "[WARNING] The NLL has zero floating parameters at the start of CascadeMinimizer::improveOnce().\n"
               "\tThis may indicate a problem with the model or the configuration.\n"
-              "\tIf your intent is to only float BB parameters, remember that these are by default evaluated analytically and, hence, excluded from the minimization.\n"
+              "\tIf your intent is to only float BB parameters, remember that these are by default evaluated "
+              "analytically and, hence, excluded from the minimization.\n"
               "\tYou can disable the analytic BB treatment by setting --X-rtd MINIMIZER_no_analytic.\n";
           std::cerr << warning_msg;
-          CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,warning_msg,__func__);
+          CombineLogger::instance().log("CascadeMinimizer.cc", __LINE__, warning_msg, __func__);
         }
         int status = minimizer_->minimize(myType.c_str(), myAlgo.c_str());
         if (lastHesse_ && !noHesse) {
