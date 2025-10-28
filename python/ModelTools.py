@@ -1033,9 +1033,9 @@ class ModelBuilder(ModelBuilderBase):
 
     def doModelConfigs(self):
         if not self.options.bin:
-            raise RuntimeException
+            raise RuntimeError("Binary mode disabled")
         if self.options.out is None:
-            raise RuntimeException
+            raise RuntimeError("Missing output file path")
         for nuis, warn in self.DC.flatParamNuisances.items():
             if self.out.var(nuis):
                 self.out.var(nuis).setAttribute("flatParam")
