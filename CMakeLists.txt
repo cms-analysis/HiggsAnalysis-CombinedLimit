@@ -5,6 +5,7 @@ project(HiggsAnalysisCombinedLimit VERSION 0.0.1)
 option( MODIFY_ROOTMAP "Modify generated Rootmap to take out classes already bundled in StatAnalysis" FALSE )
 option( INSTALL_PYTHON "Install the Python library and scripts" TRUE )
 option( USE_VDT "Use VDT (fast and vectorisable mathematical functions)" TRUE )
+option( BUILD_TESTS "Build tests" FALSE )
 
 # Can build with CMake after e.g. setting up StatAnalysis release like this:
 # export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
@@ -131,4 +132,12 @@ if(INSTALL_PYTHON)
   file(TOUCH ${empty_init_py})
   INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis)
   INSTALL(FILES ${empty_init_py} DESTINATION ${Python_SITELIB_IN_PREFIX}/HiggsAnalysis/CombinedLimit)
+endif()
+
+
+if(BUILD_TESTS)
+  find_package(GTest 1.10 REQUIRED)
+
+  enable_testing()
+  add_subdirectory(test)
 endif()

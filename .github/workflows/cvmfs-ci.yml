@@ -76,6 +76,7 @@ jobs:
                 -DCMAKE_INSTALL_PREFIX=../install \
                 -DCMAKE_BUILD_TYPE=RelWithDebInfo \
                 -DINSTALL_PYTHON=FALSE \
+                -DBUILD_TESTS=TRUE \
                 ..;
           make install -j$(nproc);
           cd ..;
@@ -103,8 +104,21 @@ jobs:
             root --version
             combine --help
 
+      - name: Run Tests
+        if: ${{ env.CMSSW_VERSION == '' }}
+        env:
+          LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
+          LCG_ARCH: ${{ matrix.LCG_ARCH }}
+        run: >-
+          source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
+          source virtualenv/bin/activate;
+          cd build;
+          ctest --output-on-failure -j$(nproc) .;
+
       - uses: ./.github/actions/run-in-cvmfs
         name: Counting datacard
+        # Only run this test in CMSSW mode, because otherwise we already run this in the unit tests
+        if: ${{ env.CMSSW_VERSION != '' }}
         with:
           script: |
             text2workspace.py  data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
