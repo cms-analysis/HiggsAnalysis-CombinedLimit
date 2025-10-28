@@ -45,7 +45,7 @@ jobs:
             cmsenv
             mkdir -p HiggsAnalysis
             cp -r /work/CombinedLimit HiggsAnalysis/
-            scramv1 b -j$(nproc)
+            scramv1 b -j$(nproc --ignore=2)
             echo ${PATH}
             root --version
             combine --help

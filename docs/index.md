@@ -46,7 +46,7 @@ cd CMSSW_14_1_0_pre4/src
 cmsenv
 git -c advice.detachedHead=false clone --depth 1 --branch v10.2.1 https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
-scramv1 b clean; scramv1 b # always make a clean build
+scramv1 b clean; scramv1 b -j$(nproc --ignore=2) # always make a clean build, with n - 2 cores on the system
 ```
 
 ### Combine v9
@@ -67,7 +67,7 @@ cd CMSSW_11_3_4/src
 cmsenv
 git -c advice.detachedHead=false clone --depth 1 --branch v9.2.1 https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
-scramv1 b clean; scramv1 b # always make a clean build
+scramv1 b clean; scramv1 b -j$(nproc --ignore=2) # always make a clean build, with n - 2 cores on the system
 ```
 
 #### Combine v8: `CMSSW_10_2_X` release series
@@ -82,7 +82,7 @@ cmsrel CMSSW_10_2_13
 cd CMSSW_10_2_13/src
 cmsenv
 git -c advice.detachedHead=false clone --depth 1 --branch v8.2.0 https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-scramv1 b clean; scramv1 b # always make a clean build
+scramv1 b clean; scramv1 b -j$(nproc --ignore=2) # always make a clean build, with n - 2 cores on the system
 ```
 
 #### SLC6/CC7 release `CMSSW_8_1_X`
@@ -107,7 +107,7 @@ Update to a recommended tag - currently the recommended tag for CMSSW_8_1_X is *
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
 git checkout v7.0.13
-scramv1 b clean; scramv1 b # always make a clean build
+scramv1 b clean; scramv1 b -j$(nproc --ignore=2) # always make a clean build, with n - 2 cores on the system
 ```
 
 ### Oustide of CMSSW (recommended for non-CMS users)
@@ -252,7 +252,7 @@ This package also comes with useful features for <span style="font-variant:small
 
 ```sh
 git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
-scram b
+scram b -j$(nproc --ignore=2)
 ```
 
 See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation for full instructions and reccomended versions. 
