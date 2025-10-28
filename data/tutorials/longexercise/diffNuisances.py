@@ -133,7 +133,7 @@ setUpString = "diffNuisances run on %s, at %s with the following options ... " %
 ) + str(options)
 
 file = ROOT.TFile(args[0])
-if file == None:
+if file is None:
     raise RuntimeError("Cannot open file %s" % args[0])
 fit_s = file.Get("fit_s")
 fit_b = file.Get("fit_b")
@@ -203,7 +203,7 @@ for i in range(fpf_s.getSize()):
     flag = False
     mean_p, sigma_p, sigma_pu, sigma_pd = 0, 0, 0, 0
 
-    if nuis_p == None:
+    if nuis_p is None:
         # nuisance parameter NOT present in the prefit result
         if not options.absolute_values and not (options.pullDef == "unconstPullAsym"):
             continue
@@ -231,7 +231,7 @@ for i in range(fpf_s.getSize()):
                 row += ["%.6f +%.6f %.6f" % (nuis_p.getVal(), nuis_p.getErrorHi(), nuis_p.getErrorLo())]
 
     for fit_name, nuis_x in [("b", nuis_b), ("s", nuis_s)]:
-        if nuis_x == None:
+        if nuis_x is None:
             row += [" n/a "]
         else:
             nuisIsSymm = abs(abs(nuis_x.getErrorLo()) - abs(nuis_x.getErrorHi())) < 0.01 or nuis_x.getErrorLo() == 0
@@ -239,7 +239,7 @@ for i in range(fpf_s.getSize()):
                 nuis_x.setError(nuis_x.getErrorHi())
             nuiselo = abs(nuis_x.getErrorLo()) if nuis_x.getErrorLo() > 0 else nuis_x.getError()
             nuisehi = nuis_x.getErrorHi()
-            if options.pullDef and nuis_p != None:
+            if options.pullDef and nuis_p is not None:
                 nx, ned, neu = CP.returnPullAsym(
                     options.pullDef,
                     nuis_x.getVal(),
@@ -257,11 +257,11 @@ for i in range(fpf_s.getSize()):
             else:
                 row += ["%+.2f +%.2f %.2f" % (nx, neu, ned)]
 
-            if nuis_p != None:
+            if nuis_p is not None:
                 if options.plotfile:
                     if fit_name == "b":
                         nuis_p_i += 1
-                        if options.pullDef and nuis_p != None:
+                        if options.pullDef and nuis_p is not None:
                             # nx,ned,neu = CP.returnPullAsym(options.pullDef,nuis_x.getVal(),mean_p,nuis_x.getErrorHi(),sigma_pu,abs(nuis_x.getErrorLo()),abs(sigma_pd))
                             gr_fit_b.SetPoint(nuis_p_i - 1, nuis_p_i - 0.5 + 0.1, nx)
                             gr_fit_b.SetPointError(nuis_p_i - 1, 0, 0, ned, neu)
@@ -279,7 +279,7 @@ for i in range(fpf_s.getSize()):
                         hist_fit_b.GetXaxis().SetBinLabel(nuis_p_i, name)
                         gr_fit_b.GetXaxis().SetBinLabel(nuis_p_i, name)
                     if fit_name == "s":
-                        if options.pullDef and nuis_p != None:
+                        if options.pullDef and nuis_p is not None:
                             # nx,ned,neu = CP.returnPullAsym(options.pullDef,nuis_x.getVal(),mean_p,nuis_x.getErrorHi(),sigma_pu,abs(nuis_x.getErrorLo()),abs(sigma_pd))
                             gr_fit_s.SetPoint(nuis_p_i - 1, nuis_p_i - 0.5 - 0.1, nx)
                             gr_fit_s.SetPointError(nuis_p_i - 1, 0, 0, ned, neu)
@@ -474,9 +474,9 @@ for n in names:
     v = table[n]
     if options.format == "latex":
         n = n.replace(r"_", r"\_")
-    if pmsub != None:
+    if pmsub is not None:
         v = [re.sub(pmsub[0], pmsub[1], i) for i in v]
-    if sigsub != None:
+    if sigsub is not None:
         v = [re.sub(sigsub[0], sigsub[1], i) for i in v]
     if (n, "b") in isFlagged:
         v[-3] = highlighters[isFlagged[(n, "b")]] % v[-3]

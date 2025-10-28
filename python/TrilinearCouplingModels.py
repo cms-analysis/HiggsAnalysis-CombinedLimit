@@ -142,7 +142,7 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"kVkFkl_XSBRscal_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             # now make production scaling --> taken from Tab. 2 of https://arxiv.org/pdf/1607.04251v1.pdf, using formula from https://arxiv.org/pdf/1709.08649.pdf (eqn 18)
             cXSmap_7 = {
                 "ggH": 0.66e-2,
@@ -381,7 +381,7 @@ class TrilinearHiggsDifferential(PhysicsModel):
         name = f"XSBRscal_{production}_{decay}"
         print(name)
         # If name has been defined in doParameterOfInterest()
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             print("DEBUG: proc x genbin signal has not been given a scale factor")
             # return 0
         # else:
@@ -647,7 +647,7 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
             raise RuntimeError("Decay mode %s not supported" % decay)
 
         XSBRscaling = f"{XSscal}_{BRscal}"
-        if self.modelBuilder.out.function(XSBRscaling) == None:
+        if self.modelBuilder.out.function(XSBRscaling) is None:
             self.modelBuilder.factory_(f'expr::{XSBRscaling}("@0*@1", {XSscal}, {BRscal})')
             print()
             self.modelBuilder.out.function(XSBRscaling).Print("")

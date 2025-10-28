@@ -66,7 +66,7 @@ def prefit_from_workspace(file, workspace, params, setPars=None):
         gobs = ws.var(p + "_In")
 
         # For pyROOT NULL test: "pdf != None" != "pdf is not None"
-        if pdf != None and gobs != None:
+        if pdf is not None and gobs is not None:
             # To get the errors we can just fit the pdf
             # But don't do pdf.fitTo(globalObs), it forces integration of the
             # range of the global observable. Instead we make a RooConstraintSum

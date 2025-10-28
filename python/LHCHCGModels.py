@@ -573,7 +573,7 @@ class Kappas(LHCHCGBaseModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"c7_XSBRscal_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             if production in ["ggH", "qqH", "ggZH", "tHq", "tHW"]:
                 XSscal = ("@0", f"Scaling_{production}_{energy}")
             elif production == "WH":
@@ -848,7 +848,7 @@ class KappaVKappaF(LHCHCGBaseModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"c7_XSBRscal_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             if production in ["ggZH", "tHq", "tHW"]:
                 XSscal = (
                     "@0",

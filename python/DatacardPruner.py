@@ -341,7 +341,7 @@ class DatacardPruner:
                 if "shape" in words[1] or "lnN" in words[1]:
                     name = words[0]
                     if MANIPULATION == "COMMENT":
-                        if EXCLUDE != None:
+                        if EXCLUDE is not None:
                             if name in EXCLUDE:
                                 excl += 1
                                 line = "#" + line

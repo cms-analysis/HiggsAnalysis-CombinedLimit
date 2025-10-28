@@ -518,7 +518,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
         production = convert_to_STXS(production, decay)
 
         name = f"stxstoeft_scaling_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = None
             BRscal = None
 
@@ -552,7 +552,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
 
             # Uncertainty scaling: BR and STXS bin uncertainties
             if (self.doSTXSU) & (self.doBRU):
-                if key == None:
+                if key is None:
                     THUscaler = "uncertainty_scaling_%s" % (decay)
                     self.modelBuilder.factory_(f'expr::uncertainty_scaling_{decay}("@0",HiggsDecayWidth_UncertaintyScaling_{decay})')
                 else:
@@ -562,7 +562,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
                         % (production, decay, key, production, decay)
                     )
             elif self.doSTXSU:
-                if key == None:
+                if key is None:
                     THUscaler = "uncertainty_scaling_dummy"
                     self.modelBuilder.factory_('expr::uncertainty_scaling_dummy("@0",1.)')
                 else:
@@ -665,7 +665,7 @@ class StageXToEFTModel(STXStoEFTBaseModel):
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"stxstoeft_scaling_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = None
             BRscal = None
 

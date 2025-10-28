@@ -353,7 +353,7 @@ class C5qlHiggs(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"C5ql_XSBRscal_{production}_{decay}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = "Cglu" if production in ["ggH"] else "Cv"
             if production in ["ttH"]:
                 XSscal = "Cf" if self.universalCF else "Cq"
@@ -470,7 +470,7 @@ class C5udHiggs(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"C5ud_XSBRscal_{production}_{decay}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = "Cglu" if production in ["ggH"] else "Cv"
             if production in ["ttH"]:
                 XSscal = "Cf" if self.universalCF else "Cu"

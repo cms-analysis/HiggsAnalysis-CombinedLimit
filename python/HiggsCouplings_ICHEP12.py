@@ -93,7 +93,7 @@ class CvCfHiggs(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"CvCf_XSBRscal_{production}_{decay}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = "CF" if production in ["ggH", "ttH"] else "CV"
             BRscal = "hgg"
             if decay in ["hww", "hzz"]:
@@ -208,7 +208,7 @@ class C5qlHiggs(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"C5ql_XSBRscal_{production}_{decay}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = "Cglu" if production in ["ggH"] else "Cv"
             if production in ["ttH"]:
                 XSscal = "Cf" if self.universalCF else "Cq"
@@ -325,7 +325,7 @@ class C5udHiggs(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"C5ud_XSBRscal_{production}_{decay}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = "Cglu" if production in ["ggH"] else "Cv"
             if production in ["ttH"]:
                 XSscal = "Cf" if self.universalCF else "Cu"
@@ -516,7 +516,7 @@ class CzwHiggs(SMLikeHiggsModel):
             return 0
 
         name = f"Czw_XSBRscal_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             if production in ["ggH", "ttH"]:
                 self.modelBuilder.factory_(f'expr::{name}("@0", Czw_BRscal_{decay})')
             else:
@@ -598,7 +598,7 @@ class CwzHiggs(SMLikeHiggsModel):
             return 0
 
         name = f"Cwz_XSBRscal_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             if production in ["ggH", "ttH"]:
                 self.modelBuilder.factory_(f'expr::{name}("@0", Cwz_BRscal_{decay})')
             else:
