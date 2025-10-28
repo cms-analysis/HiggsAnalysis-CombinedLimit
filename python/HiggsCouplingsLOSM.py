@@ -89,7 +89,7 @@ class CvCfHiggsLOSM(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"CvCf_XSBRscal_{production}_{decay}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = "CF" if production in ["ggH", "ttH"] else "CV"
             BRscal = "hgg"
             if decay in ["hww", "hzz"]:
@@ -186,7 +186,7 @@ class CvCfXgHiggsLOSM(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"CvCfXg_XSBRscal_{production}_{decay}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = "CF" if production in ["ggH", "ttH"] else "CV"
             BRscal = "hgg"
             if decay in ["hww", "hzz"]:
@@ -283,7 +283,7 @@ class CfXgHiggsLOSM(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"CfXg_XSBRscal_{production}_{decay}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = "CF" if production in ["ggH", "ttH"] else "CV"
             BRscal = "hgg"
             if decay in ["hww", "hzz"]:

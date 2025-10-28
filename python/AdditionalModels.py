@@ -107,7 +107,7 @@ class C8(SMLikeHiggsModel):
         name = f"c8_XSBRscal_{production}_{decay}"
         print("[LOFullParametrization::C7]")
         print(name, production, decay, energy)
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = "kgluon"
             if production in ["WH", "ZH", "VH", "qqH"]:
                 XSscal = "kV"
@@ -266,7 +266,7 @@ class CWidth(SMLikeHiggsModel):
         name = f"c7_XSBRscal_{production}_{decay}"
         print("[LOFullParametrization::C7]")
         print(name, production, decay, energy)
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = "kgluon"
             if production in ["WH", "ZH", "VH", "qqH"]:
                 XSscal = "kV"

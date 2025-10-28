@@ -82,7 +82,7 @@ class C5(SMLikeHiggsModel):
         name = f"c6_XSBRscal_{production}_{decay}"
         print("[LOFullParametrization::C6]")
         print(name, production, decay, energy)
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = "kgluon"
             if production in ["WH", "ZH", "VH", "qqH"]:
                 XSscal = "kV"
@@ -191,7 +191,7 @@ class C6(SMLikeHiggsModel):
         name = f"c6_XSBRscal_{production}_{decay}"
         print("[LOFullParametrization::C6]")
         print(name, production, decay, energy)
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = "kgluon"
             if production in ["WH", "ZH", "VH", "qqH"]:
                 XSscal = "kV"
@@ -314,7 +314,7 @@ class C7(SMLikeHiggsModel):
         name = f"c7_XSBRscal_{production}_{decay}"
         print("[LOFullParametrization::C7]")
         print(name, production, decay, energy)
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = "kgluon"
             if production in ["WH", "ZH", "VH", "qqH"]:
                 XSscal = "kV"

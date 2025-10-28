@@ -46,7 +46,7 @@ if not options.stat:
     for l in file:
         l = l.replace("---", "0")
         m = re.match(r"(.*?)\s+0\s+((\d+\.?\d*(E[+\-]\d+)?\s+)+)", l)
-        if m == None:
+        if m is None:
             raise ValueError("Missing line " + l)
         sysname = m.group(1)
         syseff = [float(x) for x in m.group(2).split()]
@@ -91,7 +91,7 @@ for isig, name in enumerate(models):
         # open file
         filename = "%s-%s-mH%s.txt" % (options.label, name, mh)
         fout = open(filename, "w")
-        if fout == None:
+        if fout is None:
             raise RuntimeError("Cannot open %s for writing" % filename)
         print(" - " + filename)
         # write datacard

@@ -589,13 +589,13 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
         if self.expand_equations:
             if self.linear_only:
                 name = f"scaling_linear_expand_XS_{production}_BR_{decay}"
-                if self.modelBuilder.out.function(name) == None:
+                if self.modelBuilder.out.function(name) is None:
                     print(f" --> [STXStoSMEFT] Making linearised model for (STXS bin,decay): ({production},{decay})")
                     self.makeScalingFunction_expand(production, decay)
 
             elif self.linquad_only:
                 name = f"scaling_linquad_expand_XS_{production}_BR_{decay}"
-                if self.modelBuilder.out.function(name) == None:
+                if self.modelBuilder.out.function(name) is None:
                     print(f" --> [STXStoSMEFT] Making linear+quad model for (STXS bin,decay): ({production},{decay})")
                     self.makeScalingFunction_expand(production, decay)
 
@@ -613,65 +613,65 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
         else:
             if self.linear_only:
                 name_lin_xs = "scaling_linear_XS_%s" % production
-                if self.modelBuilder.out.function(name_lin_xs) == None:
+                if self.modelBuilder.out.function(name_lin_xs) is None:
                     print(" --> [STXStoSMEFT] Making linear scaling function for STXS bin: %s" % production)
                     self.makeScalingFunction(production, mode="linear")
                 name_lin_br = "scaling_linear_BR_%s" % decay
-                if self.modelBuilder.out.function(name_lin_br) == None:
+                if self.modelBuilder.out.function(name_lin_br) is None:
                     print(" --> [STXStoSMEFT] Making linear scaling function for decay: %s" % decay)
                     self.makeScalingFunction(decay, is_decay=True, mode="linear")
                     self.makeBRScalingFunction(decay, mode="linear")
                 name = f"scaling_linear_XS_{production}_BR_{decay}"
-                if self.modelBuilder.out.function(name) == None:
+                if self.modelBuilder.out.function(name) is None:
                     self.modelBuilder.factory_("prod::{}({})".format(name, ",".join([name_lin_xs, name_lin_br])))
 
             elif self.linquad_only:
                 name_linquad_xs = "scaling_linquad_XS_%s" % production
-                if self.modelBuilder.out.function(name_linquad_xs) == None:
+                if self.modelBuilder.out.function(name_linquad_xs) is None:
                     print(" --> [STXStoSMEFT] Making linear+quad scaling function for STXS bin: %s" % production)
                     self.makeScalingFunction(production, mode="linquad")
                 name_linquad_br = "scaling_linquad_BR_%s" % decay
-                if self.modelBuilder.out.function(name_linquad_br) == None:
+                if self.modelBuilder.out.function(name_linquad_br) is None:
                     print(" --> [STXStoSMEFT] Making linear+quad scaling function for decay: %s" % decay)
                     self.makeScalingFunction(decay, is_decay=True, mode="linquad")
                     self.makeBRScalingFunction(decay, mode="linquad")
                 name = f"scaling_linquad_XS_{production}_BR_{decay}"
-                if self.modelBuilder.out.function(name) == None:
+                if self.modelBuilder.out.function(name) is None:
                     self.modelBuilder.factory_("prod::{}({})".format(name, ",".join([name_linquad_xs, name_linquad_br])))
 
             # Combine linear and linear+quadratic models into same scaling (use different POIs) as product
             else:
                 # Linear part
                 name_lin_xs = "scaling_linear_XS_%s" % production
-                if self.modelBuilder.out.function(name_lin_xs) == None:
+                if self.modelBuilder.out.function(name_lin_xs) is None:
                     print(" --> [STXStoSMEFT] Making linear scaling function for STXS bin: %s" % production)
                     self.makeScalingFunction(production, mode="linear")
                 name_lin_br = "scaling_linear_BR_%s" % decay
-                if self.modelBuilder.out.function(name_lin_br) == None:
+                if self.modelBuilder.out.function(name_lin_br) is None:
                     print(" --> [STXStoSMEFT] Making linear scaling function for decay: %s" % decay)
                     self.makeScalingFunction(decay, is_decay=True, mode="linear")
                     self.makeBRScalingFunction(decay, mode="linear")
                 name_lin = f"scaling_linear_XS_{production}_BR_{decay}"
-                if self.modelBuilder.out.function(name_lin) == None:
+                if self.modelBuilder.out.function(name_lin) is None:
                     self.modelBuilder.factory_("prod::{}({})".format(name_lin, ",".join([name_lin_xs, name_lin_br])))
 
                 # Linear+quadratic part
                 name_linquad_xs = "scaling_linquad_XS_%s" % production
-                if self.modelBuilder.out.function(name_linquad_xs) == None:
+                if self.modelBuilder.out.function(name_linquad_xs) is None:
                     print(" --> [STXStoSMEFT] Making linear+quad scaling function for STXS bin: %s" % production)
                     self.makeScalingFunction(production, mode="linquad")
                 name_linquad_br = "scaling_linquad_BR_%s" % decay
-                if self.modelBuilder.out.function(name_linquad_br) == None:
+                if self.modelBuilder.out.function(name_linquad_br) is None:
                     print(" --> [STXStoSMEFT] Making linear+quad scaling function for decay: %s" % decay)
                     self.makeScalingFunction(decay, is_decay=True, mode="linquad")
                     self.makeBRScalingFunction(decay, mode="linquad")
                 name_linquad = f"scaling_linquad_XS_{production}_BR_{decay}"
-                if self.modelBuilder.out.function(name_linquad) == None:
+                if self.modelBuilder.out.function(name_linquad) is None:
                     self.modelBuilder.factory_("prod::{}({})".format(name_linquad, ",".join([name_linquad_xs, name_linquad_br])))
 
                 # Combination
                 name = f"stxstosmeft_scaling_XS_{production}_BR_{decay}"
-                if self.modelBuilder.out.function(name) == None:
+                if self.modelBuilder.out.function(name) is None:
                     self.modelBuilder.factory_("prod::{}({})".format(name, ",".join([name_lin, name_linquad])))
 
         return name

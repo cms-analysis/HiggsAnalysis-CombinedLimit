@@ -76,7 +76,7 @@ default_parameter_vals = {}
 iter = params.createIterator()
 while 1:
     p = iter.Next()
-    if p == None:
+    if p is None:
         break
     name = p.GetName()
     # p.setVal(1)
@@ -98,7 +98,7 @@ def resetVals():
     it = params.createIterator()
     for j in range(nparams):
         p = it.Next()
-        if p == None:
+        if p is None:
             break
         work.var(p.GetName()).setVal(default_parameter_vals[p.GetName()])
 
@@ -119,7 +119,7 @@ def runScan(function, tfilename, param):
         iter = params.createIterator()
         while 1:
             p = iter.Next()
-            if p == None:
+            if p is None:
                 break
             name = p.GetName()
             p.setVal(getattr(tree, name))
@@ -137,7 +137,7 @@ allScalingFunctions = work.allFunctions().selectByName("*%s*" % (options.scaling
 iter = params.createIterator()
 while 1:
     p = iter.Next()
-    if p == None:
+    if p is None:
         break
     name = p.GetName()
     # now go through the scaling functions and plot on parameter

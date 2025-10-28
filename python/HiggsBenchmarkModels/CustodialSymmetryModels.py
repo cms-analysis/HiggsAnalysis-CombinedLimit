@@ -318,7 +318,7 @@ class CzwHiggs(SMLikeHiggsModel):
             return 0
 
         name = f"Czw_XSBRscal_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             if production in ["ggH", "ttH"]:
                 self.modelBuilder.factory_(f'expr::{name}("@0", Czw_BRscal_{decay})')
             else:
@@ -399,7 +399,7 @@ class CwzHiggs(SMLikeHiggsModel):
             return 0
 
         name = f"Cwz_XSBRscal_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             if production in ["ggH", "ttH"]:
                 self.modelBuilder.factory_(f'expr::{name}("@0", Cwz_BRscal_{decay})')
             else:

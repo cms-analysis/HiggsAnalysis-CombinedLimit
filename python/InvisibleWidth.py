@@ -87,7 +87,7 @@ class InvisibleWidth(SMLikeHiggsModel):
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"invisibleWidth_XSBRscal_{production}_{decay}"
         print(name, production, decay, energy)
-        if self.modelBuilder.out.function(name) == None:
+        if self.modelBuilder.out.function(name) is None:
             XSscal = "kgluon"
             if production in ["WH", "ZH", "VH", "qqH"]:
                 XSscal = "kV"
