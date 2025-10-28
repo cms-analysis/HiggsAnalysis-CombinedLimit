@@ -88,7 +88,6 @@ class CachingPdf : public CachingPdfBase {
         const RooAbsData *lastData_ = 0;
         ValuesCache cache_;
         std::vector<uint8_t> nonZeroW_;
-        unsigned int         nonZeroWEntries_;
         bool                 includeZeroWeights_ = false;
         virtual void newData_(const RooAbsData &data) ;
         virtual void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;

@@ -132,29 +132,21 @@ cacheutils::ArgSetChecker::ArgSetChecker(const RooAbsCollection &set)
     }
 }
 
-bool 
-cacheutils::ArgSetChecker::changed(bool updateIfChanged) 
-{
+bool cacheutils::ArgSetChecker::changed(bool updateIfChanged) {
     bool changed = false;
-    std::vector<RooRealVar *>::const_iterator it = vars_.begin(), ed = vars_.end();
-    std::vector<double>::iterator itv = vals_.begin();
-    for ( ; it != ed; ++it, ++itv) {
-        double val = (*it)->getVal();
-        if (val != *itv) { 
-            //std::cerr << "var::CachingPdf " << (*it)->GetName() << " changed: " << *itv << " -> " << val << std::endl;
-            changed = true; 
-            if (updateIfChanged) { *itv = val; }
+    for (std::size_t i = 0; i < vars_.size(); ++i) {
+        double val = vars_[i]->getVal();
+        if (val != vals_[i]) {
+            changed = true;
+            if (updateIfChanged) { vals_[i] = val; }
             else break;
         }
     }
-    std::vector<RooCategory *>::const_iterator itc = cats_.begin(), edc = cats_.end();
-    std::vector<int>::iterator itvc = states_.begin();
-    for ( ; itc != edc; ++itc, ++itvc) {
-        int val = (*itc)->getIndex();
-        if (val != *itvc) { 
-            //std::cerr << "cat::CachingPdf " << (*itc)->GetName() << " changed: " << *itvc << " -> " << val << std::endl;
-            changed = true; 
-            if (updateIfChanged) { *itvc = val; }
+    for (std::size_t i = 0; i < cats_.size(); ++i) {
+        int val = cats_[i]->getIndex();
+        if (val != states_[i]) {
+            changed = true;
+            if (updateIfChanged) { states_[i] = val; }
             else break;
         }
     }
@@ -309,11 +301,9 @@ cacheutils::CachingPdf::newData_(const RooAbsData &data)
     const_cast<RooAbsData*>(lastData_)->setDirtyProp(false);
     cache_.clear();
     nonZeroW_.resize(data.numEntries());
-    nonZeroWEntries_ = 0;
     for (unsigned int i = 0, n = nonZeroW_.size(); i < n; ++i) {
         data.get(i);
         if (data.weight() > 0 || includeZeroWeights_) {
-            nonZeroWEntries_++;
             nonZeroW_[i] = 1; 
         } else {
             nonZeroW_[i] = 0;
@@ -330,15 +320,12 @@ cacheutils::CachingPdf::realFill_(const RooAbsData &data, std::vector<Double_t> 
 #endif
     //std::cout << "CachingPdf::realFill_ called for " << pdf_->GetName() << " (" << pdf_->ClassName() << ")\n";
     //utils::printPdf((RooAbsPdf*)pdf_);
-    int n = data.numEntries();
-    vals.resize(nonZeroWEntries_); // should be a no-op if size is already >= n.
-    std::vector<Double_t>::iterator itv = vals.begin();
-    for (int i = 0; i < n; ++i) {
+    vals.resize(data.numEntries());
+    for (int i = 0; i < data.numEntries(); ++i) {
         if (!nonZeroW_[i]) continue;
         data.get(i);
-        *itv = pdf_->getVal(obs_); ++itv;
-        //std::cout << " at i = " << i << " pdf = " << *itv << std::endl;
-        TRACE_NLL("PDF value for " << pdf_->GetName() << " is " << *itv << " at this point.") 
+        vals[i] = pdf_->getVal(obs_);
+        TRACE_NLL("PDF value for " << pdf_->GetName() << " is " << vals[i] << " at this point.")
         TRACE_POINT2(*obs_,1)
     }
 }
@@ -608,33 +595,27 @@ cacheutils::CachingAddNLL::evaluate() const
 
     std::fill( partialSum_.begin(), partialSum_.end(), 0.0 );
 
-    std::vector<RooAbsReal*>::iterator  itc = coeffs_.begin(), edc = coeffs_.end();
-    auto   itp = pdfs_.begin();//,   edp = pdfs_.end();
-    std::vector<Double_t>::const_iterator itw; //bgw = weights_.begin();//,    edw = weights_.end();
-    std::vector<Double_t>::iterator       its, bgs = partialSum_.begin(), eds = partialSum_.end();
     double sumCoeff = 0;
     bool allBasicIntegralsOk = (basicIntegrals_ == 1);
-    //std::cout << "Performing evaluation of " << GetName() << std::endl;
-    for ( ; itc != edc; ++itp, ++itc ) {
+    for (std::size_t i = 0; i < coeffs_.size(); ++i) {
         // get coefficient
-        Double_t coeff = (*itc)->getVal();
+        Double_t coeff = coeffs_[i]->getVal();
         if (isRooRealSum_ && basicIntegrals_ < 2) {
-            sumCoeff += coeff * integrals_[itc - coeffs_.begin()]->getVal();
-            //std::cout << "  coefficient = " << coeff << ", integral = " << integrals_[itc - coeffs_.begin()]->getVal() << std::endl;
+            sumCoeff += coeff * integrals_[i]->getVal();
         } else {
             sumCoeff += coeff;
         }
         // get vals
-        const std::vector<Double_t> &pdfvals = (*itp)->eval(*data_);
+        const std::vector<Double_t> &pdfvals = pdfs_[i]->eval(*data_);
         if (basicIntegrals_) {
-            double integral = (binWidths_.size() > 1) ? 
+            double integral = binWidths_.size() > 1 ?
                                     vectorized::dot_product(pdfvals.size(), &pdfvals[0], &binWidths_[0]) :
                                     binWidths_.front() * sumDefault<double>(pdfvals);
             if (basicIntegrals_ == 1) {
-                double refintegral = integrals_[itc - coeffs_.begin()]->getVal();
+                double refintegral = integrals_[i]->getVal();
                 if (refintegral > 0) {
                     if (std::abs((integral - refintegral)/refintegral) > 1e-5) {
-                        CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("integrals don't match: %+10.6f  %+10.6f  %10.7f %s\n", refintegral, integral, refintegral ? std::abs((integral - refintegral)/refintegral) : 0,  (*itp)->pdf()->GetName()  )),__func__);
+                        CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("integrals don't match: %+10.6f  %+10.6f  %10.7f %s\n", refintegral, integral, refintegral ? std::abs((integral - refintegral)/refintegral) : 0,  pdfs_[i]->pdf()->GetName()  )),__func__);
                         allBasicIntegralsOk = false;
                         basicIntegrals_ = 0; // don't waste time on this anymore
                     }
@@ -644,15 +625,14 @@ cacheutils::CachingAddNLL::evaluate() const
             }
         }
 #ifdef LOG_ADDPDFS
-        CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("%s coefficient %s (%s) = %20.15f\n", (*itp)->pdf()->GetName(), (*itc)->GetName(), (*itc)->ClassName(), coeff)),__func__);
-        //(*itc)->Print("");
+        CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("%s coefficient %s (%s) = %20.15f\n", pdfs_[i]->pdf()->GetName(), coeffs[i]->GetName(), coeffs_[i]->ClassName(), coeff)),__func__);
         for (unsigned int i = 0, n = pdfvals.size(); i < n; ++i) {
-            if (i%84==0) CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("%-80s[%3d] = %20.15f\n", (*itp)->pdf()->GetName(), i, pdfvals[i])),__func__);
+            if (i%84==0) CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("%-80s[%3d] = %20.15f\n", pdfs_[i]->pdf()->GetName(), i, pdfvals[i])),__func__);
         }
 #endif
         // update running sum
         //    std::vector<Double_t>::const_iterator itv = pdfvals.begin();
-        //    for (its = bgs; its != eds; ++its, ++itv) {
+        //    for (auto its = bgs; its != eds; ++its, ++itv) {
         //         *its += coeff * (*itv); // sum (n_i * pdf_i)
         //    }
         // vectorize to make it faster
@@ -664,35 +644,37 @@ cacheutils::CachingAddNLL::evaluate() const
     static bool gentleNegativePenalty_ = runtimedef::get("GENTLE_LEE");
     double ret = constantZeroPoint_;
     if (runtimedef::get("REMOVE_CONSTANT_ZERO_POINT") ) ret = 0; 
-    for (its = bgs; its != eds ; ++its) {
-        if (!std::isnormal(*its) || *its <= 0) {
-            if ((weights_[its-bgs] == 0) && (*its == 0)) {
+    for (std::size_t i = 0; i < partialSum_.size(); ++i) {
+        if (!std::isnormal(partialSum_[i]) || partialSum_[i] <= 0) {
+            if ((weights_[i] == 0) && (partialSum_[i] == 0)) {
                 // this special case we don't care, as zero is fine and it will be multiplied by zero afterwards,
                 // we just need to protect it for the logarithm
-                *its = 1.0; // arbitrary number, to avoid log(0)
+                partialSum_[i] = 1.0; // arbitrary number, to avoid log(0)
                 continue;
-            } else if (weights_[its-bgs] == 0) {
+            } else if (weights_[i] == 0) {
                 // this is a special case we should in principle care, even if it does not alter the likelihood
                 // since it's multiplied by zero. However, normally RooFit ignores errors in zero-weight bins,
                 // so we comply to his policy (but we issue a warning, and we protect the logarithm)
                 static int nwarn = 0;
                 if (++nwarn < 100) {
-                    std::cout << "WARNING: underflow to " << *its << " in " << pdf_->GetName() << " for zero-entry bin " << its-bgs << std::endl;
+                    std::cout << "WARNING: underflow to " << partialSum_[i] << " in " << pdf_->GetName() << " for zero-entry bin " << i << std::endl;
                 }
-                *its = 1.0; // arbitrary number, to avoid bad logs
+                partialSum_[i] = 1.0; // arbitrary number, to avoid bad logs
                 continue;
             }
-            if (gentleNegativePenalty_ && std::abs(weights_[its - bgs]) < 1e-2) {
-              std::cout << "WARNING: gentle underflow to " << *its << " in " << pdf_->GetName() << " for bin "
-                        << its - bgs << ", weight " << weights_[its - bgs] << '\n';
-              *its = 1.0;  // skip the log
+            if (gentleNegativePenalty_ && std::abs(weights_[i]) < 1e-2) {
+              std::cout << "WARNING: gentle underflow to " << partialSum_[i] << " in " << pdf_->GetName() << " for bin "
+                        << i << ", weight " << weights_[i] << '\n';
+              partialSum_[i] = 1.0;  // skip the log
               ret -= 25;   // add a penalty (negative since we flip 'ret' afterwards)
               continue;
             }
-            std::cout << "WARNING: underflow to " << *its << " in " << pdf_->GetName() << " for bin " << its-bgs << ", weight " << weights_[its-bgs] << std::endl; 
+            std::cout << "WARNING: underflow to " << partialSum_[i] << " in " << pdf_->GetName() << " for bin " << i << ", weight " << weights_[i] << std::endl; 
             if (!CachingSimNLL::noDeepLEE_) logEvalError("Number of events is negative or error"); else CachingSimNLL::hasError_ = true;
             if (fastExit_) { std::cout << "FASTEXIT from " << pdf_->GetName() << std::endl; return 9e9; }
-            else *its = 1;
+            else {
+              partialSum_[i] = 1;
+            }
         }
     }
     // Do the reduction 
@@ -718,8 +700,8 @@ cacheutils::CachingAddNLL::evaluate() const
     // multipdfs want to add a correction factor to the NLL
     if (!multiPdfs_.empty()) {
         double correctionFactor = 0;
-        for (std::vector<std::pair<const RooMultiPdf*,CachingPdfBase*> >::iterator itp = multiPdfs_.begin(), edp = multiPdfs_.end(); itp != edp; ++itp) {
-            correctionFactor += itp->first->getCorrection();
+        for (auto const& item : multiPdfs_) {
+            correctionFactor += item.first->getCorrection();
         }
         // Add correction 
         ret += correctionFactor;
@@ -866,16 +848,14 @@ cacheutils::CachingSimNLL::clone(const char *name) const
 cacheutils::CachingSimNLL::~CachingSimNLL()
 {
     constrainPdfGroups_.clear();
-    std::vector<bool>::const_iterator ito = constrainPdfsFastOwned_.begin();
-    for (std::vector<SimpleGaussianConstraint*>::iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++ito) {
-        if (*ito) { delete *it; }
+    for (std::size_t i = 0; i < constrainPdfsFast_.size(); ++i) {
+        if (constrainPdfsFastOwned_[i]) { delete constrainPdfsFast_[i]; }
     }
-    ito = constrainPdfsFastPoissonOwned_.begin();
-    for (std::vector<SimplePoissonConstraint*>::iterator it = constrainPdfsFastPoisson_.begin(), ed = constrainPdfsFastPoisson_.end(); it != ed; ++it, ++ito) {
-        if (*ito) { delete *it; }
+    for (std::size_t i = 0; i < constrainPdfsFastPoisson_.size(); ++i) {
+        if (constrainPdfsFastPoissonOwned_[i]) { delete constrainPdfsFastPoisson_[i]; }
     }
-    for (std::vector<CachingAddNLL*>::iterator it = pdfs_.begin(); it != pdfs_.end(); ++it){
-        if (*it) { delete *it; }
+    for (auto const& it : pdfs_) {
+        if (it) { delete it; }
     }
     #ifdef TRACE_NLL_EVAL_COUNT
         std::cout << "CachingSimNLLEvalCount: " << ::CachingSimNLLEvalCount << std::endl;
@@ -1032,11 +1012,10 @@ cacheutils::CachingSimNLL::evaluate() const
 #endif
     static bool gentleNegativePenalty_ = runtimedef::get("GENTLE_LEE");
     DefaultAccumulator<double> ret = 0;
-    unsigned idx = 0;
-    for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it, ++idx) {
-        if (*it != 0) {
+    for (std::size_t idx = 0; idx < pdfs_.size(); ++idx) {
+        if (pdfs_[idx]) {
             if (!channelMasks_.empty() && channelMasks_[idx]->getVal() != 0.) {
-                // std::cout << "Channel " << (*it)->GetName() << " will be masked as " 
+                // std::cout << "Channel " << pdfs_[idx]->GetName() << " will be masked as " 
                 //     << channelMasks_[idx]->GetName() << " evalutes to " 
                 //     << channelMasks_[idx]->getVal() << "\n";
                 continue;
@@ -1044,7 +1023,7 @@ cacheutils::CachingSimNLL::evaluate() const
             if (!internalMasks_.empty() && !internalMasks_[idx]) {
                 continue;
             }
-            double nllval = (*it)->getVal();
+            double nllval = pdfs_[idx]->getVal();
             // what sanity check could I put here?
             ret += nllval;
         }
@@ -1052,17 +1031,16 @@ cacheutils::CachingSimNLL::evaluate() const
     if (!maskConstraints_ && (!constrainPdfs_.empty() || !constrainPdfsFast_.empty() || !constrainPdfsFastPoisson_.empty() || !constrainPdfGroups_.empty())) {
         DefaultAccumulator<double> ret2 = 0;
         /// ============= GENERIC CONSTRAINTS  =========
-        std::vector<double>::const_iterator itz = constrainZeroPoints_.begin();
-        for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it, ++itz) { 
-            double pdfval = (*it)->getVal(nuis_);
+        for (std::size_t i = 0; i < constrainPdfs_.size(); ++i) {
+            double pdfval = constrainPdfs_[i]->getVal(nuis_);
             if (!std::isnormal(pdfval) || pdfval <= 0) {
-                //std::cout << "WARNING: underflow constraint pdf " << (*it)->GetName() << ", value = " << pdfval << std::endl;
-    		    CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("underflow (pdf evaluates to <=0) of constraint pdf %s, value = %g ",(*it)->GetName(), pdfval)),__func__);
+                //std::cout << "WARNING: underflow constraint pdf " << constrainPdfs_[i]->GetName() << ", value = " << pdfval << std::endl;
+    		    CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("underflow (pdf evaluates to <=0) of constraint pdf %s, value = %g ",constrainPdfs_[i]->GetName(), pdfval)),__func__);
                 if (gentleNegativePenalty_) { ret += 25; continue; }
-                if (!noDeepLEE_) logEvalError((std::string("Constraint pdf ")+(*it)->GetName()+" evaluated to zero, negative or error").c_str());
+                if (!noDeepLEE_) logEvalError((std::string("Constraint pdf ")+constrainPdfs_[i]->GetName()+" evaluated to zero, negative or error").c_str());
                 pdfval = 1e-9;
             }
-            ret2 += (log(pdfval) + *itz);
+            ret2 += std::log(pdfval) + constrainZeroPoints_[i];
         }
         if (!constrainPdfGroups_.empty()) {
             for (const SimpleConstraintGroup & g : constrainPdfGroups_) {
@@ -1070,18 +1048,12 @@ cacheutils::CachingSimNLL::evaluate() const
             }
         } else {
             /// ============= FAST GAUSSIAN CONSTRAINTS  =========
-            itz = constrainZeroPointsFast_.begin();
-            for (std::vector<SimpleGaussianConstraint*>::const_iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++itz) { 
-                double logpdfval = (*it)->getLogValFast();
-                //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
-                ret2 += (logpdfval + *itz);
+            for (std::size_t i = 0; i < constrainPdfsFast_.size(); ++i) {
+                ret2 += constrainPdfsFast_[i]->getLogValFast() + constrainZeroPointsFast_[i];
             }
             /// ============= FAST POISSON CONSTRAINTS  =========
-            itz = constrainZeroPointsFastPoisson_.begin();
-            for (std::vector<SimplePoissonConstraint*>::const_iterator it = constrainPdfsFastPoisson_.begin(), ed = constrainPdfsFastPoisson_.end(); it != ed; ++it, ++itz) { 
-                double logpdfval = (*it)->getLogValFast();
-                //std::cout << "pdf " << (*it)->GetName() << " = " << logpdfval << std::endl;
-                ret2 += (logpdfval + *itz);
+            for (std::size_t i = 0; i < constrainPdfsFastPoisson_.size(); ++i) {
+                ret2 += constrainPdfsFastPoisson_[i]->getLogValFast() + constrainZeroPointsFastPoisson_[i];
             }
         }
         ret -= ret2.sum();
@@ -1166,23 +1138,18 @@ void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const R
 }
 
 void cacheutils::CachingSimNLL::setZeroPoint() {
-    for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
-        if (*it != 0) (*it)->setZeroPoint();
+    for (auto& pdf : pdfs_) {
+        if (pdf) pdf->setZeroPoint();
     }
-    std::vector<double>::iterator itz = constrainZeroPoints_.begin();
-    for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it, ++itz) {
-        double pdfval = (*it)->getVal(nuis_);
-        if (std::isnormal(pdfval) || pdfval > 0) *itz = -log(pdfval);
+    for (std::size_t i = 0; i < constrainPdfs_.size(); ++i) {
+        double pdfval = constrainPdfs_[i]->getVal(nuis_);
+        if (std::isnormal(pdfval) || pdfval > 0) constrainZeroPoints_[i] = -std::log(pdfval);
     }
-    itz = constrainZeroPointsFast_.begin();
-    for (std::vector<SimpleGaussianConstraint*>::const_iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++itz) {
-        double logpdfval = (*it)->getLogValFast();
-        *itz = -logpdfval;
+    for (std::size_t i = 0; i < constrainPdfsFast_.size(); ++i) {
+        constrainZeroPointsFast_[i] = -constrainPdfsFast_[i]->getLogValFast();
     }
-    itz = constrainZeroPointsFastPoisson_.begin();
-    for (std::vector<SimplePoissonConstraint*>::const_iterator it = constrainPdfsFastPoisson_.begin(), ed = constrainPdfsFastPoisson_.end(); it != ed; ++it, ++itz) {
-        double logpdfval = (*it)->getLogValFast();
-        *itz = -logpdfval;
+    for (std::size_t i = 0; i < constrainPdfsFastPoisson_.size(); ++i) {
+        constrainZeroPointsFastPoisson_[i] = -constrainPdfsFastPoisson_[i]->getLogValFast();
     }
     for (SimpleConstraintGroup & g : constrainPdfGroups_) {
         g.setZeroPoint();
@@ -1192,8 +1159,8 @@ void cacheutils::CachingSimNLL::setZeroPoint() {
 }
 
 void cacheutils::CachingSimNLL::clearZeroPoint() {
-    for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
-        if (*it != 0) (*it)->clearZeroPoint();
+    for (auto& pdf : pdfs_) {
+        if (pdf) pdf->clearZeroPoint();
     }
     std::fill(constrainZeroPoints_.begin(), constrainZeroPoints_.end(), 0.0);
     std::fill(constrainZeroPointsFast_.begin(), constrainZeroPointsFast_.end(), 0.0);
@@ -1204,8 +1171,8 @@ void cacheutils::CachingSimNLL::clearZeroPoint() {
 }
 
 void cacheutils::CachingSimNLL::clearConstantZeroPoint() {
-    for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
-        if (*it != 0) (*it)->clearConstantZeroPoint();
+    for (auto const& it : pdfs_) {
+        if (it) it->clearConstantZeroPoint();
     }
     setValueDirty();
 }
@@ -1294,17 +1261,16 @@ void cacheutils::CachingSimNLL::setMaskNonDiscreteChannels(bool mask) {
     activeCatParameters_.removeAll();
     if (mask) {
         internalMasks_.resize(pdfs_.size(), false);
-        unsigned int idx = 0;
-        for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it, ++idx) {
-            if ((*it) == 0) continue;
-            for (RooAbsArg *P : (*it)->catParams()) {
+        for (std::size_t idx = 0; idx < pdfs_.size(); ++idx) {
+            if (!pdfs_[idx]) continue;
+            for (RooAbsArg *P : pdfs_[idx]->catParams()) {
                 RooCategory *cat = dynamic_cast<RooCategory *>(P);
                 if (!cat) continue;
                 if (cat && !cat->isConstant()) {
                     internalMasks_[idx] = true; 
-                    activeParameters_.add((*it)->params(), /*silent=*/true); 
-                    activeCatParameters_.add((*it)->catParams(), /*silent=*/true); 
-                    CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("Enabling channel %s that depends on non-constant category %s",(*it)->GetName(), cat->GetName())),__func__);
+                    activeParameters_.add(pdfs_[idx]->params(), /*silent=*/true); 
+                    activeCatParameters_.add(pdfs_[idx]->catParams(), /*silent=*/true); 
+                    CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("Enabling channel %s that depends on non-constant category %s",pdfs_[idx]->GetName(), cat->GetName())),__func__);
                     break;
                 }
             }
@@ -1314,6 +1280,4 @@ void cacheutils::CachingSimNLL::setMaskNonDiscreteChannels(bool mask) {
     maskingOffset_ += (nllBefore - nllAfter);
     //printf("CachingSimNLL: setMaskNonDiscreteChannels(%d): nll before %.12g, nll after %.12g (diff %.12g), new maskingOffset %.12g, check = %.12g\n",
     //            int(mask), nllBefore, nllAfter, (nllBefore-nllAfter), maskingOffset_, evaluate() - nllBefore);
-    
 }
-
