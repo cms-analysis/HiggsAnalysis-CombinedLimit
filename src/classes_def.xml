@@ -202,7 +202,6 @@
 	<class name="RooDoubleCBFast" />
 	<class name="CombDataSetFactory"  transient="true" />
 	<class name="DebugProposal"  transient="true" />
-	<class name="cmsmath::SequentialMinimizer"  transient="true" />
         <class name="TestProposal"  transient="true" />
   <class name="RooCheapProduct" />
   <class name="CMSHggFormulaA1" />
