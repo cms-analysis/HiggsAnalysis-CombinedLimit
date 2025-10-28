@@ -14,7 +14,7 @@ on:
       - main
 jobs:
   test_workflow:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -31,15 +31,14 @@ jobs:
             CMSSW_VERSION: "CMSSW_14_0_0_pre1"
             SCRAM_ARCH: "el9_amd64_gcc12"
             ROOT: "6.26.11"
-          - IMAGE: "cmscloud/al8-cms"
-            CMSSW_VERSION: "CMSSW_14_2_0_pre2_ROOT632"
-            SCRAM_ARCH: "el8_amd64_gcc12"
-            ROOT: "6.32.06"
+          - LCG_RELEASE: "LCG_106"
+            LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
+            ROOT: "6.32.02"
           - LCG_RELEASE: "LCG_108"
-            LCG_ARCH: "x86_64-ubuntu2404-gcc13-opt"
+            LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
             ROOT: "6.36.02"
           - LCG_RELEASE: "dev3/latest"
-            LCG_ARCH: "x86_64-ubuntu2404-gcc13-opt"
+            LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
             ROOT: "LCG master"
     name: ${{ matrix.CMSSW_VERSION }}${{ matrix.LCG_RELEASE }} - ROOT ${{ matrix.ROOT }}
     env:
