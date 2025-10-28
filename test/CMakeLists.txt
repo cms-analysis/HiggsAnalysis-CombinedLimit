@@ -26,3 +26,28 @@ ROOT_ADD_TEST(counting_datacard
     # ERROR counting_datacard.err
     # ERRREF ${CMAKE_CURRENT_SOURCE_DIR}/references/counting_datacard.err
 )
+
+# Template-analysis datacard -> text2workspace
+ROOT_ADD_TEST(template_analysis-t2w
+    COMMAND ${t2w} template-analysis_shape_autoMCStats.txt -o template-analysis_shape_autoMCStats.root
+    COPY_TO_BUILDDIR
+        ${CMAKE_SOURCE_DIR}/data/ci/template-analysis_shape_autoMCStats.txt
+        ${CMAKE_SOURCE_DIR}/data/ci/htt_input.root
+    WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
+    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}
+    FIXTURES_SETUP template_analysis_workspace
+)
+
+# Build and run the exampleCreateNLL helper on the generated workspace
+ROOT_ADD_TEST(template_analysis-exampleCreateNLL
+    COMMAND ${CMAKE_COMMAND} -E env
+            LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}
+            COMBINE_SRCDIR=${CMAKE_SOURCE_DIR}
+            COMBINE_LIBDIR=${CMAKE_BINARY_DIR}
+            /bin/sh -c "make && ./exampleCreateNLL template-analysis_shape_autoMCStats.root"
+    COPY_TO_BUILDDIR
+        ${CMAKE_SOURCE_DIR}/data/ci/exampleCreateNLL.cxx
+        ${CMAKE_SOURCE_DIR}/data/ci/Makefile
+    WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
+    FIXTURES_REQUIRED template_analysis_workspace
+)
