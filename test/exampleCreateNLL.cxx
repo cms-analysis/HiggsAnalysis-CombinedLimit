@@ -24,11 +24,9 @@
 #include "../../interface/utils.h"
 #include "../../interface/ProfilingTools.h"
 
+#include <gtest/gtest.h>
+
 namespace {
-void printUsage(const char *argv0) {
-  std::cerr << "Usage: " << argv0
-            << " <workspace.root> [workspaceName=w] [modelConfig=ModelConfig] [dataName=data_obs]\n";
-}
 
 bool loadSnapshotIfExists(RooWorkspace &ws, const char *name) {
   if (!name)
@@ -125,7 +123,8 @@ void configureCascadeMinimizerState(RooWorkspace &ws, RooStats::ModelConfig &mc)
 }
 }  // namespace
 
-int main(int argc, char **argv) {
+TEST(Combine, CreateNLL)
+{
   CascadeMinimizer::initOptions();
   // Matches https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/master/bin/combine.cpp#L300-L317
   runtimedef::set("OPTIMIZE_BOUNDS", 1);
@@ -145,27 +144,19 @@ int main(int argc, char **argv) {
   runtimedef::set("ADDNLL_HISTFUNCNLL", 1);
   runtimedef::set("ADDNLL_ROOREALSUM_CHEAPPROD", 1);
 
-  if (argc < 2) {
-    printUsage(argv[0]);
-    return 1;
-  }
-
-  const std::string fileName = argv[1];
-  const std::string workspaceName = argc > 2 ? argv[2] : "w";
-  const std::string modelConfigName = argc > 3 ? argv[3] : "ModelConfig";
-  const std::string dataName = argc > 4 ? argv[4] : "data_obs";
+  const std::string fileName = "template-analysis_shape_autoMCStats.root";
+  const std::string workspaceName = "w";
+  const std::string modelConfigName = "ModelConfig";
+  const std::string dataName = "data_obs";
 
   std::unique_ptr<TFile> file(TFile::Open(fileName.c_str(), "READ"));
-  if (!file || file->IsZombie()) {
-    std::cerr << "ERROR: failed to open input file '" << fileName << "'.\n";
-    return 2;
-  }
+  EXPECT_FALSE(!file || file->IsZombie()) << "ERROR: failed to open input file '" << fileName << "'.\n";
 
   auto *workspace = dynamic_cast<RooWorkspace *>(file->Get(workspaceName.c_str()));
   if (!workspace) {
     std::cerr << "ERROR: workspace '" << workspaceName << "' not found in '" << fileName << "'.\n";
     file->ls();
-    return 2;
+    //return 2;
   }
 
   // Matches https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/master/src/Combine.cc#L505-L603
@@ -177,20 +168,20 @@ int main(int argc, char **argv) {
   if (!modelConfig) {
     std::cerr << "ERROR: ModelConfig '" << modelConfigName << "' not found in workspace '"
               << workspaceName << "'.\n";
-    return 2;
+    //return 2;
   }
 
   RooAbsPdf *pdf = modelConfig->GetPdf();
   if (!pdf) {
     std::cerr << "ERROR: ModelConfig '" << modelConfigName << "' does not define a pdf.\n";
-    return 2;
+    //return 2;
   }
 
   RooAbsData *data = workspace->data(dataName.c_str());
   if (!data) {
     std::cerr << "ERROR: dataset '" << dataName << "' not found in workspace '" << workspaceName
               << "'.\n";
-    return 2;
+    //return 2;
   }
 
   RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
@@ -199,7 +190,7 @@ int main(int argc, char **argv) {
   const RooArgSet *poi = modelConfig->GetParametersOfInterest();
   if (!poi || poi->getSize() == 0) {
     std::cerr << "ERROR: ModelConfig '" << modelConfigName << "' has no parameters of interest.\n";
-    return 2;
+    //return 2;
   }
   for (RooAbsArg *arg : *poi) {
     auto *var = dynamic_cast<RooRealVar *>(arg);
@@ -220,10 +211,9 @@ int main(int argc, char **argv) {
 
   // Matches https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/master/src/MultiDimFit.cc#L220
   auto nll = combineCreateNLL(*pdf, *data, constraintPtr, /*offset=*/true);
-  if (!nll) {
-    std::cerr << "ERROR: combineCreateNLL returned a null pointer.\n";
-    return 3;
-  }
+  //Combine::setNllBackend("codegen");
+  //auto nll2 = combineCreateNLL(*pdf, *data, constraintPtr, [>offset=<]true);
+  EXPECT_TRUE(nll) << "ERROR: combineCreateNLL returned a null pointer.";
 
   RooRealVar *primaryPoi = dynamic_cast<RooRealVar *>(poi->first());
 
@@ -231,14 +221,16 @@ int main(int argc, char **argv) {
 
   CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained, primaryPoi);
   bool minimOk = minim.minimize(/*verbose=*/0);
-  if (!minimOk) {
-    std::cerr << "ERROR: minimization failed.\n";
-    return 4;
-  }
+  EXPECT_TRUE(minimOk) << "ERROR: minimization failed.\n";
 
   minim.hesse(/*verbose=*/0);
   auto fitResult = std::unique_ptr<RooFitResult>(minim.save());
+  //auto fitResult = std::unique_ptr<RooFitResult>(minim.save());
+  //EXPECT_TRUE(fitResult1->isIdentical(*fitResult2));
+
   std::cout << "Global minimum NLL: " << nll->getVal() << '\n';
+
+  //EXPECT_EQUAL(nll1->getVal(), nll2->getVal());
 
   if (fitResult) {
     std::cout << "Minimizer status: " << fitResult->status()
@@ -274,5 +266,4 @@ int main(int argc, char **argv) {
 
   std::cout << "Finished building and minimising the NLL from workspace '" << workspaceName
             << "'.\n";
-  return 0;
 }
