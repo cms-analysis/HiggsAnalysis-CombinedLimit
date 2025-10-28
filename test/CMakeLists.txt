@@ -39,15 +39,10 @@ ROOT_ADD_TEST(template_analysis-t2w
 )
 
 # Build and run the exampleCreateNLL helper on the generated workspace
-ROOT_ADD_TEST(template_analysis-exampleCreateNLL
-    COMMAND ${CMAKE_COMMAND} -E env
-            LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}
-            COMBINE_SRCDIR=${CMAKE_SOURCE_DIR}
-            COMBINE_LIBDIR=${CMAKE_BINARY_DIR}
-            /bin/sh -c "make && ./exampleCreateNLL template-analysis_shape_autoMCStats.root"
-    COPY_TO_BUILDDIR
-        ${CMAKE_SOURCE_DIR}/data/ci/exampleCreateNLL.cxx
-        ${CMAKE_SOURCE_DIR}/data/ci/Makefile
-    WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
-    FIXTURES_REQUIRED template_analysis_workspace
+ROOT_ADD_GTEST(template_analysis-exampleCreateNLL
+    exampleCreateNLL.cxx
+    LIBRARIES HiggsAnalysisCombinedLimit
+)
+set_property(TEST gtest-template-analysis-exampleCreateNLL
+    PROPERTY FIXTURES_REQUIRED template_analysis_workspace
 )
