@@ -8,7 +8,7 @@ After setting up <span style="font-variant:small-caps;">Combine</span>, you can 
 ```shell
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/
 git checkout main 
-scram b -j 8
+scram b -j$(nproc --ignore=2)
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/
 ```
 
