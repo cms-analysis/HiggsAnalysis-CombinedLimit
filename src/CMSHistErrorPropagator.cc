@@ -17,8 +17,6 @@
 
 #define HFVERBOSE 0
 
-CMSHistErrorPropagator::CMSHistErrorPropagator() : initialized_(false) {}
-
 CMSHistErrorPropagator::CMSHistErrorPropagator(const char* name,
                                                const char* title,
                                                RooRealVar& x,
@@ -31,7 +29,6 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(const char* name,
       binpars_("binpars", "", this),
       sentry_(TString(name) + "_sentry", ""),
       binsentry_(TString(name) + "_binsentry", ""),
-      initialized_(false),
       last_eval_(-1) {
   funcs_.add(funcs);
   coeffs_.add(coeffs);
@@ -47,7 +44,6 @@ CMSHistErrorPropagator::CMSHistErrorPropagator(
       bintypes_(other.bintypes_),
       sentry_(name ? TString(name) + "_sentry" : TString(other.GetName())+"_sentry", ""),
       binsentry_(name ? TString(name) + "_binsentry" : TString(other.GetName())+"_binsentry", ""),
-      initialized_(false),
       last_eval_(-1) {
 }
 
