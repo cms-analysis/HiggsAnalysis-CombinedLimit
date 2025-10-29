@@ -5,8 +5,6 @@ import sys
 from math import *
 from optparse import OptionParser
 
-from six.moves import range
-
 import ROOT
 
 parser = OptionParser(usage="usage: %prog [options] workspace min max \nrun with --help to get list of options")

@@ -7,8 +7,6 @@ import time
 from optparse import OptionParser
 from subprocess import call
 
-from six.moves import range
-
 import ROOT
 
 ### Original Author: Andrea Carlo Marini

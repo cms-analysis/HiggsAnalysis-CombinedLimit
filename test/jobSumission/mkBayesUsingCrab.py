@@ -4,8 +4,6 @@ import os
 from math import *
 from optparse import OptionParser
 
-from six.moves import zip
-
 import ROOT
 
 parser = OptionParser(usage="usage: %prog [options] workspace(s) \nrun with --help to get list of options")

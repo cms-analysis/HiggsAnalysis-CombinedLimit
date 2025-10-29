@@ -4,8 +4,6 @@ import math
 from optparse import OptionParser
 from sys import argv
 
-from six.moves import zip
-
 import ROOT
 from HiggsAnalysis.CombinedLimit.DatacardParser import Datacard
 from HiggsAnalysis.CombinedLimit.ModelTools import ModelBuilder

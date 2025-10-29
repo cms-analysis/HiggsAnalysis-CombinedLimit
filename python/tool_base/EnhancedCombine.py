@@ -5,7 +5,6 @@ import os
 import bisect
 from HiggsAnalysis.CombinedLimit.tool_base.opts import OPTS
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
-import six
 import pandas as pd
 
 

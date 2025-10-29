@@ -7,7 +7,6 @@ import sys
 from optparse import OptionParser
 
 import numpy
-from six.moves import range
 
 import ROOT
 

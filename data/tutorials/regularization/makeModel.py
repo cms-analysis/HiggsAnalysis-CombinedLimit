@@ -4,8 +4,6 @@
 import re
 from array import array
 
-from six.moves import range
-
 import ROOT
 
 # construct model and datacard

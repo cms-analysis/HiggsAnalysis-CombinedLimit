@@ -3,8 +3,6 @@
 from optparse import OptionParser
 from sys import argv
 
-from six.moves import range
-
 import ROOT
 
 argv.append("-b-")

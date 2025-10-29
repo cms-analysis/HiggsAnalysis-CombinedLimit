@@ -1,9 +1,6 @@
 import logging
 import sys
 
-import six
-from six.moves import map, range, zip
-
 import xlrd
 
 stdHeading = ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_alpha_s", "Pdf", "alpha_s")
@@ -228,7 +225,7 @@ def main(o):
             logging.info("Skipping sheet [%s]: I do not have parsing rules for it.", s.name)
             continue
         logging.info("Processing sheet [" + s.name + "]")
-        for group, props in six.iteritems(spec["groups"]):
+        for group, props in spec["groups"].items():
             table = []
             logging.info("Processing [" + group + "] in [" + s.name + "]")
             # open output

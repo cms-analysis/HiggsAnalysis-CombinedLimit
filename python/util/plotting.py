@@ -4,7 +4,6 @@ from array import array
 import re
 import json
 import types
-import six
 import ctypes
 
 COL_STORE = []

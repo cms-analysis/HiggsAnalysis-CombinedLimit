@@ -5,8 +5,6 @@ import re
 import stat
 from math import *
 
-from six.moves import range
-
 import ROOT
 
 

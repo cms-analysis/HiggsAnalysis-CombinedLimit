@@ -2,8 +2,6 @@ import os
 from array import array
 from math import *
 
-import six
-
 import ROOT
 from HiggsAnalysis.CombinedLimit.PhysicsModel import ALL_HIGGS_DECAYS
 

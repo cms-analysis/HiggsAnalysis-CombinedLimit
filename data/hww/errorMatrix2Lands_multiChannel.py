@@ -3,8 +3,6 @@ from math import *
 from optparse import OptionParser
 from sys import argv
 
-from six.moves import range
-
 parser = OptionParser()
 parser.add_option("-s", "--stat", dest="stat", default=False, action="store_true")
 parser.add_option("-S", "--signal", dest="signal", default=False, action="store_true")

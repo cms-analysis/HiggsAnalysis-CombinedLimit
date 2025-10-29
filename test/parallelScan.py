@@ -11,8 +11,6 @@ import sys
 from math import ceil
 from re import match
 
-from six.moves import range
-
 if len(sys.argv) < 3:
     print("usage: parallelScan.py <arguments to combine>  [ -j processes ]")
     exit()

@@ -1,7 +1,5 @@
 import re
 
-from six.moves import map, zip
-
 validNuisancePatterns = [
     {"prefix": "lumi", "remainder": ""},
     {"prefix": "pdf", "remainder": "_(qqbar|gg|qg)"},

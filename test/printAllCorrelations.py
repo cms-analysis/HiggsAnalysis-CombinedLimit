@@ -2,8 +2,6 @@
 
 import argparse
 
-from six.moves import range
-
 import ROOT
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True

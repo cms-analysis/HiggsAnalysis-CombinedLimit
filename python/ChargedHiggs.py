@@ -1,5 +1,3 @@
-import six
-
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 

@@ -3,8 +3,6 @@ from collections import defaultdict
 from math import *
 from sys import exit, stderr, stdout
 
-import six
-
 import ROOT
 from HiggsAnalysis.CombinedLimit.ModelTools import ModelBuilder
 
