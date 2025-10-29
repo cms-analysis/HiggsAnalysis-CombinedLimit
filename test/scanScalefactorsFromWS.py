@@ -1,5 +1,4 @@
 # Massive simplification of the scaling function plotter which is more generic/much better
-from __future__ import absolute_import, print_function
 
 import array
 import itertools

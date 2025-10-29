@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # Script for batch sumbission of Asymptotic Limit Calculator
-from __future__ import absolute_import, print_function
 
 import commands
 import glob
