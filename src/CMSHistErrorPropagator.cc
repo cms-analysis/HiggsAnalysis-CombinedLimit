@@ -440,15 +440,6 @@ RooArgList * CMSHistErrorPropagator::setupBinPars(double poissonThreshold) {
   binsentry_.addVars(binpars_);
   binsentry_.setValueDirty();
 
-  for (unsigned j = 0, r = 0; j < valsum_.size(); ++j) {
-    vbinpars_[j].resize(bintypes_[j].size());
-    for (unsigned i = 0; i < bintypes_[j].size(); ++i) {
-      if (bintypes_[j][i] >= 1 && bintypes_[j][i] < 4) {
-        vbinpars_[j][i] = dynamic_cast<RooAbsReal *>(binpars_.at(r));
-        ++r;
-      }
-    }
-  }
   return res;
 }
 
