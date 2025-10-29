@@ -1830,7 +1830,7 @@
 <p>After setting up <span style="font-variant:small-caps;">Combine</span>, you can access the working directory for this tutorial which contains all of the inputs and scripts needed in this excercise exercise:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit/
 git<span class="w"> </span>checkout<span class="w"> </span>main<span class="w"> </span>
-scram<span class="w"> </span>b<span class="w"> </span>-j<span class="w"> </span><span class="m">8</span>
+scram<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span>
 <span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit/data/tutorials/model_building_2024/
 </code></pre></div>
 <h2 id="exercise-outline">Exercise outline</h2>

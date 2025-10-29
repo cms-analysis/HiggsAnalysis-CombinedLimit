@@ -1963,7 +1963,7 @@ The <code>git clone</code> command below contains this tag and is optimised to r
 cmsenv
 git<span class="w"> </span>-c<span class="w"> </span>advice.detachedHead<span class="o">=</span><span class="nb">false</span><span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v10.2.1<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
 <span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
-scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span><span class="c1"># always make a clean build</span>
+scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span><span class="w"> </span><span class="c1"># always make a clean build, with n - 2 cores on the system</span>
 </code></pre></div>
 <h3 id="combine-v9">Combine v9</h3>
 <p>The nominal installation method is inside CMSSW. The current release targets
@@ -1979,7 +1979,7 @@ cmsrel<span class="w"> </span>CMSSW_11_3_4
 cmsenv
 git<span class="w"> </span>-c<span class="w"> </span>advice.detachedHead<span class="o">=</span><span class="nb">false</span><span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v9.2.1<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
 <span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
-scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span><span class="c1"># always make a clean build</span>
+scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span><span class="w"> </span><span class="c1"># always make a clean build, with n - 2 cores on the system</span>
 </code></pre></div>
 <h4 id="combine-v8-cmssw_10_2_x-release-series">Combine v8: <code>CMSSW_10_2_X</code> release series</h4>
 <p>Setting up the environment (once) is described below.
@@ -1990,7 +1990,7 @@ cmsrel<span class="w"> </span>CMSSW_10_2_13
 <span class="nb">cd</span><span class="w"> </span>CMSSW_10_2_13/src
 cmsenv
 git<span class="w"> </span>-c<span class="w"> </span>advice.detachedHead<span class="o">=</span><span class="nb">false</span><span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v8.2.0<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
-scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span><span class="c1"># always make a clean build</span>
+scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span><span class="w"> </span><span class="c1"># always make a clean build, with n - 2 cores on the system</span>
 </code></pre></div>
 <h4 id="slc6cc7-release-cmssw_8_1_x">SLC6/CC7 release <code>CMSSW_8_1_X</code></h4>
 <p>Setting up OS using apptainer (<a href="http://cms-sw.github.io/singularity.html">see detailed instructions</a>):</p>
@@ -2009,7 +2009,7 @@ Update to a recommended tag - currently the recommended tag for CMSSW_8_1_X is <
 <div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit
 git<span class="w"> </span>fetch<span class="w"> </span>origin
 git<span class="w"> </span>checkout<span class="w"> </span>v7.0.13
-scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span><span class="c1"># always make a clean build</span>
+scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span><span class="w"> </span><span class="c1"># always make a clean build, with n - 2 cores on the system</span>
 </code></pre></div>
 <h3 id="oustide-of-cmssw-recommended-for-non-cms-users">Oustide of CMSSW (recommended for non-CMS users)</h3>
 <p>Pre-compiled versions of the tool are available as container images from the <a href="https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235">CMS cloud</a>. These containers can be downloaded and run using <a href="https://cms-opendata-guide.web.cern.ch/tools/docker/">Docker</a>. If you have docker running you can pull and run the image using, </p>
@@ -2124,7 +2124,7 @@ See <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/ma
 <p>CombineHarvester/CombineTools is a package for the creation of datacards/workspaces used with <span style="font-variant:small-caps;">Combine v10</span> for a number of analyses in CMS. See the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> documentation pages for more details on using this tool and additional features available in the full package.</p>
 <p>This package also comes with useful features for <span style="font-variant:small-caps;">Combine</span> such as the automated datacard validation (see <a href="docs/part3/validation">instructions</a>). The repository can be checked out and compiled using, </p>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cms-analysis/CombineHarvester.git<span class="w"> </span>CombineHarvester
-scram<span class="w"> </span>b
+scram<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span>
 </code></pre></div>
 <p>See the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> documentation for full instructions and reccomended versions. </p>
 <div class="admonition info">
