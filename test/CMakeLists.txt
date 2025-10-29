@@ -1,3 +1,31 @@
+function(COMBINE_ADD_GTEST test_suite)
+  cmake_parse_arguments(ARG
+    ""
+    "TIMEOUT;FAILREGEX"
+    "COPY_TO_BUILDDIR;LIBRARIES;LABELS;INCLUDE_DIRS;ENVIRONMENT" ${ARGN})
+
+  ROOT_GET_SOURCES(source_files . ${ARG_UNPARSED_ARGUMENTS})
+  ROOT_EXECUTABLE(${test_suite} ${source_files} LIBRARIES ${ARG_LIBRARIES} GTest::gtest GTest::gmock GTest::gtest_main GTest::gmock_main)
+  target_include_directories(${test_suite} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+  if (ARG_INCLUDE_DIRS)
+    target_include_directories(${test_suite} PRIVATE ${ARG_INCLUDE_DIRS})
+  endif(ARG_INCLUDE_DIRS)
+
+  ROOT_PATH_TO_STRING(name_with_path ${test_suite} PATH_SEPARATOR_REPLACEMENT "-")
+  string(REPLACE "-test-" "-" clean_name_with_path ${name_with_path})
+  ROOT_ADD_TEST(
+    gtest${clean_name_with_path}
+    COMMAND ${test_suite} ${extra_command}
+    WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
+    COPY_TO_BUILDDIR "${ARG_COPY_TO_BUILDDIR}"
+    ${willfail}
+    TIMEOUT "${ARG_TIMEOUT}"
+    LABELS "${ARG_LABELS}"
+    FAILREGEX "${ARG_FAILREGEX}"
+    ENVIRONMENT "${ARG_ENVIRONMENT}"
+  )
+endfunction()
+
 # Set the location of text2workspace.py, assuming installation to a virtual
 # environment inside the source directory.
 set(t2w ${CMAKE_SOURCE_DIR}/virtualenv/bin/text2workspace.py)
@@ -38,11 +66,11 @@ ROOT_ADD_TEST(template_analysis-t2w
     FIXTURES_SETUP template_analysis_workspace
 )
 
-# Build and run the exampleCreateNLL helper on the generated workspace
-ROOT_ADD_GTEST(template_analysis-exampleCreateNLL
-    exampleCreateNLL.cxx
+# Build and run the testCreateNLL helper on the generated workspace
+COMBINE_ADD_GTEST(template_analysis-testCreateNLL
+    testCreateNLL.cxx
     LIBRARIES HiggsAnalysisCombinedLimit
 )
-set_property(TEST gtest-template-analysis-exampleCreateNLL
+set_property(TEST gtest-template-analysis-testCreateNLL
     PROPERTY FIXTURES_REQUIRED template_analysis_workspace
 )
