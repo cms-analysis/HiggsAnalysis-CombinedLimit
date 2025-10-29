@@ -336,7 +336,6 @@ inline double CMSHistSum::smoothStepFunc(double x, int const& ip) const {
   return 0.125 * xnorm * (xnorm2 * (3. * xnorm2 - 10.) + 15);
 }
 
-
 void CMSHistSum::updateCache() const {
   initialize();
 
@@ -379,10 +378,6 @@ void CMSHistSum::updateCache() const {
 
 
   if (!binsentry_.good()) {
-    #if HFVERBOSE > 0
-      std::cout << "Calling runBarlowBeeston\n";
-    #endif
-    runBarlowBeeston();
     // bintypes might have size == 0 if we never ran setupBinPars()
     #if HFVERBOSE > 0
       std::cout << "Assigning bin shifts\n";
@@ -418,9 +413,7 @@ void CMSHistSum::updateCache() const {
 }
 
 void CMSHistSum::runBarlowBeeston() const {
-  if (!bb_.init) return;
-  RooAbsArg::setDirtyInhibit(true);
-
+  updateCache();
   const unsigned n = bb_.use.size();
   for (unsigned j = 0; j < n; ++j) {
     bb_.dat[j] = data_[bb_.use[j]];
@@ -440,10 +433,6 @@ void CMSHistSum::runBarlowBeeston() const {
   }
   for (unsigned j = 0; j < n; ++j) {
     if (toterr_[bb_.use[j]] > 0.) bb_.push_res[j]->setVal(bb_.res[j]);
-  }
-  RooAbsArg::setDirtyInhibit(false);
-  for (RooAbsArg *arg : bb_.dirty_prop) {
-    arg->setValueDirty();
   }
 }
 
@@ -466,7 +455,6 @@ void CMSHistSum::setAnalyticBarlowBeeston(bool flag) const {
     bb_.x2.clear();
     bb_.res.clear();
     bb_.gobs.clear();
-    bb_.dirty_prop.clear();
     bb_.push_res.clear();
     bb_.init = false;
   }
@@ -480,7 +468,6 @@ void CMSHistSum::setAnalyticBarlowBeeston(bool flag) const {
             // std::cout << "Skipping " << this << " " << this->GetName() << "\n";
           } else {
             // std::cout << "Adding " << arg << " " << arg->GetName() << "\n";
-            bb_.dirty_prop.insert(arg);
             auto as_gauss = dynamic_cast<RooGaussian*>(arg);
             if (as_gauss) {
               auto gobs = dynamic_cast<RooAbsReal*>(as_gauss->findServer(TString(vbinpars_[j][0]->GetName())+"_In"));
