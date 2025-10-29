@@ -9,9 +9,6 @@
 # Run with ./makeFCcontour files [options]
 ###############################################
 
-
-from __future__ import absolute_import, print_function
-
 import os
 import sys
 from array import array

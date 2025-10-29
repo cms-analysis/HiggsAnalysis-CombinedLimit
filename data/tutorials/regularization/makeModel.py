@@ -1,8 +1,6 @@
 ### Original Author: Andrea Carlo Marini
 ### Date: 9/11/2017
 
-from __future__ import absolute_import, print_function
-
 import re
 from array import array
 

@@ -19,7 +19,6 @@
 ##############
 # Usage: python parseCombine.py name_of_output_root_file_from_combine_command ntoys
 ##############
-from __future__ import absolute_import, print_function
 
 import copy
 import glob

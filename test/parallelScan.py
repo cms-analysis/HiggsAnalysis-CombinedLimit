@@ -4,9 +4,7 @@
 ##  run combine -M MultiDimFit scans in multiple local jobs in parallel
 ##  usage: just replace "combine" with "parallelScan.py" in the command line
 ##         and add a "-j" to select how many threads to use
-from __future__ import absolute_import, print_function
 
-from __future__ import division
 import os
 import subprocess
 import sys
