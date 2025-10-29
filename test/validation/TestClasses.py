@@ -270,7 +270,7 @@ class SingleDatacardWithExpectedTest(SingleDatacardTest):
 
     def readOutput(self, dir):
         out = _readRootFileWithExpected("%s/higgsCombine%s.%s.mH%s.root" % (dir, self._name, self._method, self._mass))
-        if type(out) == dict:
+        if isinstance(out, dict):
             return out
         dn = os.path.basename(self._datacard)
         resmap = dict([(dn + x, y) for (x, y) in out])
@@ -351,7 +351,7 @@ class MultiDatacardWithExpectedTest(MultiDatacardTest):
         ret = {"results": {}}
         for dc, mass in self._datacards:
             thisres = _readRootFileWithExpected("%s/higgsCombine%s.%s.mH%s.root" % (dir, self._name, self._method, mass))
-            if type(thisres) == dict:
+            if isinstance(thisres, dict):
                 ret["results"][os.path.basename(dc)] = thisres
             else:
                 for postfix, res in thisres:
@@ -412,7 +412,7 @@ class WorkspaceWithExpectedTest(MultiDatacardTest):
             )
         else:
             out = _readRootFileWithExpected("%s/higgsCombine%s.%s.mH%s.root" % (dir, self._name, self._method, self._mass))
-        if type(out) == dict:
+        if isinstance(out, dict):
             return out
         dn = os.path.basename(self._cmb_card)
         resmap = dict([(dn + x, y) for (x, y) in out])

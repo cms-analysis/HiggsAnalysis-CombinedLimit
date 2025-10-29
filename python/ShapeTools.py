@@ -146,7 +146,7 @@ class ShapeBuilder(ModelBuilder):
                         else:
                             raise RuntimeError(f"packAsymPows: can't work with a coefficient of kind {coeff.ClassName()} for {b} {p}")
                         for X in extranorm:
-                            if type(X) == tuple:
+                            if isinstance(X, tuple):
                                 (klo, khi, syst) = X
                                 coeff.addAsymmLogNormal(klo, khi, self.out.var(syst))
                             else:

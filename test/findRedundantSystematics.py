@@ -43,12 +43,11 @@ def asymDivide(something):
     if len(something) != 2:
         raise TypeError("asymDivision requires a pair.")
 
-    (a, b) = something
-    theType = (type(a), type(b))
+    a, b = something
 
-    if theType == (FloatType, ListType) or theType == (ListType, FloatType):
+    if (isinstance(a, FloatType) and isinstance(b, ListType)) or (isinstance(a, ListType) and isinstance(b, FloatType)):
         return asymDivideMixed(something)
-    elif theType == (ListType, ListType):
+    elif isinstance(a, ListType) and isinstance(b, ListType):
         if len(a) != len(b):
             raise TypeError("For pairs of lists, they must have the same length.")
         return asymDivideLists(something)
@@ -86,7 +85,7 @@ def asymDivideMixed(elementAndList):
     (x, yz) = elementAndList
     orderKept = True
 
-    if type(x) == ListType:
+    if isinstance(x, ListType):
         (x, yz) = (yz, x)
         orderKept = False
 

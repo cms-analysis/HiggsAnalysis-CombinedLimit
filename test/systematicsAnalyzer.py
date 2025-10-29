@@ -311,7 +311,7 @@ for lsyst, nofloat, pdf, pdfargs, errline in DC.systs:
                 addTo(check_list, lsyst, [p, b])
 
             else:
-                vals.extend(errline[b][p] if type(errline[b][p]) == list else [errline[b][p]])
+                vals.extend(errline[b][p] if isinstance(errline[b][p], list) else [errline[b][p]])
                 numKeysFound += 1
                 types.append(pdf)
                 processes[p] = True

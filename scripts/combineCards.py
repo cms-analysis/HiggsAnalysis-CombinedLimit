@@ -228,7 +228,7 @@ for ich, fname in enumerate(args):
                             constraint_terms.append(line)
                     warnings.warn(warning_message, RuntimeWarning)
                     break
-                if type(errline[b][p]) == list:
+                if isinstance(errline[b][p], list):
                     r = "{}/{}".format(
                         FloatToString(errline[b][p][0]),
                         FloatToString(errline[b][p][1]),

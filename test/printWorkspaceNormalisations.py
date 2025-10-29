@@ -187,8 +187,7 @@ if use_cms_histsum:
             prop = prop_it.Next()
             prop_name = prop.GetName()
             if chan == prop_name.split("_bin")[-1]:
-                types = [ROOT.CMSHistSum, ROOT.CMSHistErrorPropagator]
-                if type(prop) in types:
+                if isinstance(prop, (ROOT.CMSHistSum, ROOT.CMSHistErrorPropagator)):
                     chan_CMSHistSum_norms[chan] = dict(prop.getProcessNorms())
 
 

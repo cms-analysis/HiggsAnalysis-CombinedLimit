@@ -34,22 +34,22 @@ def fullmatch(regex, line):
 
 
 def quadratureAdd(pdf, val1, val2, context=None):
-    if type(val1) == list and len(val1) != 2:
+    if isinstance(val1, list) and len(val1) != 2:
         raise RuntimeError(f"{val1} is a list of length != 2")
-    if type(val2) == list and len(val2) != 2:
+    if isinstance(val2, list) and len(val2) != 2:
         raise RuntimeError(f"{val2} is a list of length != 2")
 
-    if type(val1) == list and type(val2) == list:
+    if isinstance(val1, list) and isinstance(val2, list):
         return [
             quadratureAdd(pdf, val1[0], val2[0], context),
             quadratureAdd(pdf, val1[1], val2[1], context),
         ]
-    elif type(val1) == list and type(val2) == float:
+    elif isinstance(val1, list) and isinstance(val2, float):
         return [
             quadratureAdd(pdf, val1[0], 1.0 / val2, context),
             quadratureAdd(pdf, val1[1], val2, context),
         ]
-    elif type(val2) == list and type(val1) == float:
+    elif isinstance(val2, list) and isinstance(val1, float):
         return [
             quadratureAdd(pdf, 1.0 / val1, val2[0], context),
             quadratureAdd(pdf, val1, val2[1], context),
@@ -261,7 +261,7 @@ def doRenameNuisance(datacard, args):
                 allzeroes = True
                 for a in errline0.keys():
                     for b in errline0[a].keys():
-                        if type(errline0[a][b]) != int and type(errline0[a][b]) != float:
+                        if not isinstance(errline0[a][b], int) and not isinstance(errline0[a][b], float):
                             allzeroes = allzeroes and False
                         # elif errline0[a][b] != 0.0 and errline0[a][b] != 0: allzeroes = allzeroes and False
                         elif abs(errline0[a][b]) > 1e-6:
@@ -428,7 +428,7 @@ def doFlipNuisance(datacard, args):
                         if process == "*" or fullmatch(cprocess, p):
                             foundProc = True
                             if errline[b][p] not in [0.0, 1.0]:
-                                if type(errline[b][p]) is list:
+                                if isinstance(errline[b][p], list):
                                     if errline[b][p][0] < 1:
                                         if "p2n" in opts:
                                             errline[b][p][0] = 1.0 / errline[b][p][0]
