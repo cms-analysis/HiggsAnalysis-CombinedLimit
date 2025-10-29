@@ -30,7 +30,6 @@ private:
     std::vector<double> x2;
     std::vector<double> res;
     std::vector<double> gobs;
-    std::set<RooAbsArg*> dirty_prop;
     std::vector<RooRealVar*> push_res;
   };
 public:
@@ -79,6 +78,8 @@ public:
   friend class CMSHistV<CMSHistSum>;
 
   void injectExternalMorph(int idx, CMSExternalMorph& morph);
+
+  void evalBarlowBeeston() const;
 
  protected:
   RooRealProxy x_;
@@ -140,7 +141,7 @@ public:
   }
 
   void initialize() const;
-  void updateCache() const;
+  void updateCache(bool doBarlowBeeston = false) const;
   inline double smoothStepFunc(double x, int const& ip) const;
 
 
