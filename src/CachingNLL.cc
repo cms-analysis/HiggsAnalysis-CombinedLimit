@@ -595,6 +595,9 @@ cacheutils::CachingAddNLL::evaluate() const
 #ifdef DEBUG_CACHE
     PerfCounter::add("CachingAddNLL::evaluate called");
 #endif
+    // The very first thing we do before any evaluation: run the analytical
+    // minimization of Barlow-Beeston nuisance parameters.
+    const_cast<CachingAddNLL&>(*this).runAnalyticBarlowBeeston();
 
     std::fill( partialSum_.begin(), partialSum_.end(), 0.0 );
 
@@ -809,6 +812,15 @@ void cacheutils::CachingAddNLL::setAnalyticBarlowBeeston(bool flag) {
   }
 }
 
+void cacheutils::CachingAddNLL::runAnalyticBarlowBeeston() {
+  for (auto* hist : histErrorPropagators_) {
+    hist->runBarlowBeeston();
+  }
+  for (auto* hist : histSums_) {
+    hist->runBarlowBeeston();
+  }
+}
+
 cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, const RooArgSet *nuis) :
     pdfOriginal_(pdf),
     dataOriginal_(data),
@@ -1007,6 +1019,17 @@ cacheutils::CachingSimNLL::evaluate() const
 #ifdef DEBUG_CACHE
     PerfCounter::add("CachingSimNLL::evaluate called");
 #endif
+
+    // The very first thing we do before any evaluation: run the analytical
+    // minimization of Barlow-Beeston nuisance parameters.
+    for (size_t i = 0; i < pdfs_.size(); ++i) {
+      if (!pdfs_[i])
+        continue;
+      if (!channelMasks_.empty() && channelMasks_[i]->getVal() != 0.)
+        continue;
+      pdfs_[i]->runAnalyticBarlowBeeston();
+    }
+
     static bool gentleNegativePenalty_ = runtimedef::get("GENTLE_LEE");
     DefaultAccumulator<double> ret = 0;
     for (std::size_t idx = 0; idx < pdfs_.size(); ++idx) {
