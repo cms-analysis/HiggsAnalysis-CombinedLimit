@@ -6,7 +6,6 @@ import argparse
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import HiggsAnalysis.CombinedLimit.tool_base.rounding as rounding
 import HiggsAnalysis.CombinedLimit.calculate_pulls as CP
-import six
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)

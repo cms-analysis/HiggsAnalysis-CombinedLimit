@@ -1,8 +1,6 @@
 import re
 from abc import ABCMeta, abstractmethod
 
-import six
-
 ### Class that takes care of building a physics model by combining individual channels and processes together
 ### Things that it can do:
 ###   - define the parameters of interest (in the default implementation , "r")

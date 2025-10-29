@@ -7,8 +7,6 @@ from sys import argv, exit, stderr, stdout
 import io
 import sys
 
-from six.moves import range
-
 import ROOT
 
 hasHelp = False

@@ -13,7 +13,6 @@ from array import array
 import HiggsAnalysis.CombinedLimit.tool_base.utils as utils
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
-import six
 
 
 class AsymptoticGrid(CombineToolBase):

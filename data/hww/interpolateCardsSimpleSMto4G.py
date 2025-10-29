@@ -6,9 +6,6 @@ from math import *
 from optparse import OptionParser
 from sys import argv, exit, stderr, stdout
 
-import six
-from six.moves import zip
-
 import ROOT
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 
@@ -102,10 +99,10 @@ br = file2map(path + "YR-BR3.txt")
 sm4 = file2map(path + "SM4-600GeV.txt")
 # create points at 450, 550 by interpolation
 for M in (450, 550):
-    ggXS[M] = dict([(key, 0.5 * (ggXS[M + 10][key] + ggXS[M - 10][key])) for key in six.iterkeys(ggXS[M + 10])])
-    qqXS[M] = dict([(key, 0.5 * (qqXS[M + 10][key] + qqXS[M - 10][key])) for key in six.iterkeys(qqXS[M + 10])])
-    br[M] = dict([(key, 0.5 * (br[M + 10][key] + br[M - 10][key])) for key in six.iterkeys(br[M + 10])])
-    sm4[M] = dict([(key, 0.5 * (sm4[M + 10][key] + sm4[M - 10][key])) for key in six.iterkeys(sm4[M + 10])])
+    ggXS[M] = dict([(key, 0.5 * (ggXS[M + 10][key] + ggXS[M - 10][key])) for key in ggXS[M + 10]])
+    qqXS[M] = dict([(key, 0.5 * (qqXS[M + 10][key] + qqXS[M - 10][key])) for key in qqXS[M + 10]])
+    br[M] = dict([(key, 0.5 * (br[M + 10][key] + br[M - 10][key])) for key in br[M + 10]])
+    sm4[M] = dict([(key, 0.5 * (sm4[M + 10][key] + sm4[M - 10][key])) for key in sm4[M + 10]])
 if options.xsbr:
     xsbr1["ggH"] = ggXS[mass1]["XS_pb"] * br[mass1]["H_evmv"]
     xsbr["ggH"] = ggXS[mass]["XS_pb"] * br[mass]["H_evmv"] * sm4[mass]["XS_over_SM"] * sm4[mass]["brWW_over_SM"]
@@ -158,8 +155,8 @@ for X in [
             "QCDscale_ggH1in",
             "QCDscale_ggH2in",
         ]:
-            for b in six.iterkeys(errline):
-                for p in six.iterkeys(errline[b]):
+            for b in errline:
+                for p in errline[b]:
                     if errline[b][p] != 0 and errline[b][p] != 1:
                         inflated = errline[b][p] + options.etu if errline[b][p] > 1 else errline[b][p] - options.etu
                         # print "Inflating uncertainty from %s to %s" % (errline[b][p], inflated);
@@ -257,5 +254,5 @@ for X in [
     for pname, pargs in paramSysts.items():
         xfile.write(" ".join(["%-12s  param  %s" % (pname, " ".join(pargs))]) + "\n")
 
-    for pname in six.iterkeys(flatParamNuisances):
+    for pname in flatParamNuisances:
         xfile.write(" ".join(["%-12s  flatParam" % pname]) + "\n")

@@ -8,9 +8,6 @@ import sys
 from math import *
 from optparse import OptionParser
 
-import six
-from six.moves import range
-
 import ROOT
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
@@ -163,7 +160,7 @@ def commonStems(list, sep="_"):
                 hits[base] = 0
             hits[base] += 1
     veto = {}
-    for k, v in six.iteritems(hits):
+    for k, v in hits.items():
         pieces = k.split(sep)
         for i in range(1, len(pieces)):
             k2 = "_".join(pieces[:-i])
@@ -172,7 +169,7 @@ def commonStems(list, sep="_"):
             else:
                 veto[k] = True
     ret = []
-    for k, v in six.iteritems(hits):
+    for k, v in hits.items():
         if k not in veto:
             ret.append((k, v))
     ret.sort()
@@ -210,7 +207,7 @@ for lsyst, nofloat, pdf, pdfargs, errline in DC.systs:
     if "param" in pdf:
         if lsyst not in seen_systematics:
             if not len(errline):
-                errline = {b: {p: 0 for p in six.iterkeys(DC.exp[b])} for b in DC.bins}
+                errline = {b: {p: 0 for p in DC.exp[b]} for b in DC.bins}
         else:
             errline = errlines[lsyst]
     types = []
@@ -224,7 +221,7 @@ for lsyst, nofloat, pdf, pdfargs, errline in DC.systs:
     for b in DC.bins:
         numKeysFound = 0
         channels.append(b)
-        for p in six.iterkeys(DC.exp[b]):
+        for p in DC.exp[b]:
             if lsyst in list(check_list.keys()):
                 if [p, b] in check_list[lsyst]:
                     continue
@@ -356,7 +353,7 @@ for lsyst, nofloat, pdf, pdfargs, errline in DC.systs:
 # Get list
 names = list(report.keys())
 if "brief" in options.format:
-    names = [k for (k, v) in six.iteritems(report)]
+    names = [k for (k, v) in report.items()]
 if options.process:
     names = [k for k in names if any(p for p in report[k]["processes"] if re.match(options.process, p))]
 if options.grep:
@@ -421,7 +418,7 @@ All numbers shown report the +/- 1-sigma variation in the yield for each affecte
                 "\t\t<tr><td>%s</td><td>%s</td></li>"
                 % (
                     x,
-                    ", ".join(["%s(%s)" % (k, v) for (k, v) in six.iteritems(errlines[nuis][x]) if v != 0]),
+                    ", ".join(["%s(%s)" % (k, v) for (k, v) in errlines[nuis][x].items() if v != 0]),
                 )
             )
         print("\t</table></td>")

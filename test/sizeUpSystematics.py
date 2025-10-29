@@ -19,8 +19,7 @@ from optparse import OptionParser
 from pprint import pprint
 from sys import argv, exit, stderr, stdout
 
-import six.moves.cPickle as pickle
-from six.moves import range
+import pickle
 
 import rankSystematics
 import ROOT

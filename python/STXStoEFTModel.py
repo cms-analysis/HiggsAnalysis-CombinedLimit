@@ -9,8 +9,6 @@ import re
 import sys
 from math import exp
 
-import six
-
 import ROOT
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder

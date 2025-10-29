@@ -1,5 +1,3 @@
-from six.moves import range
-
 import ROOT
 
 rmin = 0

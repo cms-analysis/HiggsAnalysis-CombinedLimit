@@ -6,7 +6,6 @@ import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import json
 import argparse
 import os.path
-from six.moves import range
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)

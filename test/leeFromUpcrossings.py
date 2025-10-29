@@ -4,8 +4,6 @@ from math import *
 from optparse import OptionParser
 from sys import argv, exit, stderr, stdout
 
-from six.moves import range
-
 import ROOT
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)

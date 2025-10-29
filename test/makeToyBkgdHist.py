@@ -29,8 +29,6 @@ import subprocess
 import sys
 import time
 
-from six.moves import range
-
 from ROOT import TF1, TH1F, TH2D, TH2F, Double, TCanvas, TFile, TLegend, TPave, TPaveLabel, TString, gROOT, gStyle
 
 if len(sys.argv) < 2:

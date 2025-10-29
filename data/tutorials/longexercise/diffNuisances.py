@@ -5,8 +5,6 @@ import re
 from optparse import OptionParser
 from sys import argv, exit, stderr, stdout
 
-from six.moves import range
-
 import HiggsAnalysis.CombinedLimit.calculate_pulls as CP
 import ROOT
 

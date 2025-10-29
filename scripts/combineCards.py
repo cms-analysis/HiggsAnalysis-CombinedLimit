@@ -5,8 +5,6 @@ import re
 from optparse import OptionParser
 from sys import argv, exit
 
-import six
-
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 
 parser = OptionParser(

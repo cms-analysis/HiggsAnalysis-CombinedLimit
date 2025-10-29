@@ -6,8 +6,6 @@ import math
 import os.path
 from functools import partial
 
-from six.moves import range
-
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import ROOT
 

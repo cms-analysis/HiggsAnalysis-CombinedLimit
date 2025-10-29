@@ -5,8 +5,6 @@ from functools import reduce
 from math import *
 from sys import exit, stderr, stdout
 
-import six
-
 import ROOT
 
 ROOFIT_EXPR = "expr"

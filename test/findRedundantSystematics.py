@@ -11,9 +11,6 @@ from pprint import pprint
 from sys import argv, exit, stderr, stdout
 from types import *
 
-import six
-from six.moves import zip
-
 # search for the nuisances that have identical correlation matrix:
 # given two log-normal systematics X, Y for which affect exactly the same
 # set of channels and processes, they can be merged with no loss of information
@@ -161,7 +158,7 @@ def lnN_redundancies(allSysts):
 
     #    pprint(kappaRatios)
 
-    pprint([x for x in six.iteritems(kappaRatios) if x[0] in correlatedPairs])
+    pprint([x for x in kappaRatios.items() if x[0] in correlatedPairs])
 
 
 if __name__ == "__main__":

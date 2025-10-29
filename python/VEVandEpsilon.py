@@ -1,7 +1,5 @@
 import os
 
-import six
-
 import ROOT
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder

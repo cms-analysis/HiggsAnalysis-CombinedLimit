@@ -13,7 +13,6 @@ from pprint import pprint
 from functools import partial
 from HiggsAnalysis.CombinedLimit.tool_base.opts import OPTS
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
-import six
 
 
 def Eval(obj, x, params):

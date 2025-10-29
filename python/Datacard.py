@@ -1,6 +1,3 @@
-import six
-
-
 class Datacard:
     """
     Description:
