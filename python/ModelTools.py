@@ -916,7 +916,7 @@ class ModelBuilder(ModelBuilderBase):
                 alogNorms = []  # (kappaLo, kappaHi, RooAbsReal) asymm lnN
                 if scale == 1:
                     pass
-                elif type(scale) == str:
+                elif isinstance(scale, str):
                     factors.append(scale)
                 else:
                     raise RuntimeError("Physics model returned something that is neither a name, nor 0, nor 1.")
@@ -949,7 +949,7 @@ class ModelBuilder(ModelBuilderBase):
                     if pdf == "lnN" and errline[b][p] == 1.0:
                         continue
                     if pdf == "lnN" or pdf == "lnU":
-                        if type(errline[b][p]) == list:
+                        if isinstance(errline[b][p], list):
                             elow, ehigh = errline[b][p]
                             alogNorms.append((elow, ehigh, n))
                         else:
