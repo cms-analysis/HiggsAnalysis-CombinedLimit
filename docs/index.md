@@ -159,20 +159,17 @@ source . env_standalone.sh
 ```
 
 ##### Standalone compilation with LCG
-For compilation outside of CMSSW, for example to use ROOT versions not yet available in CMSSW, one can compile against LCG releases. The current default is to compile with LCG_102, which contains ROOT 6.26:
+For compilation outside of CMSSW, for example to use ROOT versions not yet available in CMSSW, one can compile against LCG releases:
 ```sh
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 source env_lcg.sh
-make LCG=1 -j 8
+mkdir build
+cd build
+cmake ..
+make -j8
 ```
 To change the LCG version, edit `env_lcg.sh`.
-
-The resulting binaries can be moved for use in a
-batch job if the following files are included in the job tarball:
-```sh
-tar -zcf Combine_LCG_env.tar.gz build interface src/classes.h --exclude=obj
-```
 
 ##### Standalone compilation with `conda` (CMake-based)
 This recipe mirrors the setup used in our GitHub Actions builds and works on both Linux and macOS (Intel or Apple silicon):
