@@ -31,6 +31,9 @@ jobs:
             CMSSW_VERSION: "CMSSW_14_0_0_pre1"
             SCRAM_ARCH: "el9_amd64_gcc12"
             ROOT: "6.26.11"
+          - LCG_RELEASE: "LCG_102"
+            LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
+            ROOT: "6.26.04"
           - LCG_RELEASE: "LCG_106"
             LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
             ROOT: "6.32.02"
@@ -58,6 +61,9 @@ jobs:
         env:
           LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
           LCG_ARCH: ${{ matrix.LCG_ARCH }}
+          # VDT doesn't seem to be available in LCG_102.
+          # But also it's very good to also test builds with USE_VDT=OFF.
+          USE_VDT: ${{ matrix.LCG_RELEASE != 'LCG_102' && 'TRUE' || 'FALSE' }}
         run: >-
           source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
           root --version;
@@ -75,6 +81,7 @@ jobs:
                 -DCMAKE_INSTALL_PREFIX=../install \
                 -DCMAKE_BUILD_TYPE=RelWithDebInfo \
                 -DINSTALL_PYTHON=FALSE \
+                -DUSE_VDT=${USE_VDT} \
                 -DBUILD_TESTS=TRUE \
                 ..;
           make install -j$(nproc);
