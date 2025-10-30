@@ -10,36 +10,36 @@ nav:
             - Model and Likelihood: what_combine_does/model_and_likelihood.md
             - Fitting Concepts: what_combine_does/fitting_concepts.md
             - Statistical Tests: what_combine_does/statistical_tests.md
-        - Setting up the analysis:
-          - "Preparing the datacard": part2/settinguptheanalysis.md
-          - "Physics models":
+        - Setting Up the Analysis:
+          - "Preparing the Datacard": part2/settinguptheanalysis.md
+          - "Physics Models":
               - "Introduction": part2/physicsmodels.md
-              - "SM Higgs coupling models": part2/higgscouplings.md
-              - "BSM Higgs models": part2/bsm-higgs-models.md
-          - "Automatic MC statistical uncertainties": part2/bin-wise-stats.md
-        - Running combine:
-          - "Running the tool":           part3/runningthetool.md
-          - "Common statistical methods": part3/commonstatsmethods.md
-          - "Advanced use cases":         part3/nonstandard.md
+              - "SM Higgs Coupling Models": part2/higgscouplings.md
+              - "BSM Higgs Models": part2/bsm-higgs-models.md
+          - "Automatic MC Statistical Uncertainties": part2/bin-wise-stats.md
+        - Running Combine:
+          - "Running the Tool":           part3/runningthetool.md
+          - "Common Statistical Methods": part3/commonstatsmethods.md
+          - "Advanced Use Cases":         part3/nonstandard.md
           - "Simplified Likelihoods":     part3/simplifiedlikelihood.md
-          - "Unfolding & regularization": part3/regularisation.md
-          - "Validating datacards":       part3/validation.md
-          - "Debugging fit failures":     part3/debugging.md
+          - "Unfolding & Regularization": part3/regularisation.md
+          - "Validating Datacards":       part3/validation.md
+          - "Debugging Fit Failures":     part3/debugging.md
         - Tutorials:
           - "RooFit Basics":              part5/roofit.md
           - "Main Features":
             - "Exercises":                part5/longexercise.md
             - "Solutions":                part5/longexerciseanswers.md
           - "Parametric Models":          tutorial2023/parametric_exercise.md
-          - "Likelihood Based Unfolding": tutorial2023_unfolding/unfolding_exercise.md
-          - "Statitiscal Tests Basics": tutorial_stat_routines/stat_routines.md
-          - "Model building": model_building_tutorial2024/model_building_exercise.md
-          - "Per-bin Transfer Factors with Parametric Histograms": abcd_rooparametrichist_tutorial/rooparametrichist_exercise.md
+          - "Likelihood-Based Unfolding": tutorial2023_unfolding/unfolding_exercise.md
+          - "Statistical Tests Basics":   tutorial_stat_routines/stat_routines.md
+          - "Model Building":             model_building_tutorial2024/model_building_exercise.md
+          - "Per-Bin Transfer Factors with Parametric Histograms": abcd_rooparametrichist_tutorial/rooparametrichist_exercise.md
         - "In-Browser Tools":
           - "In-Browser Tools":           part6/in_browser_tools.md
-          - "open: jsROOT (external)":     https://root.cern/js/latest/
-          - "open: Datacard Viewer":       part6/view_datacard.html
-          - "open: Covariance Viewer":     part6/view_cov_json.html
+          - "Open: jsROOT (external)":     https://root.cern/js/latest/
+          - "Open: Datacard Viewer":       part6/view_datacard.html
+          - "Open: Covariance Viewer":     part6/view_cov_json.html
         - Links & FAQ: part4/usefullinks.md
 
 theme:
