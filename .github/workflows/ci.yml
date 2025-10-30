@@ -52,58 +52,20 @@ jobs:
     - name: Set up Conda
       uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: 3.12
+        python-version: ${{ matrix.python }}
         miniforge-version: latest
     - name: Install build environment
       shell: bash -l {0}
       run: |
         # Install dependencies (synchronize with cms-combine-feedstock recipe.yaml)
-        mamba install -c conda-forge cmake python==${{ matrix.python }} pandas gsl root_base==${{ matrix.root }} libboost-devel eigen vdt
+        mamba install -c conda-forge cmake python==${{ matrix.python }} pandas gsl root==${{ matrix.root }} boost-cpp eigen vdt
     - name: Build
       shell: bash -l {0}
       run: |
         Python_SITELIB=$(python3 -c "import sysconfig;p=sysconfig.get_path('purelib');print(p)")
-        cmake -S HiggsAnalysis/CombinedLimit -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DPython_SITELIB=$Python_SITELIB
-        cmake --build build --clean-first --parallel="${CPU_COUNT}"
-        cmake --install build  # Install to conda prefix (unsafe but ok for CI)
-    - name: Run tests
-      shell: bash -l {0}
-      run: |
-        cd HiggsAnalysis/CombinedLimit/test
-        python test_interference.py
-
-  legacy-build:
-    strategy:
-      matrix:
-        python: ["3.8"]
-        root: ["6.22"]
-        include:
-          # python 3.10 root 6.26
-          - python: "3.10"
-            root: "6.26.4"
-
-    runs-on: ubuntu-latest
-    name: Legacy compile (py${{ matrix.python }}, root${{ matrix.root }})
-
-    steps:
-    - uses: actions/checkout@master
-      with:
-        path: HiggsAnalysis/CombinedLimit # Required to match compile instructions
-    - name: Set up Conda
-      uses: conda-incubator/setup-miniconda@v3
-      with:
-        python-version: 3.12
-        miniforge-version: latest
-    - name: Install build environment
-      shell: bash -l {0}
-      run: |
-        mamba install -c conda-forge cmake python==${{ matrix.python }} pip pandas root==${{ matrix.root }} gsl tbb vdt boost-cpp boost pcre eigen
-    - name: Build
-      shell: bash -l {0}
-      run: |
-        Python_SITELIB=$(python3 -c "import sysconfig;p=sysconfig.get_path('purelib');print(p)")
-        cmake -S HiggsAnalysis/CombinedLimit -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DPython_SITELIB=$Python_SITELIB -DCMAKE_PREFIX_PATH=$CONDA_PREFIX
-        cmake --build build --clean-first --parallel="${CPU_COUNT}"
+        cmake -S HiggsAnalysis/CombinedLimit -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DPython_SITELIB=$Python_SITELIB -DUSE_VDT=OFF
+        BUILD_JOBS=$(python3 -c "import multiprocessing; print(max(1, multiprocessing.cpu_count()))")
+        cmake --build build --clean-first --parallel "${BUILD_JOBS}"
         cmake --install build  # Install to conda prefix (unsafe but ok for CI)
     - name: Run tests
       shell: bash -l {0}
