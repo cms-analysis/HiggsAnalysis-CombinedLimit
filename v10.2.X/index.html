@@ -548,9 +548,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#standalone-compilation-with-conda" class="md-nav__link">
+  <a href="#standalone-compilation-with-conda-cmake-based" class="md-nav__link">
     <span class="md-ellipsis">
-      Standalone compilation with conda
+      Standalone compilation with conda (CMake-based)
     </span>
   </a>
   
@@ -1844,9 +1844,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#standalone-compilation-with-conda" class="md-nav__link">
+  <a href="#standalone-compilation-with-conda-cmake-based" class="md-nav__link">
     <span class="md-ellipsis">
-      Standalone compilation with conda
+      Standalone compilation with conda (CMake-based)
     </span>
   </a>
   
@@ -1938,13 +1938,13 @@
 These pages document the
 <a href="https://twiki.cern.ch/twiki/bin/view/RooStats/WebHome">RooStats</a> /
 <a href="https://root.cern.ch/roofit">RooFit</a> - based software tool used for
-statistical analysis within the CMS experiment - <span style="font-variant:small-caps;">Combine</span>. Note that while this tool was originally developed in the Higgs Physics Analysis Group (PAG), its usage is now widespread within CMS. </p>
+statistical analysis within the CMS experiment - <span style="font-variant:small-caps;">Combine</span>. Note that while this tool was originally developed in the Higgs Physics Analysis Group (PAG), its usage is now widespread within CMS.</p>
 <p><span style="font-variant:small-caps;">Combine</span> provides a command-line interface to many different statistical techniques, available inside RooFit/RooStats, that are used widely inside CMS.</p>
 <p>The package exists on GitHub under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit</a></p>
 <p>For more information about Git, GitHub and its usage in CMS, see <a href="http://cms-sw.github.io/cmssw/faq.html">http://cms-sw.github.io/cmssw/faq.html</a></p>
 <p>The code can be checked out from GitHub and compiled on top of a CMSSW release that includes a recent RooFit/RooStats, or via standalone compilation without CMSSW dependencies. See the instructions for installation of <span style="font-variant:small-caps;">Combine</span> below.</p>
 <h2 id="installation-instructions">Installation instructions</h2>
-<p>Installation instructions and recommended versions can be found below. 
+<p>Installation instructions and recommended versions can be found below.
 Since v9.0.0, the versioning follows the <a href="https://semver.org/">semantic versioning 2.0.0 standard</a>.
 Earlier versions are not guaranteed to follow the standard.</p>
 <h3 id="within-cmssw-recommended-for-cms-users">Within CMSSW (recommended for CMS users)</h3>
@@ -1969,7 +1969,7 @@ scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</
 <p>The nominal installation method is inside CMSSW. The current release targets
 the CMSSW <code>11_3_X</code> series because this release has both python2 and python3 ROOT
 bindings, allowing a more gradual migration of user code to python3. <span style="font-variant:small-caps;">Combine</span> is
-fully python3-compatible and, with some adaptations, can also work in 12_X releases. </p>
+fully python3-compatible and, with some adaptations, can also work in 12_X releases.</p>
 <p>CMSSW <code>11_3_X</code> runs on slc7, which can be setup using apptainer (<a href="http://cms-sw.github.io/singularity.html">see detailed instructions</a>).
 Currently, the recommended tag is <strong>v9.2.1</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v9.2.1">see release notes</a>
 The <code>git clone</code> command below contains this tag and is optimised to reduce disk usage.</p>
@@ -2012,12 +2012,12 @@ git<span class="w"> </span>checkout<span class="w"> </span>v7.0.13
 scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span><span class="w"> </span><span class="c1"># always make a clean build, with n - 2 cores on the system</span>
 </code></pre></div>
 <h3 id="oustide-of-cmssw-recommended-for-non-cms-users">Oustide of CMSSW (recommended for non-CMS users)</h3>
-<p>Pre-compiled versions of the tool are available as container images from the <a href="https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235">CMS cloud</a>. These containers can be downloaded and run using <a href="https://cms-opendata-guide.web.cern.ch/tools/docker/">Docker</a>. If you have docker running you can pull and run the image using, </p>
+<p>Pre-compiled versions of the tool are available as container images from the <a href="https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235">CMS cloud</a>. These containers can be downloaded and run using <a href="https://cms-opendata-guide.web.cern.ch/tools/docker/">Docker</a>. If you have docker running you can pull and run the image using,</p>
 <p><div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>combine<span class="w"> </span>-it<span class="w"> </span>gitlab-registry.cern.ch/cms-cloud/combine-standalone:&lt;tag&gt;
 </code></pre></div>
 where you must replace <code>&lt;tag&gt;</code> with a particular version of the tool. At the moment the available container versions are <code>v9.2.1</code> and <code>v9.2.1-slim</code>, both build with Combine tag <code>v9.2.1</code>, and the <code>v9.2.1-slim</code> correspond to a slim version. If no tag is specified the latest version of the container will be loaded, which is <code>v9.2.1-slim</code> at the moment. The containers for <code>v10.X.X</code> versions are being developed and are not yet availble for the users.</p>
-<p>You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool. 
-The container can be re-started using <code>docker start -i combine</code>. </p>
+<p>You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool.
+The container can be re-started using <code>docker start -i combine</code>.</p>
 <h4 id="standalone-compilation">Standalone compilation</h4>
 <p>The standalone version can be easily compiled using
 <a href="https://cernvm.cern.ch/fs/">cvmfs</a> as it relies on dependencies that are
@@ -2027,7 +2027,7 @@ further details on the latter. In case you do not want to use the <code>cvmfs</c
 area, you will need to adapt the locations of the dependencies listed in both
 the <code>Makefile</code> and <code>env_standalone.sh</code> files.</p>
 <div class="highlight"><pre><span></span><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit/ 
+cd HiggsAnalysis/CombinedLimit/
 # git checkout &lt;some release&gt;
 . env_standalone.sh
 make -j 4
@@ -2037,7 +2037,7 @@ make -j 4
 <p>For <span style="font-variant:small-caps;">Combine</span> versions before v10 release you will need to do the compilation in an slc7 environment using apptainer. You can then source the standalone script outside of the apptainer.
 On lxplus this can be done as follows:</p>
 <div class="highlight"><pre><span></span><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit/ 
+cd HiggsAnalysis/CombinedLimit/
 # git checkout &lt;some release&gt;
 cmssw-el7
 . env_standalone.sh
@@ -2049,35 +2049,36 @@ source . env_standalone.sh
 <p>For compilation outside of CMSSW, for example to use ROOT versions not yet available in CMSSW, one can compile against LCG releases. The current default is to compile with LCG_102, which contains ROOT 6.26:
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
 <span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
-<span class="nb">source</span><span class="w"> </span>env_lcg.sh<span class="w"> </span>
+<span class="nb">source</span><span class="w"> </span>env_lcg.sh
 make<span class="w"> </span><span class="nv">LCG</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>-j<span class="w"> </span><span class="m">8</span>
 </code></pre></div>
-To change the LCG version, edit <code>env_lcg.sh</code>. </p>
+To change the LCG version, edit <code>env_lcg.sh</code>.</p>
 <p>The resulting binaries can be moved for use in a
 batch job if the following files are included in the job tarball:
 <div class="highlight"><pre><span></span><code>tar<span class="w"> </span>-zcf<span class="w"> </span>Combine_LCG_env.tar.gz<span class="w"> </span>build<span class="w"> </span>interface<span class="w"> </span>src/classes.h<span class="w"> </span>--exclude<span class="o">=</span>obj
 </code></pre></div></p>
-<h5 id="standalone-compilation-with-conda">Standalone compilation with <code>conda</code></h5>
-<p>This recipe will work both for linux and MacOS
+<h5 id="standalone-compilation-with-conda-cmake-based">Standalone compilation with <code>conda</code> (CMake-based)</h5>
+<p>This recipe mirrors the setup used in our GitHub Actions builds and works on both Linux and macOS (Intel or Apple silicon):</p>
 <div class="highlight"><pre><span></span><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 
-conda install --name base mamba # faster conda
-mamba env create -f conda_env.yml
+# configure conda-forge as the preferred channel
+conda config --set channel_priority strict
+conda config --add channels conda-forge
 
-conda activate combine
-source set_conda_env_vars.sh
-# Need to reactivate
-conda deactivate
+# create and activate the environment
+conda create -n combine python=3.12 root=6.34 gsl boost-cpp vdt eigen tbb cmake ninja
 conda activate combine
 
-make CONDA=1 -j 8
-</code></pre></div></p>
-<p>Using <span style="font-variant:small-caps;">Combine</span> from then on should only require sourcing the conda environment 
+# configure and build with CMake
+PYTHON_SITELIB=$(python -c &quot;import sysconfig; print(sysconfig.get_path(&#39;purelib&#39;))&quot;)
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DPython_SITELIB=${PYTHON_SITELIB}
+cmake --build build -j$(python -c &quot;import multiprocessing; print(max(1, multiprocessing.cpu_count()))&quot;)
+cmake --install build
+</code></pre></div>
+<p>After installation the binaries and Python modules live inside the environment, so a new shell only requires:</p>
 <div class="highlight"><pre><span></span><code>conda activate combine
-</code></pre></div></p>
-<p><strong>Note:</strong> on OS X, <span style="font-variant:small-caps;">Combine</span> can only accept workspaces, so run <code>text2workspace.py</code> first.
-This is due to an issue with child processes and <code>LD_LIBRARY_PATH</code> (see note in Makefile)</p>
+</code></pre></div>
 <h5 id="standalone-compilation-with-cernvm">Standalone compilation with CernVM</h5>
 <p><span style="font-variant:small-caps;">Combine</span>, either standalone or not, can be compiled via CVMFS using access to <code>/cvmfs/cms.cern.ch/</code>  obtained using a virtual machine - <a href="https://cernvm.cern.ch/"><code>CernVM</code></a>. To use <code>CernVM</code> You should have access to CERN IT resources. If you are a CERN user you can use your account, otherwise you can request a lightweight account.
 If you have a CERN user account, we strongly suggest you simply run one of the other standalone installations, which are simpler and faster than using a VM.</p>
@@ -2088,7 +2089,7 @@ At least 2GB of disk space should be reserved on the virtual machine for <span s
 <p>Download the CernVM-launcher for your operating system, following the instructions available [<code>here</code>] for your operating system (https://cernvm.readthedocs.io/en/stable/cpt-launch.html#installation</p>
 </li>
 <li>
-<p>Prepare a CMS context. You can use the CMS open data one already available on gitHub: 
+<p>Prepare a CMS context. You can use the CMS open data one already available on gitHub:
 <code>wget https://raw.githubusercontent.com/cernvm/public-contexts/master/cms-opendata-2011.context)</code></p>
 </li>
 <li>
@@ -2098,7 +2099,7 @@ At least 2GB of disk space should be reserved on the virtual machine for <span s
 <p>In the VM, proceed with an installation of combine</p>
 </li>
 </ol>
-<p>Installation through CernVM is maintained on a best-effort basis and these instructions may not be up to date. </p>
+<p>Installation through CernVM is maintained on a best-effort basis and these instructions may not be up to date.</p>
 <h2 id="what-has-changed-between-tags">What has changed between tags?</h2>
 <p>You can generate a diff of any two tags (eg for <code>v9.2.1</code> and <code>v9.2.0</code>) by using the following url:</p>
 <p><a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v9.2.0...v9.2.1">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/compare/v9.2.0...v9.2.1</a></p>
@@ -2111,28 +2112,28 @@ At least 2GB of disk space should be reserved on the virtual machine for <span s
 <p>Register on GitHub, as needed anyway for CMSSW development: <a href="http://cms-sw.github.io/cmssw/faq.html">http://cms-sw.github.io/cmssw/faq.html</a></p>
 </li>
 <li>
-<p>Register your SSH key on GitHub: <a href="https://help.github.com/articles/generating-ssh-keys">https://help.github.com/articles/generating-ssh-keys</a> </p>
+<p>Register your SSH key on GitHub: <a href="https://help.github.com/articles/generating-ssh-keys">https://help.github.com/articles/generating-ssh-keys</a></p>
 </li>
 <li>
 <p>Fork the repository to create your copy of it: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/fork</a> (more documentation at <a href="https://help.github.com/articles/fork-a-repo">https://help.github.com/articles/fork-a-repo</a> )</p>
 </li>
 </ol>
 <p>You will now be able to browse your fork of the repository from <a href="https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit">https://github.com/your-github-user-name/HiggsAnalysis-CombinedLimit</a></p>
-<p>We strongly encourage you to contribute any developments you make back to the main repository. 
-See <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/contributing.md">contributing.md</a> for details about contributing. </p>
+<p>We strongly encourage you to contribute any developments you make back to the main repository.
+See <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/contributing.md">contributing.md</a> for details about contributing.</p>
 <h2 id="combineharvestercombinetools">CombineHarvester/CombineTools</h2>
 <p>CombineHarvester/CombineTools is a package for the creation of datacards/workspaces used with <span style="font-variant:small-caps;">Combine v10</span> for a number of analyses in CMS. See the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> documentation pages for more details on using this tool and additional features available in the full package.</p>
-<p>This package also comes with useful features for <span style="font-variant:small-caps;">Combine</span> such as the automated datacard validation (see <a href="docs/part3/validation">instructions</a>). The repository can be checked out and compiled using, </p>
+<p>This package also comes with useful features for <span style="font-variant:small-caps;">Combine</span> such as the automated datacard validation (see <a href="docs/part3/validation">instructions</a>). The repository can be checked out and compiled using,</p>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cms-analysis/CombineHarvester.git<span class="w"> </span>CombineHarvester
 scram<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span>
 </code></pre></div>
-<p>See the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> documentation for full instructions and reccomended versions. </p>
+<p>See the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> documentation for full instructions and reccomended versions.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>Starting with <span style="font-variant:small-caps;">Combine v10</span>, specific ombineTool functionalities for job submition and parallelization (<code>combineTool.py</code>) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package. For these tasks you no longer have to follow the instructions above.</p>
 </div>
 <h2 id="citation">Citation</h2>
-<p>If you use <span style="font-variant:small-caps;">Combine</span>, please cite the following CMS publication <a href="https://arxiv.org/abs/2404.06614">here</a>. </p>
+<p>If you use <span style="font-variant:small-caps;">Combine</span>, please cite the following CMS publication <a href="https://arxiv.org/abs/2404.06614">here</a>.</p>
 <details>
 <summary><b>Show BibTex Entry</b></summary>
 <div class="highlight"><pre><span></span><code>@article{
