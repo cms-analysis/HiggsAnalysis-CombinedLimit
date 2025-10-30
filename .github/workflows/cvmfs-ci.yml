@@ -85,6 +85,8 @@ jobs:
                 -DBUILD_TESTS=TRUE \
                 ..;
           make install -j$(nproc);
+          echo "RooFit.Banner: 0" > .rootrc;
+          echo "RooFit.Banner: 0" > test/.rootrc;
           cd ..;
           export PATH=$PWD/install/bin:$PATH;
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH;
