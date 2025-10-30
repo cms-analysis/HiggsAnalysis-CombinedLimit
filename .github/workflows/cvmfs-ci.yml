@@ -125,6 +125,7 @@ jobs:
 
       - uses: ./.github/actions/run-in-cvmfs
         name: Countind datacard Fixed Point from csv
+        if: ${{ env.CMSSW_VERSION != '' }}
         with:
           script: |
             text2workspace.py  data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
@@ -132,6 +133,7 @@ jobs:
 
       - uses: ./.github/actions/run-in-cvmfs
         name: Parametric analysis
+        if: ${{ env.CMSSW_VERSION != '' }}
         with:
           script: |
             text2workspace.py data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -o ws_parametric-analysis.root --mass 125
@@ -147,6 +149,7 @@ jobs:
 
       - uses: ./.github/actions/run-in-cvmfs
         name: Template analysis CMSHistSum
+        if: ${{ env.CMSSW_VERSION != '' }}
         with:
           script: |
             text2workspace.py data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200 --for-fits --no-wrappers --use-histsum
@@ -154,6 +157,7 @@ jobs:
 
       - uses: ./.github/actions/run-in-cvmfs
         name: Template analysis CMSHistSum with shapeN
+        if: ${{ env.CMSSW_VERSION != '' }}
         with:
           script: |
             text2workspace.py data/ci/template-analysis_shapeNInterp.txt -o ws_template-analysis.root --mass 200 --for-fits --no-wrappers --use-histsum
