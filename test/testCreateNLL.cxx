@@ -382,7 +382,12 @@ static std::string AnalyticParamName(const testing::TestParamInfo<TestConfig> &i
 }
 
 INSTANTIATE_TEST_SUITE_P(
+  // Alternative evaluation backends are only supported from ROOT 6.30.
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 30, 0)
+    DISABLED_BarlowBeestonMatrix,
+#else
     BarlowBeestonMatrix,
+#endif
     CreateNLLTest,
     ::testing::Values(TestConfig{BackendComparison::Cpu, true, false},
                       TestConfig{BackendComparison::Codegen, true, true},
