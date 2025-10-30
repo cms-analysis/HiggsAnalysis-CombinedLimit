@@ -1,0 +1,41 @@
+Argument --algo not specified but --fromfile is set to fixed.csv, defaulting to --algo fixed.
+ <<< Combine >>> 
+ <<< v10.2.1 >>>
+>>> Random number generator seed is 123456
+>>> Method used is MultiDimFit
+Doing initial fit: 
+Set Default Value of Parameter r_ggH To : 1
+Set Default Value of Parameter r_qqH To : 1
+ Evaluating fixed point with r_ggH= 1
+ Evaluating fixed point with r_qqH= 1
+ <<< Combine >>> 
+ <<< v10.2.1 >>>
+>>> Random number generator seed is 123456
+>>> Method used is MultiDimFit
+Doing initial fit: 
+Set Default Value of Parameter r_ggH To : 1
+Set Default Value of Parameter r_qqH To : 2
+ Evaluating fixed point with r_ggH= 1
+ Evaluating fixed point with r_qqH= 2
+ <<< Combine >>> 
+ <<< v10.2.1 >>>
+>>> Random number generator seed is 123456
+>>> Method used is MultiDimFit
+Doing initial fit: 
+Set Default Value of Parameter r_ggH To : 2
+Set Default Value of Parameter r_qqH To : 1
+ Evaluating fixed point with r_ggH= 2
+ Evaluating fixed point with r_qqH= 1
+ <<< Combine >>> 
+ <<< v10.2.1 >>>
+>>> Random number generator seed is 123456
+>>> Method used is MultiDimFit
+Doing initial fit: 
+Set Default Value of Parameter r_ggH To : 2
+Set Default Value of Parameter r_qqH To : 2
+ Evaluating fixed point with r_ggH= 2
+ Evaluating fixed point with r_qqH= 2
+>> combine toy-hgg-125.root -M MultiDimFit --algo fixed --fixedPointPOIs r_ggH=1.0,r_qqH=1.0 -n .Test.POINT.0
+>> combine toy-hgg-125.root -M MultiDimFit --algo fixed --fixedPointPOIs r_ggH=1.0,r_qqH=2.0 -n .Test.POINT.1
+>> combine toy-hgg-125.root -M MultiDimFit --algo fixed --fixedPointPOIs r_ggH=2.0,r_qqH=1.0 -n .Test.POINT.2
+>> combine toy-hgg-125.root -M MultiDimFit --algo fixed --fixedPointPOIs r_ggH=2.0,r_qqH=2.0 -n .Test.POINT.3
