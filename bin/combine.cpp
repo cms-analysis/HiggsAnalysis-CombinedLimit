@@ -3,6 +3,7 @@
 #include <TSystem.h>
 #include <TFile.h>
 #include <TTree.h>
+#include <TEnv.h>
 #include <RooRandom.h>
 #include <iostream>
 #include <fstream>
@@ -38,6 +39,9 @@ std::string combineTagString = "v10.2.1";
 int main(int argc, char **argv) {
   using namespace boost;
   namespace po = boost::program_options;
+
+  // Make sure the RooFit banner never appears
+  gEnv->SetValue("RooFit.Banner", 0);
 
   string name;
   string datacard, dataset, dataMapName;
