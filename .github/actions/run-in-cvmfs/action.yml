@@ -32,8 +32,8 @@ runs:
       shell: bash
       run: >-
         source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
-        source virtualenv/bin/activate;
         export PATH=$PWD/install/bin:$PATH;
         export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH;
+        export PYTHONPATH=$PWD/install/python:$PYTHONPATH;
         ulimit -s unlimited;
         ${{ inputs.script }}
