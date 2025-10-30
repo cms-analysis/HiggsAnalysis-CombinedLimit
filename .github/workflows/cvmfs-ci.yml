@@ -149,12 +149,21 @@ jobs:
             combine -M MultiDimFit ws_parametric-analysis.root  --algo singles --setParameterRanges r=-2,1
 
       - uses: ./.github/actions/run-in-cvmfs
-        name: Template analysis
+        name: Template analysis CMSHistFunc 
         with:
           script: |
             text2workspace.py data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
             combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1
             combine -M FitDiagnostics ws_template-analysis.root  -t -1 --setParameters r=1 --plots  --setParameterRanges r=-1,1
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Template analysis CMSHistFunc shapeN
+        with:
+          script: |
+            text2workspace.py data/ci/template-analysis_shapeNInterp.txt -o ws_template-analysis.root --mass 200
+            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1
+            combine -M FitDiagnostics ws_template-analysis.root  -t -1 --setParameters r=1 --plots  --setParameterRanges r=-1,1
+
 
       - uses: ./.github/actions/run-in-cvmfs
         name: Template analysis CMSHistSum
