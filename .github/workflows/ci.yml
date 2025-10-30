@@ -60,7 +60,11 @@ jobs:
     - name: Install build environment
       shell: bash -l {0}
       run: |
-        mamba install -c conda-forge python==${{ matrix.python }} pip pandas root==${{ matrix.root }} gsl tbb vdt boost-cpp pcre eigen
+        EXTRA_PACKAGES=""
+        if [[ "${{ matrix.root }}" == "6.26.4" && "${{ matrix.python }}" == "3.10" ]]; then
+          EXTRA_PACKAGES="libxml2==2.13.8"
+        fi
+        mamba install -c conda-forge python==${{ matrix.python }} pip pandas root==${{ matrix.root }} gsl tbb vdt boost-cpp pcre eigen ${EXTRA_PACKAGES}
         cd HiggsAnalysis/CombinedLimit
         bash set_conda_env_vars.sh
     - name: Build
