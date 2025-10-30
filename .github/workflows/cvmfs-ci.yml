@@ -67,20 +67,10 @@ jobs:
         run: >-
           source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
           root --version;
-          mkdir -p .python/HiggsAnalysis;
-          ln -s $PWD/python $PWD/.python/HiggsAnalysis/CombinedLimit;
-          touch $PWD/.python/HiggsAnalysis/__init__.py;
-          touch $PWD/.python/HiggsAnalysis/CombinedLimit/__init__.py;
-          python3 -m venv virtualenv;
-          source virtualenv/bin/activate;
-          python3 -m pip install -e .;
           mkdir build;
           cd build;
-          cmake -DCMAKE_CXX_COMPILER=$COMPILER_PATH/bin/g++ \
-                -DCMAKE_C_COMPILER=$COMPILER_PATH/bin/gcc \
-                -DCMAKE_INSTALL_PREFIX=../install \
+          cmake -DCMAKE_INSTALL_PREFIX=../install \
                 -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-                -DINSTALL_PYTHON=FALSE \
                 -DUSE_VDT=${USE_VDT} \
                 -DBUILD_TESTS=TRUE \
                 ..;
@@ -119,7 +109,6 @@ jobs:
           LCG_ARCH: ${{ matrix.LCG_ARCH }}
         run: >-
           source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
-          source virtualenv/bin/activate;
           cd build;
           ctest --output-on-failure -j$(nproc) .;
 

@@ -28,8 +28,8 @@ endfunction()
 
 # Set the location of text2workspace.py, assuming installation to a virtual
 # environment inside the source directory.
-set(t2w ${CMAKE_SOURCE_DIR}/virtualenv/bin/text2workspace.py)
-set(combineTool ${CMAKE_SOURCE_DIR}/virtualenv/bin/combineTool.py)
+set(t2w ${CMAKE_BINARY_DIR}/bin/text2workspace.py)
+set(combineTool ${CMAKE_BINARY_DIR}/bin/combineTool.py)
 
 
 # Counting datacard - text2workspace
@@ -38,7 +38,8 @@ ROOT_ADD_TEST(counting_datacard-text2workspace
     COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/tutorials/multiDim/toy-hgg-125.txt
     FIXTURES_SETUP counting_datacard
     # Append the build directory to the library Path to we can use Combine classes
-    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}
+    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$ENV{LD_LIBRARY_PATH}
+                PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
 )
 
 # Counting datacard - combine
@@ -64,7 +65,8 @@ ROOT_ADD_TEST(counting_datacard_from_csv
     FIXTURES_REQUIRED counting_datacard
     WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
     CHECKOUT OUTPUT counting_datacard_from_csv.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/counting_datacard_from_csv.out
-    ENVIRONMENT PATH=${CMAKE_BINARY_DIR}:$ENV{PATH} # So the combineTool.py finds the combine executable
+    ENVIRONMENT PATH=${CMAKE_BINARY_DIR}/bin:$ENV{PATH} # So the combineTool.py finds the combine executable
+                PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
 )
 
 # Parametric analysis - text2workspace
@@ -73,7 +75,8 @@ ROOT_ADD_TEST(parametric_analysis-text2workspace
     COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt
     COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/tutorials/CAT23001/parametric-analysis-datacard-input.root
     FIXTURES_SETUP parametric_analysis
-    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}
+    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$ENV{LD_LIBRARY_PATH}
+                PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
 )
 
 # Parametric analysis - combine
@@ -91,7 +94,8 @@ ROOT_ADD_TEST(cmshistsum-text2workspace
     COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/ci/template-analysis_shapeInterp.txt
     COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/ci/htt_input.root
     FIXTURES_SETUP cmshistsum
-    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}
+    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$ENV{LD_LIBRARY_PATH}
+                PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
 )
 
 # Template analysis CMSHistSum - combine
@@ -108,7 +112,8 @@ ROOT_ADD_TEST(cmshistsum_shapeN-text2workspace
     COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/ci/template-analysis_shapeNInterp.txt
     COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/ci/htt_input.root
     FIXTURES_SETUP cmshistsum_shapeN
-    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}
+    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$ENV{LD_LIBRARY_PATH}
+                PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
 )
 
 # Template analysis CMSHistSum with shapeN - combine
@@ -125,7 +130,8 @@ ROOT_ADD_TEST(template_analysis-t2w
     COPY_TO_BUILDDIR
         ${CMAKE_SOURCE_DIR}/data/ci/template-analysis_shape_autoMCStats.txt
         ${CMAKE_SOURCE_DIR}/data/ci/htt_input.root
-    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}
+    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$ENV{LD_LIBRARY_PATH}
+                PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
     FIXTURES_SETUP template_analysis_workspace
 )
 

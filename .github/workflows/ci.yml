@@ -62,8 +62,7 @@ jobs:
     - name: Build
       shell: bash -l {0}
       run: |
-        Python_SITELIB=$(python3 -c "import sysconfig;p=sysconfig.get_path('purelib');print(p)")
-        cmake -S HiggsAnalysis/CombinedLimit -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DPython_SITELIB=$Python_SITELIB -DUSE_VDT=OFF
+        cmake -S HiggsAnalysis/CombinedLimit -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_INSTALL_PYTHONDIR=lib/python${{ matrix.python }}/site-packages -DUSE_VDT=OFF
         BUILD_JOBS=$(python3 -c "import multiprocessing; print(max(1, multiprocessing.cpu_count()))")
         cmake --build build --clean-first --parallel "${BUILD_JOBS}"
         cmake --install build  # Install to conda prefix (unsafe but ok for CI)
