@@ -1,7 +1,3 @@
-from __future__ import absolute_import, print_function
-
-from six.moves import range
-
 import ROOT
 
 rmin = 0
