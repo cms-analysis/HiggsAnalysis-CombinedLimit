@@ -29,6 +29,8 @@ on_exit_hold = (ExitBySignal == True) || (ExitCode != 0)
 # Periodically retry the jobs every 10 minutes, up to a maximum of 5 retries.
 periodic_release =  (NumJobStarts < 3) && ((CurrentTime - EnteredCurrentStatus) > 600)
 
+%(CONTAINER_OPT)s
+
 %(EXTRA)s
 queue %(NUMBER)s
 
@@ -117,7 +119,7 @@ class CombineToolBase:
 
     def attach_job_args(self, group):
         group.add_argument(
-            "--job-mode", default=self.job_mode, choices=["interactive", "script", "lxbatch", "SGE", "slurm", "condor", "crab3"], help="Task execution mode"
+            "--job-mode", default=self.job_mode, choices=["interactive", "script", "lxbatch", "SGE", "slurm", "condor", "condor-container", "crab3"], help="Task execution mode"
         )
         group.add_argument("--job-dir", default=self.job_dir, help="Path to directory containing job scripts and logs")
         group.add_argument("--prefix-file", default=self.prefix_file, help="Path to file containing job prefix")
@@ -136,7 +138,7 @@ class CombineToolBase:
         )
         group.add_argument("--crab-extra-files", nargs="+", default=self.crab_files, help="Extra files that should be shipped to crab")
         group.add_argument("--pre-cmd", default=self.pre_cmd, help="Prefix the call to combine with this string")
-        group.add_argument("--post-job-cmd", default="", help="Postfix cmd for combine jobs [condor]")
+        group.add_argument("--post-job-cmd", default="", help="Postfix cmd for combine jobs [condor, condor-container]")
         group.add_argument(
             "--custom-crab-post",
             default=self.custom_crab_post,
@@ -294,7 +296,7 @@ class CombineToolBase:
             full_script = os.path.abspath(script_name)
             logname = full_script.replace(".sh", "_%A_%a.log")
             run_command(self.dry_run, "sbatch --array=1-%i -o %s %s %s" % (jobs, logname, self.bopts, full_script))
-        if self.job_mode == "condor":
+        if self.job_mode.startswith("condor"):
             outscriptname = "condor_%s.sh" % self.task_name
             subfilename = "condor_%s.sub" % self.task_name
             print(">> condor job script will be %s" % outscriptname)
@@ -314,9 +316,15 @@ class CombineToolBase:
             st = os.stat(outscriptname)
             os.chmod(outscriptname, st.st_mode | stat.S_IEXEC)
             subfile = open(subfilename, "w")
+            if self.job_mode == "condor-container":
+                image_name = os.environ.get("APPTAINER_IMAGE", "/cvmfs/unpacked.cern.ch/gitlab-registry.cern.ch/cms-analysis/general/combine-container:latest")
+                container_opt = f'+SingularityImage = "{image_name}" \n'
+            else:
+                container_opt = ""
             condor_settings = CONDOR_TEMPLATE % {
                 "EXE": outscriptname,
                 "TASK": self.task_name,
+                "CONTAINER_OPT": container_opt,
                 "EXTRA": self.bopts.encode("UTF-8").decode("unicode_escape"),
                 "NUMBER": jobs,
             }
