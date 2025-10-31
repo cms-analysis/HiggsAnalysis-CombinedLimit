@@ -102,7 +102,7 @@ jobs:
             root --version
             combine --help
 
-      - name: Run Tests
+      - name: Run Tests (LCG)
         if: ${{ env.CMSSW_VERSION == '' }}
         env:
           LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
@@ -111,6 +111,38 @@ jobs:
           source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
           ulimit -s unlimited;
           ctest --test-dir build --output-on-failure -j$(nproc);
+
+      # AlmaLinux 9 job
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Run Tests (CMSSW, AlmaLinux 9)
+        if: ${{ matrix.IMAGE == 'cmscloud/al9-cms' }}
+        with:
+          script: |
+            set -euxo pipefail
+            sudo dnf install -y gtest-devel
+            mkdir build_test
+            cd build_test
+            cmake ../test
+            cmake --build . -j"$(nproc)"
+            cd ..
+            ctest --test-dir build_test --output-on-failure
+
+      # CentOS 7 job
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Run Tests (CMSSW, CentOS 7)
+        if: ${{ matrix.IMAGE == 'cmscloud/cc7-cms' }}
+        with:
+          script: |
+            set -euxo pipefail
+            sudo yum install -y epel-release
+            sudo yum install -y cmake3 gtest-devel
+            mkdir build_test
+            cd build_test
+            cmake3 ../test
+            cmake3 --build . -j"$(nproc)"
+            cd ..
+            cd build_test
+            ctest3 --output-on-failure .
 
       - uses: ./.github/actions/run-in-cvmfs
         name: Counting datacard
