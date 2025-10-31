@@ -264,7 +264,7 @@ def print_signal_significance(signals_expected_rates, n_signals_A, n_signals_B, 
         # print number of signal events
         print(f"background in region A: {b}")
         if b > 0:
-            print(f"{signal} in region A: s/sqrt(b) = {s/np.sqrt(b)}")
+            print(f"{signal} in region A: s/sqrt(b) = {s / np.sqrt(b)}")
         else:
             print(f"{signal} in region A: s/sqrt(b) = inf")
 
@@ -273,7 +273,7 @@ def print_signal_significance(signals_expected_rates, n_signals_A, n_signals_B, 
         print(f"background in region B: {b}")
 
         if b > 0:
-            print(f"{signal} in region B: s/sqrt(b) = {s/np.sqrt(b)}")
+            print(f"{signal} in region B: s/sqrt(b) = {s / np.sqrt(b)}")
         else:
             print(f"{signal} in region B: s/sqrt(b) = inf")
 
@@ -282,7 +282,7 @@ def print_signal_significance(signals_expected_rates, n_signals_A, n_signals_B, 
         print(f"background in region C: {b}")
 
         if b > 0:
-            print(f"{signal} in region C: s/sqrt(b) = {s/np.sqrt(b)}")
+            print(f"{signal} in region C: s/sqrt(b) = {s / np.sqrt(b)}")
         else:
             print(f"{signal} in region C: s/sqrt(b) = inf")
 
@@ -291,7 +291,7 @@ def print_signal_significance(signals_expected_rates, n_signals_A, n_signals_B, 
         print(f"background in region D: {b}")
 
         if b > 0:
-            print(f"{signal} in region D: s/sqrt(b) = {s/np.sqrt(b)}")
+            print(f"{signal} in region D: s/sqrt(b) = {s / np.sqrt(b)}")
         else:
             print(f"{signal} in region D: s/sqrt(b) = inf")
         print("****************************************************************************************")
