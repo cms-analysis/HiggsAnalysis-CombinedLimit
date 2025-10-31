@@ -86,7 +86,7 @@ if(MODIFY_ROOTMAP)
         # edit the generated rootmap in-situ before installation
 
         # Define the path to the generated file
-        set(GENERATED_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/lib${LIBNAME}.rootmap")
+        set(GENERATED_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lib${LIBNAME}.rootmap")
 
         # Define the custom command to search and replace in-place
         add_custom_command(
