@@ -26,41 +26,65 @@ function(COMBINE_ADD_GTEST test_suite)
   )
 endfunction()
 
+
+# Arguments:
+#   TEST_BASENAME           Base name of the test (e.g. "parametric_analysis" or "cmshistsum")
+#   COPY_TO_BUILDDIR        List of required files to copy (e.g. datacard and ROOT inputs)
+#   T2W_COMMAND
+#   COMBINE_COMMANDS
+function(ADD_COMBINE_TEST TEST_BASENAME)
+    cmake_parse_arguments(ARG "" "" "COPY_TO_BUILDDIR;T2W_COMMAND;COMBINE_COMMANDS" ${ARGN})
+
+  # --- text2workspace test ---
+  ROOT_ADD_TEST(${TEST_BASENAME}-text2workspace
+      COMMAND ${CMAKE_BINARY_DIR}/bin/${ARG_T2W_COMMAND}
+      COPY_TO_BUILDDIR ${ARG_COPY_TO_BUILDDIR}
+      FIXTURES_SETUP ${TEST_BASENAME}
+      ENVIRONMENT
+          LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$ENV{LD_LIBRARY_PATH}
+          PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
+  )
+
+  # Combine multiple commands into a single shell command chain
+  set(_combined_command "")
+  foreach(cmd IN LISTS ARG_COMBINE_COMMANDS)
+      string(APPEND _combined_command "${cmd} && ")
+      set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS "${cmd} >> references/${TEST_BASENAME}.out")
+  endforeach()
+  string(REGEX REPLACE " && $" "" _combined_command "${_combined_command}")  # remove trailing &&
+
+  # --- combine test ---
+  ROOT_ADD_TEST(${TEST_BASENAME}
+      COMMAND bash -c "${_combined_command}"
+      FIXTURES_REQUIRED ${TEST_BASENAME} # requires corresponding text2workspace run
+      # We compare the output to reference files to validate the best-fit parameter values
+      WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
+      CHECKOUT OUTPUT ${TEST_BASENAME}.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/${TEST_BASENAME}.out
+      # For this test, we are not interested in the standard error, but you could
+      # compare this too:
+      # CHECKERR
+      # ERROR ${TEST_BASENAME}.err
+      # ERRREF ${CMAKE_CURRENT_SOURCE_DIR}/references/${TEST_BASENAME}.err
+      ENVIRONMENT PATH=${CMAKE_BINARY_DIR}/bin:$ENV{PATH}
+  )
+endfunction()
+
 # Set the location of text2workspace.py, assuming installation to a virtual
 # environment inside the source directory.
 set(t2w ${CMAKE_BINARY_DIR}/bin/text2workspace.py)
-set(combineTool ${CMAKE_BINARY_DIR}/bin/combineTool.py)
 
-
-# Counting datacard - text2workspace
-ROOT_ADD_TEST(counting_datacard-text2workspace
-    COMMAND ${t2w} toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
-    COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/tutorials/multiDim/toy-hgg-125.txt
-    FIXTURES_SETUP counting_datacard
-    # Append the build directory to the library Path to we can use Combine classes
-    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$ENV{LD_LIBRARY_PATH}
-                PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
-)
-
-# Counting datacard - combine
-ROOT_ADD_TEST(counting_datacard
-    COMMAND combine -M MultiDimFit toy-hgg-125.root  --setParameterRanges r=-1,1
-    FIXTURES_REQUIRED counting_datacard # requires corresponding text2workspace run
-    # We compare the output to reference files to validate the best-fit parameter values
-    WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
-    CHECKOUT
-    OUTPUT counting_datacard.out
-    OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/counting_datacard.out
-    # For this test, we are not interested in the standard error, but you could
-    # compare this too:
-    # CHECKERR
-    # ERROR counting_datacard.err
-    # ERRREF ${CMAKE_CURRENT_SOURCE_DIR}/references/counting_datacard.err
+# Counting datacard
+ADD_COMBINE_TEST(counting_datacard
+  COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/tutorials/multiDim/toy-hgg-125.txt
+  T2W_COMMAND
+    text2workspace.py toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit toy-hgg-125.root  --setParameterRanges r=-1,1"
 )
 
 # Counting datacard Fixed Point from csv - combineTool.py
 ROOT_ADD_TEST(counting_datacard_from_csv
-    COMMAND ${combineTool} -M MultiDimFit toy-hgg-125.root --fromfile fixed.csv
+    COMMAND ${CMAKE_BINARY_DIR}/bin/combineTool.py -M MultiDimFit toy-hgg-125.root --fromfile fixed.csv
     COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/tutorials/multiDim/fixed.csv
     FIXTURES_REQUIRED counting_datacard
     WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -68,64 +92,64 @@ ROOT_ADD_TEST(counting_datacard_from_csv
     ENVIRONMENT PATH=${CMAKE_BINARY_DIR}/bin:$ENV{PATH} # So the combineTool.py finds the combine executable
                 PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
 )
+set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS "combineTool.py -M MultiDimFit toy-hgg-125.root --fromfile fixed.csv >> references/counting_datacard_from_csv.out")
 
-# Parametric analysis - text2workspace
-ROOT_ADD_TEST(parametric_analysis-text2workspace
-    COMMAND ${t2w} datacard-3-parametric-analysis.txt --mass 125
-    COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt
-    COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/tutorials/CAT23001/parametric-analysis-datacard-input.root
-    FIXTURES_SETUP parametric_analysis
-    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$ENV{LD_LIBRARY_PATH}
-                PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
+# Parametric analysis
+ADD_COMBINE_TEST(parametric_analysis
+  COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt
+                   ${CMAKE_SOURCE_DIR}/data/tutorials/CAT23001/parametric-analysis-datacard-input.root
+  T2W_COMMAND
+    text2workspace.py datacard-3-parametric-analysis.txt --mass 125
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit datacard-3-parametric-analysis.root --algo singles --setParameterRanges r=-2,1"
 )
 
-# Parametric analysis - combine
-ROOT_ADD_TEST(parametric_analysis
-    COMMAND combine -M MultiDimFit datacard-3-parametric-analysis.root --algo singles --setParameterRanges r=-2,1
-    FIXTURES_REQUIRED parametric_analysis
-    WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
-    CHECKOUT OUTPUT parametric_analysis.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/parametric_analysis.out
+# TODO: make these tests work too
+#
+# # Template analysis CMSHistFunc
+# ADD_COMBINE_TEST(cmshistfunc
+#   COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/ci/template-analysis_shapeInterp.txt
+#                    ${CMAKE_SOURCE_DIR}/data/ci/htt_input.root
+#   T2W_COMMAND
+#     text2workspace.py template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
+#   COMBINE_COMMANDS
+#     "combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1"
+#     "combine -M FitDiagnostics ws_template-analysis.root  -t -1 --setParameters r=1 --plots  --setParameterRanges r=-1,1"
+# )
+# 
+# # Template analysis CMSHistFunc shapeN
+# ADD_COMBINE_TEST(cmshistfunc_shapeN
+#   COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/ci/template-analysis_shapeNInterp.txt
+#                    ${CMAKE_SOURCE_DIR}/data/ci/htt_input.root
+#   T2W_COMMAND
+#     text2workspace.py template-analysis_shapeNInterp.txt -o ws_template-analysis-shapeN.root --mass 200
+#   COMBINE_COMMANDS
+#     "combine -M MultiDimFit ws_template-analysis-shapeN.root --algo singles  --setParameterRanges r=-1,1"
+#     "combine -M FitDiagnostics ws_template-analysis-shapeN.root  -t -1 --setParameters r=1 --plots  --setParameterRanges r=-1,1"
+# )
+
+# Template analysis CMSHistSum
+ADD_COMBINE_TEST(cmshistsum
+  COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/ci/template-analysis_shapeInterp.txt
+                   ${CMAKE_SOURCE_DIR}/data/ci/htt_input.root
+  T2W_COMMAND
+    text2workspace.py template-analysis_shapeInterp.txt --mass 200 --for-fits --no-wrappers --use-histsum
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit template-analysis_shapeInterp.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH"
 )
 
-
-# Template analysis CMSHistSum - text2workspace
-ROOT_ADD_TEST(cmshistsum-text2workspace
-    COMMAND ${t2w} template-analysis_shapeInterp.txt --mass 200 --for-fits --no-wrappers --use-histsum
-    COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/ci/template-analysis_shapeInterp.txt
-    COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/ci/htt_input.root
-    FIXTURES_SETUP cmshistsum
-    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$ENV{LD_LIBRARY_PATH}
-                PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
-)
-
-# Template analysis CMSHistSum - combine
-ROOT_ADD_TEST(cmshistsum
-    COMMAND combine -M MultiDimFit template-analysis_shapeInterp.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH
-    FIXTURES_REQUIRED cmshistsum
-    WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
-    CHECKOUT OUTPUT cmshistsum.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistsum.out
-)
-
-# Template analysis CMSHistSum with shapeN - text2workspace
-ROOT_ADD_TEST(cmshistsum_shapeN-text2workspace
-    COMMAND ${t2w} template-analysis_shapeNInterp.txt --mass 200 --for-fits --no-wrappers --use-histsum
-    COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/ci/template-analysis_shapeNInterp.txt
-    COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/ci/htt_input.root
-    FIXTURES_SETUP cmshistsum_shapeN
-    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$ENV{LD_LIBRARY_PATH}
-                PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
-)
-
-# Template analysis CMSHistSum with shapeN - combine
-ROOT_ADD_TEST(cmshistsum_shapeN
-    COMMAND combine -M MultiDimFit template-analysis_shapeNInterp.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH
-    FIXTURES_REQUIRED cmshistsum_shapeN
-    WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
-    CHECKOUT OUTPUT cmshistsum_shapeN.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistsum_shapeN.out
+# Template analysis CMSHistSum with shapeN
+ADD_COMBINE_TEST(cmshistsum_shapeN
+  COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/data/ci/template-analysis_shapeNInterp.txt
+                   ${CMAKE_SOURCE_DIR}/data/ci/htt_input.root
+  T2W_COMMAND
+    text2workspace.py template-analysis_shapeNInterp.txt --mass 200 --for-fits --no-wrappers --use-histsum
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit template-analysis_shapeNInterp.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH"
 )
 
 # Template-analysis datacard -> text2workspace
-ROOT_ADD_TEST(template_analysis-t2w
+ROOT_ADD_TEST(template_analysis-text2workspace
     COMMAND ${t2w} template-analysis_shape_autoMCStats.txt -o template-analysis_shape_autoMCStats.root
     COPY_TO_BUILDDIR
         ${CMAKE_SOURCE_DIR}/data/ci/template-analysis_shape_autoMCStats.txt
@@ -143,3 +167,28 @@ COMBINE_ADD_GTEST(template_analysis-testCreateNLL
 set_property(TEST gtest-template-analysis-testCreateNLL
     PROPERTY FIXTURES_REQUIRED template_analysis_workspace
 )
+
+
+# Write the script to produce the reference files. After building combine, you
+# can produce the reference files as follows:
+#
+#   cd build
+#   ctest -j8 .
+#   cd test
+#   sh create_reference_files.sh
+#
+# You have now a new reference files directory in build/test/references that
+# you can use to replace test/references in the repository.
+
+get_property(all_combine_commands GLOBAL PROPERTY ALL_COMBINE_COMMANDS)
+message(STATUS "All combine commands:")
+set(_outfile "${CMAKE_BINARY_DIR}/test/create_reference_files.sh")
+file(WRITE "${_outfile}" "#!/usr/bin/env bash\n\n")
+file(APPEND "${_outfile}" "mkdir references\n\n")
+file(APPEND "${_outfile}" "PATH=${CMAKE_BINARY_DIR}/bin:$PATH\n")
+file(APPEND "${_outfile}" "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$LD_LIBRARY_PATH\n")
+file(APPEND "${_outfile}" "PYTHONPATH=${CMAKE_BINARY_DIR}/python:$PYTHONPATH\n\n")
+foreach(cmd IN LISTS all_combine_commands)
+    file(APPEND "${_outfile}" "${cmd}\n")
+endforeach()
+message(STATUS "Wrote script to produce test reference files ${_outfile}")
