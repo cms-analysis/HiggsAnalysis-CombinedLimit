@@ -169,11 +169,26 @@ set_property(TEST gtest-template-analysis-testCreateNLL
 )
 
 
+# test_interference.py
+ROOT_ADD_TEST(test_interference_py
+    COMMAND python test_interference.py
+    COPY_TO_BUILDDIR ${CMAKE_SOURCE_DIR}/test/test_interference.py
+    ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$ENV{LD_LIBRARY_PATH}
+                PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
+                PATH=${CMAKE_BINARY_DIR}/bin:$ENV{PATH}
+    WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
+    # The test output is not deterministic yet, so unfortunately we can't do
+    # the comparison with the reference file for now.
+    # CHECKOUT OUTPUT test_interference_py.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/test_interference_py.out
+)
+set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS "python test_interference.py >> references/test_interference_py.out")
+
+
 # Write the script to produce the reference files. After building combine, you
 # can produce the reference files as follows:
 #
 #   cd build
-#   ctest -j8 .
+#   ctest -j8
 #   cd test
 #   sh create_reference_files.sh
 #

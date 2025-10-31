@@ -19,10 +19,10 @@ jobs:
     name: Run linter (flake8+black)
     steps:
     - uses: actions/checkout@master
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.8
+        python-version: 3.12
     - name: Lint with flake8 and black -l 160
       run: |
         python -m pip install -q flake8 black
@@ -58,16 +58,18 @@ jobs:
       shell: bash -l {0}
       run: |
         # Install dependencies (synchronize with cms-combine-feedstock recipe.yaml)
-        mamba install -c conda-forge cmake python==${{ matrix.python }} pandas gsl root==${{ matrix.root }} boost-cpp eigen vdt
+        mamba install -c conda-forge cmake python==${{ matrix.python }} pandas gsl root==${{ matrix.root }} boost-cpp eigen gtest
     - name: Build
       shell: bash -l {0}
       run: |
-        cmake -S HiggsAnalysis/CombinedLimit -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_INSTALL_PYTHONDIR=lib/python${{ matrix.python }}/site-packages -DUSE_VDT=OFF
-        BUILD_JOBS=$(python3 -c "import multiprocessing; print(max(1, multiprocessing.cpu_count()))")
-        cmake --build build --clean-first --parallel "${BUILD_JOBS}"
+        cmake -S HiggsAnalysis/CombinedLimit -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_INSTALL_PYTHONDIR=lib/python${{ matrix.python }}/site-packages -DUSE_VDT=OFF -DBUILD_TESTS=ON
+        cmake --build build --clean-first --parallel "$(nproc)"
         cmake --install build  # Install to conda prefix (unsafe but ok for CI)
     - name: Run tests
       shell: bash -l {0}
+      # Check if executables and Python module works, and then run the test battery
       run: |
-        cd HiggsAnalysis/CombinedLimit/test
-        python test_interference.py
+        combine --help > /dev/null
+        text2workspace.py --help > /dev/null
+        ulimit -s unlimited;
+        ctest --test-dir build --output-on-failure
