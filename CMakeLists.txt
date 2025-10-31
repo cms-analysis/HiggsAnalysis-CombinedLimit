@@ -196,8 +196,5 @@ INSTALL(FILES ${empty_init_py} DESTINATION ${CMAKE_INSTALL_PYTHONDIR}/HiggsAnaly
 
 
 if(BUILD_TESTS)
-  find_package(GTest 1.10 REQUIRED)
-
-  enable_testing()
   add_subdirectory(test)
 endif()
