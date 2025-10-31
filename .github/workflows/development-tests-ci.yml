@@ -8,6 +8,7 @@ on:
 
 jobs:
   test_workflow:
+    if: github.event.label.name == 'testAD'
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -69,7 +70,7 @@ jobs:
           image: ${{ matrix.IMAGE }}
           shell: bash
           options: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  --mount source=cmsusr,destination=/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
-          run: | 
+          run: |
             cd /home/cmsusr/
             source /cvmfs/cms.cern.ch/cmsset_default.sh
             scram project ${CMSSW_VERSION}
@@ -275,3 +276,8 @@ jobs:
           path: outputs/
           retention-days: 7
 
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Compare outputs
+        with:
+          script: |
+            python3 test/codegen/compare_codegen.py ${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
