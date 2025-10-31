@@ -465,7 +465,8 @@
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="Within CMSSW (recommended for CMS users)">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#combine-v10-recommended-version" class="md-nav__link">
@@ -477,14 +478,23 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#legacy-versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Legacy versions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Legacy versions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#combine-v9" class="md-nav__link">
     <span class="md-ellipsis">
       Combine v9
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Combine v9">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
   <a href="#combine-v8-cmssw_10_2_x-release-series" class="md-nav__link">
@@ -509,14 +519,19 @@
   
 </li>
         
+      </ul>
+    </nav>
+  
+</li>
+        
           <li class="md-nav__item">
-  <a href="#oustide-of-cmssw-recommended-for-non-cms-users" class="md-nav__link">
+  <a href="#oustide-of-cmssw" class="md-nav__link">
     <span class="md-ellipsis">
-      Oustide of CMSSW (recommended for non-CMS users)
+      Oustide of CMSSW
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Oustide of CMSSW (recommended for non-CMS users)">
+    <nav class="md-nav" aria-label="Oustide of CMSSW">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -556,17 +571,26 @@
   
 </li>
         
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-compiled-versions-in-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pre-compiled versions in Docker
+    </span>
+  </a>
+  
+</li>
+        
           <li class="md-nav__item">
   <a href="#standalone-compilation-with-cernvm" class="md-nav__link">
     <span class="md-ellipsis">
       Standalone compilation with CernVM
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -1761,7 +1785,8 @@
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="Within CMSSW (recommended for CMS users)">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#combine-v10-recommended-version" class="md-nav__link">
@@ -1773,14 +1798,23 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#legacy-versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Legacy versions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Legacy versions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#combine-v9" class="md-nav__link">
     <span class="md-ellipsis">
       Combine v9
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Combine v9">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
   <a href="#combine-v8-cmssw_10_2_x-release-series" class="md-nav__link">
@@ -1805,14 +1839,19 @@
   
 </li>
         
+      </ul>
+    </nav>
+  
+</li>
+        
           <li class="md-nav__item">
-  <a href="#oustide-of-cmssw-recommended-for-non-cms-users" class="md-nav__link">
+  <a href="#oustide-of-cmssw" class="md-nav__link">
     <span class="md-ellipsis">
-      Oustide of CMSSW (recommended for non-CMS users)
+      Oustide of CMSSW
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Oustide of CMSSW (recommended for non-CMS users)">
+    <nav class="md-nav" aria-label="Oustide of CMSSW">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1852,17 +1891,26 @@
   
 </li>
         
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-compiled-versions-in-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pre-compiled versions in Docker
+    </span>
+  </a>
+  
+</li>
+        
           <li class="md-nav__item">
   <a href="#standalone-compilation-with-cernvm" class="md-nav__link">
     <span class="md-ellipsis">
       Standalone compilation with CernVM
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -1953,7 +2001,7 @@ users that do not need to commit or do any development, the following recipes
 should be sufficient. To choose a release version, you can find the latest
 releases on github under
 <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases">https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases</a></p>
-<h3 id="combine-v10-recommended-version">Combine v10 - recommended version</h3>
+<h4 id="combine-v10-recommended-version">Combine v10 - recommended version</h4>
 <p>The nominal installation method is inside CMSSW. The current release targets
 the CMSSW <code>14_1_X</code> series because of the recent switch to el9 at lxplus machines.</p>
 <p>Currently, the recommended tag is <strong>v10.2.1</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.2.1">see release notes</a>
@@ -1965,7 +2013,8 @@ git<span class="w"> </span>-c<span class="w"> </span>advice.detachedHead<span cl
 <span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
 scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span><span class="w"> </span><span class="c1"># always make a clean build, with n - 2 cores on the system</span>
 </code></pre></div>
-<h3 id="combine-v9">Combine v9</h3>
+<h4 id="legacy-versions">Legacy versions</h4>
+<h5 id="combine-v9">Combine v9</h5>
 <p>The nominal installation method is inside CMSSW. The current release targets
 the CMSSW <code>11_3_X</code> series because this release has both python2 and python3 ROOT
 bindings, allowing a more gradual migration of user code to python3. <span style="font-variant:small-caps;">Combine</span> is
@@ -1981,7 +2030,7 @@ git<span class="w"> </span>-c<span class="w"> </span>advice.detachedHead<span cl
 <span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
 scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span><span class="w"> </span><span class="c1"># always make a clean build, with n - 2 cores on the system</span>
 </code></pre></div>
-<h4 id="combine-v8-cmssw_10_2_x-release-series">Combine v8: <code>CMSSW_10_2_X</code> release series</h4>
+<h5 id="combine-v8-cmssw_10_2_x-release-series">Combine v8: <code>CMSSW_10_2_X</code> release series</h5>
 <p>Setting up the environment (once) is described below.
 Currently, the recommended tag is <strong>v8.2.0</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v8.2.0">see release notes</a>
 The <code>git clone</code> command below contains this tag and is optimised to reduce disk usage.</p>
@@ -1992,7 +2041,7 @@ cmsenv
 git<span class="w"> </span>-c<span class="w"> </span>advice.detachedHead<span class="o">=</span><span class="nb">false</span><span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v8.2.0<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
 scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span><span class="w"> </span><span class="c1"># always make a clean build, with n - 2 cores on the system</span>
 </code></pre></div>
-<h4 id="slc6cc7-release-cmssw_8_1_x">SLC6/CC7 release <code>CMSSW_8_1_X</code></h4>
+<h5 id="slc6cc7-release-cmssw_8_1_x">SLC6/CC7 release <code>CMSSW_8_1_X</code></h5>
 <p>Setting up OS using apptainer (<a href="http://cms-sw.github.io/singularity.html">see detailed instructions</a>):</p>
 <p><div class="highlight"><pre><span></span><code><span class="c1"># For CC7:</span>
 cmssw-el7
@@ -2011,13 +2060,7 @@ git<span class="w"> </span>fetch<span class="w"> </span>origin
 git<span class="w"> </span>checkout<span class="w"> </span>v7.0.13
 scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span><span class="w"> </span><span class="c1"># always make a clean build, with n - 2 cores on the system</span>
 </code></pre></div>
-<h3 id="oustide-of-cmssw-recommended-for-non-cms-users">Oustide of CMSSW (recommended for non-CMS users)</h3>
-<p>Pre-compiled versions of the tool are available as container images from the <a href="https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235">CMS cloud</a>. These containers can be downloaded and run using <a href="https://cms-opendata-guide.web.cern.ch/tools/docker/">Docker</a>. If you have docker running you can pull and run the image using,</p>
-<p><div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>combine<span class="w"> </span>-it<span class="w"> </span>gitlab-registry.cern.ch/cms-cloud/combine-standalone:&lt;tag&gt;
-</code></pre></div>
-where you must replace <code>&lt;tag&gt;</code> with a particular version of the tool. At the moment the available container versions are <code>v9.2.1</code> and <code>v9.2.1-slim</code>, both build with Combine tag <code>v9.2.1</code>, and the <code>v9.2.1-slim</code> correspond to a slim version. If no tag is specified the latest version of the container will be loaded, which is <code>v9.2.1-slim</code> at the moment. The containers for <code>v10.X.X</code> versions are being developed and are not yet availble for the users.</p>
-<p>You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool.
-The container can be re-started using <code>docker start -i combine</code>.</p>
+<h3 id="oustide-of-cmssw">Oustide of CMSSW</h3>
 <h4 id="standalone-compilation">Standalone compilation</h4>
 <p>The standalone version can be easily compiled using
 <a href="https://cernvm.cern.ch/fs/">cvmfs</a> as it relies on dependencies that are
@@ -2046,17 +2089,16 @@ exit
 source . env_standalone.sh
 </code></pre></div>
 <h5 id="standalone-compilation-with-lcg">Standalone compilation with LCG</h5>
-<p>For compilation outside of CMSSW, for example to use ROOT versions not yet available in CMSSW, one can compile against LCG releases. The current default is to compile with LCG_102, which contains ROOT 6.26:
+<p>For compilation outside of CMSSW, for example to use ROOT versions not yet available in CMSSW, one can compile against LCG releases:
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
 <span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
 <span class="nb">source</span><span class="w"> </span>env_lcg.sh
-make<span class="w"> </span><span class="nv">LCG</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>-j<span class="w"> </span><span class="m">8</span>
+mkdir<span class="w"> </span>build
+<span class="nb">cd</span><span class="w"> </span>build
+cmake<span class="w"> </span>..
+make<span class="w"> </span>-j8
 </code></pre></div>
 To change the LCG version, edit <code>env_lcg.sh</code>.</p>
-<p>The resulting binaries can be moved for use in a
-batch job if the following files are included in the job tarball:
-<div class="highlight"><pre><span></span><code>tar<span class="w"> </span>-zcf<span class="w"> </span>Combine_LCG_env.tar.gz<span class="w"> </span>build<span class="w"> </span>interface<span class="w"> </span>src/classes.h<span class="w"> </span>--exclude<span class="o">=</span>obj
-</code></pre></div></p>
 <h5 id="standalone-compilation-with-conda-cmake-based">Standalone compilation with <code>conda</code> (CMake-based)</h5>
 <p>This recipe mirrors the setup used in our GitHub Actions builds and works on both Linux and macOS (Intel or Apple silicon):</p>
 <div class="highlight"><pre><span></span><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
@@ -2079,14 +2121,21 @@ cmake --install build
 <p>After installation the binaries and Python modules live inside the environment, so a new shell only requires:</p>
 <div class="highlight"><pre><span></span><code>conda activate combine
 </code></pre></div>
-<h5 id="standalone-compilation-with-cernvm">Standalone compilation with CernVM</h5>
+<h4 id="pre-compiled-versions-in-docker">Pre-compiled versions in Docker</h4>
+<p>Pre-compiled versions of the tool are available as container images from the <a href="https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235">CMS cloud</a>. These containers can be downloaded and run using <a href="https://cms-opendata-guide.web.cern.ch/tools/docker/">Docker</a>. If you have docker running you can pull and run the image using,</p>
+<p><div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>combine<span class="w"> </span>-it<span class="w"> </span>gitlab-registry.cern.ch/cms-cloud/combine-standalone:&lt;tag&gt;
+</code></pre></div>
+where you must replace <code>&lt;tag&gt;</code> with a particular version of the tool. At the moment the available container versions are <code>v9.2.1</code> and <code>v9.2.1-slim</code>, both build with Combine tag <code>v9.2.1</code>, and the <code>v9.2.1-slim</code> correspond to a slim version. If no tag is specified the latest version of the container will be loaded, which is <code>v9.2.1-slim</code> at the moment. The containers for <code>v10.X.X</code> versions are being developed and are not yet availble for the users.</p>
+<p>You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool.
+The container can be re-started using <code>docker start -i combine</code>.</p>
+<h4 id="standalone-compilation-with-cernvm">Standalone compilation with CernVM</h4>
 <p><span style="font-variant:small-caps;">Combine</span>, either standalone or not, can be compiled via CVMFS using access to <code>/cvmfs/cms.cern.ch/</code>  obtained using a virtual machine - <a href="https://cernvm.cern.ch/"><code>CernVM</code></a>. To use <code>CernVM</code> You should have access to CERN IT resources. If you are a CERN user you can use your account, otherwise you can request a lightweight account.
 If you have a CERN user account, we strongly suggest you simply run one of the other standalone installations, which are simpler and faster than using a VM.</p>
 <p>You should have a working VM on your local machine, compatible with CernVM, such as <code>VirtualBox</code>. All the required software can be downloaded <a href="https://cernvm.cern.ch/appliance/">here</a>.
 At least 2GB of disk space should be reserved on the virtual machine for <span style="font-variant:small-caps;">Combine</span> to work properly and the machine must be contextualized to add the <code>CMS</code> group to CVMFS. A minimal working setup is described below.</p>
 <ol>
 <li>
-<p>Download the CernVM-launcher for your operating system, following the instructions available [<code>here</code>] for your operating system (https://cernvm.readthedocs.io/en/stable/cpt-launch.html#installation</p>
+<p>Download the CernVM-launcher for your operating system, following the instructions available <a href="https://cernvm.readthedocs.io/en/stable/cpt-launch.html#installation">here</a> for your operating system</p>
 </li>
 <li>
 <p>Prepare a CMS context. You can use the CMS open data one already available on gitHub:
