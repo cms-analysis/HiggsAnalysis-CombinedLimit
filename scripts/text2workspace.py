@@ -95,7 +95,7 @@ mod = modules[physModMod]
 physics = getattr(mod, physModName)
 if mod is None:
     raise RuntimeError("Physics model module %s not found" % physModMod)
-if physics == None or not isinstance(physics, PhysicsModelBase):
+if physics is None or not isinstance(physics, PhysicsModelBase):
     raise RuntimeError(f"Physics model {physModName} in module {physModMod} not found, or not inheriting from PhysicsModelBase")
 physics.setPhysicsOptions(options.physOpt)
 ## Attach to the tools, and run

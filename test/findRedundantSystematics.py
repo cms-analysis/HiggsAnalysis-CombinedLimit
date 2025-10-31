@@ -149,7 +149,7 @@ def lnN_redundancies(allSysts):
         #                print set(kappaRatios[pair])
         #                rejectedPairs.append(pair)
         #                break
-        temp = [x for x in kappaRatios[pair] if x != None]
+        temp = [x for x in kappaRatios[pair] if x is not None]
         kappaRatios[pair] = list(set(temp))
         if 0.0 not in kappaRatios[pair]:
             correlatedPairs.append(pair)

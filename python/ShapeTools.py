@@ -849,7 +849,7 @@ class ShapeBuilder(ModelBuilder):
         if (channel, process) in _cache:
             return _cache[(channel, process)]
         shapeNominal = self.getShape(channel, process)
-        nominalPdf = self.shape2Pdf(shapeNominal, channel, process) if (self.options.useHistPdf == "always" or shapeNominal == None) else shapeNominal
+        nominalPdf = self.shape2Pdf(shapeNominal, channel, process) if (self.options.useHistPdf == "always" or shapeNominal is None) else shapeNominal
         if shapeNominal is None:
             return nominalPdf  # no point morphing a fake shape
         morphs = []
@@ -1088,7 +1088,7 @@ class ShapeBuilder(ModelBuilder):
         if (syst, channel, process) in list(self.DC.systematicsShapeMap.keys()):
             systShapeName = self.DC.systematicsShapeMap[(syst, channel, process)]
         shapeUp = self.getShape(channel, process, systShapeName + "Up", allowNoSyst=True)
-        return shapeUp != None
+        return shapeUp is not None
 
     def getExtraNorm(self, channel, process):
         if channel in self.selfNormBins and self.DC.binParFlags[channel][2] in [2]:
