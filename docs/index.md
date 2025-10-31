@@ -32,7 +32,7 @@ should be sufficient. To choose a release version, you can find the latest
 releases on github under
 [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases)
 
-### Combine v10 - recommended version
+#### Combine v10 - recommended version
 
 The nominal installation method is inside CMSSW. The current release targets
 the CMSSW `14_1_X` series because of the recent switch to el9 at lxplus machines.
@@ -49,7 +49,9 @@ cd HiggsAnalysis/CombinedLimit
 scramv1 b clean; scramv1 b -j$(nproc --ignore=2) # always make a clean build, with n - 2 cores on the system
 ```
 
-### Combine v9
+#### Legacy versions
+
+##### Combine v9
 
 The nominal installation method is inside CMSSW. The current release targets
 the CMSSW `11_3_X` series because this release has both python2 and python3 ROOT
@@ -70,7 +72,7 @@ cd HiggsAnalysis/CombinedLimit
 scramv1 b clean; scramv1 b -j$(nproc --ignore=2) # always make a clean build, with n - 2 cores on the system
 ```
 
-#### Combine v8: `CMSSW_10_2_X` release series
+##### Combine v8: `CMSSW_10_2_X` release series
 
 Setting up the environment (once) is described below.
 Currently, the recommended tag is **v8.2.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v8.2.0)
@@ -85,7 +87,7 @@ git -c advice.detachedHead=false clone --depth 1 --branch v8.2.0 https://github.
 scramv1 b clean; scramv1 b -j$(nproc --ignore=2) # always make a clean build, with n - 2 cores on the system
 ```
 
-#### SLC6/CC7 release `CMSSW_8_1_X`
+##### SLC6/CC7 release `CMSSW_8_1_X`
 
 Setting up OS using apptainer ([see detailed instructions](http://cms-sw.github.io/singularity.html)):
 
@@ -110,17 +112,7 @@ git checkout v7.0.13
 scramv1 b clean; scramv1 b -j$(nproc --ignore=2) # always make a clean build, with n - 2 cores on the system
 ```
 
-### Oustide of CMSSW (recommended for non-CMS users)
-
-Pre-compiled versions of the tool are available as container images from the [CMS cloud](https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235). These containers can be downloaded and run using [Docker](https://cms-opendata-guide.web.cern.ch/tools/docker/). If you have docker running you can pull and run the image using,
-
-```sh
-docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:<tag>
-```
-where you must replace `<tag>` with a particular version of the tool. At the moment the available container versions are `v9.2.1` and `v9.2.1-slim`, both build with Combine tag `v9.2.1`, and the `v9.2.1-slim` correspond to a slim version. If no tag is specified the latest version of the container will be loaded, which is `v9.2.1-slim` at the moment. The containers for `v10.X.X` versions are being developed and are not yet availble for the users.
-
-You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool.
-The container can be re-started using `docker start -i combine`.
+### Oustide of CMSSW
 
 #### Standalone compilation
 
@@ -199,7 +191,19 @@ After installation the binaries and Python modules live inside the environment, 
 conda activate combine
 ```
 
-##### Standalone compilation with CernVM
+#### Pre-compiled versions in Docker
+
+Pre-compiled versions of the tool are available as container images from the [CMS cloud](https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235). These containers can be downloaded and run using [Docker](https://cms-opendata-guide.web.cern.ch/tools/docker/). If you have docker running you can pull and run the image using,
+
+```sh
+docker run --name combine -it gitlab-registry.cern.ch/cms-cloud/combine-standalone:<tag>
+```
+where you must replace `<tag>` with a particular version of the tool. At the moment the available container versions are `v9.2.1` and `v9.2.1-slim`, both build with Combine tag `v9.2.1`, and the `v9.2.1-slim` correspond to a slim version. If no tag is specified the latest version of the container will be loaded, which is `v9.2.1-slim` at the moment. The containers for `v10.X.X` versions are being developed and are not yet availble for the users.
+
+You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool.
+The container can be re-started using `docker start -i combine`.
+
+#### Standalone compilation with CernVM
 
 <span style="font-variant:small-caps;">Combine</span>, either standalone or not, can be compiled via CVMFS using access to `/cvmfs/cms.cern.ch/`  obtained using a virtual machine - [`CernVM`](https://cernvm.cern.ch/). To use `CernVM` You should have access to CERN IT resources. If you are a CERN user you can use your account, otherwise you can request a lightweight account.
 If you have a CERN user account, we strongly suggest you simply run one of the other standalone installations, which are simpler and faster than using a VM.
@@ -207,7 +211,7 @@ If you have a CERN user account, we strongly suggest you simply run one of the o
 You should have a working VM on your local machine, compatible with CernVM, such as `VirtualBox`. All the required software can be downloaded [here](https://cernvm.cern.ch/appliance/).
 At least 2GB of disk space should be reserved on the virtual machine for <span style="font-variant:small-caps;">Combine</span> to work properly and the machine must be contextualized to add the `CMS` group to CVMFS. A minimal working setup is described below.
 
-0. Download the CernVM-launcher for your operating system, following the instructions available [`here`] for your operating system (https://cernvm.readthedocs.io/en/stable/cpt-launch.html#installation
+0. Download the CernVM-launcher for your operating system, following the instructions available [here](https://cernvm.readthedocs.io/en/stable/cpt-launch.html#installation) for your operating system
 
 1. Prepare a CMS context. You can use the CMS open data one already available on gitHub:
 ```wget https://raw.githubusercontent.com/cernvm/public-contexts/master/cms-opendata-2011.context)```
