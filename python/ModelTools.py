@@ -354,7 +354,7 @@ class ModelBuilder(ModelBuilderBase):
                     continue
                 if not reduce(
                     lambda x, y: x * y,
-                    [self.out.arg(a) != None for a in argv.split(",")],
+                    [self.out.arg(a) is not None for a in argv.split(",")],
                     1,
                 ):
                     toBeCreated.append([argu, arge, argv])
@@ -371,7 +371,7 @@ class ModelBuilder(ModelBuilderBase):
                 argu, arge, argv = rp[0], rp[1], rp[2]
                 if reduce(
                     lambda x, y: x * y,
-                    [self.out.arg(a) != None for a in argv.split(",")],
+                    [self.out.arg(a) is not None for a in argv.split(",")],
                     1,
                 ):
                     self.doExp(argu, arge, argv)

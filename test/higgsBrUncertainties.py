@@ -69,7 +69,7 @@ parser.add_option(
 )
 (options, args) = parser.parse_args()
 
-decays = [x.strip() for x in options.decays.split(",")] if options.decays != None else SM_HIGGS_DECAYS
+decays = [x.strip() for x in options.decays.split(",")] if options.decays is not None else SM_HIGGS_DECAYS
 
 ## set up some dummy options for the sake of the ModelBuilder
 options.bin = True
