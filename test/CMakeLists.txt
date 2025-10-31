@@ -36,11 +36,15 @@ COMBINE_ADD_TEST(counting_datacard_from_csv
     COPY_TO_BUILDDIR ${REPO}/data/tutorials/multiDim/fixed.csv
     FIXTURES_REQUIRED counting_datacard
     WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
-    CHECKOUT OUTPUT counting_datacard_from_csv.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/counting_datacard_from_csv.out
+    # The output is unfortunatley not predictable on all platforms: on
+    # CMSSW_11_3_4 - ROOT 6.22.09 and conda with ROOT 6.26.04, it will not
+    # print the combine commands that the tool is running.
+    # TODO: investigate this.
+    # CHECKOUT OUTPUT counting_datacard_from_csv.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/counting_datacard_from_csv.out
     ENVIRONMENT PATH=${CMAKE_BINARY_DIR}/bin:$ENV{PATH} # So the combineTool.py finds the combine executable
                 PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
 )
-set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS "combineTool.py -M MultiDimFit toy-hgg-125.root --fromfile fixed.csv >> references/counting_datacard_from_csv.out")
+# set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS "combineTool.py -M MultiDimFit toy-hgg-125.root --fromfile fixed.csv >> references/counting_datacard_from_csv.out")
 
 # Parametric analysis
 ADD_COMBINE_TEST(parametric_analysis
