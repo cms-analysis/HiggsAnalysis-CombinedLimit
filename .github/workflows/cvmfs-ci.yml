@@ -109,8 +109,8 @@ jobs:
           LCG_ARCH: ${{ matrix.LCG_ARCH }}
         run: >-
           source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
-          cd build;
-          ctest --output-on-failure -j$(nproc) .;
+          ulimit -s unlimited;
+          ctest --test-dir build --output-on-failure -j$(nproc);
 
       - uses: ./.github/actions/run-in-cvmfs
         name: Counting datacard
@@ -209,6 +209,7 @@ jobs:
 
       - uses: ./.github/actions/run-in-cvmfs
         name: InterferenceModel test in CMSSW
+        if: ${{ env.CMSSW_VERSION != '' }}
         with:
           script: |
             cd test
