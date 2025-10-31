@@ -9,13 +9,20 @@ runs:
   using: "composite"
   steps:
     # Case 1: Run inside a Docker container if image is provided and assume CMSSW
+    - name: Setup output directory
+      if: ${{ env.IMAGE != '' }}
+      shell: bash
+      run: |
+        mkdir -p outputs
+        chmod 777 outputs
+
     - name: Run command inside container
       if: ${{ env.IMAGE != '' }}
       uses: rhaschke/docker-run-action@v5
       with:
         image: ${{ env.IMAGE }}
         shell: bash
-        options: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:ro -w /home/cmsusr/ -e CMSSW_VERSION=${{ env.CMSSW_VERSION }}
+        options: --rm -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:ro -v ${{ github.workspace }}:/workspace:rw -w /home/cmsusr/ -e CMSSW_VERSION=${{ env.CMSSW_VERSION }}
         run: >-
           cp -r cmssw/${CMSSW_VERSION} .;
           cd /home/cmsusr/${CMSSW_VERSION}/src;
