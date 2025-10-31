@@ -12,7 +12,7 @@ _jobs_done = 0
 
 
 def _async_run(test, dir):
-    global _jobs_started, _jobs_total
+    global _jobs_started
     _jobs_started += 1
     print(" - " + test.name() + (" started (%d/%d)..." % (_jobs_started, _jobs_total)))
     subprocess.call([test.scriptName(dir)])
@@ -20,7 +20,7 @@ def _async_run(test, dir):
 
 
 def _async_cb(test):
-    global _jobs_done, _jobs_total
+    global _jobs_done
     _jobs_done += 1
     print(" - " + test.name() + (" done (%d/%d)." % (_jobs_done, _jobs_total)))
 

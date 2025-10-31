@@ -121,9 +121,8 @@ datacard.write("shapes data_obs *\t" + opts.output + "\t" + opts.workspace + ":d
 
 
 ########################
-def importPdf(h, name):
+def importPdf(ws, h, name):
     """Import a Pdf based on hist with name. ws and x global vars used"""
-    global ws
     dh = ROOT.RooDataHist("roohist_" + h.GetName(), h.GetName(), ROOT.RooArgList(x), h)
     pdf = ROOT.RooHistPdf(name, "dh_Bin%d", ROOT.RooArgSet(x), dh)
     getattr(ws, "import")(pdf, ROOT.RooCmdArg())
@@ -157,7 +156,7 @@ for row in range(nbinsG):
     for col in range(nbinsR):
         model.SetBinContent(col + 1, mhat[(row, col)] * gen.GetBinContent(row + 1))
     ## import in Ws
-    pdf, norm = importPdf(model, "model_Bin%d" % row)
+    pdf, norm = importPdf(ws, model, "model_Bin%d" % row)
     datacard.write("shapes Bin%d *\t" % row + opts.output + "\t" + opts.workspace + ":model_Bin%d\n" % row)
     if not opts.reg or row == 0 or row == nbinsG - 1:
         pass
@@ -178,7 +177,7 @@ for row in range(nbinsG):
         # ws.factory("reg_Bin%d"%row+"_norm[%f]"%norm)
         # datacard.write("shapes Bin%d *\t"%row + opts.output + "\t" + opts.workspace+":reg_Bin%d\n"%row)
 
-importPdf(bkg, "model_Bkg")
+importPdf(ws, bkg, "model_Bkg")
 datacard.write("shapes Bkg *\t" + opts.output + "\t" + opts.workspace + ":model_Bkg\n")
 
 ## write out ws
