@@ -116,52 +116,57 @@ scramv1 b clean; scramv1 b -j$(nproc --ignore=2) # always make a clean build, wi
 
 #### Standalone compilation
 
-The standalone version can be easily compiled using
-[cvmfs](https://cernvm.cern.ch/fs/) as it relies on dependencies that are
-already installed at `/cvmfs/cms.cern.ch/`. Access to `/cvmfs/cms.cern.ch/` can
-be obtained from lxplus machines or via `CernVM`. See [CernVM](CernVM.md) for
-further details on the latter. In case you do not want to use the `cvmfs`
-area, you will need to adapt the locations of the dependencies listed in both
-the `Makefile` and `env_standalone.sh` files.
+Combine can be built as a CMake project. It has four required dependencies on the C++ side:
 
-```
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit/
-# git checkout <some release>
-. env_standalone.sh
-make -j 4
-```
+  1. [ROOT](https://root.cern), mostly for RooFit
+  2. The [boost](https://www.boost.org) library, for command line options parsing
+  3. [Eigen](https://eigen.tuxfamily.org) for linear algebra, used in the `CMSInterferenceFunc` and `RooSplineND`
 
-You will need to source `env_standalone.sh` each time you want to use the package, or add it to your login environment.
+There are two more optional dependencies:
 
-##### Compilation of slc7 compatible versions
+  1. The [vdt](https://github.com/dpiparo/vdt) library for fast vectorized math (can be disabled with the CMake configuration option `-DUSE_VDT=FALSE`)
+  2. The [gtest](https://github.com/google/googletest) library for unit tests, if you build with `-DBUILD_TESTS=TRUE`
 
-For <span style="font-variant:small-caps;">Combine</span> versions before v10 release you will need to do the compilation in an slc7 environment using apptainer. You can then source the standalone script outside of the apptainer.
-On lxplus this can be done as follows:
+Any environment that provides the dependencies can be used to build combine.
 
-```
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit/
-# git checkout <some release>
-cmssw-el7
-. env_standalone.sh
-make -j 4
-exit
-source . env_standalone.sh
-```
-
-##### Standalone compilation with LCG
-For compilation outside of CMSSW, for example to use ROOT versions not yet available in CMSSW, one can compile against LCG releases:
-```sh
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
-source env_lcg.sh
+To build, run the following commands inside the cloned repository:
+```bash
 mkdir build
 cd build
-cmake ..
-make -j8
+cmake .. # additional CMake configuration options like -DUSE_VDT=FALSE go here
+cmake --build . -j8
+cd ..
 ```
-To change the LCG version, edit `env_lcg.sh`.
+
+To use your build of Combine, you have to append to the following environment variables:
+```bash
+export PATH=$PWD/build/bin:$PATH
+export LD_LIBRARY_PATH=$PWD/build/lib:$LD_LIBRARY_PATH
+export PYTHONPATH=$PWD/build/python:$PYTHONPATH
+```
+
+For advanced users or packagers who want to install the build, there are some more relevant options to steer the CMake installation step:
+
+* `CMAKE_INSTALL_BINDIR`: the binary directory inside the install prefix for `combine` and Python scripts like `text2workspace.py`  (`bin/` by default)
+* `CMAKE_INSTALL_LIBDIR`: shared library directory (`lib/` by default)
+* `CMAKE_INSTALL_PYTHONDIR`: python module directory (`python/` by default)
+* `CMAKE_INSTALL_INCLUDEDIR`: header file directory (`include/` by default)
+
+##### Standalone compilation with LCG
+
+A typical environment that can be used on `lxplus` is the [LCG software stack](https://lcginfo.cern.ch/).
+
+It can be activated as follows
+```bash
+LCG_RELEASE=LCG_106 # includes ROOT 6.32, like CMSSW_14_1_0_pre4
+# LCG_RELEASE=dev3/latest # includes nightly build of ROOT master, useful for development
+LCG_PATH=/cvmfs/sft.cern.ch/lcg/views/$LCG_RELEASE/x86_64-el9-gcc13-opt
+
+source $LCG_PATH/setup.sh
+source $LCG_PATH/bin/thisroot.sh
+```
+
+After activating the environment, you can follow the usual CMake build procedure explained above.
 
 ##### Standalone compilation with `conda` (CMake-based)
 This recipe mirrors the setup used in our GitHub Actions builds and works on both Linux and macOS (Intel or Apple silicon):
@@ -179,9 +184,8 @@ conda create -n combine python=3.12 root=6.34 gsl boost-cpp vdt eigen tbb cmake 
 conda activate combine
 
 # configure and build with CMake
-PYTHON_SITELIB=$(python -c "import sysconfig; print(sysconfig.get_path('purelib'))")
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DPython_SITELIB=${PYTHON_SITELIB}
-cmake --build build -j$(python -c "import multiprocessing; print(max(1, multiprocessing.cpu_count()))")
+cmake -S . -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_INSTALL_PYTHONDIR=lib/python3.12/site-packages -DUSE_VDT=OFF
+cmake --build build -j$(nproc --ignore=2)
 cmake --install build
 ```
 
