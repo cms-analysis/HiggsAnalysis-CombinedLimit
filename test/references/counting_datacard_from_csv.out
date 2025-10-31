@@ -1,6 +1,6 @@
 Argument --algo not specified but --fromfile is set to fixed.csv, defaulting to --algo fixed.
  <<< Combine >>> 
- <<< v10.2.1 >>>
+ <<< v10.3.0 >>>
 >>> Random number generator seed is 123456
 >>> Method used is MultiDimFit
 Doing initial fit: 
@@ -9,7 +9,7 @@ Set Default Value of Parameter r_qqH To : 1
  Evaluating fixed point with r_ggH= 1
  Evaluating fixed point with r_qqH= 1
  <<< Combine >>> 
- <<< v10.2.1 >>>
+ <<< v10.3.0 >>>
 >>> Random number generator seed is 123456
 >>> Method used is MultiDimFit
 Doing initial fit: 
@@ -18,7 +18,7 @@ Set Default Value of Parameter r_qqH To : 2
  Evaluating fixed point with r_ggH= 1
  Evaluating fixed point with r_qqH= 2
  <<< Combine >>> 
- <<< v10.2.1 >>>
+ <<< v10.3.0 >>>
 >>> Random number generator seed is 123456
 >>> Method used is MultiDimFit
 Doing initial fit: 
@@ -27,7 +27,7 @@ Set Default Value of Parameter r_qqH To : 1
  Evaluating fixed point with r_ggH= 2
  Evaluating fixed point with r_qqH= 1
  <<< Combine >>> 
- <<< v10.2.1 >>>
+ <<< v10.3.0 >>>
 >>> Random number generator seed is 123456
 >>> Method used is MultiDimFit
 Doing initial fit: 
