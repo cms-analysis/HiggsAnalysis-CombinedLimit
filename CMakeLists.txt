@@ -4,7 +4,7 @@ project(HiggsAnalysisCombinedLimit VERSION 10.2.1)
 
 option( MODIFY_ROOTMAP "Modify generated Rootmap to take out classes already bundled in StatAnalysis" FALSE )
 option( USE_VDT "Use VDT (fast and vectorisable mathematical functions)" TRUE )
-option( BUILD_TESTS "Build tests" FALSE )
+option( BUILD_TESTS "Build unit test executables for additional testing" FALSE )
 
 
 # Use the same mechanism as ROOT for the install directories of components (see RootInstallDirs.cmake)
@@ -195,6 +195,4 @@ INSTALL(FILES ${empty_init_py} DESTINATION ${CMAKE_INSTALL_PYTHONDIR}/HiggsAnaly
 INSTALL(FILES ${empty_init_py} DESTINATION ${CMAKE_INSTALL_PYTHONDIR}/HiggsAnalysis/CombinedLimit)
 
 
-if(BUILD_TESTS)
-  add_subdirectory(test)
-endif()
+add_subdirectory(test)
