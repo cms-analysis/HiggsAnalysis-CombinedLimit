@@ -119,7 +119,6 @@ jobs:
         with:
           script: |
             set -euxo pipefail
-            sudo dnf install -y gtest-devel
             mkdir build_test
             cd build_test
             cmake ../test
@@ -135,7 +134,7 @@ jobs:
           script: |
             set -euxo pipefail
             sudo yum install -y epel-release
-            sudo yum install -y cmake3 gtest-devel
+            sudo yum install -y cmake3
             mkdir build_test
             cd build_test
             cmake3 ../test
