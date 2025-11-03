@@ -40,6 +40,7 @@ jobs:
           - LCG_RELEASE: "LCG_108"
             LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
             ROOT: "6.36.02"
+            coverage: true
           - LCG_RELEASE: "dev3/latest"
             LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
             ROOT: "LCG master"
@@ -56,6 +57,23 @@ jobs:
         with:
           cvmfs_repositories: ${{ (env.CMSSW_VERSION != '') && 'cms.cern.ch' || 'sft.cern.ch' }}
 
+      - name: Setup compiler
+        run: |
+          echo "CC=$(which gcc)" >> $GITHUB_ENV
+          echo "CXX=$(which g++)" >> $GITHUB_ENV
+
+      - name: Setup code coverage
+        if: ${{ (matrix.coverage == true) }}
+        run: |
+          sudo apt install -y lcov
+          # Workaround ubuntu lcov-1.15-1 package bug
+          if sudo apt list lcov --installed | grep "1.15-1" ; then
+            wget https://launchpad.net/ubuntu/+source/lcov/1.15-2/+build/23784466/+files/lcov_1.15-2_all.deb
+            sudo apt install -y ./lcov_1.15-2_all.deb
+          fi
+          echo "COMBINE_CODE_COVERAGE=1" >> $GITHUB_ENV
+          echo "BUILD_TYPE=Debug" >> $GITHUB_ENV
+
       - name: Build Combine (LCG)
         if: ${{ env.CMSSW_VERSION == '' }}
         env:
@@ -70,7 +88,8 @@ jobs:
           mkdir build;
           cd build;
           cmake -DCMAKE_INSTALL_PREFIX=../install \
-                -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+                -DCMAKE_BUILD_TYPE=$([[ -z "$BUILD_TYPE" ]] && echo RelWithDebInfo || echo $BUILD_TYPE) \
+                -DCOMBINE_CODE_COVERAGE=${{ env.COMBINE_CODE_COVERAGE }} \
                 -DUSE_VDT=${USE_VDT} \
                 -DBUILD_TESTS=TRUE \
                 ..;
@@ -245,3 +264,28 @@ jobs:
           script: |
             cd test
             python3 test_interference.py
+
+      - name: Prepare code coverage report
+        if: ${{ success() && (matrix.coverage == true) }}
+        run: |
+          # Create lcov report
+          # capture coverage info
+          lcov --directory . --capture --output-file coverage.info --gcov-tool $CONDA_PREFIX/bin/gcov --ignore-errors gcov
+          # filter out system and extra files.
+          # To also not include test code in coverage add them with full path to the patterns: '*/ci/*'
+          lcov --remove coverage.info \
+            '/usr/*' \
+            "${HOME}/.cache/*" \
+            '*/ci/*' \
+            --output-file coverage.info
+          # output coverage data for debugging (optional)
+          lcov --list coverage.info
+
+      - name: Upload to codecov.io
+        if: ${{ success() && (matrix.coverage == true) }}
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage.info
+          fail_ci_if_error: true
+          verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
