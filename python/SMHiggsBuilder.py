@@ -303,7 +303,7 @@ class SMHiggsBuilder:
                         if D in DS:
                             var = self.modelBuilder.out.var("HiggsDecayWidthTHU_%s" % K2)
                             break
-                    if var == None:
+                    if not var:
                         continue
                 else:
                     var = self.modelBuilder.out.var("param_%s" % K)
@@ -315,7 +315,7 @@ class SMHiggsBuilder:
     def dump(self, name, xvar, values, logfile):
         xv = self.modelBuilder.out.var(xvar)
         yf = self.modelBuilder.out.function(name)
-        if yf == None:
+        if not yf:
             raise RuntimeError("Missing " + name)
         log = open(logfile, "w")
         for x in values:
@@ -323,7 +323,7 @@ class SMHiggsBuilder:
             log.write(f"{x:.3f}\t{yf.getVal():.7g}\n")
 
     def textToSpline(self, name, filename, xvar="MH", ycol=1, xcol=0, skipRows=1, algo="CSPLINE"):
-        if self.modelBuilder.out.function(name) != None:
+        if self.modelBuilder.out.function(name):
             return
         x = []
         y = []
