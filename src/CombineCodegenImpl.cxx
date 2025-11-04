@@ -1,6 +1,8 @@
 #include "../interface/CombineCodegenImpl.h"
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,32,0)
+#include <ROOT/RConfig.hxx>  // for ROOT_VERSION
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 36, 0)
 
 #include "../interface/AsymPow.h"
 #include "../interface/ProcessNormalization.h"
@@ -10,31 +12,12 @@
 
 #include <RooUniformBinning.h>
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,35,0)
-namespace RooFit {
-namespace Experimental {
-# define CODEGEN_IMPL(CLASS_NAME) void codegenImpl(CLASS_NAME &arg0, CodegenContext &ctx)
-#define CODEGEN_INTEGRAL_IMPL(CLASS_NAME) \
-std::string codegenIntegralImpl(CLASS_NAME &arg0, int code, const char *rangeName, CodegenContext &ctx)
-# define ARG_VAR auto &arg = arg0;
-#else
-# define CODEGEN_IMPL(CLASS_NAME) void CLASS_NAME::translate(RooFit::Detail::CodeSquashContext &ctx) const
-#define CODEGEN_INTEGRAL_IMPL(CLASS_NAME)            \
-std::string CLASS_NAME::buildCallToAnalyticIntegral( \
-    Int_t code, const char *rangeName, RooFit::Detail::CodeSquashContext &ctx) const
-# define ARG_VAR auto &arg = *this;
-#endif
-
-
-CODEGEN_IMPL(AsymPow) {
-  ARG_VAR;
+void RooFit::Experimental::codegenImpl(AsymPow& arg, CodegenContext& ctx) {
   ctx.addResult(&arg,
                 ctx.buildCall("RooFit::Detail::MathFuncs::asymPow", arg.theta(), arg.kappaLow(), arg.kappaHigh()));
 }
 
-CODEGEN_IMPL(ProcessNormalization) {
-  ARG_VAR;
-
+void RooFit::Experimental::codegenImpl(ProcessNormalization& arg, CodegenContext& ctx) {
   std::vector<double> logAsymmKappaLow;
   std::vector<double> logAsymmKappaHigh;
   logAsymmKappaLow.reserve(arg.logAsymmKappa().size());
@@ -58,14 +41,12 @@ CODEGEN_IMPL(ProcessNormalization) {
                               arg.otherFactorList()));
 }
 
-CODEGEN_IMPL(FastVerticalInterpHistPdf2) {
-  ARG_VAR;
-
+void RooFit::Experimental::codegenImpl(FastVerticalInterpHistPdf2& arg, CodegenContext& ctx) {
   if (arg.smoothAlgo() < 0) {
     throw std::runtime_error("We only support smoothAlgo >= 0");
   }
 
-  RooRealVar const &xVar = arg.x();
+  RooRealVar const& xVar = arg.x();
 
   int numBins = xVar.numBins();
 
@@ -74,7 +55,7 @@ CODEGEN_IMPL(FastVerticalInterpHistPdf2) {
   std::vector<double> morphsVecSum;
   std::vector<double> morphsVecDiff;
 
-  auto const &cacheNominal = arg.cacheNominal();
+  auto const& cacheNominal = arg.cacheNominal();
 
   for (int i = 0; i < numBins; ++i) {
     nominalVec[i] = cacheNominal.GetBinContent(i);
@@ -85,7 +66,7 @@ CODEGEN_IMPL(FastVerticalInterpHistPdf2) {
 
   morphsVecSum.reserve(numBins * nCoefs);
   morphsVecDiff.reserve(numBins * nCoefs);
-  auto const &morphs = arg.morphs();
+  auto const& morphs = arg.morphs();
   for (unsigned int j = 0; j < nCoefs; ++j) {
     for (int i = 0; i < numBins; ++i) {
       morphsVecSum.push_back(morphs[j].sum[i]);
@@ -99,16 +80,12 @@ CODEGEN_IMPL(FastVerticalInterpHistPdf2) {
 
   // The bin index part
   // We also have to assert that x is uniformely binned!
-  if (!dynamic_cast<RooUniformBinning const *>(&xVar.getBinning())) {
+  if (!dynamic_cast<RooUniformBinning const*>(&xVar.getBinning())) {
     throw std::runtime_error("We only support uniform binning!");
   }
   double xLow = xVar.getMin();
   double xHigh = xVar.getMax();
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,35,0)
   std::string binIdx = ctx.buildCall("RooFit::Detail::MathFuncs::uniformBinNumber", xLow, xHigh, xVar, numBins, 1.);
-#else
-  std::string binIdx = ctx.buildCall("RooFit::Detail::MathFuncs::getUniformBinning", xLow, xHigh, xVar, numBins);
-#endif
 
   std::string arrName = ctx.getTmpVarName();
 
@@ -130,9 +107,7 @@ CODEGEN_IMPL(FastVerticalInterpHistPdf2) {
   ctx.addResult(&arg, arrName + "[" + binIdx + "]");
 }
 
-CODEGEN_IMPL(FastVerticalInterpHistPdf2D2) {
-  ARG_VAR;
-
+void RooFit::Experimental::codegenImpl(FastVerticalInterpHistPdf2D2& arg, CodegenContext& ctx) {
   if (arg.smoothAlgo() < 0) {
     throw std::runtime_error("We only support smoothAlgo >= 0");
   }
@@ -141,18 +116,18 @@ CODEGEN_IMPL(FastVerticalInterpHistPdf2D2) {
     throw std::runtime_error("We only support conditional == true");
   }
 
-  RooRealVar const &xVar = arg.x();
-  RooRealVar const &yVar = arg.y();
+  RooRealVar const& xVar = arg.x();
+  RooRealVar const& yVar = arg.y();
 
   // We also have to assert that x and y are uniformely binned!
-  if (!dynamic_cast<RooUniformBinning const *>(&xVar.getBinning())) {
+  if (!dynamic_cast<RooUniformBinning const*>(&xVar.getBinning())) {
     throw std::runtime_error("We only support uniform binning!");
   }
-  if (!dynamic_cast<RooUniformBinning const *>(&yVar.getBinning())) {
+  if (!dynamic_cast<RooUniformBinning const*>(&yVar.getBinning())) {
     throw std::runtime_error("We only support uniform binning!");
   }
 
-  auto const &cacheNominal = arg.cacheNominal();
+  auto const& cacheNominal = arg.cacheNominal();
 
   int numBinsX = cacheNominal.binX();
   int numBinsY = cacheNominal.binY();
@@ -172,7 +147,7 @@ CODEGEN_IMPL(FastVerticalInterpHistPdf2D2) {
 
   morphsVecSum.reserve(numBins * nCoefs);
   morphsVecDiff.reserve(numBins * nCoefs);
-  auto const &morphs = arg.morphs();
+  auto const& morphs = arg.morphs();
   for (unsigned int j = 0; j < nCoefs; ++j) {
     for (int i = 0; i < numBins; ++i) {
       morphsVecSum.push_back(morphs[j].sum[i]);
@@ -187,18 +162,12 @@ CODEGEN_IMPL(FastVerticalInterpHistPdf2D2) {
   // The bin index part
   double xLow = xVar.getMin();
   double xHigh = xVar.getMax();
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,35,0)
-  std::string binIdxX = ctx.buildCall("RooFit::Detail::MathFuncs::uniformBinNumber", xLow, xHigh, arg.x(), numBinsX, 1.);
-#else
-  std::string binIdxX = ctx.buildCall("RooFit::Detail::MathFuncs::getUniformBinning", xLow, xHigh, arg.x(), numBinsX);
-#endif
+  std::string binIdxX =
+      ctx.buildCall("RooFit::Detail::MathFuncs::uniformBinNumber", xLow, xHigh, arg.x(), numBinsX, 1.);
   double yLow = yVar.getMin();
   double yHigh = yVar.getMax();
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,35,0)
-  std::string binIdxY = ctx.buildCall("RooFit::Detail::MathFuncs::uniformBinNumber", yLow, yHigh, arg.y(), numBinsY, 1.);
-#else
-  std::string binIdxY = ctx.buildCall("RooFit::Detail::MathFuncs::getUniformBinning", yLow, yHigh, arg.y(), numBinsY);
-#endif
+  std::string binIdxY =
+      ctx.buildCall("RooFit::Detail::MathFuncs::uniformBinNumber", yLow, yHigh, arg.y(), numBinsY, 1.);
 
   std::stringstream binIdx;
   binIdx << "(" << binIdxY << " + " << yVar.numBins() << " * " << binIdxX << ")";
@@ -224,8 +193,7 @@ CODEGEN_IMPL(FastVerticalInterpHistPdf2D2) {
   ctx.addResult(&arg, arrName + "[" + binIdx.str() + "]");
 }
 
-CODEGEN_IMPL(VerticalInterpPdf) {
-  ARG_VAR;
+void RooFit::Experimental::codegenImpl(VerticalInterpPdf& arg, CodegenContext& ctx) {
   ctx.addResult(&arg,
                 ctx.buildCall("RooFit::Detail::MathFuncs::verticalInterpolate",
                               arg.coefList(),
@@ -237,8 +205,10 @@ CODEGEN_IMPL(VerticalInterpPdf) {
                               arg.quadraticAlgo()));
 }
 
-CODEGEN_INTEGRAL_IMPL(VerticalInterpPdf) {
-  ARG_VAR;
+std::string RooFit::Experimental::codegenIntegralImpl(VerticalInterpPdf& arg,
+                                                      int code,
+                                                      const char* rangeName,
+                                                      CodegenContext& ctx) {
   return ctx.buildCall("RooFit::Detail::MathFuncs::verticalInterpPdfIntegral",
                        arg.coefList(),
                        arg.coefList().size(),
@@ -250,9 +220,4 @@ CODEGEN_INTEGRAL_IMPL(VerticalInterpPdf) {
                        arg.quadraticAlgo());
 }
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,35,0)
-} // namespace RooFit
-} // namespace Experimental
-#endif
-
-#endif // ROOT_VERSION_CODE >= ROOT_VERSION(6,32,0)
+#endif  // ROOT_VERSION_CODE >= ROOT_VERSION(6,36,0)
