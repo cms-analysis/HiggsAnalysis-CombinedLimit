@@ -110,7 +110,7 @@ jobs:
         run: >-
           source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
           ulimit -s unlimited;
-          ctest --test-dir build --output-on-failure -j$(nproc);
+          ctest --test-dir build/test --output-on-failure -j$(nproc);
 
       # AlmaLinux 9 job
       - uses: ./.github/actions/run-in-cvmfs
