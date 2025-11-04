@@ -65,7 +65,8 @@ def prefit_from_workspace(file, workspace, params, setPars=None):
         pdf = ws.pdf(p + "_Pdf")
         gobs = ws.var(p + "_In")
 
-        if pdf and gobs:
+        # For pyROOT NULL test: "pdf != None" != "pdf is not None"
+        if pdf is not None and gobs is not None:
             # To get the errors we can just fit the pdf
             # But don't do pdf.fitTo(globalObs), it forces integration of the
             # range of the global observable. Instead we make a RooConstraintSum
@@ -94,7 +95,7 @@ def prefit_from_workspace(file, workspace, params, setPars=None):
                 res[p]["type"] = "AsymmetricGaussian"
             else:
                 res[p]["type"] = "Unrecognised"
-        elif pdf is None or pdf.IsA().InheritsFrom(ROOT.RooUniform.Class()):
+        elif pdf == None or pdf.IsA().InheritsFrom(ROOT.RooUniform.Class()):
             res[p]["type"] = "Unconstrained"
             res[p]["prefit"] = [var.getVal(), var.getVal(), var.getVal()]
         res[p]["groups"] = [x.replace("group_", "") for x in var.attributes() if x.startswith("group_")]

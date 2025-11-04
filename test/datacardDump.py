@@ -89,7 +89,7 @@ if not DC.hasShapes:
 MB = ShapeBuilder(DC, options)
 for b in DC.bins:
     print(" ============= ", b, "====================")
-    if options.channel is not None and (options.channel != b):
+    if options.channel != None and (options.channel != b):
         continue
     exps = {}
     for p, e in DC.exp[b].items():  # so that we get only self.DC.processes contributing to this bin

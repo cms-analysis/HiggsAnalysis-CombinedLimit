@@ -174,11 +174,11 @@ if file is None:
 fit_s = file.Get("fit_s") if not options.skipFitS else file.Get("fit_b")
 fit_b = file.Get("fit_b") if not options.skipFitB else file.Get("fit_s")
 prefit = file.Get("nuisances_prefit")
-if fit_s is None or fit_s.ClassName() != "RooFitResult":
+if fit_s == None or fit_s.ClassName() != "RooFitResult":
     raise RuntimeError("File %s does not contain the output of the signal fit 'fit_s'" % args[0])
-if fit_b is None or fit_b.ClassName() != "RooFitResult":
+if fit_b == None or fit_b.ClassName() != "RooFitResult":
     raise RuntimeError("File %s does not contain the output of the background fit 'fit_b'" % args[0])
-if prefit is None or prefit.ClassName() != "RooArgSet":
+if prefit == None or prefit.ClassName() != "RooArgSet":
     raise RuntimeError("File %s does not contain the prefit nuisances 'nuisances_prefit'" % args[0])
 
 isFlagged = {}
