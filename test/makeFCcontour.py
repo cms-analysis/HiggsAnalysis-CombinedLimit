@@ -520,12 +520,12 @@ for f_it, fileName in enumerate(allFiles):
     print("Opening File (%d/%d) -- " % (f_it, n_tot_files), fileName)
 
     tFile = ROOT.TFile.Open(fileName)
-    if tFile is None:
+    if tFile == None:
         print("File Corrupted, skipping")
         failedFiles.append(fileName)
         continue
     tToys = tFile.Get(treeName)
-    if tToys is None:
+    if tToys == None:
         print("File doesn't contain ", treeName)
         failedFiles.append(fileName)
         continue

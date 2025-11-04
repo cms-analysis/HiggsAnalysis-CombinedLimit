@@ -447,7 +447,7 @@ def parseCard(file, options):
                 if ret.obs != [] and isinstance(ret.obs, list):  # still as list, must change into map with bin names
                     ret.obs = {b: ret.obs[i] for i, b in enumerate(ret.bins)}
                 for b, p, s in ret.keyline:
-                    if ret.isSignal[p] is None:
+                    if ret.isSignal[p] == None:
                         ret.isSignal[p] = s
                     elif ret.isSignal[p] != s:
                         raise RuntimeError("Process %s is declared as signal in some bins and as background in other bins" % p)
@@ -653,8 +653,8 @@ def parseCard(file, options):
             ret.systs.append([lsyst, nofloat, pdf, args, errline])
             ret.add_syst_id(lsyst)
     except Exception as ex:
-        if lineNumber is not None:
-            if lineNumber2 is not None:
+        if lineNumber != None:
+            if lineNumber2 != None:
                 lineNumber += lineNumber2 + 1  # lineNumber2 also started at 0
             msg = "Error reading line %d" % (lineNumber + 1)
             if hasattr(file, "name"):

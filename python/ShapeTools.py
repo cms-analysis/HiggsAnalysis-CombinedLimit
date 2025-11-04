@@ -434,7 +434,7 @@ class ShapeBuilder(ModelBuilder):
         if self.options.fixpars:
             pars = self.out.pdf("model_s").getParameters(self.out.obs)
             for arg in pars:
-                if arg is None:
+                if arg == None:
                     break
                 if arg.InheritsFrom("RooRealVar") and arg.GetName() != "r":
                     arg.setConstant(True)
@@ -474,7 +474,7 @@ class ShapeBuilder(ModelBuilder):
                     continue
                 shape = self.getShape(b, p)
                 norm = 0
-                if shape is None:  # counting experiment
+                if shape == None:  # counting experiment
                     if not self.out.var("CMS_fakeObs"):
                         self.doVar("CMS_fakeObs[0,1]")
                         self.out.var("CMS_fakeObs").setBins(1)
@@ -749,7 +749,7 @@ class ShapeBuilder(ModelBuilder):
                 if not syst:
                     normname = "%s_norm" % (oname)
                     norm = self.wsp.arg(normname)
-                    if norm is None:
+                    if norm == None:
                         if normname in list(self.norm_rename_map.keys()):
                             norm = self.wsp.arg(self.norm_rename_map[normname])
                     if norm:
@@ -850,7 +850,7 @@ class ShapeBuilder(ModelBuilder):
             return _cache[(channel, process)]
         shapeNominal = self.getShape(channel, process)
         nominalPdf = self.shape2Pdf(shapeNominal, channel, process) if (self.options.useHistPdf == "always" or shapeNominal == None) else shapeNominal
-        if shapeNominal is None:
+        if shapeNominal == None:
             return nominalPdf  # no point morphing a fake shape
         morphs = []
         shapeAlgo = None
@@ -864,7 +864,7 @@ class ShapeBuilder(ModelBuilder):
             pdf = pdf.replace("?", "")
             if pdf[-1] == "U":
                 pdf = pdf[:-1]
-            if shapeAlgo is None:
+            if shapeAlgo == None:
                 shapeAlgo = pdf
             elif pdf != shapeAlgo:
                 errmsg = f"ERROR for channel {channel}, process {process}. "
@@ -1098,7 +1098,7 @@ class ShapeBuilder(ModelBuilder):
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         terms = []
         shapeNominal = self.getShape(channel, process)
-        if shapeNominal is None:
+        if shapeNominal == None:
             # FIXME no extra norm for dummy pdfs (could be changed)
             return None
         if shapeNominal.InheritsFrom("RooAbsPdf") and not shapeNominal.InheritsFrom("RooParametricHist") or shapeNominal.InheritsFrom("CMSHistFunc"):
@@ -1204,7 +1204,7 @@ class ShapeBuilder(ModelBuilder):
 
     def shape2Data(self, shape, channel, process, _cache={}):
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
-        if shape is None:
+        if shape == None:
             name = f"shape{postFix}_{channel}_{process}"
             if name not in _cache:
                 obs = ROOT.RooArgSet(self.out.var("CMS_fakeObs"))
@@ -1241,7 +1241,7 @@ class ShapeBuilder(ModelBuilder):
     def shape2Pdf(self, shape, channel, process, _cache={}):
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         channelBinParFlag = channel in list(self.DC.binParFlags.keys())
-        if shape is None:
+        if shape == None:
             name = f"shape{postFix}_{channel}_{process}"
             if name not in _cache:
                 _cache[name] = ROOT.RooUniform(name, name, ROOT.RooArgSet(self.out.var("CMS_fakeObs")))

@@ -324,7 +324,7 @@ for ich, fname in enumerate(args):
     # combine observations, but remove line if any of the datacards doesn't have it
     if len(DC.obs) == 0:
         obsline = None
-    elif obsline is not None:
+    elif obsline != None:
         for b in DC.bins:
             bout = label if singlebin else label + b
             b_in = label if singlebin else b

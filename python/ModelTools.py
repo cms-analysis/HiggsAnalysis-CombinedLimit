@@ -41,7 +41,7 @@ class ModelBuilderBase:
         self.out = stdout
         self.discrete_param_set = []
         if options.bin:
-            if options.out is None:
+            if options.out == None:
                 options.out = re.sub(".txt$", "", options.fileName) + ".root"
             options.baseDir = os.path.dirname(options.fileName)
             ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
@@ -57,7 +57,7 @@ class ModelBuilderBase:
                 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.WARNING)
             if "ROOFITSYS" in os.environ:
                 ROOT.gSystem.AddIncludePath(" -I%s/include " % os.environ["ROOFITSYS"])
-        elif options.out is not None:
+        elif options.out != None:
             # stderr.write("Will save workspace to HLF file %s" % options.out)
             self.out = open(options.out, "w")
         if not options.bin:
@@ -966,7 +966,7 @@ class ModelBuilder(ModelBuilderBase):
                                 "Values of N = %d, alpha = %g don't match with expected rate %g for systematics %s "
                                 % (args[0], errline[b][p], self.DC.exp[b][p], n)
                             )
-                        if gamma is not None:
+                        if gamma != None:
                             raise RuntimeError("More than one gmN uncertainty for the same bin and process (second one is %s)" % n)
                         gamma = n
                         nominal = errline[b][p]
@@ -1032,7 +1032,7 @@ class ModelBuilder(ModelBuilderBase):
     def doModelConfigs(self):
         if not self.options.bin:
             raise RuntimeError("Binary mode disabled")
-        if self.options.out is None:
+        if self.options.out == None:
             raise RuntimeError("Missing output file path")
         for nuis, warn in self.DC.flatParamNuisances.items():
             if self.out.var(nuis):
