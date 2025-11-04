@@ -1,0 +1,25 @@
+# Datacard for the H->ZZ->4l created in the exercise 1 workspace
+
+imax 1 number of channels
+jmax 3 number of backgrounds
+kmax * number of nuisance parameters (asterisk means figure it out)
+---------------
+shapes hzz4l      signal_region Workspace_m4l.root ws:pdfh125
+shapes ggZZ       signal_region Workspace_m4l.root ws:pdfggZZ
+shapes qqZZ       signal_region Workspace_m4l.root ws:pdfqqZZ
+shapes ZX         signal_region Workspace_m4l.root ws:pdfZX
+shapes data_obs   signal_region Workspace_m4l.root ws:unbinned_m4l
+---------------
+bin signal_region
+observation -1
+------------------------------
+bin          signal_region       signal_region       signal_region       signal_region
+process          hzz4l                 ggZZ               qqZZ                 ZX
+process           0                     1                   2                   3
+rate              19.15               61.63                286.29             22.91
+--------------------------------
+lumi_7TeV  lnN   1.11          1.11     1.11     1.11
+xsec_hzz4l lnN   1.16            -       -        -
+xsec_ggZZ  lnN    -            1.20      -        -
+xsec_qqZZ  lnN    -              -      1.15      -
+ZX_norm    lnN    -              -       -       1.10

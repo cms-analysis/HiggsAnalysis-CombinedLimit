@@ -1,0 +1,9 @@
+RooAddition::c7_SMBRs[ SM_BR_hzz + SM_BR_hww + SM_BR_htt + SM_BR_hmm + SM_BR_hcc + SM_BR_hbb + SM_BR_hss + SM_BR_hgluglu + SM_BR_hgg + SM_BR_hzg ] = 1.00009
+RooFormulaVar::c7_XSBRscal_ggH_hgg_13TeV[ actualVars=(kFkF_gamgam,c7_BRscal_hgg) formula="x[0]*x[0]*x[1]" ] = 1
+RooFormulaVar::c7_XSBRscal_qqH_hgg_13TeV[ actualVars=(kVkV_gamgam,c7_BRscal_hgg) formula="x[0]*x[0]*x[1]" ] = 1
+Will add bbH to signals in the following Higgs boson decay modes: 
+BR uncertainties in partial widths: True 
+Warning: decay string toy-hgg-125.txt:incl does not contain any known energy, assuming 13TeV
+[LHC-HCG Kappas] c7_XSBRscal_ggH_hgg_13TeV ggH hgg 13TeV :  Warning: decay string toy-hgg-125.txt:incl does not contain any known energy, assuming 13TeV
+[LHC-HCG Kappas] c7_XSBRscal_qqH_hgg_13TeV qqH hgg 13TeV :  Warning: decay string toy-hgg-125.txt:dijet does not contain any known energy, assuming 13TeV
+Warning: decay string toy-hgg-125.txt:dijet does not contain any known energy, assuming 13TeV

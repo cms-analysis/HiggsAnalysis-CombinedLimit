@@ -1,0 +1,7 @@
+ <<< Combine >>> 
+ <<< v10.3.0 >>>
+>>> Random number generator seed is 123456
+>>> Method used is MarkovChainMC
+
+ -- MarkovChainMC -- 
+Limit: r < 2.22901 +/- 0.0146697 @ 95% credibility (100 tries)
