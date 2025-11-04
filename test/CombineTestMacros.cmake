@@ -87,6 +87,8 @@ function(COMBINE_ADD_TEST test)
 
   if(ARG_WORKING_DIR)
     set(_command ${_command} -DCWD=${ARG_WORKING_DIR})
+  else()
+    set(_command ${_command} -DCWD=${CMAKE_CURRENT_BINARY_DIR})
   endif()
 
   if(ARG_DEBUG)
@@ -122,6 +124,20 @@ function(COMBINE_ADD_TEST test)
   endif()
 
   set(_command ${_command} -DSYS=${ROOTSYS})
+
+
+  # Add combine specific env vars
+  if(DEFINED standalone_tests)
+    list(APPEND ARG_ENVIRONMENT COMBINE_SRC="${CMAKE_SOURCE_DIR}/..")
+  else()
+    list(APPEND ARG_ENVIRONMENT COMBINE_SRC=${CMAKE_SOURCE_DIR})
+    list(APPEND ARG_ENVIRONMENT
+        LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$ENV{LD_LIBRARY_PATH}
+        PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
+        PATH=${CMAKE_BINARY_DIR}/bin:$ENV{PATH}
+    )
+  endif()
+
 
   #- Handle ENVIRONMENT argument
   if(ARG_ENVIRONMENT)
@@ -241,7 +257,6 @@ function(COMBINE_ADD_GTEST test_suite)
   COMBINE_ADD_TEST(
     gtest-${test_suite}
     COMMAND ${test_suite} ${extra_command}
-    WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
     COPY_TO_BUILDDIR "${ARG_COPY_TO_BUILDDIR}"
     ${willfail}
     TIMEOUT "${ARG_TIMEOUT}"
@@ -265,10 +280,6 @@ function(ADD_COMBINE_TEST TEST_BASENAME)
       COMMAND ${ARG_T2W_COMMAND}
       COPY_TO_BUILDDIR ${ARG_COPY_TO_BUILDDIR}
       FIXTURES_SETUP ${TEST_BASENAME}
-      ENVIRONMENT
-          LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$ENV{LD_LIBRARY_PATH}
-          PYTHONPATH=${CMAKE_BINARY_DIR}/python:$ENV{PYTHONPATH}
-          PATH=${CMAKE_BINARY_DIR}/bin:$ENV{PATH}
   )
 
   # Combine multiple commands into a single shell command chain
@@ -284,13 +295,11 @@ function(ADD_COMBINE_TEST TEST_BASENAME)
       COMMAND bash -c "${_combined_command}"
       FIXTURES_REQUIRED ${TEST_BASENAME} # requires corresponding text2workspace run
       # We compare the output to reference files to validate the best-fit parameter values
-      WORKING_DIR ${CMAKE_CURRENT_BINARY_DIR}
       CHECKOUT OUTPUT ${TEST_BASENAME}.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/${TEST_BASENAME}.out
       # For this test, we are not interested in the standard error, but you could
       # compare this too:
       # CHECKERR
       # ERROR ${TEST_BASENAME}.err
       # ERRREF ${CMAKE_CURRENT_SOURCE_DIR}/references/${TEST_BASENAME}.err
-      ENVIRONMENT PATH=${CMAKE_BINARY_DIR}/bin:$ENV{PATH}
   )
 endfunction()
