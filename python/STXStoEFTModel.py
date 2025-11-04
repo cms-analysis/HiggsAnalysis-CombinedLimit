@@ -516,7 +516,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
         production = convert_to_STXS(production, decay)
 
         name = f"stxstoeft_scaling_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if not self.modelBuilder.out.function(name):
             XSscal = None
             BRscal = None
 
@@ -663,7 +663,7 @@ class StageXToEFTModel(STXStoEFTBaseModel):
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"stxstoeft_scaling_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if not self.modelBuilder.out.function(name):
             XSscal = None
             BRscal = None
 

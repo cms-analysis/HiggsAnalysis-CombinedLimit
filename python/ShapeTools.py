@@ -474,7 +474,7 @@ class ShapeBuilder(ModelBuilder):
                     continue
                 shape = self.getShape(b, p)
                 norm = 0
-                if shape == None:  # counting experiment
+                if not shape:  # counting experiment
                     if not self.out.var("CMS_fakeObs"):
                         self.doVar("CMS_fakeObs[0,1]")
                         self.out.var("CMS_fakeObs").setBins(1)
@@ -849,8 +849,8 @@ class ShapeBuilder(ModelBuilder):
         if (channel, process) in _cache:
             return _cache[(channel, process)]
         shapeNominal = self.getShape(channel, process)
-        nominalPdf = self.shape2Pdf(shapeNominal, channel, process) if (self.options.useHistPdf == "always" or shapeNominal == None) else shapeNominal
-        if shapeNominal == None:
+        nominalPdf = self.shape2Pdf(shapeNominal, channel, process) if (self.options.useHistPdf == "always" or not shapeNominal) else shapeNominal
+        if not shapeNominal:
             return nominalPdf  # no point morphing a fake shape
         morphs = []
         shapeAlgo = None
@@ -1098,7 +1098,7 @@ class ShapeBuilder(ModelBuilder):
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         terms = []
         shapeNominal = self.getShape(channel, process)
-        if shapeNominal == None:
+        if not shapeNominal:
             # FIXME no extra norm for dummy pdfs (could be changed)
             return None
         if shapeNominal.InheritsFrom("RooAbsPdf") and not shapeNominal.InheritsFrom("RooParametricHist") or shapeNominal.InheritsFrom("CMSHistFunc"):
@@ -1204,7 +1204,7 @@ class ShapeBuilder(ModelBuilder):
 
     def shape2Data(self, shape, channel, process, _cache={}):
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
-        if shape == None:
+        if not shape:
             name = f"shape{postFix}_{channel}_{process}"
             if name not in _cache:
                 obs = ROOT.RooArgSet(self.out.var("CMS_fakeObs"))
