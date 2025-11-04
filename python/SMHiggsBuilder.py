@@ -10,7 +10,13 @@ class SMHiggsBuilder:
     def __init__(self, modelBuilder, datadir=None):
         self.modelBuilder = modelBuilder
         if datadir == None:
-            datadir = os.environ["CMSSW_BASE"] + "/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg"
+            if "CMSSW_BASE" in os.environ:
+                datadir = os.path.join(os.environ["CMSSW_BASE"], "src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg")
+            elif "COMBINE_SRC" in os.environ:
+                # fallback solution if CMSSW_BASE is not set - this is useful for testing in general environments
+                datadir = os.path.join(os.environ["COMBINE_SRC"], "data/lhc-hxswg")
+            else:
+                raise EnvironmentError("Neither CMSSW_BASE nor COMBINE_SRC is set — cannot determine datadir.")
         self.datadir = datadir
         self.brpath = os.path.join(self.datadir, "sm/br")
         self.coupPath = os.path.join(self.datadir, "couplings")
