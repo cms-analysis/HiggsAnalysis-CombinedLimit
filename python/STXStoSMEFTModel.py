@@ -603,7 +603,7 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
                 name = f"stxstosmeft_scaling_expand_XS_{production}_BR_{decay}"
                 name_lin = f"scaling_linear_expand_XS_{production}_BR_{decay}"
                 name_linquad = f"scaling_linquad_expand_XS_{production}_BR_{decay}"
-                if (self.modelBuilder.out.function(name_lin) is None) | (self.modelBuilder.out.function(name_linquad) is None):
+                if (self.modelBuilder.out.function(name_lin) == None) | (self.modelBuilder.out.function(name_linquad) == None):
                     print(f" --> [STXStoSMEFT] Making linearised and linear+quadratic model for (STXS bin,decay): ({production},{decay})")
                     self.makeScalingFunction_expand(production, decay)
                 # Combine linear and linear+quadratic models into same scaling (use different POIs)
