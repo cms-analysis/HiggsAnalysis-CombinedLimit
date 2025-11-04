@@ -72,4 +72,4 @@ jobs:
         combine --help > /dev/null
         text2workspace.py --help > /dev/null
         ulimit -s unlimited;
-        ctest --test-dir build --output-on-failure
+        ctest --test-dir build/test --output-on-failure
