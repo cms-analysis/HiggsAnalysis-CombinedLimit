@@ -5,10 +5,13 @@
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6, 36, 0)
 
 #include "../interface/AsymPow.h"
+#include "../interface/CMSHistErrorPropagator.h"
+#include "../interface/CMSHistFunc.h"
+#include "../interface/CMSHistSum.h"
+#include "../interface/CombineMathFuncs.h"
 #include "../interface/ProcessNormalization.h"
 #include "../interface/VerticalInterpHistPdf.h"
 #include "../interface/VerticalInterpPdf.h"
-#include "../interface/CombineMathFuncs.h"
 
 #include <RooUniformBinning.h>
 
@@ -218,6 +221,56 @@ std::string RooFit::Experimental::codegenIntegralImpl(VerticalInterpPdf& arg,
                        arg.integralFloorVal(),
                        arg.quadraticRegion(),
                        arg.quadraticAlgo());
+}
+
+void RooFit::Experimental::codegenImpl(CMSHistFunc& arg, CodegenContext& ctx) {
+  arg.evaluate(); // trigger cache() creation
+  std::vector<double> const& edges = arg.cache().GetBinEdges();
+
+  // I don't know if these values are actually constant and we can take them
+  // here to hardcode into the generated code...
+  auto const& values = arg.cache().GetValues();
+
+  ctx.addResult(&arg,
+                ctx.buildCall("RooFit::Detail::MathFuncs::cmsHistFunc",
+                              arg.getXVar(),
+                              edges.size() - 1,
+                              edges,
+                              values
+                              ));
+}
+
+void RooFit::Experimental::codegenImpl(CMSHistErrorPropagator& arg, CodegenContext& ctx) {
+  ctx.addResult(&arg,
+                ctx.buildCall("RooFit::Detail::MathFuncs::cmsHistErrorPropagator",
+                              arg.getXVar(),
+                              arg.coefList().size(),
+                              arg.coefList(),
+                              arg.funcList()));
+}
+
+std::string RooFit::Experimental::codegenIntegralImpl(CMSHistErrorPropagator& arg,
+                                                      int code,
+                                                      const char* rangeName,
+                                                      CodegenContext& ctx) {
+  return "2.0";  // TODO: dummy for now
+}
+
+void RooFit::Experimental::codegenImpl(CMSHistSum& arg, CodegenContext& ctx) {
+  ctx.addResult(&arg,
+                ctx.buildCall("RooFit::Detail::MathFuncs::cmsHistSum",
+                              arg.getXVar(),
+                              arg.coefList().size(),
+                              arg.coefList(),
+                              nullptr // arg.funcList() what should this be??
+                              ));
+}
+
+std::string RooFit::Experimental::codegenIntegralImpl(CMSHistSum& arg,
+                                                      int code,
+                                                      const char* rangeName,
+                                                      CodegenContext& ctx) {
+  return "3.0";  // TODO: dummy for now
 }
 
 #endif  // ROOT_VERSION_CODE >= ROOT_VERSION(6,36,0)
