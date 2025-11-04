@@ -112,7 +112,7 @@ if not options.stat:
             continue
         l = re.sub("--+", "0", l)
         m = re.match(r"(.*?)\s+(0\s+(\d+\.?\d*(E[+\-]\d+)?\s+)+)", l)
-        if m is None:
+        if m == None:
             raise ValueError("Missing line " + l)
         sysname = m.group(1)
         syseff = [float(x) for x in m.group(2).split()]
@@ -183,7 +183,7 @@ for mh, D in data.items():
     # open file
     filename = "%s-mH%s.txt" % (options.label, mh)
     fout = open(filename, "w")
-    if fout is None:
+    if fout == None:
         raise RuntimeError("Cannot open %s for writing" % filename)
     print(" - " + filename)
     nproc = len(data[mh]["exp"]) // data[mh]["nch"]

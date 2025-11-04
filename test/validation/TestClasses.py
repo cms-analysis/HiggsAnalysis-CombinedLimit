@@ -47,7 +47,7 @@ class Test:
     def readOutputBase(self, dir):
         """Calls readOutput to read the output, saves it as JSON file"""
         output = self.readOutput(dir)
-        if output is not None:
+        if output != None:
             fout = open(self.jsonName(dir), "w")
             fout.write(json.dumps({self._name: output}, sort_keys=True, indent=4))
             fout.close()

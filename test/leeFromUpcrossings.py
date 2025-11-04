@@ -36,19 +36,19 @@ if len(args) not in [2, 4]:
     exit(1)
 
 file = ROOT.TFile(args[0])
-if file is None:
+if file == None:
     raise RuntimeError("Cannot open %s" % args[0])
 
 graph = file.Get(args[1])
-if graph is None:
+if graph == None:
     raise RuntimeError("Cannot find %s in %s" % (args[1], args[0]))
 
 graphUp = graph
 if options.level == 0:
-    if options.fit is None:
+    if options.fit == None:
         raise RuntimeError("Must specify a the graph of fitted signal strength to count upcrossings at zero")
     graphUp = file.Get(options.fit)
-    if graphUp is None:
+    if graphUp == None:
         raise RuntimeError("Cannot find %s in %s" % (options.fit, args[0]))
 
 (mhmin, mhmax) = (0, 999)

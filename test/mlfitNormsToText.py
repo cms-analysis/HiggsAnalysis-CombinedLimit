@@ -29,11 +29,11 @@ file = ROOT.TFile.Open(args[0])
 prefit = file.Get("norm_prefit")
 fit_s = file.Get("norm_fit_s")
 fit_b = file.Get("norm_fit_b")
-if prefit is None:
+if prefit == None:
     stderr.write("Missing fit_s in %s. Did you run FitDiagnostics in a recent-enough version of combine and with --saveNorm?\n" % file)
-if fit_s is None:
+if fit_s == None:
     raise RuntimeError("Missing fit_s in %s. Did you run FitDiagnostics with --saveNorm?" % file)
-if fit_b is None:
+if fit_b == None:
     raise RuntimeError("Missing fit_b in %s. Did you run FitDiagnostics with --saveNorm?" % file)
 
 iter = fit_s.createIterator()
@@ -54,18 +54,18 @@ print(line)
 
 while True:
     norm_s = iter.Next()
-    if norm_s is None:
+    if norm_s == None:
         break
     norm_b = fit_b.find(norm_s.GetName())
     norm_p = prefit.find(norm_s.GetName()) if prefit else None
     # we have to replace any non-standard characters with "_" otherwise the matching will screw up
     proc_chan_name = (norm_s.GetName()).replace(".", "_").replace(":", "_").replace(",", "_")
     m = re.match(r"(\w+)/(\w+)", proc_chan_name)
-    if m is None:
+    if m == None:
         m = re.match(r"n_exp_(?:final_)?(?:bin)+(\.\w+)_proc_(\.\w+)", proc_chan_name)
-    if m is None:
+    if m == None:
         raise RuntimeError("Non-conforming object name %s" % norm_s.GetName())
-    if norm_b is None:
+    if norm_b == None:
         raise RuntimeError("Missing normalization %s for background fit" % norm_s.GetName())
     if prefit and norm_p and errors:
         row = [
