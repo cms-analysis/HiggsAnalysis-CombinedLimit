@@ -1986,12 +1986,12 @@ releases on github under
 <h4 id="combine-v10-recommended-version">Combine v10 - recommended version</h4>
 <p>The nominal installation method is inside CMSSW. The current release targets
 the CMSSW <code>14_1_X</code> series because of the recent switch to el9 at lxplus machines.</p>
-<p>Currently, the recommended tag is <strong>v10.3.0</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.3.0">see release notes</a>
+<p>Currently, the recommended tag is <strong>v10.3.1</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.3.1">see release notes</a>
 The <code>git clone</code> command below contains this tag and is optimised to reduce disk usage.</p>
 <div class="highlight"><pre><span></span><code>cmsrel<span class="w"> </span>CMSSW_14_1_0_pre4
 <span class="nb">cd</span><span class="w"> </span>CMSSW_14_1_0_pre4/src
 cmsenv
-git<span class="w"> </span>-c<span class="w"> </span>advice.detachedHead<span class="o">=</span><span class="nb">false</span><span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v10.3.0<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
+git<span class="w"> </span>-c<span class="w"> </span>advice.detachedHead<span class="o">=</span><span class="nb">false</span><span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v10.3.1<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
 <span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
 scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span><span class="w"> </span><span class="c1"># always make a clean build, with n - 2 cores on the system</span>
 </code></pre></div>
