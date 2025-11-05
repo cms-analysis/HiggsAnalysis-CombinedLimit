@@ -290,12 +290,11 @@ COMBINE_ADD_TEST(LHC-limits
     COMMAND combine datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01
     COPY_TO_BUILDDIR ${REPO}/data/tutorials/CAT23001/datacard-2-template-analysis.txt
                      ${REPO}/data/tutorials/CAT23001/template-analysis-datacard-input.root
-    # TODO: fix this test with ROOT master. Right now, it throws an exception because of variable clipping.
-    # CHECKOUT OUTPUT LHC-limits.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/LHC-limits.out
+    CHECKOUT OUTPUT LHC-limits.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/LHC-limits.out
 )
-# set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
-#     "combine datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01 > references/LHC-limits.out"
-# )
+set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
+    "combine datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01 > references/LHC-limits.out"
+)
 
 COMBINE_ADD_TEST(LHC-significance
     COMMAND combine datacard-3-parametric-analysis.txt -M HybridNew --LHCmode LHC-significance -T 5000 --mass 125
