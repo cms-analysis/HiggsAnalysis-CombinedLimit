@@ -130,7 +130,6 @@ jobs:
             combineCards.py --help
             combineTool.py --help
             commentUncerts.py --help
-            fitRooFitAD.py --help
             plot1DScan.py --help
             plotBSMxsBRLimit.py --help
             plotGof.py --help
