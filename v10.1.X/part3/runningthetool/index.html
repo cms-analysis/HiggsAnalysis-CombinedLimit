@@ -1,0 +1,2190 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../part2/bin-wise-stats/">
+      
+      
+        <link rel="next" href="../commonstatsmethods/">
+      
+      
+      <link rel="icon" href="../../logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>Running the tool - Combine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2afb09e1.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../mystyle.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#how-to-run-the-tool" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../../.."> 
+
+
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Combine" class="md-header__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Combine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Running the tool
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../what_combine_does/introduction/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  What Combine Does
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part2/settinguptheanalysis/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Setting up the analysis
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Running combine
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part5/roofit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../part4/usefullinks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Links & FAQ
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Combine" class="md-nav__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    Combine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    What Combine Does
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            What Combine Does
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/model_and_likelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model and Likelihood
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/fitting_concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fitting Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/statistical_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statistical Tests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Setting up the analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Setting up the analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/settinguptheanalysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Physics models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Physics models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/physicsmodels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/higgscouplings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SM Higgs coupling models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bsm-higgs-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    BSM Higgs models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bin-wise-stats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Automatic MC statistical uncertainties
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Running combine
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Running combine
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Running the tool
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Running the tool
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#common-command-line-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common command-line options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common command-line options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generic-minimizer-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generic Minimizer Options
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-from-combine" class="md-nav__link">
+    <span class="md-ellipsis">
+      Output from combine
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#toy-data-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Toy data generation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Toy data generation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#asimov-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Asimov datasets
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nuisance-parameter-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nuisance parameter generation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generate only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loading-snapshots" class="md-nav__link">
+    <span class="md-ellipsis">
+      Loading snapshots
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#combinetool-for-job-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      combineTool for job submission
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="combineTool for job submission">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#submission-to-condor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Submission to Condor
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Submission to Condor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#splitting-jobs-for-a-multi-dimensional-likelihood-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Splitting jobs for a multi-dimensional likelihood scan
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grid-submission-with-combinetool" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grid submission with combineTool
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grid-submission-with-crab3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grid submission with crab3
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commonstatsmethods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nonstandard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced use cases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simplifiedlikelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simplified Likelihoods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../regularisation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Unfolding & regularization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validating datacards
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../debugging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Debugging fit failures
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/roofit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Main Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Main Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exercises
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexerciseanswers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Solutions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023/parametric_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parametric Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023_unfolding/unfolding_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Likelihood Based Unfolding
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial_stat_routines/stat_routines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statitiscal Tests Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model_building_tutorial2024/model_building_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model building
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../abcd_rooparametrichist_tutorial/rooparametrichist_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Per-bin Transfer Factors with Parametric Histograms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/usefullinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Links & FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#common-command-line-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common command-line options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common command-line options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generic-minimizer-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generic Minimizer Options
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-from-combine" class="md-nav__link">
+    <span class="md-ellipsis">
+      Output from combine
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#toy-data-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Toy data generation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Toy data generation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#asimov-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Asimov datasets
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nuisance-parameter-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nuisance parameter generation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generate only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loading-snapshots" class="md-nav__link">
+    <span class="md-ellipsis">
+      Loading snapshots
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#combinetool-for-job-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      combineTool for job submission
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="combineTool for job submission">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#submission-to-condor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Submission to Condor
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Submission to Condor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#splitting-jobs-for-a-multi-dimensional-likelihood-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Splitting jobs for a multi-dimensional likelihood scan
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grid-submission-with-combinetool" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grid submission with combineTool
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grid-submission-with-crab3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grid submission with crab3
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="how-to-run-the-tool">How to run the tool</h1>
+<p>The executable <span style="font-variant:small-caps;">Combine</span> provided by the package is used to invoke the tools via the command line. The statistical analysis method, as well as user settings, are also specified on the command line. To see the full list of available options, you can run:</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>--help
+</code></pre></div>
+<p>The option <code>-M</code> is used to choose the statistical evaluation method. There are several groups of statistical methods:</p>
+<ul>
+<li><strong>Asymptotic</strong> likelihood methods:<ul>
+<li><code>AsymptoticLimits</code>: limits calculated according to the asymptotic formulae in <a href="http://arxiv.org/abs/1007.1727">arxiv:1007.1727</a>.</li>
+<li><code>Significance</code>: simple profile likelihood approximation, for calculating significances.</li>
+</ul>
+</li>
+<li><strong>Bayesian</strong> methods:<ul>
+<li><code>BayesianSimple</code>: performing a classical numerical integration (for simple models only).</li>
+<li><code>MarkovChainMC</code>: performing Markov Chain integration, for arbitrarily complex models.</li>
+</ul>
+</li>
+<li><strong>Frequentist</strong> or hybrid bayesian-frequentist methods:<ul>
+<li><code>HybridNew</code>: compute modified frequentist limits, significance/p-values and confidence intervals according to several possible prescriptions with toys. </li>
+</ul>
+</li>
+<li><strong>Fitting</strong><ul>
+<li><code>FitDiagnostics</code>: performs maximum likelihood fits to extract the signal rate, and provides diagnostic tools such as pre- and post-fit figures and correlations</li>
+<li><code>MultiDimFit</code>: performs maximum likelihood fits and likelihood scans with an arbitrary number of parameters of interest.</li>
+</ul>
+</li>
+<li><strong>Miscellaneous</strong> other modules that do not compute limits or confidence intervals, but use the same framework:<ul>
+<li><code>GoodnessOfFit</code>: perform a goodness of fit test for models including shape information. Several GoF tests are implemented.</li>
+<li><code>ChannelConsistencyCheck</code>: study the consistency between individual channels in a combination.</li>
+<li><code>GenerateOnly</code>: generate random or asimov toy datasets for use as input to other methods</li>
+</ul>
+</li>
+</ul>
+<p>The command help is organized into five parts:</p>
+<ul>
+<li>The <em>Main options</em> section indicates how to pass the datacard as input to the tool (<code>-d datacardName</code>), how to choose the statistical method (<code>-M MethodName</code>), and how to set the verbosity level <code>-v</code></li>
+<li>Under <em>Common statistics options</em>, options common to different statistical methods are given. Examples are <code>--cl</code>, to specify the confidence level (default is 0.95), or <code>-t</code>, to give the number of toy MC extractions required.</li>
+<li>The <em>Common input-output options</em> section includes, for example, the options to specify the mass hypothesis under study (<code>-m</code>) or to include a specific string in the output filename (<code>--name</code>). </li>
+<li><em>Common miscellaneous options</em>.</li>
+<li>Further method-specific options are available for each method. By passing the method name via the <code>-M</code> option, along with <code>--help</code>, the options for that specific method are shown in addition to the common options. </li>
+</ul>
+<p>Not all the available options are discussed in this online documentation; use <code>--help</code> to get the documentation of all options.</p>
+<h2 id="common-command-line-options">Common command-line options</h2>
+<p>There are a number of useful command-line options that can be used to alter the model (or parameters of the model) at run time. The most commonly used, generic options, are:</p>
+<ul>
+<li>
+<p><code>-H</code>: first run a different, faster, algorithm (e.g. the <code>ProfileLikelihood</code> described below) to obtain an approximate indication of the limit, which will allow the precise chosen algorithm to converge more quickly. We <strong>strongly recommend</strong> to use this option when using the <code>MarkovChainMC</code>, <code>HybridNew</code> or <code>FeldmanCousins</code> calculators, unless you know in which range your limit lies and you set this range manually (the default is <code>[0, 20]</code>)</p>
+</li>
+<li>
+<p><code>--rMax</code>, <code>--rMin</code>: manually restrict the range of signal strengths to consider. For Bayesian limits with MCMC, a rule of thumb is that <code>rMax</code> should be 3-5 times the limit (a too small value of <code>rMax</code> will bias your limit towards low values, since you are restricting the integration range, while a too large value will bias you to higher limits)</p>
+</li>
+<li>
+<p><code>--setParameters name=value[,name2=value2,...]</code> sets the starting values of the parameters, useful e.g. when generating toy MC or when setting the parameters as fixed. This option supports the use of regular expressions by replacing <code>name</code> with <code>rgx{some regular expression}</code>.</p>
+</li>
+<li>
+<p><code>--setParameterRanges name=min,max[:name2=min2,max2:...]</code> sets the ranges of the parameters (useful e.g. for scans in <code>MultiDimFit</code>, or for Bayesian integration). This option supports the use of regular expressions by replacing <code>name</code> with <code>rgx{some regular expression}</code>.</p>
+</li>
+<li>
+<p><code>--redefineSignalPOIs name[,name2,...]</code> redefines the set of parameters of interest.</p>
+<ul>
+<li>If the parameters were constant in the input workspace, they are set to be floating.</li>
+<li>Nuisance parameters promoted to parameters of interest are removed from the list of nuisances, and thus they are not randomized in methods that randomize nuisances (e.g. <code>HybridNew</code> in non-frequentist mode, or <code>BayesianToyMC</code>, or in toy generation with <code>-t</code> but without <code>--toysFreq</code>). This does not have any impact on algorithms that do not randomize nuisance parameters (e.g. fits, <code>AsymptoticLimits</code>, or <code>HybridNew</code> in fequentist mode) or on algorithms that treat all parameters in the same way (e.g. <code>MarkovChainMC</code>).</li>
+<li>Note that constraint terms for the nuisances are <strong>dropped</strong> after promotion to a POI using <code>--redefineSignalPOI</code>. To produce a likelihood scan for a nuisance parameter, using <code>MultiDimFit</code> with <strong><code>--algo grid</code></strong>, you should instead use the <code>--parameters (-P)</code> option, which will not cause the loss of the constraint term when scanning.</li>
+<li>Parameters of interest of the input workspace that are not selected by this command become unconstrained nuisance parameters, but they are not added to the list of nuisances so they will not be randomized (see above).</li>
+</ul>
+</li>
+<li>
+<p><code>--freezeParameters name1[,name2,...]</code> Will freeze the parameters with the given names to their set values. This option supports the use of regular expression by replacing <code>name</code> with <code>rgx{some regular expression}</code> for matching to <em>constrained nuisance parameters</em> or <code>var{some regular expression}</code> for matching to <em>any</em> parameter. For example <code>--freezeParameters rgx{CMS_scale_j.*}</code> will freeze all constrained nuisance parameters with the prefix <code>CMS_scale_j</code>, while <code>--freezeParameters var{.*rate_scale}</code> will freeze any parameter (constrained nuisance parameter or otherwise) with the suffix <code>rate_scale</code>.</p>
+<ul>
+<li>Use the option <code>--freezeParameters allConstrainedNuisances</code> to freeze all nuisance parameters that have a constraint term (i.e not <code>flatParams</code> or <code>rateParams</code> or other freely floating parameters).</li>
+<li>Similarly, the option <code>--floatParameters name1[,name2,...]</code> sets the parameter(s) floating and also accepts regular expressions.</li>
+<li>Groups of nuisance parameters (constrained or otherwise), as defined in the datacard, can be frozen using <code>--freezeNuisanceGroups</code>. You can also freeze all nuisances that are <em>not</em> contained in a particular group using a <strong>^</strong> before the group name (<code>--freezeNuisanceGroups=^group_name</code> will freeze everything except nuisance parameters in the group "group_name".)</li>
+<li>All <em>constrained</em> nuisance parameters (not <code>flatParam</code> or <code>rateParam</code>) can be set floating using <code>--floatAllNuisances</code>.</li>
+</ul>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Note that the floating/freezing options have a priority ordering from lowest to highest as <code>floatParameters &lt; freezeParameters &lt; freezeNuisanceGroups &lt; floatAllNuisances</code>. Options with higher priority will take precedence over those with lower priority.</p>
+</div>
+<ul>
+<li>
+<p><code>--trackParameters name1[,name2,...]</code> will add a branch to the output tree for each of the named parameters. This option supports the use of regular expressions by replacing <code>name</code> with <code>rgx{some regular expression}</code></p>
+<ul>
+<li>The name of the branch will be <strong>trackedParam_<em>name</em></strong>.</li>
+<li>The exact behaviour depends on the method used. For example, when using <code>MultiDimFit</code> with <code>--algo scan</code>, the value of the parameter at each point in the scan will be saved, while for <code>FitDiagnostics</code>, only the value at the end of the fit will be saved.</li>
+</ul>
+</li>
+<li>
+<p><code>--trackErrors name1[,name2,...]</code> will add a branch to the output tree for the error of each of the named parameters. This option supports the use of regular expressions by replacing <code>name</code> with <code>rgx{some regular expression}</code></p>
+<ul>
+<li>The name of the branch will be <strong>trackedError_<em>name</em></strong>.</li>
+<li>The behaviour, in terms of which values are saved, is the same as <code>--trackParameters</code> above.</li>
+</ul>
+</li>
+</ul>
+<p>By default, the data set used by <span style="font-variant:small-caps;">Combine</span> will be the one listed in the datacard. You can tell <span style="font-variant:small-caps;">Combine</span> to use a different data set (for example a toy data set that you generated) by using the option <code>--dataset</code>. The argument should be <code>rootfile.root:workspace:location</code> or <code>rootfile.root:location</code>. In order to use this option, you must first convert your datacard to a binary workspace and use this binary workspace as the input to <span style="font-variant:small-caps;">Combine</span>. </p>
+<h3 id="generic-minimizer-options">Generic Minimizer Options</h3>
+<p><span style="font-variant:small-caps;">Combine</span> uses its own minimizer class, which is used to steer Minuit (via RooMinimizer), named the <code>CascadeMinimizer</code>. This allows for sequential minimization, which can help in case a particular setting or algorithm fails. The <code>CascadeMinimizer</code> also knows about extra features of <span style="font-variant:small-caps;">Combine</span> such as <em>discrete</em> nuisance parameters.</p>
+<p>All of the fits that are performed in <span style="font-variant:small-caps;">Combine</span>'s methods use this minimizer. This means that the fits can be tuned using these common options,</p>
+<ul>
+<li><code>--cminPoiOnlyFit</code>: First, perform a fit floating <em>only</em> the parameters of interest. This can be useful to find, roughly, where the global minimum is.</li>
+<li><code>--cminPreScan</code>: Do a scan before the first minimization.</li>
+<li><code>--cminPreFit arg</code> If set to a value N &gt; 0, the minimizer will perform a pre-fit with strategy (N-1), with the nuisance parameters frozen.<ul>
+<li><code>--cminApproxPreFitTolerance arg</code>: If non-zero, first do a pre-fit with this tolerance (or 10 times the final tolerance, whichever is largest)</li>
+<li><code>--cminApproxPreFitStrategy arg</code>:   Strategy to use in the pre-fit. The default is strategy 0.</li>
+</ul>
+</li>
+<li><code>--cminDefaultMinimizerType arg</code>: Set the default minimizer type. By default this is set to Minuit2.</li>
+<li><code>--cminDefaultMinimizerAlgo arg</code>: Set the default minimizer algorithm. The default algorithm is Migrad.</li>
+<li><code>--cminDefaultMinimizerTolerance arg</code>: Set the default minimizer tolerance, the default is 0.1.</li>
+<li><code>--cminDefaultMinimizerStrategy arg</code>: Set the default minimizer strategy between 0 (speed), 1 (balance - <em>default</em>), 2 (robustness). The <a href="http://www.fresco.org.uk/minuit/cern/node6.html">Minuit documentation</a> for this is pretty sparse but in general, 0 means evaluate the function less often, while 2 will waste function calls to get precise answers. An important note is that the <code>Hesse</code> algorithm (for error and correlation estimation) will be run <em>only</em> if the strategy is 1 or 2.</li>
+<li><code>--cminFallbackAlgo arg</code>: Provides a list of fallback algorithms, to be used in case the default minimizer fails. You can provide multiple options using the syntax <code>Type[,algo],strategy[:tolerance]</code>: eg <code>--cminFallbackAlgo Minuit2,Simplex,0:0.1</code> will fall back to the simplex algorithm of Minuit2 with strategy 0 and a tolerance 0.1, while <code>--cminFallbackAlgo Minuit2,1</code> will use the default algorithm (Migrad) of Minuit2 with strategy 1.</li>
+<li><code>--cminSetZeroPoint (0/1)</code>: Set the reference of the NLL to 0 when minimizing, this can help faster convergence to the minimum if the NLL itself is large. The default is true (1), set to 0 to turn off.</li>
+</ul>
+<p>The allowed combinations of minimizer types and minimizer algorithms are as follows:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Minimizer type</strong></th>
+<th><strong>Minimizer algorithm</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Minuit</code></td>
+<td><code>Migrad</code>, <code>Simplex</code>, <code>Combined</code>, <code>Scan</code></td>
+</tr>
+<tr>
+<td><code>Minuit2</code></td>
+<td><code>Migrad</code>, <code>Simplex</code>, <code>Combined</code>, <code>Scan</code></td>
+</tr>
+<tr>
+<td><code>GSLMultiMin</code></td>
+<td><code>ConjugateFR</code>, <code>ConjugatePR</code>, <code>BFGS</code>, <code>BFGS2</code>, <code>SteepestDescent</code></td>
+</tr>
+</tbody>
+</table>
+<p>You can find details about these in the Minuit2 documentation <a href="https://root.cern.ch/root/htmldoc/guides/minuit2/Minuit2.html">here</a>.</p>
+<p>More of these options can be found in the <strong>Cascade Minimizer options</strong> section when running <code>--help</code>.</p>
+<h3 id="output-from-combine">Output from combine</h3>
+<p>Most methods will print the results of the computation to the screen. However, in addition, <span style="font-variant:small-caps;">Combine</span> will also produce a root file containing a tree called <strong>limit</strong> with these results. The name of this file will be of the format,</p>
+<pre><code>higgsCombineTest.MethodName.mH$MASS.[word$WORD].root
+</code></pre>
+<p>where <strong>$WORD</strong> is any user defined keyword from the datacard which has been set to a particular value.</p>
+<p>A few command-line options can be used to control this output:</p>
+<ul>
+<li>The option <code>-n</code> allows you to specify part of the name of the root file. e.g. if you pass <code>-n HWW</code> the root file will be called <code>higgsCombineHWW....</code> instead of <code>higgsCombineTest</code></li>
+<li>The option <code>-m</code> allows you to specify the (Higgs boson) mass hypothesis, which gets written in the filename and in the output tree. This simplifies the bookeeping, as it becomes possible to merge multiple trees corresponding to different (Higgs boson) masses using <code>hadd</code>. Quantities can then be plotted as a function of the mass. The default value is m=120.</li>
+<li>The option <code>-s</code> can be used to specify the seed (eg <code>-s 12345</code>) used in toy generation. If this option is given, the name of the file will be extended by this seed, eg <code>higgsCombineTest.AsymptoticLimits.mH120.12345.root</code></li>
+<li>The option <code>--keyword-value</code> allows you to specify the value of a keyword in the datacard such that <strong>$WORD</strong> (in the datacard) will be given the value of <strong>VALUE</strong> in the command <code>--keyword-value WORD=VALUE</code>, eg  <code>higgsCombineTest.AsymptoticLimits.mH120.WORDVALUE.12345.root</code></li>
+</ul>
+<p>The output file will contain a <code>TDirectory</code> named <strong>toys</strong>, which will be empty if no toys are generated (see below for details) and a <code>TTree</code> called <strong>limit</strong> with the following branches;</p>
+<table>
+<thead>
+<tr>
+<th><strong>Branch name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>limit</code></strong></td>
+<td><code>Double_t</code></td>
+<td>Main result of combine run, with method-dependent meaning</td>
+</tr>
+<tr>
+<td><strong><code>limitErr</code></strong></td>
+<td><code>Double_t</code></td>
+<td>Estimated uncertainty on the result</td>
+</tr>
+<tr>
+<td><strong><code>mh</code></strong></td>
+<td><code>Double_t</code></td>
+<td>Value of <strong>MH</strong>, specified with <code>-m</code> option</td>
+</tr>
+<tr>
+<td><strong><code>iToy</code></strong></td>
+<td><code>Int_t</code></td>
+<td>Toy number identifier if running with <code>-t</code></td>
+</tr>
+<tr>
+<td><strong><code>iSeed</code></strong></td>
+<td><code>Int_t</code></td>
+<td>Seed specified with <code>-s</code></td>
+</tr>
+<tr>
+<td><strong><code>t_cpu</code></strong></td>
+<td><code>Float_t</code></td>
+<td>Estimated CPU time for algorithm</td>
+</tr>
+<tr>
+<td><strong><code>t_real</code></strong></td>
+<td><code>Float_t</code></td>
+<td>Estimated real time for algorithm</td>
+</tr>
+<tr>
+<td><strong><code>quantileExpected</code></strong></td>
+<td><code>Float_t</code></td>
+<td>Quantile identifier for methods that calculated expected (quantiles) and observed results (eg conversions from <span class="arithmatex">\(\Delta\ln L\)</span> values), with method-dependent meaning. Negative values are reserved for entries that <em>do not</em> relate to quantiles of a calculation, with the default being set to -1 (usually meaning the <em>observed</em> result).</td>
+</tr>
+</tbody>
+</table>
+<p>The value of any user-defined keyword <strong>$WORD</strong> that is set using <code>keyword-value</code> described above will also be included as a branch with type <code>string</code> named <strong>WORD</strong>. The option can be repeated multiple times for multiple keywords.</p>
+<p>In some cases, the precise meanings of the branches will depend on the method being used. In this case, it will be specified in this documentation.</p>
+<h2 id="toy-data-generation">Toy data generation</h2>
+<p>By default, each of the methods described so far will be run using the <strong>observed data</strong> as the input. In several cases (as detailed below), it is useful to run the tool using toy datasets, including Asimov data sets.</p>
+<p>The option <code>-t</code> is used to tell <span style="font-variant:small-caps;">Combine</span> to first generate one or more toy data sets, which will be used instead of the observed data. There are two versions,</p>
+<ul>
+<li>
+<p><code>-t N</code> with N &gt; 0. <span style="font-variant:small-caps;">Combine</span> will generate N toy datasets from the model and re-run the method once per toy. The seed for the toy generation can be modified with the option <code>-s</code> (use <code>-s -1</code> for a random seed). The output file will contain one entry in the tree for each of these toys.</p>
+</li>
+<li>
+<p><code>-t -1</code> will produce an Asimov data set, in which statistical fluctuations are suppressed. The procedure for generating this Asimov data set depends on the type of analysis you are using. More details are given below. </p>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The default values of the nuisance parameters (or any parameter) are used to generate the toy. This means that if, for example, you are using parametric shapes and the parameters inside the workspace are set to arbitrary values, <em>those</em> arbitrary values will be used to generate the toy. This behaviour can be modified through the use of the option <code>--setParameters x=value_x,y=value_y...</code>, which will set the values of the parameters (<code>x</code> and <code>y</code>) before toy generation. You can also load a snapshot from a previous fit to set the nuisance parameters to their <em>post-fit</em> values (see below).</p>
+</div>
+<p>The output file will contain the toys (as <code>RooDataSets</code> for the observables, including global observables) in the <strong>toys</strong> directory if the option <code>--saveToys</code> is provided. If you include this option, the <code>limit</code> TTree in the output will have an entry corresponding to the state of the POI used for the generation of the toy, with the value of <strong><code>quantileExpected</code></strong> set to <strong>-2</strong>. </p>
+<p>The branches that are created by methods like <code>MultiDimFit</code> <em>will not</em> show the values used to generate the toy. If you also want the TTree to show the values of the POIs used to generate the toy, you should add additional branches using the <code>--trackParameters</code> option as described in the <a href="#common-command-line-options">common command-line options</a> section above. These branches will behave as expected when adding the option <code>--saveToys</code>. </p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>For statistical methods that make use of toys (including <code>HybridNew</code>, <code>MarkovChainMC</code> and running with <code>-t N</code>), the results of repeated <span style="font-variant:small-caps;">Combine</span> commands will not be identical when using the datacard as the input. This is due to a feature in the tool that allows one to run concurrent commands that do not interfere with one another. In order to produce reproducible results with toy-based methods, you should first convert the datacard to a binary workspace using <code>text2workspace.py</code> and then use the resulting file as input to the <span style="font-variant:small-caps;">Combine</span> commands</p>
+</div>
+<h3 id="asimov-datasets">Asimov datasets</h3>
+<p>If you are using either <code>-t -1</code> or  <code>AsymptoticLimits</code>, <span style="font-variant:small-caps;">Combine</span> will calculate results based on an Asimov data set.</p>
+<ul>
+<li>
+<p>For counting experiments, the Asimov data set will just be the total number of expected events (given the values of the nuisance parameters and POIs of the model)</p>
+</li>
+<li>
+<p>For shape analyses with templates, the Asimov data set will be constructed as a histogram using the same binning that is defined for your analysis.</p>
+</li>
+<li>
+<p>If your model uses parametric shapes, there are some options as to what Asimov data set to produce. By <em>default</em>, <span style="font-variant:small-caps;">Combine</span> will produce the Asimov data set as a histogram using the binning that is associated with each observable (ie as set using <code>RooRealVar::setBins</code>). If this binning does not exist, <span style="font-variant:small-caps;">Combine</span> will <strong>guess</strong> a suitable binning - it is therefore best to use <code>RooRealVar::setBins</code> to associate a binning with each observable, even if your data is unbinned, if you intend to use Asimov data sets.</p>
+</li>
+</ul>
+<p>You can also ask <span style="font-variant:small-caps;">Combine</span> to use a <strong>Pseudo-Asimov</strong> dataset, which is created from many weighted unbinned events.</p>
+<p>Setting <code>--X-rtd TMCSO_AdaptivePseudoAsimov=</code><span class="arithmatex">\(\beta\)</span> with <span class="arithmatex">\(\beta&gt;0\)</span> will trigger the internal logic of whether to produce a Pseudo-Asimov dataset. This logic is as follows;</p>
+<ol>
+<li>
+<p>For each observable in your dataset, the number of bins, <span class="arithmatex">\(n_{b}\)</span> is determined either from the value of <code>RooRealVar::getBins</code>, if it exists, or assumed to be 100.</p>
+</li>
+<li>
+<p>If <span class="arithmatex">\(N_{b}=\prod_{b}n_{b}&gt;5000\)</span>, the number of expected events <span class="arithmatex">\(N_{ev}\)</span> is determined. <em>Note</em> if you are combining multiple channels, <span class="arithmatex">\(N_{ev}\)</span> refers to the number of expected events in a single channel. The logic is separate for each channel. If  <span class="arithmatex">\(N_{ev}/N_{b}&lt;0.01\)</span> then a Pseudo-Asimov data set is created with the number of events equal to <span class="arithmatex">\(\beta \cdot \mathrm{max}\{100*N_{ev},1000\}\)</span>. If <span class="arithmatex">\(N_{ev}/N_{b}\geq 0.01\)</span> , then a normal Asimov data set is produced.</p>
+</li>
+<li>
+<p>If <span class="arithmatex">\(N_{b}\leq 5000\)</span> then a normal Asimov data set will be produced</p>
+</li>
+</ol>
+<p>The production of a Pseudo-Asimov data set can be <em>forced</em> by using the option <code>--X-rtd TMCSO_PseudoAsimov=X</code> where <code>X&gt;0</code> will determine the number of weighted events for the Pseudo-Asimov data set. You should try different values of <code>X</code>, since larger values lead to more events in the Pseudo-Asimov data set, resulting in higher precision. However, in general, the fit will be slower. </p>
+<p>You can turn off the internal logic by setting <code>--X-rtd TMCSO_AdaptivePseudoAsimov=0 --X-rtd TMCSO_PseudoAsimov=0</code>, thereby forcing histograms to be generated.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>If you set <code>--X-rtd TMCSO_PseudoAsimov=X</code> with <code>X&gt;0</code> and also turn on <code>--X-rtd TMCSO_AdaptivePseudoAsimov=</code><span class="arithmatex">\(\beta\)</span>, with <span class="arithmatex">\(\beta&gt;0\)</span>, the internal logic will be used, but this time the default will be to generate Pseudo-Asimov data sets, rather than the standard Asimov ones.</p>
+</div>
+<h3 id="nuisance-parameter-generation">Nuisance parameter generation</h3>
+<p>The default method of handling systematics is to generate random values (around their nominal values, see above) for the nuisance parameters, according to their prior PDFs centred around their default values, <em>before</em> generating the data. The <em>unconstrained</em> nuisance parameters (eg <code>flatParam</code> or <code>rateParam</code>), or those with <em>flat</em> priors are <strong>not</strong> randomized before the data generation. If you wish to also randomize these parameters, you <strong>must</strong> declare them as <code>flatParam x [xmin,xmax]</code> in your datacard, where <code>x</code> is a default value and the range is given by <code>xmin</code> to <code>xmax</code>. When running text2workspace, you must add the option <code>--X-assign-flatParam-prior</code> to the command line so that the proper probability densities are assigned to these parameters. </p>
+<p>The following options define how the toys will be generated,</p>
+<ul>
+<li>
+<p><code>--toysNoSystematics</code> the nuisance parameters in each toy are <em>not</em> randomized when generating the toy data sets - i.e their nominal values are used to generate the data. Note that for methods which profile (fit) the nuisances, the parameters are still floating when evaluating the likelihood.</p>
+</li>
+<li>
+<p><code>--toysFrequentist</code> the nuisance parameters in each toy are set to their nominal values which are obtained <em>after first fitting to the observed data</em>, with the POIs fixed, before generating the toy data sets. For evaluating likelihoods, the constraint terms are instead randomized within their PDFs around the post-fit nuisance parameter values.</p>
+</li>
+</ul>
+<p>If you are using <code>toysFrequentist</code>, be aware that the values set by <code>--setParameters</code> will be <em>ignored</em> for the toy generation as the <em>post-fit</em> values will instead be used (except for any parameter that is also a parameter of interest). You can override this behaviour and choose the nominal values for toy generation for any parameter by adding the option <code>--bypassFrequentistFit</code>, which will skip the initial fit to data, or by loading a snapshot (see below).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>For methods such as <code>AsymptoticLimits</code> and <code>HybridNew --LHCmode LHC-limits</code>, the  "nominal" nuisance parameter values are taken from fits to the data and are, therefore, not "blind" to the observed data by default (following the fully frequentist paradigm). See the detailed documentation on these methods for how to run in fully "blinded" mode.</p>
+</div>
+<h3 id="generate-only">Generate only</h3>
+<p>It is also possible to generate the toys first, and then feed them to the methods in <span style="font-variant:small-caps;">Combine</span>. This can be done using <code>-M GenerateOnly --saveToys</code>. The toys can then be read and used with the other methods by specifying <code>--toysFile=higgsCombineTest.GenerateOnly...</code> and using the same options for the toy generation. </p>
+<p>You can specify to run on a single toy, in place of the observed data, by including the option <code>-D file.root:toys/toy_i</code>. For example adding <code>-D higgsCombineTest.GenerateOnly.mH120.123456.root:toys/toy_10</code> will run on the  data set <code>toy_10</code> (the 10th toy) that was generated and saved in the file <code>higgsCombineTest.GenerateOnly.mH120.123456.root</code>. </p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Some methods also use toys within the method itself (eg <code>AsymptoticLimits</code> and <code>HybridNew</code>). For these, you should <strong>not</strong> specify the toy generation with <code>-t</code> or the options above. Instead, you should follow the method-specific instructions.</p>
+</div>
+<h3 id="loading-snapshots">Loading snapshots</h3>
+<p>Snapshots from workspaces can be loaded and used in order to generate toys using the option <code>--snapshotName &lt;name of snapshot&gt;</code>. This will first set the parameters to the values in the snapshot, <em>before</em> any other parameter options are set and toys are generated.</p>
+<p>See the section on <a href="/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#using-best-fit-snapshots">saving post-fit workspaces</a> for creating workspaces with post-fit snapshots from <code>MultiDimFit</code>.</p>
+<p>Here are a few examples of calculations with toys from post-fit workspaces using a workspace with <span class="arithmatex">\(r, m_{H}\)</span> as parameters of interest</p>
+<ul>
+<li>
+<p>Throw post-fit toy with b from s+b(floating <span class="arithmatex">\(r,m_{H}\)</span>) fit, s with <strong>r=1.0</strong>, <strong>m=best fit MH</strong>, using nuisance parameter values and constraints re-centered on s+b(floating <span class="arithmatex">\(r,m_{H}\)</span>) fit values (aka frequentist post-fit expected) and compute post-fit expected <strong>r</strong> uncertainty profiling <strong>MH</strong>
+    <code>combine higgsCombinemumhfit.MultiDimFit.mH125.root --snapshotName MultiDimFit -M MultiDimFit --verbose 9 -n randomtest --toysFrequentist --bypassFrequentistFit -t -1 --expectSignal=1 -P r --floatOtherPOIs=1 --algo singles</code></p>
+</li>
+<li>
+<p>Throw post-fit toy with b from s+b(floating <span class="arithmatex">\(r,m_{H}\)</span>) fit, s with <strong>r=1.0, m=128.0</strong>, using nuisance parameter values and constraints re-centered on s+b(floating <span class="arithmatex">\(r,m_{H}\)</span>) fit values (aka frequentist post-fit expected) and compute post-fit expected significance (with <strong>MH</strong> fixed at 128 implicitly)
+    <code>combine higgsCombinemumhfit.MultiDimFit.mH125.root -m 128 --snapshotName MultiDimFit -M ProfileLikelihood --significance --verbose 9 -n randomtest --toysFrequentist --bypassFrequentistFit --overrideSnapshotMass -t -1 --expectSignal=1 --redefineSignalPOIs r --freezeParameters MH</code></p>
+</li>
+<li>
+<p>Throw post-fit toy with b from s+b(floating <span class="arithmatex">\(r,m_{H}\)</span>) fit, s with <strong>r=0.0</strong>, using nuisance parameter values and constraints re-centered on s+b(floating <span class="arithmatex">\(r,m_{H}\)</span>) fit values (aka frequentist post-fit expected) and compute post-fit expected and observed asymptotic limit (with <strong>MH</strong> fixed at 128 implicitly)
+    <code>combine higgsCombinemumhfit.MultiDimFit.mH125.root -m 128 --snapshotName MultiDimFit -M AsymptoticLimits --verbose 9 -n randomtest --bypassFrequentistFit --overrideSnapshotMass--redefineSignalPOIs r --freezeParameters MH</code></p>
+</li>
+</ul>
+<h2 id="combinetool-for-job-submission">combineTool for job submission</h2>
+<p>For longer tasks that cannot be run locally, several methods in <span style="font-variant:small-caps;">Combine</span> can be split to run on a <em>batch</em> system or on the <em>Grid</em>. The splitting and submission is handled using the <code>combineTool.py</code> script.</p>
+<h3 id="submission-to-condor">Submission to Condor</h3>
+<p>The syntax for running on condor with the tool is</p>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>ALGO<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>--job-mode<span class="w"> </span>condor<span class="w"> </span>--sub-opts<span class="o">=</span><span class="s1">&#39;CLASSADS&#39;</span><span class="w"> </span>--task-name<span class="w"> </span>NAME<span class="w"> </span><span class="o">[</span>--dry-run<span class="o">]</span>
+</code></pre></div>
+<p>with <code>options</code> being the usual list of <span style="font-variant:small-caps;">Combine</span> options. The help option <code>-h</code> will give a list of both <span style="font-variant:small-caps;">Combine</span> and <code>combineTool</code> options. It is possible to use this tool with several different methods from <span style="font-variant:small-caps;">Combine</span>.</p>
+<p>The <code>--sub-opts</code> option takes a string with the different ClassAds that you want to set, separated by <code>\n</code> as argument (e.g. <code>'+JobFlavour="espresso"\nRequestCpus=1'</code>).</p>
+<p>The <code>--dry-run</code> option will show what will be run without actually doing so / submitting the jobs.</p>
+<p>For example, to generate toys (eg for use with limit setting) users running on lxplus at CERN can use the <strong>condor</strong> mode:</p>
+<p><div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-d<span class="w"> </span>workspace.root<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>--clsAcc<span class="w"> </span><span class="m">0</span><span class="w">  </span>-T<span class="w"> </span><span class="m">2000</span><span class="w"> </span>-s<span class="w"> </span>-1<span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.2:2.0:0.05<span class="w"> </span>--saveHybridResult<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--job-mode<span class="w"> </span>condor<span class="w"> </span>--task-name<span class="w"> </span>condor-test<span class="w"> </span>--sub-opts<span class="o">=</span><span class="s1">&#39;+JobFlavour=&quot;tomorrow&quot;&#39;</span>
+</code></pre></div>
+The <code>--singlePoint</code> option is over-ridden, so that this will produce a script for each value of the POI in the range 0.2 to 2.0 in steps of 0.05. You can merge multiple points into a script using <code>--merge</code> - e.g adding <code>--merge 10</code> to the above command will mean that each job contains <em>at most</em> 10 of the values. The scripts are labelled by the <code>--task-name</code> option. They will be submitted directly to condor, adding any options in <code>--sub-opts</code> to the condor submit script. Make sure multiple options are separated by <code>\n</code>. The jobs will run and produce output in the <strong>current directory</strong>.</p>
+<p>Below is an example for splitting points in a multi-dimensional likelihood scan.</p>
+<h4 id="splitting-jobs-for-a-multi-dimensional-likelihood-scan">Splitting jobs for a multi-dimensional likelihood scan</h4>
+<p>The option <code>--split-points</code> issues the command to split the jobs for <code>MultiDimFit</code> when using <code>--algo grid</code>. The following example will split the jobs such that there are <strong>10 points</strong> in each of the jobs, which will be submitted to the <strong>workday</strong> queue.</p>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>datacard.txt<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>--algo<span class="w"> </span>grid<span class="w"> </span>--points<span class="w"> </span><span class="m">50</span><span class="w"> </span>--rMin<span class="w"> </span><span class="m">0</span><span class="w"> </span>--rMax<span class="w"> </span><span class="m">1</span><span class="w"> </span>--job-mode<span class="w"> </span>condor<span class="w"> </span>--split-points<span class="w"> </span><span class="m">10</span><span class="w"> </span>--sub-opts<span class="o">=</span><span class="s1">&#39;+JobFlavour=&quot;workday&quot;&#39;</span><span class="w"> </span>--task-name<span class="w"> </span>mytask<span class="w"> </span>-n<span class="w"> </span>mytask
+</code></pre></div>
+<p>Remember, any usual options (such as redefining POIs or freezing parameters) are passed to <span style="font-variant:small-caps;">Combine</span> and can be added to the command line for <code>combineTool</code>.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>The option <code>-n NAME</code> should be included to avoid overwriting output files, as the jobs will be run inside the directory from which the command is issued.</p>
+</div>
+<h3 id="grid-submission-with-combinetool">Grid submission with combineTool</h3>
+<p>For more CPU-intensive tasks, for example determining limits for complex models using toys, it is generally not feasible to compute all the results interactively. Instead, these jobs can be submitted to the Grid.</p>
+<p>In this example we will use the <code>HybridNew</code> method of <span style="font-variant:small-caps;">Combine</span> to determine an upper limit for a sub-channel of the Run 1 SM <span class="arithmatex">\(H\rightarrow\tau\tau\)</span> analysis. For full documentation, see the section on <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-limits-with-toys">computing limits with toys</a>.</p>
+<p>With this model it would take too long to find the limit in one go, so instead we create a set of jobs in which each one throws toys and builds up the test statistic distributions for a fixed value of the signal strength. These jobs can then be submitted to a batch system or to the Grid using <code>crab3</code>. From the set of output distributions it is possible to extract the expected and observed limits.</p>
+<p>For this we will use <code>combineTool.py</code></p>
+<p>First we need to build a workspace from the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/htt/125/htt_tt.txt"><span class="arithmatex">\(H\rightarrow\tau\tau\)</span> datacard</a>,</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>text2workspace.py<span class="w"> </span>data/tutorials/htt/125/htt_mt.txt<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span>
+$<span class="w"> </span>mv<span class="w"> </span>data/tutorials/htt/125/htt_mt.root<span class="w"> </span>./
+</code></pre></div>
+<p>To get an idea of the range of signal strength values we will need to build test-statistic distributions for, we will first use the <code>AsymptoticLimits</code> method of <span style="font-variant:small-caps;">Combine</span>,</p>
+<div class="highlight"><pre><span></span><code>$ combine -M Asymptotic htt_mt.root -m 125
+ &lt;&lt; Combine &gt;&gt;
+[...]
+ -- AsymptoticLimits (CLs) --
+Observed Limit: r &lt; 1.7384
+Expected  2.5%: r &lt; 0.4394
+Expected 16.0%: r &lt; 0.5971
+Expected 50.0%: r &lt; 0.8555
+Expected 84.0%: r &lt; 1.2340
+Expected 97.5%: r &lt; 1.7200
+</code></pre></div>
+<p>Based on this, a range of 0.2 to 2.0 should be suitable.</p>
+<p>We can use the same command for generating the distribution of test statistics with <code>combineTool</code>. The <code>--singlePoint</code> option is now enhanced to support expressions that generate a set of calls to <span style="font-variant:small-caps;">Combine</span> with different values. The accepted syntax is of the form <strong>MIN:MAX:STEPSIZE</strong>, and multiple comma-separated expressions can be specified.</p>
+<p>The script also adds an option <code>--dry-run</code>, which will not actually call com<span style="font-variant:small-caps;">Combine</span>bine but just prints out the commands that would be run, e.g,</p>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>-d<span class="w"> </span>htt_mt.root<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.2:2.0:0.2<span class="w"> </span>-T<span class="w"> </span><span class="m">2000</span><span class="w"> </span>-s<span class="w"> </span>-1<span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--dry-run
+...
+<span class="o">[</span>DRY-RUN<span class="o">]</span>:<span class="w"> </span>combine<span class="w"> </span>-d<span class="w"> </span>htt_mt.root<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>-T<span class="w"> </span><span class="m">2000</span><span class="w"> </span>-s<span class="w"> </span>-1<span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.2<span class="w"> </span>-n<span class="w"> </span>.Test.POINT.0.2
+<span class="o">[</span>DRY-RUN<span class="o">]</span>:<span class="w"> </span>combine<span class="w"> </span>-d<span class="w"> </span>htt_mt.root<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>-T<span class="w"> </span><span class="m">2000</span><span class="w"> </span>-s<span class="w"> </span>-1<span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.4<span class="w"> </span>-n<span class="w"> </span>.Test.POINT.0.4
+<span class="o">[</span>...<span class="o">]</span>
+<span class="o">[</span>DRY-RUN<span class="o">]</span>:<span class="w"> </span>combine<span class="w"> </span>-d<span class="w"> </span>htt_mt.root<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>-T<span class="w"> </span><span class="m">2000</span><span class="w"> </span>-s<span class="w"> </span>-1<span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">2</span>.0<span class="w"> </span>-n<span class="w"> </span>.Test.POINT.2.0
+</code></pre></div>
+<p>When the <code>--dry-run</code> option is removed each command will be run in sequence.</p>
+<h3 id="grid-submission-with-crab3">Grid submission with crab3</h3>
+<p>Submission to the grid with <code>crab3</code> works in a similar way. Before doing so, ensure that the <code>crab3</code> environment has been sourced in addition to the CMSSW environment. We will use the example of generating a grid of test-statistic distributions for limits.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>cmsenv<span class="p">;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>/cvmfs/cms.cern.ch/crab3/crab.sh
+$<span class="w"> </span>combineTool.py<span class="w"> </span>-d<span class="w"> </span>htt_mt.root<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>--clsAcc<span class="w"> </span><span class="m">0</span><span class="w"> </span>-T<span class="w"> </span><span class="m">2000</span><span class="w"> </span>-s<span class="w"> </span>-1<span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.2:2.0:0.05<span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--job-mode<span class="w"> </span>crab3<span class="w"> </span>--task-name<span class="w"> </span>grid-test<span class="w"> </span>--custom-crab<span class="w"> </span>custom_crab.py
+</code></pre></div>
+<p>The option <code>--custom-crab</code> should point to a python file python containing a function of the form <code>custom_crab(config)</code> that will be used to modify the default crab configuration. You can use this to set the output site to your local grid site, or modify other options such as the voRole, or the site blacklist/whitelist.</p>
+<p>For example</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">custom_crab</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+  <span class="nb">print</span> <span class="s1">&#39;&gt;&gt; Customising the crab config&#39;</span>
+  <span class="n">config</span><span class="o">.</span><span class="n">Site</span><span class="o">.</span><span class="n">storageSite</span> <span class="o">=</span> <span class="s1">&#39;T2_CH_CERN&#39;</span>
+  <span class="n">config</span><span class="o">.</span><span class="n">Site</span><span class="o">.</span><span class="n">blacklist</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SOME_SITE&#39;</span><span class="p">,</span> <span class="s1">&#39;SOME_OTHER_SITE&#39;</span><span class="p">]</span>
+</code></pre></div>
+<p>Again it is possible to use the option <code>--dry-run</code> to see what the complete crab config will look like before actually submitting it.</p>
+<p>Once submitted, the progress can be monitored using the standard <code>crab</code> commands. When all jobs are completed, copy the output from your site's storage element to the local output folder.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>crab<span class="w"> </span>getoutput<span class="w"> </span>-d<span class="w"> </span>crab_grid-test
+<span class="c1"># Now we have to un-tar the output files</span>
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>crab_grid-test/results/
+$<span class="w"> </span><span class="k">for</span><span class="w"> </span>f<span class="w"> </span><span class="k">in</span><span class="w"> </span>*.tar<span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>tar<span class="w"> </span>xf<span class="w"> </span><span class="nv">$f</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+$<span class="w"> </span>mv<span class="w"> </span>higgsCombine*.root<span class="w"> </span>../../
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>../../
+</code></pre></div>
+<p>These output files should be combined with <code>hadd</code>, after which we invoke <span style="font-variant:small-caps;">Combine</span> as usual to calculate observed and expected limits from the merged grid, as usual.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../part2/bin-wise-stats/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Automatic MC statistical uncertainties">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Automatic MC statistical uncertainties
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../commonstatsmethods/" class="md-footer__link md-footer__link--next" aria-label="Next: Common statistical methods">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Common statistical methods
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

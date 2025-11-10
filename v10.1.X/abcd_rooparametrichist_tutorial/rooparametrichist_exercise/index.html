@@ -1,0 +1,2076 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../model_building_tutorial2024/model_building_exercise/">
+      
+      
+        <link rel="next" href="../../part4/usefullinks/">
+      
+      
+      <link rel="icon" href="../../logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>Per-bin Transfer Factors with Parametric Histograms - Combine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2afb09e1.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../mystyle.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#combine_tutorial_abcd_rooparametrichist" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../../.."> 
+
+
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Combine" class="md-header__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Combine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Per-bin Transfer Factors with Parametric Histograms
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../what_combine_does/introduction/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  What Combine Does
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part2/settinguptheanalysis/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Setting up the analysis
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part3/runningthetool/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Running combine
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../part5/roofit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../part4/usefullinks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Links & FAQ
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Combine" class="md-nav__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    Combine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    What Combine Does
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            What Combine Does
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/model_and_likelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model and Likelihood
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/fitting_concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fitting Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/statistical_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statistical Tests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Setting up the analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Setting up the analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/settinguptheanalysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Physics models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Physics models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/physicsmodels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/higgscouplings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SM Higgs coupling models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bsm-higgs-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    BSM Higgs models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bin-wise-stats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Automatic MC statistical uncertainties
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Running combine
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Running combine
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/runningthetool/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Running the tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/commonstatsmethods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/nonstandard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced use cases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/simplifiedlikelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simplified Likelihoods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/regularisation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Unfolding & regularization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validating datacards
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/debugging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Debugging fit failures
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/roofit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Main Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Main Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exercises
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexerciseanswers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Solutions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023/parametric_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parametric Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023_unfolding/unfolding_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Likelihood Based Unfolding
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial_stat_routines/stat_routines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statitiscal Tests Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model_building_tutorial2024/model_building_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model building
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Per-bin Transfer Factors with Parametric Histograms
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Per-bin Transfer Factors with Parametric Histograms
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting started
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introduction
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generate-input-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generate input data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-rooparametrichist-objects-for-the-abcd-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create RooParametricHist objects for the ABCD method
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prepare-combine-datacards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prepare Combine datacards
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-fit" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run Fit
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#produce-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Produce limits
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/usefullinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Links & FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting started
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introduction
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generate-input-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generate input data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-rooparametrichist-objects-for-the-abcd-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create RooParametricHist objects for the ABCD method
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prepare-combine-datacards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prepare Combine datacards
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-fit" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run Fit
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#produce-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Produce limits
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="combine_tutorial_abcd_rooparametrichist">combine_tutorial_ABCD_rooParametricHist</h1>
+<p>The following is a tutorial on how to use the <code>RooParamertricHist</code> class from <span style="font-variant:small-caps;">Combine</span> to perform an ABCD-like background estimation method.</p>
+<h2 id="getting-started">Getting started</h2>
+<p>To get started, you should have a working setup of <span style="font-variant:small-caps;">Combine</span>, please follow the instructions from the <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/">home page</a>. Make sure to use the latest recommended release.</p>
+<p>Now let's move to the working directory for this tutorial which contains all of the inputs and scripts needed to run the ABCD method with <code>RooParametricHist</code> exercise:</p>
+<div class="highlight"><pre><span></span><code>cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise
+</code></pre></div>
+<h2 id="introduction">Introduction</h2>
+<p>The goal of this tutorial is to exemplify the usage of <code>RooParametricHist</code> in <span style="font-variant:small-caps;">Combine</span> to implement a bin-by-bin ABCD method.</p>
+<p>In this tutorial we will work with a toy example that could resemble a real physics analysis case. We consider the search for a BSM particle <span class="arithmatex">\(\Phi\)</span> with a mass between 1500 and 5000 GeV, that results in an excess in the tails of an observable <span class="arithmatex">\(z\)</span> (for example,  <span class="arithmatex">\(p_{T,\mathrm{miss}}\)</span>). We assume that we have found two independent discriminating features <span class="arithmatex">\(x\)</span> and <span class="arithmatex">\(y\)</span> that can be used to construct the ABCD plane (the regions A,B,C,D will be defined by selecting regions in <span class="arithmatex">\(x,y\)</span>), and we assume that <span class="arithmatex">\(z\)</span> is independent of  these two features. In this way, binning the variable <span class="arithmatex">\(z\)</span> in the same way in the regions A,B,C,D, per-bin transfer factors in the <span class="arithmatex">\(z\)</span> variable can be derived with the ABCD method to obtain the estimate of the background in the signal region. In our example, we will generate a set of pseudodata from our background-only model, and then the background will be estimated from these data from the control regions B,C,D and compared to data in the Signal Region A.</p>
+<p>The tutorial has 4 main parts:</p>
+<ol>
+<li><a href="#inputs">Generate input data</a></li>
+<li><a href="#rooparametrichist">Create RooParametricHist for ABCD method</a></li>
+<li><a href="#datacards">Prepare Combine datacards</a></li>
+<li><a href="#fit">Run fit</a></li>
+<li><a href="#limits">Produce limits</a></li>
+</ol>
+<h2 id="generate-input-data">Generate input data</h2>
+<p><a id="inputs"></a></p>
+<p>The histograms for the <span class="arithmatex">\(z\)</span> observable in the different regions A,B,C,D can be produced using the <code>produce_input_histograms_and_analyse.py</code> script in <code>utils/produce_input_histograms_and_analyse.py</code>. In the script the expected rates for different signal hypotheses (as a function of the <span class="arithmatex">\(\Phi\)</span> mass <span class="arithmatex">\(m_{\Phi} \in \{1500, 2000, 3000, 4000, 5000 \}\)</span> GeV) and the background yields are specified, as well as the distributions in <span class="arithmatex">\(x,y,z\)</span> for the signals and backgrounds. In the following steps of the tutorial, we will just consider one of the mass points generated, <span class="arithmatex">\(m_{\Phi} = 1500\)</span> GeV, but the same analysis can be run separately on other mass points. In the <span class="arithmatex">\(x-y\)</span> plane, the signal and the background are assumed to be normally distributed, with the background centred at <span class="arithmatex">\((0,2,0.2)\)</span>, while the signal is centred in the upper-right corner of the plane (<span class="arithmatex">\(x,y&gt;0.5\)</span>). For the <span class="arithmatex">\(z\)</span> feature, the background and the signal distributions are sampled from an exponential function. In the case of the signal, the tails of the exponential get enhanced as we increase the mass parameter <span class="arithmatex">\(m_{\Phi}\)</span>. </p>
+<p><img alt="input distributions" src="../figures/inputs.png" /></p>
+<p>The ABCD boundaries are chosen in the example to be <span class="arithmatex">\((0.5,0.5)\)</span>. A is defined as the signal region, while the others are control regions used for the estimation of the background. From the example provided, the signal contamination in the control regions is expected to be low, and the non-closure of the background estimation to be small. The histograms for the different regions are saved in separate root files for each signal hypothesis and total background. </p>
+<p>To generate your own input data, run the following command in the terminal</p>
+<div class="highlight"><pre><span></span><code>python3 utils/produce_input_histograms_and_analyse.py
+</code></pre></div>
+<h2 id="create-rooparametrichist-objects-for-the-abcd-method">Create RooParametricHist objects for the ABCD method</h2>
+<p><a id="rooparametrichist"></a></p>
+<p>In order to prepare the datacards for our ABCD method we will need to pass the histograms of our data in the A, B, C, and D regions to the datacard to be read in by <span style="font-variant:small-caps;">Combine</span>. 
+Moreover, we will need to relate the bins of our signal region A <span class="arithmatex">\(N_{A}^{bin,i}\)</span> to the bins of the control regions <span class="arithmatex">\(N_{B/C/D}^{bin,i}\)</span> via the ABCD method formula <span class="arithmatex">\(N_{A}^{bin,i} = N_{B}^{bin,i} \cdot TF^{bin,i}\)</span>, where the transfer factor is <span class="arithmatex">\(TF^{bin,i} = N_{C}^{bin,i}/N_{D}^{bin,i}\)</span>. To achieve our goal, we can use the <code>RooParametricHist</code> object implemented in <span style="font-variant:small-caps;">Combine</span> (for further documentation look <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/part3/nonstandard/?h=rooparametrichist#rooparametrichist-gamman-for-shapes">here</a>). </p>
+<p>The <code>RooParametricHist</code> is a custom implementation within the ROOT framework, specifically designed for handling parametric histograms in a way that integrates with RooFit. The idea is that <code>RooParametricHist</code> allows to define histograms as PDFs where each bin can be either a <code>RooRealVar</code> or a <code>RooFormulaVar</code>. This will allow us to relate each bin of our signal region histogram A with the corresponding one of the control regions via the ABCD method formula.</p>
+<p>A <code>RooParamtricHist</code> object can be initialized as follows:</p>
+<p><div class="highlight"><pre><span></span><code>RooParametricHist parametric_hist(&quot;paramtric_hist&quot;, &quot;Parametric Hist&quot;,variable,roo_arg_list_bins,data_th1)
+</code></pre></div>
+where <code>variable</code> is a <code>RooRealVar</code> defining the observable which is being binned, <code>roo_arg_list_bins</code> is a <code>RooArgList</code> containing bins defined as <code>RooRealVar</code> or <code>RooFormulaVar</code> and <code>data_th1</code> is a <code>TH1</code> used to initialize the <code>RooParametricHist</code> bin boundaries. It is also possible to define a normalization parameter for the parametric histogram as follows,</p>
+<div class="highlight"><pre><span></span><code>RooAddition parametric_hist_norm(&quot;paramtric_hist_norm&quot;,&quot;Total Number of events for Parametric Hist&quot;,roo_arg_list_bins)
+</code></pre></div>
+<p>This normalization parameter is relevant for our ABCD method since we would like to know also the total predicted background yield in our Signal Region.</p>
+<p>In the following we describe how to build parametric histograms for our ABCD method regions and how to construct the <code>RooWorskpace</code> which can be referred to in the <span style="font-variant:small-caps;">Combine</span> datacard.</p>
+<h2 id="prepare-combine-datacards">Prepare Combine datacards</h2>
+<p><a id="datacards"></a></p>
+<p>fFor each signal hypothesis, 4 datacards can be built using the input histograms, one for each region of the ABCD plane. Examples of the templates for the datacards (for a signal mass point at 1500 GeV) can be found in the following. All the example datacards are stored in the directory <code>sgn_CRs</code> in <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/datacards/</code>. We consider for now the datacards stored in the directory <code>sgn_CRs</code>, for which the signal is present in the control regions.</p>
+<p>Let's take as an example the cards for the <span class="arithmatex">\(m_{\Phi} = 1500\)</span> GeV in the directory <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/datacards/sgn_CRs/mPhi1500/</code>,</p>
+<details>
+<summary> Datacard Region A (Signal Region) </summary>
+
+<div class="highlight"><pre><span></span><code>imax * number of bins 
+jmax * number of processes minus 1 
+kmax * number of nuisance parameters
+-----------------------------------------------------------------------------------
+shapes   data_obs  A    param_ws.root    wspace:data_obs_A
+shapes   Bkg  A    param_ws.root    wspace:bkg_A
+shapes   mPhi_1500  A    param_ws.root    wspace:mPhi_1500_A
+-----------------------------------------------------------------------------------
+bin               A
+observation       -1
+-----------------------------------------------------------------------------------
+bin                                     A                                            A                                          
+process                                 Bkg                                          mPhi_1500                                   
+process                                 1                                           0                                          
+rate                                    1                                           -1                                         
+-----------------------------------------------------------------------------------
+lumi                lnN                 -                                            1.0160000000
+BkgRate             lnN                 1.05                                         - 
+</code></pre></div>
+
+</details>
+
+<details>
+<summary> Datacard Region B  </summary>
+
+<div class="highlight"><pre><span></span><code>imax * number of bins 
+jmax * number of processes minus 1 
+kmax * number of nuisance parameters
+-----------------------------------------------------------------------------------
+shapes   data_obs  B    param_ws.root    wspace:data_obs_B
+shapes   Bkg  B    param_ws.root    wspace:bkg_B
+shapes   mPhi_1500  B    param_ws.root    wspace:mPhi_1500_B
+-----------------------------------------------------------------------------------
+bin               B
+observation       -1
+-----------------------------------------------------------------------------------
+bin                                     B                                           B                                          
+process                                 Bkg                                         mPhi1500                                   
+process                                 1                                           0                                          
+rate                                    1                                           -1                                         
+-----------------------------------------------------------------------------------
+lumi                lnN                 -                                          1.0160000000
+</code></pre></div>
+
+</details>
+
+<details>
+<summary> Datacard Region C  </summary>
+
+<div class="highlight"><pre><span></span><code>imax * number of bins 
+jmax * number of processes minus 1 
+kmax * number of nuisance parameters
+-----------------------------------------------------------------------------------
+shapes   data_obs  C    param_ws.root    wspace:data_obs_C
+shapes   Bkg  C    param_ws.root    wspace:bkg_C
+shapes   mPhi_1500  C    param_ws.root    wspace:mPhi_1500_C
+-----------------------------------------------------------------------------------
+bin               C
+observation       -1
+-----------------------------------------------------------------------------------
+bin                                     C                                           C                                          
+process                                 Bkg                                         mPhi1500                                   
+process                                 1                                           0                                          
+rate                                    1                                           -1                                         
+-----------------------------------------------------------------------------------
+lumi                lnN                 -                                          1.0160000000
+</code></pre></div>
+
+</details>
+
+<details>
+<summary> Datacard Region D  </summary>
+
+<div class="highlight"><pre><span></span><code>imax * number of bins 
+jmax * number of processes minus 1 
+kmax * number of nuisance parameters
+-----------------------------------------------------------------------------------
+shapes   data_obs  D    param_ws.root    wspace:data_obs_D
+shapes   Bkg  D    param_ws.root    wspace:bkg_D
+shapes   mPhi_1500  D    param_ws.root    wspace:mPhi_1500_D
+-----------------------------------------------------------------------------------
+bin               D
+observation       -1
+-----------------------------------------------------------------------------------
+bin                                     D                                           D                                          
+process                                 Bkg                                         mPhi1500                                   
+process                                 1                                           0                                          
+rate                                    1                                           -1                                         
+-----------------------------------------------------------------------------------
+lumi                lnN                 -                                          1.0160000000
+</code></pre></div>
+</details>
+
+<p>For each datacard, we have assigned a systematic uncertainty on the integrated luminosity of 1.6% for the signal processes, and an overall systematic of 5% to background rate in the SR, to account for the non-closure of the method. 
+Notice that each datacard for each region has a <code>shapes</code> section for the observed data <code>data_obs</code>, for the background <code>Bkg</code> and for the signal. The signal and data shapes are stored in a workspace <code>wspace</code>. The background shapes are stored as <code>RooParametricHist</code> objects. In the following we show how to construct the workspace. </p>
+<p>We follow the main steps implemented in a working code to create the workspace <code>create_workspace.py</code> in <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/utils/</code>.
+First, we create a <code>RooWorkspace</code> object then, using the function <code>__get_histograms_regions</code>, read the input histograms from the A,B,C,D regions and import them as <code>RooDataHist</code> objects in the workspace.</p>
+<details>
+<summary> Import histograms in workspace for signal and observed data  </summary>
+
+<div class="highlight"><pre><span></span><code>#Output file and workspace
+#Here we create a TFile where to store the workspace
+output_file_ws =  ROOT.TFile(card_output_directory+&quot;param_ws.root&quot;,&quot;RECREATE&quot;)
+ws = RooWorkspace(&quot;wspace&quot;,&quot;wspace&quot;)
+
+#Define a RooRealVar for the observable z to fit
+variable_z = RooRealVar( &quot;z&quot;, &quot;z&quot;, 200, 14000, &quot;GeV&quot;)
+
+#Getting histograms for observed data saved in input ROOT file as TH1F for all the regions
+histA_obs , histB_obs, histC_obs, histD_obs =  __get_histograms_regions(&quot;bkg&quot;, input_file_bkg)
+
+#Save TH1F histograms for data in RooDataHist for all the regions.
+#RooDataHist can be initialized using a RooArgList with the observable to use, the TH1F for a given region and weight=1
+histData_A = RooDataHist(&quot;data_obs_A&quot;, &quot;Obs Data region A&quot;,  RooArgList(variable_z), histA_obs, 1.)
+histData_B = RooDataHist(&quot;data_obs_B&quot;, &quot;Obs Data region B&quot;,  RooArgList(variable_z), histB_obs, 1.)
+histData_C = RooDataHist(&quot;data_obs_C&quot;, &quot;Obs Data region C&quot;,  RooArgList(variable_z), histC_obs, 1.)
+histData_D = RooDataHist(&quot;data_obs_D&quot;, &quot;Obs Data region D&quot;,  RooArgList(variable_z), histD_obs, 1.)
+
+#Import data in workspace
+getattr(ws, &quot;import&quot;)(histData_A, RooFit.Rename(&quot;data_obs_A&quot;))
+getattr(ws, &quot;import&quot;)(histData_B, RooFit.Rename(&quot;data_obs_B&quot;))
+getattr(ws, &quot;import&quot;)(histData_C, RooFit.Rename(&quot;data_obs_C&quot;))
+getattr(ws, &quot;import&quot;)(histData_D, RooFit.Rename(&quot;data_obs_D&quot;))
+
+#Save the signals in RooDataHist
+histA_sgn , histB_sgn, histC_sgn, histD_sgn =  __get_histograms_regions(&quot;sgn&quot;, input_file_sgn)
+histSgn_A = RooDataHist(signal+&quot;_A&quot;, &quot;Sgn Data region A&quot;,  RooArgList(variable_z), histA_sgn, 1.)
+histSgn_B = RooDataHist(signal+&quot;_B&quot;, &quot;Sgn Data region B&quot;,  RooArgList(variable_z), histB_sgn, 1.)
+histSgn_C = RooDataHist(signal+&quot;_C&quot;, &quot;Sgn Data region C&quot;,  RooArgList(variable_z), histC_sgn, 1.)
+histSgn_D = RooDataHist(signal+&quot;_D&quot;, &quot;Sgn Data region D&quot;,  RooArgList(variable_z), histD_sgn, 1.)
+
+#Import signals in workspace
+getattr(ws, &quot;import&quot;)(histSgn_A, RooFit.Rename(signal+&quot;_A&quot;))
+getattr(ws, &quot;import&quot;)(histSgn_B, RooFit.Rename(signal+&quot;_B&quot;))
+getattr(ws, &quot;import&quot;)(histSgn_C, RooFit.Rename(signal+&quot;_C&quot;))
+getattr(ws, &quot;import&quot;)(histSgn_D, RooFit.Rename(signal+&quot;_D&quot;))
+</code></pre></div>
+</details>
+
+<p>For the B,C,D regions, we create a <code>RooParametricHist</code> object, storing the content of the background bins in B,C,D as <code>RooRealVar</code>,</p>
+<details>
+<summary> Create RooParametricHist for control regions background templates  </summary>
+
+<div class="highlight"><pre><span></span><code>#Here we define the background histograms from &quot;data&quot; (which in our case is equal to the background)
+#They will be used to build the parametric histograms we use for modelling the background
+histA_pr , histB_pr, histC_pr, histD_pr =  __get_histograms_regions(&quot;bkg&quot;, input_file_bkg)        
+
+#Save in RooArgList the content of the bins of histB_pr to define the RooParametricHist for the B region
+process_B_region_bins = RooArgList()
+process_B_region_bins_list = []
+
+#Save in RooArgList the content of the bins of histC_pr to define the RooParametricHist for the C region
+process_C_region_bins = RooArgList()
+process_C_region_bins_list = []
+
+#Save in RooArgList the content of the bins of histD_pr to define the RooParametricHist for the D region
+process_D_region_bins = RooArgList()
+process_D_region_bins_list = []
+
+#Add yields for each bin for the RooParametricHist in the B Region
+#each bin is defined as a RooRealVar initialized at the nominal bin content, and with a range between 0 and 2 times the nominal rate
+for i in range(1,histB_obs.GetNbinsX()+1):
+    bin_B_i = RooRealVar(&quot;Bkg_B_region_bin_&quot;+str(i),&quot;Background yield in control region B bin &quot; + str(i),histB_obs.GetBinContent(i),0.,2.0*histB_obs.GetBinContent(i))
+    process_B_region_bins_list.append(bin_B_i)
+    process_B_region_bins.add(process_B_region_bins_list[i-1])
+
+
+#Add yields for each bin for the RooParametricHist in the C Region
+#each bin is defined as a RooRealVar initialized at the nominal bin content, and with a range between 0 and 2 times the nominal rate
+for i in range(1,histC_obs.GetNbinsX()+1):
+    bin_C_i = RooRealVar(&quot;Bkg_C_region_bin_&quot;+str(i),&quot;Background yield in control region C bin &quot; + str(i),histC_obs.GetBinContent(i),0.,2.0*histC_obs.GetBinContent(i))
+    process_C_region_bins_list.append(bin_C_i)
+    process_C_region_bins.add(process_C_region_bins_list[i-1])
+
+
+#Add yields for each bin for the RooParametricHist in the D Region
+#each bin is defined as a RooRealVar initialized at the nominal bin content, and with a range between 0 and 2 times the nominal rate
+for i in range(1,histD_obs.GetNbinsX()+1):
+    bin_D_i = RooRealVar(&quot;Bkg_D_region_bin_&quot;+str(i),&quot;Background yield in control region D bin &quot; + str(i),histD_obs.GetBinContent(i),0.,2.0*histD_obs.GetBinContent(i))
+    process_D_region_bins_list.append(bin_D_i)
+    process_D_region_bins.add(process_D_region_bins_list[i-1])
+
+
+#Define the parametric histogram for control region B.
+#Here we consider the B region to be the transfering region, so the region for which each bin content will be multiplied by a transfer factor (determined by C, D yields)
+#The RooParametricHist is initalized giving as input the observable, the RooArgList of the bins previously built and a template TH1F. 
+param_hist_B_region = RooParametricHist(&quot;bkg_B&quot;, &quot;Background PDF in B region&quot;,variable_z,process_B_region_bins,histB_pr)
+
+#Here we define the total normalization for the RooparametricHist in the B region
+param_Bkg_B_norm = RooAddition(&quot;bkg_B&quot;+&quot;_norm&quot;,&quot;Total Number of events from background in control region B&quot;,process_B_region_bins)
+
+#Here we import the the parametric histogram and the normalization in our workspace
+getattr(ws, &quot;import&quot;)(param_hist_B_region, RooFit.Rename(&quot;bkg_B&quot;))
+getattr(ws, &quot;import&quot;)(param_Bkg_B_norm, RooFit.Rename(&quot;bkg_B&quot;+&quot;_norm&quot;),RooFit.RecycleConflictNodes())
+
+#Define the parametric histogram for control region C.
+#The RooParametricHist is initalized giving as input the observable, the RooArgList of the bins previously built and a template TH1F. 
+param_hist_C_region = RooParametricHist(&quot;bkg_C&quot;, &quot;Background PDF in C region&quot;,variable_z,process_C_region_bins,histC_pr)
+
+#Here we define the total normalization for the RooparametricHist in the C region
+param_Bkg_C_norm = RooAddition(&quot;bkg_C&quot;+&quot;_norm&quot;,&quot;Total Number of events from background in control region C&quot;,process_C_region_bins)
+
+#Here we import the the parametric histogram and the normalization in our workspace
+getattr(ws, &quot;import&quot;)(param_hist_C_region, RooFit.Rename(&quot;bkg_C&quot;))
+getattr(ws, &quot;import&quot;)(param_Bkg_C_norm, RooFit.Rename(&quot;bkg_C&quot;+&quot;_norm&quot;),RooFit.RecycleConflictNodes())
+
+#Define the parametric histogram for control region D.
+param_hist_D_region = RooParametricHist(&quot;bkg_D&quot;, &quot;Background PDF in D region&quot;,variable_z,process_D_region_bins,histD_pr)
+
+#Here we define the total normalization for the RooparametricHist in the D region
+param_Bkg_D_norm = RooAddition(&quot;bkg_D&quot;+&quot;_norm&quot;,&quot;Total Number of events from background in control region D&quot;,process_D_region_bins)
+
+#Here we import the the parametric histogram and the normalization in our workspace
+getattr(ws, &quot;import&quot;)(param_hist_D_region, RooFit.Rename(&quot;bkg_D&quot;))
+getattr(ws, &quot;import&quot;)(param_Bkg_D_norm, RooFit.Rename(&quot;bkg_D&quot;+&quot;_norm&quot;),RooFit.RecycleConflictNodes())
+</code></pre></div>
+</details>
+
+<p>For the signal region A, we create a <code>RooParametricHist</code> with each content represented by a <code>RooFormulaVar</code> object that relates the C,D,B region yields to the yield in region A via the ABCD formula. </p>
+<details>
+<summary> Create RooParametricHist for SR background template  </summary>
+
+<div class="highlight"><pre><span></span><code>#Relate the signal region (A) to control region B via transfer factors
+#Define RooArgList for expected yields in region A after applying transfer factors
+process_AB_region_bins = RooArgList()
+#Define list for transfer factors
+TF_list = []
+#Define list for expected yields in region A after applying transfer factors
+process_AB_region_bins_list = []
+
+#Compute per-bin transfer factor
+#Loop over the bins of the transfering region B, and compute the transfer factors as C/D
+for i in range(1,histB_pr.GetNbinsX()+1):
+    #Define transfer factor as a RooFormulaVar. Use the method .obj for RooWorkSpace to retrieve the yield for a given bin and region
+    TF_i = RooFormulaVar(&quot;TF&quot;+str(i),&quot;Transfer factor C/D bin &quot; + str(i),&quot;(@0/@1)&quot;,RooArgList(ws.obj(&quot;Bkg_C_region_bin_&quot;+str(i)) , ws.obj(&quot;Bkg_D_region_bin_&quot;+str(i)) ))
+    TF_list.append(TF_i)
+    #Compute the expected yield in the signal region as A = B * TF. This will be used to initialise the RooParametricHist in the Signal Region
+    bin_AB_i = RooFormulaVar(&quot;Bkg_AB_region_bin_&quot;+str(i),&quot;Background yield in SR A region bin &quot; + str(i), &quot;@0*@1&quot;, RooArgList(TF_i, ws.obj(&quot;Bkg_B_region_bin_&quot;+str(i)) ))
+    process_AB_region_bins_list.append(bin_AB_i)
+    process_AB_region_bins.add(process_AB_region_bins_list[i-1])
+
+#Create parametric histogram for signal region (A) using bin contents saved in process_AB_region_bins
+param_hist_A_region = RooParametricHist(&quot;bkg_A&quot;, &quot;Background PDF in A region&quot;,variable_z,process_AB_region_bins,histB_pr)
+
+#Define total normalization parameter
+param_bkg_A_norm = RooAddition(&quot;bkg_A&quot;+&quot;_norm&quot;,&quot;Total Number of events from background in A region&quot;,process_AB_region_bins)
+
+#Store in Workspace
+getattr(ws, &quot;import&quot;)(param_hist_A_region, RooFit.Rename(&quot;bkg_A&quot;))
+getattr(ws, &quot;import&quot;)(param_bkg_A_norm, RooFit.Rename(&quot;bkg_A&quot;+&quot;_norm&quot;),RooFit.RecycleConflictNodes())
+</code></pre></div>
+</details>
+
+<p>To run the workspace creation script, use the following command, </p>
+<div class="highlight"><pre><span></span><code>python3 utils/create_workspace.py -m 1500
+</code></pre></div>
+<p>where <code>-m</code> is the flag for the mass point you want to run the script on. The script will use the histograms stored in <code>generated_histograms</code> in the tutorial directory.
+After running the script, the workspace will be saved in <code>example_analysis/datacards/</code>. To create the datacards automatically fatching the correct workspace, run, </p>
+<div class="highlight"><pre><span></span><code>python3 utils/create_datacards.py -m 1500
+</code></pre></div>
+<p>The datacards will be created in the directory <code>example_analysis/datacards/mPhi1500/</code> inside the tutorial directory. Now we need to move into the directory where the datacards are stored,
+<div class="highlight"><pre><span></span><code>cd example_analysis/datacards/mPhi1500/
+</code></pre></div></p>
+<p>The datacards can be combined using the usual command:</p>
+<div class="highlight"><pre><span></span><code>combineCards.py mPhi_1500_*2018*.txt &gt; combined_mPhi_1500_2018.txt
+</code></pre></div>
+<details>
+<summary> Datacard with A,B,C,D regions combined  </summary>
+
+<div class="highlight"><pre><span></span><code>Combination of mPhi1500_Catany_2018_CR_B.txt  mPhi1500_Catany_2018_CR_C.txt  mPhi1500_Catany_2018_CR_D.txt  mPhi1500_Catany_2018_SR.txt
+imax 4 number of bins
+jmax 1 number of processes minus 1
+kmax 2 number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes Bkg       ch1       param_ws.root wspace:bkg_B
+shapes data_obs  ch1       param_ws.root wspace:data_obs_B
+shapes mPhi_1500  ch1      param_ws.root wspace:mPhi_1500_B
+shapes Bkg       ch2       param_ws.root wspace:bkg_C
+shapes data_obs  ch2       param_ws.root wspace:data_obs_C
+shapes mPhi_1500  ch2      param_ws.root wspace:mPhi_1500_C
+shapes Bkg       ch3       param_ws.root wspace:bkg_D
+shapes data_obs  ch3       param_ws.root wspace:data_obs_D
+shapes mPhi_1500  ch3      param_ws.root wspace:mPhi_1500_D
+shapes Bkg       ch4       param_ws.root wspace:bkg_A
+shapes data_obs  ch4       param_ws.root wspace:data_obs_A
+shapes mPhi_1500  ch4      param_ws.root wspace:mPhi_1500_A
+----------------------------------------------------------------------------------------------------------------------------------
+bin          ch1    ch2    ch3    ch4  
+observation  -1     -1     -1     -1   
+----------------------------------------------------------------------------------------------------------------------------------
+bin                             ch1       ch1       ch2       ch2       ch3       ch3       ch4       ch4     
+process                         mPhi_1500  Bkg      mPhi_1500  Bkg      mPhi_1500  Bkg      mPhi_1500  Bkg     
+process                         0         1         0         1         0         1         0         1       
+rate                            -1        1         -1        1         -1        1         -1        1       
+----------------------------------------------------------------------------------------------------------------------------------
+BkgRate                 lnN     -         -         -         -         -         -         -         1.05    
+lumi                    lnN     1.016     -         1.016     -         1.016     -         1.016     -
+</code></pre></div>
+</details>
+
+<h2 id="run-fit">Run Fit</h2>
+<p><a id="fit"></a></p>
+<p>From the combined datacard for all the regions, one can run the usual fit diagnostics as follows,</p>
+<div class="highlight"><pre><span></span><code>combine -M FitDiagnostics combined_mPhi_1500_2018.txt -m 1500 --saveShapes --saveWithUncertainties --saveNormalizations
+</code></pre></div>
+<details>
+<summary> Results FitDiagnostics  </summary>
+
+<div class="highlight"><pre><span></span><code> --- FitDiagnostics ---
+Best fit r: 1.25367e-06  -1.25367e-06/+0.278001  (68% CL)
+</code></pre></div>
+</details>
+
+<p>Using the output <code>fitDiagnosticsTest.root</code>, one can run the script <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/mlfitNormsToText.py</code> to get the predictions for the normalizations:</p>
+<div class="highlight"><pre><span></span><code>python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/mlfitNormsToText.py fitDiagnosticsTest.root
+</code></pre></div>
+<details>
+<summary> Normalizations predictions </summary>
+
+<div class="highlight"><pre><span></span><code>Channel                                  Process                                Pre-fit              S+B Fit           B-Only Fit
+---------------------------------------------------------------------------------------------------------------------------------
+ch1                                      mPhi_1500                              594.749                0.001                0.000
+ch2                                      mPhi_1500                              605.251                0.001                0.000
+ch3                                      mPhi_1500                              245.161                0.000                0.000
+ch4                                      mPhi_1500                             1541.786                0.002                0.000
+ch1                                      Bkg                                 236222.924           236225.827           236225.566
+ch2                                      Bkg                                 235703.859           235706.772           235706.507
+ch3                                      Bkg                                 381479.390           381476.654           381476.592
+ch4                                      Bkg                                 145963.042           146872.863           146873.546
+ch1                                      total                               236817.673           236225.828           236225.566
+ch1                                      total_signal                           594.749                0.001                0.000
+ch1                                      total_background                    236222.924           236225.827           236225.566
+ch2                                      total                               236309.110           235706.773           235706.507
+ch2                                      total_signal                           605.251                0.001                0.000
+ch2                                      total_background                    235703.859           235706.772           235706.507
+ch3                                      total                               381724.551           381476.654           381476.592
+ch3                                      total_signal                           245.161                0.000                0.000
+ch3                                      total_background                    381479.390           381476.654           381476.592
+ch4                                      total                               147504.828           146872.865           146873.546
+ch4                                      total_signal                          1541.786                0.002                0.000
+ch4                                      total_background                    145963.042           146872.863           146873.546
+</code></pre></div>
+</details>
+
+<p>Moreover, you can run the script in <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/postFitPlot.py</code> to get pre-fit and post-fit plots in the signal region (in the combined datacard <code>ch4</code>):</p>
+<div class="highlight"><pre><span></span><code>python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/postFitPlot.py --input_file fitDiagnosticsTest.root --shape_type &lt;shapes_type&gt; --region &lt;region&gt;
+</code></pre></div>
+<p>where the argument <code>&lt;shapes_type&gt;</code> can be <code>shapes_prefit</code>, <code>shapes_fit_b</code> or <code>shapes_fit_s</code> to obtain the prefit, background-only fit or signal+background fit plots. The argument <code>&lt;region&gt;</code> specifies the region, which should be <code>ch4</code> for the signal region A.</p>
+<p><img alt="input distributions" src="../figures/post_fit_plots_A.png" /></p>
+<h2 id="produce-limits">Produce limits</h2>
+<p><a id="limits"></a></p>
+<p>Limits can be computed from the combined datacard for all the regions using the following command (in case of asymptotic limits),</p>
+<div class="highlight"><pre><span></span><code>combine -M AsymptoticLimits combined_mPhi_1500_2018.txt -m 1500  2&gt;&amp;1 | tee  asymp_limits_mPhi_1500_2018.txt
+</code></pre></div>
+<details>
+<summary> Results AsymptoticLimits  </summary>
+
+<div class="highlight"><pre><span></span><code> -- AsymptoticLimits ( CLs ) --
+Observed Limit: r &lt; 0.5986
+Expected  2.5%: r &lt; 0.3532
+Expected 16.0%: r &lt; 0.4662
+Expected 50.0%: r &lt; 0.6367
+Expected 84.0%: r &lt; 0.8702
+Expected 97.5%: r &lt; 1.1325
+</code></pre></div>
+</details>
+
+<p>Both the observed (from nominal Monte Carlo) and the expected limits can be computed for each mass point. </p>
+<p>The same exercise can be repeated generating a workspace where the control regions are depleted from the signal (see datacards in <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/abcd_rooparametrichist_exercise/datacards/no_sgn_CRs/</code>), and re-running the limits. This should give a hint of how much the signal contamination in the control regions is impacting the limits.  If you want to generate the workspace and the cards where the signal is removed from the CRs, just run the scripts <code>create_workspace.py</code> and <code>create_datacards.py</code> with the flag <code>--deplete_crs_from_signal</code>.</p>
+<p>The analysis illustrated can be run for multiple mass points, and the typical exclusion plot can be produced similar to the one below. </p>
+<p><img alt="limit distributions" src="../figures/limits.png" /></p>
+<p>As we can see, the expected limit without signal in the control regions is better when compared to the one taking into account the signal, showing that in this example there is an impact from the signal contamination of the control regions affecting the final sensitivity. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../model_building_tutorial2024/model_building_exercise/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Model building">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Model building
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../part4/usefullinks/" class="md-footer__link md-footer__link--next" aria-label="Next: Links &amp; FAQ">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Links & FAQ
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

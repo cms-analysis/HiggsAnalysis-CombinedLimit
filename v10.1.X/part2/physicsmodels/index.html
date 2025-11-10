@@ -1,0 +1,1922 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../settinguptheanalysis/">
+      
+      
+        <link rel="next" href="../higgscouplings/">
+      
+      
+      <link rel="icon" href="../../logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>Introduction - Combine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2afb09e1.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../mystyle.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#introduction-to-physics-models" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../../.."> 
+
+
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Combine" class="md-header__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Combine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Introduction
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../what_combine_does/introduction/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  What Combine Does
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../settinguptheanalysis/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Setting up the analysis
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part3/runningthetool/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Running combine
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part5/roofit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../part4/usefullinks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Links & FAQ
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Combine" class="md-nav__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    Combine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    What Combine Does
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            What Combine Does
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/model_and_likelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model and Likelihood
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/fitting_concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fitting Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/statistical_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statistical Tests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Setting up the analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Setting up the analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settinguptheanalysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Physics models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Physics models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#model-building" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model building
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model building">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multisignalmodel-ready-made-model-for-multiple-signal-processes" class="md-nav__link">
+    <span class="md-ellipsis">
+      MultiSignalModel ready made model for multiple signal processes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#two-hypothesis-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Two Hypothesis testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-background-interference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Signal-background interference
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-process-interference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multi-process interference
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../higgscouplings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SM Higgs coupling models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bsm-higgs-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    BSM Higgs models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bin-wise-stats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Automatic MC statistical uncertainties
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Running combine
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Running combine
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/runningthetool/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Running the tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/commonstatsmethods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/nonstandard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced use cases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/simplifiedlikelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simplified Likelihoods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/regularisation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Unfolding & regularization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validating datacards
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/debugging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Debugging fit failures
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/roofit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Main Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Main Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exercises
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexerciseanswers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Solutions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023/parametric_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parametric Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023_unfolding/unfolding_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Likelihood Based Unfolding
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial_stat_routines/stat_routines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statitiscal Tests Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model_building_tutorial2024/model_building_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model building
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../abcd_rooparametrichist_tutorial/rooparametrichist_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Per-bin Transfer Factors with Parametric Histograms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/usefullinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Links & FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#model-building" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model building
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model building">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multisignalmodel-ready-made-model-for-multiple-signal-processes" class="md-nav__link">
+    <span class="md-ellipsis">
+      MultiSignalModel ready made model for multiple signal processes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#two-hypothesis-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Two Hypothesis testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-background-interference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Signal-background interference
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-process-interference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multi-process interference
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="introduction-to-physics-models">Introduction to Physics Models</h1>
+<p><span style="font-variant:small-caps;">Combine</span> can be run directly on the text-based datacard. However, for more advanced physics models, the internal step to convert the datacard to a binary workspace should be performed by the user. To create a binary workspace starting from a <code>datacard.txt</code>, you can run</p>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>datacard.txt<span class="w"> </span>-o<span class="w"> </span>workspace.root
+</code></pre></div>
+<p>By default (without the <code>-o</code> option), the binary workspace will be named <code>datacard.root</code> - i.e the <strong>.txt</strong> suffix will be replaced by <strong>.root</strong>.</p>
+<p>A full set of options for <code>text2workspace</code> can be found by running <code>text2workspace.py --help</code>.</p>
+<p>The default model that will be produced when running <code>text2workspace</code> is one in which all processes identified as signal are multiplied by a common multiplier <strong>r</strong>. This is all that is needed for simply setting limits or calculating significances.</p>
+<p><code>text2workspace</code> will convert the datacard into a PDF that summarizes the analysis.
+For example, let's take a look at the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/simple-counting-experiment.txt">data/tutorials/counting/simple-counting-experiment.txt</a> datacard.</p>
+<div class="highlight"><pre><span></span><code># Simple counting experiment, with one signal and one background process
+# Extremely simplified version of the 35/pb H-&gt;WW analysis for mH = 200 GeV,
+# for 4th generation exclusion (EWK-10-009, arxiv:1102.5429v1)
+imax 1  number of channels
+jmax 1  number of backgrounds
+kmax 2  number of nuisance parameters (sources of systematical uncertainties)
+------------
+# we have just one channel, in which we observe 0 events
+bin         1
+observation 0
+------------
+# now we list the expected events for signal and all backgrounds in that bin
+# the second &#39;process&#39; line must have a positive number for backgrounds, and 0 for signal
+# then we list the independent sources of uncertainties, and give their effect (syst. error)
+# on each process and bin
+bin             1      1
+process       ggh4G  Bckg
+process         0      1
+rate           4.76  1.47
+------------
+deltaS  lnN    1.20    -    20% uncertainty on signal
+deltaB  lnN      -   1.50   50% uncertainty on background
+</code></pre></div>
+<p>If we run <code>text2workspace.py</code> on this datacard and take a look at the workspace (<code>w</code>) inside the <code>.root</code> file produced, we will find a number of different objects representing the signal, background, and observed event rates, as well as the nuisance parameters and signal strength <span class="arithmatex">\(r\)</span>. Note that often in the statistics literature, this parameter is referred to as <span class="arithmatex">\(\mu\)</span>.</p>
+<p>From these objects, the necessary PDF has been constructed (named <code>model_s</code>). For this counting experiment we will expect a simple PDF of the form</p>
+<div class="arithmatex">\[
+p(n_{\mathrm{obs}}| r,\nu_{S},\nu_{B})\propto
+\dfrac{[r\cdot n_{S}(\nu_{S})+n_{B}(\nu_{B})]^{n_{\mathrm{obs}}} }
+{n_{\mathrm{obs}}!}e^{-[r\cdot n_{S}(\nu_{S})+n_{B}(\nu_{B})]}
+\cdot e^{-\frac{1}{2}(\nu_{S}- y_{S})^{2}}
+\cdot e^{-\frac{1}{2}(\nu_{B}- y_{B})^{2}}
+\]</div>
+<p>where the expected signal and background rates are expressed as functions of the nuisance parameters, <span class="arithmatex">\(n_{S}(\nu_{S}) = 4.76(1+0.2)^{\nu_{S}}~\)</span> and <span class="arithmatex">\(~n_{B}(\nu_{B}) = 1.47(1+0.5)^{\nu_{B}}\)</span>. The <span class="arithmatex">\(y_{S},~y_{B}\)</span> are the auxiliary observables. In the code, these will have the same name as the corresponding nuisance parameter, with the extension <code>_In</code>.</p>
+<p>The first term represents the usual Poisson expression for observing <span class="arithmatex">\(n_{\mathrm{obs}}\)</span> events, while the second two are the Gaussian constraint terms for the nuisance parameters. In this case <span class="arithmatex">\({y_S}={y_B}=0\)</span>, and the widths of both Gaussians are 1.</p>
+<p>A combination of counting experiments (or a binned shape datacard) will look like a product of PDFs of this kind. For parametric/unbinned analyses, the PDF for each process in each channel is provided instead of the using the Poisson terms and a product runs over the bin counts/events.</p>
+<h2 id="model-building">Model building</h2>
+<p>For more complex models, <code>PhysicsModels</code> can be produced. To use a different physics model instead of the default one, use the option <code>-P</code> as in</p>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>datacard<span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PythonFile:modelName
+</code></pre></div>
+<p>Generic models can be implemented by writing a python class that:</p>
+<ul>
+<li>defines the model parameters (by default it is just the signal strength modifier <strong><code>r</code></strong>)</li>
+<li>defines how signal and background yields depend on the parameters (by default, the signal scales linearly with <strong><code>r</code></strong>, backgrounds are constant)</li>
+<li>potentially also modifies the systematic uncertainties (e.g. switch off theory uncertainties on cross section when measuring the cross section itself)</li>
+</ul>
+<p>In the case of SM-like Higgs boson measurements, the class should inherit from <strong><code>SMLikeHiggsModel</code></strong> (redefining <strong><code>getHiggsSignalYieldScale</code></strong>), while beyond that one can inherit from <strong><code>PhysicsModel</code></strong>. You can find some examples in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/PhysicsModel.py">PhysicsModel.py</a>.</p>
+<p>In the 4-process model (<code>PhysicsModel:floatingXSHiggs</code>, you will see that each of the 4 dominant Higgs boson production modes get separate scaling parameters, <strong><code>r_ggH</code></strong>, <strong><code>r_qqH</code></strong>, <strong><code>r_ttH</code></strong> and <strong><code>r_VH</code></strong> (or <strong><code>r_ZH</code></strong> and <strong><code>r_WH</code></strong>) as defined in,</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">doParametersOfInterest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">  </span><span class="sd">&quot;&quot;&quot;Create POI and other parameters, and define the POI set.&quot;&quot;&quot;</span>
+  <span class="c1"># --- Signal Strength as only POI ---</span>
+  <span class="k">if</span> <span class="s2">&quot;ggH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">doVar</span><span class="p">(</span><span class="s2">&quot;r_ggH[1,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ggHRange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ggHRange</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+  <span class="k">if</span> <span class="s2">&quot;qqH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">doVar</span><span class="p">(</span><span class="s2">&quot;r_qqH[1,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qqHRange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">qqHRange</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+  <span class="k">if</span> <span class="s2">&quot;VH&quot;</span>  <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">doVar</span><span class="p">(</span><span class="s2">&quot;r_VH[1,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">]&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">VHRange</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">VHRange</span> <span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+  <span class="k">if</span> <span class="s2">&quot;WH&quot;</span>  <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">doVar</span><span class="p">(</span><span class="s2">&quot;r_WH[1,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">]&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">WHRange</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">WHRange</span> <span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+  <span class="k">if</span> <span class="s2">&quot;ZH&quot;</span>  <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">doVar</span><span class="p">(</span><span class="s2">&quot;r_ZH[1,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">]&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ZHRange</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ZHRange</span> <span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+  <span class="k">if</span> <span class="s2">&quot;ttH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">doVar</span><span class="p">(</span><span class="s2">&quot;r_ttH[1,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ttHRange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ttHRange</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+  <span class="n">poi</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;r_&quot;</span><span class="o">+</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">])</span>
+  <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pois</span><span class="p">:</span> <span class="n">poi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pois</span>
+  <span class="o">...</span>
+</code></pre></div>
+<p>The mapping of which POI scales which process is handled via the following function,</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">getHiggsSignalYieldScale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">production</span><span class="p">,</span><span class="n">decay</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">production</span> <span class="o">==</span> <span class="s2">&quot;ggH&quot;</span><span class="p">:</span> <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;r_ggH&quot;</span> <span class="k">if</span> <span class="s2">&quot;ggH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">production</span> <span class="o">==</span> <span class="s2">&quot;qqH&quot;</span><span class="p">:</span> <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;r_qqH&quot;</span> <span class="k">if</span> <span class="s2">&quot;qqH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">production</span> <span class="o">==</span> <span class="s2">&quot;ttH&quot;</span><span class="p">:</span> <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;r_ttH&quot;</span> <span class="k">if</span> <span class="s2">&quot;ttH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;r_ggH&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ttHasggH</span> <span class="k">else</span> <span class="mi">1</span><span class="p">))</span>
+  <span class="k">if</span> <span class="n">production</span> <span class="ow">in</span> <span class="p">[</span> <span class="s2">&quot;WH&quot;</span><span class="p">,</span> <span class="s2">&quot;ZH&quot;</span><span class="p">,</span> <span class="s2">&quot;VH&quot;</span> <span class="p">]:</span> <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;r_VH&quot;</span> <span class="k">if</span> <span class="s2">&quot;VH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">,</span> <span class="s2">&quot;Unknown production mode &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">production</span>
+</code></pre></div>
+<p>You should note that <code>text2workspace</code> will look for the python module in <code>PYTHONPATH</code>. If you want to keep your model local, you'll need to add the location of the python file to <code>PYTHONPATH</code>.</p>
+<p>A number of models used in the LHC Higgs combination paper can be found in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/LHCHCGModels.py">LHCHCGModels.py</a>.</p>
+<p>The models can be applied to the datacard by using the <code>-P</code> option, for example <code>-P HiggsAnalysis.CombinedLimit.HiggsCouplings:c7</code>, and others that are defined in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsCouplings.py">HiggsCouplings.py</a>.</p>
+<p>Below are some (more generic) example models that also exist in GitHub.</p>
+<h3 id="multisignalmodel-ready-made-model-for-multiple-signal-processes">MultiSignalModel ready made model for multiple signal processes</h3>
+<p><span style="font-variant:small-caps;">Combine</span> already contains a model <strong><code>HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel</code></strong> that can be used to assign different signal strengths to multiple processes in a datacard, configurable from the command line.</p>
+<p>The model is configured by passing one or more mappings in the form <strong><code>--PO 'map=bin/process:parameter'</code></strong> to text2workspace:</p>
+<ul>
+<li><strong><code>bin</code></strong> and <strong><code>process</code></strong> can be arbitrary regular expressions matching the bin names and process names in the datacard.
+    Note that mappings are applied both to signals and to background processes; if a line matches multiple mappings, precedence is given to the last one in the order they are in the command line.
+    It is suggested to put quotes around the argument of <strong><code>--PO</code></strong> so that the shell does not try to expand any <strong><code>*</code></strong> signs in the patterns.</li>
+<li><strong><code>parameter</code></strong> is the POI to use to scale that process (<code>name[starting_value,min,max]</code> the first time a parameter is defined, then just <code>name</code> if used more than once).
+    Special values are <strong><code>1</code></strong> and <strong><code>0==; ==0</code></strong> means "drop the process completely from the model", while <strong><code>1</code></strong> means to "keep the yield as is in the card with no scaling" (as normally done for backgrounds); <strong><code>1</code></strong> is the default that is applied to processes that have no mappings. Therefore it is normally not needed, but it may be used to override a previous more generic match in the same command line (e.g. <code>--PO 'map=.*/ggH:r[1,0,5]' --PO 'map=bin37/ggH:1'</code> would treat ggH as signal in general, but count it as background in the channel <code>bin37</code>).</li>
+</ul>
+<p>Passing the additional option <strong><code>--PO verbose</code></strong> will set the code to verbose mode, printing out the scaling factors for each process; we encourage the use this option to make sure that the processes are being scaled correctly.</p>
+<p>The MultiSignalModel will define all parameters as parameters of interest, but that can be then changed from the command line, as described in the following subsection.</p>
+<p>Some examples, taking as reference the toy datacard <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/toy-hgg-125.txt">test/multiDim/toy-hgg-125.txt</a>:</p>
+<ul>
+<li>Scale both <code>ggH</code> and <code>qqH</code> with the same signal strength <code>r</code> (that is what the default physics model of <span style="font-variant:small-caps;">Combine</span> does for all signals; if they all have the same systematic uncertainties, it is also equivalent to adding up their yields and writing them as a single column in the card)</li>
+</ul>
+<div class="highlight"><pre><span></span><code>  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO &#39;map=.*/ggH:r[1,0,10]&#39; --PO &#39;map=.*/qqH:r&#39; toy-hgg-125.txt -o toy-1d.root
+  [...]
+  Will create a POI  r  with factory  r[1,0,10]
+  Mapping  r  to  [&#39;.*/ggH&#39;]  patterns
+  Mapping  r  to  [&#39;.*/qqH&#39;]  patterns
+  [...]
+  Will scale  incl/bkg  by  1
+  Will scale  incl/ggH  by  r
+  Will scale  incl/qqH  by  r
+  Will scale  dijet/bkg  by  1
+  Will scale  dijet/ggH  by  r
+  Will scale  dijet/qqH  by  r
+</code></pre></div>
+<ul>
+<li>Define two independent parameters of interest <code>r_ggH</code> and <code>r_qqH</code></li>
+</ul>
+<div class="highlight"><pre><span></span><code>  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO &#39;map=.*/ggH:r_ggH[1,0,10]&#39; --PO &#39;map=.*/qqH:r_qqH[1,0,20]&#39; toy-hgg-125.txt -o toy-2d.root
+  [...]
+  Will create a POI  r_ggH  with factory  r_ggH[1,0,10]
+  Mapping  r_ggH  to  [&#39;.*/ggH&#39;]  patterns
+  Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
+  Mapping  r_qqH  to  [&#39;.*/qqH&#39;]  patterns
+  [...]
+  Will scale  incl/bkg  by  1
+  Will scale  incl/ggH  by  r_ggH
+  Will scale  incl/qqH  by  r_qqH
+  Will scale  dijet/bkg  by  1
+  Will scale  dijet/ggH  by  r_ggH
+  Will scale  dijet/qqH  by  r_qqH
+</code></pre></div>
+<ul>
+<li>Fix <strong><code>ggH</code></strong> to SM, define only <strong><code>qqH</code></strong> as parameter</li>
+</ul>
+<div class="highlight"><pre><span></span><code>  $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO &#39;map=.*/ggH:1&#39; --PO &#39;map=.*/qqH:r_qqH[1,0,20]&#39; toy-hgg-125.txt -o toy-1d-qqH.root
+  [...]
+  Mapping  1  to  [&#39;.*/ggH&#39;]  patterns
+  Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
+  Mapping  r_qqH  to  [&#39;.*/qqH&#39;]  patterns
+  [...]
+  Will scale  incl/bkg  by  1
+  Will scale  incl/ggH  by  1
+  Will scale  incl/qqH  by  r_qqH
+  Will scale  dijet/bkg  by  1
+  Will scale  dijet/ggH  by  1
+  Will scale  dijet/qqH  by  r_qqH
+</code></pre></div>
+<ul>
+<li>Drop <strong><code>ggH</code></strong> , and define only <strong><code>qqH</code></strong> as parameter</li>
+</ul>
+<div class="highlight"><pre><span></span><code> $ text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO &#39;map=.*/ggH:0&#39; --PO &#39;map=.*/qqH:r_qqH[1,0,20]&#39; toy-hgg-125.txt -o toy-1d-qqH0-only.root
+ [...]
+ Mapping  0  to  [&#39;.*/ggH&#39;]  patterns
+ Will create a POI  r_qqH  with factory  r_qqH[1,0,20]
+ Mapping  r_qqH  to  [&#39;.*/qqH&#39;]  patterns
+ [...]
+ Will scale  incl/bkg  by  1
+ Will scale  incl/ggH  by  0
+ Will scale  incl/qqH  by  r_qqH
+ Will scale  dijet/bkg  by  1
+ Will scale  dijet/ggH  by  0
+ Will scale  dijet/qqH  by  r_qqH
+</code></pre></div>
+<h3 id="two-hypothesis-testing">Two Hypothesis testing</h3>
+<p>The <code>PhysicsModel</code> that encodes the signal model above is the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsJPC.py">twoHypothesisHiggs</a>, which assumes signal processes with suffix <strong>_ALT</strong> will exist in the datacard. An example of such a datacard can be found under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt">data/benchmarks/simple-counting/twoSignals-3bin-bigBSyst.txt</a></p>
+<div class="highlight"><pre><span></span><code> $ text2workspace.py twoSignals-3bin-bigBSyst.txt -P HiggsAnalysis.CombinedLimit.HiggsJPC:twoHypothesisHiggs -m 125.7 --PO verbose -o jcp_hww.root
+
+ MH (not there before) will be assumed to be 125.7
+ Process  S  will get norm  not_x
+ Process  S_ALT  will get norm  x
+ Process  S  will get norm  not_x
+ Process  S_ALT  will get norm  x
+ Process  S  will get norm  not_x
+ Process  S_ALT  will get norm  x
+</code></pre></div>
+<p>The two processes (S and S_ALT) will get different scaling parameters. The LEP-style likelihood for hypothesis testing can now be used by setting <strong>x</strong> or <strong>not_x</strong> to 1 and 0 and comparing the two likelihood evaluations.</p>
+<h3 id="signal-background-interference">Signal-background interference</h3>
+<p>Since negative probability distribution functions do not exist, the recommended way to implement this is to start from the expression for the individual amplitudes <span class="arithmatex">\(A\)</span> and the parameter of interest <span class="arithmatex">\(k\)</span>,</p>
+<div class="arithmatex">\[
+\mathrm{Yield} = |k * A_{s} + A_{b}|^2
+= k^2 * |A_{s}|^2 + k * 2 \Re(A_{s}^* A_{b}) + |A_{b}|^2
+= \mu * S + \sqrt{\mu} * I + B
+\]</div>
+<p>where</p>
+<p><span class="arithmatex">\(\mu = k^2, ~S = |A_{s}|^2,~B = |A_b|^2\)</span> and <span class="arithmatex">\(S+B+I = |A_s + A_b|^2\)</span>.</p>
+<p>With some algebra you can work out that,</p>
+<p><span class="arithmatex">\(\mathrm{Yield} = \sqrt{\mu} * \left[S+B+I\right] + (\mu-\sqrt{\mu}) * \left[S\right] + (1-\sqrt{\mu}) * \left[B\right]\)</span></p>
+<p>where square brackets represent the input (histograms as <code>TH1</code> or <code>RooDataHists</code>) that one needs to provide.</p>
+<p>An example of this scheme is implemented in a <a href="https://gitlab.cern.ch/cms-hcg/cadi/hig-17-012/-/blob/master/2l2nu/HiggsWidth.py">HiggsWidth</a> and is completely general, since all of the three components above are strictly positive. In this example, the POI is <code>CMS_zz4l_mu</code> and the equations for the three components are scaled (separately for the <strong>qqH</strong> and <strong>ggH</strong> processes) as,</p>
+<div class="highlight"><pre><span></span><code> <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">factory_</span><span class="p">(</span> <span class="s2">&quot;expr::ggH_s_func(</span><span class="se">\&quot;</span><span class="s2">@0-sqrt(@0)</span><span class="se">\&quot;</span><span class="s2">, CMS_zz4l_mu)&quot;</span><span class="p">)</span>
+ <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">factory_</span><span class="p">(</span>  <span class="s2">&quot;expr::ggH_b_func(</span><span class="se">\&quot;</span><span class="s2">1-sqrt(@0)</span><span class="se">\&quot;</span><span class="s2">, CMS_zz4l_mu)&quot;</span><span class="p">)</span>
+ <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">factory_</span><span class="p">(</span>  <span class="s2">&quot;expr::ggH_sbi_func(</span><span class="se">\&quot;</span><span class="s2">sqrt(@0)</span><span class="se">\&quot;</span><span class="s2">, CMS_zz4l_mu)&quot;</span><span class="p">)</span>
+
+ <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">factory_</span><span class="p">(</span> <span class="s2">&quot;expr::qqH_s_func(</span><span class="se">\&quot;</span><span class="s2">@0-sqrt(@0)</span><span class="se">\&quot;</span><span class="s2">, CMS_zz4l_mu)&quot;</span><span class="p">)</span>
+ <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">factory_</span><span class="p">(</span>  <span class="s2">&quot;expr::qqH_b_func(</span><span class="se">\&quot;</span><span class="s2">1-sqrt(@0)</span><span class="se">\&quot;</span><span class="s2">, CMS_zz4l_mu)&quot;</span><span class="p">)</span>
+ <span class="bp">self</span><span class="o">.</span><span class="n">modelBuilder</span><span class="o">.</span><span class="n">factory_</span><span class="p">(</span>  <span class="s2">&quot;expr::qqH_sbi_func(</span><span class="se">\&quot;</span><span class="s2">sqrt(@0)</span><span class="se">\&quot;</span><span class="s2">, CMS_zz4l_mu)&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="multi-process-interference">Multi-process interference</h3>
+<p>The above formulation can be extended to multiple parameters of interest
+(POIs). See
+<a href="https://github.com/amassiro/AnalyticAnomalousCoupling">AnalyticAnomalousCoupling</a>
+for an example. However, the computational performance scales quadratically
+with the number of POIs, and can get extremely expensive for 10 or more, as may
+be encountered often with EFT analyses. To alleviate this issue, an accelerated
+interference modeling technique is implemented for template-based analyses via
+the <code>interferenceModel</code> physics model. In this model, each bin yield <span class="arithmatex">\(y\)</span> is parameterized</p>
+<div class="arithmatex">\[
+y(\vec{\mu}) = y_0 (\vec{\mu}^\top M \vec{\mu})
+\]</div>
+<p>as a function of the POI vector <span class="arithmatex">\(\vec{\mu}\)</span>, a nominal template <span class="arithmatex">\(y_0\)</span>, and a scaling matrix <span class="arithmatex">\(M\)</span>.
+To see how this parameterization relates to that of the previous section, we can define:</p>
+<div class="arithmatex">\[
+y_0 = A_b^2, \qquad
+M = \frac{1}{A_b^2} \begin{bmatrix}
+ |A_s|^2 &amp; \Re(A_s^* A_b) \\
+ \Re(A_s A_b^*) &amp; |A_b|^2
+ \end{bmatrix}, \qquad \vec{\mu} = \begin{bmatrix}
+ \sqrt{\mu} \\
+ 1
+ \end{bmatrix}
+\]</div>
+<p>which leads to the same parameterization. At present, this technique only works with
+<code>CMSHistFunc</code>-based workspaces, as these are the most common workspace types
+encountered and the default when using
+<a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/bin-wise-stats">autoMCStats</a>.
+To use this model, for each bin find <span class="arithmatex">\(y_0\)</span> and put it into the datacard as a signal process, then find <span class="arithmatex">\(M\)</span> and
+save the lower triangular component as an array in a <code>scaling.json</code> file with a
+syntax as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;channel&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my_channel&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;process&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my_nominal_process&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;sqrt_mu[1,0,2]&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Bscaling[1]&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;scaling&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">0.6</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span><span class="w"> </span><span class="mf">0.3</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">]</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>where the parameters are declared using RooFit's <a href="https://root.cern.ch/doc/v622/classRooWorkspace.html#a0ddded1d65f5c6c4732a7a3daa8d16b0">factory
+syntax</a>
+and each row of the <code>scaling</code> field represents the scaling information of a bin, e.g. if <span class="arithmatex">\(y_0 = |A_b|^2\)</span>
+then each row would contain three entries:</p>
+<div class="arithmatex">\[
+|A_s|^2 / |A_b|^2,\quad \Re(A_s^* A_b)/|A_b|^2,\quad 1
+\]</div>
+<p>For several coefficients, one would enumerate as follows:
+<div class="highlight"><pre><span></span><code><span class="n">scaling</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">ibin</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbins</span><span class="p">):</span>
+    <span class="n">binscaling</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">icoef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncoef</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">jcoef</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">icoef</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">binscaling</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">amplitude_squared_for</span><span class="p">(</span><span class="n">ibin</span><span class="p">,</span> <span class="n">icoef</span><span class="p">,</span> <span class="n">jcoef</span><span class="p">))</span>
+    <span class="n">scaling</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">binscaling</span><span class="p">)</span>
+</code></pre></div></p>
+<p>Then, to construct the workspace, run</p>
+<p><div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>card.txt<span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.InterferenceModels:interferenceModel<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--PO<span class="w"> </span>verbose<span class="w"> </span>--PO<span class="w"> </span><span class="nv">scalingData</span><span class="o">=</span>scaling.json
+</code></pre></div>
+For large amounts of scaling data, you can optionally use gzipped json (<code>.json.gz</code>) or pickle (<code>.pkl.gz</code>)
+files with 2D numpy arrays for the scaling coefficients instead of lists. The function <code>numpy.tril_indices(ncoef)</code>
+is helpful for extracting the lower triangle of a square matrix.</p>
+<p>You could pick any
+nominal template, and adjust the scaling as appropriate. Generally it is
+advisable to use a nominal template corresponding to near where you expect the
+best-fit values of the POIs to be so that the shape systematic effects are well-modeled in that
+region.</p>
+<p>It may be the case that the relative contributions of the terms are themselves
+a function of the POIs. For example, in VBF di-Higgs production, BSM
+modifications to the production rate can be parameterized in the "kappa"
+framework via three diagrams, with scaling coefficients <span class="arithmatex">\(\kappa_V \kappa_\lambda\)</span>,
+<span class="arithmatex">\(\kappa_V^2\)</span>, and <span class="arithmatex">\(\kappa_{2V}\)</span>, respectively, that interfere.  In
+that case, you can declare formulas with the factory syntax to represent each
+amplitude as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;channel&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a_vbf_channel&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;process&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VBFHH&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;expr::a0(&#39;@0*@1&#39;, kv[1,0,2], kl[1,0,2])&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;expr::a1(&#39;@0*@0&#39;, kv[1,0,2])&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;k2v[1,0,2]&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;scaling&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">3.30353674666415</span><span class="p">,</span><span class="w"> </span><span class="mf">-8.54170982038222</span><span class="p">,</span><span class="w"> </span><span class="mf">22.96464188467882</span><span class="p">,</span><span class="w"> </span><span class="mf">4.2353483207128</span><span class="p">,</span><span class="w"> </span><span class="mf">-11.07996258835088</span><span class="p">,</span><span class="w"> </span><span class="mf">5.504469544697623</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">2.20644332142891</span><span class="p">,</span><span class="w"> </span><span class="mf">-7.076836641962523</span><span class="p">,</span><span class="w"> </span><span class="mf">23.50989689214267</span><span class="p">,</span><span class="w"> </span><span class="mf">4.053185685866683</span><span class="p">,</span><span class="w"> </span><span class="mf">-13.08569222837996</span><span class="p">,</span><span class="w"> </span><span class="mf">7.502346155380032</span><span class="p">]</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>However, you will need to manually specify what the POIs should be when creating the workspace using the <code>POIs=</code> physics option, e.g.</p>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>card.txt<span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.InterferenceModels:interferenceModel<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--PO<span class="w"> </span><span class="nv">scalingData</span><span class="o">=</span>scaling.json<span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;POIs=kl[1,0,2]:kv[1,0,2]:k2v[1,0,2]&#39;</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../settinguptheanalysis/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Preparing the datacard">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Preparing the datacard
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../higgscouplings/" class="md-footer__link md-footer__link--next" aria-label="Next: SM Higgs coupling models">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                SM Higgs coupling models
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

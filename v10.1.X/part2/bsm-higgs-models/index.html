@@ -1,0 +1,1705 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../higgscouplings/">
+      
+      
+        <link rel="next" href="../bin-wise-stats/">
+      
+      
+      <link rel="icon" href="../../logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>BSM Higgs models - Combine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2afb09e1.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../mystyle.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#physics-models-for-extended-higgs-sector-searches" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../../.."> 
+
+
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Combine" class="md-header__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Combine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              BSM Higgs models
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../what_combine_does/introduction/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  What Combine Does
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../settinguptheanalysis/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Setting up the analysis
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part3/runningthetool/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Running combine
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part5/roofit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../part4/usefullinks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Links & FAQ
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Combine" class="md-nav__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    Combine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    What Combine Does
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            What Combine Does
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/model_and_likelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model and Likelihood
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/fitting_concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fitting Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/statistical_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statistical Tests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Setting up the analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Setting up the analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settinguptheanalysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Physics models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Physics models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physicsmodels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../higgscouplings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SM Higgs coupling models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    BSM Higgs models
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    BSM Higgs models
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#two-higgs-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Two Higgs Models
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#two-higgs-doublet-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Two Higgs Doublet Models
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fermiophobic-higgs-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fermiophobic Higgs Model
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bin-wise-stats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Automatic MC statistical uncertainties
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Running combine
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Running combine
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/runningthetool/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Running the tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/commonstatsmethods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/nonstandard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced use cases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/simplifiedlikelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simplified Likelihoods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/regularisation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Unfolding & regularization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validating datacards
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/debugging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Debugging fit failures
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/roofit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Main Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Main Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exercises
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexerciseanswers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Solutions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023/parametric_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parametric Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023_unfolding/unfolding_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Likelihood Based Unfolding
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial_stat_routines/stat_routines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statitiscal Tests Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model_building_tutorial2024/model_building_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model building
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../abcd_rooparametrichist_tutorial/rooparametrichist_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Per-bin Transfer Factors with Parametric Histograms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/usefullinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Links & FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#two-higgs-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Two Higgs Models
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#two-higgs-doublet-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Two Higgs Doublet Models
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fermiophobic-higgs-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fermiophobic Higgs Model
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="physics-models-for-extended-higgs-sector-searches">Physics Models for Extended Higgs Sector Searches</h1>
+<p>This page lists the physics models that can be used to perform searches for additional Higgs boson measurements at the LHC, when the SM-like Higgs boson should be accounted for in the data.</p>
+<h2 id="two-higgs-models">Two Higgs Models</h2>
+<p>These models are for the case where there are just Two Higgs bosons, one of which is the SM-like Higgs boson that was discovered at the LHC. The two Higgs models are implemented in the python file <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/TwoHiggsModels.py"><code>TwoHiggsModels.py</code></a>. For each of these models, we assume that the SM-like Higgs boson has mass specified by <code>MH_SM</code>, while the additional boson has mass <code>MH</code>.</p>
+<p>You can produce the model by including the  following option in the <code>text2workspace.py</code> command:</p>
+<div class="highlight"><pre><span></span><code>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.TwoHiggsModels:model
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>model</code></th>
+<th><div style="width:160px"><code>--PO</code></div></th>
+<th><div style="width:160px">POIs</div></th>
+<th><div style="width:590px">Description</div></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Two Higgs bosons</td>
+<td><code>twoHiggsUnconstrained</code></td>
+<td>N/A</td>
+<td><code>r</code>, <code>r_SM</code></td>
+<td>The SM-like Higgs boson signal strength will be <code>r_SM</code> and its mass will be assumed to be <code>MH_SM</code> (default value 125.8), while the additional Higgs boson signal strength will be scaled by <code>r</code> and assumed to have mass <code>MH</code>.</td>
+</tr>
+<tr>
+<td>Singlet Mixing Model</td>
+<td><code>singletMixing</code></td>
+<td><code>--PO BSMDecays</code>,<code>--PO UseVisibleMu</code></td>
+<td><code>r</code>,<code>BR_BSM</code></td>
+<td>Without any options, the SM like Higgs boson will have signal strength <code>r</code>, while the additional Higgs boson is scaled by <code>1-r</code> and <code>BR_BSM</code> will not be a POI. If the option <code>BSMDecays</code> is included, the additional boson's signal strength will be <code>r(1-BR_BSM)</code> and the SM like Higgs boson will have signal strength of <code>1-r</code>. If the option <code>UseVisibleMu</code> is included too, then instead, the additional Higgs boson will get a signal strength <code>r</code> while the SM one will have <code>1-r(1-BR_BSM)</code>.</td>
+</tr>
+<tr>
+<td>Singlet Mixing Model for Exclusions</td>
+<td><code>singletMixingInvisible</code></td>
+<td><code>--PO BSMDecays</code></td>
+<td><code>r</code>,<code>x</code>,<code>BR_BSM</code></td>
+<td>The SM like Higgs boson will be scaled by <code>r*x</code> while the additional boson is scaled by <code>r*(1-x)</code>. If the option <code>BSMDecays</code> is included, then <code>BR_BSM</code> is also a POI and the additional Higgs boson signal strength is scaled accounting for this BSM branching fraction <code>r*(1-x)*(1-BR_BSM)</code>.</td>
+</tr>
+<tr>
+<td>Two Higgs bosons with <span class="arithmatex">\(c_{V}\)</span>, <span class="arithmatex">\(c_{F}\)</span> couplings</td>
+<td><code>twoHiggsCvCf</code></td>
+<td>N/A</td>
+<td><code>CV</code>, <code>CF</code></td>
+<td>Both Higgs bosons signal strengths scale accoring to the coupling to vector bosons <code>CV</code> and fermions <code>CF</code> where the scaling is determined for each contributing production/decay vertex. In this case, the additioal boson is assumed to follow the same coupling structure (i.e the SM like Higgs boson couplings).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="two-higgs-doublet-models">Two Higgs Doublet Models</h2>
+<p>In these models, the couplings of the SM-like Higgs boson are modified according to the type of 2HDM with parameters <span class="arithmatex">\(\cos(\beta-\alpha)\)</span> and <span class="arithmatex">\(\tan\beta\)</span>. The two Higgs doublet models are implemented in the python file <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/AdditionalModels.py"><code>AdditionalModels.py</code></a>.  In this model, the Higgs boson mass is <code>MH</code>, and it can be promoted to a POI by including the option <code>--PO higgsMassRange=[low,high]</code>.</p>
+<p>You can produce the model by including the  following option in the <code>text2workspace.py</code> command:</p>
+<div class="highlight"><pre><span></span><code>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.AdditionalModels:model_name
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>model</code></th>
+<th><div style="width:160px"><code>--PO</code></div></th>
+<th><div style="width:160px">POIs</div></th>
+<th><div style="width:590px">Description</div></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2HDM Type-1</td>
+<td><code>twohdm</code></td>
+<td><code>--PO thdmtype=1</code></td>
+<td><code>cosbma</code>,<code>tanbeta</code></td>
+<td>The couplings of the Higgs boson to fermions and vector bosons are modified by the parameters <code>cosbma</code> (<span class="arithmatex">\(\cos(\beta-\alpha)\)</span>) and <code>tanbeta</code> (<span class="arithmatex">\(\tan\beta\)</span>). The couplings dependencies are <span class="arithmatex">\(\kappa_V = \sqrt(1-\cos^{2}(\beta-\alpha))\)</span>, <span class="arithmatex">\(\kappa_{u}=\kappa_{d}=\cos(\alpha)/\sin(\beta)\)</span>.</td>
+</tr>
+<tr>
+<td>2HDM Type-2</td>
+<td><code>twohdm</code></td>
+<td><code>--PO thdmtype=2</code></td>
+<td><code>cosbma</code>,<code>tanbeta</code></td>
+<td>The couplings of the Higgs boson to fermions and vector bosons are modified by the parameters <code>cosbma</code> (<span class="arithmatex">\(\cos(\beta-\alpha)\)</span>) and <code>tanbeta</code> (<span class="arithmatex">\(\tan\beta\)</span>). The couplings dependencies are <span class="arithmatex">\(\kappa_V = \sqrt(1-\cos^{2}(\beta-\alpha))\)</span>, <span class="arithmatex">\(\kappa_{u}=\cos(\alpha)/\sin(\beta)\)</span>, <span class="arithmatex">\(\kappa_{d}=-\sin(\alpha)/\cos(\beta)\)</span>.</td>
+</tr>
+<tr>
+<td>2HDM Type-3</td>
+<td><code>twohdm</code></td>
+<td><code>--PO thdmtype=3</code></td>
+<td><code>cosbma</code>,<code>tanbeta</code></td>
+<td>The couplings of the Higgs boson to quarks, leptons and vector bosons are modified by the parameters <code>cosbma</code> (<span class="arithmatex">\(\cos(\beta-\alpha)\)</span>) and <code>tanbeta</code> (<span class="arithmatex">\(\tan\beta\)</span>). The couplings dependencies are <span class="arithmatex">\(\kappa_V = \sqrt(1-\cos^{2}(\beta-\alpha))\)</span>, <span class="arithmatex">\(\kappa_{u}=\kappa_{d}=\cos(\alpha)/\sin(\beta)\)</span>, <span class="arithmatex">\(\kappa_{l}=-\sin(\alpha)/\cos(\beta)\)</span>.</td>
+</tr>
+<tr>
+<td>2HDM Type-4</td>
+<td><code>twohdm</code></td>
+<td><code>--PO thdmtype=4</code></td>
+<td><code>cosbma</code>,<code>tanbeta</code></td>
+<td>The couplings of the Higgs boson to quarks, leptons and vector bosons are modified by the parameters <code>cosbma</code> (<span class="arithmatex">\(\cos(\beta-\alpha)\)</span>) and <code>tanbeta</code> (<span class="arithmatex">\(\tan\beta\)</span>). The couplings dependencies are <span class="arithmatex">\(\kappa_V = \sqrt(1-\cos^{2}(\beta-\alpha))\)</span>, <span class="arithmatex">\(\kappa_{u}=\kappa_{l}=\cos(\alpha)/\sin(\beta)\)</span>, <span class="arithmatex">\(\kappa_{d}=-\sin(\alpha)/\cos(\beta)\)</span>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="fermiophobic-higgs-model">Fermiophobic Higgs Model</h2>
+<p>This model is for the case where the additional Higgs boson does not couple to fermions. The fermiophobic Higgs model is implemented in the python file <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/HiggsFermiophobic.py"><code>HiggsFermiophobic.py</code></a>. In this model, the Higgs boson mass is <code>MH</code>, and it can be promoted to a POI by including the option <code>--PO higgsMassRange=[low,high]</code>.</p>
+<p>You can produce the model by including the  following option in the <code>text2workspace.py</code> command:</p>
+<div class="highlight"><pre><span></span><code>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.HiggsFermiophobic:model_name
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>model</code></th>
+<th><div style="width:160px"><code>--PO</code></div></th>
+<th><div style="width:160px">POIs</div></th>
+<th><div style="width:590px">Description</div></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fermiophobic Higgs</td>
+<td><code>fp</code></td>
+<td>N/A</td>
+<td><code>r</code></td>
+<td>The Higgs boson signal strength will be <code>r</code> for any production/decay that involves vector boson couplints only. The branching ratios are recalculated assuming no Higgs boson couplings to fermions.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../higgscouplings/" class="md-footer__link md-footer__link--prev" aria-label="Previous: SM Higgs coupling models">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                SM Higgs coupling models
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../bin-wise-stats/" class="md-footer__link md-footer__link--next" aria-label="Next: Automatic MC statistical uncertainties">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Automatic MC statistical uncertainties
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

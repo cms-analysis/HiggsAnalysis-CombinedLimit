@@ -1,0 +1,2228 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../introduction/">
+      
+      
+        <link rel="next" href="../fitting_concepts/">
+      
+      
+      <link rel="icon" href="../../logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>Model and Likelihood - Combine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2afb09e1.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../mystyle.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#observation-models-and-likelihoods" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../../.."> 
+
+
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Combine" class="md-header__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Combine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Model and Likelihood
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../introduction/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  What Combine Does
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part2/settinguptheanalysis/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Setting up the analysis
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part3/runningthetool/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Running combine
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part5/roofit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../part4/usefullinks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Links & FAQ
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Combine" class="md-nav__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    Combine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    What Combine Does
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            What Combine Does
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Model and Likelihood
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model and Likelihood
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-observation-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Observation Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Observation Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sets-of-observation-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sets of Observation Models
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-likelihood" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Likelihood
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Likelihood">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#primary-likelihoods-for-binned-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Primary Likelihoods for binned data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#primary-likelihoods-for-unbinned-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Primary Likelihoods for unbinned data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auxiliary-likelihoods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Auxiliary Likelihoods
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#likelihoods-implemented-in-combine" class="md-nav__link">
+    <span class="md-ellipsis">
+      Likelihoods implemented in Combine
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Likelihoods implemented in Combine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#binned-likelihoods-using-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Binned Likelihoods using Templates
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Binned Likelihoods using Templates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model-of-expected-event-counts-per-bin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model of expected event counts per bin
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-of-interest-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameter of Interest Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#normalization-effects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Normalization Effects
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shape-morphing-effects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shape Morphing Effects
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statistical-uncertainties-in-the-simulation-used-to-build-the-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Statistical Uncertainties in the Simulation used to build the Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customizing-the-form-of-the-expected-event-counts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Customizing the form of the expected event counts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auxiliary-likelihood-terms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Auxiliary Likelihood terms
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overview-of-the-template-based-likelihood-model-in-combine" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview of the template-based likelihood model in Combine
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parametric-likelihoods-in-combine" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parametric Likelihoods in Combine
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parametric Likelihoods in Combine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model-of-expected-event-counts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model of expected event counts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-of-interest-model_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameter of Interest Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shape-morphing-effects_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shape Morphing Effects
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combining-template-based-and-parametric-likelihoods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Combining template-based and parametric Likelihoods
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fitting_concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fitting Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../statistical_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statistical Tests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Setting up the analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Setting up the analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/settinguptheanalysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Physics models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Physics models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/physicsmodels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/higgscouplings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SM Higgs coupling models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bsm-higgs-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    BSM Higgs models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bin-wise-stats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Automatic MC statistical uncertainties
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Running combine
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Running combine
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/runningthetool/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Running the tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/commonstatsmethods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/nonstandard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced use cases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/simplifiedlikelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simplified Likelihoods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/regularisation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Unfolding & regularization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validating datacards
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/debugging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Debugging fit failures
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/roofit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Main Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Main Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exercises
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexerciseanswers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Solutions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023/parametric_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parametric Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023_unfolding/unfolding_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Likelihood Based Unfolding
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial_stat_routines/stat_routines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statitiscal Tests Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model_building_tutorial2024/model_building_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model building
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../abcd_rooparametrichist_tutorial/rooparametrichist_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Per-bin Transfer Factors with Parametric Histograms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/usefullinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Links & FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-observation-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Observation Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Observation Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sets-of-observation-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sets of Observation Models
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-likelihood" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Likelihood
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Likelihood">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#primary-likelihoods-for-binned-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Primary Likelihoods for binned data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#primary-likelihoods-for-unbinned-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Primary Likelihoods for unbinned data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auxiliary-likelihoods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Auxiliary Likelihoods
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#likelihoods-implemented-in-combine" class="md-nav__link">
+    <span class="md-ellipsis">
+      Likelihoods implemented in Combine
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Likelihoods implemented in Combine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#binned-likelihoods-using-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Binned Likelihoods using Templates
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Binned Likelihoods using Templates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model-of-expected-event-counts-per-bin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model of expected event counts per bin
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-of-interest-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameter of Interest Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#normalization-effects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Normalization Effects
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shape-morphing-effects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shape Morphing Effects
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statistical-uncertainties-in-the-simulation-used-to-build-the-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Statistical Uncertainties in the Simulation used to build the Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customizing-the-form-of-the-expected-event-counts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Customizing the form of the expected event counts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auxiliary-likelihood-terms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Auxiliary Likelihood terms
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overview-of-the-template-based-likelihood-model-in-combine" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview of the template-based likelihood model in Combine
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parametric-likelihoods-in-combine" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parametric Likelihoods in Combine
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parametric Likelihoods in Combine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model-of-expected-event-counts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model of expected event counts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-of-interest-model_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameter of Interest Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shape-morphing-effects_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shape Morphing Effects
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combining-template-based-and-parametric-likelihoods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Combining template-based and parametric Likelihoods
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="observation-models-and-likelihoods">Observation Models and Likelihoods</h1>
+<h2 id="the-observation-model">The Observation Model</h2>
+<p>The observation model, <span class="arithmatex">\(\mathcal{M}( \vec{\Phi})\)</span> defines the probability for any set of observations given specific values of the input parameters of the model <span class="arithmatex">\(\vec{\Phi}\)</span>.
+The probability for any observed data is denoted:</p>
+<div class="arithmatex">\[ p_{\mathcal{M}}(\mathrm{data}; \vec{\Phi} ) \]</div>
+<p>where the subscript <span class="arithmatex">\(\mathcal{M}\)</span> is given here to remind us that these are the probabilities according to this particular model (though usually we will omit it for brevity).</p>
+<p>Combine is designed for counting experiments, where the number of events with particular features are counted.
+The events can either be binned, as in histograms, or unbinned, where continuous values are stored for each event.
+The event counts are assumed to be of independent events, such as individual proton-proton collisions, which are not correlated with each other.</p>
+<p>The event-count portion of the model consists of a sum over different processes.
+The expected observations, <span class="arithmatex">\(\vec{\lambda}\)</span>, are then the sum of the expected observations for each of the processes, <span class="arithmatex">\(\vec{\lambda} =\sum_{p} \vec{\lambda}_{p}\)</span>.</p>
+<p>The model can also be composed of multiple channels, in which case the expected observation is the set of all expected observations from the various channels <span class="arithmatex">\(\vec{\lambda} = \{ \vec{\lambda}_{c1}, \vec{\lambda}_{c2}, .... \vec{\lambda}_{cN}\}\)</span>.</p>
+<p>The model can also include data and parameters related to non-count values, such as the observed luminosity or detector calibration constant.
+These non-count data are usually considered as auxiliary information which are used to constrain our expectations about the observed event counts.</p>
+<p>The full model therefore defines the probability of any given observations over all the channels, given all the processes and model parameters.</p>
+<p><a href="../../part2/settinguptheanalysis/#combination-of-multiple-datacards">Combining full models</a> is possible by combining their channels, assuming that the channels are mutually independent.</p>
+<details>
+<summary><strong>A Simple Example</strong></summary>
+<p>Consider performing an analysis searching for a Higgs boson by looking for events where the Higgs decays into two photons.</p>
+<p>The event count data may be binned histograms of the number of events with two photons with different bins of invariant mass of the photons.
+The expected counts would include signal contributions from processes where a Higgs boson is produced, as well as background contributions from processes where two photons are produced through other mechanisms, like radiation off a quark.
+The expected counts may also depend on parameters such as the energy resolution of the measured photons and the total luminosity of collisions being considered in the dataset, these can be parameterized in the model as auxiliary information.</p>
+<p>The analysis itself might be split into multiple channels, targetting different Higgs production modes with different event selection criteria.
+Furthermore, the analysis may eventually be combined with other analyses, such as a measurement targetting Higgs production where the Higgs boson decays into four leptons, rather than two photons.</p>
+<p>Combine provides the functionality for building the statistical models and combining all the channels or analyses together into one common analysis.</p>
+</details>
+<h3 id="sets-of-observation-models">Sets of Observation Models</h3>
+<p>We are typically not interested in a single model, but in a set of models, parameterized by a set of real numbers representing possible versions of the model.</p>
+<p>Model parameters include the parameters of interest ( <span class="arithmatex">\(\vec{\mu}\)</span>, those being measured such as a cross section) as well as nuisance parameters (<span class="arithmatex">\(\vec{\nu}\)</span>), which may not be of interest but still affect the model expectation.</p>
+<p>Combine provides tools and interfaces for defining the model as pre-defined or user-defined functions of the input parameters.
+In practice, however, there are a number of most commonly used functional forms which define how the expected events depend on the model parameters.
+These are discussed in detail in the context of the full likelihood below.</p>
+<h2 id="the-likelihood">The Likelihood</h2>
+<p>For any given model, <span class="arithmatex">\(\mathcal{M}(\vec{\Phi})\)</span>, <a href="https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#section.40.1">the likelihood</a> defines the probability of observing a given dataset.
+It is numerically equal to the probability of observing the data, given the model.</p>
+<div class="arithmatex">\[ \mathcal{L}_\mathcal{M}(\vec{\Phi}) = p_{\mathcal{M}}(\mathrm{data};\vec{\Phi}) \]</div>
+<p>Note, however that the likelihood is a function of the model parameters, not the data, which is why we distinguish it from the probability itself.</p>
+<p>The likelihood in combine takes the general form:</p>
+<div class="arithmatex">\[ \mathcal{L} =  \mathcal{L}_{\textrm{primary}} \cdot \mathcal{L}_{\textrm{auxiliary}} \]</div>
+<p>Where <span class="arithmatex">\(\mathcal{L}_{\mathrm{auxiliary}}\)</span> is equal to the probability of observing the event count data for a given set of model parameters, and <span class="arithmatex">\(\mathcal{L}_{\mathrm{auxiliary}}\)</span> represent some external constraints on the parameters.
+The constraint term may be constraints from previous measurements (such as Jet Energy Scales) or prior beliefs about the value some parameter in the model should have.</p>
+<p>Both <span class="arithmatex">\(\mathcal{L}_{\mathrm{primary}}\)</span> and <span class="arithmatex">\(\mathcal{L}_{\mathrm{auxiliary}}\)</span> can be composed of many sublikelihoods, for example for observations of different bins and constraints on different nuisance parameters.</p>
+<p>This form is entirely general. However, as with the model itself, there are typical forms that the likelihood takes which will cover most use cases, and for which combine is primarily designed.</p>
+<h3 id="primary-likelihoods-for-binned-data">Primary Likelihoods for binned data</h3>
+<p>For a binned likelihood, the probability of observing a certain number of counts, given a model takes on a simple form. For each bin:</p>
+<div class="arithmatex">\[
+\mathcal{L}_{\mathrm{bin}}(\vec{\Phi}) = \mathrm{Poiss}(n_{\mathrm{obs}}; n_{\mathrm{exp}}(\vec{\Phi}))
+\]</div>
+<p>i.e. it is a poisson distribution with the mean given by the expected number of events in that bin.
+The full primary likelihood for binned data is simply the product of each of the bins' likelihoods:</p>
+<div class="arithmatex">\[ \mathcal{L}_\mathrm{primary} = \prod_\mathrm{bins} \mathcal{L}_\mathrm{bin}. \]</div>
+<p>This is the underlying likelihood model used for every binned analysis.
+The freedom in the analysis comes in how <span class="arithmatex">\(n_\mathrm{exp}\)</span> depends on the model parameters, and the constraints that are placed on those parameters.</p>
+<h3 id="primary-likelihoods-for-unbinned-data">Primary Likelihoods for unbinned data</h3>
+<p>For unbinned likelihood models, a likelihood can be given to each data point. It is proportional to the probability density function at that point, <span class="arithmatex">\(\vec{x}\)</span>.
+For the full set of observed data points, information about the total number of data points is also included:</p>
+<div class="arithmatex">\[ \mathcal{L}_\mathrm{data} = \mathrm{Poiss}(n_{\mathrm{obs}} ; n_{\mathrm{exp}}(\vec{\Phi})) \prod_{i}^{N_{\mathrm{obs}}} \mathrm{pdf}(\vec{x}_i ; \vec{\Phi} ) \]</div>
+<p>Where <span class="arithmatex">\(n_{\mathrm{obs}}\)</span> and <span class="arithmatex">\(n_{\mathrm{exp}}\)</span> are the total number of observed and expected events, respectively.
+This is sometimes referred to as an 'extended' likelihood, as the probability density has been 'extended' to include information about the total number of observations.</p>
+<h3 id="auxiliary-likelihoods">Auxiliary Likelihoods</h3>
+<p>The auxiliary likelihood terms encode the probability of model nuisance parameters taking on a certain value, without regards to the primary data.
+In frequentist frameworks, this usually represents the result of a previous measurement (such as of the jet energy scale).
+We will write in a mostly frequentist framework, though combine can be used for either frequentist or bayesian analyses[^1].</p>
+<p>[^1]: see: the first paragraphs of the <a href="https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf">PDGs statistics review</a> for more information on these two frameworks</p>
+<p>In this framework, each auxiliary term represents the likelihood of some parameter, <span class="arithmatex">\(\nu\)</span>, given some previous observation <span class="arithmatex">\(y\)</span>; the quantity <span class="arithmatex">\(y\)</span> is sometimes referred to as a "global observable".</p>
+<div class="arithmatex">\[ \mathcal{L}_{\mathrm{auxiliary}}( \nu ) = p( y ; \nu ) \]</div>
+<p>In principle the form of the likelihood can be any function where the corresponding <span class="arithmatex">\(p\)</span> is a valid probability distribution.
+In practice, most of the auxiliary terms are gaussian, and the definition of <span class="arithmatex">\(\nu\)</span> is chosen such that the central observation <span class="arithmatex">\(y = 0\)</span> , and the width of the gaussian is one.</p>
+<p>Note that on its own, the form of the auxiliary term is not meaningful; what is meaningful is the relationship between the auxiliary term and how the model expectation is altered by the parameter.
+Any co-ordinate transformation of the parameter values can be absorbed into the definition of the parameter.
+A reparameterization would change the mathematical form of the auxiliary term, but would also simultaneously change how the model depends on the parameter in such a way that the total likelihood is unchanged.
+e.g. if you define  <span class="arithmatex">\(\nu = \sigma(tt)\)</span> or <span class="arithmatex">\(\nu = \sigma(tt) - \sigma_0\)</span> you will change the form of the constraint term, but the you will not change the overall likelihood.</p>
+<h2 id="likelihoods-implemented-in-combine">Likelihoods implemented in Combine</h2>
+<p>Combine builds on the generic forms of the likelihood for counting experiments given above to provide specific functional forms which are commonly most useful in high energy physics, such as separating contributions between different processes.</p>
+<h3 id="binned-likelihoods-using-templates">Binned Likelihoods using Templates</h3>
+<p>Binned likelihood models can be defined by the user by providing simple inputs such as a set of histograms and systematic uncertainties.
+These likelihood models are referred to as template-based because they rely heavily on histograms as templates for building the full likelihood function.</p>
+<p>Here, we describe the details of the mathematical form of these likelihoods.
+As already mentioned, the likelihood can be written as a product of two parts:</p>
+<div class="arithmatex">\[ \mathcal{L} =  \mathcal{L}_\mathrm{primary} \cdot \mathcal{L}_\mathrm{auxiliary} = \prod_{c=1}^{N_c} \prod_{b=1}^{N_b^c} \mathrm{Poiss}(n_{cb}; n^\mathrm{exp}_{cb}(\vec{\mu},\vec{\nu})) \cdot \prod_{e=1}^{N_E}  p_e(y_e ; \nu_e) \]</div>
+<p>Where <span class="arithmatex">\(c\)</span> indexes the channel, <span class="arithmatex">\(b\)</span> indexes the histogram bin, and <span class="arithmatex">\(e\)</span> indexes the nuisance parameter.</p>
+<h4 id="model-of-expected-event-counts-per-bin">Model of expected event counts per bin</h4>
+<p>The generic model of the expected event count in a given bin, <span class="arithmatex">\(n^\mathrm{exp}_{cb}\)</span>, implemented in combine for template based analyses is given by:</p>
+<div class="arithmatex">\[n^\mathrm{exp}_{cb} = \mathrm{max}(0, \sum_{p} M_{cp}(\vec{\mu})N_{cp}(\nu_G, \vec{\nu}_L,\vec{\nu}_S,\vec{\nu}_{\rho})\omega_{cbp}(\vec{\nu}_S) + E_{cb}(\vec{\nu}_B) ) \]</div>
+<p>where here:</p>
+<ul>
+<li><span class="arithmatex">\(p\)</span> indexes the processes contributing to the channel;</li>
+<li><span class="arithmatex">\(\nu_{G}, \vec{\nu}_L, \vec{\nu}_S, \vec{\nu}_{\rho}\)</span> and <span class="arithmatex">\(\vec{\nu}_B\)</span> are different types of nuisance parameters which modify the processes with different functional forms;<ul>
+<li><span class="arithmatex">\(\nu_{G}\)</span> is a gamma nuisances,</li>
+<li><span class="arithmatex">\(\vec{\nu}_{L}\)</span> are log-normal nuisances,</li>
+<li><span class="arithmatex">\(\vec{\nu}_{S}\)</span> are "shape" nuisances,</li>
+<li><span class="arithmatex">\(\vec{\nu}_{\rho}\)</span> are user defined rate parameters, and</li>
+<li><span class="arithmatex">\(\vec{\nu}_{B}\)</span> are nuisance parameters related to the statistical uncertainties in the simulation used to build the model.</li>
+</ul>
+</li>
+<li><span class="arithmatex">\(M\)</span> defines the effect of the parameters of interest on the signal process;</li>
+<li><span class="arithmatex">\(N\)</span> defines the overall normalization effect of the nuisance parameters;</li>
+<li><span class="arithmatex">\(\omega\)</span> defines the shape effects (i.e. bin-dependent effects) of the nuisance parameters; and</li>
+<li><span class="arithmatex">\(E\)</span> defines the impact of <a href="../../part2/bin-wise-stats/">statistical uncertainties from the samples</a> used to derive the histogram templates used to build the model.</li>
+</ul>
+<h4 id="parameter-of-interest-model">Parameter of Interest Model</h4>
+<p>The function <span class="arithmatex">\(M\)</span> can take on custom functional forms, as <a href="../../part2/physicsmodels/#model-building">defined by the user</a>, but in the most common case, the parameter of interest <span class="arithmatex">\(\mu\)</span> simply scales the contributions from signal processes:</p>
+<div class="arithmatex">\[\label{eq:sig_param}
+M_{cp}(\mu) = \begin{cases}
+    \mu  &amp;\mathrm{if\ } p \in \mathrm{signal} \\
+    1    &amp;\mathrm{otherwise} \end{cases}
+\]</div>
+<p>However, combine supports many more models beyond this.
+As well as built-in support for models with <a href="../../part2/physicsmodels/#multisignalmodel-ready-made-model-for-multiple-signal-processes">multiple parameters of interest</a>, combine comes with many pre-defined models which go beyond simple process normalization, which are targetted at various types of searches and measurements.</p>
+<h4 id="normalization-effects">Normalization Effects</h4>
+<p>The overall normalization <span class="arithmatex">\(N\)</span> is affected differently by the different types of nuisances parameters, and takes the general form</p>
+<div class="arithmatex">\[N = \prod_X \prod_i f_X(\vec{\nu}_{X}^{i})\mathrm{,}\]</div>
+<p>With <span class="arithmatex">\(X\)</span> identifying a given nuisance parameter type; i.e. <span class="arithmatex">\(N\)</span> multiplies together the morphings from each of the individual nuisance parameters from each of the nuisance types.</p>
+<details>
+<summary><strong>Normalization Parameterization Details</strong></summary>
+<p>The full functional form of the normalization term is given by:</p>
+<div class="arithmatex">\[ N_{cp} = N_{\mathrm{0}}(\nu_{G})\prod_{n} {\kappa_{n}}^{\nu_{L,n}}\prod_{a} {\kappa^{\mathrm{A}}_{a}(\nu_{L(S)}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})}^{\nu_{L(S)}^{a}} \prod_{r}F_{r}(\nu_\rho) \]</div>
+<p>where:</p>
+<ul>
+<li><span class="arithmatex">\(N_{\mathrm{0}}(\nu_{G}) \equiv \frac{\nu_{G}}{y_{G}}\)</span>, is the normalization effect of a gamma uncertainty. <span class="arithmatex">\(y_{G}\)</span> is taken as the observed number of events in some external control region and <span class="arithmatex">\(\nu_{G}\)</span> has a constraint pdf <span class="arithmatex">\(\mathrm{Poiss}(\nu; y)\)</span></li>
+<li><span class="arithmatex">\(\kappa_{n}^{\nu_{L,n}}\)</span>, are log-normal uncertainties specified by a fixed value <span class="arithmatex">\(\kappa\)</span>;</li>
+<li><span class="arithmatex">\(\kappa^{\mathrm{A}}_{a}(\nu_{L(S)}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})^{\nu_{L(S)}^{a}}\)</span> are asymmetric log-normal uncertainties, in which the value of <span class="arithmatex">\(\kappa^{\mathrm{A}}\)</span> depends on the nuisance parameter and two fixed values <span class="arithmatex">\(\kappa^{+}_{a}\)</span> and <span class="arithmatex">\(\kappa^{-}_{a}\)</span>. The functions, <span class="arithmatex">\(\kappa^A\)</span>, define a smooth interpolation for the asymmetric uncertainty; and</li>
+<li><span class="arithmatex">\(F_{r}(\vec{\nu}_\rho)\)</span> are user-defined functions of the user defined nuisance parameters which may have uniform or gaussian constraint terms.</li>
+</ul>
+<p>The function for the asymmetric normalization modifier, <span class="arithmatex">\(\kappa^A\)</span> is</p>
+<div class="arithmatex">\[
+    \kappa^{\mathrm{A}}(\nu,\kappa^{+}, \kappa^{-}) =
+    \begin{cases}
+        \kappa^{+}, &amp;\mathrm{for\,} \nu \geq 0.5 \\
+        \frac{1}{\kappa^{-}}, &amp;\mathrm{for\,} \nu \leq -0.5 \\
+        \exp\left(\frac{1}{2} \left( (\ln{\kappa^{+}}-\ln{\kappa^{-}}) + \frac{1}{4}(\ln{\kappa^{+}}+\ln{\kappa^{-}})I(\nu)\right)\right), &amp;\mathrm{otherwise}\end{cases}
+\]</div>
+<p>where <span class="arithmatex">\(I(\nu) = 48\nu^5 - 40\nu^3 + 15\nu\)</span>, which ensures <span class="arithmatex">\(\kappa^{\mathrm{A}}\)</span> and its first and second derivatives are continuous for all values of <span class="arithmatex">\(\nu\)</span>.</p>
+<p>and the <span class="arithmatex">\(\kappa^{+}\)</span> and <span class="arithmatex">\(\kappa^{-}\)</span> are the relative normalizations of the two systematics variations; i.e.:</p>
+<div class="arithmatex">\[
+\kappa^{\pm}_{s} = \frac{\sum_{b}\omega_{b}^{s,\pm}}{\sum_{b}\omega_{b}^{0}}.
+\]</div>
+<p>where <span class="arithmatex">\(\omega_{b}^{s,\pm}\)</span> is the bin yield as defined by the two shifted values  <span class="arithmatex">\(\nu_{S} = \nu_{S}^{\pm}\)</span>, and <span class="arithmatex">\(\omega_{b}^{0}\)</span> is the bin yield when <span class="arithmatex">\(\nu_{S} = \omega_{S}\)</span>.</p>
+</details>
+<h4 id="shape-morphing-effects">Shape Morphing Effects</h4>
+<p>The number of events in a given bin <span class="arithmatex">\(b\)</span>, <span class="arithmatex">\(\omega_{cbp}\)</span>, is a function of the shape parameters <span class="arithmatex">\(\vec{\nu}_{S}\)</span>.
+The shape interpolation works with the fractional yields in each bin, where the interpolation can be performed either directly on the fractional yield, or on the logarithm of the fraction yield, which is then exponentiated again.</p>
+<details>
+<summary><strong>Shape parameterization Details</strong></summary>
+<p>In the following, the channel and process labels <span class="arithmatex">\(c\)</span> and <span class="arithmatex">\(p\)</span> apply to every term, and so are omitted.</p>
+<p>The fixed nominal number of events is denoted <span class="arithmatex">\(\omega_{b}^{0}\)</span>.
+For each applicable shape uncertainty <span class="arithmatex">\(s\)</span>, two additional predictions are specified, <span class="arithmatex">\(\omega_{b}^{s,+}\)</span> and <span class="arithmatex">\(\omega_{b}^{s,-}\)</span>, typically corresponding to the <span class="arithmatex">\(+1\sigma\)</span> and <span class="arithmatex">\(-1\sigma\)</span> variations, respectively.
+These may change both the shape and normalization of the process.
+The two effects are separated; the shape transformation is constructed in terms of the fractional event counts in the templates via a smooth vertical interpolation, and the normalization is treated as an asymmetric log-normal uncertainty, as described above in the description of the <span class="arithmatex">\(N\)</span> term in the likelihood.</p>
+<p>For a given process, the shape may be interpolated either directly in terms of the fractional bin yields, <span class="arithmatex">\(f_b = \omega_b / \sum \omega_{b}\)</span> or their logarithms, <span class="arithmatex">\(\ln(f_b)\)</span>. The transformed yield is then given as, respectively,</p>
+<div class="arithmatex">\[
+\omega_{b}(\vec{\nu}) =
+\begin{cases}
+\max\left(0, y^{0}\left(f^{0}_{b} + \sum_{s} F(\nu_{s}, \delta^{s,+}_{b}, \delta^{s,-}_{b}, \epsilon_{s})\right)\right) &amp; \text{(direct),}\\
+\max\left(0, y^{0}\exp\left(\ln(f^{0}_{b}) + \sum_{s} F(\nu_{s}, \Delta^{s,+}_{b}, \Delta^{s,-}_{b}, \epsilon_{s})\right) \right) &amp; \text{(logarithmic)},
+\end{cases}
+\]</div>
+<p>where <span class="arithmatex">\(\omega^{0} = \sum \omega_{b}^{0}\)</span>, <span class="arithmatex">\(\delta^{\pm} = f^{\pm}_{i} - f^{0}_{i}\)</span>, and <span class="arithmatex">\(\Delta^{\pm} = \ln\left(\frac{f^{\pm}_{i}}{f^{0}_{i}}\right)\)</span>.</p>
+<p>The smooth interpolating function <span class="arithmatex">\(F\)</span>, defined below, depends on a set of coefficients, <span class="arithmatex">\(\epsilon_{s}\)</span>. These are assumed to be unity by default, but may be set to different values, for example if the <span class="arithmatex">\(\omega_{b}^{s,\pm}\)</span> correspond to the <span class="arithmatex">\(\pm X\sigma\)</span> variations, then <span class="arithmatex">\(\epsilon_{s} = 1/X\)</span> is typically set. The minimum value of <span class="arithmatex">\(\epsilon\)</span> over the shape uncertainties for a given process is  <span class="arithmatex">\(q = \min({{\epsilon_{s}}})\)</span>. The function <span class="arithmatex">\({F}\)</span> is then defined as</p>
+<div class="arithmatex">\[
+F(\nu, \delta^{+}, \delta^{-}, \epsilon) =
+\begin{cases}
+\frac{1}{2}\nu^{'} \left( (\delta^{+}-\delta^{-}) + \frac{1}{8}(\delta^{+}+\delta^{-})(3\bar{\nu}^5 - 10\bar{\nu}^3 + 15\bar{\nu}) \right), &amp; \text{for } -q &lt; \nu' &lt; q; \\
+\nu^{'}\delta^{+}, &amp; \text{for } \nu' \ge q;\\
+-\nu^{'}\delta^{-}, &amp; \text{for } \nu' \le -q;\\
+\end{cases}
+\]</div>
+<p>where <span class="arithmatex">\(\nu^{'} = \nu\epsilon\)</span>, <span class="arithmatex">\(\bar{\nu} = \nu^{'} / q\)</span>, and the label <span class="arithmatex">\(s\)</span> has been omitted. This function ensures the yield and its first and second derivatives are continuous for all values of <span class="arithmatex">\(\nu\)</span>.</p>
+</details>
+<h4 id="statistical-uncertainties-in-the-simulation-used-to-build-the-model">Statistical Uncertainties in the Simulation used to build the Model</h4>
+<p>Since the histograms used in a binned shape analysis are typically created from simulated samples, the yields in each bin are also subject to statistical uncertainties on the bin yields.
+These are taken into account by either assigning one nuisance parameter per bin, or as many parameters as contributing processes per bin.</p>
+<details>
+<summary><strong>Model Statistical Uncertainty Details</strong></summary>
+<p>If the uncertainty in each bin is modelled as a single nuisance parameter it takes the form:</p>
+<div class="arithmatex">\[
+E_{cb}(\vec{\mu},\vec{\nu},\nu) = \nu\left(\sum_{p} (e_{cpb}N_{cp}M_{cp}(\vec{\mu},\vec{\nu}))^{2}\right)^{\frac{1}{2}}.
+\]</div>
+<p>where <span class="arithmatex">\(e_{cbp}\)</span> is the uncertainty in the bin content for the histogram defining process <span class="arithmatex">\(p\)</span> in the channel <span class="arithmatex">\(c\)</span>.</p>
+<p>Alternatively, one parameter is assigned per process, which may be modelled with either a Poisson or Gaussian constraint pdf:</p>
+<div class="arithmatex">\[
+    E_{cb}(\vec{\mu},\vec{\nu},\vec{\nu}_{\alpha},\vec{\nu}_{\beta}) = \sum_{\alpha}^{\text{Poisson}} \left(\frac{\nu_{\alpha}}{\omega_{\alpha}} - 1\right)\omega_{c\alpha b}N_{c\alpha}(\vec{\nu})M_{c\alpha}(\vec{\mu},\vec{\nu}) + \sum_{\beta}^{\text{Gaussian}} \nu_{\beta}e_{c\beta b}N_{c\beta}(\vec{\nu})M_{c\beta}(\vec{\mu},\vec{\nu}),
+\]</div>
+<p>where the indices <span class="arithmatex">\(\alpha\)</span> and <span class="arithmatex">\(\beta\)</span> runs over the Poisson- and Gaussian-constrained processes, respectively. The parameters <span class="arithmatex">\(\omega_{\alpha}\)</span> represent the nominal unweighted numbers of events, and are treated as the external measurements and <span class="arithmatex">\(N_{cp}\)</span> and <span class="arithmatex">\(\omega_{c\alpha b}\)</span> are defined as above.</p>
+</details>
+<h4 id="customizing-the-form-of-the-expected-event-counts">Customizing the form of the expected event counts</h4>
+<p>Although the above likelihood defines some specific functional forms, users are also able to implement <a href="../../part2/physicsmodels/#model-building">custom functional forms for <span class="arithmatex">\(M\)</span></a>, <a href="../../part2/settinguptheanalysis/#rate-parameters"> <span class="arithmatex">\(N\)</span></a>, and <a href="../../part3/nonstandard/#rooparametrichist-gamman-for-shapes"> <span class="arithmatex">\(\omega_{cbp}\)</span></a>.
+In practice, this makes the functional form much more general than the default forms used above.</p>
+<p>However, some constraints do exist, such as the requirement that bin contents be positive, and that the function <span class="arithmatex">\(M\)</span> only depends on <span class="arithmatex">\(\vec{\mu}\)</span>, whereas <span class="arithmatex">\(N\)</span>, and <span class="arithmatex">\(\omega_{cbp}\)</span> only depend on <span class="arithmatex">\(\vec{\nu}\)</span>.</p>
+<h4 id="auxiliary-likelihood-terms">Auxiliary Likelihood terms</h4>
+<p>The auxiliary constraint terms implemented in combine are Gaussian, Poisson or Uniform:</p>
+<div class="arithmatex">\[
+p_{e} \propto \exp{\left(-0.5 \left(\frac{(\nu_{e} - y_{e})}{\sigma}\right)^2 \right)}\mathrm{;~} \\
+p_{e} = \mathrm{Poiss}( \nu_{e}; y_{e} ) \mathrm{;\ or~} \\
+p_{e} \propto \mathrm{constant\ (on\ some\ interval\ [a,b])}.
+\]</div>
+<p>Which form they have depends on the type of nuisance paramater:</p>
+<ul>
+<li>The shape (<span class="arithmatex">\(\vec{\nu}_{S}\)</span>) and log-normal (<span class="arithmatex">\(\vec{\nu}_{L}\)</span>), nuisance parameters always use gaussian constraint terms;</li>
+<li>The gamma (<span class="arithmatex">\(\vec{\nu}_{G}\)</span>) nuisance parameters always use Poisson constraints;</li>
+<li>The rate parameters (<span class="arithmatex">\(\vec{\nu}_{\rho}\)</span>) may have either Gaussian or Uniform constraints; and</li>
+<li>The model statistical uncertiainties (<span class="arithmatex">\(\vec{\nu}_{B}\)</span>) may use Gaussian or  Poisson Constraints.</li>
+</ul>
+<p>While combine does not provide functionality for user-defined auxiliary pdfs, the effect of nuisance paramters is highly customizable through the form of the dependence of <span class="arithmatex">\(n^\mathrm{exp}_{cb}\)</span> on the parameter.</p>
+<h3 id="overview-of-the-template-based-likelihood-model-in-combine">Overview of the template-based likelihood model in Combine</h3>
+<p>An overview of the binned likelihood model built by combine is given below.
+Note that <span class="arithmatex">\(M_{cp}\)</span> can be chosen by the user from a set of predefined models, or defined by the user themselves.</p>
+<p><img alt="" src="../CombineLikelihoodEqns.png" /></p>
+<h3 id="parametric-likelihoods-in-combine">Parametric Likelihoods in Combine</h3>
+<p>As with the template likelihood, the parameteric likelihood implemented in combine implements likelihoods for multiple process and multiple channels.
+Unlike the template likelihoods, the <a href="../../part2/settinguptheanalysis/#unbinned-or-parametric-shape-analysis">parametric likelihoods are defined using custom probability density functions</a>, which are functions of continuous observables, rather than discrete, binned counts.
+Because the pdfs are functions of a continuous variable, the likelihood can be evaluated over unbinned data.
+They can still, also, be used for analysis on <a href="../../part2/settinguptheanalysis/#caveat-on-using-parametric-pdfs-with-binned-datasets">binned data</a>.</p>
+<p>The unbinned model implemented in combine is given by:</p>
+<div class="arithmatex">\[ \mathcal{L} = \mathcal{L}_\mathrm{primary} \cdot \mathcal{L}_\mathrm{auxiliary}  = \\ \left(\prod_c \mathrm{Poiss}(n_{c,\mathrm{tot}}^{\mathrm{obs}} ; n_{c,\mathrm{tot}}^{\mathrm{exp}}(\vec{\mu},\vec{\nu})) \prod_{i}^{n_c^{\mathrm{obs}}} \sum_p f_{cp}^{\mathrm{exp}} \mathrm{pdf}_{cp}(\vec{x}_i ; \vec{\mu}, \vec{\nu} ) \right) \cdot \prod_e p_e( y_e ; \nu_e) \]</div>
+<p>where <span class="arithmatex">\(c\)</span> indexes the channel, <span class="arithmatex">\(p\)</span> indexes the process, and <span class="arithmatex">\(e\)</span> indexes the nuisance parameter.</p>
+<ul>
+<li><span class="arithmatex">\(n_{c,\mathrm{tot}}\)</span> is the total number of expected events in channel <span class="arithmatex">\(c\)</span>;</li>
+<li><span class="arithmatex">\(\mathrm{pdf}_{cp}\)</span> are user defined probability density functions, which may take on the form of any valid probability density; and</li>
+<li><span class="arithmatex">\(f_{cp}^{\mathrm{exp}}\)</span> is the fraction of the total events in channel <span class="arithmatex">\(c\)</span> from process <span class="arithmatex">\(p\)</span>, <span class="arithmatex">\(f_{cp} = \frac{n_{cp}}{\sum_p n_{cp}}\)</span>.</li>
+</ul>
+<p>for parametric likelihoods on binned data, the data likelihood is first converted into the <a href="#binned-data-likelihoods">binned data likelihood</a> format before evaluation. i.e.</p>
+<div class="arithmatex">\[ \mathcal{L} = \prod_c \prod_b  \mathrm{Poiss}(n_{cb}^{\mathrm{obs}}; n_{cb}^{\mathrm{exp}})  \prod_e p_e( y_e ; \nu_e) \]</div>
+<p>where <span class="arithmatex">\(n^\mathrm{exp}\)</span> is calculated from the input pdf and normalization, based on the model parameters.</p>
+<h4 id="model-of-expected-event-counts">Model of expected event counts</h4>
+<p>The total number of expected events is modelled as:</p>
+<div class="arithmatex">\[n_{c,\mathrm{tot}}^\mathrm{exp} = \mathrm{max}(0, \sum_{p} n^{cp}_0 M_{cp}(\vec{\mu})N_{cp}(\nu_{G},\vec{\nu}_L,\vec{\nu}_{\rho})) \]</div>
+<p>where, <span class="arithmatex">\(n^{cp}_0\)</span>  is a default normalization for the process; and as for the binned likelihoods <span class="arithmatex">\(\nu_G, \vec{\nu}_L\)</span>, and <span class="arithmatex">\(\vec{\nu}_{\rho}\)</span>  are different types of nuisance parameters which modify the processes normalizations with different functional forms, as in the binned case;</p>
+<details>
+<summary><strong>Details of Process Normalization</strong></summary>
+<p>As in the template-based case, the different types of nuisance parameters affecting the process normalizations are:</p>
+<ul>
+<li><span class="arithmatex">\(\nu_{G}\)</span> is a gamma nuisance, with linear normalization effects and a poisson constraint term.</li>
+<li><span class="arithmatex">\(\vec{\nu}_{L}\)</span> are log-normal nuisances, with log-normal normalization effects and gaussian constraint terms.</li>
+<li><span class="arithmatex">\(\vec{\nu}_{\rho}\)</span> are user defined rate parameters, with user-defined normalization effects and gaussian or uniform constraint terms.</li>
+<li><span class="arithmatex">\(N\)</span> defines the overall normalization effect of the nuisance parameters;</li>
+</ul>
+<p>and <span class="arithmatex">\(N\)</span> is defined as in the template-based case, except that there are no <span class="arithmatex">\(\vec{\nu}_S\)</span> uncertainties.</p>
+<div class="arithmatex">\[ N_{cp} = N_{\mathrm{0}}(\nu_{G})\prod_{n} {\kappa_{n}}^{\nu_{L,n}}\prod_{a} {\kappa^{\mathrm{A}}_{a}(\nu_{L}^{a},\kappa^{+}_{a}, \kappa^{-}_{a})}^{\nu_{L}^{a}} \prod_{r}F_{r}(\nu_\rho) \]</div>
+<p>The function <span class="arithmatex">\(F_{r}\)</span> is any user-defined mathematical expression.
+The functions <span class="arithmatex">\(\kappa(\nu,\kappa^+,\kappa^-)\)</span> are defined to create smooth asymmetric log-normal uncertainties.
+The details of the interpolations which are used are found in the section on <a href="#normalization-effects">normalization effects in the binned model</a>.</p>
+</details>
+<h4 id="parameter-of-interest-model_1">Parameter of Interest Model</h4>
+<p>As in the template-based case, the parameter of interest model, <span class="arithmatex">\(M_{cp}(\vec{\mu})\)</span>, can take on different forms <a href="../../part2/physicsmodels/#model-building">defined by the user</a>.
+The default model is one where <span class="arithmatex">\(\vec{\mu}\)</span> simply scales the signal processes' normalizations.</p>
+<h4 id="shape-morphing-effects_1">Shape Morphing Effects</h4>
+<p>The user may define any number of nuisance parameters which morph the shape of the pdf according to functional forms defined by the user.
+These nuisance parameters are included as <span class="arithmatex">\(\vec{\nu}_\rho\)</span> uncertainties, which may have gaussian or uniform constraints, and include user-defined process normalization effects.</p>
+<h3 id="combining-template-based-and-parametric-likelihoods">Combining template-based and parametric Likelihoods</h3>
+<p>While we presented the likelihoods for the template and parameteric models separately, they can also be combined into a single likelihood, by treating them each as separate channels.
+When combining the models, the data likelihoods of the binned and unbinned channels are multiplied.</p>
+<div class="arithmatex">\[ \mathcal{L}_{\mathrm{combined}} = \mathcal{L}_{\mathrm{primary}} \cdot \mathcal{L}_\mathrm{auxiliary} =  \left(\prod_{c_\mathrm{template}} \mathcal{L}_{\mathrm{primary}}^{c_\mathrm{template}}\right) \left(\prod_{c_\mathrm{parametric}} \mathcal{L}_{\mathrm{primary}}^{c_\mathrm{parametric}}\right)\cdot \mathcal{L}_{\mathrm{auxiliary}} \]</div>
+<h1 id="references-and-external-literature">References and External Literature</h1>
+<ul>
+<li>See the Particle Data Group's <a href="https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf">Review of Statistics</a> for various fundamental concepts used here.</li>
+<li>The Particle Data Group's Review of Probability also has definitions of <a href="https://pdg.lbl.gov/2022/reviews/rpp2022-rev-probability.pdf#section.39.4">commonly used distributions</a>, some of which are used here.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../introduction/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Introduction">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Introduction
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../fitting_concepts/" class="md-footer__link md-footer__link--next" aria-label="Next: Fitting Concepts">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Fitting Concepts
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

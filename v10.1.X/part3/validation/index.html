@@ -1,0 +1,1924 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../regularisation/">
+      
+      
+        <link rel="next" href="../debugging/">
+      
+      
+      <link rel="icon" href="../../logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>Validating datacards - Combine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2afb09e1.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../mystyle.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#validating-datacards" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../../.."> 
+
+
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Combine" class="md-header__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Combine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Validating datacards
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../what_combine_does/introduction/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  What Combine Does
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part2/settinguptheanalysis/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Setting up the analysis
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../runningthetool/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Running combine
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part5/roofit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../part4/usefullinks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Links & FAQ
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Combine" class="md-nav__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    Combine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    What Combine Does
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            What Combine Does
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/model_and_likelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model and Likelihood
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/fitting_concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fitting Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/statistical_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statistical Tests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Setting up the analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Setting up the analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/settinguptheanalysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Physics models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Physics models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/physicsmodels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/higgscouplings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SM Higgs coupling models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bsm-higgs-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    BSM Higgs models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bin-wise-stats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Automatic MC statistical uncertainties
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Running combine
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Running combine
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runningthetool/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Running the tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commonstatsmethods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nonstandard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced use cases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simplifiedlikelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simplified Likelihoods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../regularisation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Unfolding & regularization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Validating datacards
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validating datacards
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-use-the-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to use the tool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#details-on-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Details on checks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Details on checks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uncertainties-with-large-normalization-effect" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uncertainties with large normalization effect
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#at-least-one-of-the-updown-systematic-templates-is-empty" class="md-nav__link">
+    <span class="md-ellipsis">
+      At least one of the Up/Down systematic templates is empty
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identical-updown-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Identical Up/Down templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#up-and-down-templates-vary-the-yield-in-the-same-direction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Up and Down templates vary the yield in the same direction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uncertainty-probably-has-no-genuine-shape-effect" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uncertainty probably has no genuine shape effect
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#empty-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Empty process
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bins-that-have-signal-but-no-background" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bins that have signal but no background
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#small-signal-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Small signal process
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-do-in-case-of-a-warning" class="md-nav__link">
+    <span class="md-ellipsis">
+      What to do in case of a warning
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../debugging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Debugging fit failures
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/roofit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Main Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Main Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exercises
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexerciseanswers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Solutions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023/parametric_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parametric Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023_unfolding/unfolding_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Likelihood Based Unfolding
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial_stat_routines/stat_routines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statitiscal Tests Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model_building_tutorial2024/model_building_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model building
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../abcd_rooparametrichist_tutorial/rooparametrichist_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Per-bin Transfer Factors with Parametric Histograms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/usefullinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Links & FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-use-the-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to use the tool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#details-on-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Details on checks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Details on checks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uncertainties-with-large-normalization-effect" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uncertainties with large normalization effect
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#at-least-one-of-the-updown-systematic-templates-is-empty" class="md-nav__link">
+    <span class="md-ellipsis">
+      At least one of the Up/Down systematic templates is empty
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identical-updown-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Identical Up/Down templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#up-and-down-templates-vary-the-yield-in-the-same-direction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Up and Down templates vary the yield in the same direction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uncertainty-probably-has-no-genuine-shape-effect" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uncertainty probably has no genuine shape effect
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#empty-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Empty process
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bins-that-have-signal-but-no-background" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bins that have signal but no background
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#small-signal-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Small signal process
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-do-in-case-of-a-warning" class="md-nav__link">
+    <span class="md-ellipsis">
+      What to do in case of a warning
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="validating-datacards">Validating datacards</h1>
+<p>This section covers the main features of the datacard validation tool that helps you spot potential problems with your datacards at an early stage. The tool is implemented
+in the <a href="https://github.com/cms-analysis/CombineHarvester/blob/113x/CombineTools"><code>CombineHarvester/CombineTools</code></a> subpackage. See the <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#combineharvestercombinetools"><code>combineTool</code></a> 
+section of the documentation for checkout instructions for the full tool, which is needed for this task.</p>
+<p>The datacard validation tool contains a number of checks. It is possible to call subsets of these checks when creating datacards within <code>CombineHarvester</code>. However, for now we will only
+describe the usage of the validation tool on already existing datacards. If you create your datacards with <code>CombineHarvester</code> and would like to include the checks at the datacard creation
+stage, please contact us via <a href="https://cms-talk.web.cern.ch/c/physics/cat/cat-stats/279">https://cms-talk.web.cern.ch/c/physics/cat/cat-stats/279</a>.</p>
+<h2 id="how-to-use-the-tool">How to use the tool</h2>
+<p>The basic syntax is:</p>
+<div class="highlight"><pre><span></span><code>ValidateDatacards.py<span class="w"> </span>datacard.txt
+</code></pre></div>
+<p>This will write the results of the checks to a json file (default: <code>validation.json</code>), and will print a summary to the screen, for example:</p>
+<div class="highlight"><pre><span></span><code>================================
+=======Validation results=======
+================================
+&gt;&gt;&gt;There were  7800 warnings of type  &#39;up/down templates vary the yield in the same direction&#39;
+&gt;&gt;&gt;There were  5323 warnings of type  &#39;up/down templates are identical&#39;
+&gt;&gt;&gt;There were no warnings of type  &#39;At least one of the up/down systematic uncertainty templates is empty&#39;
+&gt;&gt;&gt;There were  4406 warnings of type  &#39;Uncertainty has normalisation effect of more than 10.0%&#39;
+&gt;&gt;&gt;There were  8371 warnings of type  &#39;Uncertainty probably has no genuine shape effect&#39;
+&gt;&gt;&gt;There were no warnings of type &#39;Empty process&#39;
+&gt;&gt;&gt;There were no warnings of type &#39;Bins of the template empty in background&#39;
+&gt;&gt;&gt;INFO: there were  169  alerts of type  &#39;Small signal process&#39;
+</code></pre></div>
+<p>The meaning of each of these warnings/alerts is discussed <a href="#details-on-checks">below</a>.</p>
+<p>The following arguments are possible:
+<div class="highlight"><pre><span></span><code>usage: ValidateDatacards.py [-h] [--printLevel PRINTLEVEL] [--readOnly]
+                            [--checkUncertOver CHECKUNCERTOVER]
+                            [--reportSigUnder REPORTSIGUNDER]
+                            [--jsonFile JSONFILE] [--mass MASS]
+                            cards
+
+positional arguments:
+  cards                 Specifies the full path to the datacards to check
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --printLevel PRINTLEVEL, -p PRINTLEVEL
+                        Specify the level of info printing (0-3, default:1)
+  --readOnly            If this is enabled, skip validation and only read the
+                        output json
+  --checkUncertOver CHECKUNCERTOVER, -c CHECKUNCERTOVER
+                        Report uncertainties which have a normalization effect
+                        larger than this fraction (default:0.1)
+  --reportSigUnder REPORTSIGUNDER, -s REPORTSIGUNDER
+                        Report signals contributing less than this fraction of
+                        the total in a channel (default:0.001)
+  --jsonFile JSONFILE   Path to the json file to read/write results from
+                        (default:validation.json)
+  --mass MASS           Signal mass to use (default:*)
+</code></pre></div>
+<code>printLevel</code> adjusts how much information is printed to the screen. When set to 0, the results are only written to the json file, but not to the screen. When set to 1 (default), the number of warnings/alerts
+of a given type is printed to the screen. Setting this option to 2 prints the same information as level 1, and additionally prints which uncertainties are affected (if the check is related to uncertainties) or which processes are affected (if the check is related only to processes). When <code>printLevel</code> is set to 3, the information from level 2 is printed, and additionaly for checks related to uncertainties it prints which processes are affected.</p>
+<p>To print information to screen, the script parses the json file that contains the results of the validation checks. Therefore, if you have already run the validation tool and produced this json file, you can simply change the <code>printLevel</code> by re-running the tool with <code>printLevel</code> set to a different value, and enabling the <code>--readOnly</code> option.</p>
+<p>The options <code>--checkUncertOver</code> and <code>--reportSigUnder</code> will be described in more detail in the section that discusses the checks for which they are relevant.</p>
+<p>Note: the <code>--mass</code> argument should only be set if you normally use it when running <span style="font-variant:small-caps;">Combine</span>, otherwise you can leave it at the default.</p>
+<p>The datacard validation tool is primarily intended for shape (histogram) based analyses. However, when running on a parametric model or counting experiment the checks for small signal processes, empty processes, and uncertainties with large normalization effects can still be performed. </p>
+<h2 id="details-on-checks">Details on checks</h2>
+<h3 id="uncertainties-with-large-normalization-effect">Uncertainties with large normalization effect</h3>
+<p>This check highlights nuisance parameters that have a normalization effect larger than the fraction set by the option <code>--checkUncertOver</code>. The default value is 0.1, meaning that any uncertainties with a normalization
+effect larger than 10% are flagged up.</p>
+<p>The output file contains the following information for this check:</p>
+<div class="highlight"><pre><span></span><code>largeNormEff: {
+  &lt;Uncertainty name&gt;: {
+    &lt;analysis category&gt;: {
+      &lt;process&gt;: {
+        &quot;value_d&quot;:&lt;value&gt;
+        &quot;value_u&quot;:&lt;value&gt;
+      } 
+    }
+  }
+}
+</code></pre></div>
+<p>Where <code>value_u</code> and <code>value_d</code> are the values of the 'up' and 'down' normalization effects.</p>
+<h3 id="at-least-one-of-the-updown-systematic-templates-is-empty">At least one of the Up/Down systematic templates is empty</h3>
+<p>For shape uncertainties, this check reports all cases where the up and/or down template(s) are empty, when the nominal template is not.</p>
+<p>The output file contains the following information for this check:</p>
+<p><div class="highlight"><pre><span></span><code>emptySystematicShape: {
+  &lt;Uncertainty name&gt;: {
+    &lt;analysis category&gt;: {
+      &lt;process&gt;: {
+        &quot;value_d&quot;:&lt;value&gt;
+        &quot;value_u&quot;:&lt;value&gt;
+      } 
+    }
+  }
+}
+</code></pre></div>
+Where <code>value_u</code> and <code>value_d</code> are the values of the 'up' and 'down' normalization effects.</p>
+<h3 id="identical-updown-templates">Identical Up/Down templates</h3>
+<p>This check applies to shape uncertainties only, and will highlight cases where the shape uncertainties have identical Up and Down templates (identical in shape and in normalization).</p>
+<p>The information given in the output file for this check is:</p>
+<p><div class="highlight"><pre><span></span><code>uncertTemplSame: {
+  &lt;Uncertainty name&gt;: {
+    &lt;analysis category&gt;: {
+      &lt;process&gt;: {
+        &quot;value_d&quot;:&lt;value&gt;
+        &quot;value_u&quot;:&lt;value&gt;
+      } 
+    }
+  }
+}
+</code></pre></div>
+Where <code>value_u</code> and <code>value_d</code> are the values of the 'up' and 'down' normalization effects.</p>
+<h3 id="up-and-down-templates-vary-the-yield-in-the-same-direction">Up and Down templates vary the yield in the same direction</h3>
+<p>Again, this check only applies to shape uncertainties - it highlights cases where the 'Up' template and the 'Down' template both have the effect of increasing or decreasing the normalization of a process.</p>
+<p>The information given in the output file for this check is:</p>
+<p><div class="highlight"><pre><span></span><code>uncertVarySameDirect: {
+  &lt;Uncertainty name&gt;: {
+    &lt;analysis category&gt;: {
+      &lt;process&gt;: {
+        &quot;value_d&quot;:&lt;value&gt;
+        &quot;value_u&quot;:&lt;value&gt;
+      } 
+    }
+  }
+}
+</code></pre></div>
+Where <code>value_u</code> and <code>value_d</code> are the values of the 'up' and 'down' normalization effects.</p>
+<h3 id="uncertainty-probably-has-no-genuine-shape-effect">Uncertainty probably has no genuine shape effect</h3>
+<p>In this check, applying only to shape uncertainties, the normalized nominal templates are compared with the normalized templates for the 'up' and 'down' systematic variations. The script calculates
+<span class="arithmatex">\(\Sigma_i \frac{2|\text{up}(i) - \text{nominal}(i)|}{|\text{up}(i)| + |\text{nominal}(i)|}\)</span> and <span class="arithmatex">\(\Sigma_i \frac{2|\text{down}(i) - \text{nominal}(i)|}{|\text{down}(i)| + |\text{nominal}(i)|}\)</span>.</p>
+<p>where the sums run over all bins in the histograms, and 'nominal', 'up', and 'down' are the central template and up and down varied templates, all normalized.</p>
+<p>If both sums are smaller than 0.001, the uncertainty is flagged up as probably not having a genuine shape effect. This means a 0.1% variation in one bin is enough to avoid being reported, but many smaller variations can also sum to be large enough to pass the threshold.
+It should be noted that the chosen threshold is somewhat arbitrary: if an uncertainty is flagged up as probably having no genuine shape effect you should take this as a starting point to investigate. </p>
+<p>The information given in the output file for this check is:</p>
+<p><div class="highlight"><pre><span></span><code>smallShapeEff: {
+  &lt;Uncertainty name&gt;: {
+    &lt;analysis category&gt;: {
+      &lt;process&gt;: {
+        &quot;diff_d&quot;:&lt;value&gt;
+        &quot;diff_u&quot;:&lt;value&gt;
+      } 
+    }
+  }
+}
+</code></pre></div>
+Where <code>diff_d</code> and <code>diff_u</code> are the values of the sums described above for the 'down' variation and the 'up' variation.</p>
+<h3 id="empty-process">Empty process</h3>
+<p>If a process is listed in the datacard, but the yield is 0, it is flagged up by this check. </p>
+<p>The information given in the output file for this check is:</p>
+<div class="highlight"><pre><span></span><code>emptyProcessShape: {
+  &lt;analysis category&gt;: {
+    &lt;process1&gt;,
+    &lt;process2&gt;,
+    &lt;process3&gt;
+  }
+}
+</code></pre></div>
+<h3 id="bins-that-have-signal-but-no-background">Bins that have signal but no background</h3>
+<p>For shape-based analyses, this checks whether there are any bins in the nominal templates that have signal contributions, but no background contributions. </p>
+<p>The information given in the output file for this check is:</p>
+<div class="highlight"><pre><span></span><code>emptyBkgBin: {
+  &lt;analysis category&gt;: {
+    &lt;bin_nr1&gt;,
+    &lt;bin_nr2&gt;,
+    &lt;bin_nr3&gt;
+  }
+}
+</code></pre></div>
+<h3 id="small-signal-process">Small signal process</h3>
+<p>This reports signal processes that contribute less than the fraction specified by <code>--reportSigUnder</code> (default 0.001 = 0.1%) of the total signal in a given category. This produces an alert, not a warning, as it does not hint at a potential problem.
+However, in analyses with many signal contributions and with long fitting times, it can be helpful to remove signals from a category in which they do not contribute a significant amount.</p>
+<p>The information given in the output file for this check is:</p>
+<div class="highlight"><pre><span></span><code>smallSignalProc: {
+  &lt;analysis category&gt;: {
+    &lt;process&gt;: {
+      &quot;sigrate_tot&quot;:&lt;value&gt;
+      &quot;procrate&quot;:&lt;value&gt;
+    } 
+  }
+}
+</code></pre></div>
+<p>Where <code>sigrate_tot</code> is the total signal yield in the analysis category and <code>procrate</code> is the yield of signal process <code>&lt;process&gt;</code>.</p>
+<h2 id="what-to-do-in-case-of-a-warning">What to do in case of a warning</h2>
+<p>These checks are mostly a tool to help you investigate your datacards: a warning does not necessarily mean there is a mistake in your datacard, but you should use it as a starting point to investigate. Empty processes and emtpy shape uncertainties connected to nonempty processes will most likely be unintended. The same holds for cases where the 'up' and 'down' shape templates are identical. If there are bins that contain signal but no background contributions, this should be corrected. See the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq">FAQ</a> for more information on that point.</p>
+<p>For other checks it depends on the situation whether there is a problem or not. Some examples:</p>
+<ul>
+<li>An analysis-specific nonclosure uncertainty could be larger than 10%. A theoretical uncertainty in the ttbar normalization probably not.</li>
+<li>In an analysis with a selection that requires the presence of exactly 1 jet, 'up' and 'down' variations in the jet energy uncertainty <em>could</em> both change the process normalization in the same direction. (But they do not have to!)</li>
+</ul>
+<p>As always: think about whether you expect a check to yield a warning in case of your analysis, and if not, investigate to make sure there are no issues.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../regularisation/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Unfolding &amp; regularization">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Unfolding & regularization
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../debugging/" class="md-footer__link md-footer__link--next" aria-label="Next: Debugging fit failures">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Debugging fit failures
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
