@@ -144,3 +144,59 @@ As well as the [issues](https://github.com/cms-analysis/HiggsAnalysis-CombinedLi
 If you're interested in getting involved in any of these projects please contact us at [cms-cat-stats-conveners@cern.ch](mailto:cms-cat-stats-conveners@cern.ch).
 
 
+## Creating a New Release
+
+When creating a new release, follow this checklist to ensure version strings are updated consistently across the codebase.
+
+### Release Checklist
+
+1. **Update version in source code**
+   - Edit `bin/combine.cpp` line 36
+   - Change `std::string combineTagString = "vX.Y.Z";` to the new version
+
+2. **Update version in documentation**
+   - Edit `docs/index.md`
+   - Update line 40: `Currently, the recommended tag is **vX.Y.Z**`
+   - Update line 47: `--branch vX.Y.Z` in the git clone command
+   - Update the release notes link on line 40
+
+3. **Verify version consistency**
+   - Run the version check script: `./scripts/check-version.sh vX.Y.Z`
+   - This will verify all version strings match
+
+4. **Commit the version updates**
+   - `git add bin/combine.cpp docs/index.md`
+   - `git commit -m "Update version to vX.Y.Z"`
+
+5. **Create and push the tag**
+   - `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
+   - `git push origin main`
+   - `git push origin vX.Y.Z`
+
+6. **Create GitHub release**
+   - Go to [Releases](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases)
+   - Click "Draft a new release"
+   - Select the tag you just created
+   - Add release notes
+
+7. **Verify documentation deployment**
+   - Check that the [documentation](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/) shows the new version
+   - The CI will automatically build and deploy docs for the new tag
+
+### Version Check Script
+
+A helper script is provided at `scripts/check-version.sh` that verifies version consistency.
+
+Usage:
+```bash
+./scripts/check-version.sh v10.3.2
+```
+
+This script checks that:
+- `bin/combine.cpp` contains the correct version
+- `docs/index.md` contains the correct version in all relevant locations
+- All version strings are consistent
+
+The script will exit with an error if any inconsistencies are found.
+
+
