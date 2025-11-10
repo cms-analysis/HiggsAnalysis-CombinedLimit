@@ -749,7 +749,7 @@ class ShapeBuilder(ModelBuilder):
                 if not syst:
                     normname = "%s_norm" % (oname)
                     norm = self.wsp.arg(normname)
-                    if norm is None:
+                    if norm == None:
                         if normname in list(self.norm_rename_map.keys()):
                             norm = self.wsp.arg(self.norm_rename_map[normname])
                     if norm:
