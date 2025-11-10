@@ -120,7 +120,26 @@ jobs:
             echo ${PATH}
             root --version
             combine --help
-
+            
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Check scripts/*.py executables 
+        # Only run this test in CMSSW mode, because otherwise we already run this in the unit tests
+        if: ${{ env.CMSSW_VERSION != '' }}
+        with:
+          script: |            
+            combineCards.py --help
+            combineTool.py --help
+            commentUncerts.py --help
+            fitRooFitAD.py --help
+            plot1DScan.py --help
+            plotBSMxsBRLimit.py --help
+            plotGof.py --help
+            plotImpacts.py --help
+            plotLimitGrid.py --help
+            plotLimits.py --help
+            pruneUncerts.py --help
+            text2workspace.py --help
+            
       - name: Run Tests (LCG)
         if: ${{ env.CMSSW_VERSION == '' }}
         env:
@@ -161,7 +180,7 @@ jobs:
             cd ..
             cd build_test
             ctest3 --output-on-failure .
-
+            
       - uses: ./.github/actions/run-in-cvmfs
         name: Counting datacard
         # Only run this test in CMSSW mode, because otherwise we already run this in the unit tests
