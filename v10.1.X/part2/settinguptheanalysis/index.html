@@ -1,0 +1,2486 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../what_combine_does/statistical_tests/">
+      
+      
+        <link rel="next" href="../physicsmodels/">
+      
+      
+      <link rel="icon" href="../../logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>Preparing the datacard - Combine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2afb09e1.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../mystyle.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#preparing-the-datacard" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../../.."> 
+
+
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Combine" class="md-header__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Combine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Preparing the datacard
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../what_combine_does/introduction/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  What Combine Does
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Setting up the analysis
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part3/runningthetool/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Running combine
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part5/roofit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../part4/usefullinks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Links & FAQ
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Combine" class="md-nav__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    Combine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    What Combine Does
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            What Combine Does
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/model_and_likelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model and Likelihood
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/fitting_concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fitting Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/statistical_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statistical Tests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Setting up the analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Setting up the analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-simple-counting-experiment" class="md-nav__link">
+    <span class="md-ellipsis">
+      A simple counting experiment
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shape-analyses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shape analyses
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Shape analyses">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rates-for-shape-analyses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rates for shape analyses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#binned-shape-analyses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Binned shape analyses
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Binned shape analyses">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#template-shape-uncertainties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Template shape uncertainties
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unbinned-or-parametric-shape-analyses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unbinned or parametric shape analyses
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Unbinned or parametric shape analyses">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caveat-on-using-parametric-pdfs-with-binned-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caveat on using parametric PDFs with binned datasets
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#beyond-simple-datacards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Beyond simple datacards
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Beyond simple datacards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rate-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rate parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extra-arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extra arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manipulation-of-nuisance-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manipulation of Nuisance parameters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Manipulation of Nuisance parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nuisance-modifiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nuisance modifiers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#groups-of-nuisances" class="md-nav__link">
+    <span class="md-ellipsis">
+      Groups of nuisances
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combination-of-multiple-datacards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Combination of multiple datacards
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automatic-production-of-datacards-and-workspaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automatic production of datacards and workspaces
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sanity-checking-the-datacard" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sanity checking the datacard
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Physics models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Physics models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physicsmodels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../higgscouplings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SM Higgs coupling models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bsm-higgs-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    BSM Higgs models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bin-wise-stats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Automatic MC statistical uncertainties
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Running combine
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Running combine
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/runningthetool/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Running the tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/commonstatsmethods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/nonstandard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced use cases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/simplifiedlikelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simplified Likelihoods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/regularisation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Unfolding & regularization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validating datacards
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/debugging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Debugging fit failures
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/roofit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Main Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Main Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exercises
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexerciseanswers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Solutions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023/parametric_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parametric Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023_unfolding/unfolding_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Likelihood Based Unfolding
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial_stat_routines/stat_routines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statitiscal Tests Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model_building_tutorial2024/model_building_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model building
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../abcd_rooparametrichist_tutorial/rooparametrichist_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Per-bin Transfer Factors with Parametric Histograms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/usefullinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Links & FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-simple-counting-experiment" class="md-nav__link">
+    <span class="md-ellipsis">
+      A simple counting experiment
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shape-analyses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shape analyses
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Shape analyses">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rates-for-shape-analyses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rates for shape analyses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#binned-shape-analyses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Binned shape analyses
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Binned shape analyses">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#template-shape-uncertainties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Template shape uncertainties
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unbinned-or-parametric-shape-analyses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unbinned or parametric shape analyses
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Unbinned or parametric shape analyses">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caveat-on-using-parametric-pdfs-with-binned-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caveat on using parametric PDFs with binned datasets
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#beyond-simple-datacards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Beyond simple datacards
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Beyond simple datacards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rate-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rate parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extra-arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extra arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manipulation-of-nuisance-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manipulation of Nuisance parameters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Manipulation of Nuisance parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nuisance-modifiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nuisance modifiers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#groups-of-nuisances" class="md-nav__link">
+    <span class="md-ellipsis">
+      Groups of nuisances
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combination-of-multiple-datacards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Combination of multiple datacards
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automatic-production-of-datacards-and-workspaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automatic production of datacards and workspaces
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sanity-checking-the-datacard" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sanity checking the datacard
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="preparing-the-datacard">Preparing the datacard</h1>
+<p>The input to <span style="font-variant:small-caps;">Combine</span>, which defines the details of the analysis, is a plain ASCII file we will refer to as datacard. This is true whether the analysis is a simple counting experiment or a shape analysis.</p>
+<h2 id="a-simple-counting-experiment">A simple counting experiment</h2>
+<p>The file <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/realistic-counting-experiment.txt">data/tutorials/counting/realistic-counting-experiment.txt</a> shows an example of a counting experiment.</p>
+<p>The first lines can be used to add some descriptive information. Those lines must start with a "#", and they are not parsed by <span style="font-variant:small-caps;">Combine</span>:</p>
+<div class="highlight"><pre><span></span><code># Simple counting experiment, with one signal and a few background processes
+# Simplified version of the 35/pb H-&gt;WW analysis for mH = 160 GeV
+</code></pre></div>
+<p>Following this, one declares the <strong>number of observables</strong>, <strong><code>imax</code></strong>, that are present in the model used to set limits / extract confidence intervals. The number of observables will typically be the number of channels in a counting experiment. The value <strong><code>*</code></strong> can be specified for <strong><code>imax</code></strong>, which tells <span style="font-variant:small-caps;">Combine</span> to determine the number of observables from the rest of the datacard. In order to better catch mistakes, it is recommended to explicitly specify the value. </p>
+<div class="highlight"><pre><span></span><code>imax 1  number of channels
+</code></pre></div>
+<p>This declaration is followed by a specification of the number of background sources to be considered, <strong><code>jmax</code></strong>, and the number of <strong>independent sources of systematic uncertainty</strong>, <strong><code>kmax</code></strong>:</p>
+<div class="highlight"><pre><span></span><code>jmax 3  number of backgrounds
+kmax 5  number of nuisance parameters (sources of systematic uncertainty)
+</code></pre></div>
+<p>In the example there is 1 channel, there are 3 background sources, and there are 5 independent sources of systematic uncertainty.</p>
+<p>After providing this information, the following lines describe what is observed in data: the number of events observed in each channel. The first line, starting with <strong><code>bin</code></strong>, defines the label used for each channel. In the example we have 1 channel, labelled <strong><code>1</code></strong>, and in the following line, <strong><code>observation</code></strong>, the number of observed events is given: <strong><code>0</code></strong> in this example.</p>
+<p><div class="highlight"><pre><span></span><code># we have just one channel, in which we observe 0 events
+bin bin1
+observation 0
+</code></pre></div>
+This is followed by information related to the expected number of events, for each bin and process, arranged in (#channels)*(#processes) columns.</p>
+<div class="highlight"><pre><span></span><code>bin          bin1     bin1     bin1     bin1
+process         ggH  qqWW  ggWW  others
+process          0     1     2     3
+rate           1.47  0.63  0.06  0.22
+</code></pre></div>
+<ul>
+<li>The <strong><code>bin</code></strong> line identifies the channel that the column refers to. It ranges from <strong><code>1</code></strong> to the value of <strong><code>imax</code></strong> declared above.</li>
+<li>The first <strong><code>process</code></strong> line contains the names of the various process sources</li>
+<li>The second <strong><code>process</code></strong> line is a numerical process identifier. Backgrounds are given a positive number, while <strong><code>0</code></strong> and negative numbers are used for signal processes. Different process identifiers must be used for different processes.</li>
+<li>The last line, <strong><code>rate</code></strong>, gives the expected number of events for the given process in the specified bin</li>
+</ul>
+<p>If a process does not contribute in a given bin, it can be removed from the datacard, or the rate can be set to <strong>0</strong>.</p>
+<p>The final section of the datacard describes the systematic uncertainties:</p>
+<div class="highlight"><pre><span></span><code>lumi    lnN    1.11    -   1.11    -    lumi affects both signal and gg-&gt;WW (mc-driven). lnN = lognormal
+xs_ggH  lnN    1.16    -     -     -    gg-&gt;H cross section + signal efficiency + other minor ones.
+WW_norm gmN 4    -   0.16    -     -    WW estimate of 0.64 comes from sidebands: 4 events in sideband times 0.16 (=&gt; ~50% statistical uncertainty)
+xs_ggWW lnN      -     -   1.50    -    50% uncertainty on gg-&gt;WW cross section
+bg_others lnN    -     -     -   1.30   30% uncertainty on the rest of the backgrounds
+</code></pre></div>
+<ul>
+<li>The first column is the name of the nuisance parameter, a label that is used to identify the uncertainty</li>
+<li>The second column identifies the type of distribution used to describe the nuisance parameter<ul>
+<li><strong><code>lnN</code></strong> stands for <a href="http://en.wikipedia.org/wiki/Log-normal_distribution">Log-normal</a>, which is the recommended choice for multiplicative corrections (efficiencies, cross sections, ...).
+    If <strong>Δx/x</strong> is the relative uncertainty in the multiplicative correction, one should put <strong>1+Δx/x</strong> in the column corresponding to the process and channel. Asymmetric log-normals are instead supported by providing <strong>κ<sub>down</sub>/κ<sub>up</sub></strong> where <strong>κ<sub>down</sub></strong> is the ratio of the the yield to the nominal value for a -1σ deviation of the nuisance parameter and <strong>κ<sub>up</sub></strong> is the ratio of the yield to the nominal value for a <span class="arithmatex">\(+1\sigma\)</span> deviation. Note that for a single-value log-normal with value <span class="arithmatex">\(\kappa=1+\Delta x/x\)</span>, the yield of the process it is associated with is multiplied by <span class="arithmatex">\(\kappa^{\theta}\)</span>. At <span class="arithmatex">\(\theta=0\)</span> the nominal yield is retained, at <span class="arithmatex">\(\theta=1\sigma\)</span> the yield is multiplied by <span class="arithmatex">\(\kappa\)</span> and at <span class="arithmatex">\(\theta=-1\sigma\)</span> the yield is multiplied by <span class="arithmatex">\(1/\kappa\)</span>. This means that an uncertainty represented as <code>1.2</code> does not multiply the nominal yield by 0.8 for <span class="arithmatex">\(\theta=-1\sigma\)</span>; but by 0.8333. It may therefore be desirable to encode large uncertainties that have a symmetric effect on the yield as asymmetric log-normals instead. </li>
+<li><strong><code>gmN</code></strong> stands for <a href="http://en.wikipedia.org/wiki/Gamma_distribution">Gamma</a>, and is the recommended choice for the statistical uncertainty in a background determined from the number of events in a control region (or in an MC sample with limited sample size).
+    If the control region or simulated sample contains <strong>N</strong> events, and the extrapolation factor from the control region to the signal region is <strong>α</strong>, one shoud put <strong>N</strong> just after the <strong><code>gmN</code></strong> keyword, and then the value of <strong>α</strong> in the relevant (bin,process) column. The yield specified in the <strong><code>rate</code></strong> line for this (bin,process) combination should equal <strong>Nα</strong>.</li>
+<li><strong><code>lnU</code></strong> stands for log-uniform distribution. A value of <strong>1+ε</strong> in the column will imply that the yield of this background is allowed to float freely between <strong>x(1+ε)</strong> and <strong>x/(1+ε)</strong>. In particular, if ε is small, this is approximately <strong>(x-Δx,x+Δx)</strong> with <strong>ε=Δx/x</strong>.
+    This distribution is typically useful when you want to set a large a-priori uncertainty on a given background process, and then rely on the correlation between channels to constrain it. Note that for this use case, we usually recommend using <a href="#rate-parameters">a <code>rateParam</code></a> instead. If you do use <strong><code>lnU</code></strong>, please be aware that while Gaussian-like uncertainties behave in a similar way under profiling and marginalization, uniform uncertainties do not. This means the impact of the uncertainty on the result will depend on how the nuisance parameters are treated. </li>
+</ul>
+</li>
+<li>The next (#channels)*(#processes) columns indicate the relative effect of the systematic uncertainty on the rate of each process in each channel. The columns are aligned with those in the previous lines declaring bins, processes, and rates.</li>
+</ul>
+<p>In the example, there are 5 uncertainties:</p>
+<ul>
+<li>The first uncertainty has an 11% effect on the signal and on the <strong><code>ggWW</code></strong> process.</li>
+<li>The second uncertainty affects the signal by 16%, but leaves the background processes unaffected</li>
+<li>The third line specifies that the <strong><code>qqWW</code></strong> background comes from a sideband with 4 observed events and an extrapolation factor of 0.16; the resulting uncertainty in the expected yield is <span class="arithmatex">\(1/\sqrt{4+1}\)</span> = 45%</li>
+<li>The fourth uncertainty does not affect the signal, has a 50% effect on the <strong><code>ggWW</code></strong> background, and leaves the other backgrounds unaffected</li>
+<li>The fifth uncertainty does not affect the signal, has a 30% effect on the <strong><code>others</code></strong> background process, and does not affect the remaining backgrounds.</li>
+</ul>
+<h2 id="shape-analyses">Shape analyses</h2>
+<p>The datacard has to be supplemented with two extensions:</p>
+<ul>
+<li>A new block of lines defining how channels and processes are mapped into shapes.</li>
+<li>The block for systematics can now also contain rows with shape uncertainties.</li>
+</ul>
+<p>The expected shape can be parametric, or not. In the first case the parametric PDFs have to be given as input to the tool. In the latter case, for each channel, histograms have to be provided for the expected shape of each process. The data have to be provided as input as a histogram to perform a <strong><em>binned</em></strong> shape analysis, and as a RooDataSet to perform an <strong><em>unbinned</em></strong> shape analysis.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If using RooFit-based inputs (RooDataHists/RooDataSets/RooAbsPdfs) then you need to ensure you are using <em>different</em> RooRealVars as the observable in each category entering the statistical analysis. It is possible to use the same RooRealVar if the observable has the same range (and binning if using binned data) in each category, although in most cases it is simpler to avoid doing this.</p>
+</div>
+<h3 id="rates-for-shape-analyses">Rates for shape analyses</h3>
+<p>As with the counting experiment, the total nominal <em>rate</em> of a given process must be identified in the <strong>rate</strong> line of the datacard. However, there are special options for shape-based analyses, as follows:</p>
+<ul>
+<li>A value of <strong>-1</strong> in the rate line means <span style="font-variant:small-caps;">Combine</span> will calculate the rate from the input TH1 (via TH1::Integral) or RooDataSet/RooDataHist (via RooAbsData::sumEntries).</li>
+<li>For parametric shapes (RooAbsPdf), if a parameter with the name pdfname<strong>_norm</strong> is found in the input workspace, the rate will be multiplied by the value of that parameter. Note that since this parameter can be freely floating, the normalization of a process can be set freely float this way. This can also be achieved through the use of <a href="#rate-parameters"><code>rateParams</code></a>.</li>
+</ul>
+<h3 id="binned-shape-analyses">Binned shape analyses</h3>
+<p>For each channel, histograms have to be provided for the observed shape and for the expected shape of each process.</p>
+<ul>
+<li>Within each channel, all histograms must have the same binning.</li>
+<li>The normalization of the data histogram must correspond to the number of observed events.</li>
+<li>The normalization of the expected histograms must match the expected event yields.</li>
+</ul>
+<p>The <span style="font-variant:small-caps;">Combine</span> tool can take as input histograms saved as TH1, as RooAbsHist in a RooFit workspace (an example of how to create a RooFit workspace and save histograms is available in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/shapes/make_simple_shapes.cxx">github</a>), or from a pandas dataframe (<a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-df.txt">example</a>).</p>
+<p>The block of lines defining the mapping (first block in the datacard) contains one or more rows of the form</p>
+<div class="highlight"><pre><span></span><code>shapes process channel file histogram [histogram_with_systematics]
+</code></pre></div>
+<p>In this line,</p>
+<ul>
+<li><code>process</code>is any one the process names, or <code>*</code> for all processes, or <code>data_obs</code> for the observed data;</li>
+<li><code>channel</code>is any one the process names, or <code>*</code> for all channels;</li>
+<li><code>file</code>, <code>histogram</code> and <code>histogram_with_systematics</code> identify the names of the files and of the histograms within the file, after making some replacements (if any are found):<ul>
+<li><code>$PROCESS</code> is replaced with the process name (or "<code>data_obs</code>" for the observed data);</li>
+<li><code>$CHANNEL</code> is replaced with the channel name;</li>
+<li><code>$SYSTEMATIC</code> is replaced with the name of the systematic + (<code>Up</code>, <code>Down</code>);</li>
+<li><code>$MASS</code> is replaced with the chosen (Higgs boson) mass value that is passed as a command-line option when running the tool</li>
+</ul>
+</li>
+</ul>
+<p>In addition, user-defined keywords can be used. Any word in the datacard <code>$WORD</code> will be replaced by <code>VALUE</code> when including the option <code>--keyword-value WORD=VALUE</code>. This option can be repeated multiple times for multiple keywords.</p>
+<h4 id="template-shape-uncertainties">Template shape uncertainties</h4>
+<p>Shape uncertainties can be taken into account by vertical interpolation of the histograms. The shapes (fraction of events <span class="arithmatex">\(f\)</span> in each bin) are interpolated using a spline for shifts below +/- 1σ and linearly outside of that. Specifically, for nuisance parameter values <span class="arithmatex">\(|\nu|\leq 1\)</span> </p>
+<div class="arithmatex">\[ f(\nu) = \frac{1}{2} \left( (\delta^{+}-\delta^{-})\nu + \frac{1}{8}(\delta^{+}+\delta^{-})(3\nu^6 - 10\nu^4 + 15\nu^2) \right) \]</div>
+<p>and for <span class="arithmatex">\(|\nu|&gt; 1\)</span> (<span class="arithmatex">\(|\nu|&lt;-1\)</span>), <span class="arithmatex">\(f(\nu)\)</span> is a straight line with gradient <span class="arithmatex">\(\delta^{+}\)</span> (<span class="arithmatex">\(\delta^{-}\)</span>), where <span class="arithmatex">\(\delta^{+}=f(\nu=1)-f(\nu=0)\)</span>, and <span class="arithmatex">\(\delta^{-}=f(\nu=-1)-f(\nu=0)\)</span>, derived using the nominal and up/down histograms.<br />
+This interpolation is designed so that the values of <span class="arithmatex">\(f(\nu)\)</span> and its derivatives are continuous for all values of <span class="arithmatex">\(\nu\)</span>. </p>
+<p>The normalizations are interpolated linearly in log scale, just like we do for log-normal uncertainties. If the value in a given bin is negative for some value of <span class="arithmatex">\(\nu\)</span>, the value will be truncated at 0.</p>
+<p>For each shape uncertainty and process/channel affected by it, two additional input shapes have to be provided. These are obtained by shifting the parameter up and down by one standard deviation. When building the likelihood, each shape uncertainty is associated to a nuisance parameter taken from a unit gaussian distribution, which is used to interpolate or extrapolate using the specified histograms.</p>
+<p>For each given shape uncertainty, the part of the datacard describing shape uncertainties must contain a row</p>
+<div class="highlight"><pre><span></span><code>name shape effect_for_each_process_and_channel
+</code></pre></div>
+<p>The effect can be "-" or 0 for no effect, 1 for the normal effect, and something different from 1 to test larger or smaller effects (in that case, the unit gaussian is scaled by that factor before using it as parameter for the interpolation).</p>
+<p>The datacard in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-TH1.txt">data/tutorials/shapes/simple-shapes-TH1.txt</a> provides an example of how to include shapes in the datacard. In the first block the following line specifies the shape mapping:</p>
+<div class="highlight"><pre><span></span><code>shapes * * simple-shapes-TH1.root $PROCESS $PROCESS_$SYSTEMATIC
+</code></pre></div>
+<p>The last block concerns the treatment of the systematic uncertainties that affect shapes. In this case there are two uncertainties with a shape-altering effect.</p>
+<div class="highlight"><pre><span></span><code>alpha  shape    -           1   uncertainty on background shape and normalization
+sigma  shape    0.5         -   uncertainty on signal resolution. Assume the histogram is a 2 sigma shift,
+#                                so divide the unit gaussian by 2 before doing the interpolation
+</code></pre></div>
+<p>There are two options for the interpolation algorithm in the "shape" uncertainty. Putting <strong><code>shape</code></strong> will result in an interpolation of the <strong>fraction of events in each bin</strong>. That is, the histograms are first normalized before interpolation. Putting <strong><code>shapeN</code></strong> while instead base the interpolation on the logs of the fraction in each bin. For <em>both</em> <strong><code>shape</code></strong>  and <strong><code>shapeN</code></strong>, the total normalization is interpolated using an asymmetric log-normal, so that the effect of the systematic on both the shape and normalization are accounted for. The following image shows a comparison of the two algorithms for the example datacard.</p>
+<p><img alt="" src="../images/compare-shape-algo.png" /></p>
+<p>In this case there are two processes, <em>signal</em> and <em>background</em>, and two uncertainties affecting the background (<em>alpha</em>) and signal shapes (<em>sigma</em>). In the ROOT file, two histograms per systematic have to be provided, they are the shapes obtained, for the specific process, by shifting the parameter associated with the uncertainty up and down by a standard deviation: <code>background_alphaUp</code> and <code>background_alphaDown</code>, <code>signal_sigmaUp</code> and <code>signal_sigmaDown</code>.</p>
+<p>The content of the ROOT file <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/shapes/simple-shapes-TH1.root">simple-shapes-TH1.root </a> associated with the datacard <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/benchmarks/shapes/simple-shapes-TH1.txt">data/tutorials/shapes/simple-shapes-TH1.txt</a> is:</p>
+<div class="highlight"><pre><span></span><code>root [0]
+Attaching file simple-shapes-TH1.root as _file0...
+root [1] _file0-&gt;ls()
+TFile**     simple-shapes-TH1.root
+ TFile*     simple-shapes-TH1.root
+  KEY: TH1F signal;1    Histogram of signal__x
+  KEY: TH1F signal_sigmaUp;1    Histogram of signal__x
+  KEY: TH1F signal_sigmaDown;1  Histogram of signal__x
+  KEY: TH1F background;1    Histogram of background__x
+  KEY: TH1F background_alphaUp;1    Histogram of background__x
+  KEY: TH1F background_alphaDown;1  Histogram of background__x
+  KEY: TH1F data_obs;1  Histogram of data_obs__x
+  KEY: TH1F data_sig;1  Histogram of data_sig__x
+</code></pre></div>
+<p>For example, without shape uncertainties there would only be one row with
+<code>shapes * * shapes.root $CHANNEL/$PROCESS</code>
+Then, to give a simple example for two channels ("e", "mu") with three processes ()"higgs", "zz", "top"), the ROOT file contents should look like:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">histogram</th>
+<th style="text-align: left;">meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>e/data_obs</code></td>
+<td style="text-align: left;">observed data in electron channel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>e/higgs</code></td>
+<td style="text-align: left;">expected shape for higgs in electron channel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>e/zz</code></td>
+<td style="text-align: left;">expected shape for ZZ in electron channel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>e/top</code></td>
+<td style="text-align: left;">expected shape for top in electron channel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mu/data_obs</code></td>
+<td style="text-align: left;">observed data in muon channel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mu/higgs</code></td>
+<td style="text-align: left;">expected shape for higgs in muon channel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mu/zz</code></td>
+<td style="text-align: left;">expected shape for ZZ in muon channel</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mu/top</code></td>
+<td style="text-align: left;">expected shape for top in muon channel</td>
+</tr>
+</tbody>
+</table>
+<p>If there is also an uncertainty that affects the shape, e.g. the jet energy scale, shape histograms for the jet energy scale shifted up and down by one sigma need to be included. This could be done by creating a folder for each process and writing a line like</p>
+<p><code>shapes * * shapes.root $CHANNEL/$PROCESS/nominal  $CHANNEL/$PROCESS/$SYSTEMATIC</code></p>
+<p>or a postifx can be added to the histogram name:</p>
+<p><code>shapes * * shapes.root $CHANNEL/$PROCESS  $CHANNEL/$PROCESS_$SYSTEMATIC</code></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you have a nuisance parameter that has shape effects on some processes (using <code>shape</code>) <em>and</em> rate effects on other processes (using <code>lnN</code>) you should use a single line for the systematic uncertainty with <code>shape?</code>. This will tell <span style="font-variant:small-caps;">Combine</span> to fist look for Up/Down systematic templates for that process and if it doesnt find them, it will interpret the number that you put for the process as a <code>lnN</code> instead. </p>
+</div>
+<p>For a detailed example of a template-based binned analysis, see the <a href="https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_shape_analysis_using_templates">H→ττ 2014 DAS tutorial</a>, or in our <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/#part-2-a-shape-based-analysis">Tutorial</a> pages. </p>
+<h3 id="unbinned-or-parametric-shape-analyses">Unbinned or parametric shape analyses</h3>
+<p>In some cases, it can be convenient to describe the expected signal and background shapes in terms of analytical functions, rather than templates. Typical examples are searches/measurements where the signal is apparent as a narrow peak over a smooth continuum background. In this context, uncertainties affecting the shapes of the signal and backgrounds can be implemented naturally as uncertainties in the parameters of those analytical functions. It is also possible to adopt an agnostic approach in which the parameters of the background model are left freely floating in the fit to the data, i.e. only requiring the background to be well described by a smooth function.</p>
+<p>Technically, this is implemented by means of the RooFit package, which allows writing generic probability density functions, and saving them into ROOT files. The PDFs can be either taken from RooFit's standard library of functions (e.g. Gaussians, polynomials, ...) or hand-coded in C++, and combined together to form even more complex shapes.</p>
+<p>In the datacard using templates, the column after the file name would have been the name of the histogram. For parametric analysis we need two names to identify the mapping, separated by a colon (<strong><code>:</code></strong>).</p>
+<p><strong>shapes process channel shapes.root <em>workspace_name:pdf_name</em></strong></p>
+<p>The first part identifies the name of the input <a href="http://root.cern.ch/root/htmldoc/RooWorkspace.html">RooWorkspace</a> containing the PDF, and the second part the name of the <a href="http://root.cern.ch/root/htmldoc/RooAbsPdf.html">RooAbsPdf</a> inside it (or, for the observed data, the <a href="http://root.cern.ch/root/htmldoc/RooAbsData.html">RooAbsData</a>). It is possible to have multiple input workspaces, just as there can be multiple input ROOT files. You can use any of the usual RooFit pre-defined PDFs for your signal and background models.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If in your model you are using RooAddPdfs, in which the coefficients are <em>not defined recursively</em>, <span style="font-variant:small-caps;">Combine</span> will not interpret them correctly. You can add the option <code>--X-rtd ADDNLL_RECURSIVE=0</code> to any <span style="font-variant:small-caps;">Combine</span> command in order to recover the correct interpretation, however we recommend that you instead re-define your PDF so that the coefficients are recursive (as described in the <a href="https://root.cern.ch/doc/master/classRooAddPdf.html">RooAddPdf documentation</a>) and keep the total normalization (i.e the extended term) as a separate object, as in the case of the tutorial datacard.</p>
+</div>
+<p>For example, take a look at the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-parametric.txt">data/tutorials/shapes/simple-shapes-parametric.txt</a>. We see the following line:</p>
+<div class="highlight"><pre><span></span><code>shapes * * simple-shapes-parametric_input.root w:$PROCESS
+[...]
+bin          1          1
+process      sig    bkg
+</code></pre></div>
+<p>which indicates that the input file <code>simple-shapes-parametric_input.root</code> should contain an input workspace (<code>w</code>) with PDFs named <code>sig</code> and <code>bkg</code>, since these are the names of the two processes in the datacard. Additionally, we expect there to be a data set named <code>data_obs</code>. If we look at the contents of the workspace in <code>data/tutorials/shapes/simple-shapes-parametric_input.root</code>, this is indeed what we see:</p>
+<div class="highlight"><pre><span></span><code>root [1] w-&gt;Print()
+
+RooWorkspace(w) w contents
+
+variables
+---------
+(MH,bkg_norm,cc_a0,cc_a1,cc_a2,j,vogian_sigma,vogian_width)
+
+p.d.f.s
+-------
+RooChebychev::bkg[ x=j coefList=(cc_a0,cc_a1,cc_a2) ] = 2.6243
+RooVoigtian::sig[ x=j mean=MH width=vogian_width sigma=vogian_sigma ] = 0.000639771
+
+datasets
+--------
+RooDataSet::data_obs(j)
+</code></pre></div>
+<p>In this datacard, the signal is parameterized in terms of the hypothesized mass (<code>MH</code>). <span style="font-variant:small-caps;">Combine</span> will use this variable, instead of creating its own, which will be interpreted as the value for <code>-m</code>. For this reason, we should add the option <code>-m 30</code> (or something else within the observable range) when running <span style="font-variant:small-caps;">Combine</span>. You will also see there is a variable named <code>bkg_norm</code>. This is used to normalize the background rate (see the section on <a href="#rate-parameters">Rate parameters</a> below for details).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><span style="font-variant:small-caps;">Combine</span> will not accept RooExtendedPdfs as input. This is to alleviate a bug that lead to improper treatment of the normalization when using multiple RooExtendedPdfs to describe a single process. You should instead use RooAbsPdfs and provide the rate as a separate object (see the <a href="#rate-parameters">Rate parameters</a> section).</p>
+</div>
+<p>The part of the datacard related to the systematics can include lines with the syntax</p>
+<ul>
+<li><strong>name <em>param</em>  X Y</strong></li>
+</ul>
+<p>These lines encode uncertainties in the parameters of the signal and background PDFs. The parameter is to be assigned a Gaussian uncertainty of <strong>Y</strong> around its mean value of <strong>X</strong>. One can change the mean value from 0 to 1 (or any value, if one so chooses) if the parameter in question is multiplicative instead of additive.</p>
+<p>In the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-parametric.txt">data/tutorials/shapes/simple-shapes-parametric.txt</a> datacard, there are lines for one such parametric uncertainty,</p>
+<div class="highlight"><pre><span></span><code>sigma   param 1.0      0.1
+</code></pre></div>
+<p>meaning there is a parameter in the input workspace called <strong><code>sigma</code></strong>, that should be <em>constrained</em> with a Gaussian centered at 1.0 with a width of 0.1. Note that the exact interpretation of these parameters is left to the user since the signal PDF is constructed externally by you. All <span style="font-variant:small-caps;">Combine</span> knows is that 1.0 should be the most likely value and 0.1 is its 1σ uncertainy. Asymmetric uncertainties are written using the syntax <strong>-1σ/+1σ</strong> in the datacard, as is the case for <code>lnN</code> uncertainties. </p>
+<p>If one wants to specify a parameter that is freely floating across its given range, and not Gaussian constrained, the following syntax is used:</p>
+<div class="highlight"><pre><span></span><code>name flatParam
+</code></pre></div>
+<p>Though this is <em>not strictly necessary</em> in frequentist methods using profiled likelihoods, as <span style="font-variant:small-caps;">Combine</span> will still profile these nuisances when performing fits (as is the case for the <code>simple-shapes-parametric.txt</code> datacard).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>All parameters that are floating or constant in the user's input workspaces will remain floating or constant. <span style="font-variant:small-caps;">Combine</span> will <strong><em>not</em></strong> modify those for you!</p>
+</div>
+<p>A full example of a parametric analysis can be found in this <a href="https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_parametric_shape_analysis_H">H→γγ 2014 DAS tutorial</a> or in our <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/tutorial2023/parametric_exercise/">Tutorial</a> pages.</p>
+<h4 id="caveat-on-using-parametric-pdfs-with-binned-datasets">Caveat on using parametric PDFs with binned datasets</h4>
+<p>Users should be aware of a feature that affects the use of parametric PDFs together with binned datasets.</p>
+<p>RooFit uses the integral of the PDF, computed analytically (or numerically, but disregarding the binning), to normalize it, but computes the expected event yield in each bin by evaluating the PDF at the bin center. This means that if the variation of the pdf is sizeable within the bin, there is a mismatch between the sum of the event yields per bin and the PDF normalization, which can cause a bias in the fits. More specifically, the bias is present if the contribution of the second derivative integrated in the bin size is not negligible. For linear functions, an evaluation at the bin center is correct. There are two recommended ways to work around this issue:</p>
+<p><strong>1. Use narrow bins</strong></p>
+<p>It is recommended to use bins that are significantly finer than the characteristic scale of the PDFs. Even in the absence of this feature, this would be advisable. Note that this caveat does not apply to analyses using templates (they are constant across each bin, so there is no bias), or using unbinned datasets.</p>
+<p><strong>2. Use a RooParametricShapeBinPdf</strong></p>
+<p>Another solution (currently only implemented for 1-dimensional histograms) is to use a custom PDF that performs the correct integrals internally, as in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/src/RooParametricShapeBinPdf.cc">RooParametricShapeBinPdf</a>.</p>
+<p>Note that this PDF class now allows parameters that are themselves <strong>RooAbsReal</strong> objects (i.e. functions of other variables). The integrals are handled internally by calling the underlying PDF's <code>createIntegral()</code> method with named ranges created for each of the bins. This means that if the analytical integrals for the underlying PDF are available, they will be used.</p>
+<p>The constructor for this class requires a <strong>RooAbsReal</strong> (eg any <strong>RooAbsPdf</strong>) along with a list of <strong>RooRealVars</strong> (the parameters, excluding the observable <span class="arithmatex">\(x\)</span>),</p>
+<div class="highlight"><pre><span></span><code><span class="n">RooParametricShapeBinPdf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">title</span><span class="p">,</span><span class="w">  </span><span class="n">RooAbsReal</span><span class="o">&amp;</span><span class="w"> </span><span class="n">_pdf</span><span class="p">,</span><span class="w"> </span><span class="n">RooAbsReal</span><span class="o">&amp;</span><span class="w"> </span><span class="n">_x</span><span class="p">,</span><span class="w"> </span><span class="n">RooArgList</span><span class="o">&amp;</span><span class="w"> </span><span class="n">_pars</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">TH1</span><span class="w"> </span><span class="o">&amp;</span><span class="n">_shape</span><span class="w"> </span><span class="p">)</span>
+</code></pre></div>
+<p>Below is a comparison of a fit to a binned dataset containing 1000 events with one observable <span class="arithmatex">\(0 \leq x \leq 100\)</span>. The fit function is a <strong>RooExponential</strong> of the form <span class="arithmatex">\(e^{xp}\)</span>.</p>
+<p><img alt="Narrow bins" src="../images/narrow.png" />
+<img alt="Wide bins" src="../images/wide.png" /></p>
+<p>In the upper plot, the data are binned in 100 evenly-spaced bins, while in the lower plot, there are three irregular bins. The blue lines show the result of the fit
+when using the <strong>RooExponential</strong> directly, while the red lines show the result when wrapping the PDF inside a <strong>RooParametricShapeBinPdf</strong>. In the narrow binned case, the two
+agree well, while for wide bins, accounting for the integral over the bin yields a better fit.</p>
+<p>You should note that using this class will result in slower fits, so you should first decide whether the added accuracy is enough to justify the reduced efficiency.</p>
+<h2 id="beyond-simple-datacards">Beyond simple datacards</h2>
+<p>Datacards can be extended in order to provide additional functionality and flexibility during runtime. These can also allow for the production of more complicated models and for producing more advanced results.</p>
+<h3 id="rate-parameters">Rate parameters</h3>
+<p>The overall rate "expected" of a particular process in a particular bin does not necessarily need to be a fixed quantity. Scale factors can be introduced to modify the rate directly in the datacards for <strong>ANY</strong> type of analysis. This can be achieved using the directive <code>rateParam</code> in the datacard with the following syntax,</p>
+<div class="highlight"><pre><span></span><code>name rateParam bin process initial_value [min,max]
+</code></pre></div>
+<p>The <code>[min,max]</code> argument is optional. If it is not included, <span style="font-variant:small-caps;">Combine</span>  will remove the range of this parameter. This will produce a new parameter, which multiplies the rate of that particular <strong>process</strong> in the given <strong>bin</strong> by its value, in the model (unless it already exists).</p>
+<p>You can attach the same <code>rateParam</code> to multiple processes/bins by either using a wild card (eg <code>*</code> will match everything, <code>QCD_*</code> will match everything starting with <code>QCD_</code>, etc.) in the name of the bin and/or process, or by repeating the <code>rateParam</code> line in the datacard for different bins/processes with the same name.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code>rateParam</code> is not a shortcut to evaluate the post-fit yield of a process since <strong>other nuisance parameters can also change the normalization</strong>. E.g., finding that the <code>rateParam</code> best-fit value is 0.9 does not necessarily imply that the process yield is 0.9 times the initial yield. The best is to evaluate the yield taking into account the values of all nuisance parameters using <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#normalizations"><code>--saveNormalizations</code></a>.</p>
+</div>
+<p>This parameter is, by default, freely floating. It is possible to include a Gaussian constraint on any <code>rateParam</code> that is floating (i.e not a <code>formula</code> or spline) by adding a <code>param</code> nuisance line in the datacard with the same name.</p>
+<p>In addition to rate modifiers that are freely floating, modifiers that are functions of other parameters can be included using the following syntax,</p>
+<div class="highlight"><pre><span></span><code>name rateParam bin process formula args
+</code></pre></div>
+<p>where <code>args</code> is a comma-separated list of the arguments for the string <code>formula</code>. You can include other nuisance parameters in the <code>formula</code>, including ones that are Gaussian constrained (i,e via the <code>param</code> directive.)</p>
+<p>Below is an example datacard that uses the <code>rateParam</code> directive to implement an ABCD-like method in <span style="font-variant:small-caps;">Combine</span>. For a more realistic description of its use for ABCD, see the single-lepton SUSY search implementation described <a href="http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&amp;files=AN2015_207_v5.pdf">here</a>.</p>
+<div class="highlight"><pre><span></span><code>imax 4  number of channels
+jmax 0  number of processes -1
+kmax *  number of nuisance parameters (sources of systematical uncertainties)
+-------
+bin                   B      C       D        A
+observation           50    100      500      10
+-------
+bin                   B      C       D        A
+process               bkg    bkg     bkg      bkg
+process               1      1       1         1
+rate                  1      1       1         1
+-------
+
+alpha rateParam A bkg (@0*@1/@2) beta,gamma,delta
+beta  rateParam B bkg 50
+gamma rateParam C bkg 100
+delta rateParam D bkg 500
+</code></pre></div>
+<p>For more examples of using <code>rateParam</code> (eg for fitting process normalizations in control regions and signal regions simultaneously) see this <a href="https://indico.cern.ch/event/577649/contributions/2339440/attachments/1380196/2097805/beyond_simple_datacards.pdf">2016 CMS tutorial</a></p>
+<p>Finally, any pre-existing RooAbsReal inside some ROOT file with a workspace can be imported using the following:</p>
+<div class="highlight"><pre><span></span><code>name rateParam bin process rootfile:workspacename
+</code></pre></div>
+<p>The name should correspond to the name of the object that is being picked up inside the RooWorkspace. A simple example using the SM XS and BR splines available in HiggsAnalysis/CombinedLimit can be found under <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/rate_params/simple_sm_datacard.txt">data/tutorials/rate_params/simple_sm_datacard.txt</a></p>
+<h3 id="extra-arguments">Extra arguments</h3>
+<p>If a parameter is intended to be used, and it is <em>not</em> a user-defined <code>param</code> or <code>rateParam</code>, it can be picked up by first issuing an <code>extArgs</code> directive before this line in the datacard. The syntax for <code>extArgs</code> is:</p>
+<div class="highlight"><pre><span></span><code>name extArg rootfile:workspacename
+</code></pre></div>
+<p>The string ":RecycleConflictNodes" can be added at the end of the final argument (i.e. rootfile:workspacename:RecycleConflictNodes) to apply the corresponding RooFit option when the object is imported into the workspace. It is also possible to simply add a RooRealVar using <code>extArg</code> for use in function <code>rateParams</code> with the following</p>
+<div class="highlight"><pre><span></span><code>name extArg init [min,max]
+</code></pre></div>
+<p>Note that the <code>[min,max]</code> argument is optional and if not included, the code will remove the range of this parameter.</p>
+<h3 id="manipulation-of-nuisance-parameters">Manipulation of Nuisance parameters</h3>
+<p>It can often be useful to modify datacards, or the runtime behavior, without having to modify individual systematic lines. This can be achieved through nuisance parameter modifiers.</p>
+<h4 id="nuisance-modifiers">Nuisance modifiers</h4>
+<p>If a nuisance parameter needs to be renamed for certain processes/channels, it can be done using a single <code>nuisance edit</code> directive at the end of a datacard</p>
+<p><div class="highlight"><pre><span></span><code>nuisance edit rename process channel oldname newname [options]
+</code></pre></div>
+Note that the wildcard (<strong>*</strong>) can be used for either a process, a channel, or both. 
+This will have the effect that nuisance parameters affecting a given process/channel will be renamed, thereby de-correlating between processes/channels.  Use the option <code>ifexists</code> to skip/avoid an error if the nuisance paremeter is not found. 
+This kind of command will only affect nuisances of the type <strong><code>shape[N]</code></strong>, <strong><code>lnN</code></strong>. Instead, if you also want to change the names of <strong><code>param</code></strong> type nuisances, you can use a global version </p>
+<p><div class="highlight"><pre><span></span><code>nuisance edit rename oldname newname
+</code></pre></div>
+which will rename all <strong><code>shape[N]</code></strong>, <strong><code>lnN</code></strong> and <strong><code>param</code></strong> nuisances found in one go. You should make sure these commands come after any process/channel specific ones in the datacard. This version does not accept options.  </p>
+<p>Other edits are also supported, as follows:</p>
+<ul>
+<li><code>nuisance edit add process channel name pdf value [options]</code>  -&gt; add a new nuisance parameter to a process</li>
+<li><code>nuisance edit drop process channel name [options]</code>  -&gt; remove this nuisance from the process/channel. Use the option <code>ifexists</code> to skip/avoid errors if the nuisance parameter is not found.</li>
+<li><code>nuisance edit changepdf name newpdf</code> -&gt; change the PDF type of a given nuisance parameter to <code>newpdf</code>.</li>
+<li><code>nuisance edit split process channel oldname newname1 newname2 value1 value2</code> -&gt; split a nuisance parameter line into two separate nuisance parameters called <code>newname1</code> and <code>newname2</code> with values <code>value1</code> and <code>value2</code>. This will produce two separate lines so that the original nuisance parameter <code>oldname</code> is split into two uncorrelated nuisances.</li>
+<li><code>nuisance edit freeze name [options]</code>  -&gt; set nuisance parameter frozen by default. Can be overridden on the command line using the <code>--floatNuisances</code> option. Use the option <code>ifexists</code> to skip/avoid errors if the nuisance parameter not found.</li>
+<li><code>nuisance edit merge process channel name1 name2</code> -&gt; merge systematic <code>name2</code> into <code>name1</code> by adding their values in quadrature and removing <code>name2</code>. This only works if, for each process and channel included, the uncertainties both increase or both reduce the process yield. For example, you can add 1.1 to 1.2, but not to 0.9.</li>
+</ul>
+<p>The above edits (excluding the renaming) support nuisance parameters of the types <strong><code>shape[N]</code></strong>, <strong><code>lnN</code></strong>, <strong><code>lnU</code></strong>, <strong><code>gmN</code></strong>, <strong><code>param</code></strong>, <strong><code>flatParam</code></strong>, <strong><code>rateParam</code></strong>, or <strong><code>discrete</code></strong>.</p>
+<h4 id="groups-of-nuisances">Groups of nuisances</h4>
+<p>Often it is desirable to freeze one or more nuisance parameters to check the impact they have on limits, likelihood scans, significances etc.</p>
+<p>However, for large groups of nuisance parameters (eg everything associated to theory) it is easier to define <strong><em>nuisance groups</em></strong> in the datacard. The following line in a datacard will, for example, produce a group of nuisance parameters with the group name
+<code>theory</code> that contains two parameters, <code>QCDscale</code> and <code>pdf</code>.</p>
+<div class="highlight"><pre><span></span><code>theory group = QCDscale pdf
+</code></pre></div>
+<p>Multiple groups can be defined in this way. It is also possible to extend nuisance parameters groups in datacards using <strong>+=</strong> in place of <strong>=</strong>.</p>
+<p>These groups can be manipulated at runtime (eg for freezing all nuisance parameterss associated to a group at runtime, see <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/">Running the tool</a>). You can find more info on groups of nuisances <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/groups">here</a></p>
+<p>Note that when using the automatic addition of statistical uncertainties (autoMCStats), the corresponding nuisance parameters are created by <code>text2workspace.py</code> and so do not exist in the datacards. It is therefore not possible to add autoMCStats parameters to groups of nuisances in the way described above. However, <code>text2workspace.py</code> will automatically create a group labelled <strong><code>autoMCStats</code></strong>, which contains all autoMCStats parameters.</p>
+<p>This group is useful for freezing all parameters created by autoMCStats. For freezing subsets of the parameters, for example if the datacard contains two categories, <strong>cat_label_1</strong> and <strong>cat_label_2</strong>, to only freeze the autoMCStat parameters created for category <strong>cat_label_1</strong>, the regular expression features can be used. In this example this can be achieved by using <code>--freezeParameters 'rgx{prop_bincat_label_1_bin.*}'</code>.</p>
+<h3 id="combination-of-multiple-datacards">Combination of multiple datacards</h3>
+<p>If you have separate channels, each with their own datacard, it is possible to produce a combined datacard using the script <strong><code>combineCards.py</code></strong></p>
+<p>The syntax is simple: <strong><code>combineCards.py Name1=card1.txt Name2=card2.txt .... &gt; card.txt</code></strong>
+If the input datacards had just one bin each, the output channels will be called <code>Name1</code>, <code>Name2</code>, and so on. Otherwise, a prefix <code>Name1_</code> ... <code>Name2_</code> will be added to the bin labels in each datacard. The supplied bin names <code>Name1</code>, <code>Name2</code>, etc. must themselves conform to valid C++/python identifier syntax.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When combining datacards, you should keep in mind that systematic uncertainties that have different names will be assumed to be uncorrelated, and those with the same name will be assumed 100% correlated. An uncertainty correlated across channels must have the same PDF. in all cards (i.e. always <strong><code>lnN</code></strong>, or all <strong><code>gmN</code></strong> with same <code>N</code>. Note that <code>shape</code> and <code>lnN</code> can be interchanged via the <code>shape?</code> directive). Furthermore, when using <em>parametric models</em>, "parameter" objects such as <code>RooRealVar</code>, <code>RooAbsReal</code>, and <code>RooAbsCategory</code> (parameters, PDF indices etc) with the same name will be assumed to be the same object. If this is not intended, you may encounter unexpected behaviour, such as the order of combining cards having an impact on the results. Make sure that such objects are named differently in your inputs if they represent different things! Instead, <span style="font-variant:small-caps;">Combine</span> will try to rename other "shape" objects (such as PDFs) automatically. </p>
+</div>
+<p>The <code>combineCards.py</code> script will fail if you are trying to combine a <em>shape</em> datacard with a <em>counting</em> datacard. You can however convert a <em>counting</em> datacard into an equivalent shape-based one by adding a line <code>shapes * * FAKE</code> in the datacard after the <code>imax</code>, <code>jmax</code>, and <code>kmax</code> section. Alternatively, you can add the option <code>-S</code> to <code>combineCards.py</code>, which will do this for you while creating the combined datacard.</p>
+<h3 id="automatic-production-of-datacards-and-workspaces">Automatic production of datacards and workspaces</h3>
+<p>For complicated analyses or cases in which multiple datacards are needed (e.g. optimization studies), you can avoid writing these by hand. The object <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/python/Datacard.py">Datacard</a> defines the analysis and can be created as a python object. The template python script below will produce the same workspace as running <code>textToWorkspace.py</code> (see the section on <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/">Physics Models</a>) on the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/realistic-counting-experiment.txt">realistic-counting-experiment.txt</a> datacard.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">HiggsAnalysis.CombinedLimit.DatacardParser</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">HiggsAnalysis.CombinedLimit.ModelTools</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">HiggsAnalysis.CombinedLimit.ShapeTools</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">HiggsAnalysis.CombinedLimit.PhysicsModel</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sys</span><span class="w"> </span><span class="kn">import</span> <span class="n">exit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">optparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptionParser</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">()</span>
+<span class="n">addDatacardParserOptions</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+<span class="n">options</span><span class="p">,</span><span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="n">options</span><span class="o">.</span><span class="n">bin</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1"># make a binary workspace</span>
+
+<span class="n">DC</span> <span class="o">=</span> <span class="n">Datacard</span><span class="p">()</span>
+<span class="n">MB</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1">############## Setup the datacard (must be filled in) ###########################</span>
+
+<span class="n">DC</span><span class="o">.</span><span class="n">bins</span> <span class="o">=</span>   <span class="p">[</span><span class="s1">&#39;bin1&#39;</span><span class="p">]</span> <span class="c1"># &lt;type &#39;list&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">obs</span> <span class="o">=</span>    <span class="p">{</span><span class="s1">&#39;bin1&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span> <span class="c1"># &lt;type &#39;dict&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">processes</span> <span class="o">=</span>  <span class="p">[</span><span class="s1">&#39;ggH&#39;</span><span class="p">,</span> <span class="s1">&#39;qqWW&#39;</span><span class="p">,</span> <span class="s1">&#39;ggWW&#39;</span><span class="p">,</span> <span class="s1">&#39;others&#39;</span><span class="p">]</span> <span class="c1"># &lt;type &#39;list&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">signals</span> <span class="o">=</span>    <span class="p">[</span><span class="s1">&#39;ggH&#39;</span><span class="p">]</span> <span class="c1"># &lt;type &#39;list&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">isSignal</span> <span class="o">=</span>   <span class="p">{</span><span class="s1">&#39;qqWW&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;ggWW&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;ggH&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;others&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span> <span class="c1"># &lt;type &#39;dict&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">keyline</span> <span class="o">=</span>    <span class="p">[(</span><span class="s1">&#39;bin1&#39;</span><span class="p">,</span> <span class="s1">&#39;ggH&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;bin1&#39;</span><span class="p">,</span> <span class="s1">&#39;qqWW&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;bin1&#39;</span><span class="p">,</span> <span class="s1">&#39;ggWW&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;bin1&#39;</span><span class="p">,</span> <span class="s1">&#39;others&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)]</span> <span class="c1"># &lt;type &#39;list&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">exp</span> <span class="o">=</span>    <span class="p">{</span><span class="s1">&#39;bin1&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;qqWW&#39;</span><span class="p">:</span> <span class="mf">0.63</span><span class="p">,</span> <span class="s1">&#39;ggWW&#39;</span><span class="p">:</span> <span class="mf">0.06</span><span class="p">,</span> <span class="s1">&#39;ggH&#39;</span><span class="p">:</span> <span class="mf">1.47</span><span class="p">,</span> <span class="s1">&#39;others&#39;</span><span class="p">:</span> <span class="mf">0.22</span><span class="p">}}</span> <span class="c1"># &lt;type &#39;dict&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">systs</span> <span class="o">=</span>  <span class="p">[(</span><span class="s1">&#39;lumi&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;lnN&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span><span class="s1">&#39;bin1&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;qqWW&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;ggWW&#39;</span><span class="p">:</span> <span class="mf">1.11</span><span class="p">,</span> <span class="s1">&#39;ggH&#39;</span><span class="p">:</span> <span class="mf">1.11</span><span class="p">,</span> <span class="s1">&#39;others&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}}),</span> <span class="p">(</span><span class="s1">&#39;xs_ggH&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;lnN&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span><span class="s1">&#39;bin1&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;qqWW&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;ggWW&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;ggH&#39;</span><span class="p">:</span> <span class="mf">1.16</span><span class="p">,</span> <span class="s1">&#39;others&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}}),</span> <span class="p">(</span><span class="s1">&#39;WW_norm&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;gmN&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="p">{</span><span class="s1">&#39;bin1&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;qqWW&#39;</span><span class="p">:</span> <span class="mf">0.16</span><span class="p">,</span> <span class="s1">&#39;ggWW&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;ggH&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;others&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}}),</span> <span class="p">(</span><span class="s1">&#39;xs_ggWW&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;lnN&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span><span class="s1">&#39;bin1&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;qqWW&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;ggWW&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s1">&#39;ggH&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;others&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}}),</span> <span class="p">(</span><span class="s1">&#39;bg_others&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;lnN&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span><span class="s1">&#39;bin1&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;qqWW&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;ggWW&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;ggH&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;others&#39;</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">}})]</span> <span class="c1"># &lt;type &#39;list&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">shapeMap</span> <span class="o">=</span>   <span class="p">{}</span> <span class="c1"># &lt;type &#39;dict&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">hasShapes</span> <span class="o">=</span>  <span class="kc">False</span> <span class="c1"># &lt;type &#39;bool&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">flatParamNuisances</span> <span class="o">=</span>  <span class="p">{}</span> <span class="c1"># &lt;type &#39;dict&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">rateParams</span> <span class="o">=</span>  <span class="p">{}</span> <span class="c1"># &lt;type &#39;dict&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">extArgs</span> <span class="o">=</span>    <span class="p">{}</span> <span class="c1"># &lt;type &#39;dict&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">rateParamsOrder</span>  <span class="o">=</span>  <span class="nb">set</span><span class="p">([])</span> <span class="c1"># &lt;type &#39;set&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">frozenNuisances</span>  <span class="o">=</span>  <span class="nb">set</span><span class="p">([])</span> <span class="c1"># &lt;type &#39;set&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">systematicsShapeMap</span> <span class="o">=</span>  <span class="p">{}</span> <span class="c1"># &lt;type &#39;dict&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">nuisanceEditLines</span>    <span class="o">=</span>  <span class="p">[]</span> <span class="c1"># &lt;type &#39;list&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">groups</span>   <span class="o">=</span>  <span class="p">{}</span> <span class="c1"># &lt;type &#39;dict&#39;&gt;</span>
+<span class="n">DC</span><span class="o">.</span><span class="n">discretes</span>    <span class="o">=</span>  <span class="p">[]</span> <span class="c1"># &lt;type &#39;list&#39;&gt;</span>
+
+
+<span class="c1">###### User defined options #############################################</span>
+
+<span class="n">options</span><span class="o">.</span><span class="n">out</span>      <span class="o">=</span> <span class="s2">&quot;combine_workspace.root&quot;</span>     <span class="c1"># Output workspace name</span>
+<span class="n">options</span><span class="o">.</span><span class="n">fileName</span> <span class="o">=</span> <span class="s2">&quot;./&quot;</span>             <span class="c1"># Path to input ROOT files</span>
+<span class="n">options</span><span class="o">.</span><span class="n">verbose</span>  <span class="o">=</span> <span class="s2">&quot;1&quot;</span>              <span class="c1"># Verbosity</span>
+
+<span class="c1">##########################################################################</span>
+
+<span class="k">if</span> <span class="n">DC</span><span class="o">.</span><span class="n">hasShapes</span><span class="p">:</span>
+    <span class="n">MB</span> <span class="o">=</span> <span class="n">ShapeBuilder</span><span class="p">(</span><span class="n">DC</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">MB</span> <span class="o">=</span> <span class="n">CountingModelBuilder</span><span class="p">(</span><span class="n">DC</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+
+<span class="c1"># Set physics models</span>
+<span class="n">MB</span><span class="o">.</span><span class="n">setPhysics</span><span class="p">(</span><span class="n">defaultModel</span><span class="p">)</span>
+<span class="n">MB</span><span class="o">.</span><span class="n">doModel</span><span class="p">()</span>
+</code></pre></div>
+<p>Any existing datacard can be converted into such a template python script by using the <code>--dump-datacard</code> option in <code>text2workspace.py</code>, in case a more complicated template is needed.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The above is <strong>not advised</strong> for final results, as this script is not easily combined with other analyses so should only be used for internal studies.</p>
+</div>
+<p>For the automatic generation of datacards that <strong>are</strong> combinable, you should instead use the <a href="http://cms-analysis.github.io/CombineHarvester/">CombineHarvester</a> package, which includes many features for producing complex datacards in a reliable, automated way.</p>
+<h2 id="sanity-checking-the-datacard">Sanity checking the datacard</h2>
+<p>For large combinations with multiple channels/processes etc, the <code>.txt</code> file can get unwieldy to read through. There are some simple tools to help check and disseminate the contents of the cards. </p>
+<p>In order to get a quick view of the systematic uncertainties included in the datacard, you can use the <code>test/systematicsAnalyzer.py</code> tool. This will produce a list of the systematic uncertainties (normalization and shape), indicating what type they are, which channels/processes they affect and the size of the effect on the normalization (for shape uncertainties, this will just be the overall uncertainty on the normalization).</p>
+<p>The default output is a <code>.html</code> file that can be expanded to give more details about the effect of the systematic uncertainty for each channel/process. Add the option <code>--format brief</code> to obtain a simpler summary report direct to the terminal. An example output for the tutorial card <code>data/tutorials/shapes/simple-shapes-TH1.txt</code> is shown below.</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>test/systematicsAnalyzer.py<span class="w"> </span>data/tutorials/shapes/simple-shapes-TH1.txt<span class="w"> </span>--all<span class="w"> </span>-f<span class="w"> </span>html<span class="w"> </span>&gt;<span class="w"> </span>out.html
+</code></pre></div>
+<p>This will produce the following output in html format: </p>
+<html>
+<head>
+<style type="text/css">
+body {  }
+td, th { border-bottom: 1px solid black; padding: 1px 1em; vertical-align: top; }
+td.channDetails { font-size: x-small; }
+</style>
+<script type="text/javascript">
+function toggleChann(id) {
+    if (document.getElementById(id+"_chann_toggle").innerHTML == "[+]") {
+        document.getElementById(id+"_chann").style = "";
+        document.getElementById(id+"_chann_toggle").innerHTML = "[-]";
+    } else {
+        document.getElementById(id+"_chann").style = "display: none";
+        document.getElementById(id+"_chann_toggle").innerHTML = "[+]";
+    }
+}
+</script>
+<title>Nuisance Report</title>
+</head><body>
+<h1>Nuisance Report</h1>
+<table>
+<tr><th>Nuisance (types)</th><th colspan="2">Range</th><th>Processes</th><th>Channels</th></tr>
+
+<tr><td><a name="lumi"><b>lumi  (lnN)</b></a></td>
+<td>1.000</td><td>1.100</td>
+<td> background, signal </td>
+<td>bin1(1) <a id="lumi_chann_toggle" href="#lumi" onclick="toggleChann(&quot;lumi&quot;)">[+]</a></td>
+</tr>
+<tr id="lumi_chann" style="display: none">
+    <td colspan="5"><table class="channDetails">
+        <tr><td>bin1</td><td>signal(1.1), background(1.0)</td></li>
+    </table></td>
+</tr>
+
+<tr><td><a name="alpha"><b>alpha  (shape)</b></a></td>
+<td>1.111</td><td>1.150</td>
+<td> background </td>
+<td>bin1(1) <a id="alpha_chann_toggle" href="#alpha" onclick="toggleChann(&quot;alpha&quot;)">[+]</a></td>
+</tr>
+<tr id="alpha_chann" style="display: none">
+    <td colspan="5"><table class="channDetails">
+        <tr><td>bin1</td><td>background(0.900/1.150 (shape))</td></li>
+    </table></td>
+</tr>
+
+<tr><td><a name="bgnorm"><b>bgnorm  (lnN)</b></a></td>
+<td>1.000</td><td>1.300</td>
+<td> background, signal </td>
+<td>bin1(1) <a id="bgnorm_chann_toggle" href="#bgnorm" onclick="toggleChann(&quot;bgnorm&quot;)">[+]</a></td>
+</tr>
+<tr id="bgnorm_chann" style="display: none">
+    <td colspan="5"><table class="channDetails">
+        <tr><td>bin1</td><td>signal(1.0), background(1.3)</td></li>
+    </table></td>
+</tr>
+
+<tr><td><a name="sigma"><b>sigma  (shape)</b></a></td>
+<td>1.000</td><td>1.000</td>
+<td> signal </td>
+<td>bin1(1) <a id="sigma_chann_toggle" href="#sigma" onclick="toggleChann(&quot;sigma&quot;)">[+]</a></td>
+</tr>
+<tr id="sigma_chann" style="display: none">
+    <td colspan="5"><table class="channDetails">
+        <tr><td>bin1</td><td>signal(1.000/1.000 (shape))</td></li>
+    </table></td>
+</tr>
+
+
+</table>
+</body>
+</html>
+
+<p>In case you only have a counting experiment datacard, include the option <code>--noshape</code>.</p>
+<p>If you have a datacard that uses several <code>rateParams</code> or a Physics model that includes a complicated product of normalization terms in each process, you can check the values of the normalization (and which objects in the workspace comprise them) using the <code>test/printWorkspaceNormalisations.py</code> tool. As an example, the first few blocks of output for the tutorial card <code>data/tutorials/counting/realistic-multi-channel.txt</code> are given below:</p>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>data/tutorials/counting/realistic-multi-channel.txt<span class="w"> </span>
+python<span class="w"> </span>test/printWorkspaceNormalisations.py<span class="w"> </span>data/tutorials/counting/realistic-multi-channel.root<span class="w">     </span>
+</code></pre></div>
+<details>
+<summary><strong>Show example output</strong></summary>
+<div class="highlight"><pre><span></span><code>---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+Channel - mu_tau
+---------------------------------------------------------------------------
+  Top-level normalisation for process ZTT -&gt; n_exp_binmu_tau_proc_ZTT
+  -------------------------------------------------------------------------
+Dumping ProcessNormalization n_exp_binmu_tau_proc_ZTT @ 0x6bbb610
+    nominal value: 329
+    log-normals (3):
+         kappa = 1.23, logKappa = 0.207014, theta = tauid = 0
+         kappa = 1.04, logKappa = 0.0392207, theta = ZtoLL = 0
+         kappa = 1.04, logKappa = 0.0392207, theta = effic = 0
+    asymm log-normals (0):
+    other terms (0):
+
+  -------------------------------------------------------------------------
+  default value =  329.0
+---------------------------------------------------------------------------
+  Top-level normalisation for process QCD -&gt; n_exp_binmu_tau_proc_QCD
+  -------------------------------------------------------------------------
+Dumping ProcessNormalization n_exp_binmu_tau_proc_QCD @ 0x6bbcaa0
+    nominal value: 259
+    log-normals (1):
+         kappa = 1.1, logKappa = 0.0953102, theta = QCDmu = 0
+    asymm log-normals (0):
+    other terms (0):
+
+  -------------------------------------------------------------------------
+  default value =  259.0
+---------------------------------------------------------------------------
+  Top-level normalisation for process higgs -&gt; n_exp_binmu_tau_proc_higgs
+  -------------------------------------------------------------------------
+Dumping ProcessNormalization n_exp_binmu_tau_proc_higgs @ 0x6bc6390
+    nominal value: 0.57
+    log-normals (3):
+         kappa = 1.11, logKappa = 0.10436, theta = lumi = 0
+         kappa = 1.23, logKappa = 0.207014, theta = tauid = 0
+         kappa = 1.04, logKappa = 0.0392207, theta = effic = 0
+    asymm log-normals (0):
+    other terms (1):
+         term r (class RooRealVar), value = 1
+
+  -------------------------------------------------------------------------
+  default value =  0.57
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+Channel - e_mu
+---------------------------------------------------------------------------
+  Top-level normalisation for process ZTT -&gt; n_exp_bine_mu_proc_ZTT
+  -------------------------------------------------------------------------
+Dumping ProcessNormalization n_exp_bine_mu_proc_ZTT @ 0x6bc8910
+    nominal value: 88
+    log-normals (2):
+         kappa = 1.04, logKappa = 0.0392207, theta = ZtoLL = 0
+         kappa = 1.04, logKappa = 0.0392207, theta = effic = 0
+    asymm log-normals (0):
+    other terms (0):
+
+  -------------------------------------------------------------------------
+  default value =  88.0
+---------------------------------------------------------------------------
+</code></pre></div>
+</details>
+<p>As you can see, for each channel, a report is given for the top-level rate object in the workspace, for each process contributing to that channel. You can also see the various terms that make up that rate. The default value is for the default parameters in the workspace (i.e when running <code>text2workspace</code>, these are the values created as default).</p>
+<p>Another example is shown below for the workspace produced from the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/shapes/simple-shapes-parametric.txt">data/tutorials/shapes/simple-shapes-parametric.txt</a> datacard.</p>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>data/tutorials/shapes/simple-shapes-parametric.txt<span class="w"> </span>-m<span class="w"> </span><span class="m">30</span>
+python<span class="w"> </span>test/printWorkspaceNormalisations.py<span class="w"> </span>data/tutorials/shapes/simple-shapes-parametric.root<span class="w"> </span>-m<span class="w"> </span><span class="m">30</span>
+</code></pre></div>
+<details>
+<summary><strong>Show example output</strong></summary>
+<div class="highlight"><pre><span></span><code>  ---------------------------------------------------------------------------
+  ---------------------------------------------------------------------------
+  Channel - bin1
+  ---------------------------------------------------------------------------
+    Top-level normalisation for process bkg -&gt; n_exp_final_binbin1_proc_bkg
+    -------------------------------------------------------------------------
+  RooProduct::n_exp_final_binbin1_proc_bkg[ n_exp_binbin1_proc_bkg * shapeBkg_bkg_bin1__norm ] = 521.163
+   ... is a product, which contains  n_exp_binbin1_proc_bkg
+  RooRealVar::n_exp_binbin1_proc_bkg = 1 C  L(-INF - +INF)
+    -------------------------------------------------------------------------
+    default value =  521.163204829
+  ---------------------------------------------------------------------------
+    Top-level normalisation for process sig -&gt; n_exp_binbin1_proc_sig
+    -------------------------------------------------------------------------
+  Dumping ProcessNormalization n_exp_binbin1_proc_sig @ 0x464f700
+      nominal value: 1
+      log-normals (1):
+           kappa = 1.1, logKappa = 0.0953102, theta = lumi = 0
+      asymm log-normals (0):
+      other terms (1):
+           term r (class RooRealVar), value = 1
+
+    -------------------------------------------------------------------------
+    default value =  1.0
+</code></pre></div>
+</details>
+<p>This tells us that the normalization for the background process, named <code>n_exp_final_binbin1_proc_bkg</code> is a product of two objects <code>n_exp_binbin1_proc_bkg * shapeBkg_bkg_bin1__norm</code>. The first object is just from the <strong>rate</strong> line in the datacard (equal to 1) and the second is a floating parameter. For the signal, the normalisation is called <code>n_exp_binbin1_proc_sig</code> and is a <code>ProcessNormalization</code> object that contains the rate modifications due to the systematic uncertainties. You can see that it also has a "<em>nominal value</em>", which again is just from the value given in the <strong>rate</strong> line of the datacard (again=1).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../what_combine_does/statistical_tests/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Statistical Tests">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Statistical Tests
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../physicsmodels/" class="md-footer__link md-footer__link--next" aria-label="Next: Introduction">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Introduction
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

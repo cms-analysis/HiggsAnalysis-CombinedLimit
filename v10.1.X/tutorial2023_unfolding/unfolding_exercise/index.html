@@ -1,0 +1,1831 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../tutorial2023/parametric_exercise/">
+      
+      
+        <link rel="next" href="../../tutorial_stat_routines/stat_routines/">
+      
+      
+      <link rel="icon" href="../../logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>Likelihood Based Unfolding - Combine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2afb09e1.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../mystyle.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#likelihood-based-unfolding-exercise-in-combine" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../../.."> 
+
+
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Combine" class="md-header__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Combine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Likelihood Based Unfolding
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../what_combine_does/introduction/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  What Combine Does
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part2/settinguptheanalysis/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Setting up the analysis
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part3/runningthetool/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Running combine
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../part5/roofit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../part4/usefullinks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Links & FAQ
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Combine" class="md-nav__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    Combine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    What Combine Does
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            What Combine Does
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/model_and_likelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model and Likelihood
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/fitting_concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fitting Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/statistical_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statistical Tests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Setting up the analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Setting up the analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/settinguptheanalysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Physics models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Physics models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/physicsmodels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/higgscouplings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SM Higgs coupling models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bsm-higgs-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    BSM Higgs models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bin-wise-stats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Automatic MC statistical uncertainties
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Running combine
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Running combine
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/runningthetool/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Running the tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/commonstatsmethods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/nonstandard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced use cases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/simplifiedlikelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simplified Likelihoods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/regularisation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Unfolding & regularization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validating datacards
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/debugging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Debugging fit failures
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/roofit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Main Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Main Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exercises
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexerciseanswers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Solutions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023/parametric_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parametric Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Likelihood Based Unfolding
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Likelihood Based Unfolding
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting started
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise-outline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exercise outline
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analysis-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Analysis overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simplified-unfolding" class="md-nav__link">
+    <span class="md-ellipsis">
+      Simplified unfolding
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shape-analysis-with-control-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shape analysis with control regions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#impacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impacts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unfolded-measurements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unfolded measurements
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#poi-correlations" class="md-nav__link">
+    <span class="md-ellipsis">
+      POI correlations
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial_stat_routines/stat_routines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statitiscal Tests Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model_building_tutorial2024/model_building_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model building
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../abcd_rooparametrichist_tutorial/rooparametrichist_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Per-bin Transfer Factors with Parametric Histograms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/usefullinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Links & FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting started
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise-outline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exercise outline
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analysis-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Analysis overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simplified-unfolding" class="md-nav__link">
+    <span class="md-ellipsis">
+      Simplified unfolding
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shape-analysis-with-control-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shape analysis with control regions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#impacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impacts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unfolded-measurements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unfolded measurements
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#poi-correlations" class="md-nav__link">
+    <span class="md-ellipsis">
+      POI correlations
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="likelihood-based-unfolding-exercise-in-combine">Likelihood Based Unfolding Exercise in Combine</h1>
+<h2 id="getting-started">Getting started</h2>
+<p>To get started, you should have a working setup of <code>Combine</code>, please follow the instructions from the <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users">home page</a>. Make sure to use the latest recommended release.</p>
+<p>After setting up <code>Combine</code>, you can access the working directory for this tutorial which contains all of the inputs and scripts needed to run the unfolding fitting exercise:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit/data/tutorials/tutorial_unfolding_2023/
+</code></pre></div>
+<h2 id="exercise-outline">Exercise outline</h2>
+<p>The hands-on exercise is split into seven parts: </p>
+<p>1) "Simple" Unfolding Experiment</p>
+<p>2) Producing the Migration matrix from the datacards</p>
+<p>3) Advanced Unfolding with more detector-level information and control regions</p>
+<p>4) Extracting the expected intervals</p>
+<p>5) Producing Impacts for multiple POIs</p>
+<p>6) Unfold to the generator-level quantities </p>
+<p>7) Extracting POI correlations from the FitDiagnostics output</p>
+<blockquote>
+<p>Throughout the tutorial there are a number of questions and exercises for you to complete. These are shown in the boxes like this one. </p>
+</blockquote>
+<p>Note that some additional information on unfolding in <code>Combine</code> are available <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/regularisation/">here</a>, which also includes some information on regularization, which is not discussed in this tutorial. </p>
+<h2 id="analysis-overview">Analysis overview</h2>
+<p>In this tutorial we will look at the cross section measurements of on of the SM Higgs processes VH, in <span class="arithmatex">\(H\to b\bar{b}\)</span> (VHbb) final state. </p>
+<p>The measurement is performed within the Simplified Template Cross Section (STXS) framework, which provides the prediction in the bins of generator-level quantities <span class="arithmatex">\(p_{T}(V)\)</span> and number of additional jets. The maximum likelihood based unfolding is performed to measure the cross section in the generator-level bins defined by STXS scheme. At the detector-level we define appropriate categories to match the STXS bins as closely as possible so that there is a good correspondence between the detector-level observable and the underlying generator-level quantity we are interested in.  </p>
+<p><img alt="" src="../figures/simplifiedXS_VH_1_2.png" /> </p>
+<p>Note that for this STXS measurement, as well as measuring the cross-section as a function of the <span class="arithmatex">\(p_{T}\)</span> of the vector boson, the measurement includes some information on the number of additional jets and is performed over multiple different production modes, for different production processes. However, it is common to focus on a single distribution (e.g. <span class="arithmatex">\(p_{T}\)</span>) for a signle process, (e.g. <span class="arithmatex">\(t\bar{t}\)</span>).</p>
+<p>In this tutorial we will focus on the ZH production, with the Z boson decaying to charged leptons, and Higgs boson reconstructed with the resolved <span class="arithmatex">\(b\bar{b}\)</span> pair. We will also use only a part of the Run 2 categories, we will not achieve the same sensitivity as the full analysis. Note that ggZH and ZH production modes are combined in the fit, since it is not possible to resolve them at this stage of the analysis. The STXS categories are defined independently of the Higgs decay channel, to streamline the combinations of the cross section measurement. </p>
+<p>In the first part of the tutorial, we will setup a relatively simple unfolding, where there is a single detector-level bin for every generator-level bin we are trying to measure. We will then perform a blind analysis using this setup to see the expected sensitivity. </p>
+<p>In this simple version of the analysis, we use a series of datacards, one for each detector-level bin, implemented as a counting experiment. We then combine the datacards for the full measurement. It is also possible to implement the same analysis as a single datacard, passing a histogram with each of the detector-level bins. Either method can be used, depending on which is more practical for the analysis being considered. </p>
+<p>In the second part of the tutorial we will perform the same measurement with a more advanced setup, making use of differential distributions per generator-level bin we are trying to measure, as well as control regions. By providing this additional information to the fit, we are able to achieve a better and more robust unfolding result. After checking the expected sensitivity, we will take a look at the impacts and pulls of the nuisance parameters. Then we will unblind and look at the results of the measurement, produce generator-level plots and provide the correlation matrix for our measured observables.</p>
+<h2 id="simplified-unfolding">Simplified unfolding</h2>
+<p>When determining the detector-level binning for any differential analysis the main goal is to chose a binning that distinguishes contributions from the various generator-level bins well. In the simplest case it can be done with the cut-based approach, i.e. applying the same binning for the detector-level observables as is being applied to the generator-level quantities being measured. In this case, that means binning in <span class="arithmatex">\(p_{T}(Z)\)</span> and <span class="arithmatex">\(n_{\text{add. jets}}\)</span>. 
+Due to the good lepton <span class="arithmatex">\(p_{T}\)</span> resolution we can follow the original STXS scheme quite closely with the detector-level selection, with one exception, it is not possible to access the very-low transverse momenta bin <span class="arithmatex">\(p_{T}(Z)&lt;75\)</span> GeV.  </p>
+<p>In <code>counting/regions</code> dicrectory you can find the datacards with five detector-level categories, each targetting a corresponding generator-level bin. Below you can find an example of the datacard for the detector-level bin with <span class="arithmatex">\(p_{T}(Z)&gt;400\)</span> GeV. </p>
+<div class="highlight"><pre><span></span><code>imax    1 number of bins
+jmax    9 number of processes minus 1
+kmax    * number of nuisance parameters
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+bin          vhbb_Zmm_gt400_13TeV
+observation  12.0
+--------------------------------------------------------------------------------
+bin                                   vhbb_Zmm_gt400_13TeV   vhbb_Zmm_gt400_13TeV vhbb_Zmm_gt400_13TeV   vhbb_Zmm_gt400_13TeV     vhbb_Zmm_gt400_13TeV vhbb_Zmm_gt400_13TeV vhbb_Zmm_gt400_13TeV vhbb_Zmm_gt400_13TeV vhbb_Zmm_gt400_13TeV vhbb_Zmm_gt400_13TeV
+process                               ggZH_lep_PTV_GT400_hbb ZH_lep_PTV_GT400_hbb ZH_lep_PTV_250_400_hbb ggZH_lep_PTV_250_400_hbb Zj1b            Zj0b_c          Zj0b_udsg       VVLF            Zj2b            VVHF
+process                               -3                     -2                   -1                     0                        1               2               3               4               5               6
+rate                                  0.0907733              0.668303             0.026293               0.00434588               3.78735         2.58885         4.09457         0.413716        7.02731         0.642605
+--------------------------------------------------------------------------------
+</code></pre></div>
+<p>You can see the contributions from various background processes, namely Z+jets, <span class="arithmatex">\(t\bar{t}\)</span> and the single top, as well as the signal processes (ggZH and ZH) corresponding to the STXS scheme discussed above. Note that for each generator-level bin being measured, we assign a different process in combine. This is so that the signal strengths for each of their contributions can float independently in the measurement. Also note, that due to migrations, each detector-level bin will receive contributions from multiple generator-level bins.</p>
+<p>One of the most important stages in the analysis design, is to make sure that the detector-level categories are well-chosen to target the corresponding generator-level processes.</p>
+<p>To explicitly check the correspondance between detector- and generator-level, one can plot the contributions of each of the generator-level bins in all of the detector-level bins. You can use the script provided in the tutorial git-lab page. This script uses <code>CombineHarvester</code> to loop over detector-level bins, and get the rate at which each of the signal processes (generator-level bins) contributes to that detector-level bin; which is then used to plot the migration matrix. </p>
+<p><div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/get_migration_matrix.py<span class="w"> </span>counting/combined_ratesOnly.txt
+</code></pre></div>
+<img alt="" src="../figures/migration_matrix_zh.png" /> </p>
+<p>The migration matrix shows the generator-level bins on the x-axis and the corresponding detector-level bins on the y-axis. The entries are normalized such that the sum of all contributions for a given generator-level bin sum up to 1. With this convention, the numbers in each bin represent the probability that an event from a given generator-level bin is reconstructed in a given detector-level bin if it is reconstructed at all within the considered bins.</p>
+<p>Now that we checked the response matrix we can attempt the maximum likelihood unfolding. We can use the <code>multiSignalModel</code> physics model available in <code>Combine</code>, which assigns a parameter of interest <code>poi</code> to a process <code>p</code> within a bin <code>b</code> using the syntax <code>--PO 'map=b/p:poi[init, min, max]'</code> to linearly scale the normalisation of this process under the parameter of interest (POI) variations. To create the workspace we can run the following command: 
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w">  </span>counting/combined_ratesOnly.txt<span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel<span class="w">  </span>--PO<span class="w"> </span>verbose<span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_75_150_hbb:r_zh_75_150[1,-5,5]&#39;</span><span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_150_250_0J_hbb:r_zh_150_250noj[1,-5,5]&#39;</span><span class="w">  </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_150_250_GE1J_hbb:r_zh_150_250wj[1,-5,5]&#39;</span><span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_250_400_hbb:r_zh_250_400[1,-5,5]&#39;</span><span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_GT400_hbb:r_zh_gt400[1,-5,5]&#39;</span><span class="w"> </span>-o<span class="w"> </span>ws_counting.root
+</code></pre></div>
+In the example given above a signal POI is assigned to each generator-level bin independent of detector-level bin. This allows the measurement to take into account migrations. </p>
+<p>To extract the measurement let's run the initial fit first using the <code>MultiDimFit</code> method implemented in <code>Combine</code> to extract the best-fit values and uncertainties on all floating parameters:  </p>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>--datacard<span class="w"> </span>ws_counting.root<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">r_zh_250_400</span><span class="o">=</span><span class="m">1</span>,r_zh_150_250noj<span class="o">=</span><span class="m">1</span>,r_zh_75_150<span class="o">=</span><span class="m">1</span>,r_zh_150_250wj<span class="o">=</span><span class="m">1</span>,r_zh_gt400<span class="o">=</span><span class="m">1</span><span class="w"> </span>--redefineSignalPOIs<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400<span class="w"> </span>-t<span class="w"> </span>-1<span class="w"> </span>
+</code></pre></div>
+<blockquote>
+<p>With the option <code>-t -1</code> we set <code>Combine</code> to fit the asimov dataset instead of actual data.
+The <code>--setParameters &lt;param&gt;=&lt;value&gt;</code> set the initial value of parameter named <param>.
+<code>--redefineSignalPOIs r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400</code> set the POIs to the comma-separated list, instead of the default one <code>r</code>.</p>
+</blockquote>
+<p>While the uncertainties on the parameters of interest (POIs) can be extracted in multiple ways, the most robust way is to run the likelihood scans for a POI corresponding to each generator-level bin, it allows you to spot discontinuities in the likelihood shape in case of problems with the fit or the model. </p>
+<p><div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>--datacard<span class="w"> </span>ws_counting.root<span class="w"> </span>-t<span class="w"> </span>-1<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">r_zh_250_400</span><span class="o">=</span><span class="m">1</span>,r_zh_150_250noj<span class="o">=</span><span class="m">1</span>,r_zh_75_150<span class="o">=</span><span class="m">1</span>,r_zh_150_250wj<span class="o">=</span><span class="m">1</span>,r_zh_gt400<span class="o">=</span><span class="m">1</span><span class="w"> </span>--redefineSignalPOIs<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400<span class="w"> </span>--algo<span class="o">=</span>grid<span class="w"> </span>--points<span class="o">=</span><span class="m">100</span><span class="w"> </span>-P<span class="w"> </span>r_zh_75_150<span class="w"> </span>--floatOtherPOIs<span class="o">=</span><span class="m">1</span><span class="w"> </span>-n<span class="w"> </span>scan_r_zh_75_150
+</code></pre></div>
+Now we can plot the likelihood scan and extract the expected intervals.</p>
+<p><div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/plot1DScan.py<span class="w"> </span>higgsCombinescan_r_zh_75_150.MultiDimFit.mH120.root<span class="w"> </span>-o<span class="w"> </span>r_zh_75_150<span class="w"> </span>--POI<span class="w"> </span>r_zh_75_150
+</code></pre></div>
+* Repeat for all POIs</p>
+<h2 id="shape-analysis-with-control-regions">Shape analysis with control regions</h2>
+<p>One of the advantages of the maximum likelihood unfolding is the flexibility to choose the analysis observable and include more information on the event kinematics, consequently improving the analysis sensitivity. This analysis benefits from the shape information of the DNN output trained to differentiate the VH(bb) signal from the SM backgrounds. </p>
+<p>The datacards for this part of the exercise located <code>full_model_datacards/</code>, where you can find a separate datacard for each region within <code>full_model_datacards/regions</code> directory and also a combined datacard <code>full_model_datacards/comb_full_model.txt</code>. In this case, each of the detector-level bins being used in the unfolding above is now split into multiple bins according to the DNN output score. This provides extra discrimination power to separate the signal from background and improve the measurement.</p>
+<p>As you will find, the datacards also contain several background processes. To control them properly we will also add regions enriched in the respective backgrounds. Then we can define a common set of rate parameters for signal and control regions to scale the rates or other parameters affecting their shape.  </p>
+<p>For the shape datacards one has to specify the mapping of histograms and channels/processes as given described below:</p>
+<p><div class="highlight"><pre><span></span><code>shapes [process] [channel] [file] [nominal] [systematics_templates]
+</code></pre></div>
+Then the <code>shape</code> nuisance parameters can be defined in the systematics block in the datacard. More details can be found in <code>Combine</code> <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/settinguptheanalysis/#binned-shape-analysis">documentation pages</a>.</p>
+<p>In many CMS analyses there are hundreds of nuisance parameters corresponding to various source of systematics. </p>
+<p>When we unfold to the generator-level quantities we should remove the nuisances affecting the rate of the generator-level bins, i.e. when measuring a given cross-section such as <span class="arithmatex">\(\sigma_{\textrm{gen1}}\)</span>, the nuisance parameters should not change the value of that parameter itself; they should only change the relationship between that parameter and the observations.  This means that, for example, effects of renormalization and factorization scales on the generator-level cross section within each bin need to be removed. Only their effects on the detector-level distribution through changes of shape within each bin as well as acceptances and efficiencies should be considered. </p>
+<p>For this analysis, that means removing the <code>lnN</code> nuisance parameters: <code>THU_ZH_mig*</code> and  <code>THU_ZH_inc</code>; keeping only the acceptance <code>shape</code> uncertainties: <code>THU_ZH_acc</code> and <code>THU_ggZH_acc</code>, which do not scale the inclusive cross sections by construction. In this analysis the normalisation effects in the <code>THU_ZH_acc</code> and <code>THU_ggZH_acc</code> templates were already removed from the shape histograms. Removing the normalization effects can be achieved by removing them from the datacard. Alternatively, freezing the respective nuisance parameters with the option <code>--freezeParameters par_name1,par_name2</code>. Or you can create a group following the syntax given below at the end of the combined datacard, and freeze the parameters with the <code>--freezeNuisanceGroups group_name</code> option.</p>
+<div class="highlight"><pre><span></span><code>[group_name] group = uncertainty_1 uncertainty_2 ... uncertainty_N
+</code></pre></div>
+<p>Now we can create the workspace using the same <code>multiSignalmodel</code> as before:</p>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w">  </span>full_model_datacards/comb_full_model.txt<span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel<span class="w">  </span>--PO<span class="w"> </span>verbose<span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_75_150_hbb:r_zh_75_150[1,-5,5]&#39;</span><span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_150_250_0J_hbb:r_zh_150_250noj[1,-5,5]&#39;</span><span class="w">  </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_150_250_GE1J_hbb:r_zh_150_250wj[1,-5,5]&#39;</span><span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_250_400_hbb:r_zh_250_400[1,-5,5]&#39;</span><span class="w"> </span>--PO<span class="w"> </span><span class="s1">&#39;map=.*/.*ZH_lep_PTV_GT400_hbb:r_zh_gt400[1,-5,5]&#39;</span><span class="w"> </span>--for-fits<span class="w"> </span>--no-wrappers<span class="w"> </span>--X-pack-asympows<span class="w"> </span>--optimize-simpdf-constraints<span class="o">=</span>cms<span class="w"> </span>--use-histsum<span class="w"> </span>-o<span class="w"> </span>ws_full.root
+</code></pre></div>
+<blockquote>
+<p>As you might have noticed we are using a few extra versions <code>--for-fits --no-wrappers --X-pack-asympows --optimize-simpdf-constraints=cms --use-histsum</code> to create a workspace. They are needed to construct a more optimised pdf using the <code>CMSHistSum</code> class implemented in Combine to significantly lower the memory consumption.</p>
+</blockquote>
+<ul>
+<li>Following the instructions given earlier, create the workspace and run the initial fit with <code>-t -1</code>. </li>
+</ul>
+<p>Since this time the datacards include shape uncertainties as well as additional categories to improve the background description the fit might take much longer, but we can submit jobs to a batch system by using the combine tool and have results ready to look at in a few minutes.  </p>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>-d<span class="w"> </span>ws_full.root<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">r_zh_250_400</span><span class="o">=</span><span class="m">1</span>,r_zh_150_250noj<span class="o">=</span><span class="m">1</span>,r_zh_75_150<span class="o">=</span><span class="m">1</span>,r_zh_150_250wj<span class="o">=</span><span class="m">1</span>,r_zh_gt400<span class="o">=</span><span class="m">1</span><span class="w"> </span>--redefineSignalPOIs<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400<span class="w">  </span>-t<span class="w"> </span>-1<span class="w"> </span>--X-rtd<span class="w"> </span>FAST_VERTICAL_MORPH<span class="w"> </span>--algo<span class="o">=</span>grid<span class="w"> </span>--points<span class="o">=</span><span class="m">50</span><span class="w"> </span>--floatOtherPOIs<span class="o">=</span><span class="m">1</span><span class="w"> </span>-n<span class="w"> </span>.scans_blinded<span class="w"> </span>--job-mode<span class="w"> </span>condor<span class="w"> </span>--task-name<span class="w"> </span>scans_zh<span class="w">  </span>--split-points<span class="w"> </span><span class="m">1</span><span class="w"> </span>--generate<span class="w"> </span>P:n::r_zh_gt400,r_zh_gt400:r_zh_250_400,r_zh_250_400:r_zh_150_250wj,r_zh_150_250wj:r_zh_150_250noj,r_zh_150_250noj:r_zh_75_150,r_zh_75_150
+</code></pre></div>
+<blockquote>
+<p>The option <code>--X-rtd FAST_VERTICAL_MORPH</code> is added here and for all <code>combineTool.py -M MultiDimFit ...</code> to speed up the minimisation. </p>
+<p>The job submission is handled by the <code>CombineHarvester</code>, the combination of options <code>--job-mode condor --task-name scans_zh  --split-points 1 --generate P:n::r_zh_gt400,r_zh_gt400:r_zh_250_400,r_zh_250_400:r_zh_150_250wj,r_zh_150_250wj:r_zh_150_250noj,r_zh_150_250noj:r_zh_75_150,r_zh_75_150</code> will submit the jobs to HTCondor for each POI. 
+The <code>--generate</code> option is is being used to automatically generate jobs attaching the options <code>-P &lt;POI&gt; -n &lt;name&gt;</code> with each of the pairs of values <code>&lt;POI&gt;,&lt;name&gt;</code> specified between the colons.
+You can add <code>--dry-run</code> option to create the submissions files first and check them, and then submit the jobs with <code>condor_submit condor_scans_zh.sub</code>. </p>
+<p>If you are running the tutorial from a cluster where HTCondor is not available you can also submit the jobs to the slurm system, just change the <code>--job-mode condor</code> to <code>--job-mode slurm</code>. </p>
+</blockquote>
+<p>After all jobs are completed we can combine the files for each POI: </p>
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>p<span class="w"> </span><span class="k">in</span><span class="w"> </span>r_zh_75_150<span class="w"> </span>r_zh_150_250noj<span class="w"> </span>r_zh_150_250wj<span class="w"> </span>r_zh_250_400<span class="w"> </span>r_zh_gt400
+<span class="k">do</span>
+<span class="w">    </span>hadd<span class="w"> </span>-k<span class="w"> </span>-f<span class="w"> </span>scan_<span class="si">${</span><span class="nv">p</span><span class="si">}</span>_blinded.root<span class="w"> </span>higgsCombine.scans_blinded.<span class="si">${</span><span class="nv">p</span><span class="si">}</span>.POINTS.*.MultiDimFit.mH120.root
+<span class="k">done</span>
+</code></pre></div>
+<p>And finally plot the likelihood scans </p>
+<p><div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/plot1DScan.py<span class="w"> </span>scan_r_zh_75_150_blinded.root<span class="w">  </span>-o<span class="w"> </span>scan_r_zh_75_150_blinded<span class="w"> </span>--POI<span class="w"> </span>r_zh_75_150<span class="w"> </span>--json<span class="w"> </span>summary_zh_stxs_blinded.json
+</code></pre></div>
+<img alt="" src="../figures/scan_plot_r_zh_75_150_blinded.png" /></p>
+<h2 id="impacts">Impacts</h2>
+<p>One of the important tests before we move to the unblinding stage is to check the impacts of nuisance parameters on each POI. For this we can run the <code>combineTool.py</code> with <code>-M Impacts</code> method. We start with the initial fit, which should take about 20 minutes (good time to have a coffee break!):</p>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>Impacts<span class="w"> </span>-d<span class="w"> </span>ws_full.root<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--robustFit<span class="w"> </span><span class="m">1</span><span class="w"> </span>--doInitialFit<span class="w"> </span>--redefineSignalPOIs<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400<span class="w"> </span>--X-rtd<span class="w"> </span>FAST_VERTICAL_MORPH
+</code></pre></div>
+<blockquote>
+<p>Note that it is important to add the option <code>--redefineSignalPOIs [list of parameters]</code>, to produce the impacts for all POIs we defined when the workspace was created with the <code>multiSignalModel</code>.</p>
+</blockquote>
+<p>After the initial fit is completed we can perform the likelihood scans for each nuisance parameter. 
+We will submit the jobs to the HTCondor to speed up the process.</p>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>Impacts<span class="w"> </span>-d<span class="w"> </span>ws_full.root<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--robustFit<span class="w"> </span><span class="m">1</span><span class="w"> </span>--doFits<span class="w"> </span>--redefineSignalPOIs<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400<span class="w"> </span>--job-mode<span class="w"> </span>condor<span class="w"> </span>--task-name<span class="w"> </span>impacts_zh<span class="w"> </span>--X-rtd<span class="w"> </span>FAST_VERTICAL_MORPH<span class="w"> </span>
+</code></pre></div>
+<p>Now we can combine the results into the <code>.json</code> format and use it to produce the impact plots.</p>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>Impacts<span class="w"> </span>-d<span class="w"> </span>ws_full.root<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--redefineSignalPOIs<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400<span class="w"> </span>--output<span class="w"> </span>impacts.json<span class="w"> </span>
+
+plotImpacts.py<span class="w"> </span>-i<span class="w"> </span>impacts.json<span class="w"> </span>-o<span class="w"> </span>impacts_r_zh_75_150<span class="w"> </span>--POI<span class="w"> </span>r_zh_75_150
+</code></pre></div>
+<p><img alt="" src="../figures/impacts_zh_75_150.png" />
+* Do you observe differences in impacts plots for different POIs, do these differences make sense to you? </p>
+<h2 id="unfolded-measurements">Unfolded measurements</h2>
+<p>Now that we studied the nuisance parameter impacts for each POI, we can finally perform the measurement.
+Note that for the purposes of the tutorial, we are skipping further checks and validation that you should do on your analysis. Namely the goodness of fit test and the post-fit plots of folded observables. Both of these checks were detailed in the previous exercises, which you can find under the <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/">following link</a>. </p>
+<p>At this stage we'll run the <code>MultiDimFit</code> again scanning each POI to calculate the intervals, but this time we'll remove the <code>-t -1</code> option to extract the unblinded results. </p>
+<p>Also since we want to unfold the measurements to the generator-level observables, i.e. extract the cross sections, we remove the theoretical uncertainties affecting the rates of signal processes,  we can do this be freezing them <code>--freezeNuisanceGroups &lt;group_name&gt;</code>, using the <code>group_name</code> you assigned earlier in the tutorial. </p>
+<p>Now plot the scans and collect the measurements in the json file <code>summary_zh_stxs.json</code>. </p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/plot1DScan.py<span class="w"> </span>scan_r_zh_75_150.root<span class="w"> </span>-o<span class="w"> </span>r_zh_75_150<span class="w"> </span>--POI<span class="w"> </span>r_zh_75_150<span class="w"> </span>--json<span class="w"> </span>summary_zh_stxs.json<span class="w">  </span>
+</code></pre></div>
+<p><img alt="" src="../figures/scan_plot_r_zh_75_150.png" /></p>
+<p>Repeat the same command for other POIs to fill the <code>summary_zh_stxs.json</code>, which can then be used to make the cross section plot by multiplying the standard model cross sections by the signal strengths' best-fit values as shown below. </p>
+<p><div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/make_XSplot.py<span class="w"> </span>summary_zh_stxs.json
+</code></pre></div>
+<img alt="" src="../figures/stxs_zh.png" /> </p>
+<h2 id="poi-correlations">POI correlations</h2>
+<p>In addition to the cross-section measurements it is very important to publish covariance or correlation information of the measured cross sections. 
+This allows the measurement to be properly intepreted or reused in combined fits.  </p>
+<p>The correlation matrix or covariance matrix can be extracted from the results after the fit. Here we can use the <code>FitDiagnostics</code> or <code>MultiDimFit</code> method.</p>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>FitDiagnostics<span class="w"> </span>--datacard<span class="w"> </span>ws_full.root<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">r_zh_250_400</span><span class="o">=</span><span class="m">1</span>,r_zh_150_250noj<span class="o">=</span><span class="m">1</span>,r_zh_75_150<span class="o">=</span><span class="m">1</span>,r_zh_150_250wj<span class="o">=</span><span class="m">1</span>,r_zh_gt400<span class="o">=</span><span class="m">1</span><span class="w"> </span>--redefineSignalPOIs<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400<span class="w">  </span>--robustHesse<span class="w"> </span><span class="m">1</span><span class="w"> </span>-n<span class="w"> </span>.full_model<span class="w"> </span>--X-rtd<span class="w"> </span>FAST_VERTICAL_MORPH
+</code></pre></div>
+<p>Then the <code>RooFitResult</code>, containing correlations matrix, can be found in the <code>fitDiagnostics.full_model.root</code> file under the name <code>fit_s</code>. The script <code>plotCorrelations_pois.py</code> from the exercise git-lab repository can help to plot the correlation matrix.</p>
+<p><div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/plotCorrelations_pois.py<span class="w"> </span>-i<span class="w"> </span>fitDiagnostics.full_model.root:fit_s<span class="w"> </span>-p<span class="w"> </span>r_zh_75_150,r_zh_150_250noj,r_zh_150_250wj,r_zh_250_400,r_zh_gt400
+</code></pre></div>
+<img alt="" src="../figures/correlationMatrix_pois.png" /></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../tutorial2023/parametric_exercise/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Parametric Models">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Parametric Models
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../tutorial_stat_routines/stat_routines/" class="md-footer__link md-footer__link--next" aria-label="Next: Statitiscal Tests Basics">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Statitiscal Tests Basics
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2035 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../fitting_concepts/">
+      
+      
+        <link rel="next" href="../../part2/settinguptheanalysis/">
+      
+      
+      <link rel="icon" href="../../logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>Statistical Tests - Combine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2afb09e1.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../mystyle.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#statistical-tests" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../../.."> 
+
+
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Combine" class="md-header__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Combine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Statistical Tests
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../introduction/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  What Combine Does
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part2/settinguptheanalysis/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Setting up the analysis
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part3/runningthetool/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Running combine
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part5/roofit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../part4/usefullinks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Links & FAQ
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Combine" class="md-nav__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    Combine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    What Combine Does
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            What Combine Does
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_and_likelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model and Likelihood
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fitting_concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fitting Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Statistical Tests
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statistical Tests
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      General Framework
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General Framework">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#statistical-tests_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Statistical tests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Statistical tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test Statistics
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tests-with-likelihood-ratio-test-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests with Likelihood Ratio Test Statistics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tests with Likelihood Ratio Test Statistics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-likelihood-ratio-and-likelihood-ratio-based-test-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      The likelihood ratio and likelihood ratio based test statistics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The likelihood ratio and likelihood ratio based test statistics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sets-of-test-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sets of test statistics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expected-distributions-of-likelihood-ratio-test-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expected distributions of likelihood ratio test statistics
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-estimation-using-the-likelihood-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameter Estimation using the likelihood ratio
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#discoveries-using-the-likelihood-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      Discoveries using the likelihood ratio
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limit-setting-using-the-likelihood-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limit Setting using the likelihood ratio
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Limit Setting using the likelihood ratio">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-cls-criterion" class="md-nav__link">
+    <span class="md-ellipsis">
+      The CLs criterion
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#goodness-of-fit-tests-using-the-likelihood-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goodness of fit tests using the likelihood ratio
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#channel-compatibility-test-using-the-likelihood-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      Channel Compatibility test using the likelihood ratio
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#other-statistical-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other Statistical Tests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Other Statistical Tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other-goodness-of-fit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other Goodness of Fit Tests
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Setting up the analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Setting up the analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/settinguptheanalysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Physics models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Physics models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/physicsmodels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/higgscouplings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SM Higgs coupling models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bsm-higgs-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    BSM Higgs models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bin-wise-stats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Automatic MC statistical uncertainties
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Running combine
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Running combine
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/runningthetool/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Running the tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/commonstatsmethods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/nonstandard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced use cases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/simplifiedlikelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simplified Likelihoods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/regularisation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Unfolding & regularization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validating datacards
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/debugging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Debugging fit failures
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/roofit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Main Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Main Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exercises
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexerciseanswers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Solutions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023/parametric_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parametric Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023_unfolding/unfolding_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Likelihood Based Unfolding
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial_stat_routines/stat_routines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statitiscal Tests Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model_building_tutorial2024/model_building_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model building
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../abcd_rooparametrichist_tutorial/rooparametrichist_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Per-bin Transfer Factors with Parametric Histograms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/usefullinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Links & FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      General Framework
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General Framework">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#statistical-tests_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Statistical tests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Statistical tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test Statistics
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tests-with-likelihood-ratio-test-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tests with Likelihood Ratio Test Statistics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tests with Likelihood Ratio Test Statistics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-likelihood-ratio-and-likelihood-ratio-based-test-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      The likelihood ratio and likelihood ratio based test statistics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The likelihood ratio and likelihood ratio based test statistics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sets-of-test-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sets of test statistics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expected-distributions-of-likelihood-ratio-test-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expected distributions of likelihood ratio test statistics
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-estimation-using-the-likelihood-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameter Estimation using the likelihood ratio
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#discoveries-using-the-likelihood-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      Discoveries using the likelihood ratio
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limit-setting-using-the-likelihood-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limit Setting using the likelihood ratio
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Limit Setting using the likelihood ratio">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-cls-criterion" class="md-nav__link">
+    <span class="md-ellipsis">
+      The CLs criterion
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#goodness-of-fit-tests-using-the-likelihood-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goodness of fit tests using the likelihood ratio
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#channel-compatibility-test-using-the-likelihood-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      Channel Compatibility test using the likelihood ratio
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#other-statistical-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other Statistical Tests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Other Statistical Tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other-goodness-of-fit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other Goodness of Fit Tests
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="statistical-tests">Statistical Tests</h1>
+<p>Combine is a likelihood based statistical tool.
+That means that it uses the likelihood function to define statistical tests.</p>
+<p>Combine provides a number of customization options for each test; as always it is up to the user to chose an appropriate test and options.</p>
+<h2 id="general-framework">General Framework</h2>
+<h3 id="statistical-tests_1">Statistical tests</h3>
+<p>Combine implements a number of different customizable <a href="https://pdg.lbl.gov/2022/web/viewer.html?file=../reviews/rpp2022-rev-statistics.pdf#section.40.3">statistical tests</a>.
+These tests can be used for purposes such as determining the significance of some new physics model over the standard model, setting limits, estimating parameters, and checking goodness of fit.</p>
+<p>These tests are all performed on a given model (null hypothesis), and often require additional specification of an alternative model.
+The statistical test then typically requires defining some "<strong>test statistic</strong>", <span class="arithmatex">\(t\)</span>, which is simply any real-valued function of the observed data:</p>
+<div class="arithmatex">\[ t(\mathrm{data}) \in \mathbb{R} \]</div>
+<p>For example, in a simple coin-flipping experiment, the number of heads could be used as the test statistic.</p>
+<p>The distribution of the test statistic should be estimated under the null hypothesis (and the alternative hypothesis, if applicable).
+Then the value of the test statistic on the actual observed data, <span class="arithmatex">\(t^{\mathrm{obs}}\)</span> is compared with its expected value under the relevant hypotheses.</p>
+<div class="p value explainer", id="pvalexplainer">
+<!--- this div exists as a convenient link target to the p-value explainer below. It is placed slightly above the explainer, because otherwise the explainer is covered by the page header-->
+</div>
+
+<p>This comparison, which depends on the test in question, defines the results of the test, which may be simple binary results (e.g. this model point is rejected at a given confidence level), or continuous (e.g. defining the degree to which the data are considered surprising, given the model).
+Often, as either a final result or as an intermediate step, the p-value of the observed test statistic under a given hypothesis is calculated.</p>
+<details>
+<summary><strong>How p-values are calculated</strong></summary>
+<p>The distribution of the test statistic, <span class="arithmatex">\(t\)</span> under some model hypothesis <span class="arithmatex">\(\mathcal{M}\)</span> is:</p>
+<div class="arithmatex">\[t \stackrel{\mathcal{M}}{\sim} D_{\mathcal{M}}\]</div>
+<p>And the observed value of the test statistic is <span class="arithmatex">\(t_{\mathrm{obs}}\)</span>.
+The p-value of the observed result gives the probability of having observed a test statistic at least as extreme as the actual observation. For example, this may be:</p>
+<div class="arithmatex">\[p = \int_{t_{\mathrm{min}}}^{t_\mathrm{obs}} D_{\mathcal{M}} \mathrm{d}t\]</div>
+<p>In some cases, the bounds of the integral may be modified, such as <span class="arithmatex">\(( t_{\mathrm{obs}}, t_{\mathrm{max}} )\)</span> or <span class="arithmatex">\((-t_{\mathrm{obs}}, t_{\mathrm{obs}} )\)</span>, depending on the details of the test being performed.
+And specifically, for the distribution in question, whether an observed value in the right tail, left tail, or either tail of the distribution is considered as unexpected.</p>
+<p>The p-values using the left-tail and right tail are related to each other via <span class="arithmatex">\(p_{\mathrm{left}} = 1 - p_{\mathrm{right}}\)</span>.</p>
+</details>
+<h4 id="test-statistics">Test Statistics</h4>
+<p>The test statistic can be any real valued function of the data.
+While in principle, many valid test statistics can be used, the choice of tests statistic is very important as it influences the power of the statistical test.</p>
+<p>By associating a single real value with every observation, the test statistic allows us to recast the question "how likely was this observation?" in the form of a quantitative question about the value of the test statistic.
+Ideally a good test statistic should return different values for likely outcomes as compared to unlikely outcomes and the expected distributions under the null and alternate hypotheses should be well-separated.</p>
+<p>In many situations, extremely useful test statistics, sometimes optimal ones for particular tasks, can be constructed from the likelihood function itself:</p>
+<div class="arithmatex">\[ t(\mathrm{data}) = f(\mathcal{L}) \]</div>
+<p>Even for a given statistical test, several likelihood-based test-statistics may be suitable, and for some tests combine implements multiple test-statistics from which the user can choose.</p>
+<h2 id="tests-with-likelihood-ratio-test-statistics">Tests with Likelihood Ratio Test Statistics</h2>
+<p>The <a href="../../what_combine_does/model_and_likelihood/#the-likelihood">likelihood function</a> itself often forms a good basis for building test statistics.</p>
+<p>Typically the absolute value of the likelihood itself is not very meaningful as it depends on many fixed aspects we are usually not interested in on their own, like the size of the parameter space and the number of observations.
+However, quantities such as the ratio of the likelihood at two different points in parameter space are very informative about the relative merits of those two models.</p>
+<h3 id="the-likelihood-ratio-and-likelihood-ratio-based-test-statistics">The likelihood ratio and likelihood ratio based test statistics</h3>
+<p>A very useful test statistic is the likelihood ratio of two models:</p>
+<div class="arithmatex">\[ \Lambda \equiv \frac{\mathcal{L}_{\mathcal{M}}}{\mathcal{L}_{\mathcal{M}'}} \]</div>
+<p>For technical and convenience reasons, often the negative logarithm of the likelihood ratio is used:</p>
+<div class="arithmatex">\[t \propto -\log(\Lambda) = \log(\mathcal{L}_{\mathcal{M}'}) - \log(\mathcal{L}_{\mathcal{M}})\]</div>
+<p>With different proportionality constants being most convenient in different circumstances.
+The negative sign is used by convention since usually the ratios are constructed so that the larger likelihood value must be in the denominator.
+This way, <span class="arithmatex">\(t\)</span> is positive, and larger values of <span class="arithmatex">\(t\)</span> represent larger differences between the likelihoods of the two models.</p>
+<h4 id="sets-of-test-statistics">Sets of test statistics</h4>
+<p>If the parameters of both likelihoods in the ratio are fixed to a single value, then that defines a single test statistic.
+Often, however, we are interested in testing <a href="../../what_combine_does/model_and_likelihood/#sets-of-observation-models">"sets" of models</a>, parameterized by some set of values <span class="arithmatex">\((\vec{\mu}, \vec{\nu})\)</span>.</p>
+<p>This is important in limit setting for example, where we perform statistical tests to exclude entire ranges of the parameter space.</p>
+<p>In these cases, the likelihood ratio (or a function of it) can be used to define a set of test statistics parameterized by the model parameters.
+For example, a very useful set of test statistics is:</p>
+<div class="arithmatex">\[ t_{\vec{\mu}} \propto -\log\left(\frac{\mathcal{L}(\vec{\mu})}{\mathcal{L}(\vec{\hat{\mu}})}\right) \]</div>
+<p>Where the likelihood parameters in the bottom are fixed to their maximum likelihood values, but the parameter <span class="arithmatex">\(\vec{\mu}\)</span> indexing the test statistic appears in the numerator of the likelihood ratio.</p>
+<p>When calculating the p-values for these statistical tests, the p-values are calculated at each point in parameter space using the test statistic for that point.
+In other words, the observed and expected distributions of the test statistics are computed separately at each parameter point <span class="arithmatex">\(\vec{\mu}\)</span> being considered.</p>
+<h4 id="expected-distributions-of-likelihood-ratio-test-statistics">Expected distributions of likelihood ratio test statistics</h4>
+<p>Under <a href="https://arxiv.org/abs/1911.10237">appropriate conditions</a>, the distribution of <span class="arithmatex">\(t_\vec{\mu}\)</span> can be approximated analytically, via <a href="https://en.wikipedia.org/wiki/Wilks'_theorem">Wilks' Theorem</a> or other extensions of that work.
+Then, the p-value of the observed test statistic can be calculated from the known form of the expected distribution.
+This is also true for a number of the other test statistics derived from the likelihood ratio, where <a href="https://arxiv.org/abs/1007.1727">asymptotic approximations have been derived</a>.</p>
+<p>Combine provides asymptotic methods, for <a href="../../part3/commonstatsmethods/#asymptotic-frequentist-limits">limit setting</a>, <a href="../../part3/commonstatsmethods/#asymptotic-significances">significance tests</a>, and <a href="../../part3/commonstatsmethods/#likelihood-fits-and-scans">computing confidence intervals</a> which make used of these approximations for fast calculations.</p>
+<p>In the general case, however, the distribution of the test statistic is not known, and it must be estimated.
+Typically it is estimated by generating many sets of pseudo-data from the model and using the emprirical distribution of the test statistic.</p>
+<p>Combine also provides methods for <a href="../../part3/commonstatsmethods/#computing-limits-with-toys">limit setting</a>, <a href="../../part3/commonstatsmethods/#computing-significances-with-toys">significance tests</a>, and <a href="../../part3/commonstatsmethods/#feldman-cousins">computing confidence intervals</a> which use pseudodata generation to estimate the expected test-statistic distributions, and therefore don't depend on the asymptotic approximation.
+Methods are also provided for <a href="../../part3/runningthetool/#toy-data-generation">generating pseudodata</a> without running a particular test, which can be saved and used for estimating expected distributions.</p>
+<h3 id="parameter-estimation-using-the-likelihood-ratio">Parameter Estimation using the likelihood ratio</h3>
+<p>A common use case for likelihood ratios is estimating the values of some parameters, such as the parameters of interest, <span class="arithmatex">\(\vec{\mu}\)</span>.
+The point estimate for the parameters is simply the maximum likelihood estimate, but the likelihood ratio can be used for estimating the uncertainty as a confidence region.</p>
+<p>A <a href="../../what_combine_does/fitting_concepts/#frequentist-confidence-regions">confidence region</a> for the parameters <span class="arithmatex">\(\vec{\mu}\)</span> can be defined by using an appropriate test statistic.
+Typically, we use the profile likelihood ratio:</p>
+<div class="arithmatex">\[ t_{\vec{\mu}} \propto -\log\left(\frac{\mathcal{L}(\vec{\mu},\vec{\hat{\nu}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\nu}})}\right) \]</div>
+<p>Where the likelihood in the top is the value of the likelihood at a point <span class="arithmatex">\(\vec{\mu}\)</span> <a href="../../what_combine_does/fitting_concepts/#profiling">profiled over</a> <span class="arithmatex">\(\vec{\nu}\)</span>; and the likelihood on the bottom is at the best fit point.</p>
+<p>Then the confidence region can be defined as the region where the p-value of the observed test-statistic is less than the confidence level:</p>
+<div class="arithmatex">\[ \{ \vec{\mu}_{\mathrm{CL}} \} =  \{ \vec{\mu} : p_{\vec{\mu}} \lt \mathrm{CL} \}.\]</div>
+<p>This construction will satisfy the frequentist coverage property that the confidence region contains the parameter values used to generate the data in <span class="arithmatex">\(\mathrm{CL}\)</span> fraction of cases.</p>
+<p>In many cases, Wilks' theorem can be used to calculate the p-value and the criteria on <span class="arithmatex">\(p_{\vec{\mu}}\)</span> can be converted directly into a criterion on <span class="arithmatex">\(t_{\vec{\mu}}\)</span> itself, <span class="arithmatex">\(t_{\vec{\mu}} \lt \gamma_{\mathrm{CL}}\)</span>.
+Where <span class="arithmatex">\(\gamma_{\mathrm{CL}}\)</span> is a known function of the confidence level which depends on the parameter space being considered.</p>
+<h3 id="discoveries-using-the-likelihood-ratio">Discoveries using the likelihood ratio</h3>
+<p>A common method for claiming discovery is based on a likelihood ratio test by showing that the new physics model has a "significantly" larger likelihood than the standard model.</p>
+<p>This could be done by using the standard profile likelihood ratio test statistic:</p>
+<div class="arithmatex">\[ t_{\mathrm{NP}} = -2\log\left(\frac{\mathcal{L}(\mu_{\mathrm{NP}} = 0, \vec{\hat{\nu}}(\mu_{\mathrm{NP}} = 0))}{\mathcal{L}(\hat{\mu}_{\mathrm{NP}},\vec{\hat{\nu}})}\right) \]</div>
+<p>Where <span class="arithmatex">\(\mu_{\mathrm{NP}}\)</span> represents the strength of some new physics quantity, such as the cross section for creation of a new particle.
+However, this would also allow for claiming "discovery" in cases where  the best fit value is negative, i.e. <span class="arithmatex">\(\hat{\mu} \lt 0\)</span>, which in particle physics is often an unphysical model, such as a negative cross section.
+In order to avoid such a situation, we typically use a modified test statistic:</p>
+<div class="arithmatex">\[ q_{0} = \begin{cases}
+    0 &amp; \hat{\mu} \lt 0 \\
+    -2\log\left(\frac{\mathcal{L}(\mathrm{\mu}_{\mathrm{NP}} = 0)}{\mathcal{L}(\hat{\mu}_{\mathrm{NP}})}\right) &amp; \hat{\mu} \geq 0
+\end{cases}
+\]</div>
+<p>which excludes the possibility of claiming discovery when the best fit value of <span class="arithmatex">\(\mu\)</span> is negative.</p>
+<p>As with the likelihood ratio test statistic, <span class="arithmatex">\(t\)</span>, defined above, under suitable conditions, <a href="https://ar5iv.labs.arxiv.org/html/1007.1727#S3.SS5">analytic expressions for the distribution of <span class="arithmatex">\(q_0\)</span></a> are known.</p>
+<p>Once the value <span class="arithmatex">\(q_{0}(\mathrm{data})\)</span> is calculated, it can be compared to the expected distribution of <span class="arithmatex">\(q_{0}\)</span> under the standard model hypothesis to calculate the p-value.
+If the p-value is below some threshold, discovery is often claimed.
+In high-energy physics the standard threshold is <span class="arithmatex">\(\sim 5\times10^{-7}\)</span>.</p>
+<h3 id="limit-setting-using-the-likelihood-ratio">Limit Setting using the likelihood ratio</h3>
+<p>Various test statistics built from likelihood ratios can be used for limit setting, i.e. excluding some parameter values.</p>
+<p>One could set limits on a parameter <span class="arithmatex">\(\mu\)</span> by finding the values of <span class="arithmatex">\(\mu\)</span> that are outside the confidence regions defined above by using the likelihood ratio test statistic:</p>
+<div class="arithmatex">\[ t_{\mu} = -2\log\left(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\hat{\mu})}\right) \]</div>
+<p>However, this could "exclude" <span class="arithmatex">\(\mu = 0\)</span> or small values of <span class="arithmatex">\(\mu\)</span> at a typical limit setting confidence level, such as 95%, while still not claiming a discovery.
+This is considered undesirable, and often we only want to set upper limits on the value of <span class="arithmatex">\(\mu\)</span>, rather than excluding any possible set of parameters outside our chosen confidence interval.</p>
+<p>This can be done using a modified test statistic:</p>
+<div class="arithmatex">\[ \tilde{t}_{\mu} = -2\log\left(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\min(\mu,\hat{\mu}))}\right) =
+\begin{cases}
+    -2\log\left(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\hat{\mu})}\right)&amp; \hat{\mu} \lt \mu  \\
+    0 &amp;  \mu \leq \hat{\mu}
+\end{cases}
+\]</div>
+<p>However, this can also have undesirable properties when the best fit value, <span class="arithmatex">\(\hat{\mu}\)</span>, is less than 0.
+In that case, we may set limits below 0.
+In order to avoid these situations, another modified test statistic can be used:</p>
+<div class="arithmatex">\[
+\tilde{q}_{\mu} = \begin{cases}
+    -2\log\left(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\mu = 0)}\right)&amp; \hat{\mu} \lt 0  \\
+    -2\log\left(\frac{\mathcal{L}(\mu)}{\mathcal{L}(\hat{\mu})}\right)&amp; 0 \lt \hat{\mu} \lt \mu  \\
+    0&amp;  \mu \lt \hat{\mu}
+\end{cases}
+\]</div>
+<p>Which also has a <a href="https://ar5iv.labs.arxiv.org/html/1007.1727#S3.SS7">known distribution</a> under appropriate conditions, or can be estimated from pseudo-experiments. One can then set a limit at a given confidence level, <span class="arithmatex">\(\mathrm{CL}\)</span>, by finding the smallest value of <span class="arithmatex">\(\mu\)</span> for which <span class="arithmatex">\(p_{\mu} \equiv P( t_{\mu} \gt t_{\mu}(\mathrm{data});\mathcal{M}_{\mu}) = 1 - \mathrm{CL}\)</span>. Larger values of <span class="arithmatex">\(\mu\)</span> will have smaller p-values and are considered excluded at the given confidence level.</p>
+<p>However, this procedure is rarely used, in almost every case we use a modified test procedure which uses the <span class="arithmatex">\(\mathrm{CL}_{s}\)</span> criterion, explained below.</p>
+<h4 id="the-cls-criterion">The CLs criterion</h4>
+<p>Regardless of which of these test statistics is used, the standard test-methodology has some undesirable properties for limit setting.</p>
+<p>Even for an experiment with almost no sensitivity to new physics, 5% of the time the experiment is performed we expect the experimenter to find <span class="arithmatex">\(p_{\mu} \lt 0.05\)</span> for small values of <span class="arithmatex">\(\mu\)</span> and set limits on parameter values to which the experiment is not sensitive!</p>
+<p>In order to avoid such situations the <span class="arithmatex">\(\mathrm{CL}_{s}\)</span> criterion was developped, as explained in these <a href="https://cdsweb.cern.ch/record/451614">two</a> <a href="https://arxiv.org/abs/hep-ex/9902006">papers</a>.
+Rather than requiring <span class="arithmatex">\(p_{\mu} \lt (1-\mathrm{CL})\)</span> to exclude <span class="arithmatex">\(\mu\)</span>, as would be done in the general framework described above, the <span class="arithmatex">\(\mathrm{CL}_{s}\)</span> criterion requires:</p>
+<div class="arithmatex">\[ \frac{p_{\mu}}{1-p_{b}} \lt (1-\mathrm{CL}) \]</div>
+<p>Where <span class="arithmatex">\(p_{\mu}\)</span> is the usual probability of observing the observed value of the test statistic under the signal + background model with signal strength <span class="arithmatex">\(\mu\)</span>, and <span class="arithmatex">\(p_{b}\)</span> is the p-value for the background-only hypothesis, with the p-value defined <a href="#pvalexplainer">using the opposite tail</a> from the definition of <span class="arithmatex">\(p_{\mu}\)</span>.</p>
+<p>Using the <span class="arithmatex">\(\mathrm{CL}_{s}\)</span> criterion fixes the issue of setting limits much stricter than the experimental sensitivity, because for values of <span class="arithmatex">\(\mu\)</span> to which the experiment is not sensitive the distribution of the test statistic under the signal hypothesis is nearly the same as under the background hypothesis. Therefore, given the use of opposite tails in the p-value definition, <span class="arithmatex">\(p_{\mu} \approx 1-p_{b}\)</span>, and the ratio approaches 1.</p>
+<p>Note that this means that a limit set using the <span class="arithmatex">\(\mathrm{CL}_{s}\)</span> criterion at a given <span class="arithmatex">\(\mathrm{CL}\)</span> will exclude the true parameter value <span class="arithmatex">\(\mu\)</span> with a frequency less than the nominal rate of <span class="arithmatex">\(1-\mathrm{CL}\)</span>.
+The actual frequency at which it is excluded depends on the sensitivity of the experiment to that parameter value.</p>
+<h3 id="goodness-of-fit-tests-using-the-likelihood-ratio">Goodness of fit tests using the likelihood ratio</h3>
+<p>The likelihood ratio can also be used <a href="https://www.physics.ucla.edu/~cousins/stats/cousins_saturated.pdf">as a measure of goodness of fit</a>, i.e. describing how well the data match the model for binned data.</p>
+<p>A standard likelihood-based measure of the goodness of fit is determined by using the log likelihood ratio with the likelihood in the denominator coming from the <strong>saturated model</strong>.</p>
+<div class="arithmatex">\[ t_{\mathrm{saturated}} \propto -\log\left(\frac{\mathcal{L}_{\mathcal{M}}}{\mathcal{L}_{\mathcal{M}_\mathrm{saturated}}}\right) \]</div>
+<p>Here <span class="arithmatex">\(\mathcal{M}\)</span> is whatever model one is testing the goodness of fit for, and the saturated model is a model for which the prediction matches the observed value in every bin.
+Typically, the saturated model would be one in which there are as many free parameters as bins.</p>
+<p>This ratio is then providing a comparison between how well the actual data are fit as compared to a hypothetical optimal fit.</p>
+<p>Unfortunately, the distribution of <span class="arithmatex">\(t_{\mathcal{saturated}}\)</span> usually is not known <em>a priori</em> and has to be estimated by generating pseudodata from the model <span class="arithmatex">\(\mathcal{L}\)</span> and calculating the empirical distribution of the statistic.</p>
+<p>Once the distribution is determined, a p-value for the statistic can be derived which indicates the probability of observing data with that quality of fit given the model, and therefore serves as a measure of the goodness of fit.</p>
+<h3 id="channel-compatibility-test-using-the-likelihood-ratio">Channel Compatibility test using the likelihood ratio</h3>
+<p>When performing an anlysis across many different channels (for example, different Higgs decay modes), it is often interesting to check the level of compatibility of the various channels.</p>
+<p>Combine implements a <a href="../../part3/commonstatsmethods/#channel-compatibility">channel compatibility test</a>, by considering the a model, <span class="arithmatex">\(\mathcal{M}_{\mathrm{c-independent}}\)</span>, in which the signal is independent in every channel.
+As a test statistic, this test uses the likelihood ratio between the best fit value of the nominal model and the model with independent signal strength for each channel:</p>
+<div class="arithmatex">\[ t = -\log\left(\frac{\mathcal{L}_{\mathcal{M}}(\vec{\hat{\mu}},\vec{\hat{\nu}})}{\mathcal{L}_{\mathcal{M}_{\mathrm{c-indep}}}(\vec{\hat{\mu}}_{c1}, \vec{\hat{\mu}}_{c2}, ..., \vec{\hat{\nu}})}\right) \]</div>
+<p>The distribution of the test statistic is not known <em>a priori</em>, and needs to be calculated by generating pseudo-data samples.</p>
+<h2 id="other-statistical-tests">Other Statistical Tests</h2>
+<p>While combine is a likelihood based statistical framework, it does not require that all statistical tests use the likelihood ratio.</p>
+<h3 id="other-goodness-of-fit-tests">Other Goodness of Fit Tests</h3>
+<p>As well as the saturated goodness of fit test, defined above, combine implements <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test">Kolmogorov-Smirnov</a> and <a href="https://en.wikipedia.org/wiki/Anderson%E2%80%93Darling_test">Anderson-Darling</a> goodness of fit tests.</p>
+<p>For the Kolomogorov-Smirnov (KS) test, the test statistic is the maximum absolute difference between the cumulative distribution function between the data and the model:</p>
+<div class="arithmatex">\[ D = \max_{x} | F_{\mathcal{M}}(x) - F_{\mathrm{data}}(x) | \]</div>
+<p>Where <span class="arithmatex">\(F(x)\)</span> is the Cumulative Distribution Function (i.e. cumulative sum) of the model or data at point <span class="arithmatex">\(\vec{x}\)</span>.</p>
+<p>For the Anderson-Darling (AD) test, the test statistic is based on the integral of the square of the difference between the two cumulative distribution functions.
+The square difference is modified by a weighting function which gives more importance to differences in the tails:</p>
+<div class="arithmatex">\[ A^2 = \int_{x_{\mathrm{min}}}^{x_{\mathrm{max}}} \frac{ (F_{\mathcal{M}}(x) - F_{\mathrm{data}}(x))^2}{ F_\mathcal{M}(x) (1 - F_{\mathcal{M}}(x)) } \mathrm{d}F_\mathcal{M}(x) \]</div>
+<p>Notably, both the Anderson-Darling and Kolmogorov-Smirnov test rely on the cumulative distribution.
+Because the ordering of different channels of a model is not well defined, the tests themselves are not unambiguously defined over multiple channels.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../fitting_concepts/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Fitting Concepts">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Fitting Concepts
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../part2/settinguptheanalysis/" class="md-footer__link md-footer__link--next" aria-label="Next: Preparing the datacard">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Preparing the datacard
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

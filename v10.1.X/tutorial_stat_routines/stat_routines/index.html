@@ -1,0 +1,2056 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../tutorial2023_unfolding/unfolding_exercise/">
+      
+      
+        <link rel="next" href="../../model_building_tutorial2024/model_building_exercise/">
+      
+      
+      <link rel="icon" href="../../logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>Statitiscal Tests Basics - Combine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2afb09e1.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../mystyle.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#understanding-statistical-routines-in-combine" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../../.."> 
+
+
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Combine" class="md-header__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Combine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Statitiscal Tests Basics
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../what_combine_does/introduction/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  What Combine Does
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part2/settinguptheanalysis/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Setting up the analysis
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part3/runningthetool/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Running combine
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../part5/roofit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../part4/usefullinks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Links & FAQ
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Combine" class="md-nav__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    Combine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    What Combine Does
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            What Combine Does
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/model_and_likelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model and Likelihood
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/fitting_concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fitting Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/statistical_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statistical Tests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Setting up the analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Setting up the analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/settinguptheanalysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Physics models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Physics models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/physicsmodels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/higgscouplings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SM Higgs coupling models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bsm-higgs-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    BSM Higgs models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bin-wise-stats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Automatic MC statistical uncertainties
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Running combine
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Running combine
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/runningthetool/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Running the tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/commonstatsmethods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/nonstandard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced use cases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/simplifiedlikelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simplified Likelihoods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/regularisation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Unfolding & regularization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validating datacards
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/debugging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Debugging fit failures
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/roofit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Main Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Main Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exercises
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexerciseanswers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Solutions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023/parametric_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parametric Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023_unfolding/unfolding_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Likelihood Based Unfolding
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Statitiscal Tests Basics
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statitiscal Tests Basics
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting started
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      The model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estimating-a-best-fit-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estimating a best fit value
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uncertainty-intervals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uncertainty Intervals
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Uncertainty Intervals">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-an-explicit-likelihood-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running an explicit likelihood scan
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uncertainty-intervals-from-first-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uncertainty intervals from first principles
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#significance-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Significance Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Significance Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#going-beyond-the-asymptotic-approximation-with-hybrid-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      Going beyond the Asymptotic Approximation with Hybrid New
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limit-setting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limit Setting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Limit Setting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-cl_s-criterion" class="md-nav__link">
+    <span class="md-ellipsis">
+      the CL_s criterion
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#asymptotic-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Asymptotic Limits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-limit-setting-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      The limit setting algorithm
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model_building_tutorial2024/model_building_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model building
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../abcd_rooparametrichist_tutorial/rooparametrichist_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Per-bin Transfer Factors with Parametric Histograms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/usefullinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Links & FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting started
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      The model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estimating-a-best-fit-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estimating a best fit value
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uncertainty-intervals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uncertainty Intervals
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Uncertainty Intervals">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-an-explicit-likelihood-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running an explicit likelihood scan
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uncertainty-intervals-from-first-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uncertainty intervals from first principles
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#significance-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Significance Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Significance Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#going-beyond-the-asymptotic-approximation-with-hybrid-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      Going beyond the Asymptotic Approximation with Hybrid New
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limit-setting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limit Setting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Limit Setting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-cl_s-criterion" class="md-nav__link">
+    <span class="md-ellipsis">
+      the CL_s criterion
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#asymptotic-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Asymptotic Limits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-limit-setting-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      The limit setting algorithm
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="understanding-statistical-routines-in-combine">Understanding Statistical Routines in Combine</h1>
+<h2 id="getting-started">Getting started</h2>
+<p>To get started, you should have a working setup of <code>Combine</code>, please follow the instructions from the <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users">home page</a>. Make sure to use the latest recommended release.</p>
+<p>After setting up <code>Combine</code>, you can access the working directory for this tutorial which contains all of the inputs and scripts needed to run the unfolding fitting exercise:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit/data/tutorials/statistical_routines_tutorial
+</code></pre></div>
+<h2 id="the-model">The model</h2>
+<p>This tutorial will go through various statistical routines in combine in detail using a very simple counting experiment model.
+There is a single channel with contributions from Higgs production and WW production, and three nuisance parameters.</p>
+<p>The model details can be seen in the <code>datacard.txt</code> file in the tutorial directory.</p>
+<p>The parameter of interest (POI) for this model is a single signal strength parameter (called <code>r</code> or <span class="arithmatex">\(\mu\)</span>) which scales the total yield of the signal (Higgs) process.</p>
+<p>We will use this model to run statistical tests such as estimating the higgs cross section, attempting to discover the higgs, and setting limits on the cross section.</p>
+<h2 id="estimating-a-best-fit-value">Estimating a best fit value</h2>
+<p>The most commonly used statistical routines in combine are frequentist maximum-likelihood based routines.
+For these routines, "best-fit" values of a parameter, <span class="arithmatex">\(\mu\)</span>, are denoted <span class="arithmatex">\(\hat{\mu}\)</span> and they are determined by finding the value of that parameter which maximizes the likelihood, <span class="arithmatex">\(\mathrm{L}(\mu)\)</span>.</p>
+<p>In combine you can find the best-fit value of your parameter of interest with the <code>MultiDimFit</code> routine:</p>
+<div class="highlight"><pre><span></span><code>combine -M MultiDimFit datacard.txt
+</code></pre></div>
+<p>you should get some output, which prints the best fit signal strength</p>
+<div class="highlight"><pre><span></span><code>Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+   r :    +0.266
+</code></pre></div>
+<h2 id="uncertainty-intervals">Uncertainty Intervals</h2>
+<p>to get more information, you can add the <code>--algo singles</code> flag which will also calculate the uncertainty on the parameter.
+In order to get the full uncertainty, let's also change the limits on <code>r</code>, which are <span class="arithmatex">\([0,20]\)</span> by default:</p>
+<div class="highlight"><pre><span></span><code>combine -M MultiDimFit datacard.txt --algo singles --rMin -10 --rMax 10
+</code></pre></div>
+<p>now the output should contain the uncertainties as well as the best fit value</p>
+<div class="highlight"><pre><span></span><code>Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values and profile-likelihood uncertainties: 
+   r :    +0.260   -1.004/+1.265 (68%)
+Done in 0.00 min (cpu), 0.00 min (real)
+</code></pre></div>
+<p>These uncertainty intervals have been computed internally as part of the fit.
+What do they mean, and how are they determined?</p>
+<p>These are frequentist confidence intervals, which means that if our statistical model is good enough and we were to perform repeated experiments of this type, we would expected that 68% of the confidence intervals we produce would contain the true value of our signal strength parameter, <code>r</code>.</p>
+<p>These can be constructed from first principles using the Neyman Construction, by finding, but in practice they are usually constructed assuming Wilks' theorem.
+Wilks' theorem tells us what the expected distribution of the likelihood ratio <span class="arithmatex">\(\Lambda = \frac{\mathrm{L}(r)}{\mathrm{L}(\hat{r})}\)</span> is, and from this we can construct confidence intervals.
+In practice, we use the log-likelihood ratio <span class="arithmatex">\(t_r \equiv -2 \ln( \Lambda )\)</span>, rather than the likelihood ratio itself.
+The confidence interval is constructed by finding all values of <code>r</code> for which the <span class="arithmatex">\(-2 \ln(\Lambda)\)</span> is below a threshold value which depends on the confidence level we are using.</p>
+<p>We can also calculat the best fit value and confidence interval using the <code>FitDiagnostics</code> routine:</p>
+<div class="highlight"><pre><span></span><code>combine -M FitDiagnostics datacard.txt --rMin -10 --rMax 10
+</code></pre></div>
+<p>which should give you a compatible result. 
+The <code>FitDiagnostics</code> routine also produces an output file called <code>fitDiagnosticsTest.root</code> which contains the full result of fits of both the background-only and signal + background model.</p>
+<p>You can see the results of the signal + background model fit by opening the file and checking the fit result:</p>
+<div class="highlight"><pre><span></span><code>root -l fitDiagnosticsTest.root
+root [1]&gt; fit_s-&gt;Print()
+  RooFitResult: minimized FCN value: -2.92406e-05, estimated distance to minimum: 7.08971e-07
+                covariance matrix quality: Full, accurate covariance matrix
+                Status : MINIMIZE=0 HESSE=0 
+
+    Floating Parameter    FinalValue +/-  Error   
+  --------------------  --------------------------
+                  lumi    3.1405e-04 +/-  1.00e+00
+                     r    2.6039e-01 +/-  1.12e+00
+                 xs_WW    8.6964e-04 +/-  1.00e+00
+                xs_ggH    7.3756e-04 +/-  1.00e+00
+</code></pre></div>
+<p>Notice that in this case, the uncertainty interval for <code>r</code> is reported as a symmetric interval. 
+What's the difference between this interval and the asymmetric one?</p>
+<p>In both cases, the interval is found by determining the values of <code>r</code> for which <span class="arithmatex">\(-2 \ln(\Lambda)\)</span> is below the threshold value, which in this case for the 68% interval is 1.
+Both algorithms take the best fit value <span class="arithmatex">\(\hat{r}\)</span> for which <span class="arithmatex">\(-2 \ln(\Lambda)\)</span> will always be 0, and then try to find the interval by estimating the crossing points where <span class="arithmatex">\(-2 \ln(\Lambda) = 1\)</span>.</p>
+<p>However, the different intervals estimate this value in different ways.
+The asymmetric intervals are "minos errors", which means that the crossing points were determined by explicitly scanning the likelihood as a function of <code>r</code> to look for the crossing, while minimizing other parameters at each step (profiling).
+The symmetric intervals are "hesse errors", which means that the crossing points were determined by taking the matrix of second-order partial derivatives (Hessian) at the minimum, and inverting it to estimate the crossing assuming all other derivatives vanish.</p>
+<blockquote>
+<p>The information printed under the <code>Status</code> section of the <code>RooFitResult</code> is showing that the minimization suceeded and that the hessian was positive definite, i.e. that all the second derivates are positive, as they should be at the minimum of a function. 
+If the HESSE status is not 0 or the covariance matrix quality indicates it had to be forced positive definite, this indicates that there are problems with the fit.</p>
+</blockquote>
+<h3 id="running-an-explicit-likelihood-scan">Running an explicit likelihood scan</h3>
+<p>You can see that the minos errors should match the crossing points of the likelihood-ratio by explicitly scanning the likelihood function with <code>MultiDimFit</code>, using the <code>--algo grid</code> option and specifying the range and how many points to scan:</p>
+<div class="highlight"><pre><span></span><code>combine -M MultiDimFit datacard.txt --algo grid --points 100 --rMin -2 --rMax 6
+</code></pre></div>
+<p>The results can then be plotted using the <code>plot1Dscan.py</code> script, using the file <code>higgsCombineTest.MultiDimFit.mH120.root</code> which was output by the scan:</p>
+<div class="highlight"><pre><span></span><code>python3 ../../../scripts/plot1DScan.py --POI r higgsCombineTest.MultiDimFit.mH120.root
+</code></pre></div>
+<p>it should produce an output pdf and png files which look like the one shown below.
+You can see the best fit values, as well as the crossing points for the <span class="arithmatex">\(1\sigma\)</span> and <span class="arithmatex">\(2\sigma\)</span> intervals.</p>
+<p><img alt="" src="../llhood_scan.png" /></p>
+<h3 id="uncertainty-intervals-from-first-principles">Uncertainty intervals from first principles</h3>
+<p>All the methods mentioned above rely on Wilks' theorem, which only holds under certain conditions.
+In some cases, particularly those of low statistics or some other cases, such as sometimes when the yield depends quadratically on the parameter of interest, Wilks' theorem will not be a good approximation.</p>
+<p>One thing you can do is check the uncertainty intervals explicitly, following the Neyman Construction.
+In order to do this you would scan your signal strength parameter <code>r</code>, at each value generating a set of pseudodata toys to determine the expected distribution of the test statistic <span class="arithmatex">\(t_\mu\)</span> under the hypothesis that the true signal strength is <span class="arithmatex">\(\mu\)</span>.
+Then, you can check the distribution of <span class="arithmatex">\(t_\mu\)</span> and find the critical value of the test statistic, <span class="arithmatex">\(t'\)</span>, such that:</p>
+<div class="arithmatex">\[ \int_{t'}^{\infty} p(t_{\mu}) \mathrm{d}t_{\mu} =(1 - \mathrm{CL}) \]</div>
+<p>where <span class="arithmatex">\(\mathrm{CL}\)</span> is the confidence level you are trying to reach (e.g. 68%).</p>
+<p>For a given value of <code>r</code>, we can check the test statistic distribution explicitly and determine the crossing point of the interval.
+Let's do that for the upper end of our confidence interval, using the <code>MultiDimFit</code> method.</p>
+<p>We do it by generating a number of toy datasets with <code>r = 1.525</code>, which is our upper bound value. 
+Then we calculate the test statistic: </p>
+<div class="arithmatex">\[ t_{\mu=1.525} = -2 \ln (\frac{\mathrm{L}(r=1.525)}{\mathrm{L}(r=\hat{r})}) \]</div>
+<p>on each of these toy datasets, and fill a histogram with the results to determine the expect distribution under the the null hypothesis (in this case that <code>r</code> = 1.525).
+We could do this all in one command using the <code>-t &lt;n_toys&gt;</code> functionality of combine, but let's split it into two steps to make the logic more clear.</p>
+<p>First, lets generate a set of 1000 toys from our model with <code>r</code> = 1.525.
+Since we want to generate frequentist toys (since we are calculating a frequentist confidence interval), we also need the <code>--toysFrequentist</code> option.</p>
+<div class="highlight"><pre><span></span><code>combine -M GenerateOnly datacard.txt -t 1000 --toysFrequentist --setParameters r=1.525 --saveToys 
+</code></pre></div>
+<p>Now we can tell <code>MultiDimFit</code> to run over these toys by using the output from the previous step, with the command line argument <code>--toysFile &lt;output_file_from_toy_generation&gt;</code>.
+To calculate the test statistic with MultiDimFit we will use <code>--algo fixed --fixedPointPOIs r=1.525</code> to tell <code>MultiDimFit</code> to calculate the log-likelihood ratio using that point in the numerator.
+The full command is then:</p>
+<div class="highlight"><pre><span></span><code>combine -M MultiDimFit datacard.txt --rMin -10 --rMax 10 --algo fixed --fixedPointPOIs r=1.525 -t 500 --toysFrequentist   --toysFile higgsCombineTest.GenerateOnly.mH120.123456.root
+</code></pre></div>
+<p>We can inspect the results of all of our toy fits by opening the <code>higgsCombineTest.MultiDimFit.mH120.123456.root</code> file our command created, and looking at the <code>limit</code> tree contained in it.
+The log-likelihood ratio <span class="arithmatex">\(-\ln(\Lambda)\)</span> is stored in the <code>deltaNLL</code> branch of the tree.
+For the <code>fixed</code> algorithm, there are two entries stored in the tree for every dataset: one for the best fit point, and one for the fixed point passed as the aregument to <code>--fixedPointPOIs</code>.
+In order to select only the values we are interest in we can pass the requirement <code>quantileExpected &gt;= 0</code> to our TTree selection, because combine uses the value <code>-1</code> for <code>quantileExpected</code> to indicate best fit points.</p>
+<p>You can draw the <span class="arithmatex">\(t_{\mu}\)</span> distribution with:</p>
+<div class="highlight"><pre><span></span><code>root -l higgsCombineTest.MultiDimFit.mH120.123456.root
+root [1] &gt; limit-&gt;Draw(&quot;2*deltaNLL&quot;,&quot;quantileExpected &gt;= 0&quot;)
+</code></pre></div>
+<p>To test wether or not this point should be rejected, we first define the confidence level of our rejection, say <span class="arithmatex">\(1\sigma\)</span> (approximately 68%), then we use the empirical distribution of the test statistic to estimate the cut-off value of the test statistic.
+This is done for you in the script <code>get_quantile.py</code>, which you can run:</p>
+<div class="highlight"><pre><span></span><code>python3 get_quantile.py --input higgsCombineTest.MultiDimFit.mH120.123456.root
+</code></pre></div>
+<ul>
+<li>How does the value estimated from this method compare to the value using Wilks' theorem and the methods above?</li>
+<li>How does the value change if you generate more toys?</li>
+<li>Check the observed value of the test statistic on the data, how does it compare to threshold value for this point? Is the point accepted or rejected?</li>
+</ul>
+<p>You can do the toy data generation and the fits in one step for a given parameter value with the command:</p>
+<div class="highlight"><pre><span></span><code>combine -M MultiDimFit datacard.txt --rMin -10 --rMax 10 --algo fixed --fixedPointPOIs r=&lt;r_val&gt; --setParameters r=&lt;r_val&gt; -t &lt;ntoys&gt; --toysFrequentist
+</code></pre></div>
+<p>Test out a few values of <code>r</code> and see if they all give you the same result. 
+What happens for <code>r</code> less than about -1? Can you explain why? (hint: look at the values in the datacard)</p>
+<h2 id="significance-testing">Significance Testing</h2>
+<p>For significance testing, we want to test the compatibility of our model with the background-only hypothesis <span class="arithmatex">\(\mu = 0\)</span>.
+However, when performing significance testing we are typically only interested in rejecting the null hypothesis if the confidence level is very high (e.g. <span class="arithmatex">\(5\sigma\)</span>).
+Furthermore, we typically use a modified test-statistic <span class="arithmatex">\(q_0\)</span> which is equal to 0 whenever the best-fit signal strength is less than 0, to avoid rejecting the null hypothesis due to a deficit of events.</p>
+<p>A typical significance test can be run with combine using the <code>Significance</code> method:</p>
+<div class="highlight"><pre><span></span><code>combine -M Significance datacard.txt
+</code></pre></div>
+<p>for this datacard, we get a very modest significance of about <code>0.24</code>, meaning we fail to reject the null hypothesis.<br />
+This method is run using the asymptotic approximation, which relies on Wilks' theorem, similar to as it was used above.
+Under this approximation the significance is directly related to our test statistic, <span class="arithmatex">\(q_0\)</span> by: Significance = <span class="arithmatex">\(\sqrt{q_0}\)</span>.
+So for positive values of <span class="arithmatex">\(\hat{r}\)</span> we can read the Significance from the likelihood scan, by checking the value at the origin.</p>
+<div class="highlight"><pre><span></span><code>combine -M MultiDimFit datacard.txt --algo grid --points 100 --rMin -0.1 --rMax 1
+python3 ../../../scripts/plot1DScan.py --POI r higgsCombineTest.MultiDimFit.mH120.root --y-max 0.5
+</code></pre></div>
+<p>This will produce the same likelihood scan as before, but where we've restricted the range to be able to see the value of the curve at <code>r</code> = 0 more clearly.
+As expected, the crossing happens at around <span class="arithmatex">\(0.24^2\)</span></p>
+<p><img alt="" src="../llhood_scan_for_significance.png" /></p>
+<h3 id="going-beyond-the-asymptotic-approximation-with-hybrid-new">Going beyond the Asymptotic Approximation with Hybrid New</h3>
+<p>We could move beyond the asymptotic approximation as we did before by generating toys and explicitly calculating the test statistic.
+In order to do this, we would simply run <code>MultiDimFit</code> using:</p>
+<div class="highlight"><pre><span></span><code>combine -M MultiDimFit datacard.txt --rMin -10 --rMax 10 --algo fixed --fixedPointPOIs r=0 --setParameters r=0 -t 500 --toysFrequentist
+</code></pre></div>
+<p>and then calculate the value of <span class="arithmatex">\(q_0\)</span> for every toy, check their distribution and compare the observed value in data to the distribution from the toys.</p>
+<p>However, we can also use the <code>HybridNew</code> method, which has a built-in routine to do this for us, and save us the work of calculating the test-statistic values ourselves.</p>
+<div class="highlight"><pre><span></span><code>combine -M HybridNew --LHCmode LHC-significance datacard.txt
+</code></pre></div>
+<p>We see that in this case, the value is a little different from the asymptotic approximation, though not drastically so.</p>
+<div class="highlight"><pre><span></span><code> -- Hybrid New -- 
+Significance: 0.306006  -0.0127243/+0.012774
+Null p-value: 0.3798 +/- 0.00485337
+</code></pre></div>
+<h2 id="limit-setting">Limit Setting</h2>
+<p><strong>NOTE: This section explores several methods which are not recommended to be used in limit setting, in order to better understand their limitations before getting to the commonly used procedure</strong></p>
+<p>One might be tempted to set limits by simply setting a confidence level (e.g. 95%), using the profile-likelihood ratio test statistic, <span class="arithmatex">\(t_\mu\)</span>, and finding the values of the signal strength which are rejected.
+This is not what is typically done for setting limits, but lets try to set some limits this way as an exercise.</p>
+<p>Under the asymptotic approximation, then, we can read off the values which we would reject from our earlier likelihood scan, they are all the values above about 4.</p>
+<p>Let's see what happens if we were to have observed 12 events instead of 6. There is a modified datacard <code>datacard_obs12.txt</code> with this already set for you.</p>
+<div class="highlight"><pre><span></span><code>combine -M MultiDimFit datacard_obs12.txt --algo grid --points 100 --rMin -2 --rMax 8
+python3 ../../../scripts/plot1DScan.py --POI r higgsCombineTest.MultiDimFit.mH120.root
+</code></pre></div>
+<p><img alt="" src="../llhood_scan_obs12.png" /></p>
+<p>In this case we would reject values of <code>r</code> above about 6.7, but also values of <code>r</code> below about 0.3 at the 95% CL.
+However, despite rejecting <code>r</code> = 0, our 95% CL is far below typical particle physics standards for claiming discovery.
+We therefore prefer to set only an upper bound, which we can do by modifying the test statistic to be 0 for all values below the best fit value.</p>
+<p>However, even with such a modification, there is another problem, with a large enough under-fluctuation of the background we will set our limit below <code>r</code> = 0.
+You can check thiswith the <code>HybridNew</code> method, and the slightly modified datacard <code>datacard_underfluctuation.txt</code>:</p>
+<div class="highlight"><pre><span></span><code>combine -M HybridNew --frequentist --testStat=Profile datacard_underfluctuation.txt  --rule Pmu --rMin -5 --rMax 10
+</code></pre></div>
+<p>The above command is telling combine to calculate the limit, but we have to pass the non-standard arguemnts <code>--testStat=Profile --rule Pmu</code> to tell combine to use the profile likelihood ratio test statistic <span class="arithmatex">\(t_{\mu}\)</span> directly, and not to use the <span class="arithmatex">\(\mathrm{CL}_\mathrm{s}\)</span> criterion which is normally applied.</p>
+<p>Usually at the LHC, for upper limits we use the modified test statistic <span class="arithmatex">\(\tilde{q}_{\mu}\)</span> which is set to 0 for <span class="arithmatex">\(\mu &lt; \hat{\mu}\)</span> but also replaces <span class="arithmatex">\(\hat{\mu}\)</span> with 0 if <span class="arithmatex">\(\min(\hat{\mu},0)\)</span> so that upper limits are always positive.</p>
+<p>If we use the standard LHC test statistic we will get a positive limit:</p>
+<div class="highlight"><pre><span></span><code>combine -M HybridNew --frequentist --testStat=LHC --rule Pmu  datacard_underfluctuation.txt  
+</code></pre></div>
+<p>gives the result:</p>
+<div class="highlight"><pre><span></span><code> -- Hybrid New -- 
+Limit: r &lt; 0.0736126 +/- 0.0902187 @ 95% CL
+</code></pre></div>
+<p>But this is an extremely tight bound on our signal strength, given that a signal strength of 1 is still within the statistical uncertainty of the background.</p>
+<h3 id="the-cl_s-criterion">the CL_s criterion</h3>
+<p>With the limit setting procedure above we set a limit of <code>r</code> &lt; 0.07, due to an underfluctuation in the observed data.
+However, if we had designed our experiment better so that the expected background were lower, we never would have been able to set a limit that strong.
+We can see this with the datacard <code>datacard_lowbackground.txt</code> where the expected background is 1 event, but 0 events are observed. 
+In this case, we only manage to set a limit of <code>r</code> &lt; 0.5:</p>
+<div class="highlight"><pre><span></span><code>combine -M HybridNew --frequentist --testStat=LHC --rule Pmu  datacard_lowbackground.txt  
+</code></pre></div>
+<div class="highlight"><pre><span></span><code> -- Hybrid New -- 
+Limit: r &lt; 0.509028 +/- 0.0188724 @ 95% CL
+</code></pre></div>
+<p>The CL_s criterion takes into account how likely the data are under the background only hypothesis as well as under the signal + background hypothesis.
+This has the effect of increasing the limit if the data are unlikely under the background-only hypothesis as well as the signal hypothesis.
+This prevents setting limits below the expected sensitivity of the experiment, as we can see by rerunning our cards with the option <code>--rule CLs</code>, which is actually the default value.</p>
+<div class="highlight"><pre><span></span><code>combine -M HybridNew --frequentist --testStat=LHC --rule CLs datacard_lowbackground.txt  
+</code></pre></div>
+<p>gives a limit around 1.2, whereas</p>
+<div class="highlight"><pre><span></span><code>combine -M HybridNew --frequentist --testStat=LHC --rule CLs datacard_underfluctuation.txt 
+</code></pre></div>
+<p>sets a limit around 2.7. This is reasonable, given that we should expect a better limit when we have a better experimental design which manages to reduce backgrounds without any change in the signal acceptance.</p>
+<p>These are the default settings for setting limits at the LHC and the arguments <code>--frequentist --testStat LHC --rule CLs</code> can be replaced by <code>--LHCmode LHC-limits</code>.</p>
+<h3 id="asymptotic-limits">Asymptotic Limits</h3>
+<p>The <code>HybridNew</code> method generates pseudodata to estimate the distributions of the test statistics and set a limit, however often the asymptotic distributions, which have analytically known forms, can be used.
+This is computationally much faster than running <code>HybridNew</code> and can be run with:</p>
+<div class="highlight"><pre><span></span><code>combine -M AsymptoticLimits &lt;datacard&gt;
+</code></pre></div>
+<ul>
+<li>Try comparing the asymptotic limits to the results with HybridNew computed above,  how do they compare for the two cases?</li>
+</ul>
+<p>As well as the observed limit, the <code>AsymptoticLimits</code> method will automatically tell you the 2.5%, 16.0%, 50.0%, 84.0% and 97.5% expected limits.
+These are calculated by taking the appropriate quantiles from the distribution of the test-statistic under the background-only hypothesis.</p>
+<h3 id="the-limit-setting-algorithm">The limit setting algorithm</h3>
+<p>Because the <span class="arithmatex">\(CL_s\)</span> value as a function of <span class="arithmatex">\(r\)</span> is not known analytically, the limit setting algorithm follows an iterative process.
+It starts by picking a value of the signal strength, then it calculates the expected distributions of the test-statistics for that signal strength <span class="arithmatex">\(\tilde{q}_{\mu}\)</span> under both the background-only and signal+background hypotheses.</p>
+<p>We can try this ourselves by running the <code>HybridNew</code> method with the <code>--singlePoint</code> option.
+We can also use the <code>--saveHybridResult</code> argument to save the distribution of the test-statistic:</p>
+<div class="highlight"><pre><span></span><code>combine -M HybridNew --LHCmode LHC-limits --singlePoint r=2 --saveHybridResult datacard.txt
+</code></pre></div>
+<p>Then the test-statistic distributions can be plotted:</p>
+<div class="highlight"><pre><span></span><code>python3  ../../../test/plotTestStatCLs.py --input higgsCombineTest.HybridNew.mH120.root --poi r --val all --mass 120
+</code></pre></div>
+<p><img alt="" src="../limit_test_stat_distributions.png" /></p>
+<p>This plot shows the expected distribution of the test statistic under the signal hypothesis (blue histogram) and the background-only hypothesis (red histogram), as well as the actual observed value in the data (black arrow).
+the p-values of each of the hypotheses are calculated, as is the CLs value.</p>
+<p>This particular point is not rejected, and so to set the limit, we'd need to increase the value of <code>r</code>, find the expected distributions, observed value and calculate CLs again.
+Repeating this many times, we could find the value of <code>r</code> at which the CLs value crosses our threshold (in this case 0.05, for a 95% CL).</p>
+<p>When we run without the <code>--singlePoint</code> option, combine does this all for us internally, but running individual points manually can be helpful for debugging or splitting up fits of large models across parallel jobs.</p>
+<p>You can see the various <code>r</code> values at which combine calculated the CLs and the interpolation it performs to find the crossing by using the <code>--plot</code> option:</p>
+<div class="highlight"><pre><span></span><code>combine -M HybridNew --LHCmode LHC-limits --plot r_scan.png datacard.txt
+</code></pre></div>
+<p><img alt="" src="../r_scan.png" /></p>
+<ul>
+<li>Where do the uncertainties on the CLs value at each value of <code>r</code> come from in the plot?</li>
+<li>How could the precision of the limit be increased?</li>
+</ul>
+<h3 id="debugging">Debugging</h3>
+<p>If you see some strange or unexpected behaviour in your limits, you can look at the distributions of the test static, or the various CLs values computed in order to better understand where the problem might be coming from.</p>
+<p>One situation you might encounter is observing the discrete nature or the counts when you are in the low statistics regime.</p>
+<div class="highlight"><pre><span></span><code>combine -M HybridNew --LHCmode LHC-limits --singlePoint r=1 --saveHybridResult datacard_lowbackground.txt
+python3  ../../../test/plotTestStatCLs.py --input higgsCombineTest.HybridNew.mH120.root --poi r --val all --mass 120
+</code></pre></div>
+<p><img alt="" src="../limit_test_stat_distributions_few_events.png" /></p>
+<p>There is nothing wrong with this distribution, but noting its features may help you understand the results you are seeing and if they are reasonable or there might be an issue with the fit.
+In a case like this, we can certainly expect the asymptotic approximation not to be very reliable.
+With low backgrounds, the shapes of the signal-hypothesis and signal+background hypothesis distributions can also start to look very similar.
+In such cases, some of the quantiles of the expected limits may be very compressed, and statistical fluctuations in the empirical distributions may be more apparent.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../tutorial2023_unfolding/unfolding_exercise/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Likelihood Based Unfolding">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Likelihood Based Unfolding
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../model_building_tutorial2024/model_building_exercise/" class="md-footer__link md-footer__link--next" aria-label="Next: Model building">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Model building
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3232 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../runningthetool/">
+      
+      
+        <link rel="next" href="../nonstandard/">
+      
+      
+      <link rel="icon" href="../../logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>Common statistical methods - Combine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2afb09e1.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../mystyle.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#common-statistical-methods" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../../.."> 
+
+
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Combine" class="md-header__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Combine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Common statistical methods
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../what_combine_does/introduction/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  What Combine Does
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part2/settinguptheanalysis/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Setting up the analysis
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../runningthetool/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Running combine
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part5/roofit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../part4/usefullinks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Links & FAQ
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Combine" class="md-nav__button md-logo" aria-label="Combine" data-md-component="logo">
+      
+  <img src="../../logo.png" alt="logo">
+
+    </a>
+    Combine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    What Combine Does
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            What Combine Does
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/model_and_likelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model and Likelihood
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/fitting_concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fitting Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../what_combine_does/statistical_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statistical Tests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Setting up the analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Setting up the analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/settinguptheanalysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparing the datacard
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Physics models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Physics models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/physicsmodels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/higgscouplings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SM Higgs coupling models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bsm-higgs-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    BSM Higgs models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/bin-wise-stats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Automatic MC statistical uncertainties
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Running combine
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Running combine
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runningthetool/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Running the tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Common statistical methods
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#asymptotic-frequentist-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Asymptotic Frequentist Limits
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Asymptotic Frequentist Limits">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#blind-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Blind limits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#splitting-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      Splitting points
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asymptotic-significances" class="md-nav__link">
+    <span class="md-ellipsis">
+      Asymptotic Significances
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Asymptotic Significances">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compute-the-observed-significance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Compute the observed significance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#computing-the-expected-significance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computing the expected significance
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bayesian-limits-and-credible-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bayesian Limits and Credible regions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bayesian Limits and Credible regions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#computing-the-observed-bayesian-limit-for-simple-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computing the observed bayesian limit (for simple models)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#computing-the-observed-bayesian-limit-for-arbitrary-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computing the observed bayesian limit (for arbitrary models)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Computing the observed bayesian limit (for arbitrary models)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#iterations-burn-in-tries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Iterations, burn-in, tries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proposals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proposals
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#computing-the-expected-bayesian-limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computing the expected bayesian limit
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multidimensional-bayesian-credible-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multidimensional bayesian credible regions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#computing-limits-with-toys" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computing Limits with toys
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Computing Limits with toys">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simple-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Simple models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Simple models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#expected-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expected Limits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accuracy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accuracy
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complex-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complex models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complex models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plotting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Plotting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#computing-significances-with-toys" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computing Significances with toys
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Computing Significances with toys">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#observed-significance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Observed significance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expected-significance-assuming-some-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expected significance, assuming some signal
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goodness-of-fit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goodness of fit tests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Goodness of fit tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#masking-analysis-regions-in-the-saturated-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Masking analysis regions in the saturated model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#making-a-plot-of-the-gof-test-statistic-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      Making a plot of the GoF test statistic distribution
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#channel-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      Channel Compatibility
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#likelihood-fits-and-scans" class="md-nav__link">
+    <span class="md-ellipsis">
+      Likelihood Fits and Scans
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Likelihood Fits and Scans">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#useful-options-for-likelihood-scans" class="md-nav__link">
+    <span class="md-ellipsis">
+      Useful options for likelihood scans
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fitting-only-some-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fitting only some parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-best-fit-snapshots" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using best fit snapshots
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#feldman-cousins" class="md-nav__link">
+    <span class="md-ellipsis">
+      Feldman-Cousins
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Feldman-Cousins">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#physical-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Physical boundaries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extracting-contours-from-results-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extracting contours from results files
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extracting contours from results files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#extracting-1d-intervals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extracting 1D intervals
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extracting-2d-contours-general-intervals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extracting 2D contours / general intervals
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nonstandard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced use cases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simplifiedlikelihood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simplified Likelihoods
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../regularisation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Unfolding & regularization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validating datacards
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../debugging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Debugging fit failures
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/roofit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    RooFit Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Main Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Main Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exercises
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/longexerciseanswers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Solutions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023/parametric_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parametric Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial2023_unfolding/unfolding_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Likelihood Based Unfolding
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial_stat_routines/stat_routines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Statitiscal Tests Basics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model_building_tutorial2024/model_building_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model building
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../abcd_rooparametrichist_tutorial/rooparametrichist_exercise/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Per-bin Transfer Factors with Parametric Histograms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/usefullinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Links & FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#asymptotic-frequentist-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Asymptotic Frequentist Limits
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Asymptotic Frequentist Limits">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#blind-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Blind limits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#splitting-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      Splitting points
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asymptotic-significances" class="md-nav__link">
+    <span class="md-ellipsis">
+      Asymptotic Significances
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Asymptotic Significances">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compute-the-observed-significance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Compute the observed significance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#computing-the-expected-significance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computing the expected significance
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bayesian-limits-and-credible-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bayesian Limits and Credible regions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bayesian Limits and Credible regions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#computing-the-observed-bayesian-limit-for-simple-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computing the observed bayesian limit (for simple models)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#computing-the-observed-bayesian-limit-for-arbitrary-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computing the observed bayesian limit (for arbitrary models)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Computing the observed bayesian limit (for arbitrary models)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#iterations-burn-in-tries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Iterations, burn-in, tries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proposals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proposals
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#computing-the-expected-bayesian-limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computing the expected bayesian limit
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multidimensional-bayesian-credible-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multidimensional bayesian credible regions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#computing-limits-with-toys" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computing Limits with toys
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Computing Limits with toys">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simple-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Simple models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Simple models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#expected-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expected Limits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accuracy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accuracy
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complex-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complex models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complex models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plotting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Plotting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#computing-significances-with-toys" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computing Significances with toys
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Computing Significances with toys">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#observed-significance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Observed significance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expected-significance-assuming-some-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expected significance, assuming some signal
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goodness-of-fit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goodness of fit tests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Goodness of fit tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#masking-analysis-regions-in-the-saturated-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Masking analysis regions in the saturated model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#making-a-plot-of-the-gof-test-statistic-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      Making a plot of the GoF test statistic distribution
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#channel-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      Channel Compatibility
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#likelihood-fits-and-scans" class="md-nav__link">
+    <span class="md-ellipsis">
+      Likelihood Fits and Scans
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Likelihood Fits and Scans">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#useful-options-for-likelihood-scans" class="md-nav__link">
+    <span class="md-ellipsis">
+      Useful options for likelihood scans
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fitting-only-some-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fitting only some parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-best-fit-snapshots" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using best fit snapshots
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#feldman-cousins" class="md-nav__link">
+    <span class="md-ellipsis">
+      Feldman-Cousins
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Feldman-Cousins">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#physical-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Physical boundaries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extracting-contours-from-results-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extracting contours from results files
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extracting contours from results files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#extracting-1d-intervals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extracting 1D intervals
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extracting-2d-contours-general-intervals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extracting 2D contours / general intervals
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="common-statistical-methods">Common Statistical Methods</h1>
+<p>In this section, the most commonly used statistical methods from <span style="font-variant:small-caps;">Combine</span> will be covered, including specific instructions on how to obtain limits, significances, and likelihood scans. For all of these methods, the assumed parameter of interest (POI) is the overall signal strength <span class="arithmatex">\(r\)</span> (i.e the default PhysicsModel). In general however, the first POI in the list of POIs (as defined by the PhysicsModel) will be taken instead of <strong>r</strong>. This may or may not make sense for any particular method, so care must be taken.</p>
+<p>This section will assume that you are using the default physics model, unless otherwise specified.</p>
+<h2 id="asymptotic-frequentist-limits">Asymptotic Frequentist Limits</h2>
+<p>The <code>AsymptoticLimits</code> method can be used to quickly compute an estimate of the observed and expected limits, which is accurate when the event yields are not too small and the systematic uncertainties do not play a major role in the result.
+The limit calculation relies on an asymptotic approximation of the distributions of the <strong>LHC</strong> test statistic, which is based on a profile likelihood ratio, under the signal and background hypotheses to compute two p-values <span class="arithmatex">\(p_{\mu}, p_{b}\)</span> and therefore <span class="arithmatex">\(CL_s=p_{\mu}/(1-p_{b})\)</span> (see the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq">FAQ</a> section for a description). This means it is the asymptotic approximation for evaluating limits with frequentist toys using the LHC test statistic for limits. In the definition below, the parameter <span class="arithmatex">\(\mu=r\)</span>.</p>
+<ul>
+<li>The test statistic is defined using the ratio of likelihoods <span class="arithmatex">\(q_{\mu} = -2\ln[\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))/\mathcal{L}(\hat{\mu},\hat{\nu})]\)</span> , in which the nuisance parameters are profiled separately for <span class="arithmatex">\(\mu=\hat{\mu}\)</span> and <span class="arithmatex">\(\mu\)</span>. The value of <span class="arithmatex">\(q_{\mu}\)</span> is set to 0 when <span class="arithmatex">\(\hat{\mu}&gt;\mu\)</span>, giving a one-sided limit. Furthermore, the constraint <span class="arithmatex">\(\mu&gt;0\)</span> is enforced in the fit. This means that if the unconstrained value of <span class="arithmatex">\(\hat{\mu}\)</span> would be negative, the test statistic <span class="arithmatex">\(q_{\mu}\)</span> is evaluated as <span class="arithmatex">\(-2\ln[\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))/\mathcal{L}(0,\hat{\hat{\nu}}(0))]\)</span></li>
+</ul>
+<p>This method is the default <span style="font-variant:small-caps;">Combine</span> method: if you call <span style="font-variant:small-caps;">Combine</span> without specifying <code>-M</code>, the <code>AsymptoticLimits</code> method will be run.</p>
+<p>A realistic example of a datacard for a counting experiment can be found in the HiggsCombination package: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/realistic-counting-experiment.txt">data/tutorials/counting/realistic-counting-experiment.txt</a></p>
+<p>The <code>AsymptoticLimits</code> method can be run using</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>AsymptoticLimits<span class="w"> </span>realistic-counting-experiment.txt
+</code></pre></div>
+<p>The program will print the limit on the signal strength r (number of signal events / number of expected signal events) e .g. <code>Observed Limit: r &lt; 1.6297 @ 95% CL</code> , the median expected limit <code>Expected 50.0%: r &lt; 2.3111</code>, and edges of the 68% and 95% ranges for the expected limits.</p>
+<div class="highlight"><pre><span></span><code> &lt;&lt;&lt; Combine &gt;&gt;&gt;
+&gt;&gt;&gt; including systematics
+&gt;&gt;&gt; method used to compute upper limit is AsymptoticLimits
+[...]
+ -- AsymptoticLimits ( CLs ) --
+Observed Limit: r &lt; 1.6281
+Expected  2.5%: r &lt; 0.9640
+Expected 16.0%: r &lt; 1.4329
+Expected 50.0%: r &lt; 2.3281
+Expected 84.0%: r &lt; 3.9800
+Expected 97.5%: r &lt; 6.6194
+
+Done in 0.01 min (cpu), 0.01 min (real)
+</code></pre></div>
+<p>By default, the limits are calculated using the CL<sub>s</sub> prescription, as noted in the output, which takes the ratio of p-values under the signal plus background and background only hypothesis. This can be altered to using the strict p-value by using the option <code>--rule CLsplusb</code> (note that <code>CLsplusb</code> is the jargon for calculating the p-value <span class="arithmatex">\(p_{\mu}\)</span>). You can also change the confidence level (default is 95%) to 90% using the option <code>--cl 0.9</code> or any other confidence level. You can find the full list of options for <code>AsymptoticLimits</code> using <code>--help -M AsymptoticLimits</code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You may find that <span style="font-variant:small-caps;">Combine</span> issues a warning that the best fit for the background-only Asimov dataset returns a nonzero value for the signal strength;</p>
+<p><code>WARNING: Best fit of asimov dataset is at r = 0.220944 (0.011047 times</code> <code>rMax), while it should be at zero</code></p>
+<p>If this happens, you should check to make sure that there are no issues with the datacard or the Asimov generation used for your setup. For details on debugging, it is recommended that you follow the simple checks used by the HIG PAG <a href="https://twiki.cern.ch/twiki/bin/view/CMS/HiggsWG/HiggsPAGPreapprovalChecks">here</a>.</p>
+</div>
+<p>The program will also create a ROOT file <code>higgsCombineTest.AsymptoticLimits.mH120.root</code> containing a ROOT tree <code>limit</code> that contains the limit values and other bookkeeping information. The important columns are <code>limit</code> (the limit value) and <code>quantileExpected</code> (-1 for observed limit, 0.5 for median expected limit, 0.16/0.84 for the edges of the 65% interval band of expected limits, 0.025/0.975 for 95%).</p>
+<div class="highlight"><pre><span></span><code>$ root -l higgsCombineTest.AsymptoticLimits.mH120.root
+root [0] limit-&gt;Scan(&quot;*&quot;)
+************************************************************************************************************************************
+*    Row   *     limit *  limitErr *        mh *      syst *      iToy *     iSeed *  iChannel *     t_cpu *    t_real * quantileE *
+************************************************************************************************************************************
+*        0 * 0.9639892 *         0 *       120 *         1 *         0 *    123456 *         0 *         0 *         0 * 0.0250000 *
+*        1 * 1.4329109 *         0 *       120 *         1 *         0 *    123456 *         0 *         0 *         0 * 0.1599999 *
+*        2 *  2.328125 *         0 *       120 *         1 *         0 *    123456 *         0 *         0 *         0 *       0.5 *
+*        3 * 3.9799661 *         0 *       120 *         1 *         0 *    123456 *         0 *         0 *         0 * 0.8399999 *
+*        4 * 6.6194028 *         0 *       120 *         1 *         0 *    123456 *         0 *         0 *         0 * 0.9750000 *
+*        5 * 1.6281188 * 0.0050568 *       120 *         1 *         0 *    123456 *         0 * 0.0035000 * 0.0055123 *        -1 *
+************************************************************************************************************************************
+</code></pre></div>
+<h3 id="blind-limits">Blind limits</h3>
+<p>The <code>AsymptoticLimits</code> calculation follows the frequentist paradigm for calculating expected limits. This means that the routine will first fit the observed data, conditionally for a fixed value of <strong>r</strong>, and set the nuisance parameters to the values obtained in the fit for generating the Asimov data set. This means it calculates the <strong>post-fit</strong> or <strong>a-posteriori</strong> expected limit. In order to use the <strong>pre-fit</strong> nuisance parameters (to calculate an <strong>a-priori</strong> limit), you must add the option <code>--noFitAsimov</code> or <code>--bypassFrequentistFit</code>.</p>
+<p>For blinding the results completely (i.e not using the data) you can include the option <code>--run blind</code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>While you <em>can</em> use <code>-t -1</code> to get blind limits, if the correct options are passed, we strongly recommend to use <code>--run blind</code>.</p>
+</div>
+<h3 id="splitting-points">Splitting points</h3>
+<p>In case your model is particularly complex, you can perform the asymptotic calculation by determining the value of CL<sub>s</sub> for a set grid of points (in <code>r</code>) and merging the results. This is done by using the option <code>--singlePoint X</code> for multiple values of X, hadd'ing the output files and reading them back in,</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>AsymptoticLimits<span class="w"> </span>realistic-counting-experiment.txt<span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.1<span class="w"> </span>-n<span class="w"> </span><span class="m">0</span>.1
+combine<span class="w"> </span>-M<span class="w"> </span>AsymptoticLimits<span class="w"> </span>realistic-counting-experiment.txt<span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.2<span class="w"> </span>-n<span class="w"> </span><span class="m">0</span>.2
+combine<span class="w"> </span>-M<span class="w"> </span>AsymptoticLimits<span class="w"> </span>realistic-counting-experiment.txt<span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.3<span class="w"> </span>-n<span class="w"> </span><span class="m">0</span>.3
+...
+
+hadd<span class="w"> </span>limits.root<span class="w"> </span>higgsCombine*.AsymptoticLimits.*
+
+combine<span class="w"> </span>-M<span class="w"> </span>AsymptoticLimits<span class="w"> </span>realistic-counting-experiment.txt<span class="w"> </span>--getLimitFromGrid<span class="w"> </span>limits.root
+</code></pre></div>
+<h2 id="asymptotic-significances">Asymptotic Significances</h2>
+<p>The significance of a result is calculated using a ratio of profiled likelihoods, one in which the signal strength is set to 0 and the other in which it is free to float. The evaluated quantity is <span class="arithmatex">\(-2\ln[\mathcal{L}(\mu=0,\hat{\hat{\nu}}(0))/\mathcal{L}(\hat{\mu},\hat{\nu})]\)</span>, in which the nuisance parameters are profiled separately for <span class="arithmatex">\(\mu=\hat{\mu}\)</span> and <span class="arithmatex">\(\mu=0\)</span>.</p>
+<p>The distribution of this test statistic can be determined using Wilks' theorem provided the number of events is large enough (i.e in the <em>Asymptotic limit</em>). The significance (or p-value) can therefore be calculated very quickly. The <code>Significance</code> method can be used for this.</p>
+<p>It is also possible to calculate the ratio of likelihoods between the freely floating signal strength to that of a fixed signal strength <em>other than 0</em>, by specifying it with the option <code>--signalForSignificance=X</code>.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>This calculation assumes that the signal strength can only be positive (i.e we are not interested in negative signal strengths). This behaviour can be altered by including the option <code>--uncapped</code>.</p>
+</div>
+<h3 id="compute-the-observed-significance">Compute the observed significance</h3>
+<p>The observed significance is calculated using the <code>Significance</code> method, as</p>
+<p><code>combine -M Significance datacard.txt</code></p>
+<p>The printed output will report the significance and the p-value, for example, when using the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/realistic-counting-experiment.txt">realistic-counting-experiment.txt</a> datacard, you will see</p>
+<div class="highlight"><pre><span></span><code> &lt;&lt;&lt; Combine &gt;&gt;&gt;
+&gt;&gt;&gt; including systematics
+&gt;&gt;&gt; method used is Significance
+[...]
+ -- Significance --
+Significance: 0
+       (p-value = 0.5)
+Done in 0.00 min (cpu), 0.01 min (real)
+</code></pre></div>
+<p>which is not surprising since 0 events were observed in that datacard.</p>
+<p>The output ROOT file will contain the significance value in the branch <strong>limit</strong>. To store the p-value instead, include the option <code>--pval</code>. The significance and p-value can be converted between one another using the RooFit functions <code>RooFit::PValueToSignificance</code> and <code>RooFit::SignificanceToPValue</code>.</p>
+<p>When calculating the significance, you may find it useful to resort to a brute-force fitting algorithm that scans the nll (repeating fits until a certain tolerance is reached), bypassing MINOS, which can be activated with the option <code>bruteForce</code>. This can be tuned using the options <code>setBruteForceAlgo</code>, <code>setBruteForceTypeAndAlgo</code> and <code>setBruteForceTolerance</code>.</p>
+<h3 id="computing-the-expected-significance">Computing the expected significance</h3>
+<p>The expected significance can be computed from an Asimov data set of signal+background. There are two options for this:</p>
+<ul>
+<li>a-posteriori expected: will depend on the observed dataset.</li>
+<li>a-priori expected (the default behavior): does not depend on the observed dataset, and so is a good metric for optimizing an analysis when still blinded.</li>
+</ul>
+<p>The <strong>a-priori</strong> expected significance from the Asimov dataset is calculated as</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>Significance<span class="w"> </span>datacard.txt<span class="w"> </span>-t<span class="w"> </span>-1<span class="w"> </span>--expectSignal<span class="o">=</span><span class="m">1</span>
+</code></pre></div>
+<p>In order to produce the <strong>a-posteriori</strong> expected significance, just generate a post-fit Asimov data set by adding the option <code>--toysFrequentist</code> in the command above.</p>
+<p>The output format is the same as for observed significances: the variable <strong>limit</strong> in the tree will be filled with the significance (or with the p-value if you put also the option <code>--pvalue</code>)</p>
+<h2 id="bayesian-limits-and-credible-regions">Bayesian Limits and Credible regions</h2>
+<p>Bayesian calculation of limits requires the user to assume a particular prior distribution for the parameter of interest (default <strong>r</strong>). You can specify the prior using the <code>--prior</code> option, the default is a flat pior in <strong>r</strong>.</p>
+<h3 id="computing-the-observed-bayesian-limit-for-simple-models">Computing the observed bayesian limit (for simple models)</h3>
+<p>The <code>BayesianSimple</code> method computes a Bayesian limit performing classical numerical integration. This is very fast and accurate, but only works for simple models (a few channels and nuisance parameters).</p>
+<div class="highlight"><pre><span></span><code>combine -M BayesianSimple simple-counting-experiment.txt
+[...]
+
+ -- BayesianSimple --
+Limit: r &lt; 0.672292 @ 95% CL
+Done in 0.04 min (cpu), 0.05 min (real)
+</code></pre></div>
+<p>The output tree will contain a single entry corresponding to the observed 95% confidence level upper limit. The confidence level can be modified to <strong>100*X%</strong> using <code>--cl X</code>.</p>
+<h3 id="computing-the-observed-bayesian-limit-for-arbitrary-models">Computing the observed bayesian limit (for arbitrary models)</h3>
+<p>The <code>MarkovChainMC</code> method computes a Bayesian limit performing a Monte Carlo integration. From the statistical point of view it is identical to the <code>BayesianSimple</code> method, only the technical implementation is different. The method is slower, but can also handle complex models. For this method you can increase the accuracy of the result by increasing the number of Markov Chains, at the expense of a longer running time (option <code>--tries</code>, default is 10). Let's use the realistic counting experiment datacard to test the method.</p>
+<p>To use the MarkovChainMC method, users need to specify this method in the command line, together with the options they want to use. For instance, to set the number of times the algorithm will run with different random seeds, use option <code>--tries</code>:</p>
+<div class="highlight"><pre><span></span><code>combine -M MarkovChainMC realistic-counting-experiment.txt --tries 100
+[...]
+
+ -- MarkovChainMC --
+Limit: r &lt; 2.20438 +/- 0.0144695 @ 95% CL (100 tries)
+Average chain acceptance: 0.078118
+Done in 0.14 min (cpu), 0.15 min (real)
+</code></pre></div>
+<p>Again, the resulting limit tree will contain the result. You can also save the chains using the option <code>--saveChain</code>, which will then also be included in the output file.</p>
+<p>Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there is an infinite number of possible regions that contain 68% of the posterior pdf). Below is a simple example script that can be used to plot the posterior distribution from these chains and calculate the <em>smallest</em> such region. Note that in this example we are ignoring the burn-in. This can be added by e.g. changing <code>for i in range(mychain.numEntries()):</code> to <code>for i in range(200,mychain.numEntries()):</code> for a burn-in of 200.</p>
+<details>
+<summary><strong>Show example script</strong></summary>
+<pre class="python"><code>
+import ROOT
+
+rmin = 0
+rmax = 30
+nbins = 100
+CL = 0.95
+chains = "higgsCombineTest.MarkovChainMC.blahblahblah.root"
+
+def findSmallestInterval(hist,CL):
+ bins = hist.GetNbinsX()
+ best_i = 1
+ best_j = 1
+ bd = bins+1
+ val = 0;
+ for i in range(1,bins+1):
+   integral = hist.GetBinContent(i)
+   for j in range(i+1,bins+2):
+    integral += hist.GetBinContent(j)
+    if integral > CL :
+      val = integral
+      break
+   if integral > CL and  j-i < bd :
+     bd = j-i
+     best_j = j+1
+     best_i = i
+     val = integral
+ return hist.GetBinLowEdge(best_i), hist.GetBinLowEdge(best_j), val
+
+fi_MCMC = ROOT.TFile.Open(chains)
+# Sum up all of the chains (or we could take the average limit)
+mychain=0
+for k in fi_MCMC.Get("toys").GetListOfKeys():
+    obj = k.ReadObj
+    if mychain ==0:
+        mychain = k.ReadObj().GetAsDataSet()
+    else :
+        mychain.append(k.ReadObj().GetAsDataSet())
+hist = ROOT.TH1F("h_post",";r;posterior probability",nbins,rmin,rmax)
+for i in range(mychain.numEntries()):
+#for i in range(200,mychain.numEntries()): burn-in of 200
+  mychain.get(i)
+  hist.Fill(mychain.get(i).getRealValue("r"), mychain.weight())
+hist.Scale(1./hist.Integral())
+hist.SetLineColor(1)
+vl,vu,trueCL = findSmallestInterval(hist,CL)
+histCL = hist.Clone()
+for b in range(nbins):
+  if histCL.GetBinLowEdge(b+1) < vl or histCL.GetBinLowEdge(b+2)>vu: histCL.SetBinContent(b+1,0)
+c6a = ROOT.TCanvas()
+histCL.SetFillColor(ROOT.kAzure-3)
+histCL.SetFillStyle(1001)
+hist.Draw()
+histCL.Draw("histFsame")
+hist.Draw("histsame")
+ll = ROOT.TLine(vl,0,vl,2*hist.GetBinContent(hist.FindBin(vl))); ll.SetLineColor(2); ll.SetLineWidth(2)
+lu = ROOT.TLine(vu,0,vu,2*hist.GetBinContent(hist.FindBin(vu))); lu.SetLineColor(2); lu.SetLineWidth(2)
+ll.Draw()
+lu.Draw()
+
+print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
+</code></pre>
+</details>
+<p>Running the script on the output file produced for the same datacard (including the <code>--saveChain</code> option) will produce the following output</p>
+<pre><code>0.950975 % (0.95 %) interval (target)  = 0 &lt; r &lt; 2.2
+</code></pre>
+<p>along with a plot of the posterior distribution shown below. This is the same as the output from <span style="font-variant:small-caps;">Combine</span>, but the script can also be used to find lower limits (for example) or credible intervals.</p>
+<p><img alt="" src="../images/bayes1D.png" /></p>
+<p>An example to make contours when ordering by probability density can be found in <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesContours.cxx">bayesContours.cxx</a>. Note that the implementation is simplistic, with no clever handling of bin sizes nor smoothing of statistical fluctuations.</p>
+<p>The <code>MarkovChainMC</code> algorithm has many configurable parameters, and you are encouraged to experiment with those. The default configuration might not be the best for your analysis.</p>
+<h4 id="iterations-burn-in-tries">Iterations, burn-in, tries</h4>
+<p>Three parameters control how the MCMC integration is performed:</p>
+<ul>
+<li>the number of <strong>tries</strong> (option <code>--tries</code>): the algorithm will run multiple times with different random seeds. The truncated mean and RMS of the different results are reported. The default value is 10, which should be sufficient for a quick computation. For a more accurate result you might want to increase this number up to even ~200.</li>
+<li>the number of <strong>iterations</strong> (option <code>-i</code>) determines how many points are proposed to fill a single Markov Chain. The default value is 10k, and a plausible range is between 5k (for quick checks) and 20-30k for lengthy calculations. Beyond 30k, the time vs accuracy can be balanced better by increasing the number of chains (option <code>--tries</code>).</li>
+<li>the number of <strong>burn-in steps</strong> (option <code>-b</code>) is the number of points that are removed from the beginning of the chain before using it to compute the limit. The default is 200. If the chain is very long, we recommend to increase this value a bit (e.g. to several hundreds). Using a number of burn-in steps below 50 is likely to result in a bias towards earlier stages of the chain before a reasonable convergence.</li>
+</ul>
+<h4 id="proposals">Proposals</h4>
+<p>The option <code>--proposal</code> controls the way new points are proposed to fill in the MC chain.</p>
+<ul>
+<li><strong>uniform</strong>: pick points at random. This works well if you have very few nuisance parameters (or none at all), but normally fails if you have many.</li>
+<li><strong>gaus</strong>: Use a product of independent gaussians, one for each nuisance parameter. The sigma of the gaussian for each variable is 1/5 of the range of the variable. This behaviour can be controlled using the parameter <code>--propHelperWidthRangeDivisor</code>. This proposal appears to work well for up to around 15 nuisance parameters, provided that the range of the nuisance parameters is in the range ±5σ. This method does <strong>not</strong> work when there are no nuisance parameters.</li>
+<li><strong>ortho</strong> (<strong>default</strong>): This proposal is similar to the multi-gaussian proposal. However, at every step only a single coordinate of the point is varied, so that the acceptance of the chain is high even for a large number of nuisance parameters (i.e. more than 20).</li>
+<li><strong>fit</strong>: Run a fit and use the uncertainty matrix from HESSE to construct a proposal (or the one from MINOS if the option <code>--runMinos</code> is specified). This can give biased results, so this method is not recommended in general.</li>
+</ul>
+<p>If you believe there is something going wrong, e.g. if your chain remains stuck after accepting only a few events, the option <code>--debugProposal</code> can be used to obtain a printout of the first <em>N</em> proposed points. This can help you understand what is happening; for example if you have a region of the phase space with probability zero, the <strong>gaus</strong> and <strong>fit</strong> proposal can get stuck there forever.</p>
+<h3 id="computing-the-expected-bayesian-limit">Computing the expected bayesian limit</h3>
+<p>The expected limit is computed by generating many toy MC data sets and computing the limit for each of them. This can be done passing the option <code>-t</code> . E.g. to run 100 toys with the <code>BayesianSimple</code> method, you can run</p>
+<pre><code>combine -M BayesianSimple datacard.txt -t 100
+</code></pre>
+<p>The program will print out the mean and median limit, as well as the 68% and 95% quantiles of the distributions of the limits. This time, the output ROOT tree will contain <strong>one entry per toy</strong>.</p>
+<p>For more heavy methods (eg the <code>MarkovChainMC</code>) you will probably want to split this calculation into multiple jobs. To do this, just run <span style="font-variant:small-caps;">Combine</span> multiple times specifying a smaller number of toys (as low as <code>1</code>), using a different seed to initialize the random number generator each time. The option <code>-s</code> can be used for this; if you set it to -1, the starting seed will be initialized randomly at the beginning of the job. Finally, you can merge the resulting trees with <code>hadd</code> and look at the distribution in the merged file.</p>
+<h3 id="multidimensional-bayesian-credible-regions">Multidimensional bayesian credible regions</h3>
+<p>The <code>MarkovChainMC</code> method allows the user to produce the posterior PDF as a function of (in principle) any number of POIs. In order to do so, you first need to create a workspace with more than one parameter, as explained in the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/">physics models</a> section.</p>
+<p>For example, let us use the toy datacard <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/multiDim/toy-hgg-125.txt">data/tutorials/multiDim/toy-hgg-125.txt</a> (counting experiment that vaguely resembles an early H→γγ analysis at 125 GeV) and convert the datacard into a workspace with 2 parameters, the ggH and qqH cross sections, using <code>text2workspace</code>.</p>
+<pre><code>text2workspace.py data/tutorials/multiDim/toy-hgg-125.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o workspace.root
+</code></pre>
+<p>Now we just run one (or more) MCMC chain(s) and save them in the output tree. By default, the nuisance parameters will be marginalized (integrated) over their PDFs. You can ignore the complaints about not being able to compute an upper limit (since for more than 1D, this is not well-defined),</p>
+<pre><code>combine -M MarkovChainMC workspace.root --tries 1 --saveChain -i 1000000 -m 125 -s 12345
+</code></pre>
+<p>The output of the Markov Chain is again a RooDataSet of weighted events distributed according to the posterior PDF (after you cut out the burn in part), so it can be used to make histograms or other distributions of the posterior PDF. See as an example <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesPosterior2D.cxx">bayesPosterior2D.cxx</a>.</p>
+<p>Below is an example of the output of the macro,</p>
+<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="w"> </span><span class="n">root</span><span class="w"> </span><span class="o">-</span><span class="n">l</span><span class="w"> </span><span class="n">higgsCombineTest</span><span class="p">.</span><span class="n">MarkovChainMC</span><span class="p">....</span>
+<span class="p">.</span><span class="n">L</span><span class="w"> </span><span class="n">bayesPosterior2D</span><span class="p">.</span><span class="n">cxx</span>
+<span class="n">bayesPosterior2D</span><span class="p">(</span><span class="s">&quot;bayes2D&quot;</span><span class="p">,</span><span class="s">&quot;Posterior PDF&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><img alt="" src="../images/bayes2D.png" /></p>
+<h2 id="computing-limits-with-toys">Computing Limits with toys</h2>
+<p>The <code>HybridNew</code> method is used to compute either the hybrid bayesian-frequentist limits, popularly known as "CL<sub>s</sub> of LEP or Tevatron type", or the fully frequentist limits, which are the current recommended method by the LHC Higgs Combination Group. Note that these methods can be resource intensive for complex models.</p>
+<p>It is possible to define the criterion used for setting limits using <code>--rule CLs</code> (to use the CL<sub>s</sub> criterion) or <code>--rule CLsplusb</code> (to calculate the limit using <span class="arithmatex">\(p_{\mu}\)</span>) and as always the confidence level desired using <code>--cl=X</code>.</p>
+<p>The choice of test statistic can be made via the option <code>--testStat</code>. Different methodologies for the treatment of the nuisance parameters are available. While it is possible to mix different test statistics with different nuisance parameter treatments, <strong>we strongly do not recommend  this</strong>. Instead one should follow one of the following three procedures. Note that the signal strength <span class="arithmatex">\(r\)</span> here is given the more common notation <span class="arithmatex">\(\mu\)</span>.</p>
+<ul>
+<li>
+<p><strong>LEP-style</strong>: <code>--testStat LEP --generateNuisances=1 --fitNuisances=0</code></p>
+<ul>
+<li>The test statistic is defined using the ratio of likelihoods <span class="arithmatex">\(q_{\mathrm{LEP}}=-2\ln[\mathcal{L}(\mu=0)/\mathcal{L}(\mu)]\)</span>.</li>
+<li>The nuisance parameters are fixed to their nominal values for the purpose of evaluating the likelihood, while for generating toys, the nuisance parameters are first randomized within their PDFs before generation of the toy.</li>
+</ul>
+</li>
+<li>
+<p><strong>TEV-style</strong>: <code>--testStat TEV --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1</code></p>
+<ul>
+<li>The test statistic is defined using the ratio of likelihoods <span class="arithmatex">\(q_{\mathrm{TEV}}=-2\ln[\mathcal{L}(\mu=0,\hat{\hat{\mu}}(0))/\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))]\)</span>, in which the nuisance parameters are profiled separately for <span class="arithmatex">\(\mu=0\)</span> and <span class="arithmatex">\(\mu\)</span>.</li>
+<li>For the purposes of toy generation, the nuisance parameters are fixed to their post-fit values from the data (conditional on <span class="arithmatex">\(\mu\)</span>), while the constraint terms are randomized for the evaluation of the likelihood.</li>
+</ul>
+</li>
+<li>
+<p><strong>LHC-style</strong>: <code>--LHCmode LHC-limits</code>
+, which is the shortcut for <code>--testStat LHC --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1</code></p>
+<ul>
+<li>The test statistic is defined using the ratio of likelihoods <span class="arithmatex">\(q_{\mu} = -2\ln[\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))/\mathcal{L}(\hat{\mu},\hat{\nu})]\)</span> , in which the nuisance parameters are profiled separately for <span class="arithmatex">\(\mu=\hat{\mu}\)</span> and <span class="arithmatex">\(\mu\)</span>.</li>
+<li>The value of <span class="arithmatex">\(q_{\mu}\)</span> set to 0 when <span class="arithmatex">\(\hat{\mu}&gt;\mu\)</span> giving a one-sided limit. Furthermore, the constraint <span class="arithmatex">\(\mu&gt;0\)</span> is enforced in the fit. This means that if the unconstrained value of <span class="arithmatex">\(\hat{\mu}\)</span> would be negative, the test statistic <span class="arithmatex">\(q_{\mu}\)</span> is evaluated as <span class="arithmatex">\(-2\ln[\mathcal{L}(\mu,\hat{\hat{\nu}}(\mu))/\mathcal{L}(0,\hat{\hat{\nu}}(0))]\)</span>.</li>
+<li>For the purposes of toy generation, the nuisance parameters are fixed to their <strong>post-fit</strong> values from the data (conditionally on the value of <span class="arithmatex">\(\mu\)</span>), while the constraint terms are randomized in the evaluation of the likelihood.</li>
+</ul>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The recommended style is the <strong>LHC-style</strong>. Please note that this method is sensitive to the <em>observation in data</em> since the <em>post-fit</em> (after a fit to the data) values of the nuisance parameters (assuming different values of <strong>r</strong>) are used when generating the toys. For completely blind limits you can first generate a <em>pre-fit</em> asimov toy data set (described in the <a href="../runningthetool/#toy-data-generation">toy data generation</a> section) and use that in place of the data.  You can use this toy by passing the argument <code>-D toysFileName.root:toys/toy_asimov</code></p>
+</div>
+<p>While the above shortcuts are the commonly used versions, variations can be tested. The treatment of the nuisances can be changed to the so-called "Hybrid-Bayesian" method, which effectively integrates over the nuisance parameters. This is especially relevant when you have very few expected events in your data, and you are using those events to constrain background processes. This can be achieved by setting <code>--generateNuisances=1 --generateExternalMeasurements=0</code>. In case you want to avoid first fitting to the data to choose the nominal values you can additionally pass <code>--fitNuisances=0</code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you have unconstrained parameters in your model (<code>rateParam</code>, or if you are using a <code>_norm</code> variable for a PDF) and you want to use the "Hybrid-Bayesian" method, you <strong>must</strong> declare these as <code>flatParam</code> in your datacard. When running text2workspace you must add the option <code>--X-assign-flatParam-prior</code> in the command line. This will create uniform priors for these parameters. These are needed for this method and they would otherwise not get created.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Note that (observed and expected) values of the test statistic stored in the instances of <code>RooStats::HypoTestResult</code> when the option <code>--saveHybridResult</code> is passed are defined without the factor 2. They are therefore twice as small as the values given by the formulas above. This factor is however included automatically by all plotting scripts supplied within the <span style="font-variant:small-caps;">Combine</span> package. If you use your own plotting scripts, you need to make sure to incorporate the factor 2.</p>
+</div>
+<h3 id="simple-models">Simple models</h3>
+<p>For relatively simple models, the observed and expected limits can be calculated interactively. Since the <strong>LHC-style</strong> is the recommended set of options for calculating limits using toys, we will use that in this section. However, the same procedure can be followed with the other sets of options.</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>realistic-counting-experiment.txt<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits
+</code></pre></div>
+<details>
+<summary><strong>Show output</strong></summary>
+<pre><code>
+<<< Combine >>>
+>>> including systematics
+>>> using the Profile Likelihood test statistics modified for upper limits (Q_LHC)
+>>> method used is HybridNew
+>>> random number generator seed is 123456
+Computing results starting from observation (a-posteriori)
+Search for upper limit to the limit
+  r = 20 +/- 0
+    CLs = 0 +/- 0
+    CLs      = 0 +/- 0
+    CLb      = 0.264 +/- 0.0394263
+    CLsplusb = 0 +/- 0
+
+Search for lower limit to the limit
+Now doing proper bracketing & bisection
+  r = 10 +/- 10
+    CLs = 0 +/- 0
+    CLs      = 0 +/- 0
+    CLb      = 0.288 +/- 0.0405024
+    CLsplusb = 0 +/- 0
+
+  r = 5 +/- 5
+    CLs = 0 +/- 0
+    CLs      = 0 +/- 0
+    CLb      = 0.152 +/- 0.0321118
+    CLsplusb = 0 +/- 0
+
+  r = 2.5 +/- 2.5
+    CLs = 0.0192308 +/- 0.0139799
+    CLs = 0.02008 +/- 0.0103371
+    CLs = 0.0271712 +/- 0.00999051
+    CLs = 0.0239524 +/- 0.00783634
+    CLs      = 0.0239524 +/- 0.00783634
+    CLb      = 0.208748 +/- 0.0181211
+    CLsplusb = 0.005 +/- 0.00157718
+
+  r = 2.00696 +/- 1.25
+    CLs = 0.0740741 +/- 0.0288829
+    CLs = 0.0730182 +/- 0.0200897
+    CLs = 0.0694474 +/- 0.0166468
+    CLs = 0.0640182 +/- 0.0131693
+    CLs = 0.0595 +/- 0.010864
+    CLs = 0.0650862 +/- 0.0105575
+    CLs = 0.0629286 +/- 0.00966301
+    CLs = 0.0634945 +/- 0.00914091
+    CLs = 0.060914 +/- 0.00852667
+    CLs = 0.06295 +/- 0.00830083
+    CLs = 0.0612758 +/- 0.00778181
+    CLs = 0.0608142 +/- 0.00747001
+    CLs = 0.0587169 +/- 0.00697039
+    CLs = 0.0591432 +/- 0.00678587
+    CLs = 0.0599683 +/- 0.00666966
+    CLs = 0.0574868 +/- 0.00630809
+    CLs = 0.0571451 +/- 0.00608177
+    CLs = 0.0553836 +/- 0.00585531
+    CLs = 0.0531612 +/- 0.0055234
+    CLs = 0.0516837 +/- 0.0052607
+    CLs = 0.0496776 +/- 0.00499783
+    CLs      = 0.0496776 +/- 0.00499783
+    CLb      = 0.216635 +/- 0.00801002
+    CLsplusb = 0.0107619 +/- 0.00100693
+
+Trying to move the interval edges closer
+  r = 1.00348 +/- 0
+    CLs = 0.191176 +/- 0.0459911
+    CLs      = 0.191176 +/- 0.0459911
+    CLb      = 0.272 +/- 0.0398011
+    CLsplusb = 0.052 +/- 0.00992935
+
+  r = 1.50522 +/- 0
+    CLs = 0.125 +/- 0.0444346
+    CLs = 0.09538 +/- 0.0248075
+    CLs = 0.107714 +/- 0.0226712
+    CLs = 0.103711 +/- 0.018789
+    CLs = 0.0845069 +/- 0.0142341
+    CLs = 0.0828468 +/- 0.0126789
+    CLs = 0.0879647 +/- 0.0122332
+    CLs      = 0.0879647 +/- 0.0122332
+    CLb      = 0.211124 +/- 0.0137494
+    CLsplusb = 0.0185714 +/- 0.00228201
+
+  r = 1.75609 +/- 0
+    CLs = 0.0703125 +/- 0.0255807
+    CLs = 0.0595593 +/- 0.0171995
+    CLs = 0.0555271 +/- 0.0137075
+    CLs = 0.0548727 +/- 0.0120557
+    CLs = 0.0527832 +/- 0.0103348
+    CLs = 0.0555828 +/- 0.00998248
+    CLs = 0.0567971 +/- 0.00923449
+    CLs = 0.0581822 +/- 0.00871417
+    CLs = 0.0588835 +/- 0.00836245
+    CLs = 0.0594035 +/- 0.00784761
+    CLs = 0.0590583 +/- 0.00752672
+    CLs = 0.0552067 +/- 0.00695542
+    CLs = 0.0560446 +/- 0.00679746
+    CLs = 0.0548083 +/- 0.0064351
+    CLs = 0.0566998 +/- 0.00627124
+    CLs = 0.0561576 +/- 0.00601888
+    CLs = 0.0551643 +/- 0.00576338
+    CLs = 0.0583584 +/- 0.00582854
+    CLs = 0.0585691 +/- 0.0057078
+    CLs = 0.0599114 +/- 0.00564585
+    CLs = 0.061987 +/- 0.00566905
+    CLs = 0.061836 +/- 0.00549856
+    CLs = 0.0616849 +/- 0.0053773
+    CLs = 0.0605352 +/- 0.00516844
+    CLs = 0.0602028 +/- 0.00502875
+    CLs = 0.058667 +/- 0.00486263
+    CLs      = 0.058667 +/- 0.00486263
+    CLb      = 0.222901 +/- 0.00727258
+    CLsplusb = 0.0130769 +/- 0.000996375
+
+  r = 2.25348 +/- 0
+    CLs = 0.0192308 +/- 0.0139799
+    CLs = 0.0173103 +/- 0.00886481
+    CLs      = 0.0173103 +/- 0.00886481
+    CLb      = 0.231076 +/- 0.0266062
+    CLsplusb = 0.004 +/- 0.001996
+
+  r = 2.13022 +/- 0
+    CLs = 0.0441176 +/- 0.0190309
+    CLs = 0.0557778 +/- 0.01736
+    CLs = 0.0496461 +/- 0.0132776
+    CLs = 0.0479048 +/- 0.0114407
+    CLs = 0.0419333 +/- 0.00925719
+    CLs = 0.0367934 +/- 0.0077345
+    CLs = 0.0339814 +/- 0.00684844
+    CLs = 0.03438 +/- 0.0064704
+    CLs = 0.0337633 +/- 0.00597315
+    CLs = 0.0321262 +/- 0.00551608
+    CLs      = 0.0321262 +/- 0.00551608
+    CLb      = 0.230342 +/- 0.0118665
+    CLsplusb = 0.0074 +/- 0.00121204
+
+  r = 2.06859 +/- 0
+    CLs = 0.0357143 +/- 0.0217521
+    CLs = 0.0381957 +/- 0.0152597
+    CLs = 0.0368622 +/- 0.0117105
+    CLs = 0.0415097 +/- 0.0106676
+    CLs = 0.0442816 +/- 0.0100457
+    CLs = 0.0376644 +/- 0.00847235
+    CLs = 0.0395133 +/- 0.0080427
+    CLs = 0.0377625 +/- 0.00727262
+    CLs = 0.0364415 +/- 0.00667827
+    CLs = 0.0368015 +/- 0.00628517
+    CLs = 0.0357251 +/- 0.00586442
+    CLs = 0.0341604 +/- 0.00546373
+    CLs = 0.0361935 +/- 0.00549648
+    CLs = 0.0403254 +/- 0.00565172
+    CLs = 0.0408613 +/- 0.00554124
+    CLs = 0.0416682 +/- 0.00539651
+    CLs = 0.0432645 +/- 0.00538062
+    CLs = 0.0435229 +/- 0.00516945
+    CLs = 0.0427647 +/- 0.00501322
+    CLs = 0.0414894 +/- 0.00479711
+    CLs      = 0.0414894 +/- 0.00479711
+    CLb      = 0.202461 +/- 0.00800632
+    CLsplusb = 0.0084 +/- 0.000912658
+
+
+ -- HybridNew, before fit --
+Limit: r < 2.00696 +/- 1.25 [1.50522, 2.13022]
+Warning in <ROOT::Math::FitConfig::CreateMinimizer>: Could not create the Migrad minimizer. Try using the minimizer Minuit
+Fit to 5 points: 1.91034 +/- 0.0388334
+
+ -- Hybrid New --
+Limit: r < 1.91034 +/- 0.0388334 @ 95% CL
+Done in 0.01 min (cpu), 4.09 min (real)
+Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
+</pre>
+<p></code></p>
+</details>
+<p>The result stored in the <strong>limit</strong> branch of the output tree will be the upper limit (and its error, stored in <strong>limitErr</strong>). The default behaviour will be, as above, to search for the upper limit on <strong>r</strong>. However, the values of <span class="arithmatex">\(p_{\mu}, p_{b}\)</span> and CL<sub>s</sub> can be calculated for a particular value <strong>r=X</strong> by specifying the option <code>--singlePoint=X</code>. In this case, the value stored in the branch <strong>limit</strong> will be the value of CL<sub>s</sub> (or <span class="arithmatex">\(p_{\mu}\)</span>) (see the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq">FAQ</a> section).</p>
+<h4 id="expected-limits">Expected Limits</h4>
+<p>For simple models, we can run interactively 5 times to compute the median expected and the 68% and 95% central interval boundaries. For this, we can use the <code>HybridNew</code> method with the same options as for the observed limit, but adding a <code>--expectedFromGrid=&lt;quantile&gt;</code>. Here, the quantile should be set to 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, and 0.025 for the -ve side of the 95% band.</p>
+<p>The output file will contain the value of the quantile in the branch <strong>quantileExpected</strong>. This branch can therefore be used to separate the points.</p>
+<h4 id="accuracy">Accuracy</h4>
+<p>The search for the limit is performed using an adaptive algorithm, terminating when the estimate of the limit value is below some limit or when the precision cannot be improved further with the specified options. The options controlling this behaviour are:</p>
+<ul>
+<li><code>rAbsAcc</code>, <code>rRelAcc</code>: define the accuracy on the limit at which the search stops. The default values are 0.1 and 0.05 respectively, meaning that the search is stopped when Δr &lt; 0.1 or Δr/r &lt; 0.05.</li>
+<li><code>clsAcc</code>: this determines the absolute accuracy up to which the CLs values are computed when searching for the limit. The default is 0.5%. Raising the accuracy above this value will significantly increase the time needed to run the algorithm, as you need N<sup>2</sup> more toys to improve the accuracy by a factor N. You can consider increasing this value if you are computing limits with a larger CL (e.g. 90% or 68%). Note that if you are using the <code>CLsplusb</code> rule, this parameter will control the uncertainty on <span class="arithmatex">\(p_{\mu}\)</span> rather than CL<sub>s</sub>.</li>
+<li><code>T</code> or <code>toysH</code>: controls the minimum number of toys that are generated for each point. The default value of 500 should be sufficient when computing the limit at 90-95% CL. You can decrease this number if you are computing limits at 68% CL, or increase it if you are using 99% CL.</li>
+</ul>
+<p>Note, to further improve the accuracy when searching for the upper limit, <span style="font-variant:small-caps;">Combine</span> will also fit an exponential function to several of the points and interpolate to find the crossing.</p>
+<h3 id="complex-models">Complex models</h3>
+<p>For complicated models, it is best to produce a <em>grid</em> of test statistic distributions at various values of the signal strength, and use it to compute the observed and expected limit and central intervals. This approach is convenient for complex models, since the grid of points can be distributed across any number of jobs. In this approach we will store the distributions of the test statistic at different values of the signal strength using the option <code>--saveHybridResult</code>. The distribution at a single value of <strong>r=X</strong> can be determined by</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>datacard.txt<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>--singlePoint<span class="w"> </span>X<span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-T<span class="w"> </span><span class="m">500</span><span class="w"> </span>--clsAcc<span class="w"> </span><span class="m">0</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>We have specified the accuracy here by including <code>--clsAcc=0</code>, which turns off adaptive sampling, and specifying the number of toys to be 500 with the <code>-T N</code> option. For complex models, it may be necessary to internally split the toys over a number of instances of <code>HybridNew</code> using the option <code>--iterations I</code>. The <strong>total</strong> number of toys will be the product <strong>I*N</strong>.</p>
+</div>
+<p>The above can be repeated several times, in parallel, to build the distribution of the test statistic (passing the random seed option <code>-s -1</code>). Once all of the distributions have been calculated, the resulting output files can be merged into one using <strong>hadd</strong>, and read back to calculate the limit, specifying the merged file with <code>--grid=merged.root</code>.</p>
+<p>The observed limit can be obtained with</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>datacard.txt<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>--readHybridResults<span class="w"> </span>--grid<span class="o">=</span>merged.root
+</code></pre></div>
+<p>and similarly, the median expected and quantiles can be determined using</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>datacard.txt<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>--readHybridResults<span class="w"> </span>--grid<span class="o">=</span>merged.root<span class="w"> </span>--expectedFromGrid<span class="w"> </span>&lt;quantile&gt;
+</code></pre></div>
+<p>substituting <code>&lt;quantile&gt;</code> with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, and 0.025 for the -ve side of the 95% band. </p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Make sure that if you specified a particular mass value (<code>-m</code> or <code>--mass</code>) in the commands for calculating the toys, you also specify the same mass when reading in the grid of distributions.</p>
+</div>
+<p>You should note that  <span style="font-variant:small-caps;">Combine</span> will update the grid to improve the accuracy on the extracted limit by default. If you want to avoid this, you can use the option <code>--noUpdateGrid</code>. This will mean only the toys/points you produced in the grid will be used to compute the limit.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This option should not be used with <code>--expectedFromGrid</code> if you did not create the grid with the same option. The reason is that the value of the test-statistic that is used to calculate the limit will not be properly calcualted if <code>--noUpdateGrid</code> is included. In future versions of the tool, this option will be ignored if using <code>--expectedFromGrid</code>. </p>
+</div>
+<p>The splitting of the jobs can be left to the user's preference. However, users may wish to use <code>combineTool.py</code> for automating this, as described in the section on <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">combineTool for job submission</a></p>
+<h4 id="plotting">Plotting</h4>
+<p>A plot of the CL<sub>s</sub> (or <span class="arithmatex">\(p_{\mu}\)</span>) as a function of <strong>r</strong>, which is used to find the crossing, can be produced using the option <code>--plot=limit_scan.png</code>. This can be useful for judging if the chosen grid was sufficient for determining the upper limit.</p>
+<p>If we use our <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/counting/realistic-counting-experiment.txt">realistic-counting-experiment.txt</a> datacard and generate a grid of points <span class="arithmatex">\(r\varepsilon[1.4,2.2]\)</span> in steps of 0.1, with 5000 toys for each point, the plot of the observed CL<sub>s</sub> vs <strong>r</strong> should look like the following,</p>
+<p><img alt="" src="../images/limit_scan.png" /></p>
+<p>You should judge in each case whether the limit is accurate given the spacing of the points and the precision of CL<sub>s</sub> at each point. If it is not sufficient, simply generate more points closer to the limit and/or more toys at each point.</p>
+<p>The distributions of the test statistic can also be plotted, at each value in the grid, using</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>test/plotTestStatCLs.py<span class="w"> </span>--input<span class="w"> </span>mygrid.root<span class="w"> </span>--poi<span class="w"> </span>r<span class="w"> </span>--val<span class="w"> </span>all<span class="w"> </span>--mass<span class="w"> </span>MASS
+</code></pre></div>
+<p>The resulting output file will contain a canvas showing the distribution of the test statistics for the background only and signal+background hypotheses at each value of <strong>r</strong>. Use <code>--help</code> to see more options for this script.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>If you used the TEV or LEP style test statistic (using the commands as described above), then you should include the option <code>--doublesided</code>, which will also take care of defining the correct integrals for <span class="arithmatex">\(p_{\mu}\)</span> and <span class="arithmatex">\(p_{b}\)</span>. Click on the examples below to see what a typical output of this plotting tool will look like when using the LHC test statistic, or the TEV test statistic.</p>
+</div>
+<details>
+<summary><strong>qLHC test stat example</strong></summary>
+<p><img alt="" src="../images/exampleLHC.jpg" /></p>
+</details>
+<details>
+<summary><strong>qTEV test stat example</strong></summary>
+<p><img alt="" src="../images/exampleTEV.jpg" /></p>
+</details>
+<h2 id="computing-significances-with-toys">Computing Significances with toys</h2>
+<p>Computation of the expected significance with toys is a two-step procedure: first you need to run one or more jobs to construct the expected distribution of the test statistic. As for setting limits, there are a number of different possible configurations for generating toys.  However, we will use the most commonly used option,</p>
+<ul>
+<li><strong>LHC-style</strong>: <code>--LHCmode LHC-significance</code>
+, which is the shortcut for <code>--testStat LHC --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1 --significance</code><ul>
+<li>The test statistic is defined using the ratio of likelihoods <span class="arithmatex">\(q_{0} = -2\ln[\mathcal{L}(\mu=0,\hat{\hat{\nu}}(0))/\mathcal{L}(\hat{\mu},\hat{\nu})]\)</span>, in which the nuisance parameters are profiled separately for <span class="arithmatex">\(\mu=\hat{\mu}\)</span> and <span class="arithmatex">\(\mu=0\)</span>.</li>
+<li>The value of the test statistic is set to 0 when <span class="arithmatex">\(\hat{\mu}&lt;0\)</span></li>
+<li>For the purposes of toy generation, the nuisance parameters are fixed to their post-fit values from the data assuming <strong>no</strong> signal, while the constraint terms are randomized for the evaluation of the likelihood.</li>
+</ul>
+</li>
+</ul>
+<h3 id="observed-significance">Observed significance</h3>
+<p>To construct the distribution of the test statistic, the following command should be run as many times as necessary</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>datacard.txt<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-significance<span class="w">  </span>--saveToys<span class="w"> </span>--fullBToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-T<span class="w"> </span>toys<span class="w"> </span>-i<span class="w"> </span>iterations<span class="w"> </span>-s<span class="w"> </span>seed
+</code></pre></div>
+<p>with different seeds, or using <code>-s -1</code> for random seeds, then merge all those results into a single ROOT file with <code>hadd</code>. The toys can then be read back into combine using the option <code>--toysFile=input.root --readHybridResult</code>.</p>
+<p>The <em>observed</em> significance can be calculated as</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>datacard.txt<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-significance<span class="w"> </span>--readHybridResult<span class="w"> </span>--toysFile<span class="o">=</span>input.root<span class="w"> </span><span class="o">[</span>--pvalue<span class="w"> </span><span class="o">]</span>
+</code></pre></div>
+<p>where the option <code>--pvalue</code> will replace the result stored in the <strong>limit</strong> branch output tree to be the p-value instead of the signficance.</p>
+<h3 id="expected-significance-assuming-some-signal">Expected significance, assuming some signal</h3>
+<p>The <em>expected</em> significance, assuming a signal with <strong>r=X</strong> can be calculated, by including the option <code>--expectSignal X</code> when generating the distribution of the test statistic and using the option <code>--expectedFromGrid=0.5</code> when calculating the significance for the median. To get the ±1σ bands, use 0.16 and 0.84 instead of 0.5, and so on.</p>
+<p>The total number of background toys needs to be large enough to compute the value of the significance, but you need fewer signal toys (especially when you are only computing the median expected significance). For large significances, you can run most of the toys without the <code>--fullBToys</code> option, which will be about a factor 2 faster. Only a small part of the toys needs to be run with that option turned on.</p>
+<p>As with calculating limits with toys, these jobs can be submitted to the grid or batch systems with the help of the <code>combineTool.py</code> script, as described in the section on <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">combineTool for job submission</a></p>
+<h2 id="goodness-of-fit-tests">Goodness of fit tests</h2>
+<p>The <code>GoodnessOfFit</code> method can be used to evaluate how compatible the observed data are with the model PDF.</p>
+<p>This method implements several algorithms, and will compute a goodness of fit indicator for the chosen algorithm and the data. The procedure is therefore to first run on the real data</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>GoodnessOfFit<span class="w"> </span>datacard.txt<span class="w"> </span>--algo<span class="o">=</span>&lt;some-algo&gt;
+</code></pre></div>
+<p>and then to run on many toy MC data sets to determine the distribution of the goodness-of-fit indicator</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>GoodnessOfFit<span class="w"> </span>datacard.txt<span class="w"> </span>--algo<span class="o">=</span>&lt;some-algo&gt;<span class="w"> </span>-t<span class="w"> </span>&lt;number-of-toys&gt;<span class="w"> </span>-s<span class="w"> </span>&lt;seed&gt;
+</code></pre></div>
+<p>When computing the goodness-of-fit, by default the signal strength is left floating in the fit, so that the measure is independent from the presence or absence of a signal. It is possible to fixe the signal strength to some value by passing the option <code>--fixedSignalStrength=&lt;value&gt;</code>.</p>
+<p>The following algorithms are implemented:</p>
+<ul>
+<li>
+<p><strong><code>saturated</code></strong>: Compute a goodness-of-fit measure for binned fits based on the <em>saturated model</em>, as prescribed by the Statistics Committee <a href="http://www.physics.ucla.edu/~cousins/stats/cousins_saturated.pdf">(note)</a>. This quantity is similar to a chi-square, but can be computed for an arbitrary combination of binned channels with arbitrary constraints.</p>
+</li>
+<li>
+<p><strong><code>KS</code></strong>: Compute a goodness-of-fit measure for binned fits using the <em>Kolmogorov-Smirnov</em> test. It is based on the largest difference between the cumulative distribution function and the empirical distribution function of any bin.</p>
+</li>
+<li>
+<p><strong><code>AD</code></strong>: Compute a goodness-of-fit measure for binned fits using the <em>Anderson-Darling</em> test. It is based on the integral of the difference between the cumulative distribution function and the empirical distribution function over all bins. It also gives the tail ends of the distribution a higher weighting.</p>
+</li>
+</ul>
+<p>The output tree will contain a branch called <strong><code>limit</code></strong>, which contains the value of the test statistic in each toy. You can make a histogram of this test statistic <span class="arithmatex">\(t\)</span>. From the distribution that is obtained in this way (<span class="arithmatex">\(f(t)\)</span>) and the single value obtained by running on the observed data (<span class="arithmatex">\(t_{0}\)</span>) you can calculate the p-value <span class="arithmatex">\(p = \int_{t=t_{0}}^{\mathrm{+inf}} f(t) dt\)</span>. Note: in rare cases the test statistic value for the toys can be undefined (for AS and KD). In this case we set the test statistic value to -1. When plotting the test statistic distribution, those toys should be excluded. This is automatically taken care of if you use the GoF collection script which is described below.</p>
+<p>When generating toys, the default behavior will be used. See the section on <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#toy-data-generation">toy generation</a> for options that control how nuisance parameters are generated and fitted in these tests. It is recommended to use <em>frequentist toys</em> (<code>--toysFreq</code>) when running the <strong><code>saturated</code></strong> model, and the default toys for the other two tests.</p>
+<p>Further goodness-of-fit methods could be added on request, especially if volunteers are available to code them.
+The output limit tree will contain the value of the test statistic in each toy (or the data)</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The above algorithms are all concerned with <em>one-sample</em> tests. For <em>two-sample</em> tests, you can follow an example CMS HIN analysis described <a href="https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsCombineTwoDatasetCompatibility">in this Twiki</a></p>
+</div>
+<h3 id="masking-analysis-regions-in-the-saturated-model">Masking analysis regions in the saturated model</h3>
+<p>For analyses that employ a simultaneous fit across signal and control regions, it may be useful to mask one or more analysis regions, either when the likelihood is maximized (fit) or when the test statistic is computed. This can be done by using the options <code>--setParametersForFit</code> and <code>--setParametersForEval</code>, respectively. The former will set parameters <em>before</em> each fit, while the latter is used to set parameters <em>after</em> each fit, but before the NLL is evaluated. Note, of course, that if the parameter in the list is floating, it will still be floating in each fit. Therefore, it will not affect the results when using <code>--setParametersForFit</code>.</p>
+<p>A realistic example for a binned shape analysis performed in one signal region and two control samples can be found in this directory of the <span style="font-variant:small-caps;">Combine</span> package <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/81x-root606/data/tutorials/rate_params">Datacards-shape-analysis-multiple-regions</a>.</p>
+<p>First of all, one needs to <span style="font-variant:small-caps;">Combine</span> the individual datacards to build a single model, and to introduce the channel masking variables as follow:</p>
+<div class="highlight"><pre><span></span><code>combineCards.py<span class="w"> </span>signal_region.txt<span class="w"> </span>dimuon_control_region.txt<span class="w"> </span>singlemuon_control_region.txt<span class="w"> </span>&gt;<span class="w"> </span>combined_card.txt
+text2workspace.py<span class="w"> </span>combined_card.txt<span class="w"> </span>--channel-masks
+</code></pre></div>
+<p>More information about the channel masking can be found in this
+section <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#channel-masking">Channel Masking</a>. The saturated test static value for a simultaneous fit across all the analysis regions can be calculated as:</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>GoodnessOfFit<span class="w"> </span>-d<span class="w"> </span>combined_card.root<span class="w"> </span>--algo<span class="o">=</span>saturated<span class="w"> </span>-n<span class="w"> </span>_result_sb
+</code></pre></div>
+<p>In this case, signal and control regions are included in both the fit and in the evaluation of the test statistic, and the signal strength is freely floating. This measures the compatibility between the signal+background fit and the observed data. Moreover, it can be interesting to assess the level of compatibility between the observed data in all the regions and the background prediction obtained by only fitting the control regions (CR-only fit). This can be evaluated as follow:</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>GoodnessOfFit<span class="w"> </span>-d<span class="w"> </span>combined_card.root<span class="w"> </span>--algo<span class="o">=</span>saturated<span class="w"> </span>-n<span class="w"> </span>_result_bonly_CRonly<span class="w"> </span>--setParametersForFit<span class="w"> </span><span class="nv">mask_ch1</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>--setParametersForEval<span class="w"> </span><span class="nv">mask_ch1</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>--freezeParameters<span class="w"> </span>r<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">r</span><span class="o">=</span><span class="m">0</span>
+</code></pre></div>
+<p>where the signal strength is frozen and the signal region is not considered in the fit (<code>--setParametersForFit mask_ch1=1</code>), but it is included in the test statistic computation (<code>--setParametersForEval mask_ch1=0</code>). To show the differences between the two models being tested, one can perform a fit to the data using the FitDiagnostics method as:</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>FitDiagnostics<span class="w"> </span>-d<span class="w"> </span>combined_card.root<span class="w"> </span>-n<span class="w"> </span>_fit_result<span class="w"> </span>--saveShapes<span class="w"> </span>--saveWithUncertainties
+combine<span class="w"> </span>-M<span class="w"> </span>FitDiagnostics<span class="w"> </span>-d<span class="w"> </span>combined_card.root<span class="w"> </span>-n<span class="w"> </span>_fit_CRonly_result<span class="w"> </span>--saveShapes<span class="w"> </span>--saveWithUncertainties<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">mask_ch1</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div>
+<p>By taking the total background, the total signal, and the data shapes from the FitDiagnostics output, we can compare the post-fit predictions from the S+B fit (first case) and the CR-only fit (second case) with the observation as reported below:</p>
+<details>
+<summary><strong>FitDiagnostics S+B fit</strong></summary>
+<p><img alt="" src="../images/result_fitSB.png" /></p>
+</details>
+<details>
+<summary><strong>FitDiagnostics CR-only fit</strong></summary>
+<p><img alt="" src="../images/result_fitCRonly.png" /></p>
+</details>
+<p>To compute a p-value for the two results, one needs to compare the observed goodness-of-fit value previously computed with the expected distribution of the test statistic obtained in toys:</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span>combine<span class="w"> </span>-M<span class="w"> </span>GoodnessOfFit<span class="w"> </span>combined_card.root<span class="w"> </span>--algo<span class="o">=</span>saturated<span class="w"> </span>-n<span class="w"> </span>result_toy_sb<span class="w"> </span>--toysFrequentist<span class="w"> </span>-t<span class="w"> </span><span class="m">500</span>
+<span class="w">    </span>combine<span class="w"> </span>-M<span class="w"> </span>GoodnessOfFit<span class="w"> </span>-d<span class="w"> </span>combined_card.root<span class="w"> </span>--algo<span class="o">=</span>saturated<span class="w"> </span>-n<span class="w"> </span>_result_bonly_CRonly_toy<span class="w"> </span>--setParametersForFit<span class="w"> </span><span class="nv">mask_ch1</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>--setParametersForEval<span class="w"> </span><span class="nv">mask_ch1</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>--freezeParameters<span class="w"> </span>r<span class="w"> </span>--setParameters<span class="w"> </span><span class="nv">r</span><span class="o">=</span><span class="m">0</span>,mask_ch1<span class="o">=</span><span class="m">1</span><span class="w"> </span>-t<span class="w"> </span><span class="m">500</span><span class="w"> </span>--toysFrequentist
+</code></pre></div>
+<p>where the former gives the result for the S+B model, while the latter gives the test-statistic for CR-only fit. The command <code>--setParameters r=0,mask_ch1=1</code> is needed to ensure that toys are thrown using the nuisance parameters estimated from the CR-only fit to the data. The comparison between the observation and the expected distribition should look like the following two plots:</p>
+<details>
+<summary><strong>Goodness-of-fit for S+B model</strong></summary>
+<p><img alt="" src="../images/gof_sb.png" /></p>
+</details>
+<details>
+<summary><strong>Goodness-of-fit for CR-only model</strong></summary>
+<p><img alt="" src="../images/gof_CRonly.png" /></p>
+</details>
+<h3 id="making-a-plot-of-the-gof-test-statistic-distribution">Making a plot of the GoF test statistic distribution</h3>
+<p>You can use the <code>combineTool.py</code> script to run batch jobs or on the grid (see <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">here</a>) and produce a plot of the results. Once the jobs have completed, you can hadd them together and run (e.g for the saturated model),</p>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>CollectGoodnessOfFit<span class="w"> </span>--input<span class="w"> </span>data_run.root<span class="w"> </span>toys_run.root<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span>.0<span class="w"> </span>-o<span class="w"> </span>gof.json
+plotGof.py<span class="w"> </span>gof.json<span class="w"> </span>--statistic<span class="w"> </span>saturated<span class="w"> </span>--mass<span class="w"> </span><span class="m">125</span>.0<span class="w"> </span>-o<span class="w"> </span>gof_plot<span class="w"> </span>--title-right<span class="o">=</span><span class="s2">&quot;my label&quot;</span>
+</code></pre></div>
+<h2 id="channel-compatibility">Channel Compatibility</h2>
+<p>The <code>ChannelCompatibilityCheck</code> method can be used to evaluate how compatible the measurements of the signal strength from the separate channels of a combination are with each other.</p>
+<p>The method performs two fits of the data, first with the nominal model in which all channels are assumed to have the <em>same signal strength modifier</em> <span class="arithmatex">\(r\)</span>, and then another allowing <em>separate signal strengths</em> <span class="arithmatex">\(r_{i}\)</span> in each channel. A chisquare-like quantity is computed as <span class="arithmatex">\(-2 \ln \mathcal{L}(\mathrm{data}| r)/L(\mathrm{data}|\{r_{i}\}_{i=1}^{N_{\mathrm{chan}}})\)</span>. Just like for the goodness-of-fit indicators, the expected distribution of this quantity under the nominal model can be computed from toy MC data sets.</p>
+<p>By default, the signal strength is kept floating in the fit with the nominal model. It can however be fixed to a given value by passing the option <code>--fixedSignalStrength=&lt;value&gt;</code>.</p>
+<p>In the default model built from the datacards, the signal strengths in all channels are constrained to be non-negative. One can allow negative signal strengths in the fits by changing the bound on the variable (option <code>--rMin=&lt;value&gt;</code>), which should make the quantity more chisquare-like under the hypothesis of zero signal; this however can create issues in channels with small backgrounds, since total expected yields and PDFs in each channel must be positive.</p>
+<p>Optionally, channels can be grouped together by using the option <code>-g &lt;name_fragment&gt;</code>, where <code>&lt;name_fragment&gt;</code> is a string which is common to all channels to be grouped together. The <code>-g</code> option can also be used to set the range for the each POI separately via <code>-g &lt;name&gt;=&lt;min&gt;,&lt;max&gt;</code>.</p>
+<p>When run with a verbosity of 1, as is the default, the program also prints out the best fit signal strengths in all channels. As the fit to all channels is done simultaneously, the correlation between the other systematic uncertainties is taken into account. Therefore, these results can differ from the ones obtained when fitting each channel separately.</p>
+<p>Below is an example output from <span style="font-variant:small-caps;">Combine</span>,</p>
+<div class="highlight"><pre><span></span><code>$ combine -M ChannelCompatibilityCheck comb_hww.txt -m 160 -n HWW
+ &lt;&lt;&lt; Combine &gt;&gt;&gt;
+&gt;&gt;&gt; including systematics
+&gt;&gt;&gt; method used to compute upper limit is ChannelCompatibilityCheck
+&gt;&gt;&gt; random number generator seed is 123456
+
+Sanity checks on the model: OK
+Computing limit starting from observation
+
+--- ChannelCompatibilityCheck ---
+Nominal fit : r = 0.3431 -0.1408/+0.1636
+Alternate fit: r = 0.4010 -0.2173/+0.2724 in channel hww_0jsf_shape
+Alternate fit: r = 0.2359 -0.1854/+0.2297 in channel hww_0jof_shape
+Alternate fit: r = 0.7669 -0.4105/+0.5380 in channel hww_1jsf_shape
+Alternate fit: r = 0.3170 -0.3121/+0.3837 in channel hww_1jof_shape
+Alternate fit: r = 0.0000 -0.0000/+0.5129 in channel hww_2j_cut
+Chi2-like compatibility variable: 2.16098
+Done in 0.08 min (cpu), 0.08 min (real)
+</code></pre></div>
+<p>The output tree will contain the value of the compatibility (chi-square variable) in the <strong>limit</strong> branch. If the option <code>--saveFitResult</code> is specified, the output ROOT file also contains two <a href="http://root.cern.ch/root/htmldoc/RooFitResult.html">RooFitResult</a> objects <strong>fit_nominal</strong> and <strong>fit_alternate</strong> with the results of the two fits.</p>
+<p>This can be read and used to extract the best fit value for each channel, and the overall best fit value, using</p>
+<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="w"> </span><span class="n">root</span><span class="w"> </span><span class="o">-</span><span class="n">l</span>
+<span class="n">TFile</span><span class="o">*</span><span class="w"> </span><span class="n">_file0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TFile</span><span class="o">::</span><span class="n">Open</span><span class="p">(</span><span class="s">&quot;higgsCombineTest.ChannelCompatibilityCheck.mH120.root&quot;</span><span class="p">);</span>
+<span class="n">fit_alternate</span><span class="o">-&gt;</span><span class="n">floatParsFinal</span><span class="p">().</span><span class="n">selectByName</span><span class="p">(</span><span class="s">&quot;*ChannelCompatibilityCheck*&quot;</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">);</span>
+<span class="n">fit_nominal</span><span class="o">-&gt;</span><span class="n">floatParsFinal</span><span class="p">().</span><span class="n">selectByName</span><span class="p">(</span><span class="s">&quot;r&quot;</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">);</span>
+</code></pre></div>
+<p>The macro <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/plotting/cccPlot.cxx">cccPlot.cxx</a> can be used to produce a comparison plot of the best fit signal strengths from all channels.</p>
+<h2 id="likelihood-fits-and-scans">Likelihood Fits and Scans</h2>
+<p>The <code>MultiDimFit</code> method can be used to perform multi-dimensional fits and likelihood-based scans/contours using models with several parameters of interest.</p>
+<p>Taking a toy datacard <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/multiDim/toy-hgg-125.txt">data/tutorials/multiDim/toy-hgg-125.txt</a> (counting experiment which vaguely resembles an early H→γγ analysis at 125 GeV), we need to convert the datacard into a workspace with 2 parameters, the ggH and qqH cross sections:</p>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>toy-hgg-125.txt<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs<span class="w"> </span>--PO<span class="w"> </span><span class="nv">modes</span><span class="o">=</span>ggH,qqH
+</code></pre></div>
+<p>A number of different algorithms can be used with the option <code>--algo &lt;algo&gt;</code>,</p>
+<ul>
+<li>
+<p><strong><code>none</code></strong> (default):  Perform a maximum likelihood fit <code>combine -M MultiDimFit toy-hgg-125.root</code>; The output ROOT tree will contain two columns, one for each parameter, with the fitted values.</p>
+</li>
+<li>
+<p><strong><code>singles</code></strong>: Perform a fit of each parameter separately, treating the other parameters of interest as <em>unconstrained nuisance parameters</em>: <code>combine -M MultiDimFit toy-hgg-125.root --algo singles --cl=0.68</code> . The output ROOT tree will contain two columns, one for each parameter, with the fitted values; there will be one row with the best fit point (and <code>quantileExpected</code> set to -1) and two rows for each fitted parameter, where the corresponding column will contain the maximum and minimum of that parameter in the 68% CL interval, according to a <em>one-dimensional chi-square</em> (i.e. uncertainties on each fitted parameter <em>do not</em> increase when adding other parameters if they are uncorrelated). Note that if you run, for example, with <code>--cminDefaultMinimizerStrategy=0</code>, these uncertainties will be derived from the Hessian, while <code>--cminDefaultMinimizerStrategy=1</code> will invoke Minos to derive them.</p>
+</li>
+<li>
+<p><strong><code>cross</code></strong>:  Perform a joint fit of all parameters: <code>combine -M MultiDimFit toy-hgg-125.root --algo=cross --cl=0.68</code>. The output ROOT tree will have one row with the best fit point, and two rows for each parameter, corresponding to the minimum and maximum of that parameter on the likelihood contour corresponding to the specified CL, according to an <em>N-dimensional chi-square</em> (i.e. the uncertainties on each fitted parameter <em>do</em> increase when adding other parameters, even if they are uncorrelated). Note that this method <em>does not</em> produce 1D uncertainties on each parameter, and should not be taken as such.</p>
+</li>
+<li>
+<p><strong><code>contour2d</code></strong>: Make a 68% CL contour à la minos <code>combine -M MultiDimFit toy-hgg-125.root --algo contour2d --points=20 --cl=0.68</code>. The output will contain values corresponding to the best fit point (with <code>quantileExpected</code> set to -1) and for a set of points on the contour (with <code>quantileExpected</code> set to 1-CL, or something larger than that if the contour hits the boundary of the parameters). Probabilities are computed from the the n-dimensional <span class="arithmatex">\(\chi^{2}\)</span> distribution. For slow models, this method can be split by running several times with a <em>different</em> number of points, and merging the outputs. The <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/contourPlot.cxx">contourPlot.cxx</a> macro can be used to make plots out of this algorithm.</p>
+</li>
+<li>
+<p><strong><code>random</code></strong>: Scan N random points and compute the probability out of the profile likelihood ratio <code>combine -M MultiDimFit toy-hgg-125.root --algo random --points=20 --cl=0.68</code>. Again, the best fit will have <code>quantileExpected</code> set to -1, while each random point will have <code>quantileExpected</code> set to the probability given by the profile likelihood ratio at that point.</p>
+</li>
+<li>
+<p><strong><code>fixed</code></strong>: Compare the log-likelihood at a fixed point compared to the best fit. <code>combine -M MultiDimFit toy-hgg-125.root --algo fixed --fixedPointPOIs r=r_fixed,MH=MH_fixed</code>. The output tree will contain the difference in the negative log-likelihood between the points (<span class="arithmatex">\(\hat{r},\hat{m}_{H}\)</span>) and (<span class="arithmatex">\(\hat{r}_{fixed},\hat{m}_{H,fixed}\)</span>) in the branch <code>deltaNLL</code>.</p>
+<p>You can use the <code>combineTool.py</code> script to run multiple fixed points from a <code>.csv</code> file. For example, <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/multiDim/fixed.csv">data/tutorials/multiDim/fixed.csv</a> contains the points</p>
+<div class="highlight"><pre><span></span><code>r_ggH,r_qqH
+1.0,1.0
+1.0,2.0
+2.0,1.0
+2.0,2.0
+</code></pre></div>
+<p>and <code>combineTool.py -M MultiDimFit toy-hgg-125.root --fromfile fixed.csv</code> will run <code>--algo fixed</code> at each of these points.</p>
+</li>
+<li>
+<p><strong><code>grid</code></strong>:  Scan a fixed grid of points with approximately N points in total. <code>combine -M MultiDimFit toy-hgg-125.root --algo grid --points=10000</code>.</p>
+<ul>
+<li>You can partition the job in multiple tasks by using the options <code>--firstPoint</code> and <code>--lastPoint</code>. For complicated scans, the points can be split as described in the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">combineTool for job submission</a> section. The output file will contain a column <code>deltaNLL</code> with the difference in negative log-likelihood with respect to the best fit point. Ranges/contours can be evaluated by filling TGraphs or TH2 histograms with these points.</li>
+<li>By default the "min" and "max" of the POI ranges are <em>not</em> included and the points that are in the scan are <em>centred</em> , eg <code>combine -M MultiDimFit --algo grid --rMin 0 --rMax 5 --points 5</code> will scan at the points <span class="arithmatex">\(r=0.5, 1.5, 2.5, 3.5, 4.5\)</span>. You can include the option <code>--alignEdges 1</code>, which causes the points to be aligned with the end-points of the parameter ranges - e.g. <code>combine -M MultiDimFit --algo grid --rMin 0 --rMax 5 --points 6 --alignEdges 1</code> will scan at the points <span class="arithmatex">\(r=0, 1, 2, 3, 4, 5\)</span>. Note - the number of points must be increased by 1 to ensure both end points are included.</li>
+</ul>
+</li>
+</ul>
+<p>With the algorithms <code>none</code> and <code>singles</code> you can save the RooFitResult from the initial fit using the option <code>--saveFitResult</code>. The fit result is saved into a new file called <code>multidimfit.root</code>.</p>
+<p>As usual, any <em>floating</em> nuisance parameters will be <em>profiled</em>. This behaviour can be modified by using the <code>--freezeParameters</code> option.</p>
+<p>For most of the methods, for lower-precision results you can turn off the profiling of the nuisance parameters by using the option <code>--fastScan</code>, which for complex models speeds up the process by several orders of magnitude. <strong>All</strong> nuisance parameters will be kept fixed at the value corresponding to the best fit point.</p>
+<p>As an example, let's produce the <span class="arithmatex">\(-2\Delta\ln{\mathcal{L}}\)</span> scan as a function of <strong><code>r_ggH</code></strong> and <strong><code>r_qqH</code></strong> from the toy <span class="arithmatex">\(H\rightarrow\gamma\gamma\)</span> datacard. The command below should be pretty fast, as the statistical model is quite simple,</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>--algo<span class="w"> </span>grid<span class="w"> </span>--points<span class="w"> </span><span class="m">2500</span><span class="w"> </span>--setParameterRanges<span class="w"> </span><span class="nv">r_qqH</span><span class="o">=</span><span class="m">0</span>,12:r_ggH<span class="o">=</span>-1,4<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span>
+</code></pre></div>
+<p>The scan, along with the best fit point and <span class="arithmatex">\(1\sigma\)</span> CL contour can be drawn using ROOT using something like the script below,</p>
+<details>
+<summary><strong>Show script</strong></summary>
+<pre class="c++"><code>
+void plot2D_LHScan(){
+
+  TFile *_file0 = TFile::Open("higgsCombineTest.MultiDimFit.mH125.root");
+  TTree *limit = (TTree*) _file0->Get("limit");
+
+  // create histogram representing -2Delta Log(L)
+  TCanvas *can = new TCanvas("c","c",600,540);
+  limit->Draw("2*deltaNLL:r_qqH:r_ggH>>h(50,-1,4,50,0,12)","2*deltaNLL<50","prof colz");
+  TH2F *g2NLL = (TH2F*)gROOT->FindObject("h");
+
+  g2NLL->SetName("g2NLL");
+  g2NLL->SetTitle("");
+  g2NLL->GetXaxis()->SetTitle("r_{ggH}");
+  g2NLL->GetYaxis()->SetTitle("r_{qqH}");
+
+  // Get best fit point
+  limit->Draw("r_qqH:r_ggH","quantileExpected == -1","P same");
+  TGraph *best_fit = (TGraph*)gROOT->FindObject("Graph");
+
+  best_fit->SetMarkerSize(3);
+  best_fit->SetMarkerStyle(34);
+  best_fit->Draw("p same");
+
+  // get 1-sigma contour
+  TH2F *h68 = (TH2F*)g2NLL->Clone();
+  h68->SetContour(2);
+  h68->SetContourLevel(1,2.3);
+  h68->SetLineWidth(3);
+  h68->SetLineColor(1);
+  h68->Draw("CONT3same");
+
+  gStyle->SetOptStat(0);
+  can->SaveAs("2D_LHScan.png");
+
+ }
+</pre>
+<p></code></p>
+</details>
+<p>This will produce a plot like the one below,</p>
+<p><img alt="" src="../images/2D_LHScan.png" /></p>
+<p>However for 1D likelihood scans, a python script to make plots and extract crossing of the <code>2*deltaNLL</code>, e.g the 1σ/2σ boundaries, is already available <code>plot1DScan.py</code></p>
+<div class="highlight"><pre><span></span><code>plot1DScan.py higgsCombineTest.MultiDimFit.mH125.root -o output
+</code></pre></div>
+<h3 id="useful-options-for-likelihood-scans">Useful options for likelihood scans</h3>
+<p>A number of common, useful options (especially for computing likelihood scans with the <strong>grid</strong> algo) are,</p>
+<ul>
+<li><code>--autoBoundsPOIs arg</code>: Adjust bounds for the POIs if they end up close to the boundary. This can be a comma-separated list of POIs, or "*" to get all of them.</li>
+<li><code>--autoMaxPOIs arg</code>: Adjust maxima for the POIs if they end up close to the boundary. Can be a list of POIs, or "*" to get all.</li>
+<li><code>--autoRange X</code>: Set to any <strong>X &gt;= 0</strong> to do the scan in the <span class="arithmatex">\(\hat{p}\)</span> <span class="arithmatex">\(\pm\)</span> Xσ range, where <span class="arithmatex">\(\hat{p}\)</span> and σ are the best fit parameter value and uncertainty from the initial fit (so it may be fairly approximate). In case you do not trust the estimate of the error from the initial fit, you can just centre the range on the best fit value by using the option <code>--centeredRange X</code> to do the scan in the <span class="arithmatex">\(\hat{p}\)</span> <span class="arithmatex">\(\pm\)</span> X range centered on the best fit value.</li>
+<li><code>--squareDistPoiStep</code>:  POI step size based on distance from the midpoint ( either (max-min)/2 or the best fit if used with <code>--autoRange</code> or <code>--centeredRange</code> ) rather than linear separation.</li>
+<li><code>--skipInitialFit</code>: Skip the initial fit (saves time if, for example, a snapshot is loaded from a previous fit)</li>
+</ul>
+<p>Below is a comparison in a likelihood scan, with 20 points, as a function of <strong><code>r_qqH</code></strong> with our <code>toy-hgg-125.root</code> workspace with and without some of these options. The options added tell <span style="font-variant:small-caps;">Combine</span> to scan more points closer to the minimum (best-fit) than with the default.</p>
+<p><img alt="" src="../images/r_qqH.png" /></p>
+<p>You may find it useful to use the <code>--robustFit=1</code> option to turn on robust (brute-force) for likelihood scans (and other algorithms). You can set the strategy and tolerance when using the <code>--robustFit</code> option using the options <code>--setRobustFitAlgo</code> (default is <code>Minuit2,migrad</code>), <code>setRobustFitStrategy</code> (default is 0) and <code>--setRobustFitTolerance</code> (default is 0.1). If these options are not set, the defaults (set using <code>cminDefaultMinimizerX</code> options) will be used.</p>
+<p>If running <code>--robustFit=1</code> with the algo <strong>singles</strong>, you can tune the accuracy of the routine used to find the crossing points of the likelihood using the option <code>--setCrossingTolerance</code> (the default is set to 0.0001)</p>
+<p>If you suspect your fits/uncertainties are not stable, you may also try to run custom HESSE-style calculation of the covariance matrix. This is enabled by running <code>MultiDimFit</code> with the <code>--robustHesse=1</code> option. A simple example of how the default behaviour in a simple datacard is given <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/issues/498">here</a>.</p>
+<p>For a full list of options use <code>combine -M MultiDimFit --help</code></p>
+<h3 id="fitting-only-some-parameters">Fitting only some parameters</h3>
+<p>If your model contains more than one parameter of interest, you can still decide to fit a smaller number of them, using the option <code>--parameters</code> (or <code>-P</code>), with a syntax like this:</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span><span class="o">[</span>...<span class="o">]</span><span class="w"> </span>-P<span class="w"> </span>poi1<span class="w"> </span>-P<span class="w"> </span>poi2<span class="w"> </span>...<span class="w"> </span>--floatOtherPOIs<span class="o">=(</span><span class="m">0</span><span class="p">|</span><span class="m">1</span><span class="o">)</span>
+</code></pre></div>
+<p>If <code>--floatOtherPOIs</code> is set to 0, the other parameters of interest (POIs), which are not included as a <code>-P</code> option, are kept <em>fixed</em> to their nominal values. If it's set to 1, they are kept <em>floating</em>, which has different consequences depending on <code>algo</code>:</p>
+<ul>
+<li>When running with <code>--algo=singles</code>, the other floating POIs are treated as unconstrained nuisance parameters.</li>
+<li>When running with <code>--algo=cross</code> or <code>--algo=contour2d</code>, the other floating POIs are treated as other POIs, and so they increase the number of dimensions of the chi-square.</li>
+</ul>
+<p>As a result, when running with <code>--floatOtherPOIs</code> set to 1, the uncertainties on each fitted parameters do not depend on the selection of POIs passed to MultiDimFit, but only on the number of parameters of the model.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Note that <code>poi</code> given to the the option <code>-P</code> can also be any nuisance parameter. However, by default, the other nuisance parameters are left <em>floating</em>, so in general this does not need to be specified.</p>
+</div>
+<p>You can save the values of the other parameters of interest in the output tree by passing the option <code>--saveInactivePOI=1</code>. You can additionally save the post-fit values any nuisance parameter, function, or discrete index (RooCategory) defined in the workspace using the following options;</p>
+<ul>
+<li><code>--saveSpecifiedNuis=arg1,arg2,...</code> will store the fitted value of any specified <em>constrained</em> nuisance parameter. Use <code>all</code> to save every constrained nuisance parameter. <strong>Note</strong> that if you want to store the values of <code>flatParams</code> (or floating parameters that are not defined in the datacard) or <code>rateParams</code>,  which are <em>unconstrained</em>, you should instead use the generic option <code>--trackParameters</code> as described <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#common-command-line-options">here</a>.</li>
+<li><code>--saveSpecifiedFunc=arg1,arg2,...</code> will store the value of any function (eg <code>RooFormulaVar</code>) in the model.</li>
+<li><code>--saveSpecifiedIndex=arg1,arg2,...</code> will store the index of any <code>RooCategory</code> object - eg a <code>discrete</code> nuisance.</li>
+</ul>
+<h3 id="using-best-fit-snapshots">Using best fit snapshots</h3>
+<p>This can be used to save time when performing scans so that the best fit does not need to be repeated. It can also be used to perform scans with some nuisance parameters frozen to their best-fit values. This can be done as follows,</p>
+<ul>
+<li>Create a workspace for a floating <span class="arithmatex">\(r,m_{H}\)</span> fit</li>
+</ul>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>hgg_datacard_mva_8TeV_bernsteins.txt<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass<span class="w"> </span>--PO<span class="w"> </span><span class="nv">higgsMassRange</span><span class="o">=</span><span class="m">120</span>,130<span class="w"> </span>-o<span class="w"> </span>testmass.root<span class="sb">`</span>
+</code></pre></div>
+<ul>
+<li>Perfom the fit, <em>saving</em> the workspace</li>
+</ul>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-m<span class="w"> </span><span class="m">123</span><span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>--saveWorkspace<span class="w"> </span>-n<span class="w"> </span>teststep1<span class="w"> </span>testmass.root<span class="w">  </span>--verbose<span class="w"> </span><span class="m">9</span>
+</code></pre></div>
+<p>Now we can load the best fit <span class="arithmatex">\(\hat{r},\hat{m}_{H}\)</span> and fit for <span class="arithmatex">\(r\)</span> freezing <span class="arithmatex">\(m_{H}\)</span> and <strong>lumi_8TeV</strong> to their best-fit values,</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-m<span class="w"> </span><span class="m">123</span><span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>-d<span class="w"> </span>higgsCombineteststep1.MultiDimFit.mH123.root<span class="w"> </span>-w<span class="w"> </span>w<span class="w"> </span>--snapshotName<span class="w"> </span><span class="s2">&quot;MultiDimFit&quot;</span><span class="w"> </span>-n<span class="w"> </span>teststep2<span class="w">  </span>--verbose<span class="w"> </span><span class="m">9</span><span class="w"> </span>--freezeParameters<span class="w"> </span>MH,lumi_8TeV
+</code></pre></div>
+<h2 id="feldman-cousins">Feldman-Cousins</h2>
+<p>The Feldman-Cousins (FC) procedure for computing confidence intervals for a generic model is,</p>
+<ul>
+<li>use the profile likelihood ratio as the test statistic, <span class="arithmatex">\(q(\vec{\mu}) = - 2 \ln \mathcal{L}(\vec{\mu},\hat{\hat{\vec{\nu}}}(\vec{\mu}))/\mathcal{L}(\hat{\vec{\mu}},\hat{\vec{\nu}})\)</span> where <span class="arithmatex">\(\vec{\mu}\)</span> is a point in the (N-dimensional) parameter space, and <span class="arithmatex">\(\hat{\vec{\mu}}\)</span> is the point corresponding to the best fit. In this test statistic, the nuisance parameters are profiled, both in the numerator and denominator.</li>
+<li>for each point <span class="arithmatex">\(\vec{\mu}\)</span>:<ul>
+<li>compute the observed test statistic <span class="arithmatex">\(q_{\mathrm{obs}}(\vec{\mu})\)</span></li>
+<li>compute the expected distribution of <span class="arithmatex">\(q(\vec{\mu})\)</span> under the hypothesis of <span class="arithmatex">\(\vec{\mu}\)</span> as the true value.</li>
+<li>accept the point in the region if <span class="arithmatex">\(p_{\vec{\mu}}=P\left[q(\vec{\mu}) &gt; q_{\mathrm{obs}}(\vec{\mu})| \vec{\mu}\right] &gt; \alpha\)</span></li>
+</ul>
+</li>
+</ul>
+<p>With a critical value <span class="arithmatex">\(\alpha\)</span>.</p>
+<p>In <span style="font-variant:small-caps;">Combine</span>, you can perform this test on each individual point (<strong>param1, param2,...</strong>) = (<strong>value1,value2,...</strong>) by doing,</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>workspace.root<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-feldman-cousins<span class="w"> </span>--clsAcc<span class="w"> </span><span class="m">0</span><span class="w"> </span>--singlePoint<span class="w">  </span><span class="nv">param1</span><span class="o">=</span>value1,param2<span class="o">=</span>value2,param3<span class="o">=</span>value3,...<span class="w"> </span>--saveHybridResult<span class="w"> </span><span class="o">[</span>Other<span class="w"> </span>options<span class="w"> </span><span class="k">for</span><span class="w"> </span>toys,<span class="w"> </span>iterations<span class="w"> </span>etc<span class="w"> </span>as<span class="w"> </span>with<span class="w"> </span>limits<span class="o">]</span>
+</code></pre></div>
+<p>Note that you can also split this calculationg into several separate runs (remembering to set a random seed <code>-s -1</code> each time the above command is run) and <code>hadd</code> the resulting <code>.root</code> output files into a single file <code>toys.root</code>. This can then be read in and used to calculate <span class="arithmatex">\(p_{\vec{\mu}}\)</span> by using the same command as above but replacing the option <code>--saveHybridResult</code> with <code>--readHybridResult --toysFile toys.root</code>.  </p>
+<p>The point belongs to your confidence region if <span class="arithmatex">\(p_{\vec{\mu}}\)</span> is larger than <span class="arithmatex">\(\alpha\)</span> (e.g. 0.3173 for a 1σ region, <span class="arithmatex">\(1-\alpha=0.6827\)</span>).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You should not use this method without the option <code>--singlePoint</code>. Although <span style="font-variant:small-caps;">Combine</span> will not complain, the algorithm to find the crossing will only find a single crossing and therefore not find the correct interval. Instead you should calculate the Feldman-Cousins intervals as described above.</p>
+</div>
+<h3 id="physical-boundaries">Physical boundaries</h3>
+<p>Imposing physical boundaries (such as requiring <span class="arithmatex">\(r&gt;0\)</span> for a signal strength <span class="arithmatex">\(r\)</span> ) is achieved by setting the ranges of the physics model parameters using</p>
+<div class="highlight"><pre><span></span><code>--setParameterRanges<span class="w"> </span><span class="nv">param1</span><span class="o">=</span>param1_min,param1_max:param2<span class="o">=</span>param2_min,param2_max<span class="w"> </span>....
+</code></pre></div>
+<p>The boundary is imposed by <strong>restricting the parameter range(s)</strong> to those set by the user, in the fits. Note that this is a trick! The actual fitted value, as one of an ensemble of outcomes, can fall outside of the allowed region, while the boundary should be imposed on the physical parameter. The effect of restricting the parameter value in the fit is such that the test statistic is modified as follows ;</p>
+<div class="arithmatex">\[q(\vec{\mu}) = - 2 \ln \mathcal{L}(\vec{\mu},\hat{\hat{\vec{\nu}}}(\vec{\mu}))/\mathcal{L}(\hat{\vec{\mu}},\hat{\vec{\nu}}),\]</div>
+<p>if <span class="arithmatex">\(\hat{\vec{\mu}}\)</span> in contained in the bounded range</p>
+<p>and,</p>
+<div class="arithmatex">\[q(\vec{\mu}) = - 2 \ln \mathcal{L}(\vec{\mu},\hat{\hat{\vec{\nu}}}(\vec{\mu}))/\mathcal{L}(\vec{\mu}_{B},\hat{\hat{\vec{\nu}}}(\vec{\mu}_{B})),\]</div>
+<p>if <span class="arithmatex">\(\hat{\vec{\mu}}\)</span> is outside of the bounded range. Here <span class="arithmatex">\(\vec{\mu}_{B}\)</span> and <span class="arithmatex">\(\hat{\hat{\vec{\nu}}}(\vec{\mu}_{B})\)</span> are the values of <span class="arithmatex">\(\vec{\mu}\)</span> and <span class="arithmatex">\(\vec{\nu}\)</span> which maximise the likelihood <em>excluding values outside of the bounded region</em> for <span class="arithmatex">\(\vec{\mu}\)</span> - typically, <span class="arithmatex">\(\vec{\mu}_{B}\)</span> will be found at one of the boundaries which is imposed. For example if there is one parameter of interest <span class="arithmatex">\(\mu\)</span> , if the boundary <span class="arithmatex">\(\mu&gt;0\)</span> is imposed, you will typically expect <span class="arithmatex">\(\mu_{B}=0\)</span>, when <span class="arithmatex">\(\hat{\mu}\leq 0\)</span>, and <span class="arithmatex">\(\mu_{B}=\hat{\mu}\)</span> otherewise.</p>
+<p>This can sometimes be an issue as Minuit may not know if has successfully converged when the minimum lies outside of that range. If there is no upper/lower boundary, just set that value to something far from the region of interest.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>One can also imagine imposing the boundaries by first allowing Minuit to find the minimum in the <em>unrestricted</em>  region and then setting the test statistic to that in the case that minimum lies outside the physical boundary. This would avoid potential issues of convergence. If you are interested in implementing this version in <span style="font-variant:small-caps;">Combine</span>, please contact the development team.</p>
+</div>
+<h3 id="extracting-contours-from-results-files">Extracting contours from results files</h3>
+<p>As in general for <code>HybridNew</code>, you can split the task into multiple tasks (grid and/or batch) and then merge the outputs with <code>hadd</code>. You can also refer to the <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">combineTool for job submission</a> section for submitting the jobs to the grid/batch or if you have more than one parameter of interest, see the instructions for running <code>HybridNew</code> on a grid of parameter points on the <a href="http://cms-analysis.github.io/CombineHarvester/md_docs__hybrid_new_grid.html">CombineHarvest - HybridNewGrid</a> documentation.</p>
+<h4 id="extracting-1d-intervals">Extracting 1D intervals</h4>
+<p>For <em>one-dimensional</em> models only, and if the parameter behaves like a cross section, the code is able to interpolate and determine the values of your parameter on the contour (just like it does for the limits). As with limits, read in the grid of points and extract 1D intervals using,</p>
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>workspace.root<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-feldman-cousins<span class="w"> </span>--readHybridResults<span class="w"> </span>--grid<span class="o">=</span>mergedfile.root<span class="w"> </span>--cl<span class="w"> </span>&lt;<span class="m">1</span>-alpha&gt;
+</code></pre></div>
+<p>The output tree will contain the values of the POI that crosses the critical value (<span class="arithmatex">\(\alpha\)</span>) - i.e, the boundaries of the confidence intervals.</p>
+<p>You can produce a plot of the value of <span class="arithmatex">\(p_{\vec{\mu}}\)</span> vs the parameter of interest <span class="arithmatex">\(\vec{\mu}\)</span> by adding the option <code>--plot &lt;plotname&gt;</code>.</p>
+<p>As an example, we will use the<code>data/tutorials/multiDim/toy-hgg-125.txt</code> datacard and find the 1D FC 68% interval for the <span class="arithmatex">\(r_{qqH}\)</span> parameter. First, we construct the model as, </p>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs<span class="w"> </span>--PO<span class="w"> </span><span class="nv">modes</span><span class="o">=</span>ggH,qqH<span class="w"> </span>toy-hgg-125.txt<span class="w"> </span>-o<span class="w"> </span>toy-hgg-125.root
+</code></pre></div>
+<p>Now we generate the grid of test statistics in a suitable range. You could use the <code>combineTool.py</code> as below but for 1D, we can just generate the points in a for loop. </p>
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span>range<span class="w"> </span><span class="m">0</span>.1<span class="w"> </span><span class="m">1</span>.1<span class="w"> </span><span class="m">2</span>.1<span class="w"> </span><span class="m">3</span>.1<span class="w"> </span><span class="m">4</span>.1<span class="w"> </span><span class="m">5</span>.1<span class="w"> </span><span class="m">6</span>.1<span class="w"> </span><span class="m">7</span>.1<span class="w"> </span><span class="m">8</span>.1<span class="w"> </span><span class="m">9</span>.1<span class="w"> </span><span class="m">10</span>.1<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>combine<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>--redefineSignalPOI<span class="w"> </span>r_qqH<span class="w">   </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-feldman-cousins<span class="w"> </span>--clsAcc<span class="w"> </span><span class="m">0</span><span class="w"> </span>--singlePoint<span class="w"> </span><span class="nv">r_qqH</span><span class="o">=</span><span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-n<span class="w"> </span><span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+
+hadd<span class="w"> </span>-f<span class="w"> </span>FeldmanCousins1D.root<span class="w"> </span>higgsCombine*.1.HybridNew.mH120.123456.root
+</code></pre></div>
+<p>Next, we get combine to calculate the interval from this grid. 
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-feldman-cousins<span class="w"> </span>--readHybridResults<span class="w"> </span>--grid<span class="o">=</span>FeldmanCousins1D.root<span class="w"> </span>--cl<span class="w"> </span><span class="m">0</span>.68<span class="w"> </span>--redefineSignalPOI<span class="w"> </span>r_qqH
+</code></pre></div>
+and we should see the below as the output, </p>
+<div class="highlight"><pre><span></span><code> -- HybridNew --
+found 68 % confidence regions
+  2.19388 (+/- 0.295316) &lt; r_qqH &lt; 8.01798 (+/- 0.0778685)
+Done in 0.00 min (cpu), 0.00 min (real)
+</code></pre></div>
+<p>Since we included the <code>--plot</code> option, we will also get a plot like the one below, </p>
+<p><img alt="1DFC" src="../images/FC1D.png" /></p>
+<h4 id="extracting-2d-contours-general-intervals">Extracting 2D contours / general intervals</h4>
+<p>For <em>two-dimensional</em> models, or if the parameter does not behave like a cross section, you will need to extract the contours from the output of <code>HybridNew</code> and plot them yourself. We will use the <code>data/tutorials/multiDim/toy-hgg-125.txt</code> datacard in the example below to demonstrate how this can be done. Let's build the model again as we did in the MultiDimFit section.</p>
+<div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs<span class="w"> </span>--PO<span class="w"> </span><span class="nv">modes</span><span class="o">=</span>ggH,qqH<span class="w"> </span>toy-hgg-125.txt<span class="w"> </span>-o<span class="w"> </span>toy-hgg-125.root
+</code></pre></div>
+<p>First, we use <code>combineTool.py</code> to create jobs for each point in our parameter scan. We want to impose the boundaries that <span class="arithmatex">\(r_{ggH}&gt;0\)</span>, <span class="arithmatex">\(r_{qqH}&gt;0\)</span>.
+In the example below, we will run in interactive mode so this can take a little while. You can instead run using a batch cluster (eg <code>condor</code>) or the grid (<code>grid</code>) to submit sepaerate jobs for each point / set of points. We configure the tool by specifying the grid of points in <code>poi_grid_configuration.json</code> as below. Here we want 5000 toys for each point, and we choose a grid of <span class="arithmatex">\(r_{ggH}\in [0,4]\)</span> in steps of 0.2, and <span class="arithmatex">\(r_{qqH}\in[0,10]\)</span> in steps of 0.5.</p>
+<div class="highlight"><pre><span></span><code>{
+  &quot;verbose&quot; : true,
+  &quot;opts&quot; : &quot; --LHCmode LHC-feldman-cousins --saveHybridResult --clsAcc 0 &quot;,
+  &quot;POIs&quot; : [&quot;r_ggH&quot;, &quot;r_qqH&quot;],
+  &quot;grids&quot; : [
+    [&quot;0:4|.2&quot;,&quot;0:10|.5&quot;,&quot;&quot;]
+  ],
+  &quot;toys_per_cycle&quot;  : 5000,
+  &quot;FC&quot; : true,
+  &quot;min_toys&quot;: 5000,
+  &quot;max_toys&quot;: 50000,
+  &quot;output_incomplete&quot; : true,
+  &quot;make_plots&quot;: false,
+  &quot;contours&quot;:[&quot;obs&quot;],
+  &quot;CL&quot;: 0.68,
+  &quot;output&quot;: &quot;FeldmanCousins.root&quot;,
+  &quot;zipfile&quot;         : &quot;collected.zip&quot;,
+  &quot;statusfile&quot;      : &quot;status.json&quot;
+ }
+</code></pre></div>
+<p>The command will look like,</p>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>HybridNewGrid<span class="w">  </span>./poi_grid_configuration.json<span class="w"> </span>-d<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>--task-name<span class="w"> </span>fc2d<span class="w"> </span>--job-mode<span class="w"> </span><span class="s1">&#39;interactive&#39;</span><span class="w"> </span>--cycles<span class="w"> </span><span class="m">1</span>
+</code></pre></div>
+<p>As mentioned, this will take a while to run so you should consider going to make a cup of coffee at this point and reading through the <a href="http://cms-analysis.github.io/CombineHarvester/md_docs__hybrid_new_grid.html">HybridNewGrid documentation</a> to learn more about this tool.
+Once this is done, we extract the values of <span class="arithmatex">\(p_{\vec{\mu}}\)</span> for each point in our parameter space using the same command, but this time setting <code>--cycles 0</code> and adding the option <code>--output</code>,</p>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>HybridNewGrid<span class="w">  </span>./poi_grid_configuration.json<span class="w"> </span>-d<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>--task-name<span class="w"> </span>fc2d<span class="w"> </span>--job-mode<span class="w"> </span><span class="s1">&#39;interactive&#39;</span><span class="w"> </span>--cycles<span class="w"> </span><span class="m">0</span><span class="w"> </span>--output
+</code></pre></div>
+<p>which will produce a file <code>FeldmanCousins.root</code> (as defined in the <code>"output"</code> field of <code>poi_grid_configuration.json</code>) that contains a <code>TGraph2D</code> which stores the calculated value of <span class="arithmatex">\(p_{\vec{\mu}}\)</span> for each point in the grid. Using something like the macro below, these values can be plotted along with a contour corresponding to 68% CL (<span class="arithmatex">\(\alpha=0.32\)</span>).</p>
+<details>
+<summary><strong>Show script</strong></summary>
+<pre class="c++"><code>
+void plot_2DFC(){
+
+  TFile *_file0 = TFile::Open("FeldmanCousins.root");
+
+  TCanvas *can = new TCanvas("c","c",600,540);
+
+  // Draw p_x
+  TGraph2D *gpX = (TGraph2D*)_file0->Get("obs");
+  gpX->Draw("colz");
+
+  // Draw 68% contour
+  TH2F *h68 = (TH2F*)gpX->GetHistogram()->Clone("h68");
+  h68->SetContour(2);
+  h68->SetContourLevel(1,0.32);
+  h68->SetLineWidth(3);
+  h68->SetLineColor(1);
+  h68->Draw("CONT3same");
+
+  gpX->SetTitle("");
+  gpX->GetXaxis()->SetTitle("r_{ggH}");
+  gpX->GetYaxis()->SetTitle("r_{qqH}");
+
+
+  gStyle->SetOptStat(0);
+  can->SaveAs("2D_FC.png");
+ }
+ </pre>
+<p></code></p>
+</details>
+<p>It will produce the plot below.</p>
+<p><img alt="" src="../images/2D_FC.png" /></p>
+<p>There are several options for reducing the running time, such as setting limits on the region of interest or the minimum number of toys required for a point to be included.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../runningthetool/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Running the tool">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Running the tool
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../nonstandard/" class="md-footer__link md-footer__link--next" aria-label="Next: Advanced use cases">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Advanced use cases
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
