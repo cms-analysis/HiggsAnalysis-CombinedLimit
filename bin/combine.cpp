@@ -33,8 +33,8 @@
 using namespace std;
 
 // Update whenever we have a new Tag
-std::string combineTagString = "v10.3.1";
-// 
+std::string combineTagString = "v10.3.2";
+//
 
 int main(int argc, char **argv) {
   using namespace boost;
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
   algo = new ChannelCompatibilityCheck();  methods.insert(make_pair(algo->name(), algo));
   algo = new MultiDimFit();  methods.insert(make_pair(algo->name(), algo));
   algo = new GenerateOnly();  methods.insert(make_pair(algo->name(), algo));
-  
+
   CascadeMinimizer::initOptions();
 
   string methodsDesc("Method to extract upper limit. Supported methods are: ");
@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
     if(i != methods.begin()) methodsDesc += ", ";
     methodsDesc += i->first;
   }
-  
+
   po::options_description desc("Main options");
   desc.add_options()
     ("datacard,d", po::value<string>(&datacard), "Datacard file (can also be specified directly without the -d or --datacard)")
@@ -118,9 +118,9 @@ int main(int argc, char **argv) {
   po::positional_options_description p;
   p.add("datacard", -1);
   po::variables_map vm, vm0;
- 
-  
-  // parse the first time, using only common options and allow unregistered options 
+
+
+  // parse the first time, using only common options and allow unregistered options
   try{
     po::store(po::command_line_parser(argc, argv).options(desc).allow_unregistered().run(), vm0);
     po::notify(vm0);
@@ -148,14 +148,14 @@ int main(int argc, char **argv) {
 
   if (verbose>1){
    std::ifstream splashFile; splashFile.open("data/splash.txt");
-   while(splashFile.good()) { 
-     std::cout << (char)splashFile.get() ; 
+   while(splashFile.good()) {
+     std::cout << (char)splashFile.get() ;
    }
    std::cout << std::endl;
-   splashFile.close(); 
+   splashFile.close();
   } else {
    std::cout << " <<< Combine >>> " << std::endl;
-   // UPDATE THIS TO THE LATEST TAG WHENEVER RELEASED 
+   // UPDATE THIS TO THE LATEST TAG WHENEVER RELEASED
    std::cout << Form(" <<< %s >>>",combineTagString.c_str() ) << std::endl;
   }
 
@@ -165,8 +165,8 @@ int main(int argc, char **argv) {
     cerr << "Unsupported method: " << whichMethod << endl;
     cout << "Use combine --help to get a list of all the allowed methods and options"  << endl;
     return 1003;
-  } 
-  desc.add(it_algo->second->options());  
+  }
+  desc.add(it_algo->second->options());
 
   // parse the first time, now include options of the algo but not unregistered ones
   try{
@@ -194,13 +194,13 @@ int main(int argc, char **argv) {
     FILE *rpipe = popen("openssl rand 8", "r");
     if (rpipe == 0) { std::cout << "Error when running 'openssl rand 8'" << std::endl; return 2101; }
     if (fread(&seed, sizeof(int), 1, rpipe) != 1) {
-        std::cout << "Error when reading from 'openssl rand 8'" << std::endl; return 2102; 
+        std::cout << "Error when reading from 'openssl rand 8'" << std::endl; return 2102;
     }
     std::cout << ">>> Used OpenSSL to get a truly random seed " << seed << std::endl;
   } else {
     std::cout << ">>> Random number generator seed is " << seed << std::endl;
   }
-  RooRandom::randomGenerator()->SetSeed(seed); 
+  RooRandom::randomGenerator()->SetSeed(seed);
 
   TString massName = TString::Format("mH%g.", iMass);
   TString toyName  = "";  if (runToys > 0 || seed != 123456 || vm.count("saveToys")) toyName  = TString::Format("%d.", seed);
@@ -256,18 +256,18 @@ int main(int argc, char **argv) {
           cout << "Usage: combine [options]\n";
           cout << "Use combine --help to get a list of all the allowed methods and options"  << endl;
           return 1003;
-      } 
+      }
       hintAlgo = it_hint->second;
       hintAlgo->applyDefaultOptions();
       cout << ">>> Method used to hint where the upper limit is " << whichHintMethod << endl;
   }
-  
+
   TString fileName = "higgsCombine" + name + "."+whichMethod+"."+massName+toyName+"root";
 
   TFile *test = new TFile(fileName, "RECREATE"); outputFile = test;
   TTree *t = new TTree("limit", "limit");
-  int syst, iToy, iSeed, iChannel; 
-  double mass, limit, limitErr; 
+  int syst, iToy, iSeed, iChannel;
+  double mass, limit, limitErr;
   t->Branch("limit",&limit,"limit/D");
   t->Branch("limitErr",&limitErr,"limitErr/D");
   t->Branch("mh",   &mass, "mh/D");
@@ -282,10 +282,10 @@ int main(int argc, char **argv) {
 	std::string name = modelParamNameVector_[mpi];
   	t->Branch(Form("%s",name.c_str()),  &modelParamValVector_[mpi]);
   }
-  
-  writeToysHere = test->mkdir("toys","toys"); 
+
+  writeToysHere = test->mkdir("toys","toys");
   if (toysFile != "") readToysFromHere = TFile::Open(toysFile.c_str());
-  
+
   syst = withSystematics;
   mass = iMass;
   iSeed = seed;
@@ -308,8 +308,8 @@ int main(int argc, char **argv) {
   runtimedef::set("ADDNLL_CBNLL", 1);
   runtimedef::set("TMCSO_AdaptivePseudoAsimov", 1);
   // Optimization for bare RooFit likelihoods (--optimizeSimPdf=0)
-  runtimedef::set("MINIMIZER_optimizeConst", 2); 
-  runtimedef::set("MINIMIZER_rooFitOffset", 1); 
+  runtimedef::set("MINIMIZER_optimizeConst", 2);
+  runtimedef::set("MINIMIZER_rooFitOffset", 1);
   // Optimization for ATLAS HistFactory likelihoods
   runtimedef::set("ADDNLL_ROOREALSUM_FACTOR",1);
   runtimedef::set("ADDNLL_ROOREALSUM_NONORM",1);
@@ -319,13 +319,13 @@ int main(int argc, char **argv) {
   runtimedef::set("ADDNLL_HFNLL",1);
   runtimedef::set("ADDNLL_HISTFUNCNLL",1);
   runtimedef::set("ADDNLL_ROOREALSUM_CHEAPPROD",1);
- 
+
 
 
   for (vector<string>::const_iterator rtdp = runtimeDefines.begin(), endrtdp = runtimeDefines.end(); rtdp != endrtdp; ++rtdp) {
     std::string::size_type idx = rtdp->find('=');
     if (idx == std::string::npos) {
-        runtimedef::set(*rtdp, 1); 
+        runtimedef::set(*rtdp, 1);
         if (verbose > 0) std::cout << "Turning on runtime-define " << *rtdp << std::endl;
     } else {
         std::string name  = rtdp->substr(0, idx);
@@ -338,13 +338,13 @@ int main(int argc, char **argv) {
 
   try {
      combiner.run(datacard, dataset, limit, limitErr, iToy, t, runToys);
-     if (verbose>0) CombineLogger::instance().printLog(); 
+     if (verbose>0) CombineLogger::instance().printLog();
   } catch (std::exception &ex) {
      cerr << "Error when running the combination:\n\t" << ex.what() << std::endl;
      test->Close();
      return 3001;
   }
-  
+
   test->WriteTObject(t);
   test->Close();
 
