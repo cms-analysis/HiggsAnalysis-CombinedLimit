@@ -160,26 +160,30 @@ When creating a new release, follow this checklist to ensure version strings are
    - Update line 47: `--branch vX.Y.Z` in the git clone command
    - Update the release notes link on line 40
 
-3. **Verify version consistency**
+3. **Update test reference files**
+   - Run: `./test/references/update-version.sh vX.Y.Z`
+   - This updates version strings in all test output reference files
+
+4. **Verify version consistency**
    - Run the version check script: `./scripts/check-version.sh vX.Y.Z`
    - This will verify all version strings match
 
-4. **Commit the version updates**
-   - `git add bin/combine.cpp docs/index.md`
+5. **Commit the version updates**
+   - `git add bin/combine.cpp docs/index.md test/references/*.out`
    - `git commit -m "Update version to vX.Y.Z"`
 
-5. **Create and push the tag**
+6. **Create and push the tag**
    - `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
    - `git push origin main`
    - `git push origin vX.Y.Z`
 
-6. **Create GitHub release**
+7. **Create GitHub release**
    - Go to [Releases](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases)
    - Click "Draft a new release"
    - Select the tag you just created
    - Add release notes
 
-7. **Verify documentation deployment**
+8. **Verify documentation deployment**
    - Check that the [documentation](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/) shows the new version
    - The CI will automatically build and deploy docs for the new tag
 
