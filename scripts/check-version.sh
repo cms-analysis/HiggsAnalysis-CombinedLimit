@@ -97,13 +97,56 @@ else
     echo "  This is expected if the release hasn't been created yet"
 fi
 
+# Check 5: test/references/*.out - version in test reference files
+echo -n "Checking test/references/*.out (test reference files)... "
+TEST_REF_DIR="$REPO_ROOT/test/references"
+if [ ! -d "$TEST_REF_DIR" ]; then
+    echo -e "${YELLOW}SKIP${NC}"
+    echo "  Directory not found: $TEST_REF_DIR"
+else
+    # Count how many .out files exist
+    OUT_FILES=("$TEST_REF_DIR"/*.out)
+    if [ ! -e "${OUT_FILES[0]}" ]; then
+        echo -e "${YELLOW}SKIP${NC}"
+        echo "  No .out files found in $TEST_REF_DIR"
+    else
+        # Check files that contain version pattern
+        # Only check files that have "<<< v" pattern (some files like text2workspace output don't have it)
+        WRONG_VERSION_FILES=()
+        for file in "$TEST_REF_DIR"/*.out; do
+            if [ -f "$file" ]; then
+                # Check if file contains any version pattern
+                if grep -q "<<< v" "$file"; then
+                    # This file should have a version, check if it's the correct one
+                    if ! grep -q "<<< ${VERSION} >>>" "$file"; then
+                        FOUND=$(grep "<<< v" "$file" | head -1 | sed -E 's/.*<<< (v[0-9.]+) >>>.*/\1/' || echo "unknown")
+                        WRONG_VERSION_FILES+=("$(basename "$file") (found: $FOUND)")
+                    fi
+                fi
+            fi
+        done
+
+        if [ ${#WRONG_VERSION_FILES[@]} -eq 0 ]; then
+            echo -e "${GREEN}OK${NC}"
+        else
+            echo -e "${RED}FAIL${NC}"
+            echo "  The following files don't contain '<<< ${VERSION} >>>':"
+            for file_info in "${WRONG_VERSION_FILES[@]}"; do
+                echo "    - $file_info"
+            done
+            echo "  Run: cd build/test && sh create_reference_files.sh && cp *.out ../../test/references"
+            ERRORS=$((ERRORS + 1))
+        fi
+    fi
+fi
+
 echo ""
 if [ $ERRORS -eq 0 ]; then
     echo -e "${GREEN}✓ All version checks passed!${NC}"
     echo ""
     echo "Next steps:"
     echo "  1. Commit the version updates:"
-    echo "     git add bin/combine.cpp docs/index.md"
+    echo "     git add bin/combine.cpp docs/index.md test/references/*.out"
     echo "     git commit -m \"Update version to ${VERSION}\""
     echo "  2. Create and push the tag:"
     echo "     git tag -a ${VERSION} -m \"Release ${VERSION}\""
