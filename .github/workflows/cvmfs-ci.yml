@@ -34,6 +34,15 @@ jobs:
           - LCG_RELEASE: "LCG_102"
             LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
             ROOT: "6.26.04"
+          # Nobody is using Combine with ROOT 6.28 because this ROOT version
+          # was not used in CMSSW. But if you want to test it in the CI, here
+          # is how it would work:
+          # - LCG_RELEASE: "LCG_104"
+          #   LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
+          #   ROOT: "6.28.04"
+          - LCG_RELEASE: "LCG_105"
+            LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
+            ROOT: "6.30.02"
           - LCG_RELEASE: "LCG_106"
             LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
             ROOT: "6.32.02"
