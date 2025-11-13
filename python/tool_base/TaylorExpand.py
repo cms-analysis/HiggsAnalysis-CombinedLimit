@@ -16,6 +16,7 @@ from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBas
 
 ROOT.gInterpreter.Declare("#include <HiggsAnalysis/CombinedLimit/interface/Combine.h>")
 
+
 def Eval(obj, x, params):
     return obj.Eval(x[0])
 

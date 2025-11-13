@@ -11,6 +11,7 @@ import HiggsAnalysis.CombinedLimit.util.plotting as plot
 
 ROOT.gInterpreter.Declare("#include <HiggsAnalysis/CombinedLimit/interface/Combine.h>")
 
+
 class FastScan(CombineToolBase):
     description = "Calculate nuisance parameter impacts"
     requires_root = True
