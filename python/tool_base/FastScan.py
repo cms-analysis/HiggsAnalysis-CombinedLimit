@@ -9,9 +9,6 @@ import HiggsAnalysis.CombinedLimit.tool_base.utils as utils
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
 
-ROOT.gInterpreter.Declare("#include <HiggsAnalysis/CombinedLimit/interface/Combine.h>")
-
-
 class FastScan(CombineToolBase):
     description = "Calculate nuisance parameter impacts"
     requires_root = True
@@ -59,7 +56,7 @@ class FastScan(CombineToolBase):
                 data = f_d.Get(ws_d[1])
             else:
                 data = f_d.Get(ws_d[1]).data(ws_d[2])
-        nll = ROOT.combineCreateNLL(pdf, data)
+        nll = ROOT.Combine.combineCreateNLL(pdf, data)
         pars = pdf.getParameters(data)
         pars.Print()
         snap = pars.snapshot()

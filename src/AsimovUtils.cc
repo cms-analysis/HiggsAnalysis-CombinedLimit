@@ -53,7 +53,7 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
             }
             if (needsFit) {
                 //mc->GetPdf()->fitTo(realdata, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Constrain(*mc->GetNuisanceParameters()));
-                auto nll = combineCreateNLL(*mc->GetPdf(), realdata, /*nuisances=*/mc->GetNuisanceParameters(), /*offset=*/false);
+                auto nll = Combine::combineCreateNLL(*mc->GetPdf(), realdata, /*nuisances=*/mc->GetNuisanceParameters(), /*offset=*/false);
                 CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained);
                 minim.setStrategy(1);
                 minim.minimize(verbose-1);

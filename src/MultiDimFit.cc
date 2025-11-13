@@ -217,7 +217,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
         std::cout << "MultiDimFit -- Skipping initial global fit" << std::endl;
         // must still create the NLL
         RooArgSet const *cPars = withSystematics ? mc_s->GetNuisanceParameters() : nullptr;
-        nll = combineCreateNLL(pdf, data, /*nuisances=*/cPars, /*offset=*/true);
+        nll = Combine::combineCreateNLL(pdf, data, /*nuisances=*/cPars, /*offset=*/true);
     }
 
     //if(w->var("r")) {w->var("r")->Print();}

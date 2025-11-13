@@ -4,6 +4,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/VerticalInterpHistPdf.h"
 #include "HiggsAnalysis/CombinedLimit/interface/AsymPow.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CombDataSetFactory.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "HiggsAnalysis/CombinedLimit/interface/TH1Keys.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h"

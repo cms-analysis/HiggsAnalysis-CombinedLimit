@@ -298,7 +298,7 @@ bool Significance::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 
 
 double Significance::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const {
-    auto nll = combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
+    auto nll = Combine::combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
     RooMinimizer minim(*nll);
     minim.setStrategy(0);
     minim.setPrintLevel(verbose-1);
@@ -322,7 +322,7 @@ double Significance::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRe
 
 std::pair<double,double> Significance::upperLimitBruteForce(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const {
     poi.setConstant(false);
-    auto nll = combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
+    auto nll = Combine::combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
     RooMinimizer minim0(*nll);
     minim0.setStrategy(0);
     minim0.setPrintLevel(-1);
@@ -404,7 +404,7 @@ double Significance::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &data, Ro
     poi.setConstant(false);
     //poi.setMin(0); 
     poi.setVal(0.05*poi.getMax());
-    auto nll = combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
+    auto nll = Combine::combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
     CascadeMinimizer minim0(*nll, CascadeMinimizer::Unconstrained, &poi);
     minim0.setStrategy(0);
     minim0.minimize(verbose-2);
@@ -479,7 +479,7 @@ double Significance::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &data, Ro
 }
 
 double Significance::significanceFromScan(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, int steps) const {
-    auto nll = combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
+    auto nll = Combine::combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
     double maxScan = poi.getMax()*0.7;
     bool stepDown = (bfAlgo_.find("stepDown") != std::string::npos);
     bool twice    = (bfAlgo_.find("Twice")    != std::string::npos);

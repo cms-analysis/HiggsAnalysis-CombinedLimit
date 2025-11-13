@@ -98,11 +98,11 @@ Double_t ProfiledLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSe
 bool ProfiledLikelihoodRatioTestStatOpt::createNLLWrapper(RooAbsPdf &pdf, RooAbsData &data, std::unique_ptr<RooAbsReal> &nll_) 
 {
     if (typeid(pdf) == typeid(RooSimultaneousOpt)) {
-        if (nll_.get() == 0) nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
+        if (nll_.get() == 0) nll_ = Combine::combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
         else ((cacheutils::CachingSimNLL&)(*nll_)).setData(data);
         return true;
     } else {
-        nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
+        nll_ = Combine::combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
         return false;
     }
 }
@@ -112,7 +112,7 @@ double ProfiledLikelihoodRatioTestStatOpt::minNLL(std::unique_ptr<RooAbsReal> &n
 {
 #if defined(DBG_TestStat_NOFIT) && (DBG_TestStat_NOFIT > 0)
     if (verbosity_ > 0) std::cout << "Profiling likelihood for pdf " << pdf.GetName() << std::endl;
-    return combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false)->getVal();
+    return Combine::combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false)->getVal();
 #endif
     CascadeMinimizer minim(*nll_, CascadeMinimizer::Constrained);
     minim.setStrategy(0);
@@ -386,11 +386,11 @@ std::vector<Double_t> ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, 
 bool ProfiledLikelihoodTestStatOpt::createNLLWrapper(RooAbsPdf &pdf, RooAbsData &data) 
 {
     if (typeid(pdf) == typeid(RooSimultaneousOpt)) {
-        if (nll_.get() == 0) nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
+        if (nll_.get() == 0) nll_ = Combine::combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
         else ((cacheutils::CachingSimNLL&)(*nll_)).setData(data);
         return true;
     } else {
-        nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
+        nll_ = Combine::combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
         return false;
     }
 }

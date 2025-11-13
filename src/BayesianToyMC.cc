@@ -158,7 +158,7 @@ std::pair<double,double> BayesianToyMC::priorPredictiveDistribution(RooStats::Mo
   }
   std::cout << "Factorized PDF, now creating NLL" << std::endl;
   // create NLL
-  auto nll = combineCreateNLL(
+  auto nll = Combine::combineCreateNLL(
       *pdf, data, /*constraints*/ withSystematics ? mc->GetNuisanceParameters() : nullptr, /*offset=*/false);
   std::unique_ptr<RooArgSet>  params(nll->getParameters(data));
 

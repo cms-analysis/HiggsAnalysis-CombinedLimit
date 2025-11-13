@@ -1275,7 +1275,7 @@ void Combine::addBranches(const std::string& trackString, RooWorkspace* w, std::
   }
 }
 
-std::unique_ptr<RooAbsReal> combineCreateNLL(
+std::unique_ptr<RooAbsReal> Combine::combineCreateNLL(
     RooAbsPdf &pdf, RooAbsData &data, RooArgSet const *constrain, bool offset, bool warnAboutDifferentBackend) {
   RooLinkedList cmdList;
 

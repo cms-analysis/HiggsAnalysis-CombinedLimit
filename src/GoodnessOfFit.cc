@@ -186,8 +186,8 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
   CloseCoutSentry sentry(verbose < 2);
 
   RooArgSet const *cPars = withSystematics ? mc_s->GetNuisanceParameters() : nullptr;
-  auto nominal_nll = combineCreateNLL(*pdf_nominal, data, /*constrain=*/cPars, /*offset=*/false);
-  auto saturated_nll = combineCreateNLL(*saturated, data, /*constrain=*/cPars, /*offset=*/false);
+  auto nominal_nll = Combine::combineCreateNLL(*pdf_nominal, data, /*constrain=*/cPars, /*offset=*/false);
+  auto saturated_nll = Combine::combineCreateNLL(*saturated, data, /*constrain=*/cPars, /*offset=*/false);
 
   if (setParametersForFit_ != "") {
     utils::setModelParameters(setParametersForFit_, w->allVars());
@@ -257,7 +257,7 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
   */
 
   RooArgSet const *cPars = withSystematics ? mc_s->GetNuisanceParameters() : nullptr;
-  auto nll = combineCreateNLL(*pdf, data, /*constrain=*/cPars, /*offset=*/false);
+  auto nll = Combine::combineCreateNLL(*pdf, data, /*constrain=*/cPars, /*offset=*/false);
   CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained);
   //minims.setStrategy(minimizerStrategy_);
   minim.minimize(verbose-2);
