@@ -38,7 +38,7 @@ jobs:
         root: ["6.26.4"]
         include:
           - python: "3.10"
-            root: "6.32.2"
+            root: "6.32.10"
           - python: "3.12"
             root: "6.34.4"
 
