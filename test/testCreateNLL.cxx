@@ -159,7 +159,7 @@ std::optional<FitSummary> runFit(RooWorkspace &workspace,
   Combine::setNllBackend(backend);
   std::unique_ptr<RooAbsReal> nll;
   try {
-    nll = combineCreateNLL(pdf, data, constraintPtr, /*offset=*/true);
+    nll = Combine::combineCreateNLL(pdf, data, constraintPtr, /*offset=*/true);
   } catch (const std::exception &ex) {
     if (error) *error = ex.what();
     return std::nullopt;
