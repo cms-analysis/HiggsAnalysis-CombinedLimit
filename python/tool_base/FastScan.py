@@ -9,6 +9,7 @@ import HiggsAnalysis.CombinedLimit.tool_base.utils as utils
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
 
+
 class FastScan(CombineToolBase):
     description = "Calculate nuisance parameter impacts"
     requires_root = True
