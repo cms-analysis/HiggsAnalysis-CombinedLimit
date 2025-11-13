@@ -144,7 +144,7 @@ class FastScan(CombineToolBase):
             if page == len(doPars) - 1:
                 extra = ")"
             print(extra)
-            canv.Print(".pdf%s" % extra)
+            canv.Print("%s.pdf%s" % (self.args.output, extra))
             page += 1
 
         outfile.Write()
