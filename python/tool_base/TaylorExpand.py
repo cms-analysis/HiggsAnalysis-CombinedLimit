@@ -14,6 +14,7 @@ from functools import partial
 from HiggsAnalysis.CombinedLimit.tool_base.opts import OPTS
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
 
+ROOT.gInterpreter.Declare("#include <HiggsAnalysis/CombinedLimit/interface/Combine.h>")
 
 def Eval(obj, x, params):
     return obj.Eval(x[0])
