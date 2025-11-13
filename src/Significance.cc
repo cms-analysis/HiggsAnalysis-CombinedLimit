@@ -298,23 +298,25 @@ bool Significance::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 
 
 double Significance::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const {
-    auto nll = Combine::combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
-    RooMinimizer minim(*nll);
-    minim.setStrategy(0);
-    minim.setPrintLevel(verbose-1);
-    minim.setErrorLevel(0.5*TMath::ChisquareQuantile(cl,1));
-    nllutils::robustMinimize(*nll, minim, verbose-1);
-    int minosStat = minim.minos(RooArgSet(poi));
-    if (minosStat == -1) return std::numeric_limits<double>::quiet_NaN();
-    std::unique_ptr<RooFitResult> res(minim.save());
-    double muhat = poi.getVal(), limit = poi.getVal() + (lowerLimit_ ? poi.getAsymErrorLo() : poi.getAsymErrorHi());
-    double nll0 = nll->getVal();
-    poi.setVal(limit);
-    double nll2 = nll->getVal();
-    if (nll2 < nll0 + 0.75 * 0.5*TMath::ChisquareQuantile(cl,1)) {
-        std::cerr << "ERROR: unprofiled likelihood gives better result than profiled one. deltaNLL = " << (nll2-nll0) << ". will try brute force." << std::endl;
-        poi.setVal(muhat);
-        return std::numeric_limits<double>::quiet_NaN();
+  auto nll = Combine::combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
+  RooMinimizer minim(*nll);
+  minim.setStrategy(0);
+  minim.setPrintLevel(verbose - 1);
+  minim.setErrorLevel(0.5 * TMath::ChisquareQuantile(cl, 1));
+  nllutils::robustMinimize(*nll, minim, verbose - 1);
+  int minosStat = minim.minos(RooArgSet(poi));
+  if (minosStat == -1)
+    return std::numeric_limits<double>::quiet_NaN();
+  std::unique_ptr<RooFitResult> res(minim.save());
+  double muhat = poi.getVal(), limit = poi.getVal() + (lowerLimit_ ? poi.getAsymErrorLo() : poi.getAsymErrorHi());
+  double nll0 = nll->getVal();
+  poi.setVal(limit);
+  double nll2 = nll->getVal();
+  if (nll2 < nll0 + 0.75 * 0.5 * TMath::ChisquareQuantile(cl, 1)) {
+    std::cerr << "ERROR: unprofiled likelihood gives better result than profiled one. deltaNLL = " << (nll2 - nll0)
+              << ". will try brute force." << std::endl;
+    poi.setVal(muhat);
+    return std::numeric_limits<double>::quiet_NaN();
     }
     if (verbose > 1) res->Print("V");
     return limit;
@@ -479,21 +481,21 @@ double Significance::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &data, Ro
 }
 
 double Significance::significanceFromScan(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, int steps) const {
-    auto nll = Combine::combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
-    double maxScan = poi.getMax()*0.7;
-    bool stepDown = (bfAlgo_.find("stepDown") != std::string::npos);
-    bool twice    = (bfAlgo_.find("Twice")    != std::string::npos);
-    poi.setConstant(false);
-    poi.setVal(0.05*poi.getMax());
-    CascadeMinimizer minim0(*nll, CascadeMinimizer::Unconstrained, &poi);
-    minim0.setStrategy(0);
-    minim0.minimize(verbose-2);
-    if (!stepDown) {
-        if (poi.getVal() < 0) {
-            printf("Minimum found at %s = %8.5f < 0: significance will be zero\n", poi.GetName(), poi.getVal());
-            return 0;
-        }
-        maxScan = poi.getVal()*1.4;
+  auto nll = Combine::combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
+  double maxScan = poi.getMax() * 0.7;
+  bool stepDown = (bfAlgo_.find("stepDown") != std::string::npos);
+  bool twice = (bfAlgo_.find("Twice") != std::string::npos);
+  poi.setConstant(false);
+  poi.setVal(0.05 * poi.getMax());
+  CascadeMinimizer minim0(*nll, CascadeMinimizer::Unconstrained, &poi);
+  minim0.setStrategy(0);
+  minim0.minimize(verbose - 2);
+  if (!stepDown) {
+    if (poi.getVal() < 0) {
+      printf("Minimum found at %s = %8.5f < 0: significance will be zero\n", poi.GetName(), poi.getVal());
+      return 0;
+    }
+    maxScan = poi.getVal() * 1.4;
     } else {
         poi.setVal(0);
     }

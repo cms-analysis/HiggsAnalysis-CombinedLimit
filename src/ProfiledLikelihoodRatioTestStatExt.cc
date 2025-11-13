@@ -98,12 +98,14 @@ Double_t ProfiledLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSe
 bool ProfiledLikelihoodRatioTestStatOpt::createNLLWrapper(RooAbsPdf &pdf, RooAbsData &data, std::unique_ptr<RooAbsReal> &nll_) 
 {
     if (typeid(pdf) == typeid(RooSimultaneousOpt)) {
-        if (nll_.get() == 0) nll_ = Combine::combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
-        else ((cacheutils::CachingSimNLL&)(*nll_)).setData(data);
-        return true;
-    } else {
+      if (nll_.get() == 0)
         nll_ = Combine::combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
-        return false;
+      else
+        ((cacheutils::CachingSimNLL &)(*nll_)).setData(data);
+      return true;
+    } else {
+      nll_ = Combine::combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
+      return false;
     }
 }
 
@@ -386,12 +388,14 @@ std::vector<Double_t> ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, 
 bool ProfiledLikelihoodTestStatOpt::createNLLWrapper(RooAbsPdf &pdf, RooAbsData &data) 
 {
     if (typeid(pdf) == typeid(RooSimultaneousOpt)) {
-        if (nll_.get() == 0) nll_ = Combine::combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
-        else ((cacheutils::CachingSimNLL&)(*nll_)).setData(data);
-        return true;
-    } else {
+      if (nll_.get() == 0)
         nll_ = Combine::combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
-        return false;
+      else
+        ((cacheutils::CachingSimNLL &)(*nll_)).setData(data);
+      return true;
+    } else {
+      nll_ = Combine::combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
+      return false;
     }
 }
 

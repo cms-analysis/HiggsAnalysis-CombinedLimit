@@ -231,7 +231,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
         ((cacheutils::CachingSimNLL&)(*nll)).setData(data); // reuse nll but swap out the data
     } else {
         nll.reset(); // first delete the old one, to avoid using more memory, even if temporarily
-        nll = Combine::combineCreateNLL(pdf, data, constrain.getSet(0), /*offset=*/true); // make a new nll
+        nll = Combine::combineCreateNLL(pdf, data, constrain.getSet(0), /*offset=*/true);  // make a new nll
     }
    
     double nll0 = nll->getVal();

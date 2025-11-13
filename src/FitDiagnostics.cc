@@ -217,7 +217,8 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 #else
       Combine::nllBackend() = RooFit::EvalBackend(RooFit::EvalBackend::defaultValue()).name();
 #endif
-      auto nuisanceNLL = Combine::combineCreateNLL(simNuisancePdf, *globalData, nuis, /*warnAboutDifferentBackend=*/false);
+      auto nuisanceNLL =
+          Combine::combineCreateNLL(simNuisancePdf, *globalData, nuis, /*warnAboutDifferentBackend=*/false);
       Combine::nllBackend() = prevBackend;
 
       RooFitResult *res_prefit = 0;
@@ -268,7 +269,8 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   r->setConstant(true);
 
   // Setup Nll before calling fits;
-  if (currentToy_<1) nll = Combine::combineCreateNLL(*mc_s->GetPdf(), data, constCmdArg_s.getSet(0));
+  if (currentToy_ < 1)
+    nll = Combine::combineCreateNLL(*mc_s->GetPdf(), data, constCmdArg_s.getSet(0));
   // Get the nll value on the prefit
   double nll0 = nll->getVal();
 

@@ -10,10 +10,10 @@ DebugProposal::DebugProposal(RooStats::ProposalFunction *p, RooAbsPdf *pdf, RooA
     RooStats::ProposalFunction(), prop_(p), pdf_(pdf), tries_(tries) 
 {
     if (pdf && data) {
-        nll_ = Combine::combineCreateNLL(*pdf, *data, /*constrain=*/nullptr, /*offset=*/false);
-        std::unique_ptr<RooArgSet> par{pdf->getParameters(*data)};
-        RooStats::RemoveConstantParameters(par.get());
-        params_.add(*par);
+      nll_ = Combine::combineCreateNLL(*pdf, *data, /*constrain=*/nullptr, /*offset=*/false);
+      std::unique_ptr<RooArgSet> par{pdf->getParameters(*data)};
+      RooStats::RemoveConstantParameters(par.get());
+      params_.add(*par);
     }
     if (tries) {
         p->Print("V");

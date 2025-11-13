@@ -62,10 +62,10 @@ public:
   static void setNllBackend(std::string const&);
 
   static std::unique_ptr<RooAbsReal> combineCreateNLL(RooAbsPdf &pdf,
-                                             RooAbsData &data,
-                                             RooArgSet const *constraint = nullptr,
-                                             bool offset = false,
-                                             bool warnAboutDifferentBackend = true);
+                                                      RooAbsData &data,
+                                                      RooArgSet const *constraint = nullptr,
+                                                      bool offset = false,
+                                                      bool warnAboutDifferentBackend = true);
 
 private:
   bool mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) ;
