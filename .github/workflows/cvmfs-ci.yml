@@ -283,6 +283,13 @@ jobs:
             cd test
             python3 test_interference.py
 
+      - uses: ./.github/actions/run-in-cvmfs
+        name: FastScan template analysis CMSHistFunc
+        with:
+          script: |
+            text2workspace.py data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
+            combineTool.py -M FastScan -w  ws_template-analysis.root:w
+
       - name: Prepare code coverage report
         if: ${{ success() && (matrix.coverage == true) }}
         run: |
