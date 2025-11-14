@@ -37,6 +37,7 @@ std::string AsymptoticLimits::minosAlgo_ = "stepping";
 //float       AsymptoticLimits::minimizerTolerance_ = 0.01;
 //int         AsymptoticLimits::minimizerStrategy_  = 0;
 double AsymptoticLimits::rValue_ = 1.0;
+double AsymptoticLimits::signalStrengthForExpected_ = 0.0; 
 bool AsymptoticLimits::strictBounds_ = false;
 
 RooAbsData * AsymptoticLimits::asimovDataset_ = nullptr;
@@ -46,6 +47,7 @@ LimitAlgo("AsymptoticLimits specific options") {
     options_.add_options()
         ("rAbsAcc", boost::program_options::value<double>(&rAbsAccuracy_)->default_value(rAbsAccuracy_), "Absolute accuracy on r to reach to terminate the scan")
         ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(rRelAccuracy_), "Relative accuracy on r to reach to terminate the scan")
+        ("signalStrengthForExpected", boost::program_options::value<double>(&signalStrengthForExpected_)->default_value(signalStrengthForExpected_), "Signal strength for expected limits (0=background only, default is 0)")
         ("run", boost::program_options::value<std::string>(&what_)->default_value(what_), "What to run: both (default), observed, expected, blind.")
         ("singlePoint",  boost::program_options::value<double>(&rValue_),  "Just compute CLs for the given value of r")
         //("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer used for profiling (Minuit vs Minuit2)")
@@ -89,7 +91,8 @@ void AsymptoticLimits::applyOptions(const boost::program_options::variables_map 
 	limitsTree_->SetBranchAddress("limit",&readCL_);
 	limitsTree_->SetBranchAddress("r",&readMU_);
     }
-   
+
+    doNonStandardAsimov_ = vm.count("signalStrengthForExpected") && !vm["signalStrengthForExpected"].defaulted();
 }
 
 void AsymptoticLimits::applyDefaultOptions() { 
@@ -151,7 +154,12 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
   }
    
   w->loadSnapshot("clean");
-  RooAbsData &asimov = *asimovDataset(w, mc_s, mc_b, data);
+
+  // Bit of a waste of time if we are not using a non-standard value 
+  double tmpsexp = signalStrengthForExpected_;
+  signalStrengthForExpected_ = 0.0;
+  RooAbsData &asimov = *asimovDataset(w, mc_s, mc_b, data, /*overwrite=*/doNonStandardAsimov_);
+  signalStrengthForExpected_ = tmpsexp;
   w->loadSnapshot("clean");
   
   r->setConstant(false);
@@ -381,7 +389,7 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
     }
 
     // 2) get asimov dataset
-    RooAbsData *asimov = asimovDataset(w, mc_s, mc_b, data);
+    RooAbsData *asimov = asimovDataset(w, mc_s, mc_b, data, /*overwrite=*/ doNonStandardAsimov_);
 
     // 2b) load asimov global observables
     if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
@@ -408,7 +416,7 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
         std::unique_ptr<RooFitResult> res(minim.save());
         res->Print("V");
     }
-    if (r->getVal()/r->getMax() > 1e-3) {
+    if (r->getVal()/r->getMax() > 1e-3 && !doNonStandardAsimov_) {
         if (verbose) {
 		    CombineLogger::instance().log("AsymptoticLimits.cc",__LINE__,std::string(Form("[WARNING] Best fit of asimov dataset is at %s = %f (%f times %sMax), while it should be at zero",r->GetName(), r->getVal(), r->getVal()/r->getMax(), r->GetName())),__func__);
 	    }
@@ -463,8 +471,33 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
     // crossing value of mu that gives the specified qmu in the above.
     // note that as in CCGV the asymptotic formula for upper limits in qmu and qmutilde are identical so can use qmu here.
 
+    // only need to modify the value of pb compared to the typical case where mu'=0 for the asimov dataset
+    double pb_expected = pb;     
     double N = ROOT::Math::normal_quantile(pb, 1.0);
-    double errorlevel = 0.5 * pow(N+ROOT::Math::normal_quantile_c((doCLs_ ? pb:1.)*(1-cl),1.0), 2);
+    
+    // Things get tricker here so first, we use the Asimov value of the test stat and plug it into 
+    if (doNonStandardAsimov_) {
+        
+        // std::cout << "Using non-standard asimov dataset with signal strength " << signalStrengthForExpected_ << std::endl;
+        // Need to find q(0) 
+        r->setVal(0); r->setConstant(true);
+        CascadeMinimizer minim2(nll, CascadeMinimizer::Constrained);
+        if (hasDiscreteParams_) minim2.minimize(verbose-2);
+        else minim2.improve(verbose-2);
+        double q_At_0 = 2*nll.getVal();
+        r->setVal(signalStrengthForExpected_);
+        if (hasDiscreteParams_) minim2.minimize(verbose-2);
+        else minim2.improve(verbose-2);
+        double q_At_muA = 2*nll.getVal();
+        r->setConstant(false);
+
+        double qMuAsimov =  q_At_0-q_At_muA;
+        double N_for_expected = N+ROOT::Math::sqrt(qMuAsimov);
+        pb_expected = ROOT::Math::normal_cdf(N_for_expected, 1.0); 
+        // std::cout << "  --> this gives pb = " << pb_expected << " (N=" << N_for_expected << ")" << std::endl;
+    }
+
+    double errorlevel = 0.5 * pow(N+ROOT::Math::normal_quantile_c((doCLs_ ? pb_expected:1.)*(1-cl),1.0), 2);
     int minosStat = -1;
     if (minosAlgo_ == "minos") {
         double rMax0 = r->getMax();
@@ -730,13 +763,15 @@ float AsymptoticLimits::calculateLimitFromGrid(RooRealVar *r , double quantile, 
 	return rlim;
 } 
 
-RooAbsData * AsymptoticLimits::asimovDataset(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data) {
+RooAbsData * AsymptoticLimits::asimovDataset(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, bool overwrite) {
     // Do this only once
     // if (w->data("_Asymptotic_asimovDataset_") != 0) {
     //     return w->data("_Asymptotic_asimovDataset_");
     // }
 
-    if (asimovDataset_) {
+    
+    if (asimovDataset_ && !overwrite) {
+      //std::cerr << "Reusing asimov dataset" << std::endl;
       return asimovDataset_;
     }
     // snapshot data global observables
@@ -748,9 +783,9 @@ RooAbsData * AsymptoticLimits::asimovDataset(RooWorkspace *w, RooStats::ModelCon
         gobs.snapshot(snapGlobalObsData);
     }
     // get asimov dataset and global observables
-    asimovDataset_ = (noFitAsimov_  ? asimovutils::asimovDatasetNominal(mc_s, 0.0, verbose) :
-                                      asimovutils::asimovDatasetWithFit(mc_s, data, snapGlobalObsAsimov,!bypassFrequentistFit_, 0.0, verbose));
-    asimovDataset_->SetName("_Asymptotic_asimovDataset_");
+    asimovDataset_ = (noFitAsimov_  ? asimovutils::asimovDatasetNominal(mc_s, signalStrengthForExpected_, verbose) :
+                                      asimovutils::asimovDatasetWithFit(mc_s, data, snapGlobalObsAsimov,!bypassFrequentistFit_, signalStrengthForExpected_, verbose));
+    asimovDataset_->SetName(Form("_Asymptotic_asimovDataset_%d_%g",doNonStandardAsimov_,signalStrengthForExpected_)); // in case we want to keep multiple asimov datasets in the same workspace
     // w->import(*asimovData); // I'm assuming the Workspace takes ownership. Might be false.
     // delete asimovData;      //  ^^^^^^^^----- now assuming that the workspace clones.
     return asimovDataset_;
