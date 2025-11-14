@@ -36,11 +36,14 @@ jobs:
       matrix:
         python: ["3.10"]
         root: ["6.26.4"]
+        gcc: ["11.4.0"]
         include:
           - python: "3.10"
             root: "6.32.10"
+            gcc: "11.4.0"
           - python: "3.12"
             root: "6.34.4"
+            gcc: "13.4.0"
 
     runs-on: ubuntu-latest
     name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
@@ -58,7 +61,7 @@ jobs:
       shell: bash -l {0}
       run: |
         # Install dependencies (synchronize with cms-combine-feedstock recipe.yaml)
-        mamba install -c conda-forge cmake python==${{ matrix.python }} pandas gsl root==${{ matrix.root }} boost-cpp eigen
+        mamba install -c gcc==${{ matrix.gcc }} conda-forge cmake python==${{ matrix.python }} pandas gsl root==${{ matrix.root }} boost-cpp eigen
     - name: Build
       shell: bash -l {0}
       run: |
