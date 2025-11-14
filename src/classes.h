@@ -63,3 +63,4 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooEFTScalingFunction.h"
 
 #include "HiggsAnalysis/CombinedLimit/interface/CombineCodegenImpl.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineUtils.h"

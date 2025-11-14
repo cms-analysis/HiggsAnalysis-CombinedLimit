@@ -186,7 +186,7 @@ class TaylorExpand(CombineToolBase):
         mc = self.loaded_wsp.genobj("ModelConfig")
         pdf = mc.GetPdf()
         data = self.loaded_wsp.data(data)
-        self.nll = ROOT.combineCreateNLL(pdf, data)
+        self.nll = ROOT.CombineUtils.combineCreateNLL(pdf, data)
         self.loaded_wsp.loadSnapshot("MultiDimFit")
         print("...NLL loaded")
         # nll.Print()
