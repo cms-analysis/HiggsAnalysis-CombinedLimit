@@ -9,7 +9,8 @@ from HiggsAnalysis.CombinedLimit.ModelTools import ModelBuilder
 from .DataFrameWrapper import DataFrameWrapper
 
 RooArgSet_add_original = ROOT.RooArgSet.add
-
+if (ROOT.gROOT.GetVersionInt() > 63000 and ROOT.gROOT.GetVersionInt() < 63400): 
+    ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 
 def RooArgSet_add_patched(self, obj, *args, **kwargs):
     if isinstance(obj, ROOT.RooAbsCollection):
