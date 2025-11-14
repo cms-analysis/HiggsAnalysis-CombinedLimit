@@ -7,6 +7,8 @@
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
 
+#include "CombineUtils.h"
+
 class TDirectory;
 class TTree;
 class LimitAlgo;
@@ -122,11 +124,5 @@ private:
   static std::string  trackErrorsNameString_;
   static std::string  textToWorkspaceString_;
 };
-
-std::unique_ptr<RooAbsReal> combineCreateNLL(RooAbsPdf &pdf,
-                                             RooAbsData &data,
-                                             RooArgSet const *constraint = nullptr,
-                                             bool offset = false,
-                                             bool warnAboutDifferentBackend = true);
 
 #endif

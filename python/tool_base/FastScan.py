@@ -57,7 +57,7 @@ class FastScan(CombineToolBase):
                 data = f_d.Get(ws_d[1])
             else:
                 data = f_d.Get(ws_d[1]).data(ws_d[2])
-        nll = ROOT.combineCreateNLL(pdf, data)
+        nll = ROOT.CombineUtils.combineCreateNLL(pdf, data)
         pars = pdf.getParameters(data)
         pars.Print()
         snap = pars.snapshot()

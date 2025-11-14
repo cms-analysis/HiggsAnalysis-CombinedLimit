@@ -220,4 +220,5 @@
   <class name="RooSumTwoExpPdf" />
   <class name="RooPowerLawPdf" />
   <class name="RooSumTwoPowerLawPdf" />
+  <class name="CombineUtils" />
 </lcgdict>
