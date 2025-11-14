@@ -1,0 +1,428 @@
+============================================================
+Analyzing bin errors for: prop_binch1
+Poisson cut-off: 0
+Processes excluded for sums: VBFHH
+============================================================
+Bin        Contents        Error           Notes                         
+0          114.253603      1.068895        total sum                     
+0          100.000000      1.000000        excluding marked processes    
+0          10000.000000    100.000000      Unweighted events, alpha=0.011425
+  => Total parameter prop_binch1_bin0[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+1          116.654589      1.080068        total sum                     
+1          94.872948       0.974027        excluding marked processes    
+1          9487.000000     97.401232       Unweighted events, alpha=0.012296
+  => Total parameter prop_binch1_bin1[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+2          112.707603      1.061638        total sum                     
+2          90.008766       0.948729        excluding marked processes    
+2          9001.000000     94.873600       Unweighted events, alpha=0.012522
+  => Total parameter prop_binch1_bin2[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+3          104.997450      1.024683        total sum                     
+3          85.393967       0.924089        excluding marked processes    
+3          8539.000000     92.406710       Unweighted events, alpha=0.012296
+  => Total parameter prop_binch1_bin3[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+4          100.275331      1.001376        total sum                     
+4          81.015770       0.900088        excluding marked processes    
+4          8102.000000     90.011110       Unweighted events, alpha=0.012377
+  => Total parameter prop_binch1_bin4[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+5          92.414912       0.961327        total sum                     
+5          76.862053       0.876710        excluding marked processes    
+5          7686.000000     87.669835       Unweighted events, alpha=0.012024
+  => Total parameter prop_binch1_bin5[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+6          86.830977       0.931831        total sum                     
+6          72.921295       0.853940        excluding marked processes    
+6          7292.000000     85.393208       Unweighted events, alpha=0.011908
+  => Total parameter prop_binch1_bin6[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+7          78.621291       0.886686        total sum                     
+7          69.182579       0.831761        excluding marked processes    
+7          6918.000000     83.174515       Unweighted events, alpha=0.011365
+  => Total parameter prop_binch1_bin7[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+8          74.157152       0.861145        total sum                     
+8          65.635559       0.810158        excluding marked processes    
+8          6564.000000     81.018516       Unweighted events, alpha=0.011298
+  => Total parameter prop_binch1_bin8[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+9          69.148802       0.831558        total sum                     
+9          62.270386       0.789116        excluding marked processes    
+9          6227.000000     78.911343       Unweighted events, alpha=0.011105
+  => Total parameter prop_binch1_bin9[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+10         65.497605       0.809306        total sum                     
+10         59.077751       0.768621        excluding marked processes    
+10         5908.000000     76.863515       Unweighted events, alpha=0.011086
+  => Total parameter prop_binch1_bin10[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+11         60.366921       0.776962        total sum                     
+11         56.048805       0.748657        excluding marked processes    
+11         5605.000000     74.866548       Unweighted events, alpha=0.010770
+  => Total parameter prop_binch1_bin11[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+12         57.951828       0.761261        total sum                     
+12         53.175152       0.729213        excluding marked processes    
+12         5318.000000     72.924619       Unweighted events, alpha=0.010897
+  => Total parameter prop_binch1_bin12[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+13         53.505907       0.731477        total sum                     
+13         50.448833       0.710273        excluding marked processes    
+13         5045.000000     71.028163       Unweighted events, alpha=0.010606
+  => Total parameter prop_binch1_bin13[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+14         50.728304       0.712238        total sum                     
+14         47.862297       0.691826        excluding marked processes    
+14         4786.000000     69.180922       Unweighted events, alpha=0.010599
+  => Total parameter prop_binch1_bin14[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+15         47.701176       0.690660        total sum                     
+15         45.408371       0.673857        excluding marked processes    
+15         4541.000000     67.386942       Unweighted events, alpha=0.010505
+  => Total parameter prop_binch1_bin15[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+16         45.220212       0.672460        total sum                     
+16         43.080261       0.656356        excluding marked processes    
+16         4308.000000     65.635356       Unweighted events, alpha=0.010497
+  => Total parameter prop_binch1_bin16[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+17         42.935037       0.655248        total sum                     
+17         40.871513       0.639308        excluding marked processes    
+17         4087.000000     63.929649       Unweighted events, alpha=0.010505
+  => Total parameter prop_binch1_bin17[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+18         39.998838       0.632446        total sum                     
+18         38.776009       0.622704        excluding marked processes    
+18         3878.000000     62.273590       Unweighted events, alpha=0.010314
+  => Total parameter prop_binch1_bin18[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+19         38.125411       0.617458        total sum                     
+19         36.787945       0.606531        excluding marked processes    
+19         3679.000000     60.654761       Unweighted events, alpha=0.010363
+  => Total parameter prop_binch1_bin19[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+Building explicitly requested POIs:
+ - kl[1,0,2]
+ - kv[1,0,2]
+ - k2v[1,0,2]
+All POIs: ['kl', 'kv', 'k2v']
+Will scale ch1/VBFHH using CMSInterferenceFunc dependent on parameters ["expr::a0('@0*@1', kv[1,0,2], kl[1,0,2])", "expr::a1('@0*@0', kv[1,0,2])", 'k2v[1,0,2]']
+Will scale ch1/background by 1
+Channel ch1 will use autoMCStats with settings: event-threshold=0, include-signal=0, hist-mode=1
+Will scale ch1/VBFHH using CMSInterferenceFunc dependent on parameters ["expr::a0('@0*@1', kv[1,0,2], kl[1,0,2])", "expr::a1('@0*@0', kv[1,0,2])", 'k2v[1,0,2]']
+Will scale ch1/background by 1
+============================================================
+Analyzing bin errors for: prop_binch1
+Poisson cut-off: 0
+Processes excluded for sums: VBFHH
+============================================================
+Bin        Contents        Error           Notes                         
+0          114.253603      1.068895        total sum                     
+0          100.000000      1.000000        excluding marked processes    
+0          10000.000000    100.000000      Unweighted events, alpha=0.011425
+  => Total parameter prop_binch1_bin0[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+1          116.654589      1.080068        total sum                     
+1          94.872948       0.974027        excluding marked processes    
+1          9487.000000     97.401232       Unweighted events, alpha=0.012296
+  => Total parameter prop_binch1_bin1[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+2          112.707603      1.061638        total sum                     
+2          90.008766       0.948729        excluding marked processes    
+2          9001.000000     94.873600       Unweighted events, alpha=0.012522
+  => Total parameter prop_binch1_bin2[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+3          104.997450      1.024683        total sum                     
+3          85.393967       0.924089        excluding marked processes    
+3          8539.000000     92.406710       Unweighted events, alpha=0.012296
+  => Total parameter prop_binch1_bin3[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+4          100.275331      1.001376        total sum                     
+4          81.015770       0.900088        excluding marked processes    
+4          8102.000000     90.011110       Unweighted events, alpha=0.012377
+  => Total parameter prop_binch1_bin4[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+5          92.414912       0.961327        total sum                     
+5          76.862053       0.876710        excluding marked processes    
+5          7686.000000     87.669835       Unweighted events, alpha=0.012024
+  => Total parameter prop_binch1_bin5[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+6          86.830977       0.931831        total sum                     
+6          72.921295       0.853940        excluding marked processes    
+6          7292.000000     85.393208       Unweighted events, alpha=0.011908
+  => Total parameter prop_binch1_bin6[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+7          78.621291       0.886686        total sum                     
+7          69.182579       0.831761        excluding marked processes    
+7          6918.000000     83.174515       Unweighted events, alpha=0.011365
+  => Total parameter prop_binch1_bin7[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+8          74.157152       0.861145        total sum                     
+8          65.635559       0.810158        excluding marked processes    
+8          6564.000000     81.018516       Unweighted events, alpha=0.011298
+  => Total parameter prop_binch1_bin8[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+9          69.148802       0.831558        total sum                     
+9          62.270386       0.789116        excluding marked processes    
+9          6227.000000     78.911343       Unweighted events, alpha=0.011105
+  => Total parameter prop_binch1_bin9[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+10         65.497605       0.809306        total sum                     
+10         59.077751       0.768621        excluding marked processes    
+10         5908.000000     76.863515       Unweighted events, alpha=0.011086
+  => Total parameter prop_binch1_bin10[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+11         60.366921       0.776962        total sum                     
+11         56.048805       0.748657        excluding marked processes    
+11         5605.000000     74.866548       Unweighted events, alpha=0.010770
+  => Total parameter prop_binch1_bin11[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+12         57.951828       0.761261        total sum                     
+12         53.175152       0.729213        excluding marked processes    
+12         5318.000000     72.924619       Unweighted events, alpha=0.010897
+  => Total parameter prop_binch1_bin12[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+13         53.505907       0.731477        total sum                     
+13         50.448833       0.710273        excluding marked processes    
+13         5045.000000     71.028163       Unweighted events, alpha=0.010606
+  => Total parameter prop_binch1_bin13[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+14         50.728304       0.712238        total sum                     
+14         47.862297       0.691826        excluding marked processes    
+14         4786.000000     69.180922       Unweighted events, alpha=0.010599
+  => Total parameter prop_binch1_bin14[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+15         47.701176       0.690660        total sum                     
+15         45.408371       0.673857        excluding marked processes    
+15         4541.000000     67.386942       Unweighted events, alpha=0.010505
+  => Total parameter prop_binch1_bin15[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+16         45.220212       0.672460        total sum                     
+16         43.080261       0.656356        excluding marked processes    
+16         4308.000000     65.635356       Unweighted events, alpha=0.010497
+  => Total parameter prop_binch1_bin16[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+17         42.935037       0.655248        total sum                     
+17         40.871513       0.639308        excluding marked processes    
+17         4087.000000     63.929649       Unweighted events, alpha=0.010505
+  => Total parameter prop_binch1_bin17[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+18         39.998838       0.632446        total sum                     
+18         38.776009       0.622704        excluding marked processes    
+18         3878.000000     62.273590       Unweighted events, alpha=0.010314
+  => Total parameter prop_binch1_bin18[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+19         38.125411       0.617458        total sum                     
+19         36.787945       0.606531        excluding marked processes    
+19         3679.000000     60.654761       Unweighted events, alpha=0.010363
+  => Total parameter prop_binch1_bin19[0.00,-7.00,7.00] to be Gaussian constrained
+------------------------------------------------------------
+Building explicitly requested POIs:
+ - kl[1,0,2]
+ - kv[1,0,2]
+ - k2v[1,0,2]
+All POIs: ['kl', 'kv', 'k2v']
+Will scale ch1/VBFHH using CMSInterferenceFunc dependent on parameters ["expr::a0('@0*@1', kv[1,0,2], kl[1,0,2])", "expr::a1('@0*@0', kv[1,0,2])", 'k2v[1,0,2]']
+Will scale ch1/background by 1
+Channel ch1 will use autoMCStats with settings: event-threshold=0, include-signal=0, hist-mode=1
+Will scale ch1/VBFHH using CMSInterferenceFunc dependent on parameters ["expr::a0('@0*@1', kv[1,0,2], kl[1,0,2])", "expr::a1('@0*@0', kv[1,0,2])", 'k2v[1,0,2]']
+Will scale ch1/background by 1
+Injecting external morph for prop_binch1_processVBFHH_externalMorph
+ <<< Combine >>> 
+ <<< v10.3.3 >>>
+>>> Random number generator seed is 123456
+>>> Method used is GenerateOnly
+Generate toy 1/10
+Generate toy 2/10
+Generate toy 3/10
+Generate toy 4/10
+Generate toy 5/10
+Generate toy 6/10
+Generate toy 7/10
+Generate toy 8/10
+Generate toy 9/10
+Generate toy 10/10
+mean   expected limit: r < 6.95253e-310 +/- 0 @ 95%CL (10 toyMC)
+median expected limit: r < 6.95253e-310 @ 95%CL (10 toyMC)
+   68% expected band : 6.95253e-310 < r < 6.95253e-310
+   95% expected band : 6.95253e-310 < r < 6.95253e-310
+ <<< Combine >>> 
+ <<< v10.3.3 >>>
+>>> Random number generator seed is 123456
+>>> Method used is MultiDimFit
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +1.492
+    kv :    +0.458
+   k2v :    +0.000
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +0.842
+    kv :    +0.583
+   k2v :    +0.233
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +1.952
+    kv :    +0.893
+   k2v :    +0.605
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +0.406
+    kv :    +0.729
+   k2v :    +0.572
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +0.474
+    kv :    +1.081
+   k2v :    +1.414
+Doing initial fit: 
+
+ 
+
+ ---------------------------
+
+ WARNING: MultiDimFit failed
+
+ ---------------------------
+
+ 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +0.474
+    kv :    +1.081
+   k2v :    +1.414
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +1.469
+    kv :    +0.678
+   k2v :    +0.258
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +2.000
+    kv :    +0.563
+   k2v :    +0.089
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +0.000
+    kv :    +0.747
+   k2v :    +0.756
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +1.283
+    kv :    +0.565
+   k2v :    +0.200
+mean   expected limit: r < 6.95262e-310 +/- 0 @ 95%CL (10 toyMC)
+median expected limit: r < 6.95262e-310 @ 95%CL (10 toyMC)
+   68% expected band : 6.95262e-310 < r < 6.95262e-310
+   95% expected band : 6.95262e-310 < r < 6.95262e-310
+ <<< Combine >>> 
+ <<< v10.3.3 >>>
+>>> Random number generator seed is 123456
+>>> Method used is MultiDimFit
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +1.492
+    kv :    +0.458
+   k2v :    +0.000
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +0.842
+    kv :    +0.583
+   k2v :    +0.233
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +1.952
+    kv :    +0.893
+   k2v :    +0.605
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +0.406
+    kv :    +0.729
+   k2v :    +0.572
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +0.474
+    kv :    +1.081
+   k2v :    +1.414
+Doing initial fit: 
+
+ 
+
+ ---------------------------
+
+ WARNING: MultiDimFit failed
+
+ ---------------------------
+
+ 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +0.474
+    kv :    +1.081
+   k2v :    +1.414
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +1.469
+    kv :    +0.678
+   k2v :    +0.258
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +2.000
+    kv :    +0.563
+   k2v :    +0.089
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +0.000
+    kv :    +0.747
+   k2v :    +0.756
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values: 
+    kl :    +1.283
+    kv :    +0.565
+   k2v :    +0.200
+mean   expected limit: r < 6.95264e-310 +/- 0 @ 95%CL (10 toyMC)
+median expected limit: r < 6.95264e-310 @ 95%CL (10 toyMC)
+   68% expected band : 6.95264e-310 < r < 6.95264e-310
+   95% expected band : 6.95264e-310 < r < 6.95264e-310
+Out of 10 toys, {'kl': 0, 'kv': 0, 'k2v': 0} are not matching (tolerance: 1e-4) between CMSHistFunc and CMSHistSum
