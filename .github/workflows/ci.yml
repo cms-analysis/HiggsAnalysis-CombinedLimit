@@ -61,7 +61,7 @@ jobs:
       shell: bash -l {0}
       run: |
         # Install dependencies (synchronize with cms-combine-feedstock recipe.yaml)
-        mamba install -c gcc==${{ matrix.gcc }} conda-forge cmake python==${{ matrix.python }} pandas gsl root==${{ matrix.root }} boost-cpp eigen
+        mamba install -c conda-forge cmake python==${{ matrix.python }} pandas gsl root==${{ matrix.root }} boost-cpp eigen gcc==${{ matrix.gcc }}
     - name: Build
       shell: bash -l {0}
       run: |
