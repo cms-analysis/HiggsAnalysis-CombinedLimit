@@ -15,7 +15,7 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: Run linter (flake8+black)
     steps:
     - uses: actions/checkout@master
@@ -36,14 +36,14 @@ jobs:
       matrix:
         python: ["3.10"]
         root: ["6.26.4"]
-        gcc: ["11.4.0"]
+        gcc: ["10.4.0"]
         include:
           - python: "3.10"
             root: "6.32.10"
             gcc: "11.4.0"
           - python: "3.12"
             root: "6.34.4"
-            gcc: "13.4.0"
+            gcc: "11.4.0"
 
     runs-on: ubuntu-latest
     name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
