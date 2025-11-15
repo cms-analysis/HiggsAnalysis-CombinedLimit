@@ -20,6 +20,8 @@
 #include "SimpleConstraintGroup.h"
 
 class RooMultiPdf;
+class CMSHistSum;
+class CMSHistErrorPropagator;
 
 // Part zero: ArgSet checker
 namespace cacheutils {
@@ -127,6 +129,7 @@ class CachingAddNLL : public RooAbsReal {
         void updateZeroPoint() { clearZeroPoint(); setZeroPoint(); }
         void propagateData();
         void setAnalyticBarlowBeeston(bool flag);
+        void runAnalyticBarlowBeeston();
         /// note: setIncludeZeroWeights(true) won't have effect unless you also re-call setData
         virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
         RooSetProxy & params() { return params_; }
@@ -145,6 +148,8 @@ class CachingAddNLL : public RooAbsReal {
         mutable std::vector<std::unique_ptr<RooAbsReal>>  prods_;
         mutable std::vector<RooAbsReal*> integrals_;
         mutable std::vector<std::pair<const RooMultiPdf*,CachingPdfBase*> > multiPdfs_;
+        mutable std::vector<CMSHistSum const*> histSums_;
+        mutable std::vector<CMSHistErrorPropagator const*> histErrorPropagators_;
         mutable std::vector<Double_t> partialSum_;
         mutable std::vector<Double_t> workingArea_;
         mutable bool isRooRealSum_, fastExit_;

@@ -20,14 +20,11 @@ bool CMSHistFunc::enable_fast_vertical_ = false;
 
 CMSHistFunc::CMSHistFunc() {
   morph_strategy_ = 0;
-  initialized_ = false;
   htype_ = HorizontalType::Integral;
   mtype_ = MomentSetting::NonLinearPosFractions;
   vtype_ = VerticalSetting::QuadLinear;
   divide_by_width_ = true;
-  rebin_ = false;
   vsmooth_par_ = 1.0;
-  fast_vertical_ = false;
 }
 
 CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
@@ -41,14 +38,11 @@ CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
       cache_(hist),
       binerrors_(FastTemplate(hist.GetNbinsX())),
       morph_strategy_(0),
-      initialized_(false),
-      rebin_(false),
       htype_(HorizontalType::Integral),
       mtype_(MomentSetting::Linear),
       vtype_(VerticalSetting::QuadLinear),
       divide_by_width_(divide_by_width),
       vsmooth_par_(1.0),
-      fast_vertical_(false),
       external_morph_("external_morph", "", this) {
   if (divide_by_width_) {
     for (unsigned i = 0; i < cache_.size(); ++i) {
@@ -113,7 +107,6 @@ CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
       binerrors_(other.binerrors_),
       storage_(other.storage_),
       morph_strategy_(other.morph_strategy_),
-      initialized_(false),
       rebin_(other.rebin_),
       rebin_scheme_(other.rebin_scheme_),
       htype_(other.htype_),
@@ -121,7 +114,6 @@ CMSHistFunc::CMSHistFunc(CMSHistFunc const& other, const char* name)
       vtype_(other.vtype_),
       divide_by_width_(other.divide_by_width_),
       vsmooth_par_(other.vsmooth_par_),
-      fast_vertical_(false),
       external_morph_("external_morph", this, other.external_morph_)
 {
   // initialize();

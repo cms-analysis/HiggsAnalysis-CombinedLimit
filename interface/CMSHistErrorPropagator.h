@@ -30,11 +30,10 @@ private:
     std::vector<double> x2;
     std::vector<double> res;
     std::vector<double> gobs;
-    std::set<RooAbsArg*> dirty_prop;
     std::vector<RooRealVar*> push_res;
   };
 public:
-  CMSHistErrorPropagator();
+  CMSHistErrorPropagator() = default;
 
   CMSHistErrorPropagator(const char* name, const char* title, RooRealVar& x,
                          RooArgList const& funcs, RooArgList const& coeffs);
@@ -44,8 +43,6 @@ public:
   TObject* clone(const char* newname) const override {
     return new CMSHistErrorPropagator(*this, newname);
   }
-
-  ~CMSHistErrorPropagator() override {;}
 
   void applyErrorShifts(unsigned idx, FastHisto const& nominal, FastHisto & result);
 
@@ -77,6 +74,8 @@ public:
 
   friend class CMSHistV<CMSHistErrorPropagator>;
 
+  void evalBarlowBeeston() const;
+
  protected:
   RooRealProxy x_;
   RooListProxy funcs_;
@@ -100,14 +99,14 @@ public:
 
   mutable BarlowBeeston bb_; //!
 
-  mutable bool initialized_; //! not to be serialized
+  mutable bool initialized_ = false; //! not to be serialized
 
   mutable int last_eval_; //! not to be serialized
 
   mutable bool analytic_bb_; //! not to be serialized
 
   void initialize() const;
-  void updateCache(int eval = 1) const;
+  void updateCache(int eval = 1, bool doBarlowBeeston=false) const;
 
   void runBarlowBeeston() const;
 

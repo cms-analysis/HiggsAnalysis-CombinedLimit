@@ -175,8 +175,8 @@ class CMSHistFunc : public RooAbsReal {
   mutable std::vector<Cache> mcache_;  //! not to be serialized
 
   unsigned morph_strategy_;
-  mutable bool initialized_; //! not to be serialized
-  bool rebin_;
+  mutable bool initialized_ = false; //! not to be serialized
+  bool rebin_ = false;
   std::vector<unsigned> rebin_scheme_;
   HorizontalType htype_;
   MomentSetting mtype_;
@@ -186,7 +186,7 @@ class CMSHistFunc : public RooAbsReal {
 
   double vsmooth_par_;
 
-  mutable bool fast_vertical_; //! not to be serialized
+  mutable bool fast_vertical_ = false; //! not to be serialized
   mutable std::vector<double> vertical_prev_vals_; //! not to be serialized
   mutable std::vector<RooAbsReal*> vmorphs_vec_; //! not to be serialized
 
