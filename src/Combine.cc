@@ -383,6 +383,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   if (verbose <= 2) RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
+
+  // Enable silent clipping to restore old RooFit behavior for parameters going out of range
+  RooRealVar::enableSilentClipping();
+
   // Load the model, but going in a temporary directory to avoid polluting the current one with garbage from 'cexpr'
   RooWorkspace *w = 0; RooStats::ModelConfig *mc = 0, *mc_bonly = 0;
 
