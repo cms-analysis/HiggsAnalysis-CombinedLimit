@@ -551,15 +551,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#oustide-of-cmssw" class="md-nav__link">
+  <a href="#outside-of-cmssw" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Oustide of CMSSW
+        Outside of CMSSW
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Oustide of CMSSW">
+    <nav class="md-nav" aria-label="Outside of CMSSW">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2104,15 +2104,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#oustide-of-cmssw" class="md-nav__link">
+  <a href="#outside-of-cmssw" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Oustide of CMSSW
+        Outside of CMSSW
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Oustide of CMSSW">
+    <nav class="md-nav" aria-label="Outside of CMSSW">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2331,7 +2331,7 @@ git<span class="w"> </span>fetch<span class="w"> </span>origin
 git<span class="w"> </span>checkout<span class="w"> </span>v7.0.13
 scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span><span class="w"> </span><span class="c1"># always make a clean build, with n - 2 cores on the system</span>
 </code></pre></div>
-<h3 id="oustide-of-cmssw">Oustide of CMSSW</h3>
+<h3 id="outside-of-cmssw">Outside of CMSSW</h3>
 <h4 id="standalone-compilation">Standalone compilation</h4>
 <p>Combine can be built as a CMake project. It has four required dependencies on the C++ side:</p>
 <ol>
@@ -2400,7 +2400,7 @@ cmake --install build
 <p>Pre-compiled versions of the tool are available as container images from the <a href="https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235">CMS cloud</a>. These containers can be downloaded and run using <a href="https://cms-opendata-guide.web.cern.ch/tools/docker/">Docker</a>. If you have docker running you can pull and run the image using,</p>
 <p><div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>combine<span class="w"> </span>-it<span class="w"> </span>gitlab-registry.cern.ch/cms-cloud/combine-standalone:&lt;tag&gt;
 </code></pre></div>
-where you must replace <code>&lt;tag&gt;</code> with a particular version of the tool. At the moment the available container versions are <code>v9.2.1</code> and <code>v9.2.1-slim</code>, both build with Combine tag <code>v9.2.1</code>, and the <code>v9.2.1-slim</code> correspond to a slim version. If no tag is specified the latest version of the container will be loaded, which is <code>v9.2.1-slim</code> at the moment. The containers for <code>v10.X.X</code> versions are being developed and are not yet availble for the users.</p>
+where you must replace <code>&lt;tag&gt;</code> with a particular version of the tool. Containers are available from <code>v9.2.1</code> and <code>v10.0.1</code> onwards. If no tag is specified the latest version of the container will be loaded, which is <code>v10.3.3</code> at the moment.</p>
 <p>You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool.
 The container can be re-started using <code>docker start -i combine</code>.</p>
 <h4 id="standalone-compilation-with-cernvm">Standalone compilation with CernVM</h4>
