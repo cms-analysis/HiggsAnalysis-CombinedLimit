@@ -568,13 +568,16 @@ cacheutils::CachingAddNLL::setup_()
 
     multiPdfs_.clear();
     for (auto &itp : pdfs_) {
-        bool isMultiPdf = itp->pdf()->IsA()->InheritsFrom(RooMultiPdf::Class());
-        if (isMultiPdf) {
-            const RooMultiPdf *mpdf = dynamic_cast<const RooMultiPdf*>(itp->pdf());
-            multiPdfs_.push_back(std::make_pair(mpdf, itp.get()));
-        }
+      if (auto* mpdf = dynamic_cast<const RooMultiPdf*>(itp->pdf())) {
+        multiPdfs_.emplace_back(mpdf, itp.get());
+      }
+      if (auto* hist = dynamic_cast<const CMSHistSum*>(itp->pdf())) {
+        histSums_.emplace_back(hist);
+      }
+      if (auto* hist = dynamic_cast<const CMSHistErrorPropagator*>(itp->pdf())) {
+        histErrorPropagators_.emplace_back(hist);
+      }
     }
- 
 }
 
 void
@@ -789,27 +792,21 @@ cacheutils::CachingAddNLL::setData(const RooAbsData &data)
 }
 
 void cacheutils::CachingAddNLL::propagateData() {
-    for (auto const& funci : pdfs_) {
-        if ( auto pdf = dynamic_cast<CMSHistErrorPropagator const*>(funci->pdf()); pdf != nullptr ) {
-            pdf->setData(*data_);
-        }
-        else if ( auto pdf = dynamic_cast<CMSHistSum const*>(funci->pdf()); pdf != nullptr ) {
-            pdf->setData(*data_);
-        }
-    }
+  for (auto* hist : histErrorPropagators_) {
+    hist->setData(*data_);
+  }
+  for (auto* hist : histSums_) {
+    hist->setData(*data_);
+  }
 }
 
-
 void cacheutils::CachingAddNLL::setAnalyticBarlowBeeston(bool flag) {
-    for (auto const& funci : pdfs_) {
-        if ( auto pdf = dynamic_cast<CMSHistErrorPropagator const*>(funci->pdf()); pdf != nullptr ) {
-            pdf->setAnalyticBarlowBeeston(flag);
-        }
-        if ( auto pdf = dynamic_cast<CMSHistSum const*>(funci->pdf()); pdf != nullptr ) {
-            pdf->setAnalyticBarlowBeeston(flag);
-        }
-
-    }
+  for (auto* hist : histErrorPropagators_) {
+    hist->setAnalyticBarlowBeeston(flag);
+  }
+  for (auto* hist : histSums_) {
+    hist->setAnalyticBarlowBeeston(flag);
+  }
 }
 
 cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, const RooArgSet *nuis) :
