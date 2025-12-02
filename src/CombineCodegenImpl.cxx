@@ -78,14 +78,27 @@ void RooFit::Experimental::codegenImpl(FastVerticalInterpHistPdf2& arg, CodegenC
     nominalVec[i] = cacheNominal.GetBinContent(i);
   }
 
-  // The bin index part
-  // We also have to assert that x is uniformely binned!
-  if (!dynamic_cast<RooUniformBinning const*>(&xVar.getBinning())) {
-    throw std::runtime_error("We only support uniform binning!");
+  // The bin index part - handle both uniform and non-uniform binning
+  const RooAbsBinning& binning = xVar.getBinning();
+  std::string binIdx;
+
+  if (dynamic_cast<RooUniformBinning const*>(&binning)) {
+    // UNIFORM BINNING - fast path using arithmetic
+    double xLow = xVar.getMin();
+    double xHigh = xVar.getMax();
+    binIdx = ctx.buildCall("RooFit::Detail::MathFuncs::uniformBinNumber", xLow, xHigh, xVar, numBins, 1.);
+  } else {
+    // NON-UNIFORM BINNING - use binary search
+    // Extract bin edges from binning object
+    std::vector<double> binEdges(numBins + 1);
+    for (int i = 0; i < numBins; ++i) {
+      binEdges[i] = binning.binLow(i);
+    }
+    binEdges[numBins] = binning.binHigh(numBins - 1);
+
+    // Pass vector to ctx
+    binIdx = ctx.buildCall("RooFit::Detail::MathFuncs::rawBinNumber", xVar, binEdges, numBins + 1);
   }
-  double xLow = xVar.getMin();
-  double xHigh = xVar.getMax();
-  std::string binIdx = ctx.buildCall("RooFit::Detail::MathFuncs::uniformBinNumber", xLow, xHigh, xVar, numBins, 1.);
 
   std::string arrName = ctx.getTmpVarName();
 
@@ -119,13 +132,9 @@ void RooFit::Experimental::codegenImpl(FastVerticalInterpHistPdf2D2& arg, Codege
   RooRealVar const& xVar = arg.x();
   RooRealVar const& yVar = arg.y();
 
-  // We also have to assert that x and y are uniformely binned!
-  if (!dynamic_cast<RooUniformBinning const*>(&xVar.getBinning())) {
-    throw std::runtime_error("We only support uniform binning!");
-  }
-  if (!dynamic_cast<RooUniformBinning const*>(&yVar.getBinning())) {
-    throw std::runtime_error("We only support uniform binning!");
-  }
+  // Handle both uniform and non-uniform binning for X and Y
+  const RooAbsBinning& binningX = xVar.getBinning();
+  const RooAbsBinning& binningY = yVar.getBinning();
 
   auto const& cacheNominal = arg.cacheNominal();
 
@@ -159,15 +168,43 @@ void RooFit::Experimental::codegenImpl(FastVerticalInterpHistPdf2D2& arg, Codege
     nominalVec[i] = cacheNominal.GetBinContent(i);
   }
 
-  // The bin index part
-  double xLow = xVar.getMin();
-  double xHigh = xVar.getMax();
-  std::string binIdxX =
-      ctx.buildCall("RooFit::Detail::MathFuncs::uniformBinNumber", xLow, xHigh, arg.x(), numBinsX, 1.);
-  double yLow = yVar.getMin();
-  double yHigh = yVar.getMax();
-  std::string binIdxY =
-      ctx.buildCall("RooFit::Detail::MathFuncs::uniformBinNumber", yLow, yHigh, arg.y(), numBinsY, 1.);
+  // The bin index part - handle both uniform and non-uniform binning for X
+  std::string binIdxX;
+  if (dynamic_cast<RooUniformBinning const*>(&binningX)) {
+    // UNIFORM BINNING for X - fast path
+    double xLow = xVar.getMin();
+    double xHigh = xVar.getMax();
+    binIdxX = ctx.buildCall("RooFit::Detail::MathFuncs::uniformBinNumber", xLow, xHigh, arg.x(), numBinsX, 1.);
+  } else {
+    // NON-UNIFORM BINNING for X - use binary search
+    std::vector<double> binEdgesX(numBinsX + 1);
+    for (int i = 0; i < numBinsX; ++i) {
+      binEdgesX[i] = binningX.binLow(i);
+    }
+    binEdgesX[numBinsX] = binningX.binHigh(numBinsX - 1);
+
+    // Pass vector to ctx
+    binIdxX = ctx.buildCall("RooFit::Detail::MathFuncs::rawBinNumber", arg.x(), binEdgesX, numBinsX + 1);
+  }
+
+  // Handle both uniform and non-uniform binning for Y
+  std::string binIdxY;
+  if (dynamic_cast<RooUniformBinning const*>(&binningY)) {
+    // UNIFORM BINNING for Y - fast path
+    double yLow = yVar.getMin();
+    double yHigh = yVar.getMax();
+    binIdxY = ctx.buildCall("RooFit::Detail::MathFuncs::uniformBinNumber", yLow, yHigh, arg.y(), numBinsY, 1.);
+  } else {
+    // NON-UNIFORM BINNING for Y - use binary search
+    std::vector<double> binEdgesY(numBinsY + 1);
+    for (int i = 0; i < numBinsY; ++i) {
+      binEdgesY[i] = binningY.binLow(i);
+    }
+    binEdgesY[numBinsY] = binningY.binHigh(numBinsY - 1);
+
+    // Pass vector to ctx
+    binIdxY = ctx.buildCall("RooFit::Detail::MathFuncs::rawBinNumber", arg.y(), binEdgesY, numBinsY + 1);
+  }
 
   std::stringstream binIdx;
   binIdx << "(" << binIdxY << " + " << yVar.numBins() << " * " << binIdxX << ")";
