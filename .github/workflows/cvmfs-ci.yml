@@ -223,7 +223,7 @@ jobs:
         name: CMSHistFunc with channel masks
         with:
           script: |
-            text2workspace.py data/ci/htt_multiple_regions.tx -o ws_template-analysis_masks.root --mass 125 --channel-masks
+            text2workspace.py data/ci/htt_multiple_regions.txt -o ws_template-analysis_masks.root --mass 125 --channel-masks
             combine -M MultiDimFit ws_template-analysis_masks.root --algo singles  --setParameterRanges r=-1,1 --setParameters mask_htt_tt_2_8TeV=1 
 
 
