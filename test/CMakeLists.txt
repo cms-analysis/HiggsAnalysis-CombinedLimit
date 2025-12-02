@@ -177,29 +177,36 @@ ADD_COMBINE_TEST(parametric_analysis
     "combine -M MultiDimFit datacard-3-parametric-analysis.root --algo singles --setParameterRanges r=-2,1"
 )
 
-# TODO: make these tests work too
 #
-# # Template analysis CMSHistFunc
-# ADD_COMBINE_TEST(cmshistfunc
-#   COPY_TO_BUILDDIR ${REPO}/data/ci/template-analysis_shapeInterp.txt
-#                    ${REPO}/data/ci/htt_input.root
-#   T2W_COMMAND
-#     text2workspace.py template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
-#   COMBINE_COMMANDS
-#     "combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1"
-#     "combine -M FitDiagnostics ws_template-analysis.root  -t -1 --setParameters r=1 --plots  --setParameterRanges r=-1,1"
-# )
-# 
-# # Template analysis CMSHistFunc shapeN
-# ADD_COMBINE_TEST(cmshistfunc_shapeN
-#   COPY_TO_BUILDDIR ${REPO}/data/ci/template-analysis_shapeNInterp.txt
-#                    ${REPO}/data/ci/htt_input.root
-#   T2W_COMMAND
-#     text2workspace.py template-analysis_shapeNInterp.txt -o ws_template-analysis-shapeN.root --mass 200
-#   COMBINE_COMMANDS
-#     "combine -M MultiDimFit ws_template-analysis-shapeN.root --algo singles  --setParameterRanges r=-1,1"
-#     "combine -M FitDiagnostics ws_template-analysis-shapeN.root  -t -1 --setParameters r=1 --plots  --setParameterRanges r=-1,1"
-# )
+# Template analysis CMSHistFunc
+ADD_COMBINE_TEST(cmshistfunc
+  COPY_TO_BUILDDIR ${REPO}/data/ci/template-analysis_shapeInterp.txt
+                   ${REPO}/data/ci/htt_input.root
+  T2W_COMMAND
+    text2workspace.py template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1"
+)
+
+# Template analysis CMSHistFunc with channel masks
+ADD_COMBINE_TEST(cmshistfunc_channel_masks
+  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_multiple_regions.txt
+                   ${REPO}/data/ci/htt_multiple_regions.input.root
+  T2W_COMMAND
+    text2workspace.py htt_multiple_regions.txt  -o ws_template-analysis-channel_masks.root --mass 125 --channel-masks
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit ws_template-analysis-channel_masks.root --algo singles  --setParameterRanges r=-1,1 --setParameters mask_htt_tt_2_8TeV=1"
+)
+
+# Template analysis CMSHistFunc shapeN
+ADD_COMBINE_TEST(cmshistfunc_shapeN
+  COPY_TO_BUILDDIR ${REPO}/data/ci/template-analysis_shapeNInterp.txt
+                   ${REPO}/data/ci/htt_input.root
+  T2W_COMMAND
+    text2workspace.py template-analysis_shapeNInterp.txt -o ws_template-analysis-shapeN.root --mass 200
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit ws_template-analysis-shapeN.root --algo singles  --setParameterRanges r=-1,1"
+)
 
 # Template analysis CMSHistSum
 ADD_COMBINE_TEST(cmshistsum
