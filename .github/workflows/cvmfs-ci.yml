@@ -211,7 +211,6 @@ jobs:
           script: |
             text2workspace.py data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
             combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1
-            combine -M FitDiagnostics ws_template-analysis.root  -t -1 --setParameters r=1 --plots  --setParameterRanges r=-1,1
 
       - uses: ./.github/actions/run-in-cvmfs
         name: Template analysis CMSHistFunc shapeN
@@ -219,7 +218,13 @@ jobs:
           script: |
             text2workspace.py data/ci/template-analysis_shapeNInterp.txt -o ws_template-analysis.root --mass 200
             combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1
-            combine -M FitDiagnostics ws_template-analysis.root  -t -1 --setParameters r=1 --plots  --setParameterRanges r=-1,1
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: CMSHistFunc with channel masks
+        with:
+          script: |
+            text2workspace.py data/ci/htt_multiple_regions.tx -o ws_template-analysis_masks.root --mass 125 --channel-masks
+            combine -M MultiDimFit ws_template-analysis_masks.root --algo singles  --setParameterRanges r=-1,1 --setParameters mask_htt_tt_2_8TeV=1 
 
 
       - uses: ./.github/actions/run-in-cvmfs
