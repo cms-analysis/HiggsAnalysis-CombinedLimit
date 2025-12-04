@@ -187,7 +187,7 @@ jobs:
         with:
           script: |
             text2workspace.py  data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
-            combine -M MultiDimFit data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1
+            combine -M MultiDimFit data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-5,5
 
       - uses: ./.github/actions/run-in-cvmfs
         name: Countind datacard Fixed Point from csv
@@ -210,21 +210,21 @@ jobs:
         with:
           script: |
             text2workspace.py data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
-            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1
+            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5
 
       - uses: ./.github/actions/run-in-cvmfs
         name: Template analysis CMSHistFunc shapeN
         with:
           script: |
             text2workspace.py data/ci/template-analysis_shapeNInterp.txt -o ws_template-analysis.root --mass 200
-            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1
+            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5
 
       - uses: ./.github/actions/run-in-cvmfs
         name: CMSHistFunc with channel masks
         with:
           script: |
             text2workspace.py data/ci/htt_multiple_regions.txt -o ws_template-analysis_masks.root --mass 125 --channel-masks
-            combine -M MultiDimFit ws_template-analysis_masks.root --algo singles  --setParameterRanges r=-1,1 --setParameters mask_htt_tt_2_8TeV=1 
+            combine -M MultiDimFit ws_template-analysis_masks.root --algo singles  --setParameterRanges r=-5,5 --setParameters mask_htt_tt_2_8TeV=1 
 
 
       - uses: ./.github/actions/run-in-cvmfs
@@ -233,7 +233,7 @@ jobs:
         with:
           script: |
             text2workspace.py data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200 --for-fits --no-wrappers --use-histsum
-            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH
+            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH
 
       - uses: ./.github/actions/run-in-cvmfs
         name: Template analysis CMSHistSum with shapeN
@@ -241,7 +241,7 @@ jobs:
         with:
           script: |
             text2workspace.py data/ci/template-analysis_shapeNInterp.txt -o ws_template-analysis.root --mass 200 --for-fits --no-wrappers --use-histsum
-            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH
+            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH
 
       - uses: ./.github/actions/run-in-cvmfs
         name: RooMultiPdf
@@ -271,14 +271,14 @@ jobs:
         with:
           script: |
             text2workspace.py data/ci/templ_datacard_largeYields.txt -o ws_template-analysis.root
-            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1
+            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5
 
       - uses: ./.github/actions/run-in-cvmfs
         name: Template analysis with large integrals using CMSHistSum
         with:
           script: |
             text2workspace.py data/ci/templ_datacard_largeYields.txt -o ws_template-analysis.root  --for-fits --no-wrappers --use-histsum
-            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH
+            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH
 
       - uses: ./.github/actions/run-in-cvmfs
         name: InterferenceModel test in CMSSW
