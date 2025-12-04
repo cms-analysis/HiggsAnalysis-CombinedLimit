@@ -5,6 +5,7 @@
 #include "../interface/utils.h"
 #include "../interface/ProfilingTools.h"
 #include "../interface/CombineLogger.h"
+#include "../interface/RooMultiPdfCombine.h"
 
 #include <Math/MinimizerOptions.h>
 #include <Math/IOptions.h>
@@ -14,6 +15,9 @@
 #include <RooStats/RooStatsUtils.h>
 
 #include <iomanip>
+#include <iostream>
+#include <memory>
+#include <algorithm>
 
 boost::program_options::options_description CascadeMinimizer::options_("Cascade Minimizer options");
 std::vector<CascadeMinimizer::Algo> CascadeMinimizer::fallbacks_;
@@ -46,7 +50,6 @@ std::map<std::string,std::vector<std::string> > const CascadeMinimizer::minimize
 CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) :
     nll_(nll),
     mode_(mode),
-    //strategy_(0),
     poi_(poi)
 {
     remakeMinimizer();
@@ -60,21 +63,77 @@ void CascadeMinimizer::remakeMinimizer() {
     if (simnll) simnll->setHideRooCategories(false);
 }
 
-bool CascadeMinimizer::freezeDiscParams(const bool freeze)
-{
-    static bool freezeDisassParams = runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"));
-    static bool freezeDisassParams_verb = runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams_verbose"));
-    if (freezeDisassParams) {
-      if (freezeDisassParams_verb) {
-          CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs.Print();
-          CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams.Print();
+namespace {
+
+RooArgSet freezeDisassiotiatedParams(RooArgSet const &multiPdfs, bool isVerbose = false) {
+  RooArgSet changedSet;
+
+  if (isVerbose) {
+    multiPdfs.Print();
+  }
+
+  RooArgSet multiPdfParams;
+
+  for (RooAbsArg *pdf : multiPdfs) {
+    std::unique_ptr<RooArgSet> pdfPars{pdf->getParameters(static_cast<const RooArgSet *>(nullptr))};
+    for (RooAbsArg *a : *pdfPars) {
+      if(auto *v = dynamic_cast<RooRealVar *>(a)) {
+        if (!v->isConstant())
+          multiPdfParams.add(*v);
       }
-      bool ret =  utils::freezeAllDisassociatedRooMultiPdfParameters((CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs),(CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams),freeze);
-      return ret;
-    } else {
-      return false;
     }
+  }
+
+  if (isVerbose) {
+    multiPdfParams.Print();
+  }
+
+  // For each multiPdf, get the active pdf and remove its parameters
+  // from this list of params and then freeze the remaining ones
+
+  for (RooAbsArg *P : multiPdfs) {
+    auto *mpdf = dynamic_cast<RooMultiPdf *>(P);
+    RooAbsPdf *pdf = mpdf->getCurrentPdf();
+    if (isVerbose)
+      std::cout << " Current active PDF - " << pdf->GetName() << '\n';
+    std::unique_ptr<RooArgSet> pdfPars(pdf->getParameters((const RooArgSet *)nullptr));
+    RooStats::RemoveConstantParameters(&*pdfPars);  // make sure still to ignore user set constants
+    multiPdfParams.remove(*pdfPars);
+  }
+
+  if (!multiPdfParams.empty() && isVerbose) {
+    std::cout << " Going to freeze the following (disassociated) parameters" << '\n';
+    multiPdfParams.Print("V");
+  }
+
+  for (RooAbsArg *a : multiPdfParams) {
+    auto *v = dynamic_cast<RooRealVar *>(a);
+    auto *cv = dynamic_cast<RooCategory *>(a);
+    if (v && !v->isConstant()) {
+      v->setConstant();
+      changedSet.add(*v);
+    } else if (cv && !cv->isConstant()) {
+      cv->setConstant();
+      changedSet.add(*cv);
+    }
+  }
+  return changedSet;
 }
+
+RooArgSet freezeDiscParams() {
+  static bool freezeDisassParams = runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"));
+  static bool freezeDisassParams_verb = runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams_verbose"));
+
+  if (!freezeDisassParams) {
+    return {};
+  }
+
+  RooArgSet const &multiPdfs = CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs;
+
+  return freezeDisassiotiatedParams(multiPdfs, freezeDisassParams_verb);
+}
+
+}  // namespace
 
 void CascadeMinimizer::setAutoBounds(const RooArgSet *pois) 
 {
@@ -170,7 +229,7 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
     if (!minimizer_.get()) remakeMinimizer();
 
     // freeze non active parameters if MINIMIZER_freezeDisassociatedParams enabled
-    freezeDiscParams(true);
+    RooArgSet frozenSet = freezeDiscParams();
 
     if (maxcalls) {
         minimizer_->setMaxFunctionCalls(maxcalls);
@@ -235,7 +294,7 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
     }
 
     // restore original params
-    freezeDiscParams(false);
+    utils::setAllConstant(frozenSet,/*constant=*/false);
 
     return outcome;
 }
@@ -251,9 +310,9 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
       // floating ones, before unfreezing params again.
       RooArgSet toFreeze(params);
       RooStats::RemoveConstantParameters(&toFreeze);
-      utils::setAllConstant(toFreeze, true);
+      utils::setAllConstant(toFreeze, /*constant=*/true);
       simnllbb->setAnalyticBarlowBeeston(true);
-      utils::setAllConstant(toFreeze, false);
+      utils::setAllConstant(toFreeze, /*constant=*/false);
       remakeMinimizer();
    }
    if (!minimizer_.get()) remakeMinimizer();
@@ -262,20 +321,19 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
    std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
 
    if (setZeroPoint_) {
-      cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
-      if (simnll) { 
+      if (auto *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_)) {
          simnll->setZeroPoint();
       }
    }
 
    //TStopwatch tw;
    // freeze parameters not active under current indexes if MINIMIZER_freezeDisassociatedParams enabled
-   freezeDiscParams(true);
+   RooArgSet frozenSet = freezeDiscParams();
    // need to re-run Migrad before running minos
    minimizer_->minimize(myType.c_str(), "Migrad");
    int iret = minimizer_->minos(params); 
    if (verbose>0 ) CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,std::string(Form("Minos finished with status=%d",iret)),__func__);
-   freezeDiscParams(false);
+   utils::setAllConstant(frozenSet,/*constant=*/false);
 
    //std::cout << "Run Minos in  "; tw.Print(); std::cout << std::endl;
 
@@ -288,7 +346,7 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
      simnllbb->setAnalyticBarlowBeeston(false);
    }
 
-   return (iret != 1) ? true : false; 
+   return iret != 1;
 }
 
 bool CascadeMinimizer::hesse(int verbose ) {
@@ -314,16 +372,15 @@ bool CascadeMinimizer::hesse(int verbose ) {
       }
    }
 
-   freezeDiscParams(true);
+   RooArgSet frozenSet = freezeDiscParams();
    int iret = minimizer_->hesse(); 
-   freezeDiscParams(false);
+   utils::setAllConstant(frozenSet,/*constant=*/false);
 
    if (setZeroPoint_) {
-      cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
-      if (simnll) simnll->clearZeroPoint();
+      if (auto *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_)) simnll->clearZeroPoint();
    }
 
-   return (iret != 1) ? true : false; 
+   return iret != 1;
 }
 
 bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool cascade){
@@ -342,21 +399,30 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
      //std::cout << " Had to improve further since tolerance is not yet reached   " << nll_.getVal() << std::endl; 
    }
 
+   // Figure out all floating RooMultiPdf parameters before freezing any
+   RooArgSet allRooMultiPdfParams;
+   for (RooAbsArg *pdf : CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs) {
+     std::unique_ptr<RooArgSet> pdfPars{pdf->getParameters(static_cast<const RooArgSet *>(nullptr))};
+     for (RooAbsArg *a : *pdfPars) {
+       if(auto *v = dynamic_cast<RooRealVar *>(a)) {
+         if (!v->isConstant())
+           allRooMultiPdfParams.add(*v);
+       }
+     }
+   }
+
    // First freeze all parameters that have nothing to do with the current active pdfs
-   freezeDiscParams(true);
+   RooArgSet frozenSet = freezeDiscParams();
 
    // Next remove the POIs and constrained nuisances - this is to set up for the fast loop over the Index combinations
    RooArgSet nuisances = CascadeMinimizerGlobalConfigs::O().allFloatingParameters;
-   nuisances.remove(CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams);
+   nuisances.remove(allRooMultiPdfParams);
 
-   RooArgSet poi = CascadeMinimizerGlobalConfigs::O().parametersOfInterest;
-   RooArgSet frozen;
-
-   if (nuisances.getSize() >0) frozen.add(nuisances);
-   if (poi.getSize() >0) frozen.add(poi);
+   RooArgSet frozen{CascadeMinimizerGlobalConfigs::O().parametersOfInterest};
+   frozen.add(nuisances);
    
    RooStats::RemoveConstantParameters(&frozen);
-   utils::setAllConstant(frozen,true);
+   utils::setAllConstant(frozen,/*constant=*/true);
 
    RooArgSet reallyCleanParameters;
    std::unique_ptr<RooArgSet> nllParams(nll_.getParameters((const RooArgSet*)0));
@@ -374,7 +440,7 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
    //if (simnll) simnll->clearZeroPoint();
 
    TStopwatch tw; tw.Start();
-   utils::setAllConstant(frozen,false);
+   utils::setAllConstant(frozen,/*constant=*/false);
    
    // Run one last fully floating fit to maintain RooFitResult
    ret = improve(verbose, cascade); 
@@ -383,7 +449,7 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
    tw.Stop(); if (verbose > 2) std::cout << "Full fit done in " << tw.RealTime() << std::endl;
 
    // unfreeze from *
-   freezeDiscParams(false);
+   utils::setAllConstant(frozenSet,/*constant=*/false);
 
    return ret;
 }
@@ -398,7 +464,8 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
     }
 
-    freezeDiscParams(true); // We should do anyway this since there can also be some indeces which are frozen 
+    // We should do anyway this since there can also be some indices that are frozen
+    RooArgSet frozenSet = freezeDiscParams();
 
     bool doMultipleMini = (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0);
     if (runtimedef::get(std::string("MINIMIZER_skipDiscreteIterations"))) doMultipleMini=false;
@@ -412,8 +479,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     if (preFit_ ) {
         RooArgSet frozen(nuisances);
         RooStats::RemoveConstantParameters(&frozen);
-        utils::setAllConstant(frozen,true);
-        freezeDiscParams(true);
+        utils::setAllConstant(frozen,/*constant=*/true);
 
         remakeMinimizer();
         minimizer_->setPrintLevel(verbose-2);
@@ -424,8 +490,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         if (rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
         minimizer_->minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
         if (simnll) simnll->clearZeroPoint();
-        utils::setAllConstant(frozen,false);
-        freezeDiscParams(false);
+        utils::setAllConstant(frozen,/*constant=*/false);
         remakeMinimizer();
     }
     
@@ -444,7 +509,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
       RooArgSet reallyCleanParameters;
       std::unique_ptr<RooArgSet> nllParams(nll_.getParameters((const RooArgSet*)0));
       nllParams->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
-      (nllParams)->snapshot(reallyCleanParameters); // should remove also the nuisance parameters from here!
+      nllParams->snapshot(reallyCleanParameters); // should remove also the nuisance parameters from here!
       // Before each step, reset the parameters back to their prefit state!
       
       if (runShortCombinations) {
@@ -475,10 +540,10 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
 	
 	// Run one last fully floating fit to maintain RooFitResult in case freezeDisassociatedParams is ON
 	if(runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"))){
-	  freezeDiscParams(true);
+      RooArgSet frozenSet = freezeDiscParams();
 	  ret = improve(verbose,cascade,true);
 	  minimumNLL = nll_.getVal();
-	  freezeDiscParams(false);
+      utils::setAllConstant(frozenSet,/*constant=*/false);
 	}
       }
     }
@@ -496,7 +561,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
       //  " [WARNING] Are you sure your model is correct?\n");
       CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,"[WARNING] After fit, some parameters are found at the boundary (within ~1sigma)",__func__);
     }
-    freezeDiscParams(false);
+    utils::setAllConstant(frozenSet,/*constant=*/false);
     return ret;
 }
 
@@ -628,7 +693,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
         simnll->setMaskNonDiscreteChannels(true);
       }
       // Remove parameters which are not associated to the current PDF (only works if using --X-rtd MINIMIZER_freezeDisassociatedParams)
-      freezeDiscParams(true);
+      RooArgSet frozenSet = freezeDiscParams();
 
       // FIXME can be made smarter than this
       if (mode_ == Unconstrained && poiOnlyFit_) {
@@ -641,7 +706,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
         for (int id=0;id<numIndeces;id++)  ((RooCategory*)(pdfCategoryIndeces.at(id)))->setConstant(false);
         simnll->setMaskNonDiscreteChannels(false);
       }
-      freezeDiscParams(false);
+      utils::setAllConstant(frozenSet,/*constant=*/false);
 
 
       fitCounter++;
@@ -744,31 +809,16 @@ void CascadeMinimizer::initOptions()
         ("cminRunAllDiscreteCombinations",  "Run all combinations for discrete nuisances")
         ("cminDiscreteMinTol", boost::program_options::value<double>(&discreteMinTol_)->default_value(discreteMinTol_), "Tolerance on min NLL for discrete combination iterations")
         ("cminM2StorageLevel", boost::program_options::value<int>(&minuit2StorageLevel_)->default_value(minuit2StorageLevel_), "Storage level for minuit2 (0 = don't store intermediate covariances, 1 = store them)")
-        //("cminNuisancePruning", boost::program_options::value<float>(&nuisancePruningThreshold_)->default_value(nuisancePruningThreshold_), "if non-zero, discard constrained nuisances whose effect on the NLL when changing by 0.2*range is less than the absolute value of the threshold; if threshold is negative, repeat afterwards the fit with these floating")
-
-        //("cminDefaultIntegratorEpsAbs", boost::program_options::value<double>(), "RooAbsReal::defaultIntegratorConfig()->setEpsAbs(x)")
-        //("cminDefaultIntegratorEpsRel", boost::program_options::value<double>(), "RooAbsReal::defaultIntegratorConfig()->setEpsRel(x)")
-        //("cminDefaultIntegrator1D", boost::program_options::value<std::string>(), "RooAbsReal::defaultIntegratorConfig()->method1D().setLabel(x)")
-        //("cminDefaultIntegrator1DOpen", boost::program_options::value<std::string>(), "RooAbsReal::defaultIntegratorConfig()->method1DOpen().setLabel(x)")
-        //("cminDefaultIntegrator2D", boost::program_options::value<std::string>(), "RooAbsReal::defaultIntegratorConfig()->method2D().setLabel(x)")
-        //("cminDefaultIntegrator2DOpen", boost::program_options::value<std::string>(), "RooAbsReal::defaultIntegratorConfig()->method2DOpen().setLabel(x)")
-        //("cminDefaultIntegratorND", boost::program_options::value<std::string>(), "RooAbsReal::defaultIntegratorConfig()->methodND().setLabel(x)")
-        //("cminDefaultIntegratorNDOpen", boost::program_options::value<std::string>(), "RooAbsReal::defaultIntegratorConfig()->methodNDOpen().setLabel(x)")
         ;
 }
 
 bool CascadeMinimizer::checkAlgoInType(std::string type, std::string algo){
 
     std::map<std::string,std::vector<std::string> >::const_iterator v = minimizerAlgoMap_.find(type);
-    if (v != minimizerAlgoMap_.end()) {
-      std::vector<std::string>::const_iterator a = (*v).second.end();
-      if (std::find((*v).second.begin(), (*v).second.end(), algo) != a){
-      	return true;
-      }
-      return false;
+    if (v == minimizerAlgoMap_.end()) {
+        return false;
     }
-    return false;
-
+    return std::find(v->second.begin(), v->second.end(), algo) != v->second.end();
 }
 
 void CascadeMinimizer::applyOptions(const boost::program_options::variables_map &vm) 
@@ -844,31 +894,7 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
       ROOT::Math::MinimizerOptions::SetDefaultPrecision(defaultMinimizerPrecision_);
     }
     ROOT::Math::MinimizerOptions::SetDefaultStrategy(strategy_);
-
-    //if (vm.count("cminDefaultIntegratorEpsAbs")) RooAbsReal::defaultIntegratorConfig()->setEpsAbs(vm["cminDefaultIntegratorEpsAbs"].as<double>());
-    //if (vm.count("cminDefaultIntegratorEpsRel")) RooAbsReal::defaultIntegratorConfig()->setEpsRel(vm["cminDefaultIntegratorEpsRel"].as<double>());
-    //if (vm.count("cminDefaultIntegrator1D")) setDefaultIntegrator(RooAbsReal::defaultIntegratorConfig()->method1D(), vm["cminDefaultIntegrator1D"].as<std::string>());
-    //if (vm.count("cminDefaultIntegrator1DOpen")) setDefaultIntegrator(RooAbsReal::defaultIntegratorConfig()->method1DOpen(), vm["cminDefaultIntegrator1DOpen"].as<std::string>());
-    //if (vm.count("cminDefaultIntegrator2D")) setDefaultIntegrator(RooAbsReal::defaultIntegratorConfig()->method2D(), vm["cminDefaultIntegrator2D"].as<std::string>());
-    //if (vm.count("cminDefaultIntegrator2DOpen")) setDefaultIntegrator(RooAbsReal::defaultIntegratorConfig()->method2DOpen(), vm["cminDefaultIntegrator2DOpen"].as<std::string>());
-    //if (vm.count("cminDefaultIntegratorND")) setDefaultIntegrator(RooAbsReal::defaultIntegratorConfig()->methodND(), vm["cminDefaultIntegratorND"].as<std::string>());
-    //if (vm.count("cminDefaultIntegratorNDOpen")) setDefaultIntegrator(RooAbsReal::defaultIntegratorConfig()->methodNDOpen(), vm["cminDefaultIntegratorNDOpen"].as<std::string>());
 }
-
-//void CascadeMinimizer::setDefaultIntegrator(RooCategory &cat, const std::string & val) {
-//    if (val == "list") {
-//        std::cout << "States for " << cat.GetName() << std::endl;
-//        int i0 = cat.getBin();
-//        for (int i = 0, n = cat.numBins((const char *)0); i < n; ++i) {
-//            cat.setBin(i); std::cout << " - " << cat.getLabel() <<  ( i == i0 ? " (current default)" : "") << std::endl;
-//        }
-//        std::cout << std::endl;
-//        cat.setBin(i0);
-//    } else {
-//        cat.setLabel(val.c_str()); 
-//    }
-//}
-
 
 void CascadeMinimizer::trivialMinimize(const RooAbsReal &nll, RooRealVar &r, int points) const {
     double rMin = r.getMin(), rMax = r.getMax(), rStep = (rMax-rMin)/(points-1);
@@ -881,30 +907,6 @@ void CascadeMinimizer::trivialMinimize(const RooAbsReal &nll, RooRealVar &r, int
     }
     r.setVal( rMin + (iMin+0.5)*rStep );
 }
-
-//void CascadeMinimizer::collectIrrelevantNuisances(RooAbsCollection &irrelevant) const {
-//    if (nuisances_ == 0) return;
-//    cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
-//    if (simnll == 0) return;
-//    bool do_debug = runtimedef::get("CMIN_REVIEW_NUIS");
-//    RooLinkedListIter iter = nuisances_->iterator();
-//    const double here = simnll->myEvaluate(false);
-//    const double thrsh = std::abs(nuisancePruningThreshold_);
-//    for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
-//        RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-//        if (rrv->isConstant()) continue;
-//        double v0 = rrv->getVal();
-//        double rMin = rrv->getMin();
-//        double rMax = rrv->getMax();
-//        rrv->setVal( std::max(rMin, v0 - 0.2*(rMax-rMin)) );
-//        double down = simnll->myEvaluate(false);
-//        rrv->setVal( std::min(rMax, v0 + 0.2*(rMax-rMin)) );
-//        double up   = simnll->myEvaluate(false);
-//        rrv->setVal( v0 );
-//        if (do_debug) printf("nuisance %s: %g [%g, %g]; deltaNLLs = %.5f, %.5f\n", rrv->GetName(), v0, rMin, rMax, here-up, here-down);
-//        if (std::abs(here-up) < thrsh && std::abs(here-down)  < thrsh) irrelevant.add(*rrv);
-//    }
-//}
 
 bool CascadeMinimizer::autoBoundsOk(int verbose) {
     bool ok = true;

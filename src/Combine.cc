@@ -1194,7 +1194,6 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
     RooArgSet *discreteParameters = (RooArgSet*) w->genobj("discreteParams");
  
     CascadeMinimizerGlobalConfigs::O().pdfCategories = RooArgList();
-    CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams = RooArgList();
 
     if (discreteParameters != 0) {
         for (RooAbsArg *arg : *discreteParameters) {
@@ -1228,13 +1227,6 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
     utils::getClients(CascadeMinimizerGlobalConfigs::O().pdfCategories,(w->allPdfs()),clients);
     for (RooAbsArg *arg : clients) {
       (CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs).add(*(dynamic_cast<RooMultiPdf*>(arg)));
-      RooAbsPdf *pdf = dynamic_cast<RooAbsPdf*>(arg);
-      std::unique_ptr<RooArgSet> pdfPars{pdf->getParameters((const RooArgSet*)0)};
-      for (RooAbsArg *a : *pdfPars) {
-	RooRealVar *v = dynamic_cast<RooRealVar *>(a);
-	if (!v) continue;
-	if (! (v->isConstant())) (CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams).add(*v) ;
-      }
     }
 }
 
