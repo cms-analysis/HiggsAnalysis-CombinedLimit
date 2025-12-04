@@ -228,6 +228,16 @@ ADD_COMBINE_TEST(cmshistsum_shapeN
     "combine -M MultiDimFit template-analysis_shapeNInterp.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH"
 )
 
+# Template analysis CMSHistFunc with channel masks
+ADD_COMBINE_TEST(cmshistsum_channel_masks
+  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_multiple_regions.txt
+                   ${REPO}/data/ci/htt_multiple_regions.input.root
+  T2W_COMMAND
+    text2workspace.py htt_multiple_regions.txt  -o ws_template-analysis-channel_masks.root --mass 125 --channel-masks -for-fits --no-wrappers --use-histsum
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit ws_template-analysis-channel_masks.root --algo singles  --setParameterRanges r=-5,5 --setParameters mask_htt_tt_2_8TeV=1 --X-rtd FAST_VERTICAL_MORPH"
+)
+
 # Template-analysis datacard -> text2workspace
 COMBINE_ADD_TEST(template_analysis-text2workspace
     COMMAND text2workspace.py template-analysis_shape_autoMCStats.txt -o template-analysis_shape_autoMCStats.root

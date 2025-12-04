@@ -1,0 +1,13 @@
+ <<< Combine >>> 
+ <<< v10.3.3 >>>
+>>> Random number generator seed is 123456
+>>> Method used is MultiDimFit
+Set Range of Parameter r To : (-5,5)
+Set Default Value of Parameter mask_htt_tt_2_8TeV To : 1
+>>> 1 out of 3 channels masked
+
+Doing initial fit: 
+
+ --- MultiDimFit ---
+best fit parameter values and profile-likelihood uncertainties: 
+   r :    +0.943   -0.790/+0.917 (68%)

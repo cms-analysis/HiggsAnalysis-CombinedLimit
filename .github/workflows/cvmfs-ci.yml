@@ -244,6 +244,13 @@ jobs:
             combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH
 
       - uses: ./.github/actions/run-in-cvmfs
+        name: CMSHistSum with channel masks
+        with:
+          script: |
+            text2workspace.py data/ci/htt_multiple_regions.txt -o ws_template-analysis_masks.root --mass 125 --channel-masks --for-fits --no-wrappers --use-histsum
+            combine -M MultiDimFit ws_template-analysis_masks.root --algo singles  --setParameterRanges r=-5,5 --setParameters mask_htt_tt_2_8TeV=1 --X-rtd FAST_VERTICAL_MORPH 
+
+      - uses: ./.github/actions/run-in-cvmfs
         name: RooMultiPdf
         if: ${{ !matrix.CMSSW_VERSION || startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
         with:
