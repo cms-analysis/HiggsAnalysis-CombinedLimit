@@ -2,9 +2,9 @@
  <<< v10.3.3 >>>
 >>> Random number generator seed is 123456
 >>> Method used is MultiDimFit
-Set Range of Parameter r To : (-1,1)
+Set Range of Parameter r To : (-5,5)
 Doing initial fit: 
 
  --- MultiDimFit ---
 best fit parameter values and profile-likelihood uncertainties: 
-   r :    +0.600   -0.603/+0.400 (68%)
+   r :    +0.603   -0.606/+0.607 (68%)

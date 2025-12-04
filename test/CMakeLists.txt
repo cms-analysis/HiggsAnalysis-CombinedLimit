@@ -151,7 +151,7 @@ ADD_COMBINE_TEST(counting_datacard
   T2W_COMMAND
     text2workspace.py toy-hgg-125.txt -o counting_datacard.root -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
   COMBINE_COMMANDS
-    "combine -M MultiDimFit counting_datacard.root  --setParameterRanges r=-1,1"
+    "combine -M MultiDimFit counting_datacard.root  --setParameterRanges r=-5,5"
 )
 
 # Counting datacard Fixed Point from csv - combineTool.py
@@ -185,7 +185,7 @@ ADD_COMBINE_TEST(cmshistfunc
   T2W_COMMAND
     text2workspace.py template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
   COMBINE_COMMANDS
-    "combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1"
+    "combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5"
 )
 
 # Template analysis CMSHistFunc with channel masks
@@ -195,7 +195,7 @@ ADD_COMBINE_TEST(cmshistfunc_channel_masks
   T2W_COMMAND
     text2workspace.py htt_multiple_regions.txt  -o ws_template-analysis-channel_masks.root --mass 125 --channel-masks
   COMBINE_COMMANDS
-    "combine -M MultiDimFit ws_template-analysis-channel_masks.root --algo singles  --setParameterRanges r=-1,1 --setParameters mask_htt_tt_2_8TeV=1"
+    "combine -M MultiDimFit ws_template-analysis-channel_masks.root --algo singles  --setParameterRanges r=-5,5 --setParameters mask_htt_tt_2_8TeV=1"
 )
 
 # Template analysis CMSHistFunc shapeN
@@ -205,7 +205,7 @@ ADD_COMBINE_TEST(cmshistfunc_shapeN
   T2W_COMMAND
     text2workspace.py template-analysis_shapeNInterp.txt -o ws_template-analysis-shapeN.root --mass 200
   COMBINE_COMMANDS
-    "combine -M MultiDimFit ws_template-analysis-shapeN.root --algo singles  --setParameterRanges r=-1,1"
+    "combine -M MultiDimFit ws_template-analysis-shapeN.root --algo singles  --setParameterRanges r=-5,5"
 )
 
 # Template analysis CMSHistSum
@@ -215,7 +215,7 @@ ADD_COMBINE_TEST(cmshistsum
   T2W_COMMAND
     text2workspace.py template-analysis_shapeInterp.txt --mass 200 --for-fits --no-wrappers --use-histsum
   COMBINE_COMMANDS
-    "combine -M MultiDimFit template-analysis_shapeInterp.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH"
+    "combine -M MultiDimFit template-analysis_shapeInterp.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH"
 )
 
 # Template analysis CMSHistSum with shapeN
@@ -225,7 +225,7 @@ ADD_COMBINE_TEST(cmshistsum_shapeN
   T2W_COMMAND
     text2workspace.py template-analysis_shapeNInterp.txt --mass 200 --for-fits --no-wrappers --use-histsum
   COMBINE_COMMANDS
-    "combine -M MultiDimFit template-analysis_shapeNInterp.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH"
+    "combine -M MultiDimFit template-analysis_shapeNInterp.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH"
 )
 
 # Template-analysis datacard -> text2workspace
