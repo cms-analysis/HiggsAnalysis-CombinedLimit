@@ -195,6 +195,30 @@ After installation the binaries and Python modules live inside the environment, 
 conda activate combine
 ```
 
+#### Pre-compiled image with CVMFS dependency 
+
+Pre-compiled versions of the tool are available as container images from the [GitLab CMS-analysis repository](http://gitlab-registry.cern.ch/cms-analysis/general/combine-container). This container is built together with the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) package and is **recommended for users with CVMFS access**. 
+
+```shell
+export APPTAINER_CACHEDIR="/tmp/$(whoami)/apptainer_cache"
+apptainer shell -B /cvmfs -B /eos -B /afs /cvmfs/unpacked.cern.ch/gitlab-registry.cern.ch/cms-analysis/general/combine-container:latest /bin/bash
+```
+
+Then in the Apptainer shell:
+
+```shell
+source /cvmfs/cms.cern.ch/cmsset_default.sh
+cd /home/cmsusr/CMSSW_14_1_0_pre4/
+cmsenv  # Ignore errors
+```
+
+Alternatively, you can set up Combine with a single-line command which relies on the same image:
+
+```
+source /cvmfs/cms.cern.ch/cat/combine_env.sh
+```
+Note that the batch submission is not supported with this setup; if needed refer to the [default setup instructions](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users). 
+
 #### Pre-compiled versions in Docker
 
 Pre-compiled versions of the tool are available as container images from the [CMS cloud](https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235). These containers can be downloaded and run using [Docker](https://cms-opendata-guide.web.cern.ch/tools/docker/). If you have docker running you can pull and run the image using,
