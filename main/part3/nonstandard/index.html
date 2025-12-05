@@ -2831,8 +2831,6 @@ combineCards.py signal=signal_region.txt dimuon=dimuon_control_region.txt single
 <p>As expected, the curve obtained by allowing the <code>pdf_index</code> to float (labelled "Envelope") picks out the best function (maximum corrected likelihood) for each value of the signal strength.</p>
 <p>In general, the performance of <span style="font-variant:small-caps;">Combine</span> can be improved when using the discrete profiling method by including the option <code>--X-rtd MINIMIZER_freezeDisassociatedParams</code>. This will stop parameters not associated to the current PDF from floating in the fits. Additionally, you can include the following options:</p>
 <ul>
-<li><code>--X-rtd MINIMIZER_multiMin_hideConstants</code>: hide the constant terms in the likelihood when recreating the minimizer</li>
-<li><code>--X-rtd MINIMIZER_multiMin_maskConstraints</code>: hide the constraint terms during the discrete minimization process</li>
 <li><code>--X-rtd MINIMIZER_multiMin_maskChannels=&lt;choice&gt;</code> mask the channels that are not needed from the NLL:</li>
 <li><code>&lt;choice&gt; 1</code>: keeps unmasked all channels that are participating in the discrete minimization.</li>
 <li><code>&lt;choice&gt; 2</code>: keeps unmasked only the channel whose index is being scanned at the moment.</li>
