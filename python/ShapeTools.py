@@ -71,6 +71,11 @@ class ShapeBuilder(ModelBuilder):
         self.norm_rename_map = {}
         self._fileCache = FileCache(self.options.baseDir)
 
+        self._get_shape_cache = {}
+        self._get_pdf_cache = {}
+        self._shape2data_cache = {}
+        self._shape2pdf_cache = {}
+
     ## ------------------------------------------
     ## -------- ModelBuilder interface ----------
     ## ------------------------------------------
@@ -654,7 +659,10 @@ class ShapeBuilder(ModelBuilder):
     ## -------------------------------------
     ## -------- Low level helpers ----------
     ## -------------------------------------
-    def getShape(self, channel, process, syst="", _cache={}, allowNoSyst=False):
+    def getShape(self, channel, process, syst="", _cache=None, allowNoSyst=False):
+        if _cache is None:
+            _cache = self._get_shape_cache
+
         if (channel, process, syst) in _cache:
             if self.options.verbose > 2:
                 print(
@@ -841,10 +849,13 @@ class ShapeBuilder(ModelBuilder):
             _cache[(channel, process, syst)] = ret
             return ret
 
-    def getData(self, channel, process, syst="", _cache={}):
+    def getData(self, channel, process, syst="", _cache=None):
         return self.shape2Data(self.getShape(channel, process, syst), channel, process)
 
-    def getPdf(self, channel, process, _cache={}):
+    def getPdf(self, channel, process, _cache=None):
+        if _cache is None:
+            _cache = self._get_pdf_cache
+
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         if (channel, process) in _cache:
             return _cache[(channel, process)]
@@ -1202,7 +1213,10 @@ class ShapeBuilder(ModelBuilder):
             rebinh1._original_bins = shapeNbins
         return rebinh1
 
-    def shape2Data(self, shape, channel, process, _cache={}):
+    def shape2Data(self, shape, channel, process, _cache=None):
+        if _cache is None:
+            _cache = self._shape2data_cache
+
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         if not shape:
             name = f"shape{postFix}_{channel}_{process}"
@@ -1238,7 +1252,10 @@ class ShapeBuilder(ModelBuilder):
                 raise RuntimeError("shape2Data not implemented for %s" % shape.ClassName())
         return _cache[shape.GetName()]
 
-    def shape2Pdf(self, shape, channel, process, _cache={}):
+    def shape2Pdf(self, shape, channel, process, _cache=None):
+        if _cache is None:
+            _cache = self._shape2pdf_cache
+
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         channelBinParFlag = channel in list(self.DC.binParFlags.keys())
         if shape == None:
