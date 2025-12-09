@@ -67,7 +67,6 @@ class ShapeBuilder(ModelBuilder):
                 ROOT.gSystem.Load(lib)
         self.wspnames = {}
         self.wsp = None
-        self.extraImports = []
         self.norm_rename_map = {}
         self._fileCache = FileCache(self.options.baseDir)
 
@@ -365,7 +364,7 @@ class ShapeBuilder(ModelBuilder):
                         "combine.channel",
                         pdfs.at(idx).getStringAttribute("combine.channel"),
                     )
-                    self.extraImports.append(wrapper)
+                    self.out.safe_import(wrapper, ROOT.RooFit.RecycleConflictNodes())
 
         if len(bbb_names) > 0:
             bbb_nuisanceargset = ROOT.RooArgSet()
@@ -433,9 +432,6 @@ class ShapeBuilder(ModelBuilder):
                     self.getObj("pdf_bin%s_bonly" % self.DC.bins[0]).clone("model_b"),
                     ROOT.RooFit.Silence(),
                 )
-        for arg in self.extraImports:
-            # print 'Importing extra arg: %s' % arg.GetName()
-            self.out.safe_import(arg, ROOT.RooFit.RecycleConflictNodes())
         if self.options.fixpars:
             pars = self.out.pdf("model_s").getParameters(self.out.obs)
             for arg in pars:
