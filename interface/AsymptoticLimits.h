@@ -48,6 +48,7 @@ private:
   //static int         minimizerStrategy_;
 
   static double rValue_;
+  static double signalStrengthForExpected_;
 
   static bool   strictBounds_;
 
@@ -66,7 +67,7 @@ private:
 
   float calculateLimitFromGrid(RooRealVar *, double, double);
 
-  RooAbsData *asimovDataset(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data);
+  RooAbsData *asimovDataset(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, bool overwrite=false);
   double getCLs(RooRealVar &r, double rVal, bool getAlsoExpected=false, double *limit=0, double *limitErr=0);
   
   TFile *gridFile_;
@@ -74,6 +75,8 @@ private:
   double readCL_;
   double readMU_;
   bool doCLs_; 
+
+  bool doNonStandardAsimov_;
 
 };
 
