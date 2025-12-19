@@ -17,7 +17,7 @@
       
       
       <link rel="icon" href="logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
       
       
 
@@ -2297,12 +2297,12 @@ releases on github under
 <h4 id="combine-v10-recommended-version">Combine v10 - recommended version</h4>
 <p>The nominal installation method is inside CMSSW. The current release targets
 the CMSSW <code>14_1_X</code> series because of the recent switch to el9 at lxplus machines.</p>
-<p>Currently, the recommended tag is <strong>v10.4.1</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.4.1">see release notes</a>
+<p>Currently, the recommended tag is <strong>v10.4.2</strong>: <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.4.2">see release notes</a>
 The <code>git clone</code> command below contains this tag and is optimised to reduce disk usage.</p>
 <div class="highlight"><pre><span></span><code>cmsrel<span class="w"> </span>CMSSW_14_1_0_pre4
 <span class="nb">cd</span><span class="w"> </span>CMSSW_14_1_0_pre4/src
 cmsenv
-git<span class="w"> </span>-c<span class="w"> </span>advice.detachedHead<span class="o">=</span><span class="nb">false</span><span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v10.4.1<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
+git<span class="w"> </span>-c<span class="w"> </span>advice.detachedHead<span class="o">=</span><span class="nb">false</span><span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v10.4.2<span class="w"> </span>https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git<span class="w"> </span>HiggsAnalysis/CombinedLimit
 <span class="nb">cd</span><span class="w"> </span>HiggsAnalysis/CombinedLimit
 scramv1<span class="w"> </span>b<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span>scramv1<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span><span class="w"> </span><span class="c1"># always make a clean build, with n - 2 cores on the system</span>
 </code></pre></div>
@@ -2436,7 +2436,7 @@ Note that the batch submission is not supported with this setup; if needed refer
 <p>Pre-compiled versions of the tool are available as container images from the <a href="https://gitlab.cern.ch/cms-cloud/combine-standalone/container_registry/15235">CMS cloud</a>. These containers can be downloaded and run using <a href="https://cms-opendata-guide.web.cern.ch/tools/docker/">Docker</a>. If you have docker running you can pull and run the image using,</p>
 <p><div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>combine<span class="w"> </span>-it<span class="w"> </span>gitlab-registry.cern.ch/cms-cloud/combine-standalone:&lt;tag&gt;
 </code></pre></div>
-where you must replace <code>&lt;tag&gt;</code> with a particular version of the tool. Containers are available from <code>v9.2.1</code> and <code>v10.0.1</code> onwards. If no tag is specified the latest version of the container will be loaded, which is <code>v10.4.1</code> at the moment.</p>
+where you must replace <code>&lt;tag&gt;</code> with a particular version of the tool. Containers are available from <code>v9.2.1</code> and <code>v10.0.1</code> onwards. If no tag is specified the latest version of the container will be loaded, which is <code>v10.4.2</code> at the moment.</p>
 <p>You will now have the compiled <span style="font-variant:small-caps;">Combine</span> binary available as well as the complete package of tool.
 The container can be re-started using <code>docker start -i combine</code>.</p>
 <h4 id="standalone-compilation-with-cernvm">Standalone compilation with CernVM</h4>
@@ -2599,10 +2599,10 @@ scram<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
       
         <script src="javascripts/mathjax.js"></script>
       
