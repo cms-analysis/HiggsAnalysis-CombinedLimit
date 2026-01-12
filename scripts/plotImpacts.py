@@ -597,16 +597,15 @@ for page in range(n):
     g_glob_impacts_lo.Draw("5SAME")
     pads[1].RedrawAxis()
 
-    showGlobalImpacts = True
     legend = ROOT.TLegend(0.02, 0.02, 0.35, 0.09, "", "NBNDC")
-    legend.SetNColumns(3 if showGlobalImpacts else 2)
+    legend.SetNColumns(3 if args.show_global else 2)
     legend.AddEntry(g_fit, "Fit", "LP")
     legend.AddEntry(g_impacts_hi, "+1#sigma Impact", "F")
-    if showGlobalImpacts:
+    if args.show_global:
         legend.AddEntry(g_glob_impacts_hi, "+1#sigma Global", "F")
     legend.AddEntry(g_pull, "Pull", "P")
     legend.AddEntry(g_impacts_lo, "-1#sigma Impact", "F")
-    if showGlobalImpacts:
+    if args.show_global:
         legend.AddEntry(g_glob_impacts_lo, "-1#sigma Global", "F")
     legend.Draw()
 

@@ -220,4 +220,5 @@ def get_rfr_constvars(filename, rfr_name):
     constpars = rfr.constPars()
     for v in constpars:
         res[v.GetName()] = v.getVal()
+    f.Close()
     return res
