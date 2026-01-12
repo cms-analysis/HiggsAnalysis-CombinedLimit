@@ -50,6 +50,7 @@ parser.add_argument("--pullDef", default=None, help="Choose the definition of th
 parser.add_argument("--POI", default=None, help="Specify a POI to draw")
 parser.add_argument("--sort", "-s", choices=["impact", "constraint", "pull"], default="impact", help="The metric to sort the list of parameters")
 parser.add_argument("--relative", "-r", action="store_true", help="Show impacts relative to the uncertainty on the POI")
+parser.add_argument("--show-global", "-g", action="store_true", help="Additionally show the global impacts (if ran in the Impacts tool)")
 parser.add_argument("--summary", action="store_true", help="Produce additional summary page, named [output]_summary.pdf")
 args = parser.parse_args()
 
@@ -82,24 +83,49 @@ for ele in data["POIs"]:
 
 POI_fit = POI_info["fit"]
 
+def ComputeImpact(ele, POI, POI_fit, prefix="", checkRelative=False):
+    entry = f"{prefix}{POI}"
+    if entry not in ele:
+        return
+    ele[f"{prefix}impact_hi"] = ele[entry][2] - ele[entry][1]
+    ele[f"{prefix}impact_lo"] = ele[entry][0] - ele[entry][1]
+    if (POI_fit[2] - POI_fit[1]) > 0.0 and (POI_fit[1] - POI_fit[0]) > 0.0:
+        ele[f"{prefix}impact_rel_hi"] = ele[f"{prefix}impact_hi"] / ((POI_fit[2] - POI_fit[1]) if ele[f"{prefix}impact_hi"] >= 0 else (POI_fit[1] - POI_fit[0]))
+        ele[f"{prefix}impact_rel_lo"] = ele[f"{prefix}impact_lo"] / ((POI_fit[2] - POI_fit[1]) if ele[f"{prefix}impact_lo"] >= 0 else (POI_fit[1] - POI_fit[0]))
+    else:
+        ele[f"{prefix}impact_rel_hi"] = 0.0
+        ele[f"{prefix}impact_rel_lo"] = 0.0
+        if checkRelative:
+            # Now we have a real problem, best throw:
+            raise RuntimeError("Relative impacts requested (--relative), but uncertainty on the POI is zero")
+
+
 # Pre-compute info for each parameter
 params = data["params"]
 for ele in params:
-    # Calculate impacts and relative impacts. Note that here the impacts are signed.
-    ele["impact_hi"] = ele[POI][2] - ele[POI][1]
-    ele["impact_lo"] = ele[POI][0] - ele[POI][1]
-    # Some care needed with the relative ones, since we don't know the signs of hi and lo.
-    # We want to divide any positive impact by the positive uncert. on the POI, and similar for negative.
-    # We also need to be careful in case the uncertainties on the POI came out as zero (shouldn't happen...)
-    if (POI_fit[2] - POI_fit[1]) > 0.0 and (POI_fit[1] - POI_fit[0]) > 0.0:
-        ele["impact_rel_hi"] = ele["impact_hi"] / ((POI_fit[2] - POI_fit[1]) if ele["impact_hi"] >= 0 else (POI_fit[1] - POI_fit[0]))
-        ele["impact_rel_lo"] = ele["impact_lo"] / ((POI_fit[2] - POI_fit[1]) if ele["impact_lo"] >= 0 else (POI_fit[1] - POI_fit[0]))
-    else:
-        ele["impact_rel_hi"] = 0.0
-        ele["impact_rel_lo"] = 0.0
-        if args.relative:
-            # Now we have a real problem, best throw:
-            raise RuntimeError("Relative impacts requested (--relative), but uncertainty on the POI is zero")
+    ComputeImpact(ele, POI, POI_fit, prefix="", checkRelative=args.relative)
+    if args.show_global:
+        ComputeImpact(ele, POI, POI_fit, prefix="global_", checkRelative=args.relative)
+    # # Calculate impacts and relative impacts. Note that here the impacts are signed.
+    # ele["impact_hi"] = ele[POI][2] - ele[POI][1]
+    # ele["impact_lo"] = ele[POI][0] - ele[POI][1]
+    # g_entry = f"global_{POI}"
+    # if g_entry in ele:
+    #     # The global impact may or may not be available
+    #     ele["global_impact_hi"] = ele[g_entry][2] - ele[g_entry][1]
+    #     ele["global_impact_lo"] = ele[g_entry][0] - ele[g_entry][1]
+    # # Some care needed with the relative ones, since we don't know the signs of hi and lo.
+    # # We want to divide any positive impact by the positive uncert. on the POI, and similar for negative.
+    # # We also need to be careful in case the uncertainties on the POI came out as zero (shouldn't happen...)
+    # if (POI_fit[2] - POI_fit[1]) > 0.0 and (POI_fit[1] - POI_fit[0]) > 0.0:
+    #     ele["impact_rel_hi"] = ele["impact_hi"] / ((POI_fit[2] - POI_fit[1]) if ele["impact_hi"] >= 0 else (POI_fit[1] - POI_fit[0]))
+    #     ele["impact_rel_lo"] = ele["impact_lo"] / ((POI_fit[2] - POI_fit[1]) if ele["impact_lo"] >= 0 else (POI_fit[1] - POI_fit[0]))
+    # else:
+    #     ele["impact_rel_hi"] = 0.0
+    #     ele["impact_rel_lo"] = 0.0
+    #     if args.relative:
+    #         # Now we have a real problem, best throw:
+    #         raise RuntimeError("Relative impacts requested (--relative), but uncertainty on the POI is zero")
 
     if IsConstrained(ele):
         pre = ele["prefit"]
@@ -362,7 +388,6 @@ def MakeSummaryPage():
 
     canv.Print(f"{args.output}_summary.pdf")
 
-
 if args.summary:
     MakeSummaryPage()
 
@@ -406,6 +431,8 @@ for page in range(n):
     g_pull = ROOT.TGraph(n_params)
     g_impacts_hi = ROOT.TGraphAsymmErrors(n_params)
     g_impacts_lo = ROOT.TGraphAsymmErrors(n_params)
+    g_glob_impacts_hi = ROOT.TGraphAsymmErrors(n_params)
+    g_glob_impacts_lo = ROOT.TGraphAsymmErrors(n_params)
     g_check = ROOT.TGraphAsymmErrors()
     g_check_i = 0
 
@@ -457,6 +484,8 @@ for page in range(n):
             redo_boxes.append(i)
         g_impacts_hi.SetPoint(i, 0, float(i) + 0.5)
         g_impacts_lo.SetPoint(i, 0, float(i) + 0.5)
+        g_glob_impacts_hi.SetPoint(i, 0, float(i) + 0.5)
+        g_glob_impacts_lo.SetPoint(i, 0, float(i) + 0.5)
         if args.checkboxes:
             pboxes = pdata[p]["checkboxes"]
             for pbox in pboxes:
@@ -466,6 +495,9 @@ for page in range(n):
         imp = pdata[p][POI]
         g_impacts_hi.SetPointError(i, 0, par[impt_prefix + "_hi"], 0.5, 0.5)
         g_impacts_lo.SetPointError(i, -1.0 * par[impt_prefix + "_lo"], 0, 0.5, 0.5)
+        if "global_impact_hi" in par:
+            g_glob_impacts_hi.SetPointError(i, 0, par[f"global_{impt_prefix}_hi"], 0.30, 0.30)
+            g_glob_impacts_lo.SetPointError(i, -1.0 * par[f"global_{impt_prefix}_lo"], 0, 0.30, 0.30)
         max_impact = max(max_impact, abs(par[impt_prefix + "_hi"]), abs(par[impt_prefix + "_lo"]))
         col = colors.get(tp, 2)
         if args.color_groups is not None and len(pdata[p]["groups"]) >= 1:
@@ -544,7 +576,7 @@ for page in range(n):
     g_pull.Draw("PSAME")
     # And back to the second pad to draw the impacts graphs
     pads[1].cd()
-    alpha = 0.7
+    alpha = 0.7 if not args.show_global else 0.3
 
     lo_color = {"default": 38, "hesse": ROOT.kOrange - 3, "robust": ROOT.kGreen + 1}
     hi_color = {"default": 46, "hesse": ROOT.kBlue, "robust": ROOT.kAzure - 5}
@@ -555,14 +587,27 @@ for page in range(n):
     g_impacts_hi.Draw("2SAME")
     g_impacts_lo.SetFillColor(plot.CreateTransparentColor(lo_color[method], alpha))
     g_impacts_lo.Draw("2SAME")
+    g_glob_impacts_hi.SetLineColor(hi_color[method])
+    g_glob_impacts_hi.SetFillStyle(0)
+    g_glob_impacts_hi.SetLineWidth(2)
+    g_glob_impacts_lo.SetLineColor(lo_color[method])
+    g_glob_impacts_lo.SetLineWidth(2)
+    g_glob_impacts_lo.SetFillStyle(0)
+    g_glob_impacts_hi.Draw("5SAME")
+    g_glob_impacts_lo.Draw("5SAME")
     pads[1].RedrawAxis()
 
+    showGlobalImpacts = True
     legend = ROOT.TLegend(0.02, 0.02, 0.35, 0.09, "", "NBNDC")
-    legend.SetNColumns(2)
+    legend.SetNColumns(3 if showGlobalImpacts else 2)
     legend.AddEntry(g_fit, "Fit", "LP")
     legend.AddEntry(g_impacts_hi, "+1#sigma Impact", "F")
+    if showGlobalImpacts:
+        legend.AddEntry(g_glob_impacts_hi, "+1#sigma Global", "F")
     legend.AddEntry(g_pull, "Pull", "P")
     legend.AddEntry(g_impacts_lo, "-1#sigma Impact", "F")
+    if showGlobalImpacts:
+        legend.AddEntry(g_glob_impacts_lo, "-1#sigma Global", "F")
     legend.Draw()
 
     leg_width = pads[0].GetLeftMargin() - 0.01
