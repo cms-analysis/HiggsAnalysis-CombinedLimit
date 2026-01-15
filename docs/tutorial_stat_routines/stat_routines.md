@@ -397,9 +397,12 @@ combine -M HybridNew --LHCmode LHC-limits --plot r_scan.png datacard.txt
 
 ![](r_scan.png)
 
+Questions:
 
 - Where do the uncertainties on the CLs value at each value of `r` come from in the plot?
 - How could the precision of the limit be increased?
+
+(hint: read through [this section](../part3/commonstatsmethods.md#computing-limits-with-toys) and look for the adaptive sampling procedure)
 
 ### Debugging
 
