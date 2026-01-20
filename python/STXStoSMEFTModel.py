@@ -517,6 +517,8 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
             eft_scaling_linquad = ROOT.RooEFTScalingFunction(name, name, coeffs, arglist_pois)
             # Add scaling function into model
             self.modelBuilder.out.Import(eft_scaling_linquad)
+        self.tmp_lcoeffs = lcoeffs
+        self.tmp_coeffs = coeffs
 
 
 #################################################################################################################
