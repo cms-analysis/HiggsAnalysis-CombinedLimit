@@ -59,6 +59,13 @@ parser.add_option(
     action="store_true",
     help="Swap multipdf pdfs with their current index pdf",
 )
+parser.add_option(
+    "--X-allow-abs-path",
+    dest="absPath",
+    default=False,
+    action="store_true",
+    help="Swap multipdf pdfs with their current index pdf",
+)
 (options, args) = parser.parse_args()
 
 if len(args) == 0:
