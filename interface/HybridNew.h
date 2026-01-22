@@ -76,6 +76,7 @@ private:
   static float adaptiveToys_;
 
   static double EPS;
+  static float removeOulierForPvalThreshold_;
   // graph, used to compute the limit, not just for plotting!
   std::unique_ptr<TGraphErrors> limitPlot_;
  
@@ -136,7 +137,7 @@ private:
   void useGrid();
 
   bool doFC_;
-  
+  void removeOutliers(std::vector<Double_t> *sd, std::vector<Double_t> *sw);
 };
 
 #endif

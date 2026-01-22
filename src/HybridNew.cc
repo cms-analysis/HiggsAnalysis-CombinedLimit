@@ -94,6 +94,7 @@ float HybridNew::confidenceToleranceForToyScaling_ = 0.2;
 float HybridNew::maxProbability_ = 0.999;
 double HybridNew::EPS = 1e-4;
 std::string HybridNew::mode_ = "";
+float HybridNew::removeOulierForPvalThreshold_ = -1.0; 
 
 HybridNew::HybridNew() :
 LimitAlgo("HybridNew specific options") {
@@ -141,6 +142,7 @@ LimitAlgo("HybridNew specific options") {
         ("importantContours",boost::program_options::value<std::string>(&scaleAndConfidenceSelection_)->default_value(scaleAndConfidenceSelection_), "Throw fewer toys far from interesting contours , format : CL_1,CL_2,..CL_N (--toysH scaled down when probability is far from any of CL_i) ")
         ("maxProbability", boost::program_options::value<float>(&maxProbability_)->default_value(maxProbability_),  "when point is >  maxProbability countour, don't bother throwing toys")
         ("confidenceTolerance", boost::program_options::value<float>(&confidenceToleranceForToyScaling_)->default_value(confidenceToleranceForToyScaling_),  "Determine what 'far' means for adatptiveToys. (relative in terms of (1-cl))")
+        ("removeOutliersForPValues", boost::program_options::value<float>(&removeOulierForPvalThreshold_)->default_value(removeOulierForPvalThreshold_),  "When calculating p-values (pmu, 1-pb), remove outliers from the distribution of toys. Outliers are defined as those further from the mean than this threshold times the standard deviation")
         ("LHCmode", boost::program_options::value<std::string>(&mode_)->default_value(mode_),  "Shortcuts for LHC style running modes. --LHCmode LHC-significance: --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1 --testStat=LHC (Q_LHC, modified for discovery) --significance, --LHCmode LHC-limits: --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1 --testStat=LHC (Q_LHC, modified for upper limits) --rule CLs, --LHCmode LHC-feldman-cousins: --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1 --testStat=PL (Q_Profile, includes boundaries) --rule Pmu")
 
     ;
@@ -1177,16 +1179,17 @@ std::pair<double,double> HybridNew::eval(const RooStats::HypoTestResult &hcres, 
 
     double minimizerTolerance_  = ROOT::Math::MinimizerOptions::DefaultTolerance();
 
+    RooStats::SamplingDistribution * bDistribution = hcres.GetNullDistribution(), * sDistribution = hcres.GetAltDistribution();
+    const std::vector<Double_t> & bdist   = bDistribution->GetSamplingDistribution();
+    const std::vector<Double_t> & bweight = bDistribution->GetSampleWeights();
+    const std::vector<Double_t> & sdist   = sDistribution->GetSamplingDistribution();
+    const std::vector<Double_t> & sweight = sDistribution->GetSampleWeights();
+    Double_t data =  hcres.GetTestStatisticData();
+    std::vector<Double_t> absbdist(bdist.size()), abssdist(sdist.size());
+    std::vector<Double_t> absbweight(bweight), abssweight(sweight);
+    Double_t absdata = data;
+
     if (testStat_ == "LHCFC") {
-        RooStats::SamplingDistribution * bDistribution = hcres.GetNullDistribution(), * sDistribution = hcres.GetAltDistribution();
-        const std::vector<Double_t> & bdist   = bDistribution->GetSamplingDistribution();
-        const std::vector<Double_t> & bweight = bDistribution->GetSampleWeights();
-        const std::vector<Double_t> & sdist   = sDistribution->GetSamplingDistribution();
-        const std::vector<Double_t> & sweight = sDistribution->GetSampleWeights();
-        Double_t data =  hcres.GetTestStatisticData();
-        std::vector<Double_t> absbdist(bdist.size()), abssdist(sdist.size());
-        std::vector<Double_t> absbweight(bweight), abssweight(sweight);
-        Double_t absdata;
         if (rule_ == "FC") {
             for (int i = 0, n = absbdist.size(); i < n; ++i) absbdist[i] = fabs(bdist[i]);
             for (int i = 0, n = abssdist.size(); i < n; ++i) abssdist[i] = fabs(sdist[i]);
@@ -1202,24 +1205,42 @@ std::pair<double,double> HybridNew::eval(const RooStats::HypoTestResult &hcres, 
             abssweight.reserve(absbweight.size() + abssweight.size());
             abssweight.insert(abssweight.end(), absbweight.begin(), absbweight.end());
         }
-        RooStats::HypoTestResult result;
-        RooStats::SamplingDistribution *abssDist = new RooStats::SamplingDistribution("s","s",abssdist,abssweight);
-        RooStats::SamplingDistribution *absbDist = new RooStats::SamplingDistribution("b","b",absbdist,absbweight);
-        result.SetNullDistribution(absbDist);
-        result.SetAltDistribution(abssDist);
-        result.SetTestStatisticData(absdata);
-        result.SetPValueIsRightTail(!result.GetPValueIsRightTail());
-        if (CLs_) {
-            return std::pair<double,double>(result.CLs(), result.CLsError());
-        } else {
-            return std::pair<double,double>(result.CLsplusb(), result.CLsplusbError());
-        }
     } else {
-        if (CLs_) {
-            return std::pair<double,double>(hcres.CLs(), hcres.CLsError());
-        } else {
-            return std::pair<double,double>(hcres.CLsplusb(), hcres.CLsplusbError());
-        }
+        // In this case we could probably just set the new vectors to the old ones (copy)
+        for (int i = 0, n = absbdist.size(); i < n; ++i) absbdist[i] = bdist[i];
+        for (int i = 0, n = abssdist.size(); i < n; ++i) abssdist[i] = sdist[i]; 
+    }
+
+    removeOutliers(&abssdist,&abssweight);
+    removeOutliers(&absbdist,&absbweight);
+
+    RooStats::HypoTestResult result;
+    RooStats::SamplingDistribution *abssDist = new RooStats::SamplingDistribution("s","s",abssdist,abssweight);
+    RooStats::SamplingDistribution *absbDist = new RooStats::SamplingDistribution("b","b",absbdist,absbweight);
+    result.SetNullDistribution(absbDist);
+    result.SetAltDistribution(abssDist);
+    result.SetTestStatisticData(absdata);
+    if (testStat_ == "LHCFC") result.SetPValueIsRightTail(!result.GetPValueIsRightTail());
+
+    // print comparison of Results before and after cleaning //
+    CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("Original: r = %g, CLs = %g +/- %g\n\t1-Pb = %g +/- %g\n\tPmu = %g +/- %g"
+    	,rVal
+	,hcres.CLs(), hcres.CLsError()
+	,hcres.CLb(), hcres.CLbError()
+	,hcres.CLsplusb(), hcres.CLsplusbError()))
+	,__func__);
+    CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("Update: r = %g, CLs = %g +/- %g\n\t1-Pb = %g +/- %g\n\tPmu = %g +/- %g"
+    	,rVal
+	,result.CLs(), result.CLsError()
+	,result.CLb(), result.CLbError()
+	,result.CLsplusb(), result.CLsplusbError()))
+	,__func__);
+
+
+    if (CLs_) {
+        return std::pair<double,double>(result.CLs(), result.CLsError());
+    } else {
+        return std::pair<double,double>(result.CLsplusb(), result.CLsplusbError());
     }
 }
 
@@ -1757,3 +1778,34 @@ std::vector<std::pair<double,double> > HybridNew::findIntervalsFromSplines(TGrap
 	std::sort(points.begin(),points.end());
 	return points;
 }
+
+void HybridNew::removeOutliers(std::vector<Double_t> *sd, std::vector<Double_t> *sw){
+
+    if ( removeOulierForPvalThreshold_ <= 0 ) return;
+    // calculate median and stddev of distriution
+    std::vector<Double_t> sorted_sd(sd->size());
+    std::partial_sort_copy(std::begin(*sd), std::end(*sd), std::begin(sorted_sd), std::end(sorted_sd));
+    
+    double median = sorted_sd[(int)0.5*sorted_sd.size()];
+
+    double accum = 0.0;
+    std::for_each (std::begin(*sd), std::end(*sd), [&](const double d) {
+        accum += (d - median) * (d - median);
+    });
+    double stdev = sqrt(accum / (sd->size()));
+    
+    // filter outliers based on threshold
+    std::vector<int> indices;
+    for(unsigned int i = 0; i < sd->size(); i++) {
+        if(std::abs((*sd)[i] - median) > removeOulierForPvalThreshold_*stdev) {
+            indices.push_back(i);
+        }
+    }
+
+    // Remove elements from sd and sw
+    for(auto it = indices.rbegin(); it != indices.rend(); ++it) {
+        sd->erase(sd->begin() + *it);
+        sw->erase(sw->begin() + *it);
+    } 
+}
+
