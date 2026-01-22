@@ -48,20 +48,22 @@ def prefit_from_workspace(file, workspace, params, setPars=None, constPars=None)
     if setPars is not None:
         parsToSet = [tuple(x.split("=")) for x in setPars.split(",")]
         for par, val in parsToSet:
-            updatePars[par] = float(val)
+            updatePars[par] = (float(val), True)
     if constPars is not None:
-        updatePars.update(constPars)
+        for par, val in constPars.items():
+            updatePars[par] = (float(val), False)
     allParams = ws.allVars()
     allParams.add(ws.allCats())
-    print(updatePars)
-    for par, val in updatePars.items():
+    for par, (val, verbose) in updatePars.items():
         tmp = allParams.find(par)
         isrvar = tmp.IsA().InheritsFrom(ROOT.RooRealVar.Class())
         if isrvar:
-            print(f"Setting parameter {par} to {float(val):g}")
+            if verbose:
+                print(f"Setting parameter {par} to {float(val):g}")
             tmp.setVal(float(val))
         else:
-            print(f"Setting index {par} to {float(val):g}")
+            if verbose:
+                print(f"Setting index {par} to {float(val):g}")
             tmp.setIndex(int(val))
 
     for p in params:

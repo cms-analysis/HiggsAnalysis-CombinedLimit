@@ -495,7 +495,7 @@ for page in range(n):
         imp = pdata[p][POI]
         g_impacts_hi.SetPointError(i, 0, par[impt_prefix + "_hi"], 0.5, 0.5)
         g_impacts_lo.SetPointError(i, -1.0 * par[impt_prefix + "_lo"], 0, 0.5, 0.5)
-        if "global_impact_hi" in par:
+        if f"global_{impt_prefix}_hi" in par:
             g_glob_impacts_hi.SetPointError(i, 0, par[f"global_{impt_prefix}_hi"], 0.30, 0.30)
             g_glob_impacts_lo.SetPointError(i, -1.0 * par[f"global_{impt_prefix}_lo"], 0, 0.30, 0.30)
         max_impact = max(max_impact, abs(par[impt_prefix + "_hi"]), abs(par[impt_prefix + "_lo"]))
@@ -587,14 +587,15 @@ for page in range(n):
     g_impacts_hi.Draw("2SAME")
     g_impacts_lo.SetFillColor(plot.CreateTransparentColor(lo_color[method], alpha))
     g_impacts_lo.Draw("2SAME")
-    g_glob_impacts_hi.SetLineColor(hi_color[method])
-    g_glob_impacts_hi.SetFillStyle(0)
-    g_glob_impacts_hi.SetLineWidth(2)
-    g_glob_impacts_lo.SetLineColor(lo_color[method])
-    g_glob_impacts_lo.SetLineWidth(2)
-    g_glob_impacts_lo.SetFillStyle(0)
-    g_glob_impacts_hi.Draw("5SAME")
-    g_glob_impacts_lo.Draw("5SAME")
+    if args.show_global:
+        g_glob_impacts_hi.SetLineColor(hi_color[method])
+        g_glob_impacts_hi.SetFillStyle(0)
+        g_glob_impacts_hi.SetLineWidth(2)
+        g_glob_impacts_lo.SetLineColor(lo_color[method])
+        g_glob_impacts_lo.SetLineWidth(2)
+        g_glob_impacts_lo.SetFillStyle(0)
+        g_glob_impacts_hi.Draw("5SAME")
+        g_glob_impacts_lo.Draw("5SAME")
     pads[1].RedrawAxis()
 
     legend = ROOT.TLegend(0.02, 0.02, 0.35, 0.09, "", "NBNDC")
