@@ -76,7 +76,8 @@ Float_t g_quantileExpected_ = -1.0;
 TDirectory *outputFile = 0;
 TDirectory *writeToysHere = 0;
 TDirectory *readToysFromHere = 0;
-int  verbose = 1;
+int verbose = 1;
+int pickToy_ = 0;
 bool withSystematics = 1;
 bool expectSignalSet_ = false;
 bool doSignificance_ = 0;
@@ -1027,6 +1028,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
     for (iToy = 1; iToy <= nToys; ++iToy) {
 
+      if ( (pickToy_ !=0) && (iToy != pickToy_) ) continue;
+
       // Reset ranges --> for likelihood scans
       if (setPhysicsModelParameterRangeExpression_ != "") {
 	utils::setModelParameterRanges( setPhysicsModelParameterRangeExpression_, w->allVars());
@@ -1146,6 +1149,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
 void Combine::toggleGlobalFillTree(bool flag){
    g_fillTree_ = flag;
+}
+
+void Combine::setPickToy(int pickToy){
+    pickToy_ = pickToy;
 }
 
 void Combine::commitPoint(bool expected, float quantile) {
