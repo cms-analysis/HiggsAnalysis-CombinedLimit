@@ -1027,8 +1027,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     algo->setNToys(nToys);
 
     for (iToy = 1; iToy <= nToys; ++iToy) {
-
-      if ( (pickToy_ !=0) && (iToy != pickToy_) ) continue;
+      if ((pickToy_ != 0) && (iToy != pickToy_))
+        continue;
 
       // Reset ranges --> for likelihood scans
       if (setPhysicsModelParameterRangeExpression_ != "") {
@@ -1151,9 +1151,7 @@ void Combine::toggleGlobalFillTree(bool flag){
    g_fillTree_ = flag;
 }
 
-void Combine::setPickToy(int pickToy){
-    pickToy_ = pickToy;
-}
+void Combine::setPickToy(int pickToy) { pickToy_ = pickToy; }
 
 void Combine::commitPoint(bool expected, float quantile) {
     Float_t saveQuantile =  g_quantileExpected_;
