@@ -207,7 +207,7 @@ If you are using `toysFrequentist`, be aware that the values set by `--setParame
 
 It is also possible to generate the toys first, and then feed them to the methods in <span style="font-variant:small-caps;">Combine</span>. This can be done using `-M GenerateOnly --saveToys`. The toys can then be read and used with the other methods by specifying `--toysFile=higgsCombineTest.GenerateOnly...` and using the same options for the toy generation. 
 
-You can specify to run on a single toy, in place of the observed data, by including the option `-D file.root:toys/toy_i`. For example adding `-D higgsCombineTest.GenerateOnly.mH120.123456.root:toys/toy_10` will run on the  data set `toy_10` (the 10th toy) that was generated and saved in the file `higgsCombineTest.GenerateOnly.mH120.123456.root`. 
+You can specify to run on a single toy, in place of the observed data, by including the option `-D file.root:toys/toy_i`. For example adding `-D higgsCombineTest.GenerateOnly.mH120.123456.root:toys/toy_10` will run on the data set `toy_10` (the 10th toy) that was generated and saved in the file `higgsCombineTest.GenerateOnly.mH120.123456.root`. Note that if you are using frequentist toys, then following this approach will not give the correct result, as the randomized constraint terms that are part of the frequentist toy generation will not be loaded. For fitting frequentist toys that were produced with `GenerateOnly`, you should therefore use the `--toysFile` option.
 
 !!! warning
     Some methods also use toys within the method itself (eg `AsymptoticLimits` and `HybridNew`). For these, you should **not** specify the toy generation with `-t` or the options above. Instead, you should follow the method-specific instructions.
