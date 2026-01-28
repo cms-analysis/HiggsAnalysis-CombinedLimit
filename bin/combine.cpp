@@ -48,6 +48,7 @@ int main(int argc, char **argv) {
   float iMass;
   string whichMethod, whichHintMethod;
   int runToys;
+  int pickToy;
   int    seed;
   string toysFile;
 
@@ -93,6 +94,7 @@ int main(int argc, char **argv) {
     ;
   combiner.statOptions().add_options()
     ("toys,t", po::value<int>(&runToys)->default_value(0), "Number of Toy MC extractions")
+    ("pickToy", po::value<int>(&pickToy)->default_value(0), "Works with --toys option. Pick a specific toy index 1..N to calculate result")
     ("seed,s", po::value<int>(&seed)->default_value(123456), "Toy MC random seed")
     ("hintMethod,H",  po::value<string>(&whichHintMethod)->default_value(""), "First run this method to provide a hint on the result")
     ;
@@ -204,6 +206,13 @@ int main(int argc, char **argv) {
 
   TString massName = TString::Format("mH%g.", iMass);
   TString toyName  = "";  if (runToys > 0 || seed != 123456 || vm.count("saveToys")) toyName  = TString::Format("%d.", seed);
+  if (runToys > 0  ){
+    if ( ( !vm["pickToy"].defaulted() ) && ( pickToy > runToys || pickToy <= 0) ){
+      std::cerr << "ERROR - set pickToy to values 1 to (N toys) cannot use pickToy=" << pickToy << std::endl;
+      assert(0);
+    }
+  }
+  combiner.setPickToy(pickToy);
   if (vm.count("expectedFromGrid") && !vm["expectedFromGrid"].defaulted()) toyName += TString::Format("quant%.3f.", vm["expectedFromGrid"].as<float>());
   if (vm.count("expected")         && !vm["expected"].defaulted())         toyName += TString::Format("quant%.3f.", vm["expected"].as<float>());
 
