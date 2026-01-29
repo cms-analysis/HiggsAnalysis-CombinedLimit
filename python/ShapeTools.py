@@ -124,7 +124,7 @@ class ShapeBuilder(ModelBuilder):
                 if self.physics.getYieldScale(b, p) == 0:
                     continue  # exclude really the pdf
                 # print "  +--- Getting pdf for %s in bin %s" % (p,b)
-                (pdf, coeff) = (
+                pdf, coeff = (
                     self.getPdf(b, p),
                     self.out.function(f"n_exp_bin{b}_proc_{p}"),
                 )
@@ -149,7 +149,7 @@ class ShapeBuilder(ModelBuilder):
                             raise RuntimeError(f"packAsymPows: can't work with a coefficient of kind {coeff.ClassName()} for {b} {p}")
                         for X in extranorm:
                             if isinstance(X, tuple):
-                                (klo, khi, syst) = X
+                                klo, khi, syst = X
                                 coeff.addAsymmLogNormal(klo, khi, self.out.var(syst))
                             else:
                                 if self.out.function(X):
@@ -717,7 +717,7 @@ class ShapeBuilder(ModelBuilder):
 
         # follow histogram routine if file is a dataframe and load dataframe as histograms
         if ":" in objname and not isinstance(file, DataFrameWrapper):  # workspace:obj or ttree:xvar or th1::xvar
-            (wname, oname) = objname.split(":")
+            wname, oname = objname.split(":")
             if (file, wname) not in self.wspnames:
                 self.wspnames[(file, wname)] = file.Get(wname)
             self.wsp = self.wspnames[(file, wname)]

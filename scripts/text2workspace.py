@@ -59,7 +59,7 @@ parser.add_option(
     action="store_true",
     help="Swap multipdf pdfs with their current index pdf",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 
 if len(args) == 0:
     parser.print_usage()
@@ -89,7 +89,7 @@ else:
     MB = CountingModelBuilder(DC, options)
 
 ## Load physics model
-(physModMod, physModName) = options.physModel.split(":")
+physModMod, physModName = options.physModel.split(":")
 __import__(physModMod)
 mod = modules[physModMod]
 physics = getattr(mod, physModName)

@@ -61,7 +61,7 @@ def handleZeroes(numerator):
 
 
 def asymDivideLists(listAndList):
-    (numerators, denominators) = listAndList
+    numerators, denominators = listAndList
     pairs = list(zip(numerators, denominators))
 
     quotients = list()
@@ -78,11 +78,11 @@ def asymDivideMixed(elementAndList):
     # divide x by [y,z,...] by expanding x into [x,x,...]
     # works with both [x,[y,z,...]] and [[y,z,...],x]
 
-    (x, yz) = elementAndList
+    x, yz = elementAndList
     orderKept = True
 
     if isinstance(x, ListType):
-        (x, yz) = (yz, x)
+        x, yz = (yz, x)
         orderKept = False
 
     xx = [x] * len(yz)
@@ -173,7 +173,7 @@ if __name__ == "__main__":
 
     parser = OptionParser(usage="usage: %prog [options] datacard.txt -o output \nrun with --help to get list of options")
     addDatacardParserOptions(parser)
-    (options, args) = parser.parse_args()
+    options, args = parser.parse_args()
 
     if len(args) == 0:
         parser.print_usage()

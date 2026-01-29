@@ -417,7 +417,7 @@ def parseCard(file, options):
                     continue
                 sigline = f[1:]  # second line contains ids
                 if re.match("-?[0-9]+", processline[0]) and not re.match("-?[0-9]+", sigline[0]):
-                    (processline, sigline) = (sigline, processline)
+                    processline, sigline = (sigline, processline)
                 if len(sigline) != len(processline):
                     raise RuntimeError("'bin' line has a different length than 'process' line.")
                 hadBins = len(ret.bins) > 0

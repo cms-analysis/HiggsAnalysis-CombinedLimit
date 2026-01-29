@@ -46,7 +46,7 @@ parser.add_option(
     default="",
     help="Postfix to add to datacard name",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 options.bin = True
 options.stat = False
 if len(args) not in [1, 3]:
@@ -211,7 +211,7 @@ for X in [
     sysnamesSorted = list(systlines.keys())
     sysnamesSorted.sort()
     for name in sysnamesSorted:
-        (pdf, pdfargs, effect, nofloat) = systlines[name]
+        pdf, pdfargs, effect, nofloat = systlines[name]
         if nofloat:
             name += "[nofloat]"
         systline = []

@@ -159,8 +159,8 @@ class TestSuite:
                 if "limit" not in ref:
                     res["ref"] = {"comment": ref["comment"]}
                     continue
-                (limit, limitErr, time) = res["limit"], res["limitErr"], res["t_real"]
-                (limitR, limitErrR, timeR) = (
+                limit, limitErr, time = res["limit"], res["limitErr"], res["t_real"]
+                limitR, limitErrR, timeR = (
                     ref["limit"],
                     ref["limitErr"],
                     ref["t_real"],

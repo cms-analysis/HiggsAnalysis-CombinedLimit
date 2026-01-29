@@ -169,7 +169,7 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
             return 1.0
 
         # Extract process line info
-        (recocat, stxsbin, decay, energy) = getProcessInfo(bin, process)
+        recocat, stxsbin, decay, energy = getProcessInfo(bin, process)
 
         # Return 1 (no scaling) for fixed processes and scaling for non-fixed
         if stxsbin in self.fixProcesses:

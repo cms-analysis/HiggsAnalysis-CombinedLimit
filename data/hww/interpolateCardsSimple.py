@@ -47,7 +47,7 @@ parser.add_option(
     default="",
     help="Postfix to add to datacard name",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 options.bin = True
 options.stat = False
 if len(args) not in [1, 3]:
@@ -73,7 +73,7 @@ if mass in refmasses and options.postfix == "":
 dm1 = abs(mass1 - mass)
 dm2 = abs(mass2 - mass)
 if (dm2 < dm1) or (dm2 == dm1 and abs(mass1 - 164) < abs(mass2 - 164)):
-    (mass1, mass2) = (mass2, mass1)
+    mass1, mass2 = (mass2, mass1)
 
 
 xsbr1 = {"ggH": 1.0, "qqH": 1.0}
@@ -255,7 +255,7 @@ xfile.write(" ".join(["-" * 150]) + "\n")
 sysnamesSorted = list(systlines.keys())
 sysnamesSorted.sort()
 for name in sysnamesSorted:
-    (pdf, pdfargs, effect, nofloat) = systlines[name]
+    pdf, pdfargs, effect, nofloat = systlines[name]
     if nofloat:
         name += "[nofloat]"
     systline = []

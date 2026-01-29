@@ -131,7 +131,7 @@ class MultiSignalModelBase(PhysicsModelBase_NiceSubclasses):
                 self.verbose = True
                 processed.append(po)
             if po.startswith("map="):
-                (maplist, poi) = po.replace("map=", "").split(":", 1)
+                maplist, poi = po.replace("map=", "").split(":", 1)
                 maps = maplist.split(",")
                 poiname = re.sub(r"\[.*", "", poi)
                 if poi == "super":
@@ -298,7 +298,7 @@ def getHiggsProdDecMode(bin, process, options):
     processSource = process
     decaySource = options.fileName + ":" + bin  # by default, decay comes from the datacard name or bin label
     if "_" in process:
-        (processSource, decaySource) = (
+        processSource, decaySource = (
             process.split("_")[0],
             process.split("_")[-1],
         )  # ignore anything in the middle for SM-like higgs
@@ -349,7 +349,7 @@ class SMLikeHiggsModel(PhysicsModel):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds"
         if not self.DC.isSignal[process]:
             return 1
-        (processSource, foundDecay, foundEnergy) = getHiggsProdDecMode(bin, process, self.options)
+        processSource, foundDecay, foundEnergy = getHiggsProdDecMode(bin, process, self.options)
         return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
 
 
@@ -600,7 +600,7 @@ class FloatingBRHiggs(SMLikeHiggsModel):
             if po.startswith("modes="):
                 self.modes = po.replace("modes=", "").split(",")
             if po.startswith("map="):
-                (mfrom, mto) = po.replace("map=", "").split(":")
+                mfrom, mto = po.replace("map=", "").split(":")
                 self.modemap[mfrom] = mto
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=", "").split(",")

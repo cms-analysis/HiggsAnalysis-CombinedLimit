@@ -66,7 +66,7 @@ parser.add_option(
     action="store_true",
     help="Use this option if you want to comment the uncertainties added to the list of pruned nuisance parameters from the tested datacards at the same time. [Default: False]",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 ## check number of arguments; in case print usage
 if len(args) < 1:
     parser.print_usage()
@@ -134,7 +134,7 @@ def main():
     ## determine list of all uncertainties from input datacards
     uncerts = pruner.determine_uncerts(f"/tmp/{rnd_name}")
     ## determine list of dropped and kept uncertainties from input datacards
-    (dropped, kept, confused) = pruner.prune(uncerts)
+    dropped, kept, confused = pruner.prune(uncerts)
     ## write dropped and kept uncertainties to file
     pruner.list_to_file(kept, "uncertainty-pruning-keep.txt")
     pruner.list_to_file(dropped, "uncertainty-pruning-drop.txt")

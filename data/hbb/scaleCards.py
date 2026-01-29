@@ -44,7 +44,7 @@ parser.add_option(
     default="BDT",
     help="flavour of datacard (vhbb_DC_ALL_<FLAVOUR>.<MASS.DECIMAL>.txt)",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 options.bin = True
 options.stat = False
 if len(args) not in [1]:
@@ -166,7 +166,7 @@ xfile.write(" ".join(["-" * 150]) + "\n")
 sysnamesSorted = list(systlines.keys())
 sysnamesSorted.sort()
 for name in sysnamesSorted:
-    (pdf, pdfargs, effect, nofloat) = systlines[name]
+    pdf, pdfargs, effect, nofloat = systlines[name]
     if nofloat:
         name += "[nofloat]"
     systline = []

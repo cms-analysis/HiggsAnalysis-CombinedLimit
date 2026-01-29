@@ -10,7 +10,7 @@ parser.add_option("-m", "--mass", dest="mass", help="Input mass point", default=
 parser.add_option(
     "--deplete_crs_from_signal", dest="deplete_crs_from_signal", help="Deplete the control regions from signal", action="store_true", default=False
 )
-(opt, args) = parser.parse_args()
+opt, args = parser.parse_args()
 
 
 # main code starting here

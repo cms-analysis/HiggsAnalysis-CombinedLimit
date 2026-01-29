@@ -80,7 +80,7 @@ parser.add_option(
     action="store_true",
     help="Counting experiment only (alternatively, build a shape analysis from combineCards.py -S card.txt > newcard.txt )",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 options.stat = False
 options.bin = True  # fake that is a binary output, so that we parse shape lines
 options.out = "tmp.root"
@@ -140,7 +140,7 @@ MODELBUILT = False
 
 def buildModel():
     ## Load physics model
-    (physModMod, physModName) = options.physModel.split(":")
+    physModMod, physModName = options.physModel.split(":")
     __import__(physModMod)
     mod = sys.modules[physModMod]
     physics = getattr(mod, physModName)
@@ -369,8 +369,7 @@ namesRest = [n for n in names if n not in namesCommon and n not in namesCMS1 and
 names = namesCommon + namesCMS1 + namesCMS2 + namesRest
 
 if "html" in options.format:
-    print(
-        """
+    print("""
 <html>
 <head>
 <style type="text/css">
@@ -396,9 +395,7 @@ All numbers shown report the +/- 1-sigma variation in the yield for each affecte
 %s
 <table>
 <tr><th>Nuisance (types)</th><th colspan="2">Range</th><th>Processes</th><th>Channels</th></tr>
-"""
-        % ("You didn't run with the option --t2w so param types will only show the line from the datacard" if not options.t2w else "")
-    )
+""" % ("You didn't run with the option --t2w so param types will only show the line from the datacard" if not options.t2w else ""))
     for nuis in names:
         val = report[nuis]
         print('<tr><td><a name="%s"><b>%s</b></a></td>' % (nuis, nuis + "  (" + val["types"] + ")"))
@@ -426,12 +423,10 @@ All numbers shown report the +/- 1-sigma variation in the yield for each affecte
     for x in outParams.keys():
         print("\t\t<tr><td><b>%s(%s)</b></td><td>%s</td></li>" % (x, outParams[x][0], ", ".join([a for a in outParams[x][1]])))
         print("</tr>\n")
-    print(
-        """
+    print("""
 </table>
 </body>
-</html>"""
-    )
+</html>""")
 else:
     if "brief" in options.format:
         print(

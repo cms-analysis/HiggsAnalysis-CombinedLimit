@@ -67,7 +67,7 @@ parser.add_option(
     type="float",
     help="Threshold below which to ignore a number",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 
 decays = [x.strip() for x in options.decays.split(",")] if options.decays != None else SM_HIGGS_DECAYS
 

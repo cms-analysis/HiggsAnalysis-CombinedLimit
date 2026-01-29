@@ -30,7 +30,7 @@ parser.add_option(
     type="string",
     help="Name of the graph of the best fit signal strength, to count upcrossings at zero",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 if len(args) not in [2, 4]:
     parser.print_usage()
     exit(1)
@@ -51,7 +51,7 @@ if options.level == 0:
     if graphUp == None:
         raise RuntimeError("Cannot find %s in %s" % (options.fit, args[0]))
 
-(mhmin, mhmax) = (0, 999)
+mhmin, mhmax = (0, 999)
 if len(args) == 4:
     mhmin = float(args[2])
     mhmax = float(args[3])
