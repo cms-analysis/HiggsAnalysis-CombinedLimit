@@ -62,7 +62,7 @@ parser.add_option(
     type="string",
     help="Name of the observed dataset",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 options.stat = False
 options.bin = True  # fake that is a binary output, so that we parse shape lines
 options.out = "tmp.root"

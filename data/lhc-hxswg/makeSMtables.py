@@ -232,7 +232,7 @@ def main(o):
             # dump heading
             heading = props["heading"]
             table.append(heading)
-            (startRow, endRow) = spec["rows"]
+            startRow, endRow = spec["rows"]
             for r in range(startRow - 1, endRow):
                 offset = col2num(props["col"]) - 1
                 vals = s.row_values(r)[offset : offset + len(heading)]
@@ -262,7 +262,7 @@ if __name__ == "__main__":
         help="Set the minimum logging level.",
     )
 
-    (o, args) = parser.parse_args()
+    o, args = parser.parse_args()
 
     if not o.input:
         parser.error("Please specify an input Excel file from the LHC HXSWG.")

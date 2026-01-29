@@ -83,7 +83,7 @@ parser.add_option(
     help="Last toy to include in output file",
 )
 
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 if len(args) == 0:
     parser.print_usage()
     exit(1)

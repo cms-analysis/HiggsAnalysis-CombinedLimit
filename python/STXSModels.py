@@ -36,7 +36,7 @@ def getSTXSProdDecMode(bin, process, options):
     processSource = process
     decaySource = options.fileName + ":" + bin  # by default, decay comes from the datacard name or bin label
     if "_" in process:
-        (processSource, decaySource) = (
+        processSource, decaySource = (
             "_".join(process.split("_")[0:-1]),
             process.split("_")[-1],
         )
@@ -113,7 +113,7 @@ class STXSBaseModel(PhysicsModel):
         # if process=="H_htt": return self.getHiggsSignalYieldScale('ggH', 'htt', '13TeV') # hack to make combination work, since WW datacrd has an improper naming
         if not self.DC.isSignal[process]:
             return 1
-        (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode(bin, process, self.options)
+        processSource, foundDecay, foundEnergy = getSTXSProdDecMode(bin, process, self.options)
         return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
 
 

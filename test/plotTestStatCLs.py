@@ -114,7 +114,7 @@ parser.add_option(
     default=False,
     help="Save plots as pdfs as well as Canvases in root files.",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 
 if options.quantileExpected >= 0:
     options.expected = True

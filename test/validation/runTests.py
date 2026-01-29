@@ -81,7 +81,7 @@ parser.add_option(
     action="store_true",
     help="force running on a single CPU",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 if len(args) == 0:
     parser.print_usage()
     sys.exit(2)

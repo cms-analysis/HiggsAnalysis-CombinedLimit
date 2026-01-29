@@ -16,7 +16,7 @@ parser.add_option(
     type="string",
     help='Path to a list of uncertainties to be dropped/commented from the datacards. [Default: ""]',
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 ## check number of arguments; in case print usage
 if len(args) < 1:
     parser.print_usage()

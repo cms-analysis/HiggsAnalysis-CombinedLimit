@@ -112,7 +112,7 @@ for R in ["CLs", "Pmu"]:
             ),
         )
     ]
-    (fork, iters) = (2, 25)  # fast default
+    fork, iters = (2, 25)  # fast default
     # (fork, iters) = (4, 200) # accurate, to get reference value
     suite += [
         (

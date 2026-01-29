@@ -45,7 +45,7 @@ register_method(parser, methods, TaylorExpand)
 
 parser.add_argument("-M", "--method")
 
-(args, unknown) = parser.parse_known_args()
+args, unknown = parser.parse_known_args()
 
 # DRY_RUN = args.dry_run
 
@@ -70,7 +70,7 @@ method.attach_args(tool_group)
 # Now we can add the normal help option
 parser.add_argument("-h", "--help", action="help")
 
-(args, unknown) = parser.parse_known_args()
+args, unknown = parser.parse_known_args()
 
 method.set_args(args, unknown)
 method.run_method()

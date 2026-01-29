@@ -13,9 +13,7 @@ export SCRAM_ARCH=%(SCRAM_ARCH)s
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 eval `scramv1 runtime -sh`
 cd %(PWD)s
-""" % (
-    {"CMSSW_BASE": os.environ.get("CMSSW_BASE", ""), "SCRAM_ARCH": os.environ.get("SCRAM_ARCH", ""), "PWD": os.environ.get("PWD", os.getcwd())}
-)
+""" % ({"CMSSW_BASE": os.environ.get("CMSSW_BASE", ""), "SCRAM_ARCH": os.environ.get("SCRAM_ARCH", ""), "PWD": os.environ.get("PWD", os.getcwd())})
 
 CONDOR_TEMPLATE = """executable = %(EXE)s
 arguments = $(ProcId)

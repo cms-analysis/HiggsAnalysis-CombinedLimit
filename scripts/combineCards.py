@@ -89,7 +89,7 @@ parser.add_option(
     help="Drop regularization terms that would not be correctly combined.",
 )
 
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 options.bin = True  # fake that is a binary output, so that we parse shape lines
 options.nuisancesToExclude = []
 options.verbose = 0
@@ -146,7 +146,7 @@ if not args:
 for ich, fname in enumerate(args):
     label = "ch%d" % (ich + 1)
     if "=" in fname:
-        (label, fname) = fname.split("=")
+        label, fname = fname.split("=")
     fname = options.fprefix + fname
     dirname = os.path.dirname(fname)
     if fname.endswith(".gz"):
@@ -239,7 +239,7 @@ for ich, fname in enumerate(args):
                     cmax = len(r)  # get max col length, as it's more tricky to do it later with a map
                 systeffect[bout][p] = r
         if lsyst in systlines:
-            (otherpdf, otherargs, othereffect, othernofloat) = systlines[lsyst]
+            otherpdf, otherargs, othereffect, othernofloat = systlines[lsyst]
             if otherpdf != pdf:
                 if pdf == "lnN" and otherpdf.startswith("shape"):
                     if systlines[lsyst][0][-1] != "?":
@@ -445,7 +445,7 @@ print("-" * 130)
 sysnamesSorted = list(systlines.keys())
 sysnamesSorted.sort()
 for name in sysnamesSorted:
-    (pdf, pdfargs, effect, nofloat) = systlines[name]
+    pdf, pdfargs, effect, nofloat = systlines[name]
     if nofloat:
         name += "[nofloat]"
     systline = []

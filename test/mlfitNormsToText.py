@@ -16,7 +16,7 @@ parser.add_option(
     help="Report the uncertainties from the fit(s) too",
 )
 
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 if len(args) == 0:
     parser.print_usage()
     exit(1)

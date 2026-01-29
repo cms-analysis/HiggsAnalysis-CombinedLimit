@@ -182,7 +182,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds"
         if not self.DC.isSignal[process]:
             return 1
-        (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode(bin, process, self.options)
+        processSource, foundDecay, foundEnergy = getSTXSProdDecMode(bin, process, self.options)
         # Return 1 for fixed processes and scaling for non-fixed
         if processSource in self.fixProcesses:
             return 1

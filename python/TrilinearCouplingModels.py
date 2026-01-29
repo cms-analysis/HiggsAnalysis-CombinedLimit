@@ -232,7 +232,7 @@ def getGenProdDecMode(bin, process, options):
     decaySource = options.fileName + ":" + bin  # by default, decay comes from the datacard name or bin label
     if "_" in process:
         if "gen" in process:
-            (processSource, decaySource) = (
+            processSource, decaySource = (
                 process.split("_")[0] + "_" + process.split("_")[1],
                 process.split("_")[-1],
             )
@@ -364,7 +364,7 @@ class TrilinearHiggsDifferential(PhysicsModel):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds"
         if not self.DC.isSignal[process]:
             return 1
-        (processSource, foundDecay, foundEnergy) = getGenProdDecMode(bin, process, self.options)
+        processSource, foundDecay, foundEnergy = getGenProdDecMode(bin, process, self.options)
         if foundDecay != "hgg":
             raise RuntimeError("Only decay H->gamma gamma supported right now in differential model")
 
@@ -616,7 +616,7 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
 
         if not self.DC.isSignal[process]:
             return 1
-        (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode(bin, process, self.options)
+        processSource, foundDecay, foundEnergy = getSTXSProdDecMode(bin, process, self.options)
         # convert decay string back to CMS default syntax
         if foundDecay in list(LHCHCG_DecSimple_to_CMS.keys()):
             foundDecay = LHCHCG_DecSimple_to_CMS[foundDecay]

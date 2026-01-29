@@ -87,7 +87,7 @@ parser.add_option(
 )
 
 
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 if len(args) == 0:
     parser.print_usage()
     exit(1)
@@ -213,8 +213,7 @@ default_norms = od()
 
 # Save to html formal
 if options.format == "html":
-    print(
-        """
+    print("""
     <html>
     <body>
     <style type="text/css">
@@ -225,8 +224,7 @@ if options.format == "html":
     <title>Process Normalizations</title>
     </head><body>
     <h1>Process Normalizations</h1>
-    """
-    )
+    """)
 
     print("Normalisation Values Evaluated at MH =", options.massVal)
     for chan in chan_procs.keys():
@@ -296,12 +294,10 @@ if options.format == "html":
             print("  default value = %.5f " % default_val, "<br>")
             print("</tr>")
 
-    print(
-        """
+    print("""
     </body>
     </html>
-    """
-    )
+    """)
 
 if options.format == "text":
     print("Normalisation Values Evaluated at MH =", options.massVal)

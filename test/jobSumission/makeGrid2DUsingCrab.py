@@ -143,7 +143,7 @@ parser.add_option(
 )
 parser.add_option("-m", "--mass", dest="mass", default=120, type="float", help="Hypothesis mass (mH)")
 # parser.add_option("--fork",           dest="fork",     default=1,   type="int",  help="Cores to use (leave to 1)") # no fork in batch jobs for now
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 if len(args) != 5:
     parser.print_usage()
     exit(1)
@@ -168,8 +168,7 @@ for x in [xmin + dx * i for i in range(options.points[0])]:
 
 print("Creating executable script ", options.out + ".sh")
 script = open(options.out + ".sh", "w")
-script.write(
-    """
+script.write("""
 #!/bin/bash
 #############################################################
 #
@@ -201,10 +200,7 @@ if  [[ "$nchild" == "1" && "$n" == "1" ]]; then
     nchild=0;
 fi;
 echo "## Starting at $(date)"
-""".format(
-        fork=options.fork
-    )
-)
+""".format(fork=options.fork))
 for i, x in enumerate(points):
     seed = ("$((%d + $i))" % (i * 10000)) if not options.random else "-1"
     interleave = "(( ($i + %d) %% %d == 0 )) && " % (i, options.interl)
@@ -306,12 +302,10 @@ return_data = 1
 
 
 if options.prio:
-    cfg.write(
-        """
+    cfg.write("""
 [GRID]
 rb               = CERN
 proxy_server     = myproxy.cern.ch
 role             = priorityuser
 retry_count      = 0
-"""
-    )
+""")

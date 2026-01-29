@@ -93,7 +93,7 @@ parser.add_option(
     action="store_true",
     help="Use PriorityUser role",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 
 workspaces = args
 masses = options.mass.split(",")
@@ -109,8 +109,7 @@ for i, (w, m) in enumerate(zip(workspaces, masses)):
 
 print("Creating executable script ", options.out + ".sh")
 script = open(options.out + ".sh", "w")
-script.write(
-    """
+script.write("""
 #!/bin/bash
 #############################################################
 #
@@ -138,8 +137,7 @@ fi
 
 echo "## Starting at $(date)"
 for I in $(seq 1 $n); do
-"""
-)
+""")
 for i, (w, m) in enumerate(zip(workspaces, masses)):
     seed = ("$((%d + $i))" % (i * 10000)) if not options.random else "-1"
     script.write(
@@ -202,12 +200,10 @@ return_data = 1
 )
 
 if options.prio:
-    cfg.write(
-        """
+    cfg.write("""
 [GRID]
 rb               = CERN
 proxy_server     = myproxy.cern.ch
 role             = priorityuser
 retry_count      = 0
-"""
-    )
+""")
