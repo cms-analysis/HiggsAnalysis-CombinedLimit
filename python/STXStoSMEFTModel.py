@@ -329,11 +329,15 @@ class STXStoSMEFTBaseModel(SMLikeHiggsModel):
 
         # Add scaling function as RooAddition into model
         self.modelBuilder.out.Import(eft_scaling)
+        self.makesf_tmp_coeffs = coeffs
 
     # Function to make BR scaling functions: partial width/total width
     def makeBRScalingFunction(self, what, mode=""):
         mode_str = "_%s" % mode if mode != "" else ""
-        self.modelBuilder.factory_('expr::scaling%s_BR_%s("@0/@1", scaling%s_partial_%s, scaling%s_tot)' % (mode_str, what, mode_str, what, mode_str))
+        if(what!="tot"):
+            self.modelBuilder.factory_('expr::scaling%s_BR_%s("@0/@1", scaling%s_partial_%s, scaling%s_tot)' % (mode_str, what, mode_str, what, mode_str))
+        else:
+            self.modelBuilder.factory_('expr::scaling%s_BR_%s("@0", scaling%s_tot)' % (mode_str, what, mode_str))
 
     # Function to make Taylor-expanded scaling functions in workspace
     def makeScalingFunction_expand(self, what_production, what_decay):
@@ -648,11 +652,13 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
                 if self.modelBuilder.out.function(name_linquad_xs) == None:
                     print(" --> [STXStoSMEFT] Making linear+quad scaling function for STXS bin: %s" % production)
                     self.makeScalingFunction(production, mode="linquad")
+                    self.prod_tmp_coeffs = self.makesf_tmp_coeffs
                 name_linquad_br = "scaling_linquad_BR_%s" % decay
                 if self.modelBuilder.out.function(name_linquad_br) == None:
                     print(" --> [STXStoSMEFT] Making linear+quad scaling function for decay: %s" % decay)
                     self.makeScalingFunction(decay, is_decay=True, mode="linquad")
                     self.makeBRScalingFunction(decay, mode="linquad")
+                    self.dec_tmp_coeffs = self.makesf_tmp_coeffs
                 name = "scaling_linquad_XS_%s_BR_%s" % (production, decay)
                 if self.modelBuilder.out.function(name) == None:
                     self.modelBuilder.factory_("prod::%s(%s)" % (name, ",".join([name_linquad_xs, name_linquad_br])))
@@ -678,11 +684,13 @@ class STXSToSMEFTModel(STXStoSMEFTBaseModel):
                 if self.modelBuilder.out.function(name_linquad_xs) == None:
                     print(" --> [STXStoSMEFT] Making linear+quad scaling function for STXS bin: %s" % production)
                     self.makeScalingFunction(production, mode="linquad")
+                    self.prod_tmp_coeffs = self.makesf_tmp_coeffs
                 name_linquad_br = "scaling_linquad_BR_%s" % decay
                 if self.modelBuilder.out.function(name_linquad_br) == None:
                     print(" --> [STXStoSMEFT] Making linear+quad scaling function for decay: %s" % decay)
                     self.makeScalingFunction(decay, is_decay=True, mode="linquad")
                     self.makeBRScalingFunction(decay, mode="linquad")
+                    self.dec_tmp_coeffs = self.makesf_tmp_coeffs
                 name_linquad = "scaling_linquad_XS_%s_BR_%s" % (production, decay)
                 if self.modelBuilder.out.function(name_linquad) == None:
                     self.modelBuilder.factory_("prod::%s(%s)" % (name_linquad, ",".join([name_linquad_xs, name_linquad_br])))
