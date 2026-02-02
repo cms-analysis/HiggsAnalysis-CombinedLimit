@@ -17,4 +17,80 @@ Now we will move to the working directory for this tutorial, which contains all 
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/docs/tutorial2026/
 ```
 
+## Part 1: Setting up the Datacard
+
+Topics covered in this section:
+
+  - A: Setting up the datacard
+  - B: MC statistical uncertainties
+  - C: Running <span style="font-variant:small-caps;">Combine</span> for a blind analysis
+  - D: Using FitDiagnostics to validate your setup
+  - Extra: CAT gitLab tools for validation
+
+### A: Setting up the datacard
+In a typical analysis we will produce some distribution of our observables, so that we can separate signal and background processes and compare them with data. Combine can receive as input TH1, RooHists, and RooPDFs of any dimensions. In this example we will use TH1 histograms: one for the data and one for each signal and background processes. An example datacard should look like:
+
+<details>
+<summary><b>Show datacard</b></summary>
+```shell
+imax 1
+jmax 1
+kmax *
+---------------
+shapes * * simple-shapes-TH1_input.root $PROCESS $PROCESS_$SYSTEMATIC
+shapes signal * simple-shapes-TH1_input.root $PROCESS$MASS $PROCESS$MASS_$SYSTEMATIC
+---------------
+bin bin1
+observation 85
+------------------------------
+bin             bin1       bin1
+process         signal     background
+process         0          1
+rate            10         100
+--------------------------------
+lumi     lnN    1.10       1.0
+bgnorm   lnN    1.00       1.3
+alpha  shape    -          1
+```
+</details>
+
+The first block tells Combine (and readers) the number of bins/observables (imax), the number of background processes (jmax) and the number of nuisance parameters (kmax).
+The second block tells Combine where it can find the input shapes, according to the pattern `shapes [process] [channel] [file] [histogram] [histogram_with_systematics]`. It is possible to use the `*` wildcard to map multiple processes and/or channels with one line. The histogram entries can contain the `$PROCESS`, `$CHANNEL` and `$MASS` place-holders which will be substituted when searching for a given (process, channel) combination. The value of `$MASS` is specified by the `-m` argument when combine. The final argument of the "shapes" line above should contain the `$SYSTEMATIC` place-holder which will be substituted by the systematic name given in the datacard. By default the observed data process name will be `data_obs`.
+The third block lists for each bin the processes contributiong to it and their rates (yields)
+Finally, the last block lists the nuisance parameters. a lnN uncertainty means that the nuisance only affects the overall normalization, while a `shape` uncertainty affects the distributions of the events.
+
+Note that the total nominal rate of a given process, specified in the `rate` line of the datacar, must agree with the value returned by `TH1::Integral`. However, we can also put a value of `-1` and the Integral value will be substituted automatically. While it makes easier to write down the cards, this features makes debugging and reading the card harder, use it at your own risk!
+
+Shape uncertainties can be added by supplying two additional histograms for a process, corresponding to the distribution obtained by shifting that parameter up and down by one standard deviation. These shapes will be interpolated (see the [template shape uncertainties](../part2/settinguptheanalysis.md#template-shape-uncertainties) section for details) for shifts within $\pm1\sigma$ and linearly extrapolated beyond. The normalizations are interpolated linearly in log scale just like we do for log-normal uncertainties.
+
+![](images/shape_morphing.jpg)
+
+In the list of uncertainties the interpretation of the values for `shape` lines is a bit different from `lnN`. The effect can be "-" or 0 for no effect, 1 for normal effect, and possibly something different from 1 to test larger or smaller effects (in that case, the unit Gaussian is scaled by that factor before using it as parameter for the interpolation).
+
+
+CAREFUL FROM HERE IS EXERCISE! I NEED TO VERIFY THE FLOW. Maybe we can even skip this part and provide directly the card?
+
+
+In this section we will use a datacard corresponding to the full distribution that was shown at the start of section 1, not just the high mass region. Have a look at `datacard_part2.txt`: this is still currently a one-bin counting experiment, however the yields are much higher since we now consider the full range of $M_{\mathrm{T}}^{\mathrm{tot}}$. If you run the asymptotic limit calculation on this you should find the sensitivity is significantly worse than before.
+
+The **first task** is to convert this to a shape analysis: the file `datacard_part2.shapes.root` contains all the necessary histograms, including those for the relevant shape systematic uncertainties. Add the relevant `shapes` lines to the top of the datacard (after the `kmax` line) to map the processes to the correct TH1s in this file. Hint: you will need a different line for the signal process.
+
+Compared to the counting experiment we must also consider the effect of uncertainties that change the shape of the distribution. Some, like `CMS_eff_t_highpt`, were present before, as it has both a shape and normalisation effect. Others are primarily shape effects so were not included before.
+
+Add the following shape uncertainties: `top_pt_ttbar_shape` affecting `ttbar`,the tau energy scale uncertainties `CMS_scale_t_1prong0pi0_13TeV`, `CMS_scale_t_1prong1pi0_13TeV` and `CMS_scale_t_3prong0pi0_13TeV` affecting all processes except `jetFakes`, and `CMS_eff_t_highpt` also affecting the same processes.
+
+Once this is done you can run the asymptotic limit calculation on this datacard. From now on we will convert the text datacard into a RooFit workspace ourselves instead of combine doing it internally every time we run. This is a good idea for more complex analyses since the conversion step can take a notable amount of time. For this we use the `text2workspace.py` command:
+
+```shell
+text2workspace.py datacard_part2.txt -m 800 -o workspace_part2.root
+```
+And then we can use this as input to combine instead of the text datacard:
+```shell
+combine -M AsymptoticLimits workspace_part2.root -m 800
+```
+**Tasks and questions:**
+
+  - Verify that the sensitivity of the shape analysis is indeed improved over the counting analysis in the first part.
+  - *Advanced task*: You can open the workspace ROOT file interactively and print the contents: `w->Print();`. Each process is represented by a PDF object that depends on the shape morphing nuisance parameters. From the workspace, choose a process and shape uncertainty, and make a plot overlaying the nominal shape with different values of the shape morphing nuisance parameter. You can change the value of a parameter with `w->var("X")->setVal(Y)`, and access a particular pdf with `w->pdf("Z")`. PDF objects in RooFit have a [createHistogram](https://root.cern.ch/doc/master/classRooAbsReal.html#a552a08367c964e689515f2b5c92c8bbe) method that requires the name of the observable (the variable defining the x-axis) - this is called `CMS_th1x` in combine datacards. Feel free to ask for help with this!
+
 
