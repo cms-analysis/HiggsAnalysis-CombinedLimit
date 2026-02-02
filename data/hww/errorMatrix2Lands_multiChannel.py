@@ -1,12 +1,7 @@
-from __future__ import absolute_import, print_function
-
-from __future__ import division
 import re
 from math import *
 from optparse import OptionParser
 from sys import argv
-
-from six.moves import range
 
 parser = OptionParser()
 parser.add_option("-s", "--stat", dest="stat", default=False, action="store_true")
@@ -49,7 +44,7 @@ parser.add_option(
 parser.add_option("-4", "--4th-gen", dest="sm4", default=False, action="store_true")
 parser.add_option("-n", "--nch", dest="nch", type="int", default=1)
 parser.add_option("-B", "--b-fluct", dest="bfluct", type="float", default=0)
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 
 if len(args) < 1:
     raise RuntimeError("Usage: errorMatrix2Lands.py [options] errorMatrix.txt ")

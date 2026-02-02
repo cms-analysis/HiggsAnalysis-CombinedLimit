@@ -1,5 +1,4 @@
 # Massive simplification of the scaling function plotter which is more generic/much better
-from __future__ import absolute_import, print_function
 
 import array
 import itertools
@@ -8,7 +7,6 @@ import sys
 from optparse import OptionParser
 
 import numpy
-from six.moves import range
 
 import ROOT
 
@@ -48,7 +46,7 @@ parser.add_option(
     help="This is a bit special, but if you already have a likelihood scan (with a bunch of other parameters being profiled), then put --loadScan higgsCombineBlah.root:X. Then when it comes to scan X, the scan will use this grid of points with other parameters set to the saved values!",
 )
 
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 
 
 ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")

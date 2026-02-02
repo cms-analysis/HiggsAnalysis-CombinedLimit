@@ -7,6 +7,7 @@
 #include "RooAbsPdf.h"
 #include "RooListProxy.h"
 #include "RooObjCacheManager.h"
+#include "RtypesCore.h"
 
 class VerticalInterpPdf : public RooAbsPdf {
 public:
@@ -24,10 +25,14 @@ public:
   Double_t analyticalIntegralWN(Int_t code, const RooArgSet* normSet, const char* rangeName=0) const override ;
 
   const RooArgList& funcList() const { return _funcList ; }
+  const RooArgList& funcIntListFromCache() const;
   const RooArgList& coefList() const { return _coefList ; }
 
   const Double_t quadraticRegion() const { return _quadraticRegion; }
   const Int_t quadraticAlgo() const { return _quadraticAlgo; }
+
+  Double_t pdfFloorVal() const { return _pdfFloorVal; }
+  Double_t integralFloorVal() const { return _integralFloorVal; }
 
   void setFloorVals(Double_t const& pdf_val, Double_t const& integral_val);
 

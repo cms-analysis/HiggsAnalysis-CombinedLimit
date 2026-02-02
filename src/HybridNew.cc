@@ -713,7 +713,9 @@ std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooStats::ModelConfig
     for (RooAbsArg *rInAbsArg : rVals) {
         RooRealVar *rIn = static_cast<RooRealVar*>(rInAbsArg);
         RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->find(rIn->GetName()));
-        r->setVal(rIn->getVal());
+		if ( rIn->getVal() > r->getMax() ) r->setVal(r->getMax());
+		else if ( rIn->getVal() < r->getMin() ) r->setVal(r->getMin()); // this should never be the case
+		else r->setVal(rIn->getVal());
         if (verbose) std::cout << "  " << r->GetName() << " = " << rIn->getVal() << " +/- " << r->getError() << std::endl;
     }
     std::unique_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rVals, setup));

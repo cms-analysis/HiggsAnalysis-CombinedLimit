@@ -14,6 +14,7 @@
 #include <RooStats/RooStatsUtils.h>
 
 #include <iomanip>
+#include <memory>
 
 boost::program_options::options_description CascadeMinimizer::options_("Cascade Minimizer options");
 std::vector<CascadeMinimizer::Algo> CascadeMinimizer::fallbacks_;
@@ -53,11 +54,23 @@ CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) 
 }
 
 void CascadeMinimizer::remakeMinimizer() {
-    cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
-    if (simnll) simnll->setHideRooCategories(true);
-    minimizer_.reset(); // avoid two copies in memory
-    minimizer_.reset(new RooMinimizer(nll_));
-    if (simnll) simnll->setHideRooCategories(false);
+  std::unique_ptr<RooArgSet> nllParams(nll_.getParameters((const RooArgSet*)nullptr));
+  RooArgSet changedSet;
+
+  // The RooMinimizer can't deal with floating categories, so we need to set them constant at least while creating the minimizer.
+  for (RooAbsArg *arg : *nllParams) {
+    auto *cat = dynamic_cast<RooCategory *>(arg);
+    if (cat && !cat->isConstant()) {
+      cat->setConstant(true);
+      changedSet.add(*cat);
+    }
+  }
+
+  minimizer_.reset();  // avoid two copies in memory
+  minimizer_ = std::make_unique<RooMinimizer>(nll_);
+
+  // Change categories back to how they were
+  utils::setAllConstant(changedSet, /*constant=*/false);
 }
 
 bool CascadeMinimizer::freezeDiscParams(const bool freeze)
@@ -191,6 +204,24 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
             minimizer_->hesse();
             if (simnll) simnll->updateZeroPoint(); 
             minimizer_->setPrintLevel(verbose-1); 
+        }
+        // ensure that at this stage the nll has > 0 parameters
+        std::unique_ptr<RooArgSet> nll_params(nll_.getParameters((const RooArgSet *)nullptr));
+        int nFloating = 0;
+        for (auto arg : *nll_params) {
+          if (!arg->isConstant())
+            ++nFloating;
+        }
+        // log warning
+        if (nFloating == 0) {
+          std::string warning_msg =
+              "[WARNING] The NLL has zero floating parameters at the start of CascadeMinimizer::improveOnce().\n"
+              "\tThis may indicate a problem with the model or the configuration.\n"
+              "\tIf your intent is to only float BB parameters, remember that these are by default evaluated "
+              "analytically and, hence, excluded from the minimization.\n"
+              "\tYou can disable the analytic BB treatment by setting --X-rtd MINIMIZER_no_analytic.\n";
+          std::cerr << warning_msg;
+          CombineLogger::instance().log("CascadeMinimizer.cc", __LINE__, warning_msg, __func__);
         }
         int status = minimizer_->minimize(myType.c_str(), myAlgo.c_str());
         if (lastHesse_ && !noHesse) {
@@ -484,8 +515,6 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
 
 bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, bool& ret, double& minimumNLL, int verbose, bool cascade,int mode, std::vector<std::vector<bool> >&contributingIndeces){
     static bool freezeDisassParams = runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"));
-    static bool hideConstants = freezeDisassParams && runtimedef::get(std::string("MINIMIZER_multiMin_hideConstants"));
-    static bool maskConstraints = freezeDisassParams && runtimedef::get(std::string("MINIMIZER_multiMin_maskConstraints"));
     static int maskChannels = freezeDisassParams ? runtimedef::get(std::string("MINIMIZER_multiMin_maskChannels")) : 0;
     cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
 
@@ -551,11 +580,6 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
     if (maskChannels && simnll) {
         simnll->setMaskNonDiscreteChannels(true);
-    }
-    if (hideConstants && simnll) {
-        simnll->setHideConstants(true);
-        if (maskConstraints) simnll->setMaskConstraints(true);
-        minimizer_.reset(); // will be recreated when needed by whoever needs it
     }
 
     std::vector<std::vector<int> > myCombos;
@@ -693,11 +717,6 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
     if (maskChannels && simnll) {
         simnll->setMaskNonDiscreteChannels(false);
-    }
-    if (hideConstants && simnll) {
-        simnll->setHideConstants(false);
-        if (maskConstraints) simnll->setMaskConstraints(false);
-        minimizer_.reset(); // will be recreated when needed by whoever needs it
     }
 
 

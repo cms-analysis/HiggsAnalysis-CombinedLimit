@@ -5,8 +5,6 @@
 # Currently only supported for 1D (eg limits) although running
 # --val all will work, labels will not be correct.
 
-from __future__ import absolute_import, print_function
-
 import sys
 from optparse import OptionParser
 
@@ -116,7 +114,7 @@ parser.add_option(
     default=False,
     help="Save plots as pdfs as well as Canvases in root files.",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 
 if options.quantileExpected >= 0:
     options.expected = True

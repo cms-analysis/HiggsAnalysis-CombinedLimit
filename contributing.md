@@ -22,7 +22,7 @@ In general you should always perform the following steps when contributing.
 We ask that you put some effort into the readability of your code.
 We are, however, always happy to help if there is an issue.
 
-We use linting as part of our ci/cd for the python code. 
+We use linting as part of our ci/cd for the python code.
 That means your code will be checked automatically, and you must make sure it conforms to certain rules.
 
 Currently no linting or automatic checks of C++ code are implemented.
@@ -30,10 +30,10 @@ Although we do not have a well-defined style guide for C++, we always appreciate
 
 ### Technical details on linting
 
-we use `flake8` and `black` for linting. 
+we use `flake8` and `black` for linting.
 To run the linting locally before making your pull request, or before making a commit, you can do the following.
 
-ensure `flake8` and `black` are installed: 
+ensure `flake8` and `black` are installed:
 
 ```
  python -m pip install -q flake8 black
@@ -64,7 +64,7 @@ For that reason, whenever you make a change you should consider whether this req
 
 If the change is user-facing it almost certainly does require a documentation update.
 
-Documentation is **very important** to us. 
+Documentation is **very important** to us.
 Therefore, we will be meticulous and make sure it is done well!
 However, we don't want to put extra burden on you, so we are happy to help and will make our own edits and updates to improve the documentation of your change.
 
@@ -105,32 +105,32 @@ mike deploy <version> <alias>
 
 Note that this will only affect your *local* copy of the gh-pages documentation. In order to view the pages locally you can use `mike serve` instead of `mkdocs serve`.
 
-**NOTE:** mkdocs builds that use internal links (or images, etc.) with absolute paths will work for local deployment, but will break when deployed to the public documentations pages. 
-Please ensure you use relative paths. Currently, this is the only known feature where the behvaiour differs between local mkdocs and public page deployment. 
+**NOTE:** mkdocs builds that use internal links (or images, etc.) with absolute paths will work for local deployment, but will break when deployed to the public documentations pages.
+Please ensure you use relative paths. Currently, this is the only known feature where the behvaiour differs between local mkdocs and public page deployment.
 If you'd like to test the deployment directly, the suggested method is to set up a docs page using your personal github account; this should mimic the exact settings of the official page.
 
-## Github Actions 
+## Github Actions
 
-There are several automated processes defined in the [`.github/workflows`](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/main/.github/workflows) folder which are triggered for every pull request or when a new commit is pushed into the `main` branch. 
+There are several automated processes defined in the [`.github/workflows`](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/main/.github/workflows) folder which are triggered for every pull request or when a new commit is pushed into the `main` branch.
 
- - `CI with CVMFS` workflow defined in [.github/workflows/cvmfs-ci.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/cvmfs-ci.yml) compiles <span style="font-variant:small-caps;">Combine</span> with the CMSSW which is setup from `cvmfs`. This will also run several test <span style="font-variant:small-caps;">Combine</span> commands using tutorial datacards contained in the repository. 
+ - `CI with CVMFS` workflow defined in [.github/workflows/cvmfs-ci.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/cvmfs-ci.yml) compiles <span style="font-variant:small-caps;">Combine</span> with the CMSSW which is setup from `cvmfs`. This will also run several test <span style="font-variant:small-caps;">Combine</span> commands using tutorial datacards contained in the repository.
  - `CI/CD` workflow defined in [.github/workflows/ci.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/ci.yml) runs:
-   
+
     1. [Linting checks](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/ci.yml#L11) with`flake8` and `black`.
-    2. <span style="font-variant:small-caps;">Combine</span> compilation using conda environment with several combinations of (ROOT, python) versions:  (6.26.4, 3.10), (6.24,3.9), (6.22, 3.9) and (6.22, 2.7.18) 
-    
+    2. <span style="font-variant:small-caps;">Combine</span> compilation using conda environment with several combinations of (ROOT, python) versions:  (6.26.4, 3.10), (6.24,3.9), (6.22, 3.9) and (6.22, 2.7.18)
+
  - `Docs` workflow defined in [.github/workflows/docs.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/docs.yml) manages the documentation deployment with `mike` as described above.
 
-In addition there are two conditional workflows that can be triggered with [github labels](https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/managing-labels): 
+In addition there are two conditional workflows that can be triggered with [github labels](https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/managing-labels):
 
-- `trigger gitlab job` workflow defined in [.github/workflows/gitlabci.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/gitlabci.yml) can be triggered with the "safe to test" label. Please note that this gitlab workflow uses `CMSSW_10_2_13`, therefore it might fail with later versions of <span style="font-variant:small-caps;">Combine</span> and it is likely to be deprecated soon. 
+- `trigger gitlab job` workflow defined in [.github/workflows/gitlabci.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/gitlabci.yml) can be triggered with the "safe to test" label. Please note that this gitlab workflow uses `CMSSW_10_2_13`, therefore it might fail with later versions of <span style="font-variant:small-caps;">Combine</span> and it is likely to be deprecated soon.
 
-- `Port to <branch>` workflows defined in [.github/workflows/port_to_branch.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/port_to_branch.yml), e.g. the `Port to 112x-comb2022` can be triggered with the "port to 112x-comb2022" label to port the changes from a pull request to the `112x-comb2022` branch and create a new pull request. 
+- `Port to <branch>` workflows defined in [.github/workflows/port_to_branch.yml](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/.github/workflows/port_to_branch.yml), e.g. the `Port to 112x-comb2022` can be triggered with the "port to 112x-comb2022" label to port the changes from a pull request to the `112x-comb2022` branch and create a new pull request.
 
 
 ## Big Contributions
 
-We welcome large contributions to <span style="font-variant:small-caps;">Combine</span>. 
+We welcome large contributions to <span style="font-variant:small-caps;">Combine</span>.
 Note, however, that we also follow long term planning, and there is a dedicated group stewarding the overall direction and development of the code.
 
 This means that the code development should fit in with our long term vision;
@@ -142,5 +142,70 @@ This will simplify any potential conflicts when you make your pull request.
 As part of the long term planning, we have a number of changes we are targeting, but have not yet had a chance to implement.
 As well as the [issues](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/issues) listed on the github issues tracker, you can see the [projects](https://github.com/orgs/cms-analysis/projects) listed under the general cms-analysis organization, where we have defined several projects and areas we are targeting.
 If you're interested in getting involved in any of these projects please contact us at [cms-cat-stats-conveners@cern.ch](mailto:cms-cat-stats-conveners@cern.ch).
+
+
+## Creating a New Release
+
+When creating a new release, follow this checklist to ensure version strings are updated consistently across the codebase.
+
+### Release Checklist
+
+1. **Update version in source code**
+   - Edit `bin/combine.cpp` line 36
+   - Change `std::string combineTagString = "vX.Y.Z";` to the new version
+
+2. **Update version in documentation**
+   - Edit `docs/index.md`
+   - Update line 40: `Currently, the recommended tag is **vX.Y.Z**`
+   - Update line 47: `--branch vX.Y.Z` in the git clone command
+   - Update the release notes link on line 40
+
+3. **Update test reference files**
+   - Regenerate reference files with the new version (note that you will have to recompile using `-DBUILD_TESTS=TRUE`):
+     ```bash
+     cd build/test
+     sh create_reference_files.sh
+     cp *.out ../../test/references
+     cd ../..
+     ```
+
+4. **Verify version consistency**
+   - Run the version check script: `./scripts/check-version.sh vX.Y.Z`
+   - This will verify all version strings match
+
+5. **Commit the version updates**
+   - `git add bin/combine.cpp docs/index.md test/references/*.out`
+   - `git commit -m "Update version to vX.Y.Z"`
+
+6. **Create and push the tag**
+   - `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
+   - `git push origin main`
+   - `git push origin vX.Y.Z`
+
+7. **Create GitHub release**
+   - Go to [Releases](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases)
+   - Click "Draft a new release"
+   - Select the tag you just created
+   - Add release notes
+
+8. **Verify documentation deployment**
+   - Check that the [documentation](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/) shows the new version
+   - The CI will automatically build and deploy docs for the new tag
+
+### Version Check Script
+
+A helper script is provided at `scripts/check-version.sh` that verifies version consistency.
+
+Usage:
+```bash
+./scripts/check-version.sh v10.3.2
+```
+
+This script checks that:
+- `bin/combine.cpp` contains the correct version
+- `docs/index.md` contains the correct version in all relevant locations
+- All version strings are consistent
+
+The script will exit with an error if any inconsistencies are found.
 
 

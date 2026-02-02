@@ -59,7 +59,7 @@
 #include "../interface/AsimovUtils.h"
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/ProfilingTools.h"
-#include "../interface/RooMultiPdf.h"
+#include "../interface/RooMultiPdfCombine.h"
 #include "../interface/CMSHistFunc.h"
 #include "../interface/CMSHistSum.h"
 
@@ -76,7 +76,8 @@ Float_t g_quantileExpected_ = -1.0;
 TDirectory *outputFile = 0;
 TDirectory *writeToysHere = 0;
 TDirectory *readToysFromHere = 0;
-int  verbose = 1;
+int verbose = 1;
+int pickToy_ = 0;
 bool withSystematics = 1;
 bool expectSignalSet_ = false;
 bool doSignificance_ = 0;
@@ -289,7 +290,7 @@ std::string Combine::parseRegex(std::string instr, const RooArgSet *nuisances, R
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
-  TStopwatch timer;
+  //TStopwatch timer;
 
   bool ret = false;
   try {
@@ -317,8 +318,13 @@ bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mo
     std::cout << "  --- MODEL ---\n";
     w->Print("V");
   } */
-  timer.Stop(); t_cpu_ = timer.CpuTime()/60.; t_real_ = timer.RealTime()/60.;
-  printf("Done in %.2f min (cpu), %.2f min (real)\n", t_cpu_, t_real_);
+
+  // Printing out the time it took to run combine might seem useful, but it is
+  // problematic for automatic validation because the output is "random".
+
+  // timer.Stop(); t_cpu_ = timer.CpuTime()/60.; t_real_ = timer.RealTime()/60.;
+  // printf("Done in %.2f min (cpu), %.2f min (real)\n", t_cpu_, t_real_);
+
   return ret;
 }
 
@@ -1021,6 +1027,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     algo->setNToys(nToys);
 
     for (iToy = 1; iToy <= nToys; ++iToy) {
+      if ((pickToy_ != 0) && (iToy != pickToy_))
+        continue;
 
       // Reset ranges --> for likelihood scans
       if (setPhysicsModelParameterRangeExpression_ != "") {
@@ -1142,6 +1150,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 void Combine::toggleGlobalFillTree(bool flag){
    g_fillTree_ = flag;
 }
+
+void Combine::setPickToy(int pickToy) { pickToy_ = pickToy; }
 
 void Combine::commitPoint(bool expected, float quantile) {
     Float_t saveQuantile =  g_quantileExpected_;

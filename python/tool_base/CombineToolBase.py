@@ -13,9 +13,7 @@ export SCRAM_ARCH=%(SCRAM_ARCH)s
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 eval `scramv1 runtime -sh`
 cd %(PWD)s
-""" % (
-    {"CMSSW_BASE": os.environ["CMSSW_BASE"], "SCRAM_ARCH": os.environ["SCRAM_ARCH"], "PWD": os.environ["PWD"]}
-)
+""" % ({"CMSSW_BASE": os.environ.get("CMSSW_BASE", ""), "SCRAM_ARCH": os.environ.get("SCRAM_ARCH", ""), "PWD": os.environ.get("PWD", os.getcwd())})
 
 CONDOR_TEMPLATE = """executable = %(EXE)s
 arguments = $(ProcId)
@@ -241,12 +239,13 @@ class CombineToolBase:
                 if self.prefix_file.endswith(".txt"):
                     job_prefix_file = open(self.prefix_file)
                 else:
-                    job_prefix_file = open(
-                        os.environ["CMSSW_BASE"] + "/src/HiggsAnalysis.CombinedLimit/input/job_prefixes/job_prefix_" + self.prefix_file + ".txt"
-                    )
+                    cmssw_base = os.environ.get("CMSSW_BASE")
+                    if cmssw_base is None:
+                        raise RuntimeError("CMSSW_BASE environment variable is not set. Please ensure you are running in a CMSSW environment.")
+                    job_prefix_file = open(cmssw_base + "/src/HiggsAnalysis.CombinedLimit/input/job_prefixes/job_prefix_" + self.prefix_file + ".txt")
                 global JOB_PREFIX
                 JOB_PREFIX = job_prefix_file.read() % (
-                    {"CMSSW_BASE": os.environ["CMSSW_BASE"], "SCRAM_ARCH": os.environ["SCRAM_ARCH"], "PWD": os.environ["PWD"]}
+                    {"CMSSW_BASE": os.environ.get("CMSSW_BASE", ""), "SCRAM_ARCH": os.environ.get("SCRAM_ARCH", ""), "PWD": os.environ.get("PWD", os.getcwd())}
                 )
                 job_prefix_file.close()
         if self.job_mode in ["script", "lxbatch", "SGE"]:
@@ -375,7 +374,10 @@ class CombineToolBase:
             config.Data.outputDatasetTag = config.General.requestName
             if self.memory is not None:
                 config.JobType.maxMemoryMB = self.memory
-            do_nothing_script = open(os.environ["CMSSW_BASE"] + "/src/HiggsAnalysis.CombinedLimit/scripts/do_nothing_cfg.py", "w")
+            cmssw_base = os.environ.get("CMSSW_BASE")
+            if cmssw_base is None:
+                raise RuntimeError("CMSSW_BASE environment variable is not set. Please ensure you are running in a CMSSW environment.")
+            do_nothing_script = open(cmssw_base + "/src/HiggsAnalysis.CombinedLimit/scripts/do_nothing_cfg.py", "w")
             do_nothing_script.write(CRAB_DO_NOTHING)
             if self.cores is not None:
                 config.JobType.numCores = self.cores

@@ -13,7 +13,6 @@ import HiggsAnalysis.CombinedLimit.util.plotting as plot
 # from HiggsAnalysis.CombinedLimit.tool_base.opts import OPTS
 
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
-import six
 
 
 def isfloat(value):

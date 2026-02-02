@@ -607,7 +607,7 @@ void CMSHistFunc::updateCache() const {
       cache_.CopyValues(mcache_[idx].step2);
       if (vtype_ == VerticalSetting::LogQuadLinear) {
         cache_.Exp();
-        cache_.Scale(mcache_[idx].step1.Integral() / mcache_[idx].step2.Integral());
+        cache_.Scale(mcache_[idx].step1.Integral() / cache_.Integral());
       }
       cache_.CropUnderflows();
       if (enable_fast_vertical_) fast_vertical_ = true;

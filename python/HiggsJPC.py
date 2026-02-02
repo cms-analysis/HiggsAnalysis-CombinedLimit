@@ -90,7 +90,7 @@ class TwoHypotesisHiggs(PhysicsModel):
                 self.verbose = True
             if po.startswith("map="):
                 self.muFloating = True
-                (maplist, poi) = po.replace("map=", "").split(":")
+                maplist, poi = po.replace("map=", "").split(":")
                 maps = maplist.split(",")
                 poiname = re.sub(r"\[.*", "", poi)
                 if poiname not in self.pois:

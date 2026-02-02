@@ -1,15 +1,11 @@
 #!/usr/bin/env -S python3 -u
 
-from __future__ import absolute_import, print_function
-
 import datetime
 from collections import OrderedDict as od
 from optparse import OptionParser
 from sys import argv, exit, stderr, stdout
 import io
 import sys
-
-from six.moves import range
 
 import ROOT
 
@@ -91,7 +87,7 @@ parser.add_option(
 )
 
 
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 if len(args) == 0:
     parser.print_usage()
     exit(1)
@@ -187,8 +183,7 @@ if use_cms_histsum:
             prop = prop_it.Next()
             prop_name = prop.GetName()
             if chan == prop_name.split("_bin")[-1]:
-                types = [ROOT.CMSHistSum, ROOT.CMSHistErrorPropagator]
-                if type(prop) in types:
+                if isinstance(prop, (ROOT.CMSHistSum, ROOT.CMSHistErrorPropagator)):
                     chan_CMSHistSum_norms[chan] = dict(prop.getProcessNorms())
 
 
@@ -218,8 +213,7 @@ default_norms = od()
 
 # Save to html formal
 if options.format == "html":
-    print(
-        """
+    print("""
     <html>
     <body>
     <style type="text/css">
@@ -230,8 +224,7 @@ if options.format == "html":
     <title>Process Normalizations</title>
     </head><body>
     <h1>Process Normalizations</h1>
-    """
-    )
+    """)
 
     print("Normalisation Values Evaluated at MH =", options.massVal)
     for chan in chan_procs.keys():
@@ -301,12 +294,10 @@ if options.format == "html":
             print("  default value = %.5f " % default_val, "<br>")
             print("</tr>")
 
-    print(
-        """
+    print("""
     </body>
     </html>
-    """
-    )
+    """)
 
 if options.format == "text":
     print("Normalisation Values Evaluated at MH =", options.massVal)

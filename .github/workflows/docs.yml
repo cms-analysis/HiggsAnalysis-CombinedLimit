@@ -8,6 +8,8 @@ on:
     paths:
       - '**.md'
       - '**.yml'
+    tags:
+      - 'v*.*.*'
 
 jobs:
   docs:
@@ -16,13 +18,27 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
+      with:
+        fetch-depth: 0
     - uses: actions/setup-python@v2
       with:
         python-version: 3.8
-    - name: Build documentation
+    - name: Build and deploy documentation
       run: |
         python3 -m pip install mkdocs pymdown-extensions mkdocs-material mike
         git fetch origin gh-pages --depth=1
         git config user.name ci-bot
         git config user.email ci-bot@example.com
-        mike deploy --push v10.2.X latest
+
+        if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+          # Tag push: deploy the tag version with 'latest' alias and set as default
+          TAG_VERSION=${GITHUB_REF#refs/tags/}
+          echo "Deploying docs for tag $TAG_VERSION"
+          mike deploy --push --update-aliases $TAG_VERSION latest
+          echo "Setting $TAG_VERSION as default version"
+          mike set-default --push $TAG_VERSION
+        else
+          # Main branch push: deploy to 'main'
+          echo "Deploying docs for main branch"
+          mike deploy --push main
+        fi

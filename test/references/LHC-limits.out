@@ -1,0 +1,8 @@
+ <<< Combine >>> 
+ <<< v10.4.2 >>>
+>>> Random number generator seed is 123456
+>>> using the Profile Likelihood test statistic modified for upper limits (Q_LHC)
+>>> Method used is HybridNew
+
+ -- Hybrid New -- 
+Limit: r < 0.331542 +/- 0.0141765 @ 95% CL

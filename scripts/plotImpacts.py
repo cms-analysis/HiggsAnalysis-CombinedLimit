@@ -6,7 +6,6 @@ import argparse
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import HiggsAnalysis.CombinedLimit.tool_base.rounding as rounding
 import HiggsAnalysis.CombinedLimit.calculate_pulls as CP
-import six
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -368,7 +367,8 @@ if args.summary:
     MakeSummaryPage()
 
 for page in range(n):
-    canv = ROOT.TCanvas(args.output, args.output)
+    canv_name = "%s_page%i" % (args.output, page)
+    canv = ROOT.TCanvas(canv_name, canv_name)
     n_params = len(data["params"][show * page : show * (page + 1)])
     pdata = data["params"][show * page : show * (page + 1)]
     print(">> Doing page %i, have %i parameters" % (page, n_params))
@@ -595,4 +595,4 @@ for page in range(n):
         extra = "("
     if page == n - 1:
         extra = ")"
-    canv.Print(".pdf%s" % extra)
+    canv.Print("%s.pdf%s" % (args.output, extra))

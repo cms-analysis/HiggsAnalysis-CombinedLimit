@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import, print_function
 
 import argparse
 import json
 import math
 import os.path
 from functools import partial
-
-from six.moves import range
 
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import ROOT

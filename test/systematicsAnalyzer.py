@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import, print_function
 
 import os.path
 import re
@@ -8,9 +7,6 @@ import re
 import sys
 from math import *
 from optparse import OptionParser
-
-import six
-from six.moves import range
 
 import ROOT
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
@@ -84,7 +80,7 @@ parser.add_option(
     action="store_true",
     help="Counting experiment only (alternatively, build a shape analysis from combineCards.py -S card.txt > newcard.txt )",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 options.stat = False
 options.bin = True  # fake that is a binary output, so that we parse shape lines
 options.out = "tmp.root"
@@ -144,7 +140,7 @@ MODELBUILT = False
 
 def buildModel():
     ## Load physics model
-    (physModMod, physModName) = options.physModel.split(":")
+    physModMod, physModName = options.physModel.split(":")
     __import__(physModMod)
     mod = sys.modules[physModMod]
     physics = getattr(mod, physModName)
@@ -164,7 +160,7 @@ def commonStems(list, sep="_"):
                 hits[base] = 0
             hits[base] += 1
     veto = {}
-    for k, v in six.iteritems(hits):
+    for k, v in hits.items():
         pieces = k.split(sep)
         for i in range(1, len(pieces)):
             k2 = "_".join(pieces[:-i])
@@ -173,7 +169,7 @@ def commonStems(list, sep="_"):
             else:
                 veto[k] = True
     ret = []
-    for k, v in six.iteritems(hits):
+    for k, v in hits.items():
         if k not in veto:
             ret.append((k, v))
     ret.sort()
@@ -211,7 +207,7 @@ for lsyst, nofloat, pdf, pdfargs, errline in DC.systs:
     if "param" in pdf:
         if lsyst not in seen_systematics:
             if not len(errline):
-                errline = {b: {p: 0 for p in six.iterkeys(DC.exp[b])} for b in DC.bins}
+                errline = {b: {p: 0 for p in DC.exp[b]} for b in DC.bins}
         else:
             errline = errlines[lsyst]
     types = []
@@ -225,7 +221,7 @@ for lsyst, nofloat, pdf, pdfargs, errline in DC.systs:
     for b in DC.bins:
         numKeysFound = 0
         channels.append(b)
-        for p in six.iterkeys(DC.exp[b]):
+        for p in DC.exp[b]:
             if lsyst in list(check_list.keys()):
                 if [p, b] in check_list[lsyst]:
                     continue
@@ -311,7 +307,7 @@ for lsyst, nofloat, pdf, pdfargs, errline in DC.systs:
                 addTo(check_list, lsyst, [p, b])
 
             else:
-                vals.extend(errline[b][p] if type(errline[b][p]) == list else [errline[b][p]])
+                vals.extend(errline[b][p] if isinstance(errline[b][p], list) else [errline[b][p]])
                 numKeysFound += 1
                 types.append(pdf)
                 processes[p] = True
@@ -357,7 +353,7 @@ for lsyst, nofloat, pdf, pdfargs, errline in DC.systs:
 # Get list
 names = list(report.keys())
 if "brief" in options.format:
-    names = [k for (k, v) in six.iteritems(report)]
+    names = [k for (k, v) in report.items()]
 if options.process:
     names = [k for k in names if any(p for p in report[k]["processes"] if re.match(options.process, p))]
 if options.grep:
@@ -373,8 +369,7 @@ namesRest = [n for n in names if n not in namesCommon and n not in namesCMS1 and
 names = namesCommon + namesCMS1 + namesCMS2 + namesRest
 
 if "html" in options.format:
-    print(
-        """
+    print("""
 <html>
 <head>
 <style type="text/css">
@@ -400,9 +395,7 @@ All numbers shown report the +/- 1-sigma variation in the yield for each affecte
 %s
 <table>
 <tr><th>Nuisance (types)</th><th colspan="2">Range</th><th>Processes</th><th>Channels</th></tr>
-"""
-        % ("You didn't run with the option --t2w so param types will only show the line from the datacard" if not options.t2w else "")
-    )
+""" % ("You didn't run with the option --t2w so param types will only show the line from the datacard" if not options.t2w else ""))
     for nuis in names:
         val = report[nuis]
         print('<tr><td><a name="%s"><b>%s</b></a></td>' % (nuis, nuis + "  (" + val["types"] + ")"))
@@ -422,7 +415,7 @@ All numbers shown report the +/- 1-sigma variation in the yield for each affecte
                 "\t\t<tr><td>%s</td><td>%s</td></li>"
                 % (
                     x,
-                    ", ".join(["%s(%s)" % (k, v) for (k, v) in six.iteritems(errlines[nuis][x]) if v != 0]),
+                    ", ".join(["%s(%s)" % (k, v) for (k, v) in errlines[nuis][x].items() if v != 0]),
                 )
             )
         print("\t</table></td>")
@@ -430,12 +423,10 @@ All numbers shown report the +/- 1-sigma variation in the yield for each affecte
     for x in outParams.keys():
         print("\t\t<tr><td><b>%s(%s)</b></td><td>%s</td></li>" % (x, outParams[x][0], ", ".join([a for a in outParams[x][1]])))
         print("</tr>\n")
-    print(
-        """
+    print("""
 </table>
 </body>
-</html>"""
-    )
+</html>""")
 else:
     if "brief" in options.format:
         print(

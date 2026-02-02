@@ -217,7 +217,8 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 #else
       Combine::nllBackend() = RooFit::EvalBackend(RooFit::EvalBackend::defaultValue()).name();
 #endif
-      auto nuisanceNLL = combineCreateNLL(simNuisancePdf, *globalData, nuis, /*warnAboutDifferentBackend=*/false);
+      auto nuisanceNLL =
+          combineCreateNLL(simNuisancePdf, *globalData, nuis, /*offset=*/true, /*warnAboutDifferentBackend=*/false);
       Combine::nllBackend() = prevBackend;
 
       RooFitResult *res_prefit = 0;

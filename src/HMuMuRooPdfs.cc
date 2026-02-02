@@ -133,10 +133,14 @@ double RooModZPdf::evaluate() const {
   double bv = 0.;
   double cv = 2.;
 
-  if(&m.arg()) zm = m;
-  if(&w.arg()) zw = w;
-  if(&b.arg()) bv = b;
-  if(&c.arg()) cv = c;
+  if (m.absArg())
+    zm = m;
+  if (w.absArg())
+    zw = w;
+  if (b.absArg())
+    bv = b;
+  if (c.absArg())
+    cv = c;
 
   double val = 1.0;
   val *= exp(a*x+bv*x*x);
@@ -196,7 +200,8 @@ Double_t RooExpPdf::evaluate() const {
   const double xmax = x.max();
 
   double zm = 91.2;
-  if(&m.arg()) zm = m;
+  if (m.absArg())
+    zm = m;
   if(not offset) zm = 0;
 
   // Normalization coefficients for each term of the PDF --> this ensures that the overall PDF is normalized correctly
@@ -227,7 +232,8 @@ Double_t RooExpPdf::analyticalIntegral(Int_t code, const char* rangeName) const 
 
   // correction when PDF integrated in a smaller range
   double zm = 91.2;
-  if(&m.arg()) zm = m;
+  if (m.absArg())
+    zm = m;
   if(not offset) zm = 0;
 
   // scale the integral by the relative fractions
@@ -286,7 +292,8 @@ Double_t RooSumTwoExpPdf::evaluate() const {
   const double xmax = x.max();
 
   double zm = 91.2;
-  if(&m.arg()) zm = m;
+  if (m.absArg())
+    zm = m;
   if(not offset) zm = 0;
 
   // Normalization coefficients for each term of the PDF --> this ensures that the overall PDF is normalized correctly
@@ -320,7 +327,8 @@ Double_t RooSumTwoExpPdf::analyticalIntegral(Int_t code, const char* rangeName) 
 
   // correction when PDF integrated in a smaller range
   double zm = 91.2;
-  if(&m.arg()) zm = m;
+  if (m.absArg())
+    zm = m;
   if(not offset) zm = 0;
 
   // scale the integral by the relative fractions
@@ -383,7 +391,8 @@ Double_t RooPowerLawPdf::evaluate() const {
   const Double_t xmax = x.max();
 
   double zm = 91.2;
-  if(&m.arg()) zm = m;
+  if (m.absArg())
+    zm = m;
   if(not offset) zm = 0;
 
   double retval = 0.;
@@ -416,7 +425,8 @@ Double_t RooPowerLawPdf::analyticalIntegral(Int_t code, const char* rangeName) c
 
   // correction when PDF integrated in a smaller range
   double zm = 91.2;
-  if(&m.arg()) zm = m;
+  if (m.absArg())
+    zm = m;
   if(not offset) zm = 0;
 
   double integral = 0.;
@@ -471,7 +481,8 @@ Double_t RooSumTwoPowerLawPdf::evaluate() const {
   const Double_t xmax = x.max();
 
   double zm = 91.2;
-  if(&m.arg()) zm = m;
+  if (m.absArg())
+    zm = m;
   if(not offset) zm = 0;
 
   double retval1 = 0.;
@@ -504,7 +515,8 @@ Double_t RooSumTwoPowerLawPdf::analyticalIntegral(Int_t code, const char* rangeN
     if (xmin == x.min() && xmax == x.max()) return 1.;
 
     double zm = 91.2;
-    if(&m.arg()) zm = m;
+    if (m.absArg())
+      zm = m;
     if(not offset) zm = 0;
   
     double integral_part1 = 0.;

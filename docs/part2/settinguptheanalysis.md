@@ -162,7 +162,7 @@ sigma  shape    0.5         -   uncertainty on signal resolution. Assume the his
 #                                so divide the unit gaussian by 2 before doing the interpolation
 ```
 
-There are two options for the interpolation algorithm in the "shape" uncertainty. Putting **`shape`** will result in an interpolation of the **fraction of events in each bin**. That is, the histograms are first normalized before interpolation. Putting **`shapeN`** while instead base the interpolation on the logs of the fraction in each bin. For _both_ **`shape`**  and **`shapeN`**, the total normalization is interpolated using an asymmetric log-normal, so that the effect of the systematic on both the shape and normalization are accounted for. The following image shows a comparison of the two algorithms for the example datacard.
+There are two options for the interpolation algorithm in the "shape" uncertainty. Putting **`shape`** will result in an interpolation of the **fraction of events in each bin**. That is, the histograms are first normalized before interpolation. Putting **`shapeN`** will instead base the interpolation on the logs of the fraction in each bin. For _both_ **`shape`**  and **`shapeN`**, the total normalization is interpolated using an asymmetric log-normal, so that the effect of the systematic on both the shape and normalization are accounted for. The following image shows a comparison of the two algorithms for the example datacard.
 
 ![](images/compare-shape-algo.png)
 

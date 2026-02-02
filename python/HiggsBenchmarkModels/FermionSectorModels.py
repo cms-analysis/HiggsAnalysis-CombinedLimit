@@ -330,16 +330,12 @@ class C5qlHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::C5ql_Gscal_sumg("@0*@0 * @1", Cg, SM_BR_hgg)')
         self.modelBuilder.factory_('expr::C5ql_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hzg )')
         if self.universalCF:
-            self.modelBuilder.factory_(
-                'expr::C5ql_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6)",\
-             Cf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hmm, SM_BR_hss)'
-            )
+            self.modelBuilder.factory_('expr::C5ql_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6)",\
+             Cf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hmm, SM_BR_hss)')
         else:
-            self.modelBuilder.factory_(
-                'expr::C5ql_Gscal_sumf("@0*@0 * (@1+@2+@3+@4) + @5*@5 * (@6+@7)",\
+            self.modelBuilder.factory_('expr::C5ql_Gscal_sumf("@0*@0 * (@1+@2+@3+@4) + @5*@5 * (@6+@7)",\
              Cq, SM_BR_hbb, SM_BR_hcc, SM_BR_htoptop, SM_BR_hss,\
-             Cl, SM_BR_htt, SM_BR_hmm)'
-            )
+             Cl, SM_BR_htt, SM_BR_hmm)')
         self.modelBuilder.factory_("sum::C5ql_Gscal_tot(C5ql_Gscal_sumglu, C5ql_Gscal_sumg, C5ql_Gscal_sumv, C5ql_Gscal_sumf)")
 
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2
@@ -353,7 +349,7 @@ class C5qlHiggs(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"C5ql_XSBRscal_{production}_{decay}"
-        if self.modelBuilder.out.function(name) == None:
+        if not self.modelBuilder.out.function(name):
             XSscal = "Cglu" if production in ["ggH"] else "Cv"
             if production in ["ttH"]:
                 XSscal = "Cf" if self.universalCF else "Cq"
@@ -447,16 +443,12 @@ class C5udHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::C5ud_Gscal_sumg("@0*@0 * @1", Cg, SM_BR_hgg)')
         self.modelBuilder.factory_('expr::C5ud_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hzg )')
         if self.universalCF:
-            self.modelBuilder.factory_(
-                'expr::C5ud_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6)",\
-             Cf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hmm, SM_BR_hss)'
-            )
+            self.modelBuilder.factory_('expr::C5ud_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6)",\
+             Cf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hmm, SM_BR_hss)')
         else:
-            self.modelBuilder.factory_(
-                'expr::C5ud_Gscal_sumf("@0*@0 * (@1+@2+@3+@4) + @5*@5 * (@6+@7)",\
+            self.modelBuilder.factory_('expr::C5ud_Gscal_sumf("@0*@0 * (@1+@2+@3+@4) + @5*@5 * (@6+@7)",\
              Cd, SM_BR_hbb, SM_BR_hcc, SM_BR_htt, SM_BR_hmm,\
-             Cu, SM_BR_htoptop, SM_BR_hss)'
-            )
+             Cu, SM_BR_htoptop, SM_BR_hss)')
         self.modelBuilder.factory_("sum::C5ud_Gscal_tot(C5ud_Gscal_sumglu, C5ud_Gscal_sumg, C5ud_Gscal_sumv, C5ud_Gscal_sumf)")
 
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2
@@ -470,7 +462,7 @@ class C5udHiggs(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"C5ud_XSBRscal_{production}_{decay}"
-        if self.modelBuilder.out.function(name) == None:
+        if not self.modelBuilder.out.function(name):
             XSscal = "Cglu" if production in ["ggH"] else "Cv"
             if production in ["ttH"]:
                 XSscal = "Cf" if self.universalCF else "Cu"

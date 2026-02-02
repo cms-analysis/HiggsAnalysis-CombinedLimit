@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import ROOT
 import argparse

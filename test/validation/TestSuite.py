@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import os
 import shutil
 import subprocess
@@ -14,7 +12,7 @@ _jobs_done = 0
 
 
 def _async_run(test, dir):
-    global _jobs_started, _jobs_total
+    global _jobs_started
     _jobs_started += 1
     print(" - " + test.name() + (" started (%d/%d)..." % (_jobs_started, _jobs_total)))
     subprocess.call([test.scriptName(dir)])
@@ -22,7 +20,7 @@ def _async_run(test, dir):
 
 
 def _async_cb(test):
-    global _jobs_done, _jobs_total
+    global _jobs_done
     _jobs_done += 1
     print(" - " + test.name() + (" done (%d/%d)." % (_jobs_done, _jobs_total)))
 
@@ -161,8 +159,8 @@ class TestSuite:
                 if "limit" not in ref:
                     res["ref"] = {"comment": ref["comment"]}
                     continue
-                (limit, limitErr, time) = res["limit"], res["limitErr"], res["t_real"]
-                (limitR, limitErrR, timeR) = (
+                limit, limitErr, time = res["limit"], res["limitErr"], res["t_real"]
+                limitR, limitErrR, timeR = (
                     ref["limit"],
                     ref["limitErr"],
                     ref["t_real"],

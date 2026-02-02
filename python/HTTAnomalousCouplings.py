@@ -1,5 +1,3 @@
-import six
-
 from .PhysicsModel import PhysicsModelBase_NiceSubclasses
 from .SpinZeroStructure import MultiSignalSpinZeroHiggs
 

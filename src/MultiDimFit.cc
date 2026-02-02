@@ -902,7 +902,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
 
             // now we minimize
             bool skipme = hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_;
-            bool ok = fastScan_ || skipme ? true :  minim.minimize(verbose-1);
+            bool ok = fastScan_ || skipme || utils::countFloating(*params) == 0 ? true : minim.minimize(verbose - 1);
             if (ok) {
                 deltaNLL_ = nll.getVal() - nll0;
                 double qN = 2*(deltaNLL_);

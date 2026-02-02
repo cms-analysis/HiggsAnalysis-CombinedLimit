@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import
 
 import json
 import os
@@ -41,7 +40,7 @@ parser.add_option(
     default=False,
     help="When excluding nuisances, do not exclude standard nuisances that are correlated CMS-wide even if their effect is small.",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 
 if masses:
     options.masses = masses

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # Script for batch sumbission of Asymptotic Limit Calculator
-from __future__ import absolute_import, print_function
 
 import commands
 import glob
@@ -19,7 +18,7 @@ parser.add_option("", "--nCPU", dest="nCPU", type="int", default=1)
 parser.add_option("-o", "", dest="outputname", default="")
 parser.add_option("-O", "", dest="options", default="")
 
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 
 ws = options.workspace
 mass = options.mass

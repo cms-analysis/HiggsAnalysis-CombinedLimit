@@ -2,8 +2,6 @@ import os
 from array import array
 from math import *
 
-import six
-
 import ROOT
 from HiggsAnalysis.CombinedLimit.PhysicsModel import ALL_HIGGS_DECAYS
 
@@ -12,7 +10,13 @@ class SMHiggsBuilder:
     def __init__(self, modelBuilder, datadir=None):
         self.modelBuilder = modelBuilder
         if datadir == None:
-            datadir = os.environ["CMSSW_BASE"] + "/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg"
+            if "CMSSW_BASE" in os.environ:
+                datadir = os.path.join(os.environ["CMSSW_BASE"], "src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg")
+            elif "COMBINE_SRC" in os.environ:
+                # fallback solution if CMSSW_BASE is not set - this is useful for testing in general environments
+                datadir = os.path.join(os.environ["COMBINE_SRC"], "data/lhc-hxswg")
+            else:
+                raise EnvironmentError("Neither CMSSW_BASE nor COMBINE_SRC is set — cannot determine datadir.")
         self.datadir = datadir
         self.brpath = os.path.join(self.datadir, "sm/br")
         self.coupPath = os.path.join(self.datadir, "couplings")
@@ -38,8 +42,8 @@ class SMHiggsBuilder:
         if process == "tHW":
             self.textToSpline("SM_XS_tHW_" + energy, os.path.join(self.xspath, energy + "-tHW.txt"))
         if process == "VH":
-            makeXS("WH", energy)
-            makeXS("ZH", energy)
+            self.makeXS("WH", energy)
+            self.makeXS("ZH", energy)
             self.modelBuilder.factory_("sum::SM_XS_VH_" + energy + "(SM_XS_WH_" + energy + ",SM_XS_ZH_" + energy + ")")
 
     def makeTotalWidth(self):
@@ -101,14 +105,11 @@ class SMHiggsBuilder:
                 )
                 scalingName = "Scaling_" + what + "_" + sqrts
                 #                print 'Building '+ scalingName
-                rooExpr = (
-                    'expr::%(scalingName)s(\
+                rooExpr = 'expr::%(scalingName)s(\
 "(@0*@0 + @1*@1 * @2 )/(1+@2)",\
  %(CW)s, %(CZ)s,\
  %(rooName)s\
-)'
-                    % locals()
-                )
+)' % locals()
                 #                print  rooExpr
                 self.modelBuilder.factory_(rooExpr)
         elif what.startswith("ggH"):
@@ -130,22 +131,16 @@ class SMHiggsBuilder:
                     )
                 scalingName = "Scaling_" + what + "_" + sqrts
                 #                print 'Building '+scalingName
-                coeffSum = (
-                    'expr::coeff_sum_%(scalingName)s(\
+                coeffSum = 'expr::coeff_sum_%(scalingName)s(\
 "@0+@1+@2+@3+@4+@5",\
  %(prefix)sc_kt2_%(sqrts)s, %(prefix)sc_kb2_%(sqrts)s, %(prefix)sc_ktkb_%(sqrts)s, %(prefix)sc_ktkc_%(sqrts)s, %(prefix)sc_kbkc_%(sqrts)s, %(prefix)sc_kc2_%(sqrts)s\
-)'
-                    % locals()
-                )
+)' % locals()
                 self.modelBuilder.factory_(coeffSum)
-                rooExpr = (
-                    'expr::%(scalingName)s(\
+                rooExpr = 'expr::%(scalingName)s(\
 "((@0*@0)*@3  + (@1*@1)*@4 + (@0*@1)*@5 + (@0*@2)*@6 + (@1*@2)*@7 + (@2*@2)*@8)/@9 ",\
  %(Ctop)s, %(Cb)s, %(Cc)s,\
  %(prefix)sc_kt2_%(sqrts)s, %(prefix)sc_kb2_%(sqrts)s, %(prefix)sc_ktkb_%(sqrts)s, %(prefix)sc_ktkc_%(sqrts)s, %(prefix)sc_kbkc_%(sqrts)s, %(prefix)sc_kc2_%(sqrts)s, coeff_sum_%(scalingName)s\
-)'
-                    % locals()
-                )
+)' % locals()
                 #                print  rooExpr
                 self.modelBuilder.factory_(rooExpr)
         elif what.startswith("hgluglu"):
@@ -159,14 +154,11 @@ class SMHiggsBuilder:
                 )
             scalingName = "Scaling_" + what
             #            print 'Building '+scalingName
-            rooExpr = (
-                'expr::%(scalingName)s(\
+            rooExpr = 'expr::%(scalingName)s(\
 "(@0*@0)*@2  + (@1*@1)*@3 + (@0*@1)*@4",\
  %(Ctop)s, %(Cb)s,\
  %(prefix)sGamma_tt, %(prefix)sGamma_bb, %(prefix)sGamma_tb\
-)'
-                % locals()
-            )
+)' % locals()
             #            print  rooExpr
             self.modelBuilder.factory_(rooExpr)
         elif what.startswith("hgg") or what.startswith("hzg"):  # in ['hgg', 'hzg']:
@@ -195,17 +187,14 @@ class SMHiggsBuilder:
                 )
             scalingName = "Scaling_" + what
             #            print 'Building '+scalingName
-            rooExpr = (
-                'expr::%(scalingName)s(\
+            rooExpr = 'expr::%(scalingName)s(\
 "( (@0*@0)*@4 + (@1*@1)*@5 + (@2*@2)*@6 + (@0*@1)*@7 + (@0*@2)*@8 + (@1*@2)*@9 + (@3*@3)*@10 + (@0*@3)*@11 + (@1*@3)*@12 + (@2*@3)*@13 ) / (@4+@5+@6+@7+@8+@9+@10+@11+@12+@13)",\
  %(Ctop)s, %(Cb)s, %(CW)s, %(Ctau)s,\
  %(prefix)sGamma_tt, %(prefix)sGamma_bb, %(prefix)sGamma_WW,\
  %(prefix)sGamma_tb, %(prefix)sGamma_tW, %(prefix)sGamma_bW,\
  %(prefix)sGamma_ll,\
  %(prefix)sGamma_tl, %(prefix)sGamma_bl, %(prefix)sGamma_lW\
-)'
-                % locals()
-            )
+)' % locals()
             #            print  rooExpr
             self.modelBuilder.factory_(rooExpr)
         elif what.startswith("ggZH"):
@@ -305,7 +294,7 @@ class SMHiggsBuilder:
                         if D in DS:
                             var = self.modelBuilder.out.var("HiggsDecayWidthTHU_%s" % K2)
                             break
-                    if var == None:
+                    if not var:
                         continue
                 else:
                     var = self.modelBuilder.out.var("param_%s" % K)
@@ -317,7 +306,7 @@ class SMHiggsBuilder:
     def dump(self, name, xvar, values, logfile):
         xv = self.modelBuilder.out.var(xvar)
         yf = self.modelBuilder.out.function(name)
-        if yf == None:
+        if not yf:
             raise RuntimeError("Missing " + name)
         log = open(logfile, "w")
         for x in values:
@@ -325,7 +314,7 @@ class SMHiggsBuilder:
             log.write(f"{x:.3f}\t{yf.getVal():.7g}\n")
 
     def textToSpline(self, name, filename, xvar="MH", ycol=1, xcol=0, skipRows=1, algo="CSPLINE"):
-        if self.modelBuilder.out.function(name) != None:
+        if self.modelBuilder.out.function(name):
             return
         x = []
         y = []

@@ -573,17 +573,17 @@ class Kappas(LHCHCGBaseModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"c7_XSBRscal_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if not self.modelBuilder.out.function(name):
             if production in ["ggH", "qqH", "ggZH", "tHq", "tHW"]:
-                XSscal = ("@0", f"Scaling_{production}_{energy}")
+                XSscal = ("x[0]", f"Scaling_{production}_{energy}")
             elif production == "WH":
-                XSscal = ("@0*@0", self.kappa_W)
+                XSscal = ("x[0]*x[0]", self.kappa_W)
             elif production == "ZH":
-                XSscal = ("@0*@0", self.kappa_Z)
+                XSscal = ("x[0]*x[0]", self.kappa_Z)
             elif production == "ttH":
-                XSscal = ("@0*@0", "kappa_t")
+                XSscal = ("x[0]*x[0]", "kappa_t")
             elif production == "bbH":
-                XSscal = ("@0*@0", "kappa_b")
+                XSscal = ("x[0]*x[0]", "kappa_b")
             else:
                 raise RuntimeError("Production %s not supported" % production)
             BRscal = decay
@@ -594,9 +594,9 @@ class Kappas(LHCHCGBaseModel):
             if production == "ggH" and (decay in self.add_bbH) and energy in ["7TeV", "8TeV", "13TeV", "14TeV"]:
                 b2g = f"CMS_R_bbH_ggH_{decay}_{energy}[{0.01:g}]"
                 b2gs = "CMS_bbH_scaler_%s" % energy
-                self.modelBuilder.factory_(f'expr::{name}("({XSscal[0]} + @1*@1*@2*@3)*@4", {XSscal[1]}, kappa_b, {b2g}, {b2gs}, c7_BRscal_{BRscal})')
+                self.modelBuilder.factory_(f'expr::{name}("({XSscal[0]} + x[1]*x[1]*x[2]*x[3])*x[4]", {XSscal[1]}, kappa_b, {b2g}, {b2gs}, c7_BRscal_{BRscal})')
             else:
-                self.modelBuilder.factory_(f'expr::{name}("{XSscal[0]}*@1", {XSscal[1]}, c7_BRscal_{BRscal})')
+                self.modelBuilder.factory_(f'expr::{name}("{XSscal[0]}*x[1]", {XSscal[1]}, c7_BRscal_{BRscal})')
             print("[LHC-HCG Kappas]", name, production, decay, energy, ": ", end=" ")
             self.modelBuilder.out.function(name).Print("")
         return name
@@ -848,16 +848,16 @@ class KappaVKappaF(LHCHCGBaseModel):
 
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"c7_XSBRscal_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if not self.modelBuilder.out.function(name):
             if production in ["ggZH", "tHq", "tHW"]:
                 XSscal = (
-                    "@0",
+                    "x[0]",
                     f"Scaling_{production}_{CMS_to_LHCHCG_DecSimple[decay]}_{energy}",
                 )
             elif production in ["ggH", "ttH", "bbH"]:
-                XSscal = ("@0*@0", "kFkF_" + CMS_to_LHCHCG_DecSimple[decay])
+                XSscal = ("x[0]*x[0]", "kFkF_" + CMS_to_LHCHCG_DecSimple[decay])
             elif production in ["qqH", "WH", "ZH"]:
-                XSscal = ("@0*@0", "kVkV_" + CMS_to_LHCHCG_DecSimple[decay])
+                XSscal = ("x[0]*x[0]", "kVkV_" + CMS_to_LHCHCG_DecSimple[decay])
             else:
                 raise RuntimeError("Production %s not supported" % production)
             BRscal = decay
@@ -869,7 +869,7 @@ class KappaVKappaF(LHCHCGBaseModel):
                 b2g = f"CMS_R_bbH_ggH_{decay}_{energy}[{0.01:g}]"
                 b2gs = "CMS_bbH_scaler_%s" % energy
                 self.modelBuilder.factory_(
-                    'expr::%s("(%s + @1*@1*@2*@3)*@4", %s, kFkF_%s, %s, %s, c7_BRscal_%s)'
+                    'expr::%s("(%s + x[1]*x[1]*x[2]*x[3])*x[4]", %s, kFkF_%s, %s, %s, c7_BRscal_%s)'
                     % (
                         name,
                         XSscal[0],
@@ -881,7 +881,7 @@ class KappaVKappaF(LHCHCGBaseModel):
                     )
                 )
             else:
-                self.modelBuilder.factory_(f'expr::{name}("{XSscal[0]}*@1", {XSscal[1]}, c7_BRscal_{BRscal})')
+                self.modelBuilder.factory_(f'expr::{name}("{XSscal[0]}*x[1]", {XSscal[1]}, c7_BRscal_{BRscal})')
             print("[LHC-HCG Kappas]", name, production, decay, energy, ": ", end=" ")
             self.modelBuilder.out.function(name).Print("")
         return name

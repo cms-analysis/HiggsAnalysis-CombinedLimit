@@ -20,6 +20,8 @@
 #include "SimpleConstraintGroup.h"
 
 class RooMultiPdf;
+class CMSHistSum;
+class CMSHistErrorPropagator;
 
 // Part zero: ArgSet checker
 namespace cacheutils {
@@ -88,7 +90,6 @@ class CachingPdf : public CachingPdfBase {
         const RooAbsData *lastData_ = 0;
         ValuesCache cache_;
         std::vector<uint8_t> nonZeroW_;
-        unsigned int         nonZeroWEntries_;
         bool                 includeZeroWeights_ = false;
         virtual void newData_(const RooAbsData &data) ;
         virtual void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
@@ -120,12 +121,6 @@ class CachingAddNLL : public RooAbsReal {
         Bool_t isDerived() const override { return kTRUE; }
         Double_t defaultErrorLevel() const override { return 0.5; }
         void setData(const RooAbsData &data) ;
-        virtual RooArgSet* getObservables(const RooArgSet* depList, Bool_t valueOnly = kTRUE) const ;
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
-        RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const override;
-#else
-        bool getParameters(const RooArgSet* depList, RooArgSet& outputSet, bool stripDisconnected=true) const override;
-#endif
         double  sumWeights() const { return sumWeights_; }
         const RooAbsPdf *pdf() const { return pdf_; }
         void setZeroPoint() ;
@@ -134,6 +129,7 @@ class CachingAddNLL : public RooAbsReal {
         void updateZeroPoint() { clearZeroPoint(); setZeroPoint(); }
         void propagateData();
         void setAnalyticBarlowBeeston(bool flag);
+        void runAnalyticBarlowBeeston();
         /// note: setIncludeZeroWeights(true) won't have effect unless you also re-call setData
         virtual void  setIncludeZeroWeights(bool includeZeroWeights) ;
         RooSetProxy & params() { return params_; }
@@ -152,6 +148,8 @@ class CachingAddNLL : public RooAbsReal {
         mutable std::vector<std::unique_ptr<RooAbsReal>>  prods_;
         mutable std::vector<RooAbsReal*> integrals_;
         mutable std::vector<std::pair<const RooMultiPdf*,CachingPdfBase*> > multiPdfs_;
+        mutable std::vector<CMSHistSum const*> histSums_;
+        mutable std::vector<CMSHistErrorPropagator const*> histErrorPropagators_;
         mutable std::vector<Double_t> partialSum_;
         mutable std::vector<Double_t> workingArea_;
         mutable bool isRooRealSum_, fastExit_;
@@ -170,7 +168,6 @@ class CachingSimNLL  : public RooAbsReal {
         Bool_t isDerived() const override { return kTRUE; }
         Double_t defaultErrorLevel() const override { return 0.5; }
         void setData(const RooAbsData &data) ;
-        virtual RooArgSet* getObservables(const RooArgSet* depList, Bool_t valueOnly = kTRUE) const ;
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
         RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const override;
 #else
@@ -185,9 +182,6 @@ class CachingSimNLL  : public RooAbsReal {
         static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
         void setChannelMasks(RooArgList const& args);
         void setAnalyticBarlowBeeston(bool flag);
-        void setHideRooCategories(bool flag) { hideRooCategories_ = flag; }
-        void setHideConstants(bool flag) { hideConstants_ = flag; }
-        void setMaskConstraints(bool flag) ;
         void setMaskNonDiscreteChannels(bool mask) ;
         friend class CachingAddNLL;
         // trap this call, since we don't care about propagating it to the sub-components
@@ -198,8 +192,6 @@ class CachingSimNLL  : public RooAbsReal {
         const RooAbsData  *dataOriginal_;
         const RooArgSet   *nuis_;
         RooSetProxy        params_, catParams_;
-        bool hideRooCategories_ = false;
-        bool hideConstants_ = false;
         RooArgSet piecesForCloning_;
         std::unique_ptr<RooSimultaneous>  factorizedPdf_;
         std::vector<RooAbsPdf *>        constrainPdfs_;
@@ -219,7 +211,6 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<double> constrainZeroPointsFastPoisson_;
         std::vector<RooAbsReal*> channelMasks_;
         std::vector<bool>        internalMasks_;
-        bool                     maskConstraints_ = false;
         RooArgSet                activeParameters_, activeCatParameters_;
         double                   maskingOffset_ = 0;     // offset to ensure that interal or constraint masking doesn't change NLL value
         double                   maskingOffsetZero_ = 0; // and associated zero point

@@ -1,4 +1,4 @@
-# combine_tutorial_ABCD_rooParametricHist
+# ABCD with `RooParametricHist` 
 The following is a tutorial on how to use the `RooParamertricHist` class from <span style="font-variant:small-caps;">Combine</span> to perform an ABCD-like background estimation method.
 
 ## Getting started

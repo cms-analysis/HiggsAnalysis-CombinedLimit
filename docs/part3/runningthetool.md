@@ -21,7 +21,7 @@ The option `-M` is used to choose the statistical evaluation method. There are s
     - `MultiDimFit`: performs maximum likelihood fits and likelihood scans with an arbitrary number of parameters of interest.
 -   **Miscellaneous** other modules that do not compute limits or confidence intervals, but use the same framework:
     - `GoodnessOfFit`: perform a goodness of fit test for models including shape information. Several GoF tests are implemented.
-    - `ChannelConsistencyCheck`: study the consistency between individual channels in a combination.
+    - `ChannelCompatibilityCheck`: study the consistency between individual channels in a combination.
     - `GenerateOnly`: generate random or asimov toy datasets for use as input to other methods
 
 The command help is organized into five parts:
@@ -54,6 +54,7 @@ There are a number of useful command-line options that can be used to alter the 
 
 
 -   `--freezeParameters name1[,name2,...]` Will freeze the parameters with the given names to their set values. This option supports the use of regular expression by replacing `name` with `rgx{some regular expression}` for matching to *constrained nuisance parameters* or `var{some regular expression}` for matching to *any* parameter. For example `--freezeParameters rgx{CMS_scale_j.*}` will freeze all constrained nuisance parameters with the prefix `CMS_scale_j`, while `--freezeParameters var{.*rate_scale}` will freeze any parameter (constrained nuisance parameter or otherwise) with the suffix `rate_scale`.
+    - Regular expressions can also be chained, for example `--freezeParameters rgx{CMS_scale_j.*},rgx{CMS_eff.*}`
     - Use the option `--freezeParameters allConstrainedNuisances` to freeze all nuisance parameters that have a constraint term (i.e not `flatParams` or `rateParams` or other freely floating parameters).
     - Similarly, the option `--floatParameters name1[,name2,...]` sets the parameter(s) floating and also accepts regular expressions.
     - Groups of nuisance parameters (constrained or otherwise), as defined in the datacard, can be frozen using `--freezeNuisanceGroups`. You can also freeze all nuisances that are *not* contained in a particular group using a **^** before the group name (`--freezeNuisanceGroups=^group_name` will freeze everything except nuisance parameters in the group "group_name".)
@@ -206,7 +207,7 @@ If you are using `toysFrequentist`, be aware that the values set by `--setParame
 
 It is also possible to generate the toys first, and then feed them to the methods in <span style="font-variant:small-caps;">Combine</span>. This can be done using `-M GenerateOnly --saveToys`. The toys can then be read and used with the other methods by specifying `--toysFile=higgsCombineTest.GenerateOnly...` and using the same options for the toy generation. 
 
-You can specify to run on a single toy, in place of the observed data, by including the option `-D file.root:toys/toy_i`. For example adding `-D higgsCombineTest.GenerateOnly.mH120.123456.root:toys/toy_10` will run on the  data set `toy_10` (the 10th toy) that was generated and saved in the file `higgsCombineTest.GenerateOnly.mH120.123456.root`. 
+To run on a specific toy, you can pass the `--toysFile` option, plus the same options for the toy generation, and the option `--pickToy N` to run on the Nth toy. Additionally, for non-frequentist toys, you can specify to run on a single toy, in place of the observed data, by including the option `-D file.root:toys/toy_i`. For example adding `-D higgsCombineTest.GenerateOnly.mH120.123456.root:toys/toy_10` will run on the data set `toy_10` (the 10th toy) that was generated and saved in the file `higgsCombineTest.GenerateOnly.mH120.123456.root`. Note that if you are using frequentist toys, you must use the `--toysFile` option, as by passing the toy as an alternative data set the randomized constraint terms that are part of the frequentist toy generation will not be loaded.
 
 !!! warning
     Some methods also use toys within the method itself (eg `AsymptoticLimits` and `HybridNew`). For these, you should **not** specify the toy generation with `-t` or the options above. Instead, you should follow the method-specific instructions.
@@ -253,6 +254,8 @@ For example, to generate toys (eg for use with limit setting) users running on l
 combineTool.py -d workspace.root -M HybridNew --LHCmode LHC-limits --clsAcc 0  -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveHybridResult -m 125 --job-mode condor --task-name condor-test --sub-opts='+JobFlavour="tomorrow"'
 ``` 
 The `--singlePoint` option is over-ridden, so that this will produce a script for each value of the POI in the range 0.2 to 2.0 in steps of 0.05. You can merge multiple points into a script using `--merge` - e.g adding `--merge 10` to the above command will mean that each job contains *at most* 10 of the values. The scripts are labelled by the `--task-name` option. They will be submitted directly to condor, adding any options in `--sub-opts` to the condor submit script. Make sure multiple options are separated by `\n`. The jobs will run and produce output in the **current directory**.
+
+**N.B. Same as [here](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/docs/part3/commonstatsmethods.md#complex-models), if the maximum POI value is greater than 20, the option `--rMax X` (where X is any value greater than or equal to the maximum POI) needs to be specified.**
 
 Below is an example for splitting points in a multi-dimensional likelihood scan.
 

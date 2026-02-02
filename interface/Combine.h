@@ -7,6 +7,8 @@
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
 
+#include "CombineUtils.h"
+
 class TDirectory;
 class TTree;
 class LimitAlgo;
@@ -14,8 +16,9 @@ class RooWorkspace;
 class RooAbsData;
 namespace RooStats { class ModelConfig; }
 
-extern Float_t t_cpu_, t_real_, g_quantileExpected_; 
-extern bool g_fillTree_; 
+extern Float_t t_cpu_, t_real_, g_quantileExpected_;
+extern bool g_fillTree_;
+extern int pickToy_;
 //RooWorkspace *writeToysHere = 0;
 extern TDirectory *outputFile;
 extern TDirectory *writeToysHere;
@@ -47,7 +50,10 @@ public:
   void applyOptions(const boost::program_options::variables_map &vm) ;
   
   void run(TString hlfFile, const std::string &dataset, double &limit, double &limitErr, int &iToy, TTree *tree, int nToys);
- 
+
+  /// Set a specific toy to run method on when using --toysFile / --toys
+  static void setPickToy(int pickToy);
+
   /// Stop combine from fillint the tree (some algos need control)
   static void toggleGlobalFillTree(bool flag=false);
 
@@ -122,11 +128,5 @@ private:
   static std::string  trackErrorsNameString_;
   static std::string  textToWorkspaceString_;
 };
-
-std::unique_ptr<RooAbsReal> combineCreateNLL(RooAbsPdf &pdf,
-                                             RooAbsData &data,
-                                             RooArgSet const *constraint = nullptr,
-                                             bool offset = false,
-                                             bool warnAboutDifferentBackend = true);
 
 #endif

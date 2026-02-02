@@ -12,7 +12,7 @@ git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsA
 git checkout roofit_ad_ichep_2024_63206_comp
 cd ../../
 cmsenv
-scram b -j 8
+scram b -j$(nproc --ignore=2)
 ```
 ## Tested models
 Below you can find test results for several models with classes implemented in Combine. 

@@ -4,7 +4,6 @@ from array import array
 import re
 import json
 import types
-import six
 import ctypes
 
 COL_STORE = []
@@ -882,7 +881,7 @@ def GraphDivide(num, den):
     res = num.Clone()
     for i in range(num.GetN()):
         res.GetY()[i] = res.GetY()[i] / den.Eval(res.GetX()[i])
-    if type(res) is R.TGraphAsymmErrors:
+    if isinstance(res, R.TGraphAsymmErrors):
         for i in range(num.GetN()):
             res.GetEYhigh()[i] = res.GetEYhigh()[i] / den.Eval(res.GetX()[i])
             res.GetEYlow()[i] = res.GetEYlow()[i] / den.Eval(res.GetX()[i])

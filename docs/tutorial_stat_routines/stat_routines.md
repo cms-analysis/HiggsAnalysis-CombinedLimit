@@ -121,7 +121,7 @@ combine -M MultiDimFit datacard.txt --algo grid --points 100 --rMin -2 --rMax 6
 The results can then be plotted using the `plot1Dscan.py` script, using the file `higgsCombineTest.MultiDimFit.mH120.root` which was output by the scan:
 
 ```
-python3 ../../../scripts/plot1DScan.py --POI r higgsCombineTest.MultiDimFit.mH120.root
+plot1DScan.py --POI r higgsCombineTest.MultiDimFit.mH120.root
 ```
 
 it should produce an output pdf and png files which look like the one shown below.
@@ -224,7 +224,7 @@ So for positive values of $\hat{r}$ we can read the Significance from the likeli
 
 ```
 combine -M MultiDimFit datacard.txt --algo grid --points 100 --rMin -0.1 --rMax 1
-python3 ../../../scripts/plot1DScan.py --POI r higgsCombineTest.MultiDimFit.mH120.root --y-max 0.5
+plot1DScan.py --POI r higgsCombineTest.MultiDimFit.mH120.root --y-max 0.5
 ```
 
 This will produce the same likelihood scan as before, but where we've restricted the range to be able to see the value of the curve at `r` = 0 more clearly.
@@ -271,7 +271,7 @@ Let's see what happens if we were to have observed 12 events instead of 6. There
 
 ```
 combine -M MultiDimFit datacard_obs12.txt --algo grid --points 100 --rMin -2 --rMax 8
-python3 ../../../scripts/plot1DScan.py --POI r higgsCombineTest.MultiDimFit.mH120.root
+plot1DScan.py --POI r higgsCombineTest.MultiDimFit.mH120.root
 ```
 
 ![](llhood_scan_obs12.png)
@@ -397,9 +397,12 @@ combine -M HybridNew --LHCmode LHC-limits --plot r_scan.png datacard.txt
 
 ![](r_scan.png)
 
+Questions:
 
 - Where do the uncertainties on the CLs value at each value of `r` come from in the plot?
 - How could the precision of the limit be increased?
+
+(hint: read through [this section](../part3/commonstatsmethods.md#computing-limits-with-toys) and look for the adaptive sampling procedure)
 
 ### Debugging
 

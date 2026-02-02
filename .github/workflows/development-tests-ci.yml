@@ -1,43 +1,76 @@
 name: CI with CVMFS for AD tests 
 
 on:
+  workflow_dispatch:
   pull_request_target:
     types: [ labeled ]
     branches: [ main ]
 
-
 jobs:
   test_workflow:
-    runs-on: ubuntu-latest
+    if: github.event.label.name == 'testAD'
+    runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
-        IMAGE: ["cmscloud/al8-cms"]
-        CMSSW_VERSION: ["CMSSW_15_1_ROOT634_X_2025-04-25-2300"]
-        SCRAM_ARCH: ["el8_amd64_gcc12"]
-        ROOT: ["ROOT v6.34/09"]
         include:
-          - IMAGE: "cmscloud/al8-cms"
-            CMSSW_VERSION: "CMSSW_15_1_ROOT6_X_2025-04-27-2300"
-            SCRAM_ARCH: "el8_amd64_gcc12"
-            ROOT: "ROOT v6.35/01"
-
+          - IMAGE: "cmscloud/al9-cms"
+            CMSSW_VERSION: "CMSSW_14_1_0_pre4"
+            SCRAM_ARCH: "el9_amd64_gcc12"
+            ROOT: "6.30.07"
+          - LCG_RELEASE: "LCG_108"
+            LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
+            ROOT: "6.36.02"
+          - LCG_RELEASE: "dev3/latest"
+            LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
+            ROOT: "LCG master"
+    name: Test with ${{ matrix.CMSSW_VERSION || matrix.LCG_RELEASE }} - ROOT ${{ matrix.ROOT }}
     env:
-      docker_opt_rw: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  --mount source=cmsusr,destination=/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
-      docker_opt_ro: -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:ro -w /home/cmsusr/ -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
-    name: Test with ${{ matrix.CMSSW_VERSION }} and ${{ matrix.ROOT }} 
+      CMSSW_VERSION: ${{ matrix.CMSSW_VERSION }}
+      IMAGE: ${{ matrix.IMAGE }}
+      LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
+      LCG_ARCH: ${{ matrix.LCG_ARCH }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: cvmfs-contrib/github-action-cvmfs@v4
         with:
-          cvmfs_repositories: 'cms.cern.ch'
+          cvmfs_repositories: ${{ (env.CMSSW_VERSION != '') && 'cms.cern.ch' || 'sft.cern.ch' }}
+
+      - name: Build Combine (LCG)
+        if: ${{ env.CMSSW_VERSION == '' }}
+        env:
+          LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
+          LCG_ARCH: ${{ matrix.LCG_ARCH }}
+          # VDT doesn't seem to be available in LCG_102.
+          # But also it's very good to also test builds with USE_VDT=OFF.
+          USE_VDT: ${{ matrix.LCG_RELEASE != 'LCG_102' && 'TRUE' || 'FALSE' }}
+        run: >-
+          source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
+          root --version;
+          mkdir build;
+          cd build;
+          cmake -DCMAKE_INSTALL_PREFIX=../install \
+                -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+                -DUSE_VDT=${USE_VDT} \
+                -DBUILD_TESTS=TRUE \
+                ..;
+          make install -j$(nproc);
+          echo "RooFit.Banner: 0" > .rootrc;
+          echo "RooFit.Banner: 0" > test/.rootrc;
+          cd ..;
+          export PATH=$PWD/install/bin:$PATH;
+          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH;
+
       - uses: rhaschke/docker-run-action@v5
-        name: Build Combine
-        if: github.event.label.name == 'testAD' 
+        name: Build Combine (CMSSW)
+        # Only run the CMSSW build step if the CMSSW_VERSION is defined. Otherwise we build for LCG.
+        if: ${{ env.CMSSW_VERSION != '' }}
         with:
           image: ${{ matrix.IMAGE }}
           shell: bash
-          options: ${{env.docker_opt_rw}}
-          run: | 
+          options: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  --mount source=cmsusr,destination=/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
+          run: |
             cd /home/cmsusr/
             source /cvmfs/cms.cern.ch/cmsset_default.sh
             scram project ${CMSSW_VERSION}
@@ -45,38 +78,206 @@ jobs:
             cmsenv
             mkdir -p HiggsAnalysis
             cp -r /work/CombinedLimit HiggsAnalysis/
-            scramv1 b -j$(nproc)
+            scramv1 b -j$(nproc --ignore=2)
             echo ${PATH}
             root --version
             combine --help
 
-      - uses: rhaschke/docker-run-action@v5
-        name: Counting datacard
-        if: github.event.label.name == 'testAD' 
-        with:
-          image: ${{ matrix.IMAGE }}
-          shell: bash
-          options: ${{env.docker_opt_ro}}
-          run: |
-            cp -r cmssw/${CMSSW_VERSION} .
-            cd /home/cmsusr/${CMSSW_VERSION}/src
-            source /cvmfs/cms.cern.ch/cmsset_default.sh
-            cmsenv
-            text2workspace.py  HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
-            combine -M MultiDimFit HiggsAnalysis/CombinedLimit/data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1 --nllbackend codegen 
+      - name: Get output directory
+        id: get_output_dir
+        run: |
+          if [ "${{ env.CMSSW_VERSION }}" == "" ]; then
+            echo "OUTPUT_DIR=${{ github.workspace }}/outputs" >> "$GITHUB_OUTPUT"
+          else
+            echo "OUTPUT_DIR=/workspace/outputs" >> "$GITHUB_OUTPUT"
+          fi
 
-      - uses: rhaschke/docker-run-action@v5
-        name: RooHistPdf
-        if: github.event.label.name == 'testAD' 
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Counting datacard
         with:
-          image: ${{ matrix.IMAGE }}
-          shell: bash
-          options: ${{env.docker_opt_ro}}
-          run: |
-            cp -r cmssw/${CMSSW_VERSION} .
-            cd /home/cmsusr/${CMSSW_VERSION}/src
-            source /cvmfs/cms.cern.ch/cmsset_default.sh
-            cmsenv
-            ulimit -s unlimited
-            text2workspace.py HiggsAnalysis/CombinedLimit/data/ci/datacard_RooHistPdf.txt.gz -o ws_RooHistPdf.root
-            combine -M MultiDimFit ws_RooHistPdf.root --algo singles  --setParameterRanges r=-1,2. --nllbackend codegen 
+          script: |-
+            COMBINE_COMMAND="combine -M MultiDimFit data/tutorials/multiDim/toy-hgg-125.root  --setParameterRanges r=-1,1"
+            OUTDIR=${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
+            mkdir -p $OUTDIR/counting $OUTDIR/counting_codegen
+            text2workspace.py  data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
+            $COMBINE_COMMAND
+            mv higgsCombine*.root $OUTDIR/counting
+            $COMBINE_COMMAND --nllbackend codegen
+            mv higgsCombine*.root $OUTDIR/counting_codegen/
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Counting datacard Fixed Point from csv
+        with:
+          script: |-
+            COMBINE_COMMAND="combineTool.py -M MultiDimFit data/tutorials/multiDim/toy-hgg-125.root --fromfile data/tutorials/multiDim/fixed.csv"
+            OUTDIR=${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
+            mkdir -p $OUTDIR/counting_fixed_csv $OUTDIR/counting_fixed_csv_codegen
+            text2workspace.py  data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
+            $COMBINE_COMMAND
+            mv higgsCombine*.root $OUTDIR/counting_fixed_csv
+            $COMBINE_COMMAND --nllbackend codegen
+            mv higgsCombine*.root $OUTDIR/counting_fixed_csv_codegen/
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Parametric analysis
+        with:
+          script: |-
+            COMBINE_COMMAND="combine -M MultiDimFit ws_parametric-analysis.root  --algo singles --setParameterRanges r=-2,1"
+            OUTDIR=${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
+            mkdir -p $OUTDIR/parametric $OUTDIR/parametric_codegen
+            text2workspace.py data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -o ws_parametric-analysis.root --mass 125
+            $COMBINE_COMMAND
+            mv higgsCombine*.root $OUTDIR/parametric
+            $COMBINE_COMMAND --nllbackend codegen
+            mv higgsCombine*.root $OUTDIR/parametric_codegen/
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Template analysis CMSHistFunc 
+        with:
+          script: |-
+            COMBINE_COMMAND_1="combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1"
+            COMBINE_COMMAND_2="combine -M FitDiagnostics ws_template-analysis.root  -t -1 --setParameters r=1 --plots  --setParameterRanges r=-1,1"
+            OUTDIR=${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
+            mkdir -p $OUTDIR/template $OUTDIR/template_codegen
+            text2workspace.py data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
+            $COMBINE_COMMAND_1
+            $COMBINE_COMMAND_2
+            mv higgsCombine*.root fitDiagnostics*.root $OUTDIR/template
+            $COMBINE_COMMAND_1 --nllbackend codegen; $COMBINE_COMMAND_2 --nllbackend codegen
+            mv higgsCombine*.root fitDiagnostics*.root $OUTDIR/template_codegen/
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Template analysis CMSHistFunc shapeN
+        with:
+          script: |-
+            COMBINE_COMMAND_1="combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1"
+            COMBINE_COMMAND_2="combine -M FitDiagnostics ws_template-analysis.root  -t -1 --setParameters r=1 --plots  --setParameterRanges r=-1,1"
+            OUTDIR=${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
+            mkdir -p $OUTDIR/template_shapeN $OUTDIR/template_shapeN_codegen
+            text2workspace.py data/ci/template-analysis_shapeNInterp.txt -o ws_template-analysis.root --mass 200
+            $COMBINE_COMMAND_1
+            $COMBINE_COMMAND_2
+            mv higgsCombine*.root fitDiagnostics*.root $OUTDIR/template_shapeN
+            $COMBINE_COMMAND_1 --nllbackend codegen; $COMBINE_COMMAND_2 --nllbackend codegen
+            mv higgsCombine*.root fitDiagnostics*.root $OUTDIR/template_shapeN_codegen/
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Template analysis CMSHistSum
+        with:
+          script: |-
+            COMBINE_COMMAND="combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH"
+            OUTDIR=${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
+            mkdir -p $OUTDIR/template_histsum $OUTDIR/template_histsum_codegen
+            text2workspace.py data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200 --for-fits --no-wrappers --use-histsum
+            $COMBINE_COMMAND
+            mv higgsCombine*.root $OUTDIR/template_histsum
+            $COMBINE_COMMAND --nllbackend codegen
+            mv higgsCombine*.root $OUTDIR/template_histsum_codegen/
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Template analysis CMSHistSum with shapeN
+        with:
+          script: |-
+            COMBINE_COMMAND="combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH"
+            OUTDIR=${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
+            mkdir -p $OUTDIR/template_histsum_shapeN $OUTDIR/template_histsum_shapeN_codegen
+            text2workspace.py data/ci/template-analysis_shapeNInterp.txt -o ws_template-analysis.root --mass 200 --for-fits --no-wrappers --use-histsum
+            $COMBINE_COMMAND
+            mv higgsCombine*.root $OUTDIR/template_histsum_shapeN
+            $COMBINE_COMMAND --nllbackend codegen
+            mv higgsCombine*.root $OUTDIR/template_histsum_shapeN_codegen/
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: RooMultiPdf
+        if: ${{ !matrix.CMSSW_VERSION || startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
+        with:
+          script: |-
+            COMBINE_COMMAND="combine -M MultiDimFit -m 125.38  --setParameters pdf_index_ggh=2 --freezeParameters MH --cminDefaultMinimizerStrategy 0 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles ws_RooMultiPdf.root"
+            OUTDIR=${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
+            mkdir -p $OUTDIR/roo_multipdf $OUTDIR/roo_multipdf_codegen
+            text2workspace.py data/ci/datacard_RooMultiPdf.txt.gz  -o ws_RooMultiPdf.root
+            $COMBINE_COMMAND
+            mv higgsCombine*.root $OUTDIR/roo_multipdf
+            $COMBINE_COMMAND --nllbackend codegen
+            mv higgsCombine*.root $OUTDIR/roo_multipdf_codegen/
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: RooParametricHist
+        with:
+          script: |-
+            COMBINE_COMMAND="combine -M MultiDimFit ws_RooParametricHist.root --algo singles"
+            OUTDIR=${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
+            mkdir -p $OUTDIR/roo_parametric_hist $OUTDIR/roo_parametric_hist_codegen
+            text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/*hcc*:r[1,-500,500]' --PO 'map=.*/zcc:z[1,-5,5]' data/ci/datacard_RooParametricHist.txt -o ws_RooParametricHist.root
+            $COMBINE_COMMAND
+            mv higgsCombine*.root $OUTDIR/roo_parametric_hist
+            $COMBINE_COMMAND --nllbackend codegen
+            mv higgsCombine*.root $OUTDIR/roo_parametric_hist_codegen/
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: RooHistPdf
+        if: ${{ !matrix.CMSSW_VERSION || startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
+        with:
+          script: |-
+            COMBINE_COMMAND="combine -M MultiDimFit ws_RooHistPdf.root --algo singles -v -2  --setParameterRanges r=-1,2."
+            OUTDIR=${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
+            mkdir -p $OUTDIR/roo_hist_pdf $OUTDIR/roo_hist_pdf_codegen
+            text2workspace.py data/ci/datacard_RooHistPdf.txt.gz -o ws_RooHistPdf.root
+            $COMBINE_COMMAND
+            mv higgsCombine*.root $OUTDIR/roo_hist_pdf
+            $COMBINE_COMMAND --nllbackend codegen
+            mv higgsCombine*.root $OUTDIR/roo_hist_pdf_codegen/
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Template analysis with large integrals
+        with:
+          script: |-
+            COMBINE_COMMAND="combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1"
+            OUTDIR=${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
+            mkdir -p $OUTDIR/template_large_integrals $OUTDIR/template_large_integrals_codegen
+            text2workspace.py data/ci/templ_datacard_largeYields.txt -o ws_template-analysis.root
+            $COMBINE_COMMAND
+            mv higgsCombine*.root $OUTDIR/template_large_integrals
+            $COMBINE_COMMAND --nllbackend codegen
+            mv higgsCombine*.root $OUTDIR/template_large_integrals_codegen/
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Template analysis with large integrals using CMSHistSum
+        with:
+          script: |-
+            COMBINE_COMMAND="combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-1,1 --X-rtd FAST_VERTICAL_MORPH"
+            OUTDIR=${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
+            mkdir -p $OUTDIR/template_large_integrals_histsum $OUTDIR/template_large_integrals_histsum_codegen
+            text2workspace.py data/ci/templ_datacard_largeYields.txt -o ws_template-analysis.root  --for-fits --no-wrappers --use-histsum
+            $COMBINE_COMMAND
+            mv higgsCombine*.root $OUTDIR/template_large_integrals_histsum
+            $COMBINE_COMMAND --nllbackend codegen
+            mv higgsCombine*.root $OUTDIR/template_large_integrals_histsum_codegen/
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: InterferenceModel test in CMSSW
+        with:
+          script: |
+            cd test
+            python3 test_interference.py
+
+      - name: Prepare artifact name
+        id: artifact_name
+        run: |
+          SAFE_NAME=$(echo "${{ matrix.CMSSW_VERSION || matrix.LCG_RELEASE }}" | tr '/' '_')
+          SAFE_ROOT=$(echo "${{ matrix.ROOT }}" | tr ' /' '_')
+          echo "name=outputs-${SAFE_NAME}-ROOT${SAFE_ROOT}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        name: Upload outputs
+        with:
+          name: ${{ steps.artifact_name.outputs.name }}
+          path: outputs/
+          retention-days: 7
+
+      - uses: ./.github/actions/run-in-cvmfs
+        name: Compare outputs
+        with:
+          script: |
+            python3 test/codegen/compare_codegen.py ${{ steps.get_output_dir.outputs.OUTPUT_DIR }}

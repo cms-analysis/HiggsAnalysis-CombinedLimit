@@ -32,14 +32,12 @@ ROOT.gInterpreter.Declare("#include <HiggsAnalysis/CombinedLimit/interface/Combi
 
 nll = pdf.createNLL(data, Constrain=constrain, GlobalObservables=global_observables, Offset="initial")
 
-ROOT.gInterpreter.Declare(
-    """
+ROOT.gInterpreter.Declare("""
 void writeDebugMacro(RooAbsReal & real, std::string const &name)
 {
    static_cast<RooFit::Experimental::RooFuncWrapper&>(real).writeDebugMacro(name);
 }
-"""
-)
+""")
 
 if args.backend == "codegen" and args.write_debug_macro:
     ROOT.writeDebugMacro(nll, "codegen")

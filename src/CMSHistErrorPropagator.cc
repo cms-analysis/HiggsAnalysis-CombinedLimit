@@ -99,7 +99,6 @@ void CMSHistErrorPropagator::initialize() const {
   initialized_ = true;
 }
 
-
 void CMSHistErrorPropagator::updateCache(int eval) const {
   initialize();
 
@@ -153,7 +152,6 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
 
 
   if (!binsentry_.good() || eval != last_eval_) {
-    runBarlowBeeston();
     // bintypes might have size == 0 if we never ran setupBinPars()
     for (unsigned j = 0; j < bintypes_.size(); ++j) {
       cache_[j] = valsum_[j];
@@ -192,9 +190,7 @@ void CMSHistErrorPropagator::updateCache(int eval) const {
 }
 
 void CMSHistErrorPropagator::runBarlowBeeston() const {
-  if (!bb_.init) return;
-  RooAbsArg::setDirtyInhibit(true);
-
+  updateCache();
   const unsigned n = bb_.use.size();
   for (unsigned j = 0; j < n; ++j) {
     bb_.dat[j] = data_[bb_.use[j]];
@@ -214,10 +210,6 @@ void CMSHistErrorPropagator::runBarlowBeeston() const {
   }
   for (unsigned j = 0; j < n; ++j) {
     if (toterr_[bb_.use[j]] > 0.) bb_.push_res[j]->setVal(bb_.res[j]);
-  }
-  RooAbsArg::setDirtyInhibit(false);
-  for (RooAbsArg *arg : bb_.dirty_prop) {
-    arg->setValueDirty();
   }
 }
 
@@ -240,7 +232,6 @@ void CMSHistErrorPropagator::setAnalyticBarlowBeeston(bool flag) const {
     bb_.x2.clear();
     bb_.res.clear();
     bb_.gobs.clear();
-    bb_.dirty_prop.clear();
     bb_.push_res.clear();
     bb_.init = false;
   }
@@ -254,7 +245,6 @@ void CMSHistErrorPropagator::setAnalyticBarlowBeeston(bool flag) const {
             // std::cout << "Skipping " << this << " " << this->GetName() << "\n";
           } else {
             // std::cout << "Adding " << arg << " " << arg->GetName() << "\n";
-            bb_.dirty_prop.insert(arg);
             auto as_gauss = dynamic_cast<RooGaussian*>(arg);
             if (as_gauss) {
               auto gobs = dynamic_cast<RooAbsReal*>(as_gauss->findServer(TString(vbinpars_[j][0]->GetName())+"_In"));

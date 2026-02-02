@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import, print_function
 
 import os
 import re
 from math import *
 from optparse import OptionParser
 from sys import argv, exit, stderr, stdout
-
-import six
-from six.moves import zip
 
 import ROOT
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
@@ -50,7 +46,7 @@ parser.add_option(
     default="",
     help="Postfix to add to datacard name",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 options.bin = True
 options.stat = False
 if len(args) not in [1, 3]:
@@ -98,10 +94,10 @@ if options.xsbr:
     sm4 = file2map(path + "SM4-600GeV.txt")
     # create points at 450, 550 by interpolation
     for M in (450, 550):
-        ggXS[M] = dict([(key, 0.5 * (ggXS[M + 10][key] + ggXS[M - 10][key])) for key in six.iterkeys(ggXS[M + 10])])
-        qqXS[M] = dict([(key, 0.5 * (qqXS[M + 10][key] + qqXS[M - 10][key])) for key in six.iterkeys(qqXS[M + 10])])
-        br[M] = dict([(key, 0.5 * (br[M + 10][key] + br[M - 10][key])) for key in six.iterkeys(br[M + 10])])
-        sm4[M] = dict([(key, 0.5 * (sm4[M + 10][key] + sm4[M - 10][key])) for key in six.iterkeys(sm4[M + 10])])
+        ggXS[M] = dict([(key, 0.5 * (ggXS[M + 10][key] + ggXS[M - 10][key])) for key in ggXS[M + 10]])
+        qqXS[M] = dict([(key, 0.5 * (qqXS[M + 10][key] + qqXS[M - 10][key])) for key in qqXS[M + 10]])
+        br[M] = dict([(key, 0.5 * (br[M + 10][key] + br[M - 10][key])) for key in br[M + 10]])
+        sm4[M] = dict([(key, 0.5 * (sm4[M + 10][key] + sm4[M - 10][key])) for key in sm4[M + 10]])
     xsbr1["ggH"] = ggXS[mass1]["XS_pb"] * br[mass1]["H_evmv"] * sm4[mass1]["XS_over_SM"] * sm4[mass1]["brWW_over_SM"]
     xsbr["ggH"] = ggXS[mass]["XS_pb"] * br[mass]["H_evmv"] * sm4[mass]["XS_over_SM"] * sm4[mass]["brWW_over_SM"]
     xsbr1["qqH"] = qqXS[mass1]["XS_pb"] * br[mass1]["H_evmv"]
@@ -215,7 +211,7 @@ for X in [
     sysnamesSorted = list(systlines.keys())
     sysnamesSorted.sort()
     for name in sysnamesSorted:
-        (pdf, pdfargs, effect, nofloat) = systlines[name]
+        pdf, pdfargs, effect, nofloat = systlines[name]
         if nofloat:
             name += "[nofloat]"
         systline = []
@@ -236,5 +232,5 @@ for X in [
     for pname, pargs in paramSysts.items():
         xfile.write(" ".join(["%-12s  param  %s" % (pname, " ".join(pargs))]) + "\n")
 
-    for pname in six.iterkeys(flatParamNuisances):
+    for pname in flatParamNuisances:
         xfile.write(" ".join(["%-12s  flatParam" % pname]) + "\n")

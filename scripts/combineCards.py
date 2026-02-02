@@ -5,8 +5,6 @@ import re
 from optparse import OptionParser
 from sys import argv, exit
 
-import six
-
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 
 parser = OptionParser(
@@ -91,7 +89,7 @@ parser.add_option(
     help="Drop regularization terms that would not be correctly combined.",
 )
 
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 options.bin = True  # fake that is a binary output, so that we parse shape lines
 options.nuisancesToExclude = []
 options.verbose = 0
@@ -148,7 +146,7 @@ if not args:
 for ich, fname in enumerate(args):
     label = "ch%d" % (ich + 1)
     if "=" in fname:
-        (label, fname) = fname.split("=")
+        label, fname = fname.split("=")
     fname = options.fprefix + fname
     dirname = os.path.dirname(fname)
     if fname.endswith(".gz"):
@@ -228,7 +226,7 @@ for ich, fname in enumerate(args):
                             constraint_terms.append(line)
                     warnings.warn(warning_message, RuntimeWarning)
                     break
-                if type(errline[b][p]) == list:
+                if isinstance(errline[b][p], list):
                     r = "{}/{}".format(
                         FloatToString(errline[b][p][0]),
                         FloatToString(errline[b][p][1]),
@@ -241,7 +239,7 @@ for ich, fname in enumerate(args):
                     cmax = len(r)  # get max col length, as it's more tricky to do it later with a map
                 systeffect[bout][p] = r
         if lsyst in systlines:
-            (otherpdf, otherargs, othereffect, othernofloat) = systlines[lsyst]
+            otherpdf, otherargs, othereffect, othernofloat = systlines[lsyst]
             if otherpdf != pdf:
                 if pdf == "lnN" and otherpdf.startswith("shape"):
                     if systlines[lsyst][0][-1] != "?":
@@ -447,7 +445,7 @@ print("-" * 130)
 sysnamesSorted = list(systlines.keys())
 sysnamesSorted.sort()
 for name in sysnamesSorted:
-    (pdf, pdfargs, effect, nofloat) = systlines[name]
+    pdf, pdfargs, effect, nofloat = systlines[name]
     if nofloat:
         name += "[nofloat]"
     systline = []

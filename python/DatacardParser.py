@@ -417,7 +417,7 @@ def parseCard(file, options):
                     continue
                 sigline = f[1:]  # second line contains ids
                 if re.match("-?[0-9]+", processline[0]) and not re.match("-?[0-9]+", sigline[0]):
-                    (processline, sigline) = (sigline, processline)
+                    processline, sigline = (sigline, processline)
                 if len(sigline) != len(processline):
                     raise RuntimeError("'bin' line has a different length than 'process' line.")
                 hadBins = len(ret.bins) > 0
@@ -444,7 +444,7 @@ def parseCard(file, options):
                     raise RuntimeError("Found %d bins (%s), declared imax = %d" % (len(ret.bins), ret.bins, nbins))
                 ret.exp = {b: {} for b in ret.bins}
                 ret.isSignal = {p: None for p in ret.processes}
-                if ret.obs != [] and type(ret.obs) == list:  # still as list, must change into map with bin names
+                if ret.obs != [] and isinstance(ret.obs, list):  # still as list, must change into map with bin names
                     ret.obs = {b: ret.obs[i] for i, b in enumerate(ret.bins)}
                 for b, p, s in ret.keyline:
                     if ret.isSignal[p] == None:

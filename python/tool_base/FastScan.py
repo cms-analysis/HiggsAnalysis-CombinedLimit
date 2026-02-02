@@ -57,7 +57,7 @@ class FastScan(CombineToolBase):
                 data = f_d.Get(ws_d[1])
             else:
                 data = f_d.Get(ws_d[1]).data(ws_d[2])
-        nll = ROOT.combineCreateNLL(pdf, data)
+        nll = ROOT.CombineUtils.combineCreateNLL(pdf, data)
         pars = pdf.getParameters(data)
         pars.Print()
         snap = pars.snapshot()
@@ -114,7 +114,8 @@ class FastScan(CombineToolBase):
             grd1.Write()
             grd2.Write()
             pars.assignValueOnly(snap)
-            canv = ROOT.TCanvas(self.args.output, self.args.output)
+            canv_name = "par_%s" % par.GetName()
+            canv = ROOT.TCanvas(canv_name, canv_name)
             pads = plot.MultiRatioSplit([0.4, 0.3], [0.005, 0.005], [0.005, 0.005])
             pads[0].cd()
             plot.Set(gr, MarkerSize=0.5)
@@ -143,7 +144,7 @@ class FastScan(CombineToolBase):
             if page == len(doPars) - 1:
                 extra = ")"
             print(extra)
-            canv.Print(".pdf%s" % extra)
+            canv.Print("%s.pdf%s" % (self.args.output, extra))
             page += 1
 
         outfile.Write()

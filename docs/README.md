@@ -74,6 +74,10 @@ Note to developers: navigation bar found in `mkdocs.yml`.
     * [RooMultiPdf - Bias studies](part3/nonstandard.md#roomultipdf-conventional-bias-studies)
     * [RooSplineND - Multidimensional splines](part3/nonstandard.md#roosplinend-multidimensional-splines)
     * [RooParametricHist - GammaN for shapes](part3/nonstandard.md#rooparametrichist-gamman-for-shapes)    
+* [**In-Browser Tools**](part6/in_browser_tools.md)
+  * [jsROOT (external)](https://root.cern/js/latest/)
+  * [Datacard Viewer](part6/view_datacard.html)
+  * [Covariance Viewer](part6/view_cov_json.html)
 * [**Useful Links**](part4/usefullinks.md)   
 * [**FAQ**](part4/usefullinks.md#faq)   
 

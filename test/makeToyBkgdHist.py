@@ -19,7 +19,6 @@
 ##############
 # Usage: python parseCombine.py name_of_output_root_file_from_combine_command ntoys
 ##############
-from __future__ import absolute_import, print_function
 
 import copy
 import glob
@@ -29,8 +28,6 @@ import re
 import subprocess
 import sys
 import time
-
-from six.moves import range
 
 from ROOT import TF1, TH1F, TH2D, TH2F, Double, TCanvas, TFile, TLegend, TPave, TPaveLabel, TString, gROOT, gStyle
 

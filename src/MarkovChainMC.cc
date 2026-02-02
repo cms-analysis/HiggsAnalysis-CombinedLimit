@@ -278,7 +278,15 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   }
 
   std::unique_ptr<DebugProposal> pdfDebugProp(debugProposal_ > 0 ? new DebugProposal(pdfProp, mc_s->GetPdf(), &data, debugProposal_) : 0);
-  
+
+  // If the prior pdf is uniform, we're not going to use if during the
+  // construction of the MCMCCalculator because it's redundant.
+  // We just have to reset it to the model config later.
+  RooAbsPdf *uniformPriorPdf = dynamic_cast<RooUniform *>(mc_s->GetPriorPdf());
+  if (uniformPriorPdf) {
+    mc_s->SetPriorPdf("");
+  }
+
   MCMCCalculator mc(data, *mc_s);
   mc.SetNumIters(iterations_); 
   mc.SetConfidenceLevel(cl);
@@ -286,8 +294,8 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   mc.SetProposalFunction(debugProposal_ > 0 ? *pdfDebugProp : *pdfProp);
   mc.SetLeftSideTailFraction(0);
 
-  if (auto ptr = dynamic_cast<RooUniform*>(mc_s->GetPriorPdf()); ptr!=nullptr) {
-    mc.SetPriorPdf(*((RooAbsPdf *)0));
+  if (uniformPriorPdf) {
+    mc_s->SetPriorPdf(*uniformPriorPdf);
   }
 
   std::unique_ptr<MCMCInterval> mcInt;

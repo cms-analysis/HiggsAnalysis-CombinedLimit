@@ -69,8 +69,7 @@ to_TH1("data_obs", np.round(obs)).Write()
 
 # write a card
 with open("card.txt", "w") as fout:
-    fout.write(
-        """\
+    fout.write("""\
 Combination of card.txt
 imax 1 number of bins
 jmax 1 number of processes minus 1
@@ -90,8 +89,7 @@ bgnorm                  lnN       -           1.3
 jes                     shape     1.0         1.0
 lumi                    lnN       1.02        1.02
 * autoMCStats 0
-"""
-    )
+""")
 
 # write the scaling data
 scaling = [

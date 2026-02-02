@@ -1,8 +1,4 @@
-from __future__ import absolute_import
-
 import re
-
-from six.moves import map, zip
 
 validNuisancePatterns = [
     {"prefix": "lumi", "remainder": ""},

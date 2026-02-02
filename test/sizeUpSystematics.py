@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import, print_function
 
 import errno
 
@@ -20,8 +19,7 @@ from optparse import OptionParser
 from pprint import pprint
 from sys import argv, exit, stderr, stdout
 
-import six.moves.cPickle as pickle
-from six.moves import range
+import pickle
 
 import rankSystematics
 import ROOT
@@ -105,7 +103,7 @@ parser.add_option(
     help="When excluding nuisances, do not exclude standard nuisances that are correlated CMS-wide even if their effect is small.",
 )
 addDatacardParserOptions(parser)
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 
 if masses:
     options.masses = masses

@@ -13,7 +13,6 @@ from pprint import pprint
 from functools import partial
 from HiggsAnalysis.CombinedLimit.tool_base.opts import OPTS
 from HiggsAnalysis.CombinedLimit.tool_base.CombineToolBase import CombineToolBase
-import six
 
 
 def Eval(obj, x, params):
@@ -187,7 +186,7 @@ class TaylorExpand(CombineToolBase):
         mc = self.loaded_wsp.genobj("ModelConfig")
         pdf = mc.GetPdf()
         data = self.loaded_wsp.data(data)
-        self.nll = ROOT.combineCreateNLL(pdf, data)
+        self.nll = ROOT.CombineUtils.combineCreateNLL(pdf, data)
         self.loaded_wsp.loadSnapshot("MultiDimFit")
         print("...NLL loaded")
         # nll.Print()

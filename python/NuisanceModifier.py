@@ -34,22 +34,22 @@ def fullmatch(regex, line):
 
 
 def quadratureAdd(pdf, val1, val2, context=None):
-    if type(val1) == list and len(val1) != 2:
+    if isinstance(val1, list) and len(val1) != 2:
         raise RuntimeError(f"{val1} is a list of length != 2")
-    if type(val2) == list and len(val2) != 2:
+    if isinstance(val2, list) and len(val2) != 2:
         raise RuntimeError(f"{val2} is a list of length != 2")
 
-    if type(val1) == list and type(val2) == list:
+    if isinstance(val1, list) and isinstance(val2, list):
         return [
             quadratureAdd(pdf, val1[0], val2[0], context),
             quadratureAdd(pdf, val1[1], val2[1], context),
         ]
-    elif type(val1) == list and type(val2) == float:
+    elif isinstance(val1, list) and isinstance(val2, float):
         return [
             quadratureAdd(pdf, val1[0], 1.0 / val2, context),
             quadratureAdd(pdf, val1[1], val2, context),
         ]
-    elif type(val2) == list and type(val1) == float:
+    elif isinstance(val2, list) and isinstance(val1, float):
         return [
             quadratureAdd(pdf, 1.0 / val1, val2[0], context),
             quadratureAdd(pdf, val1, val2[1], context),
@@ -66,7 +66,7 @@ def quadratureAdd(pdf, val1, val2, context=None):
 def doAddNuisance(datacard, args):
     if len(args) < 5:
         raise RuntimeError("Missing arguments: the syntax is: nuisance edit add process channel name pdf value [ options ]")
-    (process, channel, name, pdf, value) = args[:5]
+    process, channel, name, pdf, value = args[:5]
     if process != "*":
         cprocess = re.compile(process)
     if channel != "*":
@@ -123,7 +123,7 @@ def doAddNuisance(datacard, args):
 def doDropNuisance(datacard, args):
     if len(args) < 3:
         raise RuntimeError("Missing arguments: the syntax is: nuisance edit drop process channel name [ options ]")
-    (process, channel, name) = args[:3]
+    process, channel, name = args[:3]
     if process != "*":
         cprocess = re.compile(process)
     if channel != "*":
@@ -177,10 +177,10 @@ def doRenameNuisance(datacard, args):
     vetoTypes = ["flatParam", "constr", "trG", "gmN"]
     isGlobal = False
     if len(args) == 2:
-        (oldname, newname) = args[:2]
+        oldname, newname = args[:2]
         isGlobal = True
     else:
-        (process, channel, oldname, newname) = args[:4]
+        process, channel, oldname, newname = args[:4]
         if process != "*":
             cprocess = re.compile(process)
         if channel != "*":
@@ -261,7 +261,7 @@ def doRenameNuisance(datacard, args):
                 allzeroes = True
                 for a in errline0.keys():
                     for b in errline0[a].keys():
-                        if type(errline0[a][b]) != int and type(errline0[a][b]) != float:
+                        if not isinstance(errline0[a][b], int) and not isinstance(errline0[a][b], float):
                             allzeroes = allzeroes and False
                         # elif errline0[a][b] != 0.0 and errline0[a][b] != 0: allzeroes = allzeroes and False
                         elif abs(errline0[a][b]) > 1e-6:
@@ -282,7 +282,7 @@ def doRenameNuisance(datacard, args):
 def doChangeNuisancePdf(datacard, args):
     if len(args) < 2:
         raise RuntimeError("Missing arguments: the syntax is: nuisance edit changepdf name newpdf [ options ]")
-    (name, newpdf) = args[:2]
+    name, newpdf = args[:2]
     found = False
     for i, (lsyst, nofloat, pdf, args0, errline) in enumerate(datacard.systs):
         if fullmatch(name, lsyst):
@@ -320,7 +320,7 @@ def doChangeNuisancePdf(datacard, args):
 def doMergeNuisance(datacard, args):
     if len(args) < 4:
         raise RuntimeError("Missing arguments: the syntax is: nuisance edit merge process channel name1 name2 [ options ]")
-    (process, channel, name1, name2) = args[:4]
+    process, channel, name1, name2 = args[:4]
     if process != "*":
         cprocess = re.compile(process)
     if channel != "*":
@@ -351,7 +351,7 @@ def doMergeNuisance(datacard, args):
 def doSplitNuisance(datacard, args):
     if len(args) < 7:
         raise RuntimeError("Missing arguments: the syntax is: nuisance edit split process channel oldname newname1 newname2 value1 value2")
-    (process, channel, oldname, newname1, newname2, value1, value2) = args[:7]
+    process, channel, oldname, newname1, newname2, value1, value2 = args[:7]
     if process != "*":
         cprocess = re.compile(process)
     if channel != "*":
@@ -409,7 +409,7 @@ def doFlipNuisance(datacard, args):
         raise RuntimeError(
             "Missing arguments: the syntax is: nuisance edit flip process channel name [options: ifexists, p2n (only positive to negative), n2p (only negative to positive)]"
         )
-    (process, channel, name) = args[:3]
+    process, channel, name = args[:3]
     if process != "*":
         cprocess = re.compile(process)
     if channel != "*":
@@ -428,7 +428,7 @@ def doFlipNuisance(datacard, args):
                         if process == "*" or fullmatch(cprocess, p):
                             foundProc = True
                             if errline[b][p] not in [0.0, 1.0]:
-                                if type(errline[b][p]) is list:
+                                if isinstance(errline[b][p], list):
                                     if errline[b][p][0] < 1:
                                         if "p2n" in opts:
                                             errline[b][p][0] = 1.0 / errline[b][p][0]

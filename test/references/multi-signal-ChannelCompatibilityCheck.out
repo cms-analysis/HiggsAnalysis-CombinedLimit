@@ -1,0 +1,10 @@
+ <<< Combine >>> 
+ <<< v10.4.2 >>>
+>>> Random number generator seed is 123456
+>>> Method used is ChannelCompatibilityCheck
+
+ --- ChannelCompatibilityCheck --- 
+Nominal fit  : r =  1.4812  -0.5987/+0.6644
+Alternate fit: r =  3.5554  -1.8576/+2.3619   in channel dijet
+Alternate fit: r =  1.1506  -0.6393/+0.6939   in channel incl
+Chi2-like compatibility variable: 1.5417

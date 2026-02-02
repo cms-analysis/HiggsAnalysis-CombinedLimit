@@ -1,10 +1,6 @@
-from __future__ import absolute_import, print_function
-
 import re
 from optparse import OptionParser
 from sys import argv, exit, stderr, stdout
-
-from six.moves import range
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 import ROOT
@@ -20,7 +16,7 @@ parser.add_option(
     help="Report the uncertainties from the fit(s) too",
 )
 
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 if len(args) == 0:
     parser.print_usage()
     exit(1)

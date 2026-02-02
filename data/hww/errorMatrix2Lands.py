@@ -1,10 +1,6 @@
-from __future__ import absolute_import, print_function
-
 import re
 from optparse import OptionParser
 from sys import argv
-
-from six.moves import range
 
 parser = OptionParser()
 parser.add_option("-s", "--stat", dest="stat", default=False, action="store_true")
@@ -13,7 +9,7 @@ parser.add_option("-a", "--asimov", dest="asimov", default=False, action="store_
 parser.add_option("-o", "--optimize", dest="optimize", default=False, action="store_true")
 parser.add_option("-l", "--label", dest="label", type="string", default="hww")
 parser.add_option("-4", "--4th-gen", dest="sm4", default=False, action="store_true")
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 
 if len(args) < 1:
     raise RuntimeError("Usage: errorMatrix2Lands.py [options] errorMatrix.txt ")

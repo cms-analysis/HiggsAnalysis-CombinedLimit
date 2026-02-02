@@ -9,9 +9,6 @@
 # Run with ./makeFCcontour files [options]
 ###############################################
 
-
-from __future__ import absolute_import, print_function
-
 import os
 import sys
 from array import array
@@ -160,7 +157,7 @@ parser.add_option(
     callback=get_confs,
     help="Directory to recursively search for toys, use dir:reg to search fo regular expression inside dir (comma separate for multiple dirs)",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 
 
 # Dummy variables for getting tree values (not used with HybridNew output)

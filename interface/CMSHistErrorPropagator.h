@@ -30,7 +30,6 @@ private:
     std::vector<double> x2;
     std::vector<double> res;
     std::vector<double> gobs;
-    std::set<RooAbsArg*> dirty_prop;
     std::vector<RooRealVar*> push_res;
   };
 public:
@@ -77,7 +76,9 @@ public:
 
   friend class CMSHistV<CMSHistErrorPropagator>;
 
- protected:
+  void runBarlowBeeston() const;
+
+protected:
   RooRealProxy x_;
   RooListProxy funcs_;
   RooListProxy coeffs_;
@@ -108,8 +109,6 @@ public:
 
   void initialize() const;
   void updateCache(int eval = 1) const;
-
-  void runBarlowBeeston() const;
 
 
  private:

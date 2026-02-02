@@ -3,8 +3,6 @@ from collections import defaultdict
 from math import *
 from sys import exit, stderr, stdout
 
-import six
-
 import ROOT
 from HiggsAnalysis.CombinedLimit.ModelTools import ModelBuilder
 
@@ -69,9 +67,13 @@ class ShapeBuilder(ModelBuilder):
                 ROOT.gSystem.Load(lib)
         self.wspnames = {}
         self.wsp = None
-        self.extraImports = []
         self.norm_rename_map = {}
         self._fileCache = FileCache(self.options.baseDir)
+
+        self._get_shape_cache = {}
+        self._get_pdf_cache = {}
+        self._shape2data_cache = {}
+        self._shape2pdf_cache = {}
 
     ## ------------------------------------------
     ## -------- ModelBuilder interface ----------
@@ -122,7 +124,7 @@ class ShapeBuilder(ModelBuilder):
                 if self.physics.getYieldScale(b, p) == 0:
                     continue  # exclude really the pdf
                 # print "  +--- Getting pdf for %s in bin %s" % (p,b)
-                (pdf, coeff) = (
+                pdf, coeff = (
                     self.getPdf(b, p),
                     self.out.function(f"n_exp_bin{b}_proc_{p}"),
                 )
@@ -146,8 +148,8 @@ class ShapeBuilder(ModelBuilder):
                         else:
                             raise RuntimeError(f"packAsymPows: can't work with a coefficient of kind {coeff.ClassName()} for {b} {p}")
                         for X in extranorm:
-                            if type(X) == tuple:
-                                (klo, khi, syst) = X
+                            if isinstance(X, tuple):
+                                klo, khi, syst = X
                                 coeff.addAsymmLogNormal(klo, khi, self.out.var(syst))
                             else:
                                 if self.out.function(X):
@@ -362,7 +364,7 @@ class ShapeBuilder(ModelBuilder):
                         "combine.channel",
                         pdfs.at(idx).getStringAttribute("combine.channel"),
                     )
-                    self.extraImports.append(wrapper)
+                    self.out.safe_import(wrapper, ROOT.RooFit.RecycleConflictNodes())
 
         if len(bbb_names) > 0:
             bbb_nuisanceargset = ROOT.RooArgSet()
@@ -430,9 +432,6 @@ class ShapeBuilder(ModelBuilder):
                     self.getObj("pdf_bin%s_bonly" % self.DC.bins[0]).clone("model_b"),
                     ROOT.RooFit.Silence(),
                 )
-        for arg in self.extraImports:
-            # print 'Importing extra arg: %s' % arg.GetName()
-            self.out.safe_import(arg, ROOT.RooFit.RecycleConflictNodes())
         if self.options.fixpars:
             pars = self.out.pdf("model_s").getParameters(self.out.obs)
             for arg in pars:
@@ -476,7 +475,7 @@ class ShapeBuilder(ModelBuilder):
                     continue
                 shape = self.getShape(b, p)
                 norm = 0
-                if shape == None:  # counting experiment
+                if not shape:  # counting experiment
                     if not self.out.var("CMS_fakeObs"):
                         self.doVar("CMS_fakeObs[0,1]")
                         self.out.var("CMS_fakeObs").setBins(1)
@@ -656,7 +655,10 @@ class ShapeBuilder(ModelBuilder):
     ## -------------------------------------
     ## -------- Low level helpers ----------
     ## -------------------------------------
-    def getShape(self, channel, process, syst="", _cache={}, allowNoSyst=False):
+    def getShape(self, channel, process, syst="", _cache=None, allowNoSyst=False):
+        if _cache is None:
+            _cache = self._get_shape_cache
+
         if (channel, process, syst) in _cache:
             if self.options.verbose > 2:
                 print(
@@ -715,7 +717,7 @@ class ShapeBuilder(ModelBuilder):
 
         # follow histogram routine if file is a dataframe and load dataframe as histograms
         if ":" in objname and not isinstance(file, DataFrameWrapper):  # workspace:obj or ttree:xvar or th1::xvar
-            (wname, oname) = objname.split(":")
+            wname, oname = objname.split(":")
             if (file, wname) not in self.wspnames:
                 self.wspnames[(file, wname)] = file.Get(wname)
             self.wsp = self.wspnames[(file, wname)]
@@ -751,7 +753,7 @@ class ShapeBuilder(ModelBuilder):
                 if not syst:
                     normname = "%s_norm" % (oname)
                     norm = self.wsp.arg(normname)
-                    if norm == None:
+                    if not norm:
                         if normname in list(self.norm_rename_map.keys()):
                             norm = self.wsp.arg(self.norm_rename_map[normname])
                     if norm:
@@ -843,16 +845,19 @@ class ShapeBuilder(ModelBuilder):
             _cache[(channel, process, syst)] = ret
             return ret
 
-    def getData(self, channel, process, syst="", _cache={}):
+    def getData(self, channel, process, syst="", _cache=None):
         return self.shape2Data(self.getShape(channel, process, syst), channel, process)
 
-    def getPdf(self, channel, process, _cache={}):
+    def getPdf(self, channel, process, _cache=None):
+        if _cache is None:
+            _cache = self._get_pdf_cache
+
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         if (channel, process) in _cache:
             return _cache[(channel, process)]
         shapeNominal = self.getShape(channel, process)
-        nominalPdf = self.shape2Pdf(shapeNominal, channel, process) if (self.options.useHistPdf == "always" or shapeNominal == None) else shapeNominal
-        if shapeNominal == None:
+        nominalPdf = self.shape2Pdf(shapeNominal, channel, process) if (self.options.useHistPdf == "always" or not shapeNominal) else shapeNominal
+        if not shapeNominal:
             return nominalPdf  # no point morphing a fake shape
         morphs = []
         shapeAlgo = None
@@ -1100,7 +1105,7 @@ class ShapeBuilder(ModelBuilder):
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         terms = []
         shapeNominal = self.getShape(channel, process)
-        if shapeNominal == None:
+        if not shapeNominal:
             # FIXME no extra norm for dummy pdfs (could be changed)
             return None
         if shapeNominal.InheritsFrom("RooAbsPdf") and not shapeNominal.InheritsFrom("RooParametricHist") or shapeNominal.InheritsFrom("CMSHistFunc"):
@@ -1204,9 +1209,12 @@ class ShapeBuilder(ModelBuilder):
             rebinh1._original_bins = shapeNbins
         return rebinh1
 
-    def shape2Data(self, shape, channel, process, _cache={}):
+    def shape2Data(self, shape, channel, process, _cache=None):
+        if _cache is None:
+            _cache = self._shape2data_cache
+
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
-        if shape == None:
+        if not shape:
             name = f"shape{postFix}_{channel}_{process}"
             if name not in _cache:
                 obs = ROOT.RooArgSet(self.out.var("CMS_fakeObs"))
@@ -1240,7 +1248,10 @@ class ShapeBuilder(ModelBuilder):
                 raise RuntimeError("shape2Data not implemented for %s" % shape.ClassName())
         return _cache[shape.GetName()]
 
-    def shape2Pdf(self, shape, channel, process, _cache={}):
+    def shape2Pdf(self, shape, channel, process, _cache=None):
+        if _cache is None:
+            _cache = self._shape2pdf_cache
+
         postFix = "Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         channelBinParFlag = channel in list(self.DC.binParFlags.keys())
         if shape == None:

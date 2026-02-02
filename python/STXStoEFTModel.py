@@ -9,8 +9,6 @@ import re
 import sys
 from math import exp
 
-import six
-
 import ROOT
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
@@ -184,7 +182,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds"
         if not self.DC.isSignal[process]:
             return 1
-        (processSource, foundDecay, foundEnergy) = getSTXSProdDecMode(bin, process, self.options)
+        processSource, foundDecay, foundEnergy = getSTXSProdDecMode(bin, process, self.options)
         # Return 1 for fixed processes and scaling for non-fixed
         if processSource in self.fixProcesses:
             return 1
@@ -518,7 +516,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
         production = convert_to_STXS(production, decay)
 
         name = f"stxstoeft_scaling_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if not self.modelBuilder.out.function(name):
             XSscal = None
             BRscal = None
 
@@ -665,7 +663,7 @@ class StageXToEFTModel(STXStoEFTBaseModel):
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def getHiggsSignalYieldScale(self, production, decay, energy):
         name = f"stxstoeft_scaling_{production}_{decay}_{energy}"
-        if self.modelBuilder.out.function(name) == None:
+        if not self.modelBuilder.out.function(name):
             XSscal = None
             BRscal = None
 

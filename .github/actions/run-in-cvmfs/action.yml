@@ -1,0 +1,46 @@
+name: Run test in CVMFS environment
+description: Execute a shell script inside an LCG or CMSSW environment sourced with CVMFS
+inputs:
+  script:
+    description: Shell commands to execute after setup
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    # Case 1: Run inside a Docker container if image is provided and assume CMSSW
+    - name: Setup output directory
+      if: ${{ env.IMAGE != '' }}
+      shell: bash
+      run: |
+        mkdir -p outputs
+        chmod 777 outputs
+
+    - name: Run command inside container
+      if: ${{ env.IMAGE != '' }}
+      uses: rhaschke/docker-run-action@v5
+      with:
+        image: ${{ env.IMAGE }}
+        shell: bash
+        options: --rm -v /cvmfs:/cvmfs:shared -v cmsusr:/home/cmsusr/cmssw/:ro -v ${{ github.workspace }}:/workspace:rw -w /home/cmsusr/ -e CMSSW_VERSION=${{ env.CMSSW_VERSION }}
+        run: >-
+          cp -r cmssw/${CMSSW_VERSION} .;
+          cd /home/cmsusr/${CMSSW_VERSION}/src;
+          source /cvmfs/cms.cern.ch/cmsset_default.sh;
+          cmsenv;
+          ulimit -s unlimited;
+          cd HiggsAnalysis/CombinedLimit;
+          ${{ inputs.script }}
+
+
+    # Case 2: Run directly on the GitHub runner if no image is provided and assume LCG
+    - name: Run command on host
+      if: ${{ env.IMAGE == '' }}
+      shell: bash
+      run: >-
+        source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
+        export PATH=$PWD/install/bin:$PATH;
+        export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH;
+        export PYTHONPATH=$PWD/install/python:$PYTHONPATH;
+        ulimit -s unlimited;
+        ${{ inputs.script }}

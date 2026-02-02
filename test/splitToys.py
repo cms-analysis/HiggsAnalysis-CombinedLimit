@@ -1,10 +1,7 @@
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
-from __future__ import absolute_import, print_function
 
 from optparse import OptionParser
 from sys import argv
-
-from six.moves import range
 
 import ROOT
 
@@ -86,7 +83,7 @@ parser.add_option(
     help="Last toy to include in output file",
 )
 
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 if len(args) == 0:
     parser.print_usage()
     exit(1)

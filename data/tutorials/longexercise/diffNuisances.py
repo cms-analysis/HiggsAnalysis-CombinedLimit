@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import, print_function
 
 import datetime
 import re
 from optparse import OptionParser
 from sys import argv, exit, stderr, stdout
-
-from six.moves import range
 
 import HiggsAnalysis.CombinedLimit.calculate_pulls as CP
 import ROOT
@@ -112,7 +109,7 @@ parser.add_option(
     help="Choose the definition of the pull, see python/calculate_pulls.py for options",
 )
 
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 if len(args) == 0:
     parser.print_usage()
     exit(1)
@@ -444,8 +441,7 @@ elif options.format == "html":
     sigsub = ("sig", r"&sigma;")
     highlight = "<b>%s</b>"
     morelight = "<strong>%s</strong>"
-    print(
-        """
+    print("""
 <html><head><title>Comparison of nuisances</title>
 <style type="text/css">
     td, th { border-bottom: 1px solid black; padding: 1px 1em; }
@@ -454,8 +450,7 @@ elif options.format == "html":
 </style>
 </head><body style="font-family: 'Verdana', sans-serif; font-size: 10pt;"><h1>Comparison of nuisances</h1>
 <table>
-"""
-    )
+""")
     if options.pullDef:
         print("<tr><th>nuisance</th><th>background fit pull </th><th>signal fit pull</th><th>correlation</th></tr>")
         fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-30s </td><td> %-30s </td><td> %-15s </td></tr>"

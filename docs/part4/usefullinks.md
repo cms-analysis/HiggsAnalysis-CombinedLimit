@@ -16,6 +16,8 @@ Tutorial Sessions:
    * [5th tutorial 2nd-4th Dec 2019](https://indico.cern.ch/event/859454/overview)
    * [6th tutorial 14th-16th Dec 2020](https://indico.cern.ch/event/976099/overview) - Latest for `102x` branch
    * [7th tutorial 3rd Feb 2023](https://indico.cern.ch/event/1227742/) - Uses `113x` branch
+   * [8th tutorial 27th Sep 2023](https://indico.cern.ch/event/1311191/) - The focus of this tutorial is unfolding
+   * 9th tutorial 24th+25th Jun 2024: [day 1 basics](https://indico.cern.ch/event/1394373/timetable/?showDate=2024-06-24&view=standard&showSession=3#20240622), [day 2 advanced topics](https://indico.cern.ch/event/1394373/timetable/?showDate=2024-06-25&view=standard&showSession=3#20240622)
 
 
 Worked examples from Higgs analyses using <span style="font-variant:small-caps;">Combine</span>:
@@ -65,7 +67,9 @@ The paper for the <span style="font-variant:small-caps;">Combine</span> tool is 
 # FAQ
 
 * _Why does <span style="font-variant:small-caps;">Combine</span> have trouble with bins that have zero expected contents?_
-    * If you are computing only upper limits, and your zero-prediction bins are all empty in data, then you can just set the background to a very small value instead of zero as the computation is regular for background going to zero (e.g. a counting experiment with $B\leq1$ will have essentially the same expected limit and observed limit as one with $B=0$). If you are computing anything else, e.g. p-values, or if your zero-prediction bins are not empty in data, you're out of luck, and you should find a way to get a reasonable background prediction there (and set an uncertainty on it, as per the point above)
+    * If the total number of expected background events is exactly 0 in a bin, observing 1 event is simply impossible, so e.g. you can't compute a p-value for it. If you are computing only upper limits, and your zero-prediction bins are all empty in data, then you can just set the background to a very small value instead of zero as the computation is regular for background going to zero (e.g. a counting experiment with $B\leq1$ will have essentially the same expected limit and observed limit as one with $B=0$).
+      If you are computing anything else, e.g. p-values, or if your zero-prediction bins are not empty in data, you're out of luck, and you should find a way to get a reasonable background prediction there (and set an uncertainty on it, as per the point above). Methods can include rebinning, smoothing, generating more MC, data-driven estimation, etc. What will work best for you all depends on the problem you’re considering and the constraints you have.
+
 * _How can an uncertainty be added to a zero quantity?_
     * You can put an uncertainty even on a zero event yield if you use a gamma distribution. That is in fact the more proper way of doing it if the prediction of zero comes from the limited size of your MC or data sample used to compute it.
 * _Why does changing the observation in data affect my expected limit?_

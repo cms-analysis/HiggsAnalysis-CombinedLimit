@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import, print_function
 
 import os.path
 import re
@@ -63,7 +62,7 @@ parser.add_option(
     type="string",
     help="Name of the observed dataset",
 )
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
 options.stat = False
 options.bin = True  # fake that is a binary output, so that we parse shape lines
 options.out = "tmp.root"
@@ -117,7 +116,7 @@ for b in DC.bins:
                 exps[p][1].append(1 / sqrt(pdfargs[0] + 1))
             elif pdf == "gmM":
                 exps[p][1].append(errline[b][p])
-            elif type(errline[b][p]) == list:
+            elif isinstance(errline[b][p], list):
                 kmax = max(
                     errline[b][p][0],
                     errline[b][p][1],
