@@ -120,5 +120,89 @@ When running the `text2workspace` step on a datacard with autoMCStats enabled, y
   - It is also useful to check how the expected uncertainty changes using an Asimov dataset, say with `r=10` injected.  -> PER DOPO
   - **Advanced task:** See what happens if the Poisson threshold is increased. Based on your results, what threshold would you recommend for this analysis? -> PER DOPO
 
+### C: Using FitDiagnostics
+Now that we have a working datacard complete with systematic uncertainties, it is important to validate our model. We will explore one of the most commonly used modes of <span style="font-variant:small-caps;">Combine</span>: `FitDiagnostics` . As well as allowing us to make a **measurement** of some physical quantity (as opposed to just setting a limit on it), this method is useful to gain additional information about the model and the behaviour of the fit. It performs two fits:
+
+  - A "background-only" (b-only) fit: first POI (usually "r") fixed to zero
+  - A "signal+background" (s+b) fit: all POIs are floating
+
+With the s+b fit <span style="font-variant:small-caps;">Combine</span> will report the best-fit value of our signal strength modifier `r`. As well as the usual output file, a file named `fitDiagnosticsTest.root` is produced which contains additional information. In particular it includes two `RooFitResult` objects, one for the b-only and one for the s+b fit, which store the fitted values of all the **nuisance parameters (NPs)** and POIs as well as estimates of their uncertainties. The covariance matrix from both fits is also included, from which we can learn about the correlations between parameters. Run the `FitDiagnostics` method on our workspace:
+
+```shell
+combine -M FitDiagnostics workspace_part2.root -m 800 --rMin -20 --rMax 20
+```
+Open the resulting `fitDiagnosticsTest.root` interactively and print the contents of the s+b RooFitResult:
+
+```shell
+root [1] fit_s->Print()
+```
+<details>
+<summary><b>Show output</b></summary>
+```shell
+RooFitResult: minimized FCN value: -2.55338e-05, estimated distance to minimum: 7.54243e-06
+                covariance matrix quality: Full, accurate covariance matrix
+                Status : MINIMIZE=0 HESSE=0
+
+    Floating Parameter    FinalValue +/-  Error
+  --------------------  --------------------------
+             CMS_eff_b   -4.5380e-02 +/-  9.93e-01
+             CMS_eff_t   -2.6311e-01 +/-  7.33e-01
+      CMS_eff_t_highpt   -4.7146e-01 +/-  9.62e-01
+  CMS_scale_t_1prong0pi0_13TeV   -1.5989e-01 +/-  5.93e-01
+  CMS_scale_t_1prong1pi0_13TeV   -1.6426e-01 +/-  4.94e-01
+  CMS_scale_t_3prong0pi0_13TeV   -3.0698e-01 +/-  6.06e-01
+    acceptance_Ztautau   -3.1262e-01 +/-  8.62e-01
+        acceptance_bbH   -2.8676e-05 +/-  1.00e+00
+      acceptance_ttbar    4.9981e-03 +/-  1.00e+00
+            lumi_13TeV   -5.6366e-02 +/-  9.89e-01
+         norm_jetFakes   -9.3327e-02 +/-  2.56e-01
+                     r   -2.7220e+00 +/-  2.59e+00
+    top_pt_ttbar_shape    1.7586e-01 +/-  7.00e-01
+          xsec_Ztautau   -1.6007e-01 +/-  9.66e-01
+          xsec_diboson    3.9758e-02 +/-  1.00e+00
+            xsec_ttbar    5.7794e-02 +/-  9.46e-01
+```
+</details>
+
+There are several useful pieces of information here. At the top the status codes from the fits that were performed is given. In this case we can see that two algorithms were run: `MINIMIZE` and `HESSE`, both of which returned a successful status code (0). Both of these are routines in the **Minuit2** minimization package - the default minimizer used in RooFit. The first performs the main fit to the data, and the second calculates the covariance matrix at the best-fit point. It is important to always check this second step was successful and the message "Full, accurate covariance matrix" is printed, otherwise the parameter uncertainties can be very inaccurate, even if the fit itself was successful.
+
+Underneath this the best-fit values ($\theta$) and symmetrised uncertainties for all the floating parameters are given. For all the constrained nuisance parameters a convention is used by which the nominal value ($\theta_I$) is zero, corresponding to the mean of a Gaussian constraint PDF with width 1.0, such that the parameter values $\pm 1.0$ correspond to the $\pm 1\sigma$ input uncertainties.
+
+A more useful way of looking at this is to compare the pre- and post-fit values of the parameters, to see how much the fit to data has shifted and constrained these parameters with respect to the input uncertainty. The script `diffNuisances.py` can be used for this:
+
+```shell
+python diffNuisances.py fitDiagnosticsTest.root --all
+```
+<details>
+<summary><b>Show output</b></summary>
+```shell
+name                                              b-only fit            s+b fit         rho
+CMS_eff_b                                        -0.04, 0.99        -0.05, 0.99       +0.01
+CMS_eff_t                                     * -0.24, 0.73*     * -0.26, 0.73*       +0.06
+CMS_eff_t_highpt                              * -0.56, 0.94*     * -0.47, 0.96*       +0.02
+CMS_scale_t_1prong0pi0_13TeV                  * -0.17, 0.58*     * -0.16, 0.59*       -0.04
+CMS_scale_t_1prong1pi0_13TeV                  ! -0.12, 0.45!     ! -0.16, 0.49!       +0.20
+CMS_scale_t_3prong0pi0_13TeV                  * -0.31, 0.61*     * -0.31, 0.61*       +0.02
+acceptance_Ztautau                            * -0.31, 0.86*     * -0.31, 0.86*       -0.05
+acceptance_bbH                                   +0.00, 1.00        -0.00, 1.00       +0.05
+acceptance_ttbar                                 +0.01, 1.00        +0.00, 1.00       +0.00
+lumi_13TeV                                       -0.05, 0.99        -0.06, 0.99       +0.01
+norm_jetFakes                                 ! -0.09, 0.26!     ! -0.09, 0.26!       -0.05
+top_pt_ttbar_shape                            * +0.24, 0.69*     * +0.18, 0.70*       +0.22
+xsec_Ztautau                                     -0.16, 0.97        -0.16, 0.97       -0.02
+xsec_diboson                                     +0.03, 1.00        +0.04, 1.00       -0.02
+xsec_ttbar                                       +0.08, 0.95        +0.06, 0.95       +0.02
+```
+</details>
+
+The numbers in each column are respectively $\frac{\theta-\theta_I}{\sigma_I}$ (This is often called the pull, but note that this is a misnomer. In this tutorial we will refer to it as the fitted value of the nuisance parameter relative to the input uncertainty. The true pull is defined as discussed under `diffPullAsym` [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#pre-and-post-fit-nuisance-parameters-and-pulls) ), where $\sigma_I$ is the input uncertainty; and the ratio of the post-fit to the pre-fit uncertainty $\frac{\sigma}{\sigma_I}$.
+
+**Tasks and questions:**
+
+  - Which parameter has the largest shift from the nominal value (0) in the fitted value of the nuisance parameter relative to the input uncertainty? Which has the tightest constraint?
+  - Should we be concerned when a parameter is more strongly constrained than the input uncertainty (i.e. $\frac{\sigma}{\sigma_I}<1.0$)?
+  - Check the fitted values of the nuisance parameters and constraints on a b-only and s+b asimov dataset instead. This check is [required](https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/HiggsPAGPreapprovalChecks) for all analyses in the Higgs PAG. It serves both as a closure test (do we fit exactly what signal strength we input?) and a way to check whether there are any infeasibly strong constraints while the analysis is still blind (typical example: something has probably gone wrong if we constrain the luminosity uncertainty to 10% of the input!)
+  - **Advanced task:** Sometimes there are problems in the fit model that aren't apparent from only fitting the Asimov dataset, but will appear when fitting randomised data. Follow the exercise on toy-by-toy diagnostics [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#toy-by-toy-diagnostics) to explore the tools available for this.
+
 
 
