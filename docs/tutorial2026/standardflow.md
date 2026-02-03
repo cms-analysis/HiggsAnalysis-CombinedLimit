@@ -138,6 +138,7 @@ root [1] fit_s->Print()
 ```
 <details>
 <summary><b>Show output</b></summary>
+
 ```shell
 RooFitResult: minimized FCN value: -2.55338e-05, estimated distance to minimum: 7.54243e-06
                 covariance matrix quality: Full, accurate covariance matrix
@@ -163,7 +164,6 @@ RooFitResult: minimized FCN value: -2.55338e-05, estimated distance to minimum: 
             xsec_ttbar    5.7794e-02 +/-  9.46e-01
 ```
 
-
 </details>
 
 There are several useful pieces of information here. At the top the status codes from the fits that were performed is given. In this case we can see that two algorithms were run: `MINIMIZE` and `HESSE`, both of which returned a successful status code (0). Both of these are routines in the **Minuit2** minimization package - the default minimizer used in RooFit. The first performs the main fit to the data, and the second calculates the covariance matrix at the best-fit point. It is important to always check this second step was successful and the message "Full, accurate covariance matrix" is printed, otherwise the parameter uncertainties can be very inaccurate, even if the fit itself was successful.
@@ -175,9 +175,9 @@ A more useful way of looking at this is to compare the pre- and post-fit values 
 ```shell
 python diffNuisances.py fitDiagnosticsTest.root --all
 ```
-
 <details>
 <summary><b>Show output</b></summary>
+
 ```shell
 name                                              b-only fit            s+b fit         rho
 CMS_eff_b                                        -0.04, 0.99        -0.05, 0.99       +0.01
@@ -207,6 +207,7 @@ The numbers in each column are respectively $\frac{\theta-\theta_I}{\sigma_I}$ (
   - Should we be concerned when a parameter is more strongly constrained than the input uncertainty (i.e. $\frac{\sigma}{\sigma_I}<1.0$)?
   - Check the fitted values of the nuisance parameters and constraints on a b-only and s+b asimov dataset instead. This check is [required](https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/HiggsPAGPreapprovalChecks) for all analyses in the Higgs PAG. It serves both as a closure test (do we fit exactly what signal strength we input?) and a way to check whether there are any infeasibly strong constraints while the analysis is still blind (typical example: something has probably gone wrong if we constrain the luminosity uncertainty to 10% of the input!)
   - **Advanced task:** Sometimes there are problems in the fit model that aren't apparent from only fitting the Asimov dataset, but will appear when fitting randomised data. Follow the exercise on toy-by-toy diagnostics [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#toy-by-toy-diagnostics) to explore the tools available for this.
+
 
 
 
