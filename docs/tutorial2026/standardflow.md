@@ -17,13 +17,13 @@ Now we will move to the working directory for this tutorial, which contains all 
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/docs/tutorial2026/
 ```
 
-## Part 1: Setting up the Datacard
+## Part 1: Setting up the datacard and the workspace
 
 Topics covered in this section:
 
-  - A: Setting up the datacard
+  - A: Setting up the datacard and the workspace
   - B: MC statistical uncertainties
-  - C: Running <span style="font-variant:small-caps;">Combine</span> for a blind analysis
+  - C: Running <span style="font-variant:small-caps;">Combine</span> for a blind analysis -> TO ADD: run with/without shapes and compare sensitivity
   - D: Using FitDiagnostics to validate your setup
   - Extra: CAT gitLab tools for validation
 
@@ -70,27 +70,29 @@ In the list of uncertainties the interpretation of the values for `shape` lines 
 
 CAREFUL FROM HERE IS EXERCISE! I NEED TO VERIFY THE FLOW. Maybe we can even skip this part and provide directly the card?
 
+**Tasks and questions:**
 
-In this section we will use a datacard corresponding to the full distribution that was shown at the start of section 1, not just the high mass region. Have a look at `datacard_part2.txt`: this is still currently a one-bin counting experiment, however the yields are much higher since we now consider the full range of $M_{\mathrm{T}}^{\mathrm{tot}}$. If you run the asymptotic limit calculation on this you should find the sensitivity is significantly worse than before.
+Have a look at `datacard_part2.txt`: this is currently set up as a one-bin counting experiment, this means only yields are provided.
 
-The **first task** is to convert this to a shape analysis: the file `datacard_part2.shapes.root` contains all the necessary histograms, including those for the relevant shape systematic uncertainties. Add the relevant `shapes` lines to the top of the datacard (after the `kmax` line) to map the processes to the correct TH1s in this file. Hint: you will need a different line for the signal process.
+The **first task** is to convert this to a shape analysis: the file `datacard_part2.shapes.root` contains all the necessary histograms, including those for the relevant shape systematic uncertainties. Add the relevant `shapes` lines to the top of the datacard (after the `kmax` line) to map the processes to the correct TH1s in this file. Hint: you will need a different line for the signal process, since their naming patterns are different from the background ones.
 
-Compared to the counting experiment we must also consider the effect of uncertainties that change the shape of the distribution. Some, like `CMS_eff_t_highpt`, were present before, as it has both a shape and normalisation effect. Others are primarily shape effects so were not included before.
+Compared to the counting experiment we must also consider the effect of uncertainties that change the shape of the distribution. Some, like `CMS_eff_t_highpt`, are already present in the datacard, as it has both a shape and normalisation effect.
 
 Add the following shape uncertainties: `top_pt_ttbar_shape` affecting `ttbar`,the tau energy scale uncertainties `CMS_scale_t_1prong0pi0_13TeV`, `CMS_scale_t_1prong1pi0_13TeV` and `CMS_scale_t_3prong0pi0_13TeV` affecting all processes except `jetFakes`, and `CMS_eff_t_highpt` also affecting the same processes.
 
-Once this is done you can run the asymptotic limit calculation on this datacard. From now on we will convert the text datacard into a RooFit workspace ourselves instead of combine doing it internally every time we run. This is a good idea for more complex analyses since the conversion step can take a notable amount of time. For this we use the `text2workspace.py` command:
+Once this is done you can convert the text datacard into a RooFit workspace. If we feed the datacard directly into Combine, this step will be done internally every time we run. It is a good idea to do it explicitely especially for more complex analyses, since the conversion step can take a notable amount of time. For this we use the `text2workspace.py` command:
 
 ```shell
 text2workspace.py datacard_part2.txt -m 800 -o workspace_part2.root
 ```
-And then we can use this as input to combine instead of the text datacard:
+And then we can verify that our setup works properly using this as input to combine: -> SHOULD WE REMOVE THIS PIECE?
 ```shell
 combine -M AsymptoticLimits workspace_part2.root -m 800
 ```
-**Tasks and questions:**
 
-  - Verify that the sensitivity of the shape analysis is indeed improved over the counting analysis in the first part.
+  - Verify that the sensitivity of the shape analysis is indeed improved over the counting analysis in the first part. -> TO BE MOVED LATER AS OPTIONAL EXERCISE
   - *Advanced task*: You can open the workspace ROOT file interactively and print the contents: `w->Print();`. Each process is represented by a PDF object that depends on the shape morphing nuisance parameters. From the workspace, choose a process and shape uncertainty, and make a plot overlaying the nominal shape with different values of the shape morphing nuisance parameter. You can change the value of a parameter with `w->var("X")->setVal(Y)`, and access a particular pdf with `w->pdf("Z")`. PDF objects in RooFit have a [createHistogram](https://root.cern.ch/doc/master/classRooAbsReal.html#a552a08367c964e689515f2b5c92c8bbe) method that requires the name of the observable (the variable defining the x-axis) - this is called `CMS_th1x` in combine datacards. Feel free to ask for help with this!
+
+### B: MC Statistical uncertainties
 
 
