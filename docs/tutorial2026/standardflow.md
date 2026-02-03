@@ -23,8 +23,8 @@ Topics covered in this section:
 
   - A: Setting up the datacard and the workspace
   - B: MC statistical uncertainties
-  - C: Running <span style="font-variant:small-caps;">Combine</span> for a blind analysis -> TO ADD: run with/without shapes and compare sensitivity
-  - D: Using FitDiagnostics to validate your setup
+  - C: Using FitDiagnostics to validate your setup
+  - D: Running <span style="font-variant:small-caps;">Combine</span> for a blind analysis -> TO ADD: run with/without shapes and compare sensitivity
   - Extra: CAT gitLab tools for validation
 
 ### A: Setting up the datacard
@@ -91,8 +91,34 @@ combine -M AsymptoticLimits workspace_part2.root -m 800
 ```
 
   - Verify that the sensitivity of the shape analysis is indeed improved over the counting analysis in the first part. -> TO BE MOVED LATER AS OPTIONAL EXERCISE
-  - *Advanced task*: You can open the workspace ROOT file interactively and print the contents: `w->Print();`. Each process is represented by a PDF object that depends on the shape morphing nuisance parameters. From the workspace, choose a process and shape uncertainty, and make a plot overlaying the nominal shape with different values of the shape morphing nuisance parameter. You can change the value of a parameter with `w->var("X")->setVal(Y)`, and access a particular pdf with `w->pdf("Z")`. PDF objects in RooFit have a [createHistogram](https://root.cern.ch/doc/master/classRooAbsReal.html#a552a08367c964e689515f2b5c92c8bbe) method that requires the name of the observable (the variable defining the x-axis) - this is called `CMS_th1x` in combine datacards. Feel free to ask for help with this!
+  - *task*: You can open the workspace ROOT file interactively and print the contents: `w->Print();`. Each process is represented by a PDF object that depends on the shape morphing nuisance parameters. From the workspace, choose a process and shape uncertainty, and make a plot overlaying the nominal shape with different values of the shape morphing nuisance parameter. You can change the value of a parameter with `w->var("X")->setVal(Y)`, and access a particular pdf with `w->pdf("Z")`. PDF objects in RooFit have a [createHistogram](https://root.cern.ch/doc/master/classRooAbsReal.html#a552a08367c964e689515f2b5c92c8bbe) method that requires the name of the observable (the variable defining the x-axis) - this is called `CMS_th1x` in combine datacards. Feel free to ask for help with this!
 
 ### B: MC Statistical uncertainties
+
+On top of yield and shape systematics, there is an important source of uncertainty we should introduce. Our estimates of the backgrounds come either from MC simulation or from sideband regions in data, and in both cases these estimates are subject to a statistical uncertainty on the number of simulated or data events.
+In principle we should include an independent statistical uncertainty for every bin of every process in our model.
+It's important to note that <span style="font-variant:small-caps;">Combine</span>/`RooFit` does not take this into account automatically - statistical fluctuations of the data are implicitly accounted for in the likelihood formalism, but statistical uncertainties in the model must be specified by us.
+
+One way to implement these uncertainties is to create a `shape` uncertainty for each bin of each process, in which the up and down histograms have the contents of the bin
+ shifted up and down by the $1\sigma$ uncertainty.
+However this makes the likelihood evaluation computationally inefficient, and can lead to a large number of nuisance parameters
+in more complex models. Instead we will use a feature in <span style="font-variant:small-caps;">Combine</span> called `autoMCStats` that creates these automatically from the datacard,
+and uses a technique called "Barlow-Beeston-lite" to reduce the number of systematic uncertainties that are created.
+This works on the assumption that for high MC event counts we can model the uncertainty with a Gaussian distribution. Given the uncertainties in different bins are independent, the total uncertainty of several processes in a particular bin is just the sum of $N$ individual Gaussians, which is itself a Gaussian distribution.
+So instead of $N$ nuisance parameters we need only one. This breaks down when the number of events is small and we are not in the Gaussian regime.
+The `autoMCStats` tool has a threshold setting on the number of events below which the the Barlow-Beeston-lite approach is not used, and instead a
+Poisson PDF is used to model per-process uncertainties in that bin.
+
+After reading the full documentation on `autoMCStats` [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/bin-wise-stats/), add the corresponding line to your datacard.
+Start by setting a threshold of 0, i.e. `[channel] autoMCStats 0`, to force the use of Barlow-Beeston-lite in all bins.
+
+When running the `text2workspace` step on a datacard with autoMCStats enabled, you will get a report on how each bin has been treated by this algorithm.
+
+**Tasks and questions:**
+  - Try to increase the Poisson threshold. How does the `text2workspace` report changes?
+  - Check how much the cross section measurement and uncertainties change using `FitDiagnostics`. -> PER DOPO
+  - It is also useful to check how the expected uncertainty changes using an Asimov dataset, say with `r=10` injected.  -> PER DOPO
+  - **Advanced task:** See what happens if the Poisson threshold is increased. Based on your results, what threshold would you recommend for this analysis? -> PER DOPO
+
 
 
