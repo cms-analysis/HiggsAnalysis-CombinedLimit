@@ -212,7 +212,7 @@ Topics covered in this section:
   - A: Using FitDiagnostics to validate your setup
   - B: Nuisance parameters impacts
   - C: Post-fit distributions
-  - Extra: CAT gitLab tools for validation
+  - Extra: CAT gitLab tools for validation  -> DO WE WANT THIS?
 
 ### A: Using FitDiagnostics
 Now that we have a working datacard complete with systematic uncertainties, it is important to validate our model. We will explore one of the most commonly used modes of <span style="font-variant:small-caps;">Combine</span>: `FitDiagnostics` . As well as allowing us to make a **measurement** of some physical quantity (as opposed to just setting a limit on it), this method is useful to gain additional information about the model and the behaviour of the fit. It performs two fits:
@@ -303,6 +303,51 @@ The numbers in each column are respectively $\frac{\theta-\theta_I}{\sigma_I}$ (
     - Run `text2workspace.py` on the combined card (don't forget to set the mass and output name `-m 200 -o workspace_part3.root`) and then use `FitDiagnostics` on an Asimov dataset with `r=1` to get the expected uncertainty. Suggested command line options: `--rMin 0 --rMax 2`
   - Using the RooFitResult in the `fitDiagnosticsTest.root` file, check the post-fit value of the rateParams. To what level are the normalisations of the DY and ttbar processes constrained?
   - **Advanced task:** Sometimes there are problems in the fit model that aren't apparent from only fitting the Asimov dataset, but will appear when fitting randomised data. Follow the exercise on toy-by-toy diagnostics [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#toy-by-toy-diagnostics) to explore the tools available for this.
+
+### B: Nuisance parameter impacts
+
+It is often useful to examine in detail the effects the systematic uncertainties have on the signal strength measurement. This is often referred to as calculating the "impact" of each uncertainty. What this means is to determine the shift in the signal strength, with respect to the best-fit, that is induced if a given nuisance parameter is shifted by its $\pm1\sigma$ post-fit uncertainty values. If the signal strength shifts a lot, it tells us that it has a strong dependency on this systematic uncertainty. In fact, what we are measuring here is strongly related to the correlation coefficient between the signal strength and the nuisance parameter. The `MultiDimFit` method has an algorithm for calculating the impact for a given systematic: `--algo impact -P [parameter name]`, but it is typical to use a higher-level script, `combineTool.py`, to automatically run the impacts for all parameters. Full documentation on this is given [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#nuisance-parameter-impacts). There is a three step process for running this. First we perform an initial fit for the signal strength and its uncertainty:
+
+```shell
+combineTool.py -M Impacts -d workspace_part3.root -m 200 --rMin -1 --rMax 2 --robustFit 1 --doInitialFit
+```
+Then we run the impacts for all the nuisance parameters:
+```shell
+combineTool.py -M Impacts -d workspace_part3.root -m 200 --rMin -1 --rMax 2 --robustFit 1 --doFits
+```
+This will take a little bit of time. When finished we collect all the output and convert it to a json file:
+```shell
+combineTool.py -M Impacts -d workspace_part3.root -m 200 --rMin -1 --rMax 2 --robustFit 1 --output impacts.json
+```
+We can then make a plot showing the fitted values of the nuisance parameters, relative to the input uncertainty, and parameter impacts, sorted by the largest impact:
+```shell
+plotImpacts.py -i impacts.json -o impacts
+```
+
+**Tasks and questions:**
+
+  - Identify the most important uncertainties using the impacts tool.
+  - In the plot, some parameters do not show a fitted value of the nuisance parameter relative to the input uncertainty, but rather just a numerical value - why?
+
+### C: Post-fit distributions
+Another thing the `FitDiagnostics` mode can help us with is visualising the distributions we are fitting, and the uncertainties on those distributions, both before the fit is performed ("pre-fit") and after ("post-fit"). The pre-fit can give us some idea of how well our uncertainties cover any data-MC discrepancy, and the post-fit if discrepancies remain after the fit to data (as well as possibly letting us see the presence of a significant signal!).
+
+To produce these distributions add the `--saveShapes` and `--saveWithUncertainties` options when running `FitDiagnostics`:
+
+```shell
+combine -M FitDiagnostics workspace_part3.root -m 200 --rMin -1 --rMax 2 --saveShapes --saveWithUncertainties -n .part3B
+```
+
+<span style="font-variant:small-caps;">Combine</span> will produce pre- and post-fit distributions (for fit_s and fit_b) in the fitDiagnosticsTest.root output file:
+
+![](images/fit_diag_shapes.png)
+
+**Tasks and questions:**
+
+  - Make a plot showing the expected background and signal contributions using the output from `FitDiagnostics` - do this for both the pre-fit and post-fit. You will find a script `postFitPlot.py` in the `longexercise` directory that can help you get started.
+ The bin errors on the TH1s in the fitDiagnostics file are determined from the systematic uncertainties. In the post-fit these take into account the additional constraints on the nuisance parameters as well as any correlations.
+
+  - Why is the uncertainty on the post-fit so much smaller than on the pre-fit?
 
 
 
