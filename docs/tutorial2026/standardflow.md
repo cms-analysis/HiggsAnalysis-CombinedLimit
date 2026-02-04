@@ -24,7 +24,6 @@ Topics covered in this section:
   - A: Setting up the datacard and the workspace
   - B: MC statistical uncertainties
   - C: Introducing control regions
-  - Extra: CAT gitLab tools for validation
 
 ### A: Setting up the datacard
 In a typical analysis we will produce some distribution of our observables, so that we can separate signal and background processes and compare them with data. Combine can receive as input TH1, RooHists, and RooPDFs of any dimensions. In this example we will use TH1 histograms: one for the data and one for each signal and background processes. An example datacard should look like:
@@ -213,6 +212,7 @@ Topics covered in this section:
   - A: Using FitDiagnostics to validate your setup
   - B: Nuisance parameters impacts
   - C: Post-fit distributions
+  - Extra: CAT gitLab tools for validation
 
 ### A: Using FitDiagnostics
 Now that we have a working datacard complete with systematic uncertainties, it is important to validate our model. We will explore one of the most commonly used modes of <span style="font-variant:small-caps;">Combine</span>: `FitDiagnostics` . As well as allowing us to make a **measurement** of some physical quantity (as opposed to just setting a limit on it), this method is useful to gain additional information about the model and the behaviour of the fit. It performs two fits:
@@ -303,5 +303,6 @@ The numbers in each column are respectively $\frac{\theta-\theta_I}{\sigma_I}$ (
     - Run `text2workspace.py` on the combined card (don't forget to set the mass and output name `-m 200 -o workspace_part3.root`) and then use `FitDiagnostics` on an Asimov dataset with `r=1` to get the expected uncertainty. Suggested command line options: `--rMin 0 --rMax 2`
   - Using the RooFitResult in the `fitDiagnosticsTest.root` file, check the post-fit value of the rateParams. To what level are the normalisations of the DY and ttbar processes constrained?
   - **Advanced task:** Sometimes there are problems in the fit model that aren't apparent from only fitting the Asimov dataset, but will appear when fitting randomised data. Follow the exercise on toy-by-toy diagnostics [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#toy-by-toy-diagnostics) to explore the tools available for this.
+
 
 
