@@ -1,5 +1,5 @@
 # Main Features of Combine
-This exercise is designed to recreate the main workflow needed to perform a statistical analysis with Combine. It will start assuming you already prepared your inputs (**shapes, yields, and systematic uncertainties**) and will proceed step by step to perform validation test of your setup and produce some standard results. For more detailed procedure you can always find detailed informations in the Combine **manual** and in the **Long exercise tutorial**. 
+This exercise is designed to recreate the main workflow needed to perform a statistical analysis with Combine. It will start assuming you already prepared your inputs (**shapes, yields, and systematic uncertainties**) and will proceed step by step to perform validation test of your setup and produce some standard results. For more detailed procedure you can always find detailed informations in the  <span style="font-variant:small-caps;">Combine</span> **manual** and in the **Long exercise tutorial**. 
 
 As for the Long exercise, we will work with a simplified version of a real analysis, that nonetheless will have many features of the full analysis. The analysis is a search for an additional heavy neutral Higgs boson decaying to tau lepton pairs. Such a signature is predicted in many extensions of the standard model, in particular the minimal supersymmetric standard model (MSSM). You can read about the analysis in the paper [here](https://arxiv.org/pdf/1803.06553.pdf). The statistical inference makes use of a variable called the total transverse mass ($M_{\mathrm{T}}^{\mathrm{tot}}$) that provides good discrimination between the resonant high-mass signal and the main backgrounds, which have a falling distribution in this high-mass region. The events selected in the analysis are split into a several categories which target the main di-tau final states as well as the two main production modes: gluon-fusion (ggH) and b-jet associated production (bbH). One example is given below for the fully-hadronic final state in the b-tag category which targets the bbH signal:
 
@@ -24,7 +24,6 @@ Topics covered in this section:
   - A: Setting up the datacard and the workspace
   - B: MC statistical uncertainties
   - C: Using FitDiagnostics to validate your setup
-  - D: Running <span style="font-variant:small-caps;">Combine</span> for a blind analysis 
   - Extra: CAT gitLab tools for validation
 
 ### A: Setting up the datacard
@@ -54,8 +53,8 @@ alpha  shape    -          1
 ```
 </details>
 
-The first block tells Combine (and readers) the number of bins/observables (imax), the number of background processes (jmax) and the number of nuisance parameters (kmax).
-The second block tells Combine where it can find the input shapes, according to the pattern `shapes [process] [channel] [file] [histogram] [histogram_with_systematics]`. It is possible to use the `*` wildcard to map multiple processes and/or channels with one line. The histogram entries can contain the `$PROCESS`, `$CHANNEL` and `$MASS` place-holders which will be substituted when searching for a given (process, channel) combination. The value of `$MASS` is specified by the `-m` argument when combine. The final argument of the "shapes" line above should contain the `$SYSTEMATIC` place-holder which will be substituted by the systematic name given in the datacard. By default the observed data process name will be `data_obs`.
+The first block tells  <span style="font-variant:small-caps;">Combine</span> (and readers) the number of bins/observables (imax), the number of background processes (jmax) and the number of nuisance parameters (kmax).
+The second block tells  <span style="font-variant:small-caps;">Combine</span> where it can find the input shapes, according to the pattern `shapes [process] [channel] [file] [histogram] [histogram_with_systematics]`. It is possible to use the `*` wildcard to map multiple processes and/or channels with one line. The histogram entries can contain the `$PROCESS`, `$CHANNEL` and `$MASS` place-holders which will be substituted when searching for a given (process, channel) combination. The value of `$MASS` is specified by the `-m` argument when combine. The final argument of the "shapes" line above should contain the `$SYSTEMATIC` place-holder which will be substituted by the systematic name given in the datacard. By default the observed data process name will be `data_obs`.
 The third block lists for each bin the processes contributiong to it and their rates (yields)
 Finally, the last block lists the nuisance parameters. a lnN uncertainty means that the nuisance only affects the overall normalization, while a `shape` uncertainty affects the distributions of the events.
 
@@ -85,13 +84,19 @@ Once this is done you can convert the text datacard into a RooFit workspace. If 
 ```shell
 text2workspace.py datacard_part2.txt -m 800 -o workspace_part2.root
 ```
-And then we can verify that our setup works properly using this as input to combine:
+And then we can verify that our setup works properly using this as input to combine. But before doing that there is one last item to discuss.
+Most analyses are developed and optimised while we are "blind" to the region of data where we expect our signal to be. With the `AsymptoticLimits` method we can choose just to run the expected limit (`--run expected`), so as not to calculate the observed. However the data is still used, even for the expected, since in the frequentist approach a background-only fit to the data is performed to define the Asimov dataset used to calculate the expected limits. To skip this fit to data and use the pre-fit state of the model the option `--run blind` or `--noFitAsimov` can be used.
+
+A more general way of blinding is to use combine's toy and Asimov dataset generating functionality (`--expectSignal [X] -t -1`). You can read more about this [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#toy-data-generation). These options can be used with any method in combine, not just `AsymptoticLimits`.
+
+Now we can finally test our setup: 
 ```shell
-combine -M AsymptoticLimits workspace_part2.root -m 800
+combine -M AsymptoticLimits workspace_part2.root -m 800 --run blind
 ```
 
 **Tasks and questions:**
-  - Try to remove (comment out) the shape defining lines and systematics. This effectively transforms our shape analysis into a bin counting one. How much does the sensitivity of the shape analysis improved over the counting analysis? 
+  - Try to remove (comment out) the shape defining lines and systematics. This effectively transforms our shape analysis into a bin counting one. How much does the sensitivity of the shape analysis improved over the counting analysis?
+  - Compare the expected limits calculated with `--run expected` and `--run blind`. Why are they different?
   - You can open the workspace ROOT file interactively and print the contents: `w->Print();`. Each process is represented by a PDF object that depends on the shape morphing nuisance parameters. From the workspace, choose a process and shape uncertainty, and make a plot overlaying the nominal shape with different values of the shape morphing nuisance parameter. You can change the value of a parameter with `w->var("X")->setVal(Y)`, and access a particular pdf with `w->pdf("Z")`. PDF objects in RooFit have a [createHistogram](https://root.cern.ch/doc/master/classRooAbsReal.html#a552a08367c964e689515f2b5c92c8bbe) method that requires the name of the observable (the variable defining the x-axis) - this is called `CMS_th1x` in combine datacards. Feel free to ask for help with this!
 
 ### B: MC Statistical uncertainties
@@ -208,6 +213,7 @@ The numbers in each column are respectively $\frac{\theta-\theta_I}{\sigma_I}$ (
   - Should we be concerned when a parameter is more strongly constrained than the input uncertainty (i.e. $\frac{\sigma}{\sigma_I}<1.0$)?
   - Check the fitted values of the nuisance parameters and constraints on a b-only and s+b asimov dataset instead. This check is [required](https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/HiggsPAGPreapprovalChecks) for all analyses in the Higgs PAG. It serves both as a closure test (do we fit exactly what signal strength we input?) and a way to check whether there are any infeasibly strong constraints while the analysis is still blind (typical example: something has probably gone wrong if we constrain the luminosity uncertainty to 10% of the input!)
   - **Advanced task:** Sometimes there are problems in the fit model that aren't apparent from only fitting the Asimov dataset, but will appear when fitting randomised data. Follow the exercise on toy-by-toy diagnostics [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#toy-by-toy-diagnostics) to explore the tools available for this.
+
 
 
 
