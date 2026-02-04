@@ -24,7 +24,7 @@ Topics covered in this section:
   - A: Setting up the datacard and the workspace
   - B: MC statistical uncertainties
   - C: Using FitDiagnostics to validate your setup
-  - D: Running <span style="font-variant:small-caps;">Combine</span> for a blind analysis -> TO ADD: run with/without shapes and compare sensitivity
+  - D: Running <span style="font-variant:small-caps;">Combine</span> for a blind analysis 
   - Extra: CAT gitLab tools for validation
 
 ### A: Setting up the datacard
@@ -85,13 +85,14 @@ Once this is done you can convert the text datacard into a RooFit workspace. If 
 ```shell
 text2workspace.py datacard_part2.txt -m 800 -o workspace_part2.root
 ```
-And then we can verify that our setup works properly using this as input to combine: -> SHOULD WE REMOVE THIS PIECE?
+And then we can verify that our setup works properly using this as input to combine:
 ```shell
 combine -M AsymptoticLimits workspace_part2.root -m 800
 ```
 
-  - Verify that the sensitivity of the shape analysis is indeed improved over the counting analysis in the first part. -> TO BE MOVED LATER AS OPTIONAL EXERCISE
-  - *task*: You can open the workspace ROOT file interactively and print the contents: `w->Print();`. Each process is represented by a PDF object that depends on the shape morphing nuisance parameters. From the workspace, choose a process and shape uncertainty, and make a plot overlaying the nominal shape with different values of the shape morphing nuisance parameter. You can change the value of a parameter with `w->var("X")->setVal(Y)`, and access a particular pdf with `w->pdf("Z")`. PDF objects in RooFit have a [createHistogram](https://root.cern.ch/doc/master/classRooAbsReal.html#a552a08367c964e689515f2b5c92c8bbe) method that requires the name of the observable (the variable defining the x-axis) - this is called `CMS_th1x` in combine datacards. Feel free to ask for help with this!
+**Tasks and questions:**
+  - Try to remove (comment out) the shape defining lines and systematics. This effectively transforms our shape analysis into a bin counting one. How much does the sensitivity of the shape analysis improved over the counting analysis? 
+  - You can open the workspace ROOT file interactively and print the contents: `w->Print();`. Each process is represented by a PDF object that depends on the shape morphing nuisance parameters. From the workspace, choose a process and shape uncertainty, and make a plot overlaying the nominal shape with different values of the shape morphing nuisance parameter. You can change the value of a parameter with `w->var("X")->setVal(Y)`, and access a particular pdf with `w->pdf("Z")`. PDF objects in RooFit have a [createHistogram](https://root.cern.ch/doc/master/classRooAbsReal.html#a552a08367c964e689515f2b5c92c8bbe) method that requires the name of the observable (the variable defining the x-axis) - this is called `CMS_th1x` in combine datacards. Feel free to ask for help with this!
 
 ### B: MC Statistical uncertainties
 
@@ -207,6 +208,7 @@ The numbers in each column are respectively $\frac{\theta-\theta_I}{\sigma_I}$ (
   - Should we be concerned when a parameter is more strongly constrained than the input uncertainty (i.e. $\frac{\sigma}{\sigma_I}<1.0$)?
   - Check the fitted values of the nuisance parameters and constraints on a b-only and s+b asimov dataset instead. This check is [required](https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/HiggsPAGPreapprovalChecks) for all analyses in the Higgs PAG. It serves both as a closure test (do we fit exactly what signal strength we input?) and a way to check whether there are any infeasibly strong constraints while the analysis is still blind (typical example: something has probably gone wrong if we constrain the luminosity uncertainty to 10% of the input!)
   - **Advanced task:** Sometimes there are problems in the fit model that aren't apparent from only fitting the Asimov dataset, but will appear when fitting randomised data. Follow the exercise on toy-by-toy diagnostics [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#toy-by-toy-diagnostics) to explore the tools available for this.
+
 
 
 
