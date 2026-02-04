@@ -355,6 +355,186 @@ Topics covered in this section:
 
   - A: Calculating the significance
   - B: Signal strength measurement and uncertainty breakdown
-  - Computing limits with toys
+  - C: Computing limits with toys
   - Extra: Asymptotic algorithm limitations
+
+Now that we have a working and validated setup, we can finally perform the statistical analysis of our results. We already saw in the previous sections how to extract limits on our signal under the assumption of the asymptotic regime. `Combine` provides several other methods to extract different results. In this part we will discuss the most common ones, but you are encouraged to explore the [documentation](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/) to have a look at the other possibilities offered by the tool.
+
+### A: Calculating the significance
+In the event that you observe a deviation from your null hypothesis, in this case the b-only hypothesis, <span style="font-variant:small-caps;">Combine</span> can be used to calculate the p-value or significance. To do this using the asymptotic approximation simply do:
+
+```shell
+combine -M Significance workspace_part3.root -m 200 --rMin -1 --rMax 2
+```
+To calculate the expected significance for a given signal strength we can just generate an Asimov dataset first:
+
+```shell
+combine -M Significance workspace_part3.root -m 200 --rMin -1 --rMax 5 -t -1 --expectSignal 1.5
+```
+Note that the Asimov dataset generated this way uses the nominal values of all model parameters to define the dataset. Another option is to add `--toysFrequentist`, which causes a fit to the data to be performed first (with `r` frozen to the `--expectSignal` value) and then any subsequent Asimov datasets or toys are generated using the post-fit values of the model parameters. In general this will result in a different value for the expected significance due to changes in the background normalisation and shape induced by the fit to data:
+
+```shell
+combine -M Significance workspace_part3.root -m 200 --rMin -1 --rMax 5 -t -1 --expectSignal 1.5 --toysFrequentist
+```
+
+**Tasks and questions:**
+
+  - Note how much the expected significance changes with the --toysFrequentist option. Does the change make sense given the difference in the post-fit and pre-fit distributions you looked at in the previous section?
+  - **Advanced task** It is also possible to calculate the significance using toys with `HybridNew` (details [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-significances-with-toys)) if we are in a situation where the asymptotic approximation is not reliable or if we just want to verify the result. Why might this be challenging for a high significance, say larger than $5\sigma$?
+
+### B: Signal strength measurement and uncertainty breakdown
+We have seen that with `FitDiagnostics` we can make a measurement of the best-fit signal strength and uncertainty. In the asymptotic approximation we find an interval at the $\alpha$ CL around the best fit by identifying the parameter values at which our test statistic $q=−2\Delta \ln L$ equals a critical value. This value is the $\alpha$ quantile of the $\chi^2$ distribution with one degree of freedom. In the expression for q we calculate the difference in the profile likelihood between some fixed point and the best-fit.
+
+Depending on what we want to do with the measurement, e.g. whether it will be published in a journal, we may want to choose a more precise method for finding these intervals. There are a number of ways that parameter uncertainties are estimated in combine, and some are more precise than others:
+
+  - Covariance matrix: calculated by the Minuit HESSE routine, this gives a symmetric uncertainty by definition and is only accurate when the profile likelihood for this parameter is symmetric and parabolic.
+  - Minos error: calculated by the Minuit MINOS route - performs a search for the upper and lower values of the parameter that give the critical value of $q$ for the desired CL. Return an asymmetric interval. This is what `FitDiagnostics` does by default, but only for the parameter of interest. Usually accurate but prone to fail on more complex models and not easy to control the tolerance for terminating the search.
+  - RobustFit error: a custom implementation in combine similar to Minos that returns an asymmetric interval, but with more control over the precision. Enabled by adding `--robustFit 1` when running `FitDiagnostics`.
+  - Explicit scan of the profile likelihood on a chosen grid of parameter values. Interpolation between points to find parameter values corresponding to appropriate d. It is a good idea to use this for important measurements since we can see by eye that there are no unexpected features in the shape of the likelihood curve.
+
+In this section we will look at the last approach, using the `MultiDimFit` mode of combine. By default this mode just performs a single fit to the data:
+
+```shell
+combine -M MultiDimFit workspace_part3.root -n .part3E -m 200 --rMin -1 --rMax 2
+```
+
+You should see the best-fit value of the signal strength reported and nothing else. By adding the `--algo X` option combine will run an additional algorithm after this best fit. Here we will use `--algo grid`, which performs a scan of the likelihood with `r` fixed to a set of different values. The set of points will be equally spaced between the `--rMin` and `--rMax` values, and the number of points is controlled with `--points N`:
+
+```shell
+combine -M MultiDimFit workspace_part3.root -n .part3E -m 200 --rMin -1 --rMax 2 --algo grid --points 30
+```
+
+The results of the scan are written into the output file, if opened interactively should see:
+
+<details>
+<summary><b>Show output</b></summary>
+```shell
+root [1] limit->Scan("r:deltaNLL")
+************************************
+*    Row   *         r *  deltaNLL *
+************************************
+*        0 * 0.5399457 *         0 *
+*        1 * -0.949999 * 5.6350698 *
+*        2 * -0.850000 * 4.9482779 *
+*        3 *     -0.75 * 4.2942519 *
+*        4 * -0.649999 * 3.6765284 *
+*        5 * -0.550000 * 3.0985388 *
+*        6 * -0.449999 * 2.5635135 *
+*        7 * -0.349999 * 2.0743820 *
+*        8 *     -0.25 * 1.6337506 *
+*        9 * -0.150000 * 1.2438088 *
+*       10 * -0.050000 * 0.9059833 *
+*       11 * 0.0500000 * 0.6215767 *
+*       12 * 0.1500000 * 0.3910581 *
+*       13 *      0.25 * 0.2144184 *
+*       14 * 0.3499999 * 0.0911308 *
+*       15 * 0.4499999 * 0.0201983 *
+*       16 * 0.5500000 * 0.0002447 *
+*       17 * 0.6499999 * 0.0294311 *
+*       18 *      0.75 * 0.1058298 *
+*       19 * 0.8500000 * 0.2272539 *
+*       20 * 0.9499999 * 0.3912534 *
+*       21 * 1.0499999 * 0.5952836 *
+*       22 * 1.1499999 * 0.8371513 *
+*       23 *      1.25 * 1.1142146 *
+*       24 * 1.3500000 * 1.4240909 *
+*       25 * 1.4500000 * 1.7644306 *
+*       26 * 1.5499999 * 2.1329684 *
+*       27 * 1.6499999 * 2.5273966 *
+*       28 *      1.75 * 2.9458723 *
+*       29 * 1.8500000 * 3.3863399 *
+*       30 * 1.9500000 * 3.8469560 *
+************************************
+```
+</details>
+
+To turn this into a plot run:
+```shell
+python plot1DScan.py higgsCombine.part3E.MultiDimFit.mH200.root -o single_scan
+```
+This script will also perform a spline interpolation of the points to give accurate values for the uncertainties.
+
+In the next step we will split this total uncertainty into two components. It is typical to separate the contribution from statistics and systematics, and sometimes even split the systematic part into different components. This gives us an idea of which aspects of the uncertainty dominate.
+The statistical component is usually defined as the uncertainty we would have if all the systematic uncertainties went to zero. We can emulate this effect by freezing all the nuisance parameters when we do the scan in `r`,
+such that they do not vary in the fit. This is achieved by adding the `--freezeParameters allConstrainedNuisances` option. It would also work if the parameters are specified explicitly, e.g. `--freezeParameters CMS_eff_t,lumi_13TeV,...,` but the `allConstrainedNuisances` option is more concise. Run the scan again with the systematics frozen, and use the plotting script to overlay this curve with the previous one:
+
+```shell
+combine -M MultiDimFit workspace_part3.root -n .part3E.freezeAll -m 200 --rMin -1 --rMax 2 --algo grid --points 30 --freezeParameters allConstrainedNuisances
+python plot1DScan.py higgsCombine.part3E.MultiDimFit.mH200.root --others 'higgsCombine.part3E.freezeAll.MultiDimFit.mH200.root:FreezeAll:2' -o freeze_first_attempt
+```
+
+![](images/freeze_first_attempt.png)
+
+This doesn't look quite right - the best-fit has been shifted because unfortunately the `--freezeParameters` option acts before the initial fit, whereas we only want to add it for the scan after this fit. To remedy this we can use a feature of <span style="font-variant:small-caps;">Combine</span> that lets us save a "snapshot" of the best-fit parameter values, and reuse this snapshot in subsequent fits. First we perform a single fit, adding the `--saveWorkspace` option:
+
+```shell
+combine -M MultiDimFit workspace_part3.root -n .part3E.snapshot -m 200 --rMin -1 --rMax 2 --saveWorkspace
+```
+The output file will now contain a copy of our workspace from the input, and this copy will contain a snapshot of the best-fit parameter values. We can now run the frozen scan again, but instead using this copy of the workspace as input, and restoring the snapshot that was saved:
+
+```shell
+combine -M MultiDimFit higgsCombine.part3E.snapshot.MultiDimFit.mH200.root -n .part3E.freezeAll -m 200 --rMin -1 --rMax 2 --algo grid --points 30 --freezeParameters allConstrainedNuisances --snapshotName MultiDimFit
+python plot1DScan.py higgsCombine.part3E.MultiDimFit.mH200.root --others 'higgsCombine.part3E.freezeAll.MultiDimFit.mH200.root:FreezeAll:2' -o freeze_second_attempt --breakdown Syst,Stat
+```
+
+Now the plot should look correct:
+
+![](images/freeze_second_attempt.png)
+
+We added the `--breakdown Syst,Stat` option to the plotting script to make it calculate the systematic component, which is defined simply as $\sigma_{\text{syst}} = \sqrt{\sigma^2_{\text{tot}} - \sigma^2_{\text{stat}}}$.
+To split the systematic uncertainty into different components we just need to run another scan with a subset of the systematics frozen. For example, say we want to split this into experimental and theoretical uncertainties, we would calculate the uncertainties as:
+
+$\sigma_{\text{theory}} = \sqrt{\sigma^2_{\text{tot}} - \sigma^2_{\text{fr.theory}}}$
+
+$\sigma_{\text{expt}} = \sqrt{\sigma^2_{\text{fr.theory}} - \sigma^2_{\text{fr.theory+expt}}}$
+
+$\sigma_{\text{stat}} = \sigma_{\text{fr.theory+expt}}$
+
+where fr.=freeze.
+
+While it is perfectly fine to just list the relevant nuisance parameters in the `--freezeParameters` argument for the $\sigma_{\text{fr.theory}}$ scan, a convenient way can be to define a named group of parameters in the text datacard and then freeze all parameters in this group with `--freezeNuisanceGroups`. The syntax for defining a group is:
+
+```shell
+[group name] group = uncertainty_1 uncertainty_2 ... uncertainty_N
+```
+
+**Tasks and questions:**
+
+  - Take our stat+syst split one step further and separate the systematic part into two: one part for hadronic tau uncertainties and one for all others.
+  - Do this by defining a `tauID` group in the datacard including the following parameters: `CMS_eff_t`, `CMS_eff_t_highpt`, and the three `CMS_scale_t_X` uncertainties.
+  - To plot this and calculate the split via the relations above you can just add further arguments to the `--others` option in the `plot1DScan.py` script. Each is of the form: `'[file]:[label]:[color]'`. The `--breakdown` argument should also be extended to three terms.
+  - How important are these tau-related uncertainties compared to the others?
+
+### C: Computing limits with toys
+Now we will look at computing limits without the asymptotic approximation, so instead using toy datasets to determine the test statistic distributions under the signal+background and background-only hypotheses. This can be necessary if we are searching for signal in bins with a small number of events expected. In <span style="font-variant:small-caps;">Combine</span> we will use the `HybridNew` method to calculate limits using toys. This mode is capable of calculating limits with several different test statistics and with fine-grained control over how the toy datasets are generated internally. To calculate LHC-style profile likelihood limits (i.e. the same as we did with the asymptotic) we set the option `--LHCmode LHC-limits`. You can read more about the different options in the [Combine documentation](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-limits-with-toys).
+
+Run the following command:
+```shell
+combine -M HybridNew datacard_part1.txt --LHCmode LHC-limits -n .part1B --saveHybridResult
+```
+In contrast to `AsymptoticLimits` this will only determine the observed limit, and will take a few minutes. There will not be much output to the screen while combine is running. You can add the option `-v 1` to get a better idea of what is going on. You should see <span style="font-variant:small-caps;">Combine</span> stepping around in `r`, trying to find the value for which CLs = 0.05, i.e. the 95% CL limit. The `--saveHybridResult` option will cause the test statistic distributions that are generated at each tested value of `r` to be saved in the output ROOT file.
+
+To get an expected limit add the option `--expectedFromGrid X`, where `X` is the desired quantile, e.g. for the median:
+
+```shell
+combine -M HybridNew datacard_part1.txt --LHCmode LHC-limits -n .part1B --saveHybridResult --expectedFromGrid 0.500
+```
+
+Calculate the median expected limit and the 68% range. The 95% range could also be done, but note it will take much longer to run the 0.025 quantile. While <span style="font-variant:small-caps;">Combine</span> is running you can move on to the next steps below.
+
+**Tasks and questions:**
+
+  -   In contrast to `AsymptoticLimits`, with `HybridNew` each limit comes with an uncertainty. What is the origin of this uncertainty?
+  -   How good is the agreement between the asymptotic and toy-based methods?
+  -   Why does it take longer to calculate the lower expected quantiles (e.g. 0.025, 0.16)? Think about how the statistical uncertainty on the CLs value depends on Pmu and Pb.
+
+Next plot the test statistic distributions stored in the output file:
+```shell
+python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotTestStatCLs.py --input higgsCombine.part1B.HybridNew.mH120.root --poi r --val all --mass 120
+```
+
+This produces a new ROOT file `test_stat_distributions.root` containing the plots, to save them as pdf/png files run this small script and look at the resulting figures:
+
+```shell
+python3 printTestStatPlots.py test_stat_distributions.root
 
