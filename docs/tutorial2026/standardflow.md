@@ -23,7 +23,7 @@ Topics covered in this section:
 
   - A: Setting up the datacard and the workspace
   - B: MC statistical uncertainties
-  - C: Using FitDiagnostics to validate your setup
+  - C: Introducing control regions
   - Extra: CAT gitLab tools for validation
 
 ### A: Setting up the datacard
@@ -126,13 +126,101 @@ When running the `text2workspace` step on a datacard with autoMCStats enabled, y
   - It is also useful to check how the expected uncertainty changes using an Asimov dataset, say with `r=10` injected.  -> PER DOPO
   - **Advanced task:** See what happens if the Poisson threshold is increased. Based on your results, what threshold would you recommend for this analysis? -> PER DOPO
 
-### C: Using FitDiagnostics
+### C: Control regions
+In a modern analysis it is typical for some or all of the backgrounds to be estimated using the data, instead of relying purely on MC simulation.
+This can take many forms, but a common approach is to use "control regions" (CRs) that are pure and/or have higher statistics for a given process.
+These are defined by event selections that are similar to, but non-overlapping with, the signal region. In our $\phi\rightarrow\tau\tau$ example the $\text{Z}\rightarrow\tau\tau$
+background normalisation can be calibrated using a $\text{Z}\rightarrow\mu\mu$ CR, and the $\text{t}\bar{\text{t}}$ background using an $e+\mu$ CR.
+By comparing the number of data events in these CRs to our MC expectation we can obtain scale factors to apply to the corresponding backgrounds in the signal region (SR).
+The idea is that the data will gives us a more accurate prediction of the background with less systematic uncertainties.
+For example, we can remove the cross section and acceptance uncertainties in the SR, since we are no longer using the MC prediction (with a caveat discussed below).
+While we could simply derive these correction factors and apply them to our signal region datacard and better way is to include these regions in our fit model and
+tie the normalisations of the backgrounds in the CR and SR together. This has a number of advantages:
+
+  - Automatically handles the statistical uncertainty due to the number of data events in the CR
+  - Allows for the presence of some signal contamination in the CR to be handled correctly
+  - The CRs are typically not 100% pure in the background they're meant to control - other backgrounds may be present, with their own systematic uncertainties, some of which may be correlated with the SR or other CRs. Propagating these effects through to the SR "by hand" can become very challenging.
+
+In this section we will continue to use the same SR as in the previous one, however we will switch to a lower signal mass hypothesis, $m_{\phi}=200$GeV, as its sensitivity depends more strongly on the background prediction than the high mass signal, so is better for illustrating the use of CRs. Here the nominal signal (`r=1`) has been normalised to a cross section of 1 pb.
+
+The SR datacard for the 200 GeV signal is `datacard_part3.txt`. Two further datacards are provided: `datacard_part3_ttbar_cr.txt` and `datacard_part3_DY_cr.txt`
+which represent the CRs for the Drell-Yan and $\text{t}\bar{\text{t}}$ processes as described above.
+The cross section and acceptance uncertainties for these processes have pre-emptively been removed from the SR card.
+However we cannot get away with neglecting acceptance effects altogether.
+We are still implicitly using the MC simulation to predict to the ratio of events in the CR and SR, and this ratio will in general carry a theoretical acceptance uncertainty.
+If the CRs are well chosen then this uncertainty should be smaller than the direct acceptance uncertainty in the SR however.
+The uncertainties `acceptance_ttbar_cr` and `acceptance_DY_cr` have been added to these datacards cover this effect. **Task:** Calculate the ratio of CR to SR events for these two processes, as well as their CR purity to verify that these are useful CRs.
+
+The next step is to combine these datacards into one, which is done with the `combineCards.py` script:
+
+```shell
+combineCards.py signal_region=datacard_part3.txt ttbar_cr=datacard_part3_ttbar_cr.txt DY_cr=datacard_part3_DY_cr.txt &> part3_combined.txt
+```
+
+Each argument is of the form `[new channel name]=[datacard.txt]`. The new datacard is written to the screen by default, so we redirect the output into our new datacard file. The output looks like:
+
+<details>
+<summary><b>Show datacard</b></summary>
+```shell
+imax 3 number of bins
+jmax 8 number of processes minus 1
+kmax 15 number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes *              DY_cr          datacard_part3_DY_cr.shapes.root DY_control_region/$PROCESS DY_control_region/$PROCESS_$SYSTEMATIC
+shapes *              signal_region  datacard_part3.shapes.root signal_region/$PROCESS signal_region/$PROCESS_$SYSTEMATIC
+shapes bbHtautau      signal_region  datacard_part3.shapes.root signal_region/bbHtautau$MASS signal_region/bbHtautau$MASS_$SYSTEMATIC
+shapes *              ttbar_cr       datacard_part3_ttbar_cr.shapes.root tt_control_region/$PROCESS tt_control_region/$PROCESS_$SYSTEMATIC
+----------------------------------------------------------------------------------------------------------------------------------
+bin          signal_region  ttbar_cr       DY_cr
+observation  3416           79251          365754
+----------------------------------------------------------------------------------------------------------------------------------
+bin                                               signal_region  signal_region  signal_region  signal_region  signal_region  ttbar_cr       ttbar_cr       ttbar_cr       ttbar_cr       ttbar_cr       DY_cr          DY_cr          DY_cr          DY_cr          DY_cr          DY_cr
+process                                           bbHtautau      ttbar          diboson        Ztautau        jetFakes       W              QCD            ttbar          VV             Ztautau        W              QCD            Zmumu          ttbar          VV             Ztautau
+process                                           0              1              2              3              4              5              6              1              7              3              5              6              8              1              7              3
+rate                                              198.521        683.017        96.5185        742.649        2048.94        597.336        308.965        67280.4        10589.6        150.025        59.9999        141.725        305423         34341.1        5273.43        115.34
+----------------------------------------------------------------------------------------------------------------------------------
+CMS_eff_b               lnN                       1.02           1.02           1.02           1.02           -              -              -              -              -              -              -              -              -              -              -              -
+CMS_eff_e               lnN                       -              -              -              -              -              1.02           -              -              1.02           1.02           -              -              -              -              -              -
+...
+```
+</details>
+
+The `[new channel name]=` part of the input arguments is not required, but it gives us control over how the channels in the combined card will be named,
+otherwise default values like `ch1`, `ch2` etc will be used.
+
+We now have a combined datacard that we can run text2workspace.py on and start doing fits, however there is still one important ingredient missing. Right now the yields of the `Ztautau` process in the SR and `Zmumu` in the CR are not connected to each other in any way, and similarly for the `ttbar` processes. In the fit both would be adjusted by the nuisance parameters only, and constrained to the nominal yields. To remedy this we introduce `rateParam` directives to the datacard. A `rateParam` is a new free parameter that multiples the yield of a given process, just in the same way the signal strength `r` multiplies the signal yield. The syntax of a `rateParam` line in the datacard is
+
+```shell
+[name] rateParam [channel] [process] [init] [min,max]
+```
+
+where `name` is the chosen name for the parameter, `channel` and `process` specify which (channel, process) combination it should affect, `init` gives the initial value, and optionally `[min,max]` specifies the ranges on the RooRealVar that will be created. The `channel` and `process` arguments support the use of the wildcard `*` to match multiple entries. **Task:** Add two `rateParam`s with nominal values of `1.0` to the end of the combined datacard named `rate_ttbar` and `rate_Zll`. The former should affect the `ttbar` process in all channels, and the latter should affect the `Ztautau` and `Zmumu` processes in all channels. Set ranges of `[0,5]` to both. Note that a `rateParam` name can be repeated to apply it to multiple processes, e.g.:
+
+```shell
+rateScale rateParam * procA 1.0
+rateScale rateParam * procB 1.0
+```
+
+is perfectly valid and only one `rateParam` will be created. These parameters will allow the yields to float in the fit without prior constraint (unlike a regular `lnN` or `shape` systematic), with the yields in the CRs and SR tied together.
+
+**Tasks and questions:**
+  - To compare to the previous approach of fitting the SR only, with cross section and acceptance uncertainties restored, an additional card is provided: `datacard_part3_nocrs.txt`. Run the same fit on this card to verify the improvement of the SR+CR approach
+
+
+## Part 2: Setup Validation
+Topics covered in this section:
+
+  - A: Using FitDiagnostics to validate your setup
+  - B: Nuisance parameters impacts
+  - C: Post-fit distributions
+
+### A: Using FitDiagnostics
 Now that we have a working datacard complete with systematic uncertainties, it is important to validate our model. We will explore one of the most commonly used modes of <span style="font-variant:small-caps;">Combine</span>: `FitDiagnostics` . As well as allowing us to make a **measurement** of some physical quantity (as opposed to just setting a limit on it), this method is useful to gain additional information about the model and the behaviour of the fit. It performs two fits:
 
   - A "background-only" (b-only) fit: first POI (usually "r") fixed to zero
   - A "signal+background" (s+b) fit: all POIs are floating
 
-With the s+b fit <span style="font-variant:small-caps;">Combine</span> will report the best-fit value of our signal strength modifier `r`. As well as the usual output file, a file named `fitDiagnosticsTest.root` is produced which contains additional information. In particular it includes two `RooFitResult` objects, one for the b-only and one for the s+b fit, which store the fitted values of all the **nuisance parameters (NPs)** and POIs as well as estimates of their uncertainties. The covariance matrix from both fits is also included, from which we can learn about the correlations between parameters. Run the `FitDiagnostics` method on our workspace:
+With the s+b fit <span style="font-variant:small-caps;">Combine</span> will report the best-fit value of our signal strength modifier `r`. As well as the usual output file, a file named `fitDiagnosticsTest.root` is produced which contains additional information. In particular it includes two `RooFitResult` objects, one for the b-only and one for the s+b fit, which store the fitted values of all the **nuisance parameters (NPs)** and POIs as well as estimates of their uncertainties. The covariance matrix from both fits is also included, from which we can learn about the correlations between parameters. Run the `FitDiagnostics` method on the workspace we obtained using the SR-only datacard:
 
 ```shell
 combine -M FitDiagnostics workspace_part2.root -m 800 --rMin -20 --rMax 20
@@ -209,14 +297,11 @@ The numbers in each column are respectively $\frac{\theta-\theta_I}{\sigma_I}$ (
 
 **Tasks and questions:**
 
-  - Which parameter has the largest shift from the nominal value (0) in the fitted value of the nuisance parameter relative to the input uncertainty? Which has the tightest constraint?
+  - Using the SR card, Which parameter has the largest shift from the nominal value (0) in the fitted value of the nuisance parameter relative to the input uncertainty? Which has the tightest constraint?
   - Should we be concerned when a parameter is more strongly constrained than the input uncertainty (i.e. $\frac{\sigma}{\sigma_I}<1.0$)?
   - Check the fitted values of the nuisance parameters and constraints on a b-only and s+b asimov dataset instead. This check is [required](https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/HiggsPAGPreapprovalChecks) for all analyses in the Higgs PAG. It serves both as a closure test (do we fit exactly what signal strength we input?) and a way to check whether there are any infeasibly strong constraints while the analysis is still blind (typical example: something has probably gone wrong if we constrain the luminosity uncertainty to 10% of the input!)
+    - Run `text2workspace.py` on the combined card (don't forget to set the mass and output name `-m 200 -o workspace_part3.root`) and then use `FitDiagnostics` on an Asimov dataset with `r=1` to get the expected uncertainty. Suggested command line options: `--rMin 0 --rMax 2`
+  - Using the RooFitResult in the `fitDiagnosticsTest.root` file, check the post-fit value of the rateParams. To what level are the normalisations of the DY and ttbar processes constrained?
   - **Advanced task:** Sometimes there are problems in the fit model that aren't apparent from only fitting the Asimov dataset, but will appear when fitting randomised data. Follow the exercise on toy-by-toy diagnostics [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#toy-by-toy-diagnostics) to explore the tools available for this.
-
-
-
-
-
 
 
