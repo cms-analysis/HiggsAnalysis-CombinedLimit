@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting - Combine Documentation</title>
+  <script>
+    (function() {
+      // Base path for GitHub Pages project site
+      var basePath = '/HiggsAnalysis-CombinedLimit/';
+      var path = window.location.pathname;
+
+      // Strip the base path to get the relative path
+      if (path.indexOf(basePath) === 0) {
+        path = path.substring(basePath.length);
+      }
+
+      // Paths managed by mike (versioned content) - don't redirect these
+      var versionedPattern = /^(v\d|main\/|latest\/)/;
+
+      if (path && !versionedPattern.test(path)) {
+        // Old pre-versioning URL: redirect to latest/<path>
+        var newUrl = basePath + 'latest/' + path + window.location.search + window.location.hash;
+        window.location.replace(newUrl);
+      }
+    })();
+  </script>
+  <noscript>
+    <meta http-equiv="refresh" content="0; url=latest/" />
+  </noscript>
+</head>
+<body>
+  <h1>Page Not Found</h1>
+  <p>The page you requested could not be found.</p>
+  <p>You may be looking for the <a href="latest/">latest documentation</a>.</p>
+</body>
+</html>
