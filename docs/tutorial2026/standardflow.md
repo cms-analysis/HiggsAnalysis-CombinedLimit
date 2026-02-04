@@ -3,7 +3,7 @@ This exercise is designed to recreate the main workflow needed to perform a stat
 
 As for the Long exercise, we will work with a simplified version of a real analysis, that nonetheless will have many features of the full analysis. The analysis is a search for an additional heavy neutral Higgs boson decaying to tau lepton pairs. Such a signature is predicted in many extensions of the standard model, in particular the minimal supersymmetric standard model (MSSM). You can read about the analysis in the paper [here](https://arxiv.org/pdf/1803.06553.pdf). The statistical inference makes use of a variable called the total transverse mass ($M_{\mathrm{T}}^{\mathrm{tot}}$) that provides good discrimination between the resonant high-mass signal and the main backgrounds, which have a falling distribution in this high-mass region. The events selected in the analysis are split into a several categories which target the main di-tau final states as well as the two main production modes: gluon-fusion (ggH) and b-jet associated production (bbH). One example is given below for the fully-hadronic final state in the b-tag category which targets the bbH signal:
 
-![](images/CMS-DAS.003.jpeg)
+![](../part5/images/CMS-DAS.003.jpeg)
 
 ## Background
 You can find a presentation with some more background on likelihoods and extracting confidence intervals [here](https://indico.cern.ch/event/976099/contributions/4138517/). A presentation that discusses limit setting in more detail can be found [here](https://indico.cern.ch/event/976099/contributions/4138520/).
@@ -61,7 +61,7 @@ Note that the total nominal rate of a given process, specified in the `rate` lin
 
 Shape uncertainties can be added by supplying two additional histograms for a process, corresponding to the distribution obtained by shifting that parameter up and down by one standard deviation. These shapes will be interpolated (see the [template shape uncertainties](../part2/settinguptheanalysis.md#template-shape-uncertainties) section for details) for shifts within $\pm1\sigma$ and linearly extrapolated beyond. The normalizations are interpolated linearly in log scale just like we do for log-normal uncertainties.
 
-![](images/shape_morphing.jpg)
+![](../part5/images/shape_morphing.jpg)
 
 In the list of uncertainties the interpretation of the values for `shape` lines is a bit different from `lnN`. The effect can be "-" or 0 for no effect, 1 for normal effect, and possibly something different from 1 to test larger or smaller effects (in that case, the unit Gaussian is scaled by that factor before using it as parameter for the interpolation).
 
@@ -463,7 +463,7 @@ combine -M MultiDimFit workspace_part3.root -n .part3E.freezeAll -m 200 --rMin -
 python plot1DScan.py higgsCombine.part3E.MultiDimFit.mH200.root --others 'higgsCombine.part3E.freezeAll.MultiDimFit.mH200.root:FreezeAll:2' -o freeze_first_attempt
 ```
 
-![](images/freeze_first_attempt.png)
+![](../part5/images/freeze_first_attempt.png)
 
 This doesn't look quite right - the best-fit has been shifted because unfortunately the `--freezeParameters` option acts before the initial fit, whereas we only want to add it for the scan after this fit. To remedy this we can use a feature of <span style="font-variant:small-caps;">Combine</span> that lets us save a "snapshot" of the best-fit parameter values, and reuse this snapshot in subsequent fits. First we perform a single fit, adding the `--saveWorkspace` option:
 
@@ -479,7 +479,7 @@ python plot1DScan.py higgsCombine.part3E.MultiDimFit.mH200.root --others 'higgsC
 
 Now the plot should look correct:
 
-![](images/freeze_second_attempt.png)
+![](../part5/images/freeze_second_attempt.png)
 
 We added the `--breakdown Syst,Stat` option to the plotting script to make it calculate the systematic component, which is defined simply as $\sigma_{\text{syst}} = \sqrt{\sigma^2_{\text{tot}} - \sigma^2_{\text{stat}}}$.
 To split the systematic uncertainty into different components we just need to run another scan with a subset of the systematics frozen. For example, say we want to split this into experimental and theoretical uncertainties, we would calculate the uncertainties as:
@@ -537,4 +537,5 @@ This produces a new ROOT file `test_stat_distributions.root` containing the plot
 
 ```shell
 python3 printTestStatPlots.py test_stat_distributions.root
+
 
