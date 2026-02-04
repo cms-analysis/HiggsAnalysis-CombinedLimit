@@ -349,5 +349,12 @@ combine -M FitDiagnostics workspace_part3.root -m 200 --rMin -1 --rMax 2 --saveS
 
   - Why is the uncertainty on the post-fit so much smaller than on the pre-fit?
 
+## Part 3: Running the fit
 
+Topics covered in this section:
+
+  - A: Calculating the significance
+  - B: Signal strength measurement and uncertainty breakdown
+  - Computing limits with toys
+  - Extra: Asymptotic algorithm limitations
 
