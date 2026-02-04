@@ -340,7 +340,7 @@ combine -M FitDiagnostics workspace_part3.root -m 200 --rMin -1 --rMax 2 --saveS
 
 <span style="font-variant:small-caps;">Combine</span> will produce pre- and post-fit distributions (for fit_s and fit_b) in the fitDiagnosticsTest.root output file:
 
-![](images/fit_diag_shapes.png)
+![](../part5/images/fit_diag_shapes.png)
 
 **Tasks and questions:**
 
@@ -537,5 +537,6 @@ This produces a new ROOT file `test_stat_distributions.root` containing the plot
 
 ```shell
 python3 printTestStatPlots.py test_stat_distributions.root
+
 
 
