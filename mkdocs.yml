@@ -30,6 +30,7 @@ nav:
           - "Main Features":
             - "Exercises":                part5/longexercise.md
             - "Solutions":                part5/longexerciseanswers.md
+            - "Analysis flow":            tutorial2026/standardflow.md
           - "Parametric Models":          tutorial2023/parametric_exercise.md
           - "Likelihood-Based Unfolding": tutorial2023_unfolding/unfolding_exercise.md
           - "Statistical Tests Basics":   tutorial_stat_routines/stat_routines.md
