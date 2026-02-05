@@ -25,7 +25,8 @@ Topics covered in this section:
   - B: MC statistical uncertainties
   - C: Introducing control regions
 
-!!! Tip To prepare the datacards you will need to collect all your inputs. This means having already selected, categorised, and analysed your data and MC, and having a settled strategy for at least the main background sources, so you are already well advanced in your analysis. Nevertheless, since without datacards you don't know yet how your results behave, we recommend to have this section ready during the WG review. The L3 and L2 will in any case need to see at least some first results before letting you progress further
+> [!TIP] 
+> To prepare the datacards you will need to collect all your inputs. This means having already selected, categorised, and analysed your data and MC, and having a settled strategy for at least the main background sources, so you are already well advanced in your analysis. Nevertheless, since without datacards you don't know yet how your results behave, we recommend to have this section ready during the WG review. The L3 and L2 will in any case need to see at least some first results before letting you progress further
 
 ### A: Setting up the datacard
 In a typical analysis we will produce some distribution of our observables, so that we can separate signal and background processes and compare them with data. Combine can receive as input TH1, RooHists, and RooPDFs of any dimensions. In this example we will use TH1 histograms: one for the data and one for each signal and background processes. An example datacard should look like:
@@ -213,8 +214,8 @@ Topics covered in this section:
   - C: Post-fit distributions
   - Extra: CAT gitLab tools for validation  -> DO WE WANT THIS?
  
-[!TIP] 
-These steps are usually part of the **unblinding** stage, and are the latest steps request for the **GoingToPreApproval**. L2 will usually ask to see the results of these procedures before letting you progress further in the review. For most analses, you will need to first run impact and validation blind, and then repeat it on the actual data. 
+> [!TIP] 
+> These steps are usually part of the **unblinding** stage, and are the latest steps request for the **GoingToPreApproval**. L2 will usually ask to see the results of these procedures before letting you progress further in the review. For most analses, you will need to first run impact and validation blind, and then repeat it on the actual data. 
 
 ### A: Using FitDiagnostics
 Now that we have a working datacard complete with systematic uncertainties, it is important to validate our model. We will explore one of the most commonly used modes of <span style="font-variant:small-caps;">Combine</span>: `FitDiagnostics` . As well as allowing us to make a **measurement** of some physical quantity (as opposed to just setting a limit on it), this method is useful to gain additional information about the model and the behaviour of the fit. It performs two fits:
@@ -362,7 +363,8 @@ Topics covered in this section:
   - C: Computing limits with toys
   - Extra: Asymptotic algorithm limitations
 
-!!! Tip Now you can finally get your final results! The ARC will need to see, check, and comment on your results before they can GL the analysis. While some result can be added to the paper during the ARC review, the main results should be reviewed by L3 and L2 as well and so should be ready by the **preapproval** talk.
+> [!TIP] 
+> Now you can finally get your final results! The ARC will need to see, check, and comment on your results before they can GL the analysis. While some result can be added to the paper during the ARC review, the main results should be reviewed by L3 and L2 as well and so should be ready by the **preapproval** talk.
 
 Now that we have a working and validated setup, we can finally perform the statistical analysis of our results. We already saw in the previous sections how to extract limits on our signal under the assumption of the asymptotic regime. `Combine` provides several other methods to extract different results. In this part we will discuss the most common ones, but you are encouraged to explore the [documentation](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/) to have a look at the other possibilities offered by the tool.
 
