@@ -363,7 +363,6 @@ Topics covered in this section:
   - A: Calculating the significance
   - B: Signal strength measurement and uncertainty breakdown
   - C: Computing limits with toys
-  - Extra: Asymptotic algorithm limitations
 
 > [!TIP] 
 > Now you can finally get your final results! The ARC will need to see, check, and comment on your results before they can GL the analysis. While some result can be added to the paper during the ARC review, the main results should be reviewed by L3 and L2 as well and so should be ready by the **preapproval** talk.
@@ -547,6 +546,7 @@ This produces a new ROOT file `test_stat_distributions.root` containing the plot
 
 ```shell
 python3 printTestStatPlots.py test_stat_distributions.root
+
 
 
 
