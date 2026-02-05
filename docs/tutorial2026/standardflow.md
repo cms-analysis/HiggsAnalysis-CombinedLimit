@@ -1,5 +1,5 @@
 # Main Features of Combine
-This exercise is designed to recreate the main workflow needed to perform a statistical analysis with Combine. It will start assuming you already prepared your inputs (**shapes, yields, and systematic uncertainties**) and will proceed step by step to perform validation test of your setup and produce some standard results. For more detailed procedure you can always find detailed informations in the  <span style="font-variant:small-caps;">Combine</span> **manual** and in the **Long exercise tutorial**. 
+This exercise is designed to recreate the main workflow needed to perform a statistical analysis with Combine. It will start assuming you already prepared your inputs (**shapes, yields, and systematic uncertainties**) and will proceed step by step to perform validation test of your setup and produce some standard results. For more detailed procedure you can always find detailed informations in the  <span style="font-variant:small-caps;">Combine</span> [manual](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/) and in the [Long exercise tutorial](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/part5/longexercise/). 
 
 As for the Long exercise, we will work with a simplified version of a real analysis, that nonetheless will have many features of the full analysis. The analysis is a search for an additional heavy neutral Higgs boson decaying to tau lepton pairs. Such a signature is predicted in many extensions of the standard model, in particular the minimal supersymmetric standard model (MSSM). You can read about the analysis in the paper [here](https://arxiv.org/pdf/1803.06553.pdf). The statistical inference makes use of a variable called the total transverse mass ($M_{\mathrm{T}}^{\mathrm{tot}}$) that provides good discrimination between the resonant high-mass signal and the main backgrounds, which have a falling distribution in this high-mass region. The events selected in the analysis are split into a several categories which target the main di-tau final states as well as the two main production modes: gluon-fusion (ggH) and b-jet associated production (bbH). One example is given below for the fully-hadronic final state in the b-tag category which targets the bbH signal:
 
@@ -121,9 +121,6 @@ When running the `text2workspace` step on a datacard with autoMCStats enabled, y
 
 **Tasks and questions:**
   - Try to increase the Poisson threshold. How does the `text2workspace` report changes?
-  - Check how much the cross section measurement and uncertainties change using `FitDiagnostics`. -> PER DOPO
-  - It is also useful to check how the expected uncertainty changes using an Asimov dataset, say with `r=10` injected.  -> PER DOPO
-  - **Advanced task:** See what happens if the Poisson threshold is increased. Based on your results, what threshold would you recommend for this analysis? -> PER DOPO
 
 ### C: Control regions
 In a modern analysis it is typical for some or all of the backgrounds to be estimated using the data, instead of relying purely on MC simulation.
@@ -298,6 +295,8 @@ The numbers in each column are respectively $\frac{\theta-\theta_I}{\sigma_I}$ (
 **Tasks and questions:**
 
   - Using the SR card, Which parameter has the largest shift from the nominal value (0) in the fitted value of the nuisance parameter relative to the input uncertainty? Which has the tightest constraint?
+  - Check how much the cross section measurement and uncertainties change using `FitDiagnostics`.
+  - It is also useful to check how the expected uncertainty changes using an Asimov dataset, say with `r=10` injected.
   - Should we be concerned when a parameter is more strongly constrained than the input uncertainty (i.e. $\frac{\sigma}{\sigma_I}<1.0$)?
   - Check the fitted values of the nuisance parameters and constraints on a b-only and s+b asimov dataset instead. This check is [required](https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/HiggsPAGPreapprovalChecks) for all analyses in the Higgs PAG. It serves both as a closure test (do we fit exactly what signal strength we input?) and a way to check whether there are any infeasibly strong constraints while the analysis is still blind (typical example: something has probably gone wrong if we constrain the luminosity uncertainty to 10% of the input!)
     - Run `text2workspace.py` on the combined card (don't forget to set the mass and output name `-m 200 -o workspace_part3.root`) and then use `FitDiagnostics` on an Asimov dataset with `r=1` to get the expected uncertainty. Suggested command line options: `--rMin 0 --rMax 2`
@@ -537,6 +536,7 @@ This produces a new ROOT file `test_stat_distributions.root` containing the plot
 
 ```shell
 python3 printTestStatPlots.py test_stat_distributions.root
+
 
 
 
