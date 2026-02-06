@@ -204,6 +204,9 @@ combine -M MultiDimFit datacard.txt --rMin -10 --rMax 10 --algo fixed --fixedPoi
 Test out a few values of `r` and see if they all give you the same result. 
 What happens for `r` less than about -1? Can you explain why? (hint: look at the values in the datacard)
 
+**Advanced**: if you run the command above for a set of points in the range [-2, 6] (the same one used in the scan before), you can build the line of critical values for $t_{\mu}$ and check where the crossing of the observed likelihood scan is in order to find the confidence interval. Try to do that and compare it to the one we derived earlier using Wilks' theorem.
+If you need help, take a look at the code in `plot_scan_with_quantile_solution.py`.
+
 
 ## Significance Testing
 
