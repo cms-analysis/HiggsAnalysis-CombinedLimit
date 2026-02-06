@@ -2270,6 +2270,8 @@ This is done for you in the script <code>get_quantile.py</code>, which you can r
 </code></pre></div>
 <p>Test out a few values of <code>r</code> and see if they all give you the same result. 
 What happens for <code>r</code> less than about -1? Can you explain why? (hint: look at the values in the datacard)</p>
+<p><strong>Advanced</strong>: if you run the command above for a set of points in the range [-2, 6] (the same one used in the scan before), you can build the line of critical values for <span class="arithmatex">\(t_{\mu}\)</span> and check where the crossing of the observed likelihood scan is in order to find the confidence interval. Try to do that and compare it to the one we derived earlier using Wilks' theorem.
+If you need help, take a look at the code in <code>plot_scan_with_quantile_solution.py</code>.</p>
 <h2 id="significance-testing">Significance Testing</h2>
 <p>For significance testing, we want to test the compatibility of our model with the background-only hypothesis <span class="arithmatex">\(\mu = 0\)</span>.
 However, when performing significance testing we are typically only interested in rejecting the null hypothesis if the confidence level is very high (e.g. <span class="arithmatex">\(5\sigma\)</span>).
