@@ -277,6 +277,14 @@ COMBINE_ADD_TEST(simple-counting-experiment-text2workspace
     # No output, so nothing to compare. We just check that it runs.
 )
 
+# Test that setting a parameter outside its range throws an error
+COMBINE_ADD_TEST(setParameters-out-of-range
+    COMMAND combine -M MultiDimFit simple-counting-experiment.txt --setParameters r=-1.05
+    COPY_TO_BUILDDIR ${REPO}/data/tutorials/counting/simple-counting-experiment.txt
+    PASSRC 1
+    PASSREGEX "outside its range"
+)
+
 COMBINE_ADD_TEST(simple-shapes-TH1-text2workspace
     COMMAND text2workspace.py simple-shapes-TH1.txt
     COPY_TO_BUILDDIR ${REPO}/data/tutorials/shapes/simple-shapes-TH1.txt
