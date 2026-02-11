@@ -285,6 +285,14 @@ COMBINE_ADD_TEST(setParameters-out-of-range
     PASSREGEX "outside its range"
 )
 
+# Test that setting a parameter outside its range via regex throws an error
+COMBINE_ADD_TEST(setParameters-out-of-range-regex
+    COMMAND combine -M MultiDimFit simple-counting-experiment.txt --setParameters "rgx{r}=-1.05"
+    COPY_TO_BUILDDIR ${REPO}/data/tutorials/counting/simple-counting-experiment.txt
+    PASSRC 1
+    PASSREGEX "outside its range"
+)
+
 COMBINE_ADD_TEST(simple-shapes-TH1-text2workspace
     COMMAND text2workspace.py simple-shapes-TH1.txt
     COPY_TO_BUILDDIR ${REPO}/data/tutorials/shapes/simple-shapes-TH1.txt
