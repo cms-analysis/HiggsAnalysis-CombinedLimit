@@ -96,6 +96,9 @@ The median expected limit and quantiles can be calculated under Hypotheses other
 
 Be aware that while expected values are derived from the Asimov created at the specified signal strength, setting this option *does not* alter the definition of $CL_s$ in that the denominator is still defined with respect to the no signal ($\mu=0$) hypothesis. 
 
+!!! info
+    Currently <span style="font-variant:small-caps;">Combine</span> does *not* support calculating expected limits assuming non-zero signal strengths using toy-based calculations. If you are interested in adding this feature, please contact the developers.
+
 ## Asymptotic Significances
 
 The significance of a result is calculated using a ratio of profiled likelihoods, one in which the signal strength is set to 0 and the other in which it is free to float. The evaluated quantity is $-2\ln[\mathcal{L}(\mu=0,\hat{\hat{\nu}}(0))/\mathcal{L}(\hat{\mu},\hat{\nu})]$, in which the nuisance parameters are profiled separately for $\mu=\hat{\mu}$ and $\mu=0$.
