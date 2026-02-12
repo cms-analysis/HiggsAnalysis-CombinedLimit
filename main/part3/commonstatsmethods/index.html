@@ -1082,6 +1082,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#expected-limits-assuming-non-zero-signal-strengths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expected limits assuming non-zero signal strengths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#asymptotic-significances" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2294,6 +2305,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#expected-limits-assuming-non-zero-signal-strengths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expected limits assuming non-zero signal strengths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#asymptotic-significances" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2799,6 +2821,13 @@ hadd<span class="w"> </span>limits.root<span class="w"> </span>higgsCombine*.Asy
 
 combine<span class="w"> </span>-M<span class="w"> </span>AsymptoticLimits<span class="w"> </span>realistic-counting-experiment.txt<span class="w"> </span>--getLimitFromGrid<span class="w"> </span>limits.root
 </code></pre></div>
+<h2 id="expected-limits-assuming-non-zero-signal-strengths">Expected limits assuming non-zero signal strengths</h2>
+<p>The median expected limit and quantiles can be calculated under Hypotheses other than at <span class="arithmatex">\(\mu=0\)</span>. The Asymptotic expected limits can be calculated by setting the value <code>--signalStrengthForExpected mu0</code>. The Asimov dataset produced for the calculation will be generated for <span class="arithmatex">\(\mu=\)</span><code>mu0</code> instead of the usual <span class="arithmatex">\(\mu=0\)</span>. Note that setting <code>--signalStrengthForExpected 0</code> will give the same results as not setting the option, but will be slower as this forces a recreation of the Asimov dataset.</p>
+<p>Be aware that while expected values are derived from the Asimov created at the specified signal strength, setting this option <em>does not</em> alter the definition of <span class="arithmatex">\(CL_s\)</span> in that the denominator is still defined with respect to the no signal (<span class="arithmatex">\(\mu=0\)</span>) hypothesis. </p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Currently <span style="font-variant:small-caps;">Combine</span> does <em>not</em> support calculating expected limits assuming non-zero signal strengths using toy-based calculations. If you are interested in adding this feature, please contact the developers.</p>
+</div>
 <h2 id="asymptotic-significances">Asymptotic Significances</h2>
 <p>The significance of a result is calculated using a ratio of profiled likelihoods, one in which the signal strength is set to 0 and the other in which it is free to float. The evaluated quantity is <span class="arithmatex">\(-2\ln[\mathcal{L}(\mu=0,\hat{\hat{\nu}}(0))/\mathcal{L}(\hat{\mu},\hat{\nu})]\)</span>, in which the nuisance parameters are profiled separately for <span class="arithmatex">\(\mu=\hat{\mu}\)</span> and <span class="arithmatex">\(\mu=0\)</span>.</p>
 <p>The distribution of this test statistic can be determined using Wilks' theorem provided the number of events is large enough (i.e in the <em>Asymptotic limit</em>). The significance (or p-value) can therefore be calculated very quickly. The <code>Significance</code> method can be used for this.</p>
