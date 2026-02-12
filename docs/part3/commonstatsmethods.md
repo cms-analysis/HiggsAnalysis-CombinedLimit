@@ -90,6 +90,14 @@ hadd limits.root higgsCombine*.AsymptoticLimits.*
 
 combine -M AsymptoticLimits realistic-counting-experiment.txt --getLimitFromGrid limits.root
 ```
+## Expected limits assuming non-zero signal strengths
+
+The median expected limit and quantiles can be calculated under Hypotheses other than at $\mu=0$. The Asymptotic expected limits can be calculated by setting the value `--signalStrengthForExpected mu0`. The Asimov dataset produced for the calculation will be generated for $\mu=$`mu0` instead of the usual $\mu=0$. Note that setting ` --signalStrengthForExpected 0` will give the same results as not setting the option, but will be slower as this forces a recreation of the Asimov dataset.
+
+Be aware that while expected values are derived from the Asimov created at the specified signal strength, setting this option *does not* alter the definition of $CL_s$ in that the denominator is still defined with respect to the no signal ($\mu=0$) hypothesis. 
+
+!!! info
+    Currently <span style="font-variant:small-caps;">Combine</span> does *not* support calculating expected limits assuming non-zero signal strengths using toy-based calculations. If you are interested in adding this feature, please contact the developers.
 
 ## Asymptotic Significances
 
