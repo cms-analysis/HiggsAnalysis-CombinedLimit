@@ -492,7 +492,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
         r->setConstant(false);
 
         double qMuAsimov =  q_At_0-q_At_muA;
-        double N_for_expected = N+ROOT::Math::sqrt(qMuAsimov);
+        double N_for_expected = N+sqrt(qMuAsimov);
         pb_expected = ROOT::Math::normal_cdf(N_for_expected, 1.0); 
         // std::cout << "  --> this gives pb = " << pb_expected << " (N=" << N_for_expected << ")" << std::endl;
     }
