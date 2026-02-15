@@ -7,6 +7,8 @@
 #include <RooConstVar.h>
 #include <RtypesCore.h>
 
+#include <RooFit/Detail/MathFuncs.h>
+
 #include <cmath>
 
 namespace RooFit {
@@ -305,6 +307,32 @@ inline Double_t verticalInterpPdfIntegral(double const* coefList, std::size_t nC
    if(normVal>0.) result = value / normVal;
    return result > 0. ? result : integralFloorVal;
 }
+
+inline double cmsHistFunc(double x, std::size_t nBins, double const* binEdges, double const *values) {
+  // I guess a "CMS hist func" is just looking up some values in some bin?
+  unsigned int binIdx = RooFit::Detail::MathFuncs::binNumber(x, 1.0, binEdges, nBins + 1, nBins, 0);
+  return values[binIdx];
+}
+
+inline double cmsHistErrorPropagator(double x, std::size_t nFuncs, double const* coefList, double const* funcList) {
+  // My naive understanding of the logic: multiply functions with coefficients and sum up
+  double out = 0.;
+  for (std::size_t i = 0; i < nFuncs; ++i) {
+    out += coefList[i] * funcList[i];
+  }
+  return out;
+}
+
+inline double cmsHistSum(
+    double x, std::size_t nBins, std::size_t nSamples, double* coeffs, double const* binEdges, double const* values) {
+  unsigned int binIdx = RooFit::Detail::MathFuncs::binNumber(x, 1.0, binEdges, nBins + 1, nBins, 0);
+  double val = 0.;
+  for (std::size_t iSample = 0; iSample < nSamples; ++iSample)
+    val += coeffs[iSample] * values[iSample * nBins + binIdx];
+
+  return val;
+}
+
 
 } // namespace MathFuncs
 } // namespace Detail

@@ -74,6 +74,8 @@ public:
 
   RooAbsReal const& getXVar() const { return x_.arg(); }
 
+  std::vector<double> getFuncValList(std::size_t fnIdx);
+
   static void EnableFastVertical();
   friend class CMSHistV<CMSHistSum>;
 
