@@ -75,6 +75,89 @@ public:
 
   void runBarlowBeeston() const;
 
+
+public:
+  /// Number of processes and morph parameters
+  unsigned nProcs() const { return static_cast<unsigned>(n_procs_); }
+  unsigned nMorphs() const { return static_cast<unsigned>(n_morphs_); }
+
+  /// Number of bins and bin width (cache_ carries the binning)
+  unsigned nBins() const { return static_cast<unsigned>(cache_.size()); }
+  double binWidth(unsigned ibin) const { return cache_.GetWidth(static_cast<int>(ibin)); }
+
+  /// True if external morphs were attached (not supported by the HistFactory-style exporter)
+  bool hasExternalMorphs() const
+  {
+    return (external_morphs_.getSize() > 0) || (!external_morph_indices_.empty());
+  }
+
+  /// Coefficient parameter for a given process (may be null before init()).
+  RooAbsReal const* coeffAt(unsigned iproc) const
+  {
+    if (iproc >= vcoeffpars_.size()) return nullptr;
+    return vcoeffpars_[iproc];
+  }
+
+  /// Morphing parameter by global morph index (may be null before init()).
+  RooAbsReal const* morphPar(unsigned imorph) const
+  {
+    if (imorph >= vmorphpars_.size()) return nullptr;
+    return vmorphpars_[imorph];
+  }
+
+  /// Returns the storage index of the nominal template for a process.
+  /// (This corresponds to process_fields_[ip].)
+  int processField(unsigned iproc) const
+  {
+    return process_fields_.at(static_cast<std::size_t>(iproc));
+  }
+
+  /// Returns the storage index base for (sum,diff) morph templates for a given (process,morph).
+  /// -1 means: this process does not have that morph.
+  int morphCode(unsigned iproc, unsigned imorph) const
+  {
+    const std::size_t idx = static_cast<std::size_t>(iproc) * static_cast<std::size_t>(n_morphs_) +
+                            static_cast<std::size_t>(imorph);
+    return vmorph_fields_.at(idx);
+  }
+
+  /// Nominal template (FastTemplate) for a process
+  FastTemplate const& nominalTemplate(unsigned iproc) const
+  {
+    return storage_.at(static_cast<std::size_t>(processField(iproc)));
+  }
+
+  /// Sum-template (precomputed) for a given morph storage code (code+0)
+  FastTemplate const& sumTemplateFromCode(int code) const
+  {
+    return storage_.at(static_cast<std::size_t>(code + 0));
+  }
+
+  /// Diff-template (precomputed) for a given morph storage code (code+1)
+  FastTemplate const& diffTemplateFromCode(int code) const
+  {
+    return storage_.at(static_cast<std::size_t>(code + 1));
+  }
+
+  /// Per-bin MC stat errors for a process (same binning as cache_/templates)
+  FastTemplate const& binErrors(unsigned iproc) const
+  {
+    return binerrors_.at(static_cast<std::size_t>(iproc));
+  }
+
+  /// Vertical morphing type for a process (QuadLinear / LogQuadLinear)
+  CMSHistFunc::VerticalSetting vtype(unsigned iproc) const
+  {
+    return vtype_.at(static_cast<std::size_t>(iproc));
+  }
+
+  /// Optional: smoothing parameter used by CMSHistFunc vertical morphing
+  double vsmoothPar(unsigned iproc) const
+  {
+    return vsmooth_par_.at(static_cast<std::size_t>(iproc));
+  }
+
+  
 protected:
   RooRealProxy x_;
 
