@@ -286,7 +286,9 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
    freezeDiscParams(true);
    // need to re-run Migrad before running minos
    minimizer_->minimize(myType.c_str(), "Migrad");
+   std::cout << "starting MINOS : previous status was " << minimizer_->fitter()->Result().Status() << std::endl;
    int iret = minimizer_->minos(params); 
+   std::cout << "iret : " << iret << std::endl;
    if (verbose>0 ) CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,std::string(Form("Minos finished with status=%d",iret)),__func__);
    freezeDiscParams(false);
 

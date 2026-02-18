@@ -239,7 +239,7 @@ ADD_COMBINE_TEST(template_analysis_large_integrals
   T2W_COMMAND
     text2workspace.py ${REPO}/data/ci/templ_datacard_largeYields.txt -o template_analysis_large_integrals.root
   COMBINE_COMMANDS
-    "combine -M MultiDimFit template_analysis_large_integrals.root --algo singles  --setParameterRanges r=-5,5"
+    "combine -M MultiDimFit template_analysis_large_integrals.root --algo singles  --setParameterRanges r=-5,5 -v 4"
 )
 
 # Template analysis with large integrals using CMSHistSum
