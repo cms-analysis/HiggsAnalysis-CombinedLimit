@@ -9,7 +9,6 @@
 #include "RooRandom.h"
 #include "RooMath.h"
 #include "RooConstVar.h"
-#include "RooListProxy.h"
 #include "TArrayI.h"
 
 using namespace std;

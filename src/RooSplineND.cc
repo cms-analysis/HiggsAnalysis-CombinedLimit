@@ -67,14 +67,12 @@ RooSplineND::RooSplineND(const char *name, const char *title, RooArgList &vars, 
 //_____________________________________________________________________________
 // Copy Constructor
 RooSplineND::RooSplineND(const RooSplineND& other, const char *name) :
- RooAbsReal(other, name),vars_("vars",this,RooListProxy())
+ RooAbsReal(other, name),vars_("vars",this,other.vars_)
 {
   ndim_ = other.ndim_;
   M_    = other.M_;
   eps_  = other.eps_;
   axis_pts_ = other.axis_pts_;
-
-  vars_.add(other.vars_);
 
   w_mean = other.w_mean;
   w_rms  = other.w_rms;
@@ -106,9 +104,8 @@ RooSplineND::RooSplineND(const RooSplineND& other, const char *name) :
 
 RooSplineND::RooSplineND(const char *name, const char *title, const RooListProxy &vars, 
  int ndim, int M, double eps, bool rescale, std::vector<double> &w, std::map<int,std::vector<double> > &map, std::map<int,std::pair<double,double> > &rmap,double wmean, double wrms) :
- RooAbsReal(name, title),vars_("vars",this,RooListProxy()) 
+ RooAbsReal(name, title),vars_("vars",this,vars)
 {
-  vars_.add(vars);
   ndim_ = ndim;
   M_    = M;
   eps_  = eps;

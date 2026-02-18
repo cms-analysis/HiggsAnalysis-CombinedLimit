@@ -11,8 +11,6 @@
 #include "RooRealVar.h"
 #include "RooRealVarSharedProperties.h"
 #include "RooArgList.h"
-#include "RooRealProxy.h"
-#include "RooListProxy.h"
 
 using namespace std;
 using namespace RooFit;
@@ -58,8 +56,7 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
   x_smart->setHashTableSize(1);
 #endif
 
-  RooListProxy obs;
-  obs.add(x.arg());
+  RooArgList obs{*x};
   for (Int_t iBin=0; iBin<xBins; iBin++){
     std::string rangeName  = Form("%s_%s_range_bin%d", GetName(), x.GetName(), iBin);
     if (!x.arg().hasRange(rangeName.c_str())) {
@@ -77,9 +74,9 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const char *name, const char 
 //---------------------------------------------------------------------------
 RooParametricShapeBinPdf::RooParametricShapeBinPdf(const RooParametricShapeBinPdf& other, const char* name) : RooAbsPdf(other, name), 
    x("x", this, other.x),
-   pars("pars",this,RooListProxy()),
+   pars("pars",this,other.pars),
    mypdf("mypdf",this,other.mypdf),
-   myintegrals("myintegrals",this,RooListProxy()),
+   myintegrals("myintegrals",this,other.myintegrals),
    xBins(other.xBins),
    xMax(other.xMax),
    xMin(other.xMin)
@@ -88,9 +85,6 @@ RooParametricShapeBinPdf::RooParametricShapeBinPdf(const RooParametricShapeBinPd
   for (Int_t i=0; i<xBins+1; i++){
     xArray[i] = other.xArray[i];
   }
-  
-  pars.add(other.pars);
-  myintegrals.add(other.myintegrals);
 }
 //---------------------------------------------------------------------------
 void RooParametricShapeBinPdf::setTH1Binning(const TH1 &_Hnominal){
@@ -166,15 +160,12 @@ Double_t RooParametricShapeBinPdf::analyticalIntegral(Int_t code, const char* ra
   
   Double_t integral = 0.0;
   
-  RooListProxy obs;
-  obs.add(x.arg());
-  
   if (code==1 && xRangeMin<=xMin && xRangeMax>=xMax){
     integral = getIntegral(xBins)->getVal();
     return integral;
   }
   else if(code==1) {     
-    RooAbsReal* myintegral = getPdf()->createIntegral(obs,Range(rangeName));
+    RooAbsReal* myintegral = getPdf()->createIntegral(*x,Range(rangeName));
     integral = myintegral->getVal();
     return integral;
    } else {
