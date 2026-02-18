@@ -545,10 +545,4 @@ This produces a new ROOT file `test_stat_distributions.root` containing the plot
 
 ```shell
 python3 printTestStatPlots.py test_stat_distributions.root
-
-
-
-
-
-
-
+```
