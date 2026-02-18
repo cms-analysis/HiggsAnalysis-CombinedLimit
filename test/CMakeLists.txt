@@ -176,12 +176,18 @@ ADD_COMBINE_TEST(parametric_analysis
 )
 
 # RooHistPdf
-ADD_COMBINE_TEST(histpdf
-  T2W_COMMAND
-    text2workspace.py ${REPO}/data/ci/datacard_RooHistPdf.txt.gz -o ws_RooHistPdf.root
-  COMBINE_COMMANDS
-    "combine -M MultiDimFit ws_RooHistPdf.root --algo singles -v -2  --setParameterRanges r=-1,2"
-)
+set(CMSSW_VERSION $ENV{CMSSW_VERSION})
+if(NOT CMSSW_VERSION STREQUAL "CMSSW_11_3_4")
+  # For CMSSW_11_3_4 with ROOT 6.22, this test crashes because of some TList
+  # memory problem in the end:
+  #   Error in <TList::Clear>: A list is accessing an object (0x152333b0) already deleted (list name = TList)
+  ADD_COMBINE_TEST(histpdf
+    T2W_COMMAND
+      text2workspace.py ${REPO}/data/ci/datacard_RooHistPdf.txt.gz -o ws_RooHistPdf.root
+    COMBINE_COMMANDS
+      "combine -M MultiDimFit ws_RooHistPdf.root --algo singles -v -2  --setParameterRanges r=-1,2"
+  )
+endif()
 
 # Template analysis CMSHistFunc
 ADD_COMBINE_TEST(cmshistfunc
