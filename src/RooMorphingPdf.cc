@@ -9,10 +9,7 @@
 #include "TH1F.h"
 
 RooMorphingPdf::RooMorphingPdf()
-    : x_(RooRealProxy()),
-      mh_(RooRealProxy()),
-      pdfs_(RooListProxy()),
-      masses_(std::vector<double>()),
+    : masses_(std::vector<double>()),
       can_morph_(false),
       rebin_(TArrayI()),
       target_axis_(TAxis()),
