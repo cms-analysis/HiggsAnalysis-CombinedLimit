@@ -388,10 +388,10 @@ cacheutils::CachingAddNLL::CachingAddNLL(const CachingAddNLL &other, const char 
     catParams_("catParams","RooCategory parameters",this),
     includeZeroWeights_(other.includeZeroWeights_)
 {
-    setData(*other.data_);
-    setup_();
-    propagateData();
-    constantZeroPoint_ = -evaluate();
+  setData(const_cast<RooAbsData &>(*other.data_));
+  setup_();
+  propagateData();
+  constantZeroPoint_ = -evaluate();
 }
 
 cacheutils::CachingAddNLL::~CachingAddNLL() 
@@ -742,56 +742,80 @@ cacheutils::CachingAddNLL::clearConstantZeroPoint()
     setValueDirty();
 }
 
-void 
-cacheutils::CachingAddNLL::setData(const RooAbsData &data) 
-{
-    //std::cout << "Setting data for pdf " << pdf_->GetName() << std::endl;
-    //utils::printRAD(&data);
-    data_ = &data;
-    setValueDirty();
-    weights_.clear(); weights_.reserve(data.numEntries());
-    for (int i = 0, n = data.numEntries(); i < n; ++i) {
-        data.get(i);
-        double w = data.weight();
-        if (w || includeZeroWeights_) weights_.push_back(w); 
-    }
-    sumWeights_ = sumDefault(weights_);
-    partialSum_.resize(weights_.size());
-    workingArea_.resize(weights_.size());
-    for (auto & itp : pdfs_) {
-        itp->setDataDirty();
-    }
-    binWidths_.clear(); canBasicIntegrals_ = 0;
-    if (dynamic_cast<RooRealSumPdf *>(pdf_) != 0 && runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") > 0) {
-        const RooArgSet *obs = data_->get();
-        RooRealVar *xvar = dynamic_cast<RooRealVar *>(obs->first());
-        if (obs->getSize() == 1 && xvar != 0 && xvar->numBins() == data_->numEntries()) {
-            const RooAbsBinning &bins = xvar->getBinning();
-            binWidths_.resize(xvar->numBins());
-            bool all_equal = true;
-            canBasicIntegrals_ = runtimedef::get("ADDNLL_ROOREALSUM_BASICINT");
-            for (unsigned int ibin = 0, nbin = binWidths_.size(); ibin < nbin; ++ibin) {
-                double bc = bins.binCenter(ibin), dc = data_->get(ibin)->getRealValue(xvar->GetName());
-                //printf("bin %3d: center %+8.5f ( data %+8.5f , diff %+8.5f ), width %8.5f, data weight %10.5f, channel %s\n", ibin, bc, dc, std::abs(dc-bc)/bins.binWidth(ibin), bins.binWidth(ibin), data_->weight(), pdf_->GetName());
-                binWidths_[ibin] = bins.binWidth(ibin);
-                if (std::abs(bc-dc) > 1e-5*binWidths_[ibin]) {
-                    //printf("channel %s, for observable %s, bin %d mismatch: binning %+8.5f ( data %+8.5f , diff %+7.8f of width %8.5f\n",
-                    //    pdf_->GetName(), xvar->GetName(), ibin, bc, dc, std::abs(bc-dc)/binWidths_[ibin], binWidths_[ibin]);
-                    CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("channel %s, for observable %s, bin %d mismatch: binning %+8.5f ( data %+8.5f , diff %+7.8f of width %8.5f",
-                            pdf_->GetName(), xvar->GetName(), ibin, bc, dc, std::abs(bc-dc)/binWidths_[ibin], binWidths_[ibin])),__func__);
-                    canBasicIntegrals_ = 0; 
-                    break;
-                }
-                if ((ibin > 0) && (binWidths_[ibin] != binWidths_[ibin-1])) all_equal = false;
-            }
-            if (all_equal) binWidths_.resize(1);
-        } else {
-            //printf("channel %s (binned likelihood? %d), can't do binned intergals. nobs %d, obs %s, nbins %d, ndata %d\n", pdf_->GetName(), pdf_->getAttribute("BinnedLikelihood"), obs->getSize(), (xvar ? xvar->GetName() : "<nil>"), (xvar ? xvar->numBins() : -999), data_->numEntries());
-            CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("channel %s (binned likelihood? %d), can't do binned intergals. nobs %d, obs %s, nbins %d, ndata %d"
-                    , pdf_->GetName(), pdf_->getAttribute("BinnedLikelihood"), obs->getSize(), (xvar ? xvar->GetName() : "<nil>"), (xvar ? xvar->numBins() : -999), data_->numEntries())),__func__);
+bool cacheutils::CachingAddNLL::setData(RooAbsData &data, bool cloneData) {
+  //std::cout << "Setting data for pdf " << pdf_->GetName() << std::endl;
+  //utils::printRAD(&data);
+  data_ = &data;
+  setValueDirty();
+  weights_.clear();
+  weights_.reserve(data.numEntries());
+  for (int i = 0, n = data.numEntries(); i < n; ++i) {
+    data.get(i);
+    double w = data.weight();
+    if (w || includeZeroWeights_)
+      weights_.push_back(w);
+  }
+  sumWeights_ = sumDefault(weights_);
+  partialSum_.resize(weights_.size());
+  workingArea_.resize(weights_.size());
+  for (auto &itp : pdfs_) {
+    itp->setDataDirty();
+  }
+  binWidths_.clear();
+  canBasicIntegrals_ = 0;
+  if (dynamic_cast<RooRealSumPdf *>(pdf_) != 0 && runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") > 0) {
+    const RooArgSet *obs = data_->get();
+    RooRealVar *xvar = dynamic_cast<RooRealVar *>(obs->first());
+    if (obs->getSize() == 1 && xvar != 0 && xvar->numBins() == data_->numEntries()) {
+      const RooAbsBinning &bins = xvar->getBinning();
+      binWidths_.resize(xvar->numBins());
+      bool all_equal = true;
+      canBasicIntegrals_ = runtimedef::get("ADDNLL_ROOREALSUM_BASICINT");
+      for (unsigned int ibin = 0, nbin = binWidths_.size(); ibin < nbin; ++ibin) {
+        double bc = bins.binCenter(ibin), dc = data_->get(ibin)->getRealValue(xvar->GetName());
+        //printf("bin %3d: center %+8.5f ( data %+8.5f , diff %+8.5f ), width %8.5f, data weight %10.5f, channel %s\n", ibin, bc, dc, std::abs(dc-bc)/bins.binWidth(ibin), bins.binWidth(ibin), data_->weight(), pdf_->GetName());
+        binWidths_[ibin] = bins.binWidth(ibin);
+        if (std::abs(bc - dc) > 1e-5 * binWidths_[ibin]) {
+          //printf("channel %s, for observable %s, bin %d mismatch: binning %+8.5f ( data %+8.5f , diff %+7.8f of width %8.5f\n",
+          //    pdf_->GetName(), xvar->GetName(), ibin, bc, dc, std::abs(bc-dc)/binWidths_[ibin], binWidths_[ibin]);
+          CombineLogger::instance().log("CachingNLL.cc",
+                                        __LINE__,
+                                        std::string(Form("channel %s, for observable %s, bin %d mismatch: binning "
+                                                         "%+8.5f ( data %+8.5f , diff %+7.8f of width %8.5f",
+                                                         pdf_->GetName(),
+                                                         xvar->GetName(),
+                                                         ibin,
+                                                         bc,
+                                                         dc,
+                                                         std::abs(bc - dc) / binWidths_[ibin],
+                                                         binWidths_[ibin])),
+                                        __func__);
+          canBasicIntegrals_ = 0;
+          break;
         }
+        if ((ibin > 0) && (binWidths_[ibin] != binWidths_[ibin - 1]))
+          all_equal = false;
+      }
+      if (all_equal)
+        binWidths_.resize(1);
+    } else {
+      //printf("channel %s (binned likelihood? %d), can't do binned intergals. nobs %d, obs %s, nbins %d, ndata %d\n", pdf_->GetName(), pdf_->getAttribute("BinnedLikelihood"), obs->getSize(), (xvar ? xvar->GetName() : "<nil>"), (xvar ? xvar->numBins() : -999), data_->numEntries());
+      CombineLogger::instance().log(
+          "CachingNLL.cc",
+          __LINE__,
+          std::string(
+              Form("channel %s (binned likelihood? %d), can't do binned intergals. nobs %d, obs %s, nbins %d, ndata %d",
+                   pdf_->GetName(),
+                   pdf_->getAttribute("BinnedLikelihood"),
+                   obs->getSize(),
+                   (xvar ? xvar->GetName() : "<nil>"),
+                   (xvar ? xvar->numBins() : -999),
+                   data_->numEntries())),
+          __func__);
     }
-    propagateData();
+  }
+  propagateData();
+  return true;
 }
 
 void cacheutils::CachingAddNLL::propagateData() {
@@ -1085,28 +1109,32 @@ cacheutils::CachingSimNLL::evaluate() const
     return ret.sum();
 }
 
-void 
-cacheutils::CachingSimNLL::setData(const RooAbsData &data) 
-{
-    dataOriginal_ = &data;
-    //std::cout << "combined data has " << data.numEntries() << " dataset entries (sumw " << data.sumEntries() << ", weighted " << data.isWeighted() << ")" << std::endl;
-    //utils::printRAD(&data);
-    //dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));
-    if (!(RooCategory*)data.get()->find("CMS_channel")) { 
-    	throw  std::logic_error("Error: no category in dataset. You should try to recreate your datacard as a Fake shape datacard -- combineCards.py mycard.txt -S > myshapecard.txt OR rerun with option --forceRecreateNLL");
-	assert(0);
+bool cacheutils::CachingSimNLL::setData(RooAbsData &data, bool cloneData) {
+  dataOriginal_ = &data;
+  //std::cout << "combined data has " << data.numEntries() << " dataset entries (sumw " << data.sumEntries() << ", weighted " << data.isWeighted() << ")" << std::endl;
+  //utils::printRAD(&data);
+  //dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));
+  if (!(RooCategory *)data.get()->find("CMS_channel")) {
+    throw std::logic_error(
+        "Error: no category in dataset. You should try to recreate your datacard as a Fake shape datacard -- "
+        "combineCards.py mycard.txt -S > myshapecard.txt OR rerun with option --forceRecreateNLL");
+    assert(0);
+  }
+  splitWithWeights(*dataOriginal_, pdfOriginal_->indexCat(), true);
+  for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
+    CachingAddNLL *canll = pdfs_[ib];
+    if (canll == 0)
+      continue;
+    RooAbsData *data = datasets_[ib];
+    //RooAbsData *data = (RooAbsData *) dataSets_->FindObject(canll->GetName());
+    if (data == 0) {
+      throw std::logic_error("Error: no data");
     }
-    splitWithWeights(*dataOriginal_, pdfOriginal_->indexCat(), true);
-    for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
-        CachingAddNLL *canll = pdfs_[ib];
-        if (canll == 0) continue;
-        RooAbsData *data = datasets_[ib];
-        //RooAbsData *data = (RooAbsData *) dataSets_->FindObject(canll->GetName());
-        if (data == 0) { throw std::logic_error("Error: no data"); }
-        //std::cout << "   bin " << ib << " (label " << canll->GetName() << ") has pdf " << canll->pdf()->GetName() << " of type " << canll->pdf()->ClassName() <<
-        //             " and " << (data ? data->numEntries() : -1) << " dataset entries (sumw " << data->sumEntries() << ", weighted " << data->isWeighted() << ")" << std::endl;
-        canll->setData(*data);
-    }
+    //std::cout << "   bin " << ib << " (label " << canll->GetName() << ") has pdf " << canll->pdf()->GetName() << " of type " << canll->pdf()->ClassName() <<
+    //             " and " << (data ? data->numEntries() : -1) << " dataset entries (sumw " << data->sumEntries() << ", weighted " << data->isWeighted() << ")" << std::endl;
+    canll->setData(*data);
+  }
+  return true;
 }
 
 void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const RooAbsCategory& splitCat, Bool_t createEmptyDataSets) {
