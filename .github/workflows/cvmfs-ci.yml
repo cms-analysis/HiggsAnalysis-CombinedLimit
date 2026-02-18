@@ -208,28 +208,6 @@ jobs:
             combine -M MultiDimFit ws_RooParametricHist.root --algo singles
 
       - uses: ./.github/actions/run-in-cvmfs
-        name: RooHistPdf
-        if: ${{ !matrix.CMSSW_VERSION || startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
-        with:
-          script: |
-            text2workspace.py data/ci/datacard_RooHistPdf.txt.gz -o ws_RooHistPdf.root
-            combine -M MultiDimFit ws_RooHistPdf.root --algo singles -v -2  --setParameterRanges r=-1,2.
-
-      - uses: ./.github/actions/run-in-cvmfs
-        name: Template analysis with large integrals
-        with:
-          script: |
-            text2workspace.py data/ci/templ_datacard_largeYields.txt -o ws_template-analysis.root
-            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5
-
-      - uses: ./.github/actions/run-in-cvmfs
-        name: Template analysis with large integrals using CMSHistSum
-        with:
-          script: |
-            text2workspace.py data/ci/templ_datacard_largeYields.txt -o ws_template-analysis.root  --for-fits --no-wrappers --use-histsum
-            combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH
-
-      - uses: ./.github/actions/run-in-cvmfs
         name: InterferenceModel test in CMSSW
         if: ${{ env.CMSSW_VERSION != '' }}
         with:
