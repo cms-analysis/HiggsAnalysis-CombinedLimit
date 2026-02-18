@@ -232,7 +232,7 @@ Will scale ch1/VBFHH using CMSInterferenceFunc dependent on parameters ["expr::a
 Will scale ch1/background by 1
 Injecting external morph for prop_binch1_processVBFHH_externalMorph
  <<< Combine >>> 
- <<< v10.4.2 >>>
+ <<< v10.5.0 >>>
 >>> Random number generator seed is 123456
 >>> Method used is GenerateOnly
 Generate toy 1/10
@@ -245,12 +245,12 @@ Generate toy 7/10
 Generate toy 8/10
 Generate toy 9/10
 Generate toy 10/10
-mean   expected limit: r < 6.95286e-310 +/- 0 @ 95%CL (10 toyMC)
-median expected limit: r < 6.95286e-310 @ 95%CL (10 toyMC)
-   68% expected band : 6.95286e-310 < r < 6.95286e-310
-   95% expected band : 6.95286e-310 < r < 6.95286e-310
+mean   expected limit: r < 6.95222e-310 +/- 0 @ 95%CL (10 toyMC)
+median expected limit: r < 6.95222e-310 @ 95%CL (10 toyMC)
+   68% expected band : 6.95222e-310 < r < 6.95222e-310
+   95% expected band : 6.95222e-310 < r < 6.95222e-310
  <<< Combine >>> 
- <<< v10.4.2 >>>
+ <<< v10.5.0 >>>
 >>> Random number generator seed is 123456
 >>> Method used is MultiDimFit
 Doing initial fit: 
@@ -333,12 +333,12 @@ best fit parameter values:
     kl :    +1.283
     kv :    +0.565
    k2v :    +0.200
-mean   expected limit: r < 6.9528e-310 +/- 0 @ 95%CL (10 toyMC)
-median expected limit: r < 6.9528e-310 @ 95%CL (10 toyMC)
-   68% expected band : 6.9528e-310 < r < 6.9528e-310
-   95% expected band : 6.9528e-310 < r < 6.9528e-310
+mean   expected limit: r < 6.93535e-310 +/- 0 @ 95%CL (10 toyMC)
+median expected limit: r < 6.93535e-310 @ 95%CL (10 toyMC)
+   68% expected band : 6.93535e-310 < r < 6.93535e-310
+   95% expected band : 6.93535e-310 < r < 6.93535e-310
  <<< Combine >>> 
- <<< v10.4.2 >>>
+ <<< v10.5.0 >>>
 >>> Random number generator seed is 123456
 >>> Method used is MultiDimFit
 Doing initial fit: 
@@ -421,8 +421,8 @@ best fit parameter values:
     kl :    +1.283
     kv :    +0.565
    k2v :    +0.200
-mean   expected limit: r < 6.95275e-310 +/- 0 @ 95%CL (10 toyMC)
-median expected limit: r < 6.95275e-310 @ 95%CL (10 toyMC)
-   68% expected band : 6.95275e-310 < r < 6.95275e-310
-   95% expected band : 6.95275e-310 < r < 6.95275e-310
+mean   expected limit: r < 6.95125e-310 +/- 0 @ 95%CL (10 toyMC)
+median expected limit: r < 6.95125e-310 @ 95%CL (10 toyMC)
+   68% expected band : 6.95125e-310 < r < 6.95125e-310
+   95% expected band : 6.95125e-310 < r < 6.95125e-310
 Out of 10 toys, {'kl': 0, 'kv': 0, 'k2v': 0} are not matching (tolerance: 1e-4) between CMSHistFunc and CMSHistSum

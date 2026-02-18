@@ -762,6 +762,16 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
                 std::smatch match;
                 if (std::regex_match(target, match, rgx)) {
                     double PhysicsParameterValue = atof(SetParameterExpression[1].c_str());
+                    if (PhysicsParameterValue < tmpParameter->getMin() ||
+                        PhysicsParameterValue > tmpParameter->getMax()) {
+                      throw std::runtime_error(
+                          Form("Parameter %s value %g is outside its range [%g, %g]. "
+                               "Use --rMin/--rMax or --setParameterRanges to adjust the range.",
+                               target.c_str(),
+                               PhysicsParameterValue,
+                               tmpParameter->getMin(),
+                               tmpParameter->getMax()));
+                    }
                     cout << "Set Default Value of Parameter " << target
                      << " To : " << PhysicsParameterValue << "\n";
                     tmpParameter->setVal(PhysicsParameterValue);
@@ -791,8 +801,17 @@ void utils::setModelParameters( const std::string & setPhysicsModelParameterExpr
         if (isrvar) {
           RooRealVar *tmpParameter = dynamic_cast<RooRealVar*>(tmp);
           double PhysicsParameterValue = atof(SetParameterExpression[1].c_str());
-          cout << "Set Default Value of Parameter " << SetParameterExpression[0] 
-               << " To : " << PhysicsParameterValue << "\n";
+          if (PhysicsParameterValue < tmpParameter->getMin() || PhysicsParameterValue > tmpParameter->getMax()) {
+            throw std::runtime_error(
+                Form("Parameter %s value %g is outside its range [%g, %g]. "
+                     "Use --rMin/--rMax or --setParameterRanges to adjust the range.",
+                     SetParameterExpression[0].c_str(),
+                     PhysicsParameterValue,
+                     tmpParameter->getMin(),
+                     tmpParameter->getMax()));
+          }
+          cout << "Set Default Value of Parameter " << SetParameterExpression[0] << " To : " << PhysicsParameterValue
+               << "\n";
           tmpParameter->setVal(PhysicsParameterValue);
         } else {
           RooCategory *tmpCategory  = dynamic_cast<RooCategory*>(tmp);

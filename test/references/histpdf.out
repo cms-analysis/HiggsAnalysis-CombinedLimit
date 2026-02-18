@@ -1,7 +1,5 @@
  <<< Combine >>> 
  <<< v10.5.0 >>>
 >>> Random number generator seed is 123456
->>> Method used is Significance
-
- -- Significance -- 
-Significance: 4.19851
+>>> Method used is MultiDimFit
+   r :    +0.966   -0.102/+0.113 (68%)

@@ -120,7 +120,7 @@ class CachingAddNLL : public RooAbsReal {
         Double_t evaluate() const override ;
         Bool_t isDerived() const override { return kTRUE; }
         Double_t defaultErrorLevel() const override { return 0.5; }
-        void setData(const RooAbsData &data) ;
+        bool setData(RooAbsData &data, bool cloneData = true) override;
         double  sumWeights() const { return sumWeights_; }
         const RooAbsPdf *pdf() const { return pdf_; }
         void setZeroPoint() ;
@@ -167,7 +167,7 @@ class CachingSimNLL  : public RooAbsReal {
         Double_t evaluate() const override ;
         Bool_t isDerived() const override { return kTRUE; }
         Double_t defaultErrorLevel() const override { return 0.5; }
-        void setData(const RooAbsData &data) ;
+        bool setData(RooAbsData &data, bool cloneData = true) override;
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
         RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const override;
 #else

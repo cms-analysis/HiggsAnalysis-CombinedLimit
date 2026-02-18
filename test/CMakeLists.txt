@@ -147,9 +147,8 @@ set(t2w ${CMAKE_BINARY_DIR}/bin/text2workspace.py)
 
 # Counting datacard
 ADD_COMBINE_TEST(counting_datacard
-  COPY_TO_BUILDDIR ${REPO}/data/tutorials/multiDim/toy-hgg-125.txt
   T2W_COMMAND
-    text2workspace.py toy-hgg-125.txt -o counting_datacard.root -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
+    text2workspace.py ${REPO}/data/tutorials/multiDim/toy-hgg-125.txt -o counting_datacard.root -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
   COMBINE_COMMANDS
     "combine -M MultiDimFit counting_datacard.root  --setParameterRanges r=-5,5"
 )
@@ -169,81 +168,106 @@ COMBINE_ADD_TEST(counting_datacard_from_csv
 
 # Parametric analysis
 ADD_COMBINE_TEST(parametric_analysis
-  COPY_TO_BUILDDIR ${REPO}/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt
-                   ${REPO}/data/tutorials/CAT23001/parametric-analysis-datacard-input.root
+  COPY_TO_BUILDDIR ${REPO}/data/tutorials/CAT23001/parametric-analysis-datacard-input.root
   T2W_COMMAND
-    text2workspace.py datacard-3-parametric-analysis.txt --mass 125
+    text2workspace.py ${REPO}/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -o datacard-3-parametric-analysis.root --mass 125
   COMBINE_COMMANDS
     "combine -M MultiDimFit datacard-3-parametric-analysis.root --algo singles --setParameterRanges r=-2,1"
 )
 
-#
+# RooHistPdf
+ADD_COMBINE_TEST(histpdf
+  T2W_COMMAND
+    text2workspace.py ${REPO}/data/ci/datacard_RooHistPdf.txt.gz -o ws_RooHistPdf.root
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit ws_RooHistPdf.root --algo singles -v -2  --setParameterRanges r=-1,2"
+)
+
 # Template analysis CMSHistFunc
 ADD_COMBINE_TEST(cmshistfunc
-  COPY_TO_BUILDDIR ${REPO}/data/ci/template-analysis_shapeInterp.txt
-                   ${REPO}/data/ci/htt_input.root
+  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_input.root
   T2W_COMMAND
-    text2workspace.py template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
+    text2workspace.py ${REPO}/data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
   COMBINE_COMMANDS
     "combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5"
 )
 
 # Template analysis CMSHistFunc with channel masks
 ADD_COMBINE_TEST(cmshistfunc_channel_masks
-  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_multiple_regions.txt
-                   ${REPO}/data/ci/htt_multiple_regions.input.root
+  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_multiple_regions.input.root
   T2W_COMMAND
-    text2workspace.py htt_multiple_regions.txt  -o ws_template-analysis-channel_masks.root --mass 125 --channel-masks
+    text2workspace.py ${REPO}/data/ci/htt_multiple_regions.txt  -o ws_template-analysis-channel_masks.root --mass 125 --channel-masks
   COMBINE_COMMANDS
     "combine -M MultiDimFit ws_template-analysis-channel_masks.root --algo singles  --setParameterRanges r=-5,5 --setParameters mask_htt_tt_2_8TeV=1"
 )
 
 # Template analysis CMSHistFunc shapeN
 ADD_COMBINE_TEST(cmshistfunc_shapeN
-  COPY_TO_BUILDDIR ${REPO}/data/ci/template-analysis_shapeNInterp.txt
-                   ${REPO}/data/ci/htt_input.root
+  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_input.root
   T2W_COMMAND
-    text2workspace.py template-analysis_shapeNInterp.txt -o ws_template-analysis-shapeN.root --mass 200
+    text2workspace.py ${REPO}/data/ci/template-analysis_shapeNInterp.txt -o ws_template-analysis-shapeN.root --mass 200
   COMBINE_COMMANDS
     "combine -M MultiDimFit ws_template-analysis-shapeN.root --algo singles  --setParameterRanges r=-5,5"
 )
 
 # Template analysis CMSHistSum
 ADD_COMBINE_TEST(cmshistsum
-  COPY_TO_BUILDDIR ${REPO}/data/ci/template-analysis_shapeInterp.txt
-                   ${REPO}/data/ci/htt_input.root
+  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_input.root
   T2W_COMMAND
-    text2workspace.py template-analysis_shapeInterp.txt --mass 200 --for-fits --no-wrappers --use-histsum
+    text2workspace.py ${REPO}/data/ci/template-analysis_shapeInterp.txt -o cmshistsum.root --mass 200 --for-fits --no-wrappers --use-histsum
   COMBINE_COMMANDS
-    "combine -M MultiDimFit template-analysis_shapeInterp.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH"
+    "combine -M MultiDimFit cmshistsum.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH"
 )
 
 # Template analysis CMSHistSum with shapeN
 ADD_COMBINE_TEST(cmshistsum_shapeN
-  COPY_TO_BUILDDIR ${REPO}/data/ci/template-analysis_shapeNInterp.txt
-                   ${REPO}/data/ci/htt_input.root
+  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_input.root
   T2W_COMMAND
-    text2workspace.py template-analysis_shapeNInterp.txt --mass 200 --for-fits --no-wrappers --use-histsum
+    text2workspace.py ${REPO}/data/ci/template-analysis_shapeNInterp.txt -o cmshistsum_shapeN.root --mass 200 --for-fits --no-wrappers --use-histsum
   COMBINE_COMMANDS
-    "combine -M MultiDimFit template-analysis_shapeNInterp.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH"
+    "combine -M MultiDimFit cmshistsum_shapeN.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH"
 )
+
+# Template analysis with large integrals
+ADD_COMBINE_TEST(template_analysis_large_integrals
+  T2W_COMMAND
+    text2workspace.py ${REPO}/data/ci/templ_datacard_largeYields.txt -o template_analysis_large_integrals.root
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit template_analysis_large_integrals.root --algo singles  --setParameterRanges r=-5,5"
+)
+
+# Template analysis with large integrals using CMSHistSum
+ADD_COMBINE_TEST(template_analysis_large_integrals_cmshistsum
+  T2W_COMMAND
+    text2workspace.py ${REPO}/data/ci/templ_datacard_largeYields.txt -o template_analysis_large_integrals_cmshistsum.root  --for-fits --no-wrappers --use-histsum
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit template_analysis_large_integrals_cmshistsum.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH"
+)
+
+# RooParametricHist
+# Unfortunately, the result of this test is not deterministic, so we can't enable it yet.
+# TODO: understand why this is, enable the test here, and remove corresponding test from cvmfs-ci.yml
+# ADD_COMBINE_TEST(parametric_hist
+#   COPY_TO_BUILDDIR ${REPO}/data/ci/shapes_RooParametricHist.root
+#   T2W_COMMAND
+#   text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO map=.*/*hcc*:r[1,-500,500] --PO map=.*/zcc:z[1,-5,5] ${REPO}/data/ci/datacard_RooParametricHist.txt -o ws_RooParametricHist.root
+#   COMBINE_COMMANDS
+#     "combine -M MultiDimFit ws_RooParametricHist.root --algo singles"
+# )
 
 # Template analysis CMSHistFunc with channel masks
 ADD_COMBINE_TEST(cmshistsum_channel_masks
-  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_multiple_regions.txt
-                   ${REPO}/data/ci/htt_multiple_regions.input.root
+  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_multiple_regions.input.root
   T2W_COMMAND
-    text2workspace.py htt_multiple_regions.txt  -o ws_template-analysis-channel_masks.root --mass 125 --channel-masks -for-fits --no-wrappers --use-histsum
+    text2workspace.py ${REPO}/data/ci/htt_multiple_regions.txt  -o ws_template-analysis-channel_masks.root --mass 125 --channel-masks --for-fits --no-wrappers --use-histsum
   COMBINE_COMMANDS
     "combine -M MultiDimFit ws_template-analysis-channel_masks.root --algo singles  --setParameterRanges r=-5,5 --setParameters mask_htt_tt_2_8TeV=1 --X-rtd FAST_VERTICAL_MORPH"
 )
 
 # Template-analysis datacard -> text2workspace
 COMBINE_ADD_TEST(template_analysis-text2workspace
-    COMMAND text2workspace.py template-analysis_shape_autoMCStats.txt -o template-analysis_shape_autoMCStats.root
-    COPY_TO_BUILDDIR
-        ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt
-        ${REPO}/data/ci/htt_input.root
+    COMMAND text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o template-analysis_shape_autoMCStats.root
+    COPY_TO_BUILDDIR ${REPO}/data/ci/htt_input.root
     FIXTURES_SETUP template_analysis_workspace
 )
 
@@ -272,21 +296,33 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS "python test_interferen
 
 
 COMBINE_ADD_TEST(simple-counting-experiment-text2workspace
-    COMMAND text2workspace.py simple-counting-experiment.txt
-    COPY_TO_BUILDDIR ${REPO}/data/tutorials/counting/simple-counting-experiment.txt
+    COMMAND text2workspace.py ${REPO}/data/tutorials/counting/simple-counting-experiment.txt
     # No output, so nothing to compare. We just check that it runs.
 )
 
+# Test that setting a parameter outside its range throws an error
+COMBINE_ADD_TEST(setParameters-out-of-range
+    COMMAND combine -M MultiDimFit ${REPO}/data/tutorials/counting/simple-counting-experiment.txt --setParameters r=-1.05
+    PASSRC 1
+    PASSREGEX "outside its range"
+)
+
+# Test that setting a parameter outside its range via regex throws an error
+COMBINE_ADD_TEST(setParameters-out-of-range-regex
+    COMMAND combine -M MultiDimFit ${REPO}/data/tutorials/counting/simple-counting-experiment.txt --setParameters "rgx{r}=-1.05"
+    PASSRC 1
+    PASSREGEX "outside its range"
+)
+
 COMBINE_ADD_TEST(simple-shapes-TH1-text2workspace
-    COMMAND text2workspace.py simple-shapes-TH1.txt
-    COPY_TO_BUILDDIR ${REPO}/data/tutorials/shapes/simple-shapes-TH1.txt
-                     ${REPO}/data/tutorials/shapes/simple-shapes-TH1_input.root
+    COMMAND text2workspace.py ${REPO}/data/tutorials/shapes/simple-shapes-TH1.txt
+    COPY_TO_BUILDDIR ${REPO}/data/tutorials/shapes/simple-shapes-TH1_input.root
     # No output, so nothing to compare. We just check that it runs.
 )
 
 COMBINE_ADD_TEST(LHC-Higgs-coupling-models-text2workspace
-    COMMAND text2workspace.py toy-hgg-125.txt -P HiggsAnalysis.CombinedLimit.LHCHCGModels:K3 -m 125
     COPY_TO_BUILDDIR ${REPO}/data/tutorials/multiDim/toy-hgg-125.txt
+    COMMAND text2workspace.py toy-hgg-125.txt -P HiggsAnalysis.CombinedLimit.LHCHCGModels:K3 -m 125
     CHECKOUT OUTPUT LHC-Higgs-coupling-models-text2workspace.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/LHC-Higgs-coupling-models-text2workspace.out
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
@@ -294,9 +330,8 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
 )
 
 COMBINE_ADD_TEST(hzz4l-significance
-    COMMAND combine -M Significance hzz4l_datacard.txt
-    COPY_TO_BUILDDIR ${REPO}/test/inputs/hzz4l_datacard.txt
-                     ${REPO}/test/inputs/Workspace_m4l.root
+    COMMAND combine -M Significance ${REPO}/test/inputs/hzz4l_datacard.txt
+    COPY_TO_BUILDDIR ${REPO}/test/inputs/Workspace_m4l.root
     CHECKOUT OUTPUT hzz4l-significance.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/hzz4l-significance.out
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
@@ -304,9 +339,8 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
 )
 
 COMBINE_ADD_TEST(LHC-limits
-    COMMAND combine datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01
-    COPY_TO_BUILDDIR ${REPO}/data/tutorials/CAT23001/datacard-2-template-analysis.txt
-                     ${REPO}/data/tutorials/CAT23001/template-analysis-datacard-input.root
+    COMMAND combine ${REPO}/data/tutorials/CAT23001/datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01
+    COPY_TO_BUILDDIR ${REPO}/data/tutorials/CAT23001/template-analysis-datacard-input.root
     CHECKOUT OUTPUT LHC-limits.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/LHC-limits.out
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
@@ -314,8 +348,7 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
 )
 
 COMBINE_ADD_TEST(LHC-significance
-    COMMAND combine datacard-3-parametric-analysis.txt -M HybridNew --LHCmode LHC-significance -T 5000 --mass 125
-    COPY_TO_BUILDDIR ${REPO}/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt
+    COMMAND combine ${REPO}/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M HybridNew --LHCmode LHC-significance -T 5000 --mass 125
     CHECKOUT OUTPUT LHC-significance.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/LHC-significance.out
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
@@ -323,8 +356,7 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
 )
 
 COMBINE_ADD_TEST(parametric-analysis-significance
-    COMMAND combine datacard-3-parametric-analysis.txt -M Significance --mass 125
-    COPY_TO_BUILDDIR ${REPO}/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt
+    COMMAND combine ${REPO}/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M Significance --mass 125
     CHECKOUT OUTPUT parametric-analysis-significance.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/parametric-analysis-significance.out
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
@@ -332,8 +364,7 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
 )
 
 COMBINE_ADD_TEST(MarkovChainMC
-    COMMAND combine datacard-1-counting-experiment.txt -M MarkovChainMC --tries 100
-    COPY_TO_BUILDDIR ${REPO}/data/tutorials/CAT23001/datacard-1-counting-experiment.txt
+    COMMAND combine ${REPO}/data/tutorials/CAT23001/datacard-1-counting-experiment.txt -M MarkovChainMC --tries 100
     CHECKOUT OUTPUT MarkovChainMC.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/MarkovChainMC.out
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
@@ -341,8 +372,7 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
 )
 
 COMBINE_ADD_TEST(multi-signal-text2workspace
-    COMMAND text2workspace.py datacard-5-multi-signal.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o datacard-5-multi-signal.root --mass 125
-    COPY_TO_BUILDDIR ${REPO}/data/tutorials/CAT23001/datacard-5-multi-signal.txt
+    COMMAND text2workspace.py ${REPO}/data/tutorials/CAT23001/datacard-5-multi-signal.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o datacard-5-multi-signal.root --mass 125
     CHECKOUT OUTPUT multi-signal-text2workspace.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/multi-signal-text2workspace.out
     FIXTURES_SETUP multi-signal-text2workspace
 )
@@ -360,8 +390,7 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
 )
 
 COMBINE_ADD_TEST(multi-signal-ChannelCompatibilityCheck
-    COMMAND combine datacard-5-multi-signal.txt -M ChannelCompatibilityCheck --mass 125
-    COPY_TO_BUILDDIR ${REPO}/data/tutorials/CAT23001/datacard-5-multi-signal.txt
+    COMMAND combine ${REPO}/data/tutorials/CAT23001/datacard-5-multi-signal.txt -M ChannelCompatibilityCheck --mass 125
     CHECKOUT OUTPUT multi-signal-ChannelCompatibilityCheck.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/multi-signal-ChannelCompatibilityCheck.out
     FIXTURES_REQUIRED multi-signal
 )
