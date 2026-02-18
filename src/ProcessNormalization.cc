@@ -87,6 +87,43 @@ Double_t ProcessNormalization::evaluate() const
             otherFactorListVec_.data());
 }
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,32,0)
+// Override RooAbsReal::doEval to support RooFits vectorized likelihood
+// evaluation. It's not strictly needed, as it can also fallback to
+// RooAbsReal::evaluate(), but this comes at a performance price.
+void ProcessNormalization::doEval(RooFit::EvalContext& ctx) const {
+  thetaListVec_.resize(thetaList_.size());
+  asymmThetaListVec_.resize(asymmThetaList_.size());
+  otherFactorListVec_.resize(otherFactorList_.size());
+  for (std::size_t i = 0; i < thetaList_.size(); ++i) {
+    thetaListVec_[i] = ctx.at(&thetaList_[i])[0];
+  }
+  for (std::size_t i = 0; i < asymmThetaList_.size(); ++i) {
+    asymmThetaListVec_[i] = ctx.at(&asymmThetaList_[i])[0];
+  }
+  for (std::size_t i = 0; i < otherFactorList_.size(); ++i) {
+    otherFactorListVec_[i] = ctx.at(&otherFactorList_[i])[0];
+  }
+
+  fillAsymmKappaVecs();
+
+  using RooFit::Detail::MathFuncs::processNormalization;
+
+  double out = processNormalization(nominalValue_,
+                                    thetaList_.size(),
+                                    asymmThetaList_.size(),
+                                    otherFactorList_.size(),
+                                    thetaListVec_.data(),
+                                    logKappa_.data(),
+                                    asymmThetaListVec_.data(),
+                                    logAsymmKappaLow_.data(),
+                                    logAsymmKappaHigh_.data(),
+                                    otherFactorListVec_.data());
+
+  ctx.output()[0] = out;
+}
+#endif
+
 void ProcessNormalization::dump() const {
     std::cout << "Dumping ProcessNormalization " << GetName() << " @ " << (void*)this << std::endl;
     std::cout << "\tnominal value: " << nominalValue_ << std::endl;

@@ -37,6 +37,9 @@ class ProcessNormalization : public RooAbsReal {
 
     protected:
         Double_t evaluate() const override;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,32,0)
+        void doEval(RooFit::EvalContext &) const override;
+#endif
 
     private:
         void fillAsymmKappaVecs() const;
