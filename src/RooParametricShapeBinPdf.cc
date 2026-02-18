@@ -165,7 +165,7 @@ Double_t RooParametricShapeBinPdf::analyticalIntegral(Int_t code, const char* ra
     return integral;
   }
   else if(code==1) {     
-    RooAbsReal* myintegral = getPdf()->createIntegral(*x,Range(rangeName));
+    std::unique_ptr<RooAbsReal> myintegral{getPdf()->createIntegral(*x,Range(rangeName))};
     integral = myintegral->getVal();
     return integral;
    } else {
