@@ -388,7 +388,7 @@ cacheutils::CachingAddNLL::CachingAddNLL(const CachingAddNLL &other, const char 
     catParams_("catParams","RooCategory parameters",this),
     includeZeroWeights_(other.includeZeroWeights_)
 {
-    setData(*other.data_);
+    setData(const_cast<RooAbsData &>(*other.data_));
     setup_();
     propagateData();
     constantZeroPoint_ = -evaluate();
@@ -742,8 +742,8 @@ cacheutils::CachingAddNLL::clearConstantZeroPoint()
     setValueDirty();
 }
 
-void 
-cacheutils::CachingAddNLL::setData(const RooAbsData &data) 
+bool
+cacheutils::CachingAddNLL::setData(RooAbsData &data, bool cloneData)
 {
     //std::cout << "Setting data for pdf " << pdf_->GetName() << std::endl;
     //utils::printRAD(&data);
@@ -792,6 +792,7 @@ cacheutils::CachingAddNLL::setData(const RooAbsData &data)
         }
     }
     propagateData();
+    return true;
 }
 
 void cacheutils::CachingAddNLL::propagateData() {
@@ -1085,8 +1086,8 @@ cacheutils::CachingSimNLL::evaluate() const
     return ret.sum();
 }
 
-void 
-cacheutils::CachingSimNLL::setData(const RooAbsData &data) 
+bool
+cacheutils::CachingSimNLL::setData(RooAbsData &data, bool cloneData)
 {
     dataOriginal_ = &data;
     //std::cout << "combined data has " << data.numEntries() << " dataset entries (sumw " << data.sumEntries() << ", weighted " << data.isWeighted() << ")" << std::endl;
@@ -1107,6 +1108,7 @@ cacheutils::CachingSimNLL::setData(const RooAbsData &data)
         //             " and " << (data ? data->numEntries() : -1) << " dataset entries (sumw " << data->sumEntries() << ", weighted " << data->isWeighted() << ")" << std::endl;
         canll->setData(*data);
     }
+    return true;
 }
 
 void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const RooAbsCategory& splitCat, Bool_t createEmptyDataSets) {
