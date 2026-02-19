@@ -350,7 +350,7 @@ combine -M FitDiagnostics workspace_part3.root -m 200 --rMin -1 --rMax 2 --saveS
 
 **Tasks and questions:**
 
-  - Make a plot showing the expected background and signal contributions using the output from `FitDiagnostics` - do this for both the pre-fit and post-fit. You will find a script `postFitPlot.py` in the `longexercise` directory that can help you get started.
+  - Make a plot showing the expected background and signal contributions using the output from `FitDiagnostics` - do this for both the pre-fit and post-fit. You will find a script `postFitPlot.py` in the `data/tutorials/longexercise` directory that can help you get started.
  The bin errors on the TH1s in the fitDiagnostics file are determined from the systematic uncertainties. In the post-fit these take into account the additional constraints on the nuisance parameters as well as any correlations.
 
   - Why is the uncertainty on the post-fit so much smaller than on the pre-fit?
@@ -546,4 +546,5 @@ This produces a new ROOT file `test_stat_distributions.root` containing the plot
 ```shell
 python3 printTestStatPlots.py test_stat_distributions.root
 ```
+
 
