@@ -263,14 +263,16 @@ ADD_COMBINE_TEST(template_analysis_large_integrals_cmshistsum
 )
 
 # RooParametricHist
-# Unfortunately, the result of this test is not deterministic, so we can't enable it yet.
-# TODO: understand why this is, enable the test here, and remove corresponding test from cvmfs-ci.yml
-# ADD_COMBINE_TEST(parametric_hist
-#   T2W_COMMAND
-#   text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO map=.*/*hcc*:r[1,-500,500] --PO map=.*/zcc:z[1,-5,5] ${REPO}/data/ci/datacard_RooParametricHist.txt -o ws_RooParametricHist.root
-#   COMBINE_COMMANDS
-#     "combine -M MultiDimFit ws_RooParametricHist.root --algo singles"
-# )
+ADD_COMBINE_TEST(parametric_hist
+  COPY_TO_BUILDDIR ${REPO}/data/ci/shapes_RooParametricHist.root
+  T2W_COMMAND
+  text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO map=.*/*hcc*:r[1,-500,500] --PO map=.*/zcc:z[1,-5,5] ${REPO}/data/ci/datacard_RooParametricHist.txt -o ws_RooParametricHist.root
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit ws_RooParametricHist.root --algo singles"
+  # The last digits of the Minos uncertainties differ between ROOT versions,
+  # so compare floating point numbers with a relative tolerance of 1 %.
+  DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+)
 
 # Template analysis CMSHistFunc with channel masks
 ADD_COMBINE_TEST(cmshistsum_channel_masks
