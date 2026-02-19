@@ -301,7 +301,8 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
      simnllbb->setAnalyticBarlowBeeston(false);
    }
 
-   return (iret != 1) ? true : false; 
+   // The RooMinimizer indicates failures by status -1
+   return iret != -1;
 }
 
 bool CascadeMinimizer::hesse(int verbose ) {

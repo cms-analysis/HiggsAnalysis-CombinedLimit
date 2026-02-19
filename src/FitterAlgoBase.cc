@@ -342,7 +342,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
                 minim.setErrorLevel(delta95);
                 minim.improve(verbose-1);
                 minim.setErrorLevel(delta95);
-                if (minim.minos(RooArgSet(r)) != badFitResult) {
+                if (minim.minos(RooArgSet(r), verbose-1) != badFitResult) {
                     rf.setRange("err95", r.getVal() + r.getAsymErrorLo(), r.getVal() + r.getAsymErrorHi());
                 }
                 minim.setErrorLevel(delta68);
@@ -352,9 +352,8 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
 	    	//std::cout << "Running Minos for POI " << std::endl;
 		    CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,std::string(Form("Running Minos for POI %s",r.GetName())),__func__);
 	    }
-            minim.minimizer().setPrintLevel(2);
             if (verbose>1) {tw.Reset(); tw.Start();}
-            if (minim.minos(RooArgSet(r))) {
+            if (minim.minos(RooArgSet(r), verbose-1)) {
                if (verbose>1)CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,std::string(Form("Run Minos in %f seconds (%f CPU time)",tw.RealTime(),tw.CpuTime() )),__func__); 
                rf.setRange("err68", r.getVal() + r.getAsymErrorLo(), r.getVal() + r.getAsymErrorHi());
                rf.setAsymError(r.getAsymErrorLo(), r.getAsymErrorHi());
