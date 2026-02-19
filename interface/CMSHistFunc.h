@@ -98,6 +98,8 @@ class CMSHistFunc : public RooAbsReal {
 
   void setShape(unsigned hindex, unsigned hpoint, unsigned vindex,
                 unsigned vpoint, TH1 const& hist);
+  void setShape(unsigned hindex, unsigned hpoint, unsigned vindex,
+                unsigned vpoint, const FastHisto& hist);
 
   Double_t evaluate() const override;
 

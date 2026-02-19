@@ -367,3 +367,27 @@ void FastTemplate::CropUnderflows(T minimum, bool activebinsonly) {
         if (values_[i] < minimum) values_[i] = minimum;
     }
 }   
+
+FastHisto::FastHisto(const AT &binEdges, const AT &contents)
+  : FastTemplate(static_cast<unsigned int>(contents.size()))
+  , binEdges_(binEdges)
+  , binWidths_(contents.size())
+{
+    const unsigned int nbins = size();
+
+    if (binEdges_.size() != nbins + 1) {
+        throw std::runtime_error("FastHisto(binEdges, contents): binEdges.size() must be nbins+1");
+    }
+
+    // Copy contents into base storage
+    values_ = contents;
+
+    // Compute widths (and validate monotonicity)
+    for (unsigned int i = 0; i < nbins; ++i) {
+        const T w = binEdges_[i+1] - binEdges_[i];
+        if (!(w > 0)) {
+            throw std::runtime_error("FastHisto(binEdges, contents): binEdges must be strictly increasing");
+        }
+        binWidths_[i] = w;
+    }
+}
