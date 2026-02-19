@@ -8,6 +8,7 @@
 #include "RooDataHist.h"
 #include "RooAbsPdf.h"
 #include "../interface/RooParametricHist.h"
+#include "../interface/CombineMathFuncs.h"
 
 #include <math.h>
 #include "TMath.h"
@@ -89,14 +90,19 @@ RooArgList & RooParametricHist::getAllBinVars() const {
   return (RooArgList&)pars;
 }
 
-double RooParametricHist::getFullSum() const {
-    double sum=0;
-    for (int i = 0; i < pars.getSize(); ++i) {
-	  double thisVal = static_cast<RooAbsReal&>(pars[i]).getVal();
-	  if (_hasMorphs) thisVal*=evaluateMorphFunction(i);
-	  sum+=thisVal;
-    }
-    return sum;
+const double RooParametricHist::quickSum() const {
+  getParVals();
+  getCoeffs();
+  getFlattenedMorphs(diffs_flat_, sums_flat_);
+
+  return RooFit::Detail::MathFuncs::parametricHistFullSum(pars_vals_.data(),
+                                                          N_bins,
+                                                          _hasMorphs,
+                                                          _coeffList.getSize(),
+                                                          coeffs_.data(),
+                                                          _hasMorphs ? diffs_flat_.data() : nullptr,
+                                                          _hasMorphs ? sums_flat_.data() : nullptr,
+                                                          _smoothRegion);
 }
 
 Int_t RooParametricHist::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet & analVars, const char*) const  {
@@ -108,40 +114,24 @@ Int_t RooParametricHist::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet & a
 
 Double_t RooParametricHist::analyticalIntegral(Int_t code, const char* rangeName) const
 {
- assert(code==1) ;
-
- // Case without range is trivial: p.d.f is by construction normalized
- if (!rangeName) {
-   //return 1;//getFullSum() ;
-   return getFullSum();
- }
- // Case with ranges, calculate integral explicitly
- double xmin = x.min(rangeName) ;
- double xmax = x.max(rangeName) ;
- double sum=0 ;
- int i ;
- for (i=1 ; i<=N_bins ; i++) {
-   double binVal = (static_cast<RooAbsReal*>(pars.at(i-1))->getVal())/widths[i-1];
-   if (_hasMorphs) binVal*= evaluateMorphFunction(i-1);
-   if (bins[i-1]>=xmin && bins[i]<=xmax) {
-      // Bin fully in the integration domain
-      sum += (bins[i]-bins[i-1])*binVal ;
-   } else if (bins[i-1]<xmin && bins[i]>xmax) {
-      // Domain is fully contained in this bin
-      sum += (xmax-xmin)*binVal ;
-      // Exit here, this is the last bin to be processed by construction
-      return sum/getFullSum() ;
-   } else if (bins[i-1]<xmin && bins[i]<=xmax && bins[i]>xmin) {
-      // Lower domain boundary is in bin
-      sum +=  (bins[i]-xmin)*binVal ;
-   } else if (bins[i-1]>=xmin && bins[i]>xmax && bins[i-1]<xmax) {
-      sum +=  (xmax-bins[i-1])*binVal ;
-      // Upper domain boundary is in bin
-      // Exit here, this is the last bin to be processed by construction
-      return sum ;
-   }
- }
- return sum;
+  assert(code == 1);
+  getParVals();
+  getCoeffs();
+  getFlattenedMorphs(diffs_flat_, sums_flat_);
+  const double* bins_ptr = bins.data();
+  const double* widths_ptr = widths.data();
+  return RooFit::Detail::MathFuncs::parametricHistIntegral(pars_vals_.data(),
+                                                           bins_ptr,
+                                                           N_bins,
+                                                           coeffs_.data(),
+                                                           _coeffList.getSize(),
+                                                           _hasMorphs ? diffs_flat_.data() : nullptr,
+                                                           _hasMorphs ? sums_flat_.data() : nullptr,
+                                                           widths_ptr,
+                                                           _smoothRegion,
+                                                           rangeName,
+                                                           x.min(rangeName),
+                                                           x.max(rangeName));
 }
 
 void RooParametricHist::addMorphs(RooDataHist &hpdfU, RooDataHist &hpdfD, RooRealVar &cVar, double smoothRegion){
@@ -168,65 +158,72 @@ void RooParametricHist::addMorphs(RooDataHist &hpdfU, RooDataHist &hpdfD, RooRea
   _smoothRegion = smoothRegion;
 }
 
-double RooParametricHist::evaluateMorphFunction(int j) const
-{
-    double scale=1.0;
-    if (!_hasMorphs) return scale;
-    
-    int ndim = _coeffList.getSize();
-    double f0 = static_cast<RooAbsReal*>(pars.at(j))->getVal();
-    // apply all morphs one by one to the bin
-    // almost certaintly a faster way to do this in a vectorized way ....
-    for (int i = 0; i < ndim; ++i) {
-        double x = (dynamic_cast<RooRealVar*>(_coeffList.at(i)))->getVal();
-        double a = 0.5*x, b = smoothStepFunc(x);
-	scale *= 1+(1./f0) * a*(_diffs[j][i] + b*_sums[j][i]);
-	//std::cout << " at coeff " << (dynamic_cast<RooRealVar*>(_coeffList.at(i)))->GetName() << " = " << x << std::endl;
-	//std::cout << " .... scale is now " << scale << std::endl;
+Double_t RooParametricHist::evaluate() const {
+  // Find which bin we are in and lookup the parameter value
+  double xVal = getX();
+  int bin_i = RooFit::Detail::MathFuncs::parametricHistFindBin(N_bins, bins, xVal);
+  if (bin_i < 0)
+    return 0.0;  // Out of range
+  pars_vals_.resize(N_bins);
+  pars_vals_[bin_i] = getParVal(bin_i);
+  if (bins.empty() || widths.empty())
+    return 0.0;
+  const double* bins_ptr = bins.data();
+  const double* widths_ptr = widths.data();
+  int nMorphs = _coeffList.getSize();
+  getFlattenedMorphs(diffs_flat_, sums_flat_);
+
+  if (_hasMorphs) {
+    getCoeffs();
+  }
+
+  return RooFit::Detail::MathFuncs::parametricHistEvaluate(bin_i,
+                                                           pars_vals_.data(),
+                                                           bins_ptr,
+                                                           N_bins,
+                                                           _hasMorphs ? coeffs_.data() : nullptr,
+                                                           nMorphs,
+                                                           _hasMorphs ? diffs_flat_.data() : nullptr,
+                                                           _hasMorphs ? sums_flat_.data() : nullptr,
+                                                           widths_ptr,
+                                                           _smoothRegion);
+}
+
+double RooParametricHist::getParVal(int bin_i) const { return static_cast<RooAbsReal*>(pars.at(bin_i))->getVal(); }
+
+const std::vector<double>& RooParametricHist::getParVals() const {
+  pars_vals_.clear();
+  pars_vals_.reserve(pars.getSize());
+  for (int i = 0; i < pars.getSize(); ++i) {
+    pars_vals_.push_back(static_cast<RooAbsReal*>(pars.at(i))->getVal());
+  }
+  return pars_vals_;
+}
+
+const std::vector<double>& RooParametricHist::getCoeffs() const {
+  coeffs_.clear();
+  coeffs_.reserve(_coeffList.getSize());
+  for (int i = 0; i < _coeffList.getSize(); ++i) {
+    coeffs_.push_back(static_cast<RooRealVar*>(_coeffList.at(i))->getVal());
+  }
+  return coeffs_;
+}
+
+void RooParametricHist::getFlattenedMorphs(std::vector<double>& diffs_flat, std::vector<double>& sums_flat) const {
+  if (!_hasMorphs)
+    return;
+  // _diffs/_sums are immutable after construction, so only flatten once
+  if (!diffs_flat.empty())
+    return;
+
+  int nMorphs = _coeffList.getSize();
+  diffs_flat.reserve(N_bins * nMorphs);
+  sums_flat.reserve(N_bins * nMorphs);
+
+  for (int i = 0; i < N_bins; ++i) {
+    for (int j = 0; j < nMorphs; ++j) {
+      diffs_flat.push_back(_diffs[i][j]);
+      sums_flat.push_back(_sums[i][j]);
     }
-    return scale;
-}
-double RooParametricHist::evaluatePartial() const
-{
-  auto it = std::upper_bound(std::begin(bins), std::end(bins), x);
-  if ( it == std::begin(bins) ) {
-    // underflow
-    return 0;
   }
-  else if ( it == std::end(bins) ) {
-    // overflow
-    return 0;
-  }
-  size_t bin_i = std::distance(std::begin(bins), it) - 1;
-  RooAbsReal *retVar = (RooAbsReal*)pars.at(bin_i);
-
-  double ret = retVar->getVal();
-  ret /= widths[bin_i];
-  return ret;
-}
-
-double RooParametricHist::evaluateFull() const
-{
-  int bin_i;
-  if (x < bins[0]) 	   			return 0;    // should set to 0 instead?
-  else if (x >= bins[N_bins])   return 0;
-
-  else {
-    for(bin_i=0; bin_i<N_bins; bin_i++) {   // faster way to loop through ?
-      if (x>=bins[bin_i] && x < bins[bin_i+1] ) break;
-    }
-  }
-  double mVar = evaluateMorphFunction(bin_i);
-  RooAbsReal *retVar = (RooAbsReal*)pars.at(bin_i);
-
-  double ret = retVar->getVal()*mVar;
-  ret /= widths[bin_i];
-  return ret;
-}
-
-Double_t RooParametricHist::evaluate() const
-{
-  double ret = _hasMorphs ? evaluateFull() : evaluatePartial() ;
-  _cval=ret;
-  return ret > 0 ? ret : 0;
 }
