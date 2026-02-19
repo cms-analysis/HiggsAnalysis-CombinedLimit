@@ -31,15 +31,33 @@ public:
   RooArgList & getAllBinVars() const ;
 
   RooRealVar & getObs() const { return (RooRealVar&)x; };
+  RooAbsReal& observable() const { return const_cast<RooAbsReal&>(static_cast<const RooAbsReal&>(x.arg())); }
   const std::vector<double>  getBins()   const { return bins;   };
+  const int getNBins() const { return N_bins; };
   const std::vector<double>  getWidths() const { return widths; };
 
-  const double quickSum() const {return getFullSum() ;}
+  const RooArgList& getPars() const { return pars; };
+  const RooArgList& getCoeffList() const { return _coeffList; };
+
+  const double quickSum() const;
   //RooAddition & getYieldVar(){return sum;};
 
   // how can we pass this version? is there a Collection object for RooDataHists?
   //void addMorphs(RooArgList &_morphPdfsUp, RooArgList &_morphPdfsDown, RooArgList &_coeffs, double smoothRegion);
   void addMorphs(RooDataHist&, RooDataHist&, RooRealVar&, double );
+  Double_t evaluate() const override;
+
+  // Accessors for evaluation data
+  double getX() const { return x; }
+  double getSmoothRegion() const { return _smoothRegion; }
+  bool hasMorphs() const { return _hasMorphs; }
+
+  double getParVal(int bin_i) const;
+
+  // Utility functions for data extraction
+  const std::vector<double>& getParVals() const;
+  const std::vector<double>& getCoeffs() const;
+  void getFlattenedMorphs(std::vector<double>& diffs_flat, std::vector<double>& sums_flat) const;
 
 protected:
 
@@ -56,18 +74,15 @@ protected:
   mutable double _smoothRegion;
   mutable bool   _hasMorphs;
   mutable std::vector<std::vector <double> > _diffs;
-  mutable std::vector<std::vector <double> > _sums;
-  double evaluateMorphFunction(int) const;
+  mutable std::vector<std::vector<double> > _sums;
 
+  mutable std::vector<double> pars_vals_;   //! Don't serialize me
+  mutable std::vector<double> coeffs_;      //! Don't serialize me
+  mutable std::vector<double> diffs_flat_;  //! Don't serialize me
+  mutable std::vector<double> sums_flat_;   //! Don't serialize me
 
   void initializeBins(const TH1&) const;
   //void initializeNorm();
-
-
-  double evaluatePartial() const ;
-  double evaluateFull() const ;
-  Double_t evaluate() const override ;
-  double getFullSum() const ;
 
   mutable double _cval;
   void update_cval(double r){_cval=r;};
