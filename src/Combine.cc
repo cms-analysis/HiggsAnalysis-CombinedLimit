@@ -42,6 +42,7 @@
 #include <RooGaussian.h>
 #include <RooWorkspace.h>
 #include <RooCategory.h>
+#include <RooFitHS3/RooJSONFactoryWSTool.h>
 
 #include <RooStats/RooStatsUtils.h>
 #include <RooStats/ModelConfig.h>
@@ -346,10 +347,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       unlink(tmpFile); // this is to be deleted, since we'll use tmpFile+".root"
   }
 
-  bool isTextDatacard = false, isBinary = hlfFile.EndsWith(".root");
+  bool isTextDatacard = false, isBinary = hlfFile.EndsWith(".root"), isJSON = hlfFile.EndsWith(".json");
   TString fileToLoad = ((hlfFile[0] == '/' || hlfFile.Contains("://")) ? hlfFile : pwd+"/"+hlfFile);
   if (!(fileToLoad.Contains("://") && isBinary) && !boost::filesystem::exists(fileToLoad.Data())) throw std::invalid_argument(("File "+fileToLoad+" does not exist").Data());
-  if (hlfFile.EndsWith(".hlf") || isBinary) {
+  if (hlfFile.EndsWith(".hlf") || isBinary || isJSON) {
     // nothing to do
   } else {
     TString txtFile = fileToLoad.Data();
@@ -390,22 +391,27 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   // Load the model, but going in a temporary directory to avoid polluting the current one with garbage from 'cexpr'
   RooWorkspace *w = 0; RooStats::ModelConfig *mc = 0, *mc_bonly = 0;
 
-  if (isBinary) {
-    TFile *fIn = TFile::Open(fileToLoad); 
-    if (!fIn) throw std::runtime_error(("Could not open file "+fileToLoad).Data());
-    garbageCollect.tfile = fIn; // request that we close this file when done
-
-    w = dynamic_cast<RooWorkspace *>(fIn->Get(workspaceName_.c_str()));
-
-    if (fIn->GetCacheRead()) {
-      fIn->GetCacheRead()->Close();
-    }
-
-    if (w == 0) {  
+  if (isBinary || isJSON) {
+    if(isBinary){
+      TFile *fIn = TFile::Open(fileToLoad); 
+      if (!fIn) throw std::runtime_error(("Could not open file "+fileToLoad).Data());
+      garbageCollect.tfile = fIn; // request that we close this file when done
+      
+      w = dynamic_cast<RooWorkspace *>(fIn->Get(workspaceName_.c_str()));
+      
+      if (fIn->GetCacheRead()) {
+	fIn->GetCacheRead()->Close();
+      }
+      
+      if (w == 0) {  
         std::cerr << "Could not find workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl; fIn->ls(); 
         throw std::invalid_argument("Missing Workspace"); 
+      }
+    } else {
+      w = new RooWorkspace("w");
+      RooJSONFactoryWSTool tool(*w);
+      tool.importJSON(fileToLoad.Data());
     }
-
 
     if (verbose > 3) { std::cout << "Input workspace '" << workspaceName_ << "': \n"; w->Print("V"); }
     RooRealVar *MH = w->var("MH");
