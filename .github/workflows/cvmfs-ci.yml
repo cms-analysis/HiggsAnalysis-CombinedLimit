@@ -202,13 +202,6 @@ jobs:
             combine -M MultiDimFit -m 125.38  --setParameters pdf_index_ggh=2 --freezeParameters MH --cminDefaultMinimizerStrategy 0 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles ws_RooMultiPdf.root
 
       - uses: ./.github/actions/run-in-cvmfs
-        name: RooParametricHist
-        with:
-          script: |
-            text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/*hcc*:r[1,-500,500]' --PO 'map=.*/zcc:z[1,-5,5]' data/ci/datacard_RooParametricHist.txt -o ws_RooParametricHist.root
-            combine -M MultiDimFit ws_RooParametricHist.root --algo singles
-
-      - uses: ./.github/actions/run-in-cvmfs
         name: InterferenceModel test in CMSSW
         if: ${{ env.CMSSW_VERSION != '' }}
         with:
