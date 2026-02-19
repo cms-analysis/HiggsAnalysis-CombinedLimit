@@ -168,7 +168,6 @@ COMBINE_ADD_TEST(counting_datacard_from_csv
 
 # Parametric analysis
 ADD_COMBINE_TEST(parametric_analysis
-  COPY_TO_BUILDDIR ${REPO}/data/tutorials/CAT23001/parametric-analysis-datacard-input.root
   T2W_COMMAND
     text2workspace.py ${REPO}/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -o datacard-3-parametric-analysis.root --mass 125
   COMBINE_COMMANDS
@@ -191,7 +190,6 @@ endif()
 
 # Template analysis CMSHistFunc
 ADD_COMBINE_TEST(cmshistfunc
-  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_input.root
   T2W_COMMAND
     text2workspace.py ${REPO}/data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
   COMBINE_COMMANDS
@@ -200,7 +198,6 @@ ADD_COMBINE_TEST(cmshistfunc
 
 # Template analysis CMSHistFunc with channel masks
 ADD_COMBINE_TEST(cmshistfunc_channel_masks
-  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_multiple_regions.input.root
   T2W_COMMAND
     text2workspace.py ${REPO}/data/ci/htt_multiple_regions.txt  -o ws_template-analysis-channel_masks.root --mass 125 --channel-masks
   COMBINE_COMMANDS
@@ -209,7 +206,6 @@ ADD_COMBINE_TEST(cmshistfunc_channel_masks
 
 # Template analysis CMSHistFunc shapeN
 ADD_COMBINE_TEST(cmshistfunc_shapeN
-  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_input.root
   T2W_COMMAND
     text2workspace.py ${REPO}/data/ci/template-analysis_shapeNInterp.txt -o ws_template-analysis-shapeN.root --mass 200
   COMBINE_COMMANDS
@@ -218,7 +214,6 @@ ADD_COMBINE_TEST(cmshistfunc_shapeN
 
 # Template analysis CMSHistSum
 ADD_COMBINE_TEST(cmshistsum
-  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_input.root
   T2W_COMMAND
     text2workspace.py ${REPO}/data/ci/template-analysis_shapeInterp.txt -o cmshistsum.root --mass 200 --for-fits --no-wrappers --use-histsum
   COMBINE_COMMANDS
@@ -227,7 +222,6 @@ ADD_COMBINE_TEST(cmshistsum
 
 # Template analysis CMSHistSum with shapeN
 ADD_COMBINE_TEST(cmshistsum_shapeN
-  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_input.root
   T2W_COMMAND
     text2workspace.py ${REPO}/data/ci/template-analysis_shapeNInterp.txt -o cmshistsum_shapeN.root --mass 200 --for-fits --no-wrappers --use-histsum
   COMBINE_COMMANDS
@@ -254,7 +248,6 @@ ADD_COMBINE_TEST(template_analysis_large_integrals_cmshistsum
 # Unfortunately, the result of this test is not deterministic, so we can't enable it yet.
 # TODO: understand why this is, enable the test here, and remove corresponding test from cvmfs-ci.yml
 # ADD_COMBINE_TEST(parametric_hist
-#   COPY_TO_BUILDDIR ${REPO}/data/ci/shapes_RooParametricHist.root
 #   T2W_COMMAND
 #   text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO map=.*/*hcc*:r[1,-500,500] --PO map=.*/zcc:z[1,-5,5] ${REPO}/data/ci/datacard_RooParametricHist.txt -o ws_RooParametricHist.root
 #   COMBINE_COMMANDS
@@ -263,7 +256,6 @@ ADD_COMBINE_TEST(template_analysis_large_integrals_cmshistsum
 
 # Template analysis CMSHistFunc with channel masks
 ADD_COMBINE_TEST(cmshistsum_channel_masks
-  COPY_TO_BUILDDIR ${REPO}/data/ci/htt_multiple_regions.input.root
   T2W_COMMAND
     text2workspace.py ${REPO}/data/ci/htt_multiple_regions.txt  -o ws_template-analysis-channel_masks.root --mass 125 --channel-masks --for-fits --no-wrappers --use-histsum
   COMBINE_COMMANDS
@@ -273,7 +265,6 @@ ADD_COMBINE_TEST(cmshistsum_channel_masks
 # Template-analysis datacard -> text2workspace
 COMBINE_ADD_TEST(template_analysis-text2workspace
     COMMAND text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o template-analysis_shape_autoMCStats.root
-    COPY_TO_BUILDDIR ${REPO}/data/ci/htt_input.root
     FIXTURES_SETUP template_analysis_workspace
 )
 
@@ -302,7 +293,7 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS "python test_interferen
 
 
 COMBINE_ADD_TEST(simple-counting-experiment-text2workspace
-    COMMAND text2workspace.py ${REPO}/data/tutorials/counting/simple-counting-experiment.txt
+    COMMAND text2workspace.py ${REPO}/data/tutorials/counting/simple-counting-experiment.txt -o simple-counting-experiment.root
     # No output, so nothing to compare. We just check that it runs.
 )
 
@@ -321,8 +312,7 @@ COMBINE_ADD_TEST(setParameters-out-of-range-regex
 )
 
 COMBINE_ADD_TEST(simple-shapes-TH1-text2workspace
-    COMMAND text2workspace.py ${REPO}/data/tutorials/shapes/simple-shapes-TH1.txt
-    COPY_TO_BUILDDIR ${REPO}/data/tutorials/shapes/simple-shapes-TH1_input.root
+    COMMAND text2workspace.py ${REPO}/data/tutorials/shapes/simple-shapes-TH1.txt -o simple-shapes-TH1.root
     # No output, so nothing to compare. We just check that it runs.
 )
 
@@ -337,7 +327,6 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
 
 COMBINE_ADD_TEST(hzz4l-significance
     COMMAND combine -M Significance ${REPO}/test/inputs/hzz4l_datacard.txt
-    COPY_TO_BUILDDIR ${REPO}/test/inputs/Workspace_m4l.root
     CHECKOUT OUTPUT hzz4l-significance.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/hzz4l-significance.out
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
@@ -346,7 +335,6 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
 
 COMBINE_ADD_TEST(LHC-limits
     COMMAND combine ${REPO}/data/tutorials/CAT23001/datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01
-    COPY_TO_BUILDDIR ${REPO}/data/tutorials/CAT23001/template-analysis-datacard-input.root
     CHECKOUT OUTPUT LHC-limits.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/LHC-limits.out
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
