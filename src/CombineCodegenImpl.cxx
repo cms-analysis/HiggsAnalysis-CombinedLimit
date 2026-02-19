@@ -9,6 +9,7 @@
 #include "../interface/VerticalInterpHistPdf.h"
 #include "../interface/VerticalInterpPdf.h"
 #include "../interface/CombineMathFuncs.h"
+#include "../interface/RooParametricHist.h"
 
 #include <RooUniformBinning.h>
 
@@ -242,6 +243,33 @@ void RooFit::Experimental::codegenImpl(VerticalInterpPdf& arg, CodegenContext& c
                               arg.quadraticAlgo()));
 }
 
+void RooFit::Experimental::codegenImpl(RooParametricHist& arg, CodegenContext& ctx) {
+  std::vector<double> diffs_flat;
+  std::vector<double> sums_flat;
+  if (arg.hasMorphs()) {
+    arg.getFlattenedMorphs(diffs_flat, sums_flat);
+  }
+
+  std::string xName = ctx.getResult(arg.observable());
+  std::stringstream bin_i;
+  bin_i << ctx.buildCall("RooFit::Detail::MathFuncs::parametricHistFindBin", arg.getNBins(), arg.getBins(), xName);
+  std::stringstream code;
+  code << ctx.buildCall("RooFit::Detail::MathFuncs::parametricHistEvaluate",
+                        bin_i.str(),
+                        arg.getPars(),
+                        arg.getBins(),
+                        arg.getNBins(),
+                        arg.getCoeffList(),
+                        static_cast<int>(arg.getCoeffList().size()),
+                        arg.hasMorphs() ? diffs_flat : std::vector<double>{},
+                        arg.hasMorphs() ? sums_flat : std::vector<double>{},
+                        arg.getWidths(),
+                        arg.getSmoothRegion()) +
+              ";\n";
+  ctx.addToCodeBody(code.str());
+  ctx.addResult(&arg, code.str());
+}
+
 std::string RooFit::Experimental::codegenIntegralImpl(VerticalInterpPdf& arg,
                                                       int code,
                                                       const char* rangeName,
@@ -255,6 +283,33 @@ std::string RooFit::Experimental::codegenIntegralImpl(VerticalInterpPdf& arg,
                        arg.integralFloorVal(),
                        arg.quadraticRegion(),
                        arg.quadraticAlgo());
+}
+
+std::string RooFit::Experimental::codegenIntegralImpl(RooParametricHist& arg,
+                                                      int code,
+                                                      const char* rangeName,
+                                                      CodegenContext& ctx) {
+  std::vector<double> diffs_flat;
+  std::vector<double> sums_flat;
+  if (arg.hasMorphs()) {
+    arg.getFlattenedMorphs(diffs_flat, sums_flat);
+  }
+  double xMin = rangeName ? arg.getObs().getMin(rangeName) : -1;
+  double xMax = rangeName ? arg.getObs().getMax(rangeName) : -1;  // if rangeName is null, these values won't be used
+
+  return ctx.buildCall("RooFit::Detail::MathFuncs::parametricHistIntegral",
+                       arg.getPars(),
+                       arg.getBins(),
+                       arg.getNBins(),
+                       arg.getCoeffList(),
+                       static_cast<int>(arg.getCoeffList().size()),
+                       arg.hasMorphs() ? diffs_flat : std::vector<double>{},
+                       arg.hasMorphs() ? sums_flat : std::vector<double>{},
+                       arg.getWidths(),
+                       arg.getSmoothRegion(),
+                       rangeName ? std::string("\"") + rangeName + "\"" : std::string("nullptr"),
+                       xMin,
+                       xMax);
 }
 
 #endif  // ROOT_VERSION_CODE >= ROOT_VERSION(6,36,0)

@@ -8,6 +8,7 @@ class FastVerticalInterpHistPdf2;
 class FastVerticalInterpHistPdf2D2;
 class ProcessNormalization;
 class VerticalInterpPdf;
+class RooParametricHist;
 
 namespace RooFit::Experimental {
 
@@ -18,8 +19,10 @@ namespace RooFit::Experimental {
   void codegenImpl(FastVerticalInterpHistPdf2D2& arg, CodegenContext& ctx);
   void codegenImpl(ProcessNormalization& arg, CodegenContext& ctx);
   void codegenImpl(VerticalInterpPdf& arg, CodegenContext& ctx);
+  void codegenImpl(RooParametricHist& arg, CodegenContext& ctx);
 
   std::string codegenIntegralImpl(VerticalInterpPdf& arg, int code, const char* rangeName, CodegenContext& ctx);
+  std::string codegenIntegralImpl(RooParametricHist& arg, int code, const char* rangeName, CodegenContext& ctx);
 
 }  // namespace RooFit::Experimental
 
