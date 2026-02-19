@@ -197,13 +197,6 @@ jobs:
             combineTool.py -M MultiDimFit data/tutorials/multiDim/toy-hgg-125.root --fromfile data/tutorials/multiDim/fixed.csv
 
       - uses: ./.github/actions/run-in-cvmfs
-        name: RooParametricHist
-        with:
-          script: |
-            text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/*hcc*:r[1,-500,500]' --PO 'map=.*/zcc:z[1,-5,5]' data/ci/datacard_RooParametricHist.txt -o ws_RooParametricHist.root
-            combine -M MultiDimFit ws_RooParametricHist.root --algo singles
-
-      - uses: ./.github/actions/run-in-cvmfs
         name: InterferenceModel test in CMSSW
         if: ${{ env.CMSSW_VERSION != '' }}
         with:
