@@ -35,6 +35,8 @@ class ProcessNormalization : public RooAbsReal {
       RooArgList const &asymmThetaList() const { return asymmThetaList_; }
       RooArgList const &otherFactorList() const { return otherFactorList_; }
 
+      std::vector<std::tuple<std::string,double,double>> sigmaVariationsAll() const;
+
     protected:
         Double_t evaluate() const override;
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,32,0)
