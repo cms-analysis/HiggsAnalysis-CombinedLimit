@@ -195,7 +195,7 @@ jobs:
 
       - uses: ./.github/actions/run-in-cvmfs
         name: RooMultiPdf
-        if: ${{ !matrix.CMSSW_VERSION || startsWith(matrix.CMSSW_VERSION, 'CMSSW_14') }}
+        if: ${{ !matrix.CMSSW_VERSION || !startsWith(matrix.CMSSW_VERSION, 'CMSSW_11') }}
         with:
           script: |
             text2workspace.py data/ci/datacard_RooMultiPdf.txt.gz  -o ws_RooMultiPdf.root
