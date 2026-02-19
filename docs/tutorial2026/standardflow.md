@@ -132,7 +132,7 @@ background normalisation can be calibrated using a $\text{Z}\rightarrow\mu\mu$ C
 By comparing the number of data events in these CRs to our MC expectation we can obtain scale factors to apply to the corresponding backgrounds in the signal region (SR).
 The idea is that the data will gives us a more accurate prediction of the background with less systematic uncertainties.
 For example, we can remove the cross section and acceptance uncertainties in the SR, since we are no longer using the MC prediction (with a caveat discussed below).
-While we could simply derive these correction factors and apply them to our signal region datacard and better way is to include these regions in our fit model and
+While we could simply derive these correction factors and apply them to our signal region datacard a better way is to include these regions in our fit model and
 tie the normalisations of the backgrounds in the CR and SR together. This has a number of advantages:
 
   - Automatically handles the statistical uncertainty due to the number of data events in the CR
@@ -546,5 +546,6 @@ This produces a new ROOT file `test_stat_distributions.root` containing the plot
 ```shell
 python3 printTestStatPlots.py test_stat_distributions.root
 ```
+
 
 
