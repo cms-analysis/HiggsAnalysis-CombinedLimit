@@ -213,10 +213,10 @@ Topics covered in this section:
   - C: Post-fit distributions
  
 > [!TIP] 
-> These steps are usually part of the **unblinding** stage, and are the latest steps request for the **GoingToPreApproval**. L2 will usually ask to see the results of these procedures before letting you progress further in the review. For most analses, you will need to first run impact and validation blind, and then repeat it on the actual data. 
+> These steps are usually part of the **unblinding** stage, and are the latest steps request for the **GoingToPreApproval**. L2 will usually ask to see the results of these procedures before letting you progress further in the review. For most analyses, you will need to first run impact and validation blind, and then repeat it on the actual data. 
 
 > [!INFO]
-> Analysis datacard must be stored in the [CMS analysis gitLab repo](https://gitlab.cern.ch/cms-analysis) gitLab repository. When you request your analyssis area, CAT will provide you automatic CI tools that can run all these tests for you every time you commit a change! These are quite flexible and customisable, and you are encouraged to take advante of them
+> Analysis datacard must be stored in the [CMS analysis GitLab repo](https://gitlab.cern.ch/cms-analysis) GitLab repository. When you request your analysis area, CAT will provide you automatic CI tools that can run all these tests for you every time you commit a change! These are quite flexible and customisable, and you are encouraged to take advantage of them
 
 ### A: Using FitDiagnostics
 Now that we have a working datacard complete with systematic uncertainties, it is important to validate our model. We will explore one of the most commonly used modes of <span style="font-variant:small-caps;">Combine</span>: `FitDiagnostics` . As well as allowing us to make a **measurement** of some physical quantity (as opposed to just setting a limit on it), this method is useful to gain additional information about the model and the behaviour of the fit. It performs two fits:
@@ -546,3 +546,4 @@ This produces a new ROOT file `test_stat_distributions.root` containing the plot
 ```shell
 python3 printTestStatPlots.py test_stat_distributions.root
 ```
+
