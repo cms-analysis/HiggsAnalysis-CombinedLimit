@@ -410,7 +410,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     } else {
       w = new RooWorkspace("w");
       RooJSONFactoryWSTool tool(*w);
+      RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
       tool.importJSON(fileToLoad.Data());
+      RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);      
     }
 
     if (verbose > 3) { std::cout << "Input workspace '" << workspaceName_ << "': \n"; w->Print("V"); }

@@ -823,16 +823,14 @@ bool tryExportHistFactory(RooJSONFactoryWSTool *tool, const CMSHistSum *hs, JSON
                                  "': x is not a RooRealVar; cannot export axis metadata.");
     }
 
-    {
-      auto &axes = elem["axes"].set_seq();
-      auto &ax = axes.append_child().set_map();
-      std::string axname = x->GetName();
-      RooJSONFactoryWSTool::testValidName(axname, false);
-      ax["name"] << axname;
-      ax["nbins"] << static_cast<int>(hs->nBins());
-      ax["min"] << x->getMin();
-      ax["max"] << x->getMax();
-    }
+    auto &axes = elem["axes"].set_seq();
+    auto &ax = axes.append_child().set_map();
+    std::string axname = x->GetName();
+    RooJSONFactoryWSTool::testValidName(axname, false);
+    ax["name"] << axname;
+    ax["nbins"] << static_cast<int>(hs->nBins());
+    ax["min"] << x->getMin();
+    ax["max"] << x->getMax();
 
     // Samples array
     auto &samples = elem["samples"].set_seq();
@@ -893,7 +891,7 @@ bool tryExportHistFactory(RooJSONFactoryWSTool *tool, const CMSHistSum *hs, JSON
 	  auto &m = mods.append_child().set_map();
 	  m["name"] << std::get<0>(v);
 	  m["parameter"] << std::get<0>(v);
-	  m["type"] << "overallsys";
+	  m["type"] << "normsys";
 	  auto& data = m["data"].set_map();
 	  data["lo"] << std::get<1>(v)/nom;
 	  data["hi"] << std::get<2>(v)/nom;
@@ -1295,7 +1293,7 @@ public:
                } else if (mtype == "staterror") {
                   // Already encoded via per-bin errors; CMSHistSum will handle BBB if configured.
                   continue;
-	       } else if (mtype == "overallsys"){
+	       } else if (mtype == "normsys"){
 		 auto *parameter = m.find("parameter");
 		 std::string parname(parameter ? parameter->val() : "alpha_" + mname);
 		 RooRealVar &p = getOrMakeParameter(tool, parname, 0.0, -10., 10.0);
