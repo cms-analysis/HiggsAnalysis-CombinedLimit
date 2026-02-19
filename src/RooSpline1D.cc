@@ -233,7 +233,7 @@ STATIC_EXECUTE([]() {
   using namespace RooFit::JSONIO;
   
   registerImporter<RooSpline1DFactory>("spline", false);
-  registerExporter<RooSpline1DStreamer>(RooSpline1D::Class(), false);
+  registerExporter<RooSpline1DStreamer>("RooSpline1D", false);
  });
   
 
