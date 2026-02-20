@@ -226,10 +226,10 @@
 		target="">
         <![CDATA[
 			std::cout << \"Translating RooDoubleCBFast using proper constructor\" << std::endl;
-			auto newName = newObj->GetName();
-			auto newTitle = newObj->GetTitle();
-			delete newObj;
-			newObj = new RooDoubleCBFast(newName, newTitle,
+			std::string newName(newObj->GetName());
+			std::string newTitle(newObj->GetTitle());
+            newObj->~RooDoubleCBFast();
+			new (newObj) RooDoubleCBFast(newName.c_str(), newTitle.c_str(),
 						const_cast<RooAbsReal&>(onfile.x.arg()),
 						const_cast<RooAbsReal&>(onfile.mean.arg()),
 						const_cast<RooAbsReal&>(onfile.width.arg()),
