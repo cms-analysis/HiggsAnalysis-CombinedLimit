@@ -12,11 +12,16 @@ std::unique_ptr<RooAbsReal>
 RooSimultaneousOpt::createNLLImpl(RooAbsData& data, const RooLinkedList& cmdList) 
 #endif
 {
-    RooCmdConfig pc(Form("RooSimultaneousOpt::createNLL(%s)",GetName())) ;
-    pc.defineSet("cPars","Constrain",0,0);
-    RooArgSet *cPars = pc.getSet("cPars");
-    auto nll =  std::make_unique<cacheutils::CachingSimNLL>(this, &data, cPars);
-    nll->setChannelMasks(this->channelMasks());
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 36, 0)
+  // Match the printout of https://github.com/root-project/root/blob/a6ec2bd88e82f46f131cece8b3cc6b357c756f02/roofit/roofitcore/src/FitHelpers.cxx#L594
+  auto timingScope = std::make_unique<ROOT::Math::Util::TimingScope>(
+      [this](std::string const& msg) { oocoutI(this, Fitting) << msg << std::endl; }, "Creation of NLL object took");
+#endif
+  RooCmdConfig pc(Form("RooSimultaneousOpt::createNLL(%s)", GetName()));
+  pc.defineSet("cPars", "Constrain", 0, 0);
+  RooArgSet* cPars = pc.getSet("cPars");
+  auto nll = std::make_unique<cacheutils::CachingSimNLL>(this, &data, cPars);
+  nll->setChannelMasks(this->channelMasks());
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,30,0)
     return nll.release();
 #else
