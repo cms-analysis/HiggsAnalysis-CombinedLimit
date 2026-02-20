@@ -14,7 +14,7 @@ To get started, you should have a working setup of `Combine`, please follow the 
 
 Now we will move to the working directory for this tutorial, which contains all the inputs needed to run the exercises below:
 ```shell
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/docs/tutorial2026/
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/tutorials/longexercise/
 ```
 
 ## Part 1: Setting up the datacard and the workspace
@@ -546,6 +546,7 @@ This produces a new ROOT file `test_stat_distributions.root` containing the plot
 ```shell
 python3 printTestStatPlots.py test_stat_distributions.root
 ```
+
 
 
 
