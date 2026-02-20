@@ -75,7 +75,8 @@ class FastTemplate {
         void SetActiveSize(unsigned int size) { size_ = size; }
 
         void Dump() const ;
-
+        const AT& Values() const { return values_; }
+  
     protected:
         unsigned int size_;
         AT values_;
