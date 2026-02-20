@@ -46,7 +46,7 @@ RooParametricHist::RooParametricHist(const char *name,
 
 //_____________________________________________________________________________
 RooParametricHist::RooParametricHist(const RooParametricHist& other, const char* name) :
- RooAbsPdf(other, name),x("observable",this,other.x),pars("_pars",this,other.pars),_coeffList("_coeffList",this,other._coeffList)
+ RooAbsPdf(other, name),x("observable",this,other.x),pars("pars",this,other.pars),_coeffList("_coeffList",this,other._coeffList)
 {
 
   N_bins = other.N_bins;
