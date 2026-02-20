@@ -165,7 +165,7 @@ void RooParametricHist::addMorphs(RooDataHist &hpdfU, RooDataHist &hpdfD, RooRea
   }
   _coeffList.add(cVar);
   _hasMorphs = true;
-  smoothRegion = _smoothRegion;
+  _smoothRegion = smoothRegion;
 }
 
 double RooParametricHist::evaluateMorphFunction(int j) const
