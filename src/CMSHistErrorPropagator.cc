@@ -201,12 +201,12 @@ void CMSHistErrorPropagator::runBarlowBeeston() const {
   // vectorized
   #pragma GCC ivdep
   for (unsigned j = 0; j < n; ++j) {
-    bb_.b[j] = bb_.toterr[j] + (bb_.valsum[j] / bb_.toterr[j]) - bb_.gobs[j];
-    bb_.c[j] = bb_.valsum[j] - bb_.dat[j] - (bb_.valsum[j] / bb_.toterr[j]) * bb_.gobs[j];
-    bb_.tmp[j] = -0.5 * (bb_.b[j] + copysign(1.0, bb_.b[j]) * std::sqrt(bb_.b[j] * bb_.b[j] - 4. * bb_.c[j]));
-    bb_.x1[j] = bb_.tmp[j];
-    bb_.x2[j] = bb_.c[j] / bb_.tmp[j];
-    bb_.res[j] = std::max(bb_.x1[j], bb_.x2[j]);
+    double b = bb_.toterr[j] + (bb_.valsum[j] / bb_.toterr[j]) - bb_.gobs[j];
+    double c = bb_.valsum[j] - bb_.dat[j] - (bb_.valsum[j] / bb_.toterr[j]) * bb_.gobs[j];
+    double tmp = -0.5 * (b + std::copysign(1.0, b) * std::sqrt(b * b - 4. * c));
+    double x1 = tmp;
+    double x2 = c / tmp;
+    bb_.res[j] = std::max(x1, x2);
   }
   for (unsigned j = 0; j < n; ++j) {
     if (toterr_[bb_.use[j]] > 0.) bb_.push_res[j]->setVal(bb_.res[j]);
@@ -224,12 +224,6 @@ void CMSHistErrorPropagator::setAnalyticBarlowBeeston(bool flag) const {
     bb_.dat.clear();
     bb_.valsum.clear();
     bb_.toterr.clear();
-    bb_.err.clear();
-    bb_.b.clear();
-    bb_.c.clear();
-    bb_.tmp.clear();
-    bb_.x1.clear();
-    bb_.x2.clear();
     bb_.res.clear();
     bb_.gobs.clear();
     bb_.push_res.clear();
@@ -261,12 +255,6 @@ void CMSHistErrorPropagator::setAnalyticBarlowBeeston(bool flag) const {
     bb_.dat.resize(n);
     bb_.valsum.resize(n);
     bb_.toterr.resize(n);
-    bb_.err.resize(n);
-    bb_.b.resize(n);
-    bb_.c.resize(n);
-    bb_.tmp.resize(n);
-    bb_.x1.resize(n);
-    bb_.x2.resize(n);
     bb_.res.resize(n);
     bb_.init = true;
   }

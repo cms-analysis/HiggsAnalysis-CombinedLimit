@@ -22,12 +22,6 @@ private:
     std::vector<double> dat;
     std::vector<double> valsum;
     std::vector<double> toterr;
-    std::vector<double> err;
-    std::vector<double> b;
-    std::vector<double> c;
-    std::vector<double> tmp;
-    std::vector<double> x1;
-    std::vector<double> x2;
     std::vector<double> res;
     std::vector<double> gobs;
     std::vector<RooRealVar*> push_res;
