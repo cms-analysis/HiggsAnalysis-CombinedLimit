@@ -845,26 +845,17 @@ bool tryExportHistFactory(RooJSONFactoryWSTool *tool, const CMSHistSum *hs, JSON
       auto &s = samples.append_child().set_map();
       s["name"] << sampleName;
 
-      // --- Nominal histogram (bin yields)
-      std::vector<double> nom(nBins, 0.0);
-      std::vector<double> err(nBins, 0.0);
-
-      auto const &nomT = hs->nominalTemplate(ip);
-
-      for (unsigned ib = 0; ib < nBins; ++ib) {
-        const double w = hs->binWidth(ib);
-        nom[ib] = nomT[ib] * w;
-        err[ib] = hs->binErrors(ip)[ib] * w;
-      }
-
       auto &dataNode = s["data"].set_map();
-      RooJSONFactoryWSTool::exportArray(nBins, nom.data(), dataNode["contents"]);
 
+      auto const &nomT = hs->nominalTemplate(ip, false);
+      auto const &errs = hs->binErrors(ip, false);
+
+      RooJSONFactoryWSTool::exportArray(nBins, nomT.Values().data(), dataNode["contents"]);
       // If there are nonzero bin errors, export them and add staterror modifier (HistFactory style).
       bool anyErr = false;
-      for (double e : err) { if (e != 0.0) { anyErr = true; break; } }
+      for (double e : errs.Values()) { if (e != 0.0) { anyErr = true; break; } }
       if (anyErr) {
-        RooJSONFactoryWSTool::exportArray(nBins, err.data(), dataNode["errors"]);
+        RooJSONFactoryWSTool::exportArray(nBins, errs.Values().data(), dataNode["errors"]);
       }
 
       // --- Modifiers
@@ -917,26 +908,17 @@ bool tryExportHistFactory(RooJSONFactoryWSTool *tool, const CMSHistSum *hs, JSON
         if (!par) continue;
         const std::string sysName = par->GetName();
 
-        std::vector<double> lo(nBins, 0.0);
-        std::vector<double> hi(nBins, 0.0);
-
-        auto const &upT  = hs->upTemplate(ip, iv); 
-        auto const &dnT = hs->downTemplate(ip, iv);
-	for(size_t i=0; i<nBins; ++i){
-	  lo[i] = dnT[i];
-	  hi[i] = upT[i];
-	}
+        auto const &upT = hs->upTemplate(ip, iv, false); 
+        auto const &dnT = hs->downTemplate(ip, iv, false);
 	  
-        const auto vsetting = hs->vtype(ip);
-
         auto &m = mods.append_child().set_map();
         m["name"] << sysName;
         m["parameter"] << sysName;
         m["type"] << "histosys";
 
         auto &d = m["data"].set_map();
-        RooJSONFactoryWSTool::exportArray(nBins, lo.data(), d["lo"].set_map()["contents"]);
-        RooJSONFactoryWSTool::exportArray(nBins, hi.data(), d["hi"].set_map()["contents"]);
+        RooJSONFactoryWSTool::exportArray(nBins, dnT.Values().data(), d["lo"].set_map()["contents"]);
+        RooJSONFactoryWSTool::exportArray(nBins, upT.Values().data(), d["hi"].set_map()["contents"]);
 
         tool->queueExport(*par);
       }
@@ -1202,7 +1184,7 @@ public:
 
       const std::string distName = elem["name"].val();
 
-      // Axes: we only support 1D here (which is what Combine uses for CMS_th1x)
+      // Axes: we only support 1D here
       if (!elem.has_child("axes") || elem["axes"].num_children() != 1)
          throw std::runtime_error("CMSHistSum importer: '" + distName + "' must have exactly one axis");
 

@@ -124,31 +124,53 @@ public:
   }
 
   /// Nominal template (FastTemplate) for a process
-  FastTemplate const& nominalTemplate(unsigned iproc) const
+  FastTemplate nominalTemplate(unsigned iproc, bool density=true) const
   {
-    return storage_.at(processField(iproc));
+    FastTemplate retval (storage_.at(processField(iproc)));
+    if(!density){
+      for(size_t i=0; i<nBins(); ++i){
+	retval[i] *= binWidth(i);
+      }
+    }
+    return retval;
   }
 
   /// Stored up-template for a given vmorph
-  FastTemplate upTemplate(unsigned iproc, unsigned imorph) const
+  FastTemplate upTemplate(unsigned iproc, unsigned imorph, bool density=true) const
   {
     FastTemplate retval(nominalTemplate(iproc));
-    retval.Meld(storage_.at(morphCode(iproc,imorph) + 1), storage_.at(morphCode(iproc,imorph) + 0), 1, 0);
+    retval.Meld(storage_.at(morphCode(iproc,imorph) + 1), storage_.at(morphCode(iproc,imorph) + 0), 0.5, 0);
+    if(!density){
+      for(size_t i=0; i<nBins(); ++i){
+	retval[i] *= binWidth(i);
+      }
+    }    
     return retval;
   }
 
   /// Stored down-template for a given vmorph
-  FastTemplate downTemplate(unsigned iproc, unsigned imorph) const
+  FastTemplate downTemplate(unsigned iproc, unsigned imorph, bool density=true) const
   {
     FastTemplate retval(nominalTemplate(iproc));    
-    retval.Meld(storage_.at(morphCode(iproc,imorph) + 1), storage_.at(morphCode(iproc,imorph) + 0), -1, 0);
+    retval.Meld(storage_.at(morphCode(iproc,imorph) + 1), storage_.at(morphCode(iproc,imorph) + 0), -0.5, 0);
+    if(!density){
+      for(size_t i=0; i<nBins(); ++i){
+	retval[i] *= binWidth(i);
+      }
+    }    
     return retval;
   }
 
-  /// Per-bin MC stat errors for a process (same binning as cache_/templates)
-  FastTemplate const& binErrors(unsigned iproc) const
+  /// Per-bin MC stat errors for a process
+  FastTemplate binErrors(unsigned iproc, bool density=true) const
   {
-    return binerrors_.at(iproc);
+    FastTemplate retval = binerrors_.at(iproc);
+    if(!density){
+      for(size_t i=0; i<nBins(); ++i){
+	retval[i] *= binWidth(i);
+      }
+    }
+    return retval;
   }
 
   /// Vertical morphing type for a process (QuadLinear / LogQuadLinear)
