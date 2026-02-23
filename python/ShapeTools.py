@@ -130,7 +130,7 @@ class ShapeBuilder(ModelBuilder):
                 )
                 if self.options.optimizeExistingTemplates:
                     pdf1 = self.optimizeExistingTemplates(pdf)
-                    if pdf1 != pdf:
+                    if pdf1 is not pdf:
                         self.out.dont_delete.append(pdf1)
                         pdf = pdf1
                 extranorm = self.getExtraNorm(b, p)
@@ -1402,7 +1402,7 @@ class ShapeBuilder(ModelBuilder):
             newservers = []
             for a in arg.servers():
                 aopt = self.optimizeMHDependency(a, wsp, MH, indent=indent + "   ")
-                if aopt != a:
+                if aopt is not a:
                     newservers.append((a, aopt))
             if newservers:
                 print(
