@@ -196,7 +196,11 @@ CMSHistSum::CMSHistSum(
       external_morphs_("external_morphs", this, other.external_morphs_),
       external_morph_indices_(other.external_morph_indices_)
 {
-      initialize();
+  // removed the initialize call here
+  // calling initialize here can lead to stale pointers, as a call to RedirectServers such as during a RooWorkspace import
+  // can lead to the not-yet-redirected servers ending up in the in-workspace version of this object
+  // thus, it is safer to rely on the "lazy" call to initialize that happens in updateCache
+  // initialize();
 }
 
 void CMSHistSum::initialize() const {
