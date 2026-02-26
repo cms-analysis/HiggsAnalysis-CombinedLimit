@@ -38,25 +38,33 @@ def list_from_workspace(file, workspace, set):
     return res
 
 
-def prefit_from_workspace(file, workspace, params, setPars=None):
+def prefit_from_workspace(file, workspace, params, setPars=None, constPars=None):
     """Given a list of params, return a dictionary of [-1sig, nominal, +1sig]"""
     res = {}
     wsFile = ROOT.TFile(file)
     ws = wsFile.Get(workspace)
     ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.WARNING)
+    updatePars = dict()
     if setPars is not None:
         parsToSet = [tuple(x.split("=")) for x in setPars.split(",")]
-        allParams = ws.allVars()
-        allParams.add(ws.allCats())
         for par, val in parsToSet:
-            tmp = allParams.find(par)
-            isrvar = tmp.IsA().InheritsFrom(ROOT.RooRealVar.Class())
-            if isrvar:
+            updatePars[par] = (float(val), True)
+    if constPars is not None:
+        for par, val in constPars.items():
+            updatePars[par] = (float(val), False)
+    allParams = ws.allVars()
+    allParams.add(ws.allCats())
+    for par, (val, verbose) in updatePars.items():
+        tmp = allParams.find(par)
+        isrvar = tmp.IsA().InheritsFrom(ROOT.RooRealVar.Class())
+        if isrvar:
+            if verbose:
                 print(f"Setting parameter {par} to {float(val):g}")
-                tmp.setVal(float(val))
-            else:
+            tmp.setVal(float(val))
+        else:
+            if verbose:
                 print(f"Setting index {par} to {float(val):g}")
-                tmp.setIndex(int(val))
+            tmp.setIndex(int(val))
 
     for p in params:
         res[p] = {}
@@ -87,6 +95,29 @@ def prefit_from_workspace(file, workspace, params, setPars=None):
             errlo = -1 * var.getErrorLo()
             errhi = +1 * var.getErrorHi()
             res[p]["prefit"] = [val - errlo, val, val + errhi]
+
+            # For non-Gaussian, the best fit and uncertainties of the gobs (given x),
+            # may not be the same as the best fit and uncertainties on x.
+            # Let's calculate these here in case we want them later
+            var.setConstant(True)
+            gobs.setConstant(False)
+            nll2 = ROOT.RooConstraintSum("NLL", "", ROOT.RooArgSet(pdf), ROOT.RooArgSet(gobs))
+            minim = ROOT.RooMinimizer(nll2)
+            minim.setEps(0.001)  # Might as well get some better precision...
+            minim.setErrorLevel(0.5)  # Unlike for a RooNLLVar we must set this explicitly
+            minim.setPrintLevel(-1)
+            minim.setVerbose(False)
+            # Run the fit then run minos for the error
+            minim.minimize("Minuit2", "migrad")
+            minim.minos(ROOT.RooArgSet(gobs))
+            # Should really have checked that these converged ok...
+            # var.Print()
+            # pdf.Print()
+            val = gobs.getVal()
+            errlo = -1 * gobs.getErrorLo()
+            errhi = +1 * gobs.getErrorHi()
+            res[p]["globalobs"] = [val - errlo, val, val + errhi]
+
             if pdf.IsA().InheritsFrom(ROOT.RooGaussian.Class()):
                 res[p]["type"] = "Gaussian"
             elif pdf.IsA().InheritsFrom(ROOT.RooPoisson.Class()):
@@ -182,4 +213,14 @@ def get_fixed_results(file, params):
         res["fixedpoint"][param] = getattr(t, param)
     res["deltaNLL"] = getattr(t, "deltaNLL")
     res["pvalue"] = getattr(t, "quantileExpected")
+    return res
+
+def get_rfr_constvars(filename, rfr_name):
+    f = ROOT.TFile(filename)
+    rfr = f.Get(rfr_name)
+    res = dict()
+    constpars = rfr.constPars()
+    for v in constpars:
+        res[v.GetName()] = v.getVal()
+    f.Close()
     return res
