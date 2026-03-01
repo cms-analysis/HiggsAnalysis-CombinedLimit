@@ -190,7 +190,7 @@ Done in 0.14 min (cpu), 0.15 min (real)
 
 Again, the resulting limit tree will contain the result. You can also save the chains using the option `--saveChain`, which will then also be included in the output file.
 
-Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there is an infinite number of possible regions that contain 68% of the posterior pdf). Below is a simple example script that can be used to plot the posterior distribution from these chains and calculate the *smallest* such region. Note that in this example we are ignoring the burn-in. This can be added by e.g. changing `for i in range(mychain.numEntries()):` to `for i in range(200,mychain.numEntries()):` for a burn-in of 200.
+Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there is an infinite number of possible regions that contain 68% of the posterior pdf). Below is a simple example script that can be used to plot the posterior distribution from these chains and calculate the *smallest* such region. 
 
 /// details | **Show example script**
 <pre class="python"><code>
@@ -200,6 +200,7 @@ rmin = 0
 rmax = 30
 nbins = 100
 CL = 0.95
+burnIn = -1
 chains = "higgsCombineTest.MarkovChainMC.blahblahblah.root"
 
 def findSmallestInterval(hist,CL):
@@ -221,21 +222,18 @@ def findSmallestInterval(hist,CL):
      best_i = i
      val = integral
  return hist.GetBinLowEdge(best_i), hist.GetBinLowEdge(best_j), val
-
+								 
+hist = ROOT.TH1F("h_post",";r;posterior probability",nbins,rmin,rmax)
 fi_MCMC = ROOT.TFile.Open(chains)
-# Sum up all of the chains (or we could take the average limit)
-mychain=0
+	   
+# Sum up all of the chains 
 for k in fi_MCMC.Get("toys").GetListOfKeys():
     obj = k.ReadObj
-    if mychain ==0:
-        mychain = k.ReadObj().GetAsDataSet()
-    else :
-        mychain.append(k.ReadObj().GetAsDataSet())
-hist = ROOT.TH1F("h_post",";r;posterior probability",nbins,rmin,rmax)
-for i in range(mychain.numEntries()):
-#for i in range(200,mychain.numEntries()): burn-in of 200
-  mychain.get(i)
-  hist.Fill(mychain.get(i).getRealValue("r"), mychain.weight())
+    mychain = k.ReadObj().GetAsDataSet()
+    for i in range(mychain.numEntries()):
+		mychain.get(i)
+  		if i > burnIn : hist.Fill(mychain.get(i).getRealValue("r"), mychain.weight())
+	   
 hist.Scale(1./hist.Integral())
 hist.SetLineColor(1)
 vl,vu,trueCL = findSmallestInterval(hist,CL)
@@ -261,9 +259,12 @@ Running the script on the output file produced for the same datacard (including 
 
 	0.950975 % (0.95 %) interval (target)  = 0 < r < 2.2
 
-along with a plot of the posterior distribution shown below. This is the same as the output from <span style="font-variant:small-caps;">Combine</span>, but the script can also be used to find lower limits (for example) or credible intervals.
+along with a plot of the posterior distribution shown below. This is the same as the output from <span style="font-variant:small-caps;">Combine</span>, but the script can also be used to find lower limits (for example) or credible intervals. 
 
 ![](images/bayes1D.png)
+
+!!! warning
+    The options for burn-in have no effect on the chains that are saved in the output. In the example above we are ignoring the burn-in. We can add burn-in by ignoring the first (e.g. 200) steps by changing `burnIn = -1` to `burnIn = 200` for a burn-in of 200.
 
 An example to make contours when ordering by probability density can be found in [bayesContours.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesContours.cxx). Note that the implementation is simplistic, with no clever handling of bin sizes nor smoothing of statistical fluctuations.
 
@@ -275,7 +276,7 @@ Three parameters control how the MCMC integration is performed:
 
 -   the number of **tries** (option `--tries`): the algorithm will run multiple times with different random seeds. The truncated mean and RMS of the different results are reported. The default value is 10, which should be sufficient for a quick computation. For a more accurate result you might want to increase this number up to even ~200.
 -   the number of **iterations** (option `-i`) determines how many points are proposed to fill a single Markov Chain. The default value is 10k, and a plausible range is between 5k (for quick checks) and 20-30k for lengthy calculations. Beyond 30k, the time vs accuracy can be balanced better by increasing the number of chains (option `--tries`).
--   the number of **burn-in steps** (option `-b`) is the number of points that are removed from the beginning of the chain before using it to compute the limit. The default is 200. If the chain is very long, we recommend to increase this value a bit (e.g. to several hundreds). Using a number of burn-in steps below 50 is likely to result in a bias towards earlier stages of the chain before a reasonable convergence.
+-   the number of **burn-in steps** (option `-b`) is the number of points that are removed from the beginning of the chain before using it to compute the limit. The default is 200. If the chain is very long, we recommend to increase this value a bit (e.g. to several hundreds). Using a number of burn-in steps below 50 is likely to result in a bias towards earlier stages of the chain before a reasonable convergence. Instead of a fixed number, the option `--burnInFraction=x` can be set to a value between 0 and 1 to ignore a fraction `x` of the start of each chain. The larger of the option `b` and `x*length_of_chain` will be used as the burn-in. 
 
 #### Proposals
 
