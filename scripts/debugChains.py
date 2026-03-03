@@ -156,13 +156,13 @@ else:
 
 average_chain_length = float(average_chain_length)/(total_chains)
 
-plt.rcParams.update({'font.size': 14})
+plt.rcParams.update({'font.size': 12})
 fig,ax = plt.subplots(1,2,figsize=(14,5))
 
 param_values = np.array(param_values,dtype=float)
 ax[0].hist(param_values, density=True, color='black', bins=args.nbins, range=args.range, weights=param_weights, histtype='step')
 ax[0].set_xlabel(args.param)
-ax[0].set_ylabel("Posterior probability")
+ax[0].set_ylabel("Posterior probability density")
 
 interval = findInterval(param_values, param_weights,args.CL,args.mode)
 print(f"Average chain length: {average_chain_length:.1f}")
@@ -186,7 +186,7 @@ for k,gr in enumerate(all_graphs):
     if graphs[k]: ax[1].plot(np.arange(len(gr)),gr, color='black', marker=None, linestyle='-',linewidth=0.2, alpha=0.4)
 
 ax[1].set_ylabel(args.param)
-ax[1].axvline(args.burnInFraction*average_chain_length, color='red', linestyle='--', label="Burn-in fraction")
+ax[1].axvline(args.burnInFraction*average_chain_length, color='blue', linestyle='--', label="Burn-in fraction")
 ax[1].set_xlabel("Chain index")
 ax[1].set_title(f"Trace plot of {kept_chain} chains / {j+1} chains")
 
@@ -210,8 +210,8 @@ for i in range(len(all_graphs[0])-window_size):
     interval = findInterval(window_vals, window_weights,0.68,mode='interval')
     running_avg_lower[i] = interval[0]
     running_avg_upper[i] = interval[1]
-ax[1].plot(np.arange(len(running_avg)),running_avg, color='green', marker=None, linestyle='-',linewidth=2, label="Running average")
-ax[1].fill_between(np.arange(len(running_avg)), running_avg_lower, running_avg_upper, color='green', alpha=0.3, label="68% interval")
+ax[1].plot(np.arange(len(running_avg)),running_avg, color='red', marker=None, linestyle='-',linewidth=2, label="Running average")
+ax[1].fill_between(np.arange(len(running_avg)), running_avg_lower, running_avg_upper, color='red', alpha=0.5, label="68% interval")
 ax[1].legend(loc='upper right')
 
 if args.range:
