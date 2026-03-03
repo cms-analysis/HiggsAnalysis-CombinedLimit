@@ -56,7 +56,7 @@ parser.add_argument(
 parser.add_argument(
     "--chainsF",
     type=float,
-    default=0.05,
+    default=0.1,
     help="""Fraction of the chains to plot in the trace plot (doesn't effect the histogram)""",
 )
 parser.add_argument(
@@ -87,19 +87,19 @@ def weighted_percentile(data,weights,perc):
     return np.interp(perc, cdf, data)
 
 
-def findInterval(arr,weights,CL):
+def findInterval(arr,weights,CL,mode='interval'):
     # have an array of values and a CL
     # find the interval that contains CL of them 
 
-    if args.mode == 'interval':
+    if mode == 'interval':
         left_q = (1-CL)/2 
         right_q = 1-left_q
     
-    elif args.mode == 'upperlim':
+    elif mode == 'upperlim':
         left_q = 0
         right_q = CL
     
-    elif args.mode == 'lowerlim':
+    elif mode == 'lowerlim':
         left_q = 1-CL
         right_q = 1
 
@@ -114,6 +114,7 @@ param_value_chunks = []
 param_weight_chunks = []
 
 graphs = []
+all_graphs = []
 kept_chain = 0
 
 average_chain_length = 0
@@ -140,9 +141,11 @@ for j, k in enumerate(fi_MCMC.Get("toys").GetListOfKeys()):
         param_value_chunks.append(chain_vals[start_idx:])
         param_weight_chunks.append(chain_weights[start_idx:])
 
+    graphs.append(keep_gr)
     if keep_gr:
         kept_chain += 1
-        graphs.append(chain_vals)
+        
+    all_graphs.append(chain_vals)
 
 if param_value_chunks:
     param_values = np.concatenate(param_value_chunks)
@@ -161,7 +164,7 @@ ax[0].hist(param_values, density=True, color='black', bins=args.nbins, range=arg
 ax[0].set_xlabel(args.param)
 ax[0].set_ylabel("Posterior probability")
 
-interval = findInterval(param_values, param_weights,args.CL)
+interval = findInterval(param_values, param_weights,args.CL,args.mode)
 print(f"Average chain length: {average_chain_length:.1f}")
 print(f"Number of chains: {j+1}")
 print(f"Burn-in fraction: {args.burnInFraction:.2f} (average burn-in length: {average_chain_length*args.burnInFraction:.1f} entries)")
@@ -179,12 +182,38 @@ ax[0].axvline(interval[1], color='red', linestyle='--')
 # put legend in the upper left corner, outside the plot 
 ax[0].legend(loc='upper left', bbox_to_anchor=(.01, 1.14))
 
-for gr in graphs:
-    ax[1].plot(np.arange(len(gr)),gr, color='black', marker=None, linestyle='-',linewidth=0.5, alpha=0.5)
+for k,gr in enumerate(all_graphs):
+    if graphs[k]: ax[1].plot(np.arange(len(gr)),gr, color='black', marker=None, linestyle='-',linewidth=0.2, alpha=0.4)
+
 ax[1].set_ylabel(args.param)
 ax[1].axvline(args.burnInFraction*average_chain_length, color='red', linestyle='--', label="Burn-in fraction")
 ax[1].set_xlabel("Chain index")
 ax[1].set_title(f"Trace plot of {kept_chain} chains / {j+1} chains")
+
+# make a running average and 68% interval plot on top of the trace plot
+# this should be across the graphs and take ~5% of the average chain length as the window size
+window_size = int(average_chain_length*0.05)
+running_avg = np.empty(len(all_graphs[0])-window_size)
+running_avg_upper = np.empty(len(all_graphs[0])-window_size)
+running_avg_lower = np.empty(len(all_graphs[0])-window_size)   
+
+for i in range(len(all_graphs[0])-window_size):
+    window_vals = []
+    window_weights = []
+    for gr in all_graphs:
+        if i+window_size < len(gr):
+            window_vals.append(gr[i:i+window_size])
+            window_weights.append(np.ones(window_size)) # equal weights for the running average
+    window_vals = np.concatenate(window_vals)
+    window_weights = np.concatenate(window_weights)
+    running_avg[i] = np.average(window_vals, weights=window_weights)
+    interval = findInterval(window_vals, window_weights,0.68,mode='interval')
+    running_avg_lower[i] = interval[0]
+    running_avg_upper[i] = interval[1]
+ax[1].plot(np.arange(len(running_avg)),running_avg, color='green', marker=None, linestyle='-',linewidth=2, label="Running average")
+ax[1].fill_between(np.arange(len(running_avg)), running_avg_lower, running_avg_upper, color='green', alpha=0.3, label="68% interval")
+ax[1].legend(loc='upper right')
+
 if args.range:
     ax[1].set_ylim(args.range[0],args.range[1])
 
