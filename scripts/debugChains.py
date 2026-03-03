@@ -190,28 +190,33 @@ ax[1].axvline(args.burnInFraction*average_chain_length, color='blue', linestyle=
 ax[1].set_xlabel("Chain index")
 ax[1].set_title(f"Trace plot of {kept_chain} chains / {j+1} chains")
 
-# make a running average and 68% interval plot on top of the trace plot
+# make a sliding  average and 68% interval plot on top of the trace plot
 # this should be across the graphs and take ~5% of the average chain length as the window size
 window_size = int(average_chain_length*0.05)
-running_avg = np.empty(len(all_graphs[0])-window_size)
-running_avg_upper = np.empty(len(all_graphs[0])-window_size)
-running_avg_lower = np.empty(len(all_graphs[0])-window_size)   
+num_windows = int(average_chain_length/window_size)
+running_avg = np.empty(num_windows)
+running_avg_upper = np.empty(num_windows)
+running_avg_lower = np.empty(num_windows)   
+window_centers = np.empty(num_windows)
 
-for i in range(len(all_graphs[0])-window_size):
+for i in range(num_windows):
     window_vals = []
     window_weights = []
     for gr in all_graphs:
-        if i+window_size < len(gr):
-            window_vals.append(gr[i:i+window_size])
-            window_weights.append(np.ones(window_size)) # equal weights for the running average
+        if (i+1)*window_size > len(gr): continue
+        window_vals.append(gr[i*window_size:(i+1)*window_size])
+        window_weights.append(np.ones(window_size)) # equal weights for the running average
     window_vals = np.concatenate(window_vals)
     window_weights = np.concatenate(window_weights)
     running_avg[i] = np.average(window_vals, weights=window_weights)
     interval = findInterval(window_vals, window_weights,0.68,mode='interval')
     running_avg_lower[i] = interval[0]
     running_avg_upper[i] = interval[1]
-ax[1].plot(np.arange(len(running_avg)),running_avg, color='red', marker=None, linestyle='-',linewidth=2, label="Running average")
-ax[1].fill_between(np.arange(len(running_avg)), running_avg_lower, running_avg_upper, color='red', alpha=0.5, label="68% interval")
+    window_center = (i*window_size)+window_size/2
+    window_centers[i] = window_center
+
+ax[1].plot(window_centers,running_avg, color='red', marker=None, linestyle='-',linewidth=2, label="Sliding average")
+ax[1].fill_between(window_centers, running_avg_lower, running_avg_upper, color='red', alpha=0.5, label="68% interval")
 ax[1].legend(loc='upper right')
 
 if args.range:
