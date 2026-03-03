@@ -190,81 +190,51 @@ Done in 0.14 min (cpu), 0.15 min (real)
 
 Again, the resulting limit tree will contain the result. You can also save the chains using the option `--saveChain`, which will then also be included in the output file.
 
-Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there is an infinite number of possible regions that contain 68% of the posterior pdf). Below is a simple example script that can be used to plot the posterior distribution from these chains and calculate the *smallest* such region. 
+Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there is an infinite number of possible regions that contain 68% of the posterior pdf). Below is a snipped that can be used access the chains from the output of `MarkovChainMC`.
 
-/// details | **Show example script**
+/// details | **Show example snipper**
 <pre class="python"><code>
 import ROOT
 
-rmin = 0
-rmax = 30
-nbins = 100
-CL = 0.95
-burnIn = -1
-chains = "higgsCombineTest.MarkovChainMC.blahblahblah.root"
-
-def findSmallestInterval(hist,CL):
- bins = hist.GetNbinsX()
- best_i = 1
- best_j = 1
- bd = bins+1
- val = 0;
- for i in range(1,bins+1):
-   integral = hist.GetBinContent(i)
-   for j in range(i+1,bins+2):
-    integral += hist.GetBinContent(j)
-    if integral > CL :
-      val = integral
-      break
-   if integral > CL and  j-i < bd :
-     bd = j-i
-     best_j = j+1
-     best_i = i
-     val = integral
- return hist.GetBinLowEdge(best_i), hist.GetBinLowEdge(best_j), val
-								 
-hist = ROOT.TH1F("h_post",";r;posterior probability",nbins,rmin,rmax)
+chains = "higgsCombineTest.MarkovChainMC.mH120.root"
 fi_MCMC = ROOT.TFile.Open(chains)
-	   
-# Sum up all of the chains 
+
+param = "r"
+param_vals 	  = []
+param_weights = []
+
 for k in fi_MCMC.Get("toys").GetListOfKeys():
     obj = k.ReadObj
     mychain = k.ReadObj().GetAsDataSet()
     for i in range(mychain.numEntries()):
 		mychain.get(i)
-  		if i > burnIn : hist.Fill(mychain.get(i).getRealValue("r"), mychain.weight())
+  		param_vals.append(mychain.get(i).getRealValue(param))
+		param_weights.append(mychain.weight())
 	   
-hist.Scale(1./hist.Integral())
-hist.SetLineColor(1)
-vl,vu,trueCL = findSmallestInterval(hist,CL)
-histCL = hist.Clone()
-for b in range(nbins):
-  if histCL.GetBinLowEdge(b+1) < vl or histCL.GetBinLowEdge(b+2)>vu: histCL.SetBinContent(b+1,0)
-c6a = ROOT.TCanvas()
-histCL.SetFillColor(ROOT.kAzure-3)
-histCL.SetFillStyle(1001)
-hist.Draw()
-histCL.Draw("histFsame")
-hist.Draw("histsame")
-ll = ROOT.TLine(vl,0,vl,2*hist.GetBinContent(hist.FindBin(vl))); ll.SetLineColor(2); ll.SetLineWidth(2)
-lu = ROOT.TLine(vu,0,vu,2*hist.GetBinContent(hist.FindBin(vu))); lu.SetLineColor(2); lu.SetLineWidth(2)
-ll.Draw()
-lu.Draw()
-
-print " %g %% (%g %%) interval (target)  = %g < r < %g "%(trueCL,CL,vl,vu)
 </code></pre>
 ///
 
-Running the script on the output file produced for the same datacard (including the `--saveChain` option) will produce the following output
+Alternatively, you can use the script provided `debugChains.py` to produce the posterior distribution and some examples of trace plots of the chains. 
+Running the following command on the output file produced for the same datacard (including the `--saveChain` option) 
 
-	0.950975 % (0.95 %) interval (target)  = 0 < r < 2.2
+```nohighlight 
+debugChains.py higgsCombineTest.MarkovChainMC.mH120.root --burnInFraction 0.2 -p r  --range 0 20 --mode upperlim
+```
+will produce the following output,
 
-along with a plot of the posterior distribution shown below. This is the same as the output from <span style="font-variant:small-caps;">Combine</span>, but the script can also be used to find lower limits (for example) or credible intervals. 
+```nohighlight
+Average chain length: 782.5
+Number of chains: 100
+Burn-in fraction: 0.20 (average burn-in length: 156.5 entries)
+95.0% CL interval: r < 2.173
+```
+
+along with a plot of the plot shown below. This is roughly the same as the output from <span style="font-variant:small-caps;">Combine</span>, but the script can also be used to find lower limits, or credible intervals by setting the option `--mode`. 
 
 ![](images/bayes1D.png)
 
 !!! warning
-    The options for burn-in have no effect on the chains that are saved in the output. In the example above we are ignoring the burn-in. We can add burn-in by ignoring the first (e.g. 200) steps by changing `burnIn = -1` to `burnIn = 200` for a burn-in of 200.
+    The options below for burn-in have no effect on the chains that are saved in the output. In the example above, we have an added burn-in through ignoring the first 20% of the steps by including the option `--burnInFraction=0.2` as an argument to `debugChains.py`.
 
 An example to make contours when ordering by probability density can be found in [bayesContours.cxx](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/multiDim/bayesContours.cxx). Note that the implementation is simplistic, with no clever handling of bin sizes nor smoothing of statistical fluctuations.
 
