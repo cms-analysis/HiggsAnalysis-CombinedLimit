@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import matplotlib.pyplot as plt
-import HiggsAnalysis.CombinedLimit.util.plotting as plot
+#import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import argparse, sys
 import numpy as np
 import ROOT
@@ -185,7 +185,8 @@ ax[1].set_ylabel(args.param)
 ax[1].axvline(args.burnInFraction*average_chain_length, color='red', linestyle='--', label="Burn-in fraction")
 ax[1].set_xlabel("Chain index")
 ax[1].set_title(f"Trace plot of {kept_chain} chains / {j+1} chains")
-ax[1].set_ylim(args.range[0],args.range[1])
+if args.range:
+    ax[1].set_ylim(args.range[0],args.range[1])
 
 if not args.output : args.output = args.param
 plt.savefig(args.output + ".pdf")

@@ -190,9 +190,9 @@ Done in 0.14 min (cpu), 0.15 min (real)
 
 Again, the resulting limit tree will contain the result. You can also save the chains using the option `--saveChain`, which will then also be included in the output file.
 
-Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there is an infinite number of possible regions that contain 68% of the posterior pdf). Below is a snipped that can be used access the chains from the output of `MarkovChainMC`.
+Exclusion regions can be made from the posterior once an ordering principle is defined to decide how to grow the contour (there is an infinite number of possible regions that contain 68% of the posterior pdf). Below is a snippet that can be used access the chains from the output of `MarkovChainMC`.
 
-/// details | **Show example snipper**
+/// details | **Show example snippet**
 <pre class="python"><code>
 import ROOT
 
