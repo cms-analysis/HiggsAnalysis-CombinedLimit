@@ -159,6 +159,7 @@ set(python_scripts
     ${CMAKE_SOURCE_DIR}/scripts/plotLimitGrid.py
     ${CMAKE_SOURCE_DIR}/scripts/plotBSMxsBRLimit.py
     ${CMAKE_SOURCE_DIR}/scripts/plotLimits.py
+    ${CMAKE_SOURCE_DIR}/scripts/debugChains.py
 )
 add_custom_command(
     OUTPUT "${CMAKE_BINARY_DIR}/.stamp_python_scripts"
