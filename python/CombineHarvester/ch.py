@@ -23,6 +23,7 @@ CheckEmptyShapes = cppyy.gbl.ch.CheckEmptyShapes
 CheckNormEff = cppyy.gbl.ch.CheckNormEff
 CheckSizeOfShapeEffect = cppyy.gbl.ch.CheckSizeOfShapeEffect
 CheckSmallSignals = cppyy.gbl.ch.CheckSmallSignals
+CheckBinErrors = cppyy.gbl.ch.CheckBinErrors
 CloneObs = cppyy.gbl.ch.CloneObs
 CloneProcs = cppyy.gbl.ch.CloneProcs
 CloneProcsAndSysts = cppyy.gbl.ch.CloneProcsAndSysts

@@ -18,11 +18,12 @@ void PrintSystematic(ch::Systematic *syst);
 void ValidateShapeUncertaintyDirection(CombineHarvester& cb);
 void CheckEmptyShapes(CombineHarvester& cb);
 void CheckEmptyBins(CombineHarvester& cb);
+void CheckBinErrors(CombineHarvester& cb, double maxRelBinErr);
 void CheckNormEff(CombineHarvester& cb, double maxNormEff);
 void CheckSizeOfShapeEffect(CombineHarvester& cb);
 void CheckSmallSignals(CombineHarvester& cb, double minSigFrac);
 void ValidateShapeTemplates(CombineHarvester& cb);
-void ValidateCards(CombineHarvester& cb, std::string const& filename, double maxNormEff, double minSigFrac);
+void ValidateCards(CombineHarvester& cb, std::string const& filename, double maxNormEff, double minSigFrac, double maxRelBinErr);
 
 }
 
