@@ -1,0 +1,10 @@
+details {
+    display: block;
+    border-left: 0.1em solid #909090;
+    padding-left: 0.5em;
+}
+
+details[open] {
+    padding-bottom: 0.5em;
+}
+
