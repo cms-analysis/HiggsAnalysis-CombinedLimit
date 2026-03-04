@@ -2,7 +2,8 @@
 import matplotlib.pyplot as plt
 
 # import HiggsAnalysis.CombinedLimit.util.plotting as plot
-import argparse, sys
+import argparse
+import sys
 import numpy as np
 import ROOT
 
@@ -72,7 +73,7 @@ modes = ["upperlim", "lowerlim", "interval"]
 args = parser.parse_args()
 
 if args.mode not in modes:
-    print(f"ERROR, for --mode, must pick from", modes)
+    print(f"ERROR: for --mode, must pick from {modes}")
     sys.exit(0)
 
 
@@ -169,15 +170,15 @@ ax[0].set_ylabel("Posterior probability density")
 
 interval = findInterval(param_values, param_weights, args.CL, args.mode)
 print(f"Average chain length: {average_chain_length:.1f}")
-print(f"Number of chains: {j+1}")
-print(f"Burn-in fraction: {args.burnInFraction:.2f} (average burn-in length: {average_chain_length*args.burnInFraction:.1f} entries)")
+print(f"Number of chains: {j + 1}")
+print(f"Burn-in fraction: {args.burnInFraction:.2f} (average burn-in length: {average_chain_length * args.burnInFraction:.1f} entries)")
 
 if args.mode == "interval":
-    label = f"{args.CL*100:.1f}% CL interval: {interval[0]:.3f} < {args.param} < {interval[1]:.3f}"
+    label = f"{args.CL * 100:.1f}% CL interval: {interval[0]:.3f} < {args.param} < {interval[1]:.3f}"
 elif args.mode == "upperlim":
-    label = f"{args.CL*100:.1f}% CL interval: {args.param} < {interval[1]:.3f}"
+    label = f"{args.CL * 100:.1f}% CL interval: {args.param} < {interval[1]:.3f}"
 elif args.mode == "lowerlim":
-    label = f"{args.CL*100:.1f}% CL interval: {args.param} > {interval[0]:.3f}"
+    label = f"{args.CL * 100:.1f}% CL interval: {args.param} > {interval[0]:.3f}"
 
 print(label)
 ax[0].axvline(interval[0], color="red", linestyle="--", label=label)
@@ -192,7 +193,7 @@ for k, gr in enumerate(all_graphs):
 ax[1].set_ylabel(args.param)
 ax[1].axvline(args.burnInFraction * average_chain_length, color="blue", linestyle="--", label="Burn-in fraction")
 ax[1].set_xlabel("Chain index")
-ax[1].set_title(f"Trace plot of {kept_chain} chains / {j+1} chains")
+ax[1].set_title(f"Trace plot of {kept_chain} chains / {j + 1} chains")
 
 # make a sliding  average and 68% interval plot on top of the trace plot
 # this should be across the graphs and take ~5% of the average chain length as the window size
