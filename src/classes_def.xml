@@ -202,6 +202,7 @@
 	<class name="RooDoubleCBFast" />
 	<class name="CombDataSetFactory"  transient="true" />
 	<class name="DebugProposal"  transient="true" />
+	<class name="cmsmath::SequentialMinimizer"  transient="true" />
         <class name="TestProposal"  transient="true" />
   <class name="RooCheapProduct" />
   <class name="CMSHggFormulaA1" />
@@ -220,5 +221,22 @@
   <class name="RooSumTwoExpPdf" />
   <class name="RooPowerLawPdf" />
   <class name="RooSumTwoPowerLawPdf" />
-  <class name="CombineUtils" />
+  <read sourceClass="RooDoubleCBFast" targetClass="RooDoubleCBFast" version="[1]"
+        source="RooRealProxy x; RooRealProxy mean; RooRealProxy width; RooRealProxy alpha1; RooRealProxy n1; RooRealProxy alpha2; RooRealProxy n2"
+		target="">
+        <![CDATA[
+			std::cout << \"Translating RooDoubleCBFast using proper constructor\" << std::endl;
+			std::string newName(newObj->GetName());
+			std::string newTitle(newObj->GetTitle());
+            newObj->~RooDoubleCBFast();
+			new (newObj) RooDoubleCBFast(newName.c_str(), newTitle.c_str(),
+						const_cast<RooAbsReal&>(onfile.x.arg()),
+						const_cast<RooAbsReal&>(onfile.mean.arg()),
+						const_cast<RooAbsReal&>(onfile.width.arg()),
+						const_cast<RooAbsReal&>(onfile.alpha1.arg()),
+						const_cast<RooAbsReal&>(onfile.n1.arg()),
+						const_cast<RooAbsReal&>(onfile.alpha2.arg()),
+						const_cast<RooAbsReal&>(onfile.n2.arg()));
+        ]]>
+  </read>
 </lcgdict>
