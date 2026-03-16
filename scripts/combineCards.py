@@ -392,6 +392,22 @@ for b, p, s in keyline:
 if process_errors:
     raise RuntimeError("ERROR: mismatch between process signal labels:\n%s" % ("\n".join(process_errors)))
 
+# Remove systematics that don't affect any process/channel in the combination
+removed_systs = {
+    name for name, (pdf, pdfargs, effect, nofloat) in systlines.items()
+    if not any(effect.get(b, {}).get(p, "-") != "-" for b, p, s in keyline)
+}
+for name in removed_systs:
+    del systlines[name]
+
+# Remove pruned systematics from groups - leave all other group members untouched
+if removed_systs:
+    groups = {
+        gname: nuisanceNames - removed_systs
+        for gname, nuisanceNames in groups.items()
+        if nuisanceNames - removed_systs
+    }
+
 print("Combination of", "  ".join(args))
 print("imax %d number of bins" % len(bins))
 print("jmax %d number of processes minus 1" % (len(signals) + len(backgrounds) - 1))
