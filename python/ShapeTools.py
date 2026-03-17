@@ -946,6 +946,7 @@ class ShapeBuilder(ModelBuilder):
         if self.options.useHistPdf != "always":
             if nominalPdf.InheritsFrom("TH1"):
                 rebins = ROOT.TList()
+                rebins.SetOwner(True)  # The list takes ownership of the rebinned histograms
                 maxbins = 0
                 for i in range(pdfs.GetSize()):
                     rebinned = self.rebinH1(pdfs.At(i))
