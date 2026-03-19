@@ -1265,6 +1265,7 @@ class ShapeBuilder(ModelBuilder):
                 if self.options.useHistPdf == "never":
                     shape = self.rebinH1(shape)
                     tlist = ROOT.TList()
+                    tlist.SetOwner(True)
                     tlist.Add(shape)
                     if channelBinParFlag:
                         rhp = ROOT.CMSHistFunc(
