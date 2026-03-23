@@ -10,8 +10,10 @@ class TagAndProbe(PhysicsModel):
         self.modelBuilder.doSet("POI", "SF")
         if self.options.mass != 0:
             if self.modelBuilder.out.var("MH"):
-                self.modelBuilder.out.var("MH").removeRange()
-                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                var = self.modelBuilder.out.var("MH")
+                var.removeMin()
+                var.removeMax()
+                var.setVal(self.options.mass)
             else:
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
         exp_pass = 1
