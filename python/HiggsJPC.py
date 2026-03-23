@@ -142,6 +142,7 @@ class TwoHypotesisHiggs(PhysicsModel):
             self.modelBuilder.factory_('expr::not_x("(1-@0)", x)')
             self.sigNorms = {True: "x", False: "not_x"}
         if self.modelBuilder.out.var("MH"):
+            var = self.modelBuilder.out.var("MH")
             if len(self.mHRange):
                 print(
                     "MH will be left floating within",
@@ -149,13 +150,14 @@ class TwoHypotesisHiggs(PhysicsModel):
                     "and",
                     self.mHRange[1],
                 )
-                self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
-                self.modelBuilder.out.var("MH").setConstant(False)
+                var.setRange(float(self.mHRange[0]), float(self.mHRange[1]))
+                var.setConstant(False)
                 poi += ",MH"
             else:
                 print("MH will be assumed to be", self.options.mass)
-                self.modelBuilder.out.var("MH").removeRange()
-                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                var.removeMin()
+                var.removeMax()
+                var.setVal(self.options.mass)
         else:
             if len(self.mHRange):
                 print(

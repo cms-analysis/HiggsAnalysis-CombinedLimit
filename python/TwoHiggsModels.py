@@ -64,6 +64,7 @@ class TwoHiggsBase(PhysicsModel):
         poi = ""
         ## Searched-for higgs
         if self.modelBuilder.out.var("MH"):
+            var = self.modelBuilder.out.var("MH")
             if len(self.mHRange):
                 print(
                     "MH will be left floating within",
@@ -71,14 +72,15 @@ class TwoHiggsBase(PhysicsModel):
                     "and",
                     self.mHRange[1],
                 )
-                self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
-                self.modelBuilder.out.var("MH").setConstant(False)
+                var.setRange(float(self.mHRange[0]), float(self.mHRange[1]))
+                var.setConstant(False)
                 if self.mHAsPOI:
                     poi += ",MH"
             else:
                 print("MH will be assumed to be", self.options.mass)
-                self.modelBuilder.out.var("MH").removeRange()
-                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                var.removeMin()
+                var.removeMax()
+                var.setVal(self.options.mass)
         else:
             if len(self.mHRange):
                 print(
@@ -95,6 +97,7 @@ class TwoHiggsBase(PhysicsModel):
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
         ## Already-found higgs
         if self.modelBuilder.out.var("MH_SM"):
+            var = self.modelBuilder.out.var("MH_SM")
             if len(self.mHSMRange):
                 print(
                     "MH_SM will be left floating within",
@@ -102,14 +105,15 @@ class TwoHiggsBase(PhysicsModel):
                     "and",
                     self.mHSMRange[1],
                 )
-                self.modelBuilder.out.var("MH_SM").setRange(float(self.mHSMRange[0]), float(self.mHSMRange[1]))
-                self.modelBuilder.out.var("MH_SM").setConstant(False)
+                var.setRange(float(self.mHSMRange[0]), float(self.mHSMRange[1]))
+                var.setConstant(False)
                 if self.mHSMAsPOI:
                     poi += ",MH_SM"
             else:
                 print("MH_SM will be assumed to be", self.mHSM)
-                self.modelBuilder.out.var("MH_SM").removeRange()
-                self.modelBuilder.out.var("MH_SM").setVal(self.mHSM)
+                var.removeMin()
+                var.removeMax()
+                var.setVal(self.mHSM)
         else:
             if len(self.mHSMRange):
                 print(

@@ -101,8 +101,10 @@ class PhysicsModel(PhysicsModelBase):
         # --- Higgs Mass as other parameter ----
         if self.options.mass != 0:
             if self.modelBuilder.out.var("MH"):
-                self.modelBuilder.out.var("MH").removeRange()
-                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                var = self.modelBuilder.out.var("MH")
+                var.removeMin()
+                var.removeMax()
+                var.setVal(self.options.mass)
             else:
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
 
@@ -249,8 +251,10 @@ class HiggsMassRangeModel(PhysicsModelBase_NiceSubclasses):
                 poiNames += ["MH"]
             else:
                 print("MH will be assumed to be", self.options.mass)
-                self.modelBuilder.out.var("MH").removeRange()
-                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                var = self.modelBuilder.out.var("MH")
+                var.removeMin()
+                var.removeMax()
+                var.setVal(self.options.mass)
         else:
             if len(self.mHRange):
                 print(
@@ -511,8 +515,10 @@ class FloatingXSHiggs(SMLikeHiggsModel):
                 poi += ",MH"
             else:
                 print("MH will be assumed to be", self.options.mass)
-                self.modelBuilder.out.var("MH").removeRange()
-                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                var = self.modelBuilder.out.var("MH")
+                var.removeMin()
+                var.removeMax()
+                var.setVal(self.options.mass)
         else:
             if len(self.mHRange):
                 print(
@@ -629,8 +635,10 @@ class FloatingBRHiggs(SMLikeHiggsModel):
                 poi += ",MH"
             else:
                 print("MH will be assumed to be", self.options.mass)
-                self.modelBuilder.out.var("MH").removeRange()
-                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                var = self.modelBuilder.out.var("MH")
+                var.removeMin()
+                var.removeMax()
+                var.setVal(self.options.mass)
         else:
             if len(self.mHRange):
                 print(
@@ -786,6 +794,7 @@ class FloatingXSBRHiggs(SMLikeHiggsModel):
         """Create POI and other parameters, and define the POI set."""
         # --- Higgs Mass as other parameter ----
         if self.modelBuilder.out.var("MH"):
+            var = self.modelBuilder.out.var("MH")
             if len(self.mHRange):
                 print(
                     "MH will be left floating within",
@@ -793,13 +802,14 @@ class FloatingXSBRHiggs(SMLikeHiggsModel):
                     "and",
                     self.mHRange[1],
                 )
-                self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
-                self.modelBuilder.out.var("MH").setConstant(False)
+                var.setRange(float(self.mHRange[0]), float(self.mHRange[1]))
+                var.setConstant(False)
                 self.poiNames += ["MH"]
             else:
                 print("MH will be assumed to be", self.options.mass)
-                self.modelBuilder.out.var("MH").removeRange()
-                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                var.removeMin()
+                var.removeMax()
+                var.setVal(self.options.mass)
         else:
             if len(self.mHRange):
                 print(

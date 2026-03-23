@@ -874,7 +874,8 @@ void utils::setModelParameterRanges( const std::string & setPhysicsModelParamete
       if (tmpParameter) {
         cout << "Leave Parameter " << SetParameterRangeExpression[0] 
              << " freely floating, with no range\n";
-        tmpParameter->removeRange();
+        tmpParameter->removeMin();
+        tmpParameter->removeMax();
       } else {
         std::cout << "Warning: Did not find a parameter with name " << SetParameterRangeExpression[0] << endl;
       }
@@ -930,11 +931,10 @@ void utils::check_inf_parameters(const RooArgSet & params, int verbosity) {
                 std::cout << "Found a parameter named "<< p->GetName()
                           << " infinite in ROOT versions < 6.30, going to update the ranges to take into account the new definition of infinity in ROOT v6.30" << endl;
             }
-            if (p->getRange().first <= -infinity_root626 && p->getRange().second >= +infinity_root626) {
-              p->removeRange();
-            } else if (p->getRange().second >= +infinity_root626) {
+            if (p->getRange().second >= +infinity_root626) {
               p->removeMax();
-            } else {
+            }
+            if (p->getRange().first <= -infinity_root626) {
               p->removeMin();
             }
         }
