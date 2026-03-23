@@ -481,7 +481,8 @@ class ShapeBuilder(ModelBuilder):
                         self.out.var("CMS_fakeObs").setBins(1)
                         self.doSet("CMS_fakeObsSet", "CMS_fakeObs")
                         self.doVar("CMS_fakeWeight[0,1]")
-                        self.out.var("CMS_fakeWeight").removeRange()
+                        self.out.var("CMS_fakeWeight").removeMin()
+                        self.out.var("CMS_fakeWeight").removeMax()
                         shapeObs["CMS_fakeObsSet"] = self.out.set("CMS_fakeObsSet")
                     if p == self.options.dataname:
                         self.pdfModes[b] = "binned"

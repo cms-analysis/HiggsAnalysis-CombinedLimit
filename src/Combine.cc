@@ -507,7 +507,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (w->var("MH")) mass_ = w->var("MH")->getVal();
     }
     // look for parameters ranged [-1e+30, 1e+30], corresponding to the old definition of unlimited parameters, 
-    // since ROOT v6.30 have to removeRange() to keep them unlimited
+    // since ROOT v6.30 have to removeMin() and removeMax() to keep them unlimited
     utils::check_inf_parameters(w->allVars(), verbose);
 
   } else {

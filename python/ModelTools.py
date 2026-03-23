@@ -261,7 +261,8 @@ class ModelBuilder(ModelBuilderBase):
 
                 self.doVar(f"{rp}[{float(param_val)},{param_range}]")
                 if removeRange:
-                    self.out.var(rp).removeRange()
+                    self.out.var(rp).removeMin()
+                    self.out.var(rp).removeMax()
                 self.out.var(rp).setConstant(False)
                 if setConst:
                     self.out.var(rp).setConstant(True)
@@ -334,7 +335,8 @@ class ModelBuilder(ModelBuilderBase):
 
                 self.doVar(f"{argu}[{argv},{param_range}]")
                 if removeRange:
-                    self.out.var(argu).removeRange()
+                    self.out.var(argu).removeMin()
+                    self.out.var(argu).removeMax()
                 self.out.var(argu).setConstant(False)
                 self.out.var(argu).setAttribute("flatParam")
 

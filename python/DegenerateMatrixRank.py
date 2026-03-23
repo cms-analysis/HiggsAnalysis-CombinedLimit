@@ -54,6 +54,7 @@ class AllMuiLambdaHiggs(SMLikeHiggsModel):
             self.modelBuilder.factory_(f'expr::lambdatmu_{decay}("@0*@1",lambdat,mu_{decay})')
         self.modelBuilder.doSet("POI", ",".join(poi))
         if self.modelBuilder.out.var("MH"):
+            var = self.modelBuilder.out.var("MH")
             if len(self.mHRange):
                 print(
                     "MH will be left floating within",
@@ -61,15 +62,16 @@ class AllMuiLambdaHiggs(SMLikeHiggsModel):
                     "and",
                     self.mHRange[1],
                 )
-                self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
-                self.modelBuilder.out.var("MH").setConstant(False)
+                var.setRange(float(self.mHRange[0]), float(self.mHRange[1]))
+                var.setConstant(False)
                 poi.append("MH")
                 self.modelBuilder.doSet("POI", ",".join(poi))
                 # self.modelBuilder.doSet('POI','poi,MH')
             else:
                 print("MH will be assumed to be", self.options.mass)
-                self.modelBuilder.out.var("MH").removeRange()
-                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                var.removeMin()
+                var.removeMax()
+                var.setVal(self.options.mass)
         else:
             if len(self.mHRange):
                 print(
@@ -160,6 +162,7 @@ class AllMuiLambdasHiggs(SMLikeHiggsModel):
             self.modelBuilder.factory_(f'expr::lambdat_{decay}mu_{decay}("@0*@1",lambdat_{decay},mu_{decay})')
         self.modelBuilder.doSet("POI", ",".join(poi))
         if self.modelBuilder.out.var("MH"):
+            var = self.modelBuilder.out.var("MH")
             if len(self.mHRange):
                 print(
                     "MH will be left floating within",
@@ -167,15 +170,16 @@ class AllMuiLambdasHiggs(SMLikeHiggsModel):
                     "and",
                     self.mHRange[1],
                 )
-                self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]), float(self.mHRange[1]))
-                self.modelBuilder.out.var("MH").setConstant(False)
+                var.setRange(float(self.mHRange[0]), float(self.mHRange[1]))
+                var.setConstant(False)
                 poi.append("MH")
                 self.modelBuilder.doSet("POI", ",".join(poi))
                 # self.modelBuilder.doSet('POI','poi,MH')
             else:
                 print("MH will be assumed to be", self.options.mass)
-                self.modelBuilder.out.var("MH").removeRange()
-                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                var.removeMin()
+                var.removeMax()
+                var.setVal(self.options.mass)
         else:
             if len(self.mHRange):
                 print(

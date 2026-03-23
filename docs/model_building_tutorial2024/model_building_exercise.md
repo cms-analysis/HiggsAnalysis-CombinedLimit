@@ -350,7 +350,8 @@ class PhysicsModel(PhysicsModelBase):
         # --- Higgs Mass as other parameter ----
         if self.options.mass != 0:
             if self.modelBuilder.out.var("MH"):
-                self.modelBuilder.out.var("MH").removeRange()
+                self.modelBuilder.out.var("MH").removeMin()
+                self.modelBuilder.out.var("MH").removeMax()
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
             else:
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
