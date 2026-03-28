@@ -197,7 +197,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
     std::unique_ptr<RooFitResult> res;
     if (verbose <= 3) RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
-    bool doHesse = (algo_ == Singles || algo_ == Impact) || (saveFitResult_) ;
+    bool doHesse = (algo_ == Singles || algo_ == Impact) || (saveFitResult_);
     if ( !skipInitialFit_){
         std::cout << "Doing initial fit: " << std::endl;
         res.reset(doFit(pdf, data, (doHesse ? poiList_ : RooArgList()), constrainCmdArg, (saveFitResult_ && !robustHesse_), 1, true, false));
