@@ -92,8 +92,8 @@ parser.add_option(
     "--keyword-value",
     default=[],
     nargs=1,
-    type='string',
-    action='append',
+    type="string",
+    action="append",
     dest="modelparams",
     help="Expand keyword using string provided - eg MASS=120.0. Repeat for multiple keywords",
 )
@@ -141,13 +141,15 @@ def replace_keywords_single(shapeline):
         shapeline = shapeline.replace(f"${mpname}", mpv)
     return shapeline
 
+
 def replace_keywords(list_shapelines):
     if not options.modelparams:
         return list_shapelines
     return_list = []
-    for sp in list_shapelines: 
+    for sp in list_shapelines:
         return_list.append(replace_keywords_single(sp))
     return return_list
+
 
 def compareParamSystLines(a, b):
     if float(a[0]) != float(b[0]):
