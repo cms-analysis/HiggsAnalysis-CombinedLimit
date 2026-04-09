@@ -132,14 +132,18 @@ constraint_terms = []
 
 
 def replace_keywords_single(shapeline):
-    if not ("$" in shapeline): return shapeline
+    if "$" not in shapeline:
+        return shapeline
     for mp in options.modelparams:
-        mpname,mpv = mp.split("=")
-        shapeline = shapeline.replace("$%s" % mpname, mpv) 
+        if "=" not in mp:
+            raise RuntimeError(f"Malformed --keyword-value '{mp}'. Expected KEY=VALUE.")
+        mpname, mpv = mp.split("=", 1)
+        shapeline = shapeline.replace(f"${mpname}", mpv)
     return shapeline
 
 def replace_keywords(list_shapelines):
-    if not (len(options.modelparams)): return list_shapelines
+    if not options.modelparams:
+        return list_shapelines
     return_list = []
     for sp in list_shapelines: 
         return_list.append(replace_keywords_single(sp))
