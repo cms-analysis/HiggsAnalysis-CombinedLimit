@@ -88,6 +88,15 @@ parser.add_option(
     action="store_true",
     help="Drop regularization terms that would not be correctly combined.",
 )
+parser.add_option(
+    "--keyword-value",
+    default=[],
+    nargs=1,
+    type="string",
+    action="append",
+    dest="modelparams",
+    help="Expand keyword using string provided - eg MASS=120.0. Repeat for multiple keywords",
+)
 
 options, args = parser.parse_args()
 options.bin = True  # fake that is a binary output, so that we parse shape lines
@@ -120,6 +129,26 @@ binParFlags = {}
 bpf_new2old = {}
 nuisanceEdits = []
 constraint_terms = []
+
+
+def replace_keywords_single(shapeline):
+    if "$" not in shapeline:
+        return shapeline
+    for mp in options.modelparams:
+        if "=" not in mp:
+            raise RuntimeError(f"Malformed --keyword-value '{mp}'. Expected KEY=VALUE.")
+        mpname, mpv = mp.split("=", 1)
+        shapeline = shapeline.replace(f"${mpname}", mpv)
+    return shapeline
+
+
+def replace_keywords(list_shapelines):
+    if not options.modelparams:
+        return list_shapelines
+    return_list = []
+    for sp in list_shapelines:
+        return_list.append(replace_keywords_single(sp))
+    return return_list
 
 
 def compareParamSystLines(a, b):
@@ -412,6 +441,7 @@ if shapeLines:
     cfmt = "%-" + str(chmax) + "s "
     shapeLines.sort(key=lambda x: (x[1], x[0]))
     for process, channel, stuff in shapeLines:
+        stuff = replace_keywords(stuff)
         print("shapes", cfmt % process, cfmt % channel, " ".join(stuff))
     print("-" * 130)
 
