@@ -37,7 +37,7 @@ releases on github under
 The nominal installation method is inside CMSSW. The current release targets
 the CMSSW `14_1_X` series because of the recent switch to el9 at lxplus machines.
 
-Currently, the recommended tag is **v10.6.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.5.1)
+Currently, the recommended tag is **v10.6.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.6.0)
 The `git clone` command below contains this tag and is optimised to reduce disk usage.
 
 ```sh
