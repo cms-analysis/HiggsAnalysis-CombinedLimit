@@ -322,7 +322,7 @@ COMBINE_ADD_TEST(LHC-Higgs-coupling-models-text2workspace
     CHECKOUT OUTPUT LHC-Higgs-coupling-models-text2workspace.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/LHC-Higgs-coupling-models-text2workspace.out
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
-    "text2workspace.py toy-hgg-125.txt -P HiggsAnalysis.CombinedLimit.LHCHCGModels:K3 -m 125 > references/LHC-Higgs-coupling-models-text2workspace.out"
+    "text2workspace.py  ${REPO}/data/tutorials/multiDim/toy-hgg-125.txt -P HiggsAnalysis.CombinedLimit.LHCHCGModels:K3 -m 125 > references/LHC-Higgs-coupling-models-text2workspace.out"
 )
 
 COMBINE_ADD_TEST(hzz4l-significance
@@ -330,7 +330,7 @@ COMBINE_ADD_TEST(hzz4l-significance
     CHECKOUT OUTPUT hzz4l-significance.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/hzz4l-significance.out
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
-    "combine -M Significance hzz4l_datacard.txt > references/hzz4l-significance.out"
+    "combine -M Significance ${REPO}/test/inputs/hzz4l_datacard.txt > references/hzz4l-significance.out"
 )
 
 COMBINE_ADD_TEST(LHC-limits
@@ -338,7 +338,7 @@ COMBINE_ADD_TEST(LHC-limits
     CHECKOUT OUTPUT LHC-limits.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/LHC-limits.out
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
-    "combine datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01 > references/LHC-limits.out"
+    "combine ${REPO}/data/tutorials/CAT23001/datacard-2-template-analysis.txt -M HybridNew --LHCmode LHC-limits --rMax 2.0 --clsAcc 0.01 > references/LHC-limits.out"
 )
 
 COMBINE_ADD_TEST(LHC-significance
@@ -346,7 +346,7 @@ COMBINE_ADD_TEST(LHC-significance
     CHECKOUT OUTPUT LHC-significance.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/LHC-significance.out
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
-    "combine datacard-3-parametric-analysis.txt -M HybridNew --LHCmode LHC-significance -T 5000 --mass 125 > references/LHC-significance.out"
+    "combine ${REPO}/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M HybridNew --LHCmode LHC-significance -T 5000 --mass 125 > references/LHC-significance.out"
 )
 
 COMBINE_ADD_TEST(parametric-analysis-significance
@@ -354,7 +354,7 @@ COMBINE_ADD_TEST(parametric-analysis-significance
     CHECKOUT OUTPUT parametric-analysis-significance.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/parametric-analysis-significance.out
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
-    "combine datacard-3-parametric-analysis.txt -M Significance --mass 125 > references/parametric-analysis-significance.out"
+    "combine ${REPO}/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -M Significance --mass 125 > references/parametric-analysis-significance.out"
 )
 
 COMBINE_ADD_TEST(MarkovChainMC
@@ -362,7 +362,7 @@ COMBINE_ADD_TEST(MarkovChainMC
     CHECKOUT OUTPUT MarkovChainMC.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/MarkovChainMC.out
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
-    "combine datacard-1-counting-experiment.txt -M MarkovChainMC --tries 100 > references/MarkovChainMC.out"
+    "combine ${REPO}/data/tutorials/CAT23001/datacard-1-counting-experiment.txt -M MarkovChainMC --tries 100 > references/MarkovChainMC.out"
 )
 
 COMBINE_ADD_TEST(multi-signal-text2workspace
@@ -371,7 +371,7 @@ COMBINE_ADD_TEST(multi-signal-text2workspace
     FIXTURES_SETUP multi-signal-text2workspace
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
-    "text2workspace.py datacard-5-multi-signal.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o datacard-5-multi-signal.root --mass 125 > references/multi-signal-text2workspace.out"
+    "text2workspace.py ${REPO}/data/tutorials/CAT23001/datacard-5-multi-signal.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o datacard-5-multi-signal.root --mass 125 > references/multi-signal-text2workspace.out"
 )
 
 COMBINE_ADD_TEST(multi-signal
@@ -389,7 +389,7 @@ COMBINE_ADD_TEST(multi-signal-ChannelCompatibilityCheck
     FIXTURES_REQUIRED multi-signal
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
-    "combine datacard-5-multi-signal.txt -M ChannelCompatibilityCheck --mass 125 > references/multi-signal-ChannelCompatibilityCheck.out"
+    "combine ${REPO}/data/tutorials/CAT23001/datacard-5-multi-signal.txt -M ChannelCompatibilityCheck --mass 125 > references/multi-signal-ChannelCompatibilityCheck.out"
 )
 
 
