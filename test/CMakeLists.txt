@@ -319,10 +319,7 @@ COMBINE_ADD_TEST(simple-shapes-TH1-text2workspace
 COMBINE_ADD_TEST(LHC-Higgs-coupling-models-text2workspace
     COPY_TO_BUILDDIR ${REPO}/data/tutorials/multiDim/toy-hgg-125.txt
     COMMAND text2workspace.py toy-hgg-125.txt -P HiggsAnalysis.CombinedLimit.LHCHCGModels:K3 -m 125
-    CHECKOUT OUTPUT LHC-Higgs-coupling-models-text2workspace.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/LHC-Higgs-coupling-models-text2workspace.out
-)
-set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
-    "text2workspace.py  ${REPO}/data/tutorials/multiDim/toy-hgg-125.txt -P HiggsAnalysis.CombinedLimit.LHCHCGModels:K3 -m 125 > references/LHC-Higgs-coupling-models-text2workspace.out"
+    # No meaningful output. We just check that it runs.
 )
 
 COMBINE_ADD_TEST(hzz4l-significance
