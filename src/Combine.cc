@@ -634,7 +634,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (floatNuisances_=="all") {
           toFloat.add(*nuisances);
       } else {
-          std::vector<std::string> nuisToFloat = Utils::split(floatNuisances_, "n");
+          std::vector<std::string> nuisToFloat = Utils::split(floatNuisances_, ",");
           for (int k=0; k<(int)nuisToFloat.size(); k++) {
               if (nuisToFloat[k]=="") continue;
               else if(nuisToFloat[k]=="all") {
