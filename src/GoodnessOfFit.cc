@@ -283,6 +283,7 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
     for (int i = 0; i < datasetsList->GetSize(); ++i) {
        datasets.emplace_back(dynamic_cast<RooAbsData*>(datasetsList->At(i)));
     }
+    datasetsList.reset();
 #endif
 
     // Number of categories should always equal the number of datasets
@@ -293,7 +294,7 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
 
     for (unsigned i = 0; i < binNames_.size(); i++) {
       RooAbsData *cat_data = datasets[i].get();
-      RooAbsPdf *cat_pdf = sim->getPdf(binNames_[i].c_str());
+      RooAbsPdf *cat_pdf = sim->getPdf(cat_data->GetName());
       std::unique_ptr<RooArgSet> observables(cat_pdf->getObservables(cat_data));
       if (observables->getSize() > 1) {
         std::cout << "Warning, KS and AD statistics are not well defined for "
@@ -402,9 +403,10 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
             }
         }else{
             bin_prob = current_cdf_val-last_cdf_val;
-            distance = s_data*pow((empirical_df-current_cdf_val), 2)/current_cdf_val/(1.-current_cdf_val)*bin_prob;
-            if (current_cdf_val >= 1.0) {
+            if (current_cdf_val >= 1.0 || current_cdf_val <= 0.0) {
               distance = 0.;
+            }else{
+              distance = s_data*pow((empirical_df-current_cdf_val), 2)/current_cdf_val/(1.-current_cdf_val)*bin_prob;
             }
             if (verbose >= 3) {
               std::cout << "Observable: " << observableval << "\tdata: " << d->second << "\tedf: " << empirical_df << "\tcdf: " << current_cdf_val << "\tdistance: " << distance << "\n";
