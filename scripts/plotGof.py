@@ -42,6 +42,7 @@ def DrawAxisHists(pads, axis_hists, def_pad=None):
     if def_pad is not None:
         def_pad.cd()
 
+
 def DrawWarning(arrowrange, underflow, overflow):
     warningtext1 = ROOT.TPaveText(0.48, 0.73, 0.60, 0.77, "NDC")
     warningtext1.SetBorderSize(0)
@@ -226,7 +227,8 @@ if args.statistic in ["AD", "KS"]:
 
         arrow_not_in_range = (obs.GetX()[0] > toy_hist.GetBinLowEdge(args.bins + 1)) or (obs.GetX()[0] < toy_hist.GetBinLowEdge(0))
         warningtext = DrawWarning(arrow_not_in_range, underflow_count, overflow_count)
-        if warningtext: warningtext.Draw()
+        if warningtext:
+            warningtext.Draw()
 
         canv.Print(key + args.output + ".pdf")
         canv.Print(key + args.output + ".png")
@@ -314,7 +316,8 @@ else:
 
     arrow_not_in_range = (obs.GetX()[0] > toy_hist.GetBinLowEdge(args.bins + 1)) or (obs.GetX()[0] < toy_hist.GetBinLowEdge(0))
     warningtext = DrawWarning(arrow_not_in_range, underflow_count, overflow_count)
-    if warningtext: warningtext.Draw()
+    if warningtext:
+        warningtext.Draw()
 
     canv.Print(".pdf")
     canv.Print(".png")
