@@ -405,8 +405,9 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
             bin_prob = current_cdf_val-last_cdf_val;
             if (current_cdf_val >= 1.0 || current_cdf_val <= 0.0) {
               distance = 0.;
-            }else{
-              distance = s_data*pow((empirical_df-current_cdf_val), 2)/current_cdf_val/(1.-current_cdf_val)*bin_prob;
+            } else {
+              distance = s_data * pow((empirical_df - current_cdf_val), 2) / current_cdf_val / (1. - current_cdf_val) *
+                         bin_prob;
             }
             if (verbose >= 3) {
               std::cout << "Observable: " << observableval << "\tdata: " << d->second << "\tedf: " << empirical_df << "\tcdf: " << current_cdf_val << "\tdistance: " << distance << "\n";
