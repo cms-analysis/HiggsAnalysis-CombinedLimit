@@ -43,7 +43,7 @@ def DrawAxisHists(pads, axis_hists, def_pad=None):
         def_pad.cd()
 
 
-def DrawText(stat, ntoys, pval, arrowrange, underflow, overflow):
+def DrawText(stat, ntoys, pval, arrowrange, underflow, overflow, obs):
     output = []
 
     textlabel = ROOT.TPaveText(0.78, 0.88, 0.90, 0.92, "NDC")
@@ -90,7 +90,7 @@ def DrawText(stat, ntoys, pval, arrowrange, underflow, overflow):
         warningtext2.SetTextSize(0.04)
         warningtext2.SetTextColor(2)
         warningtext2.SetTextFont(62)
-        warningtext2.AddText(f"observed value not in range, at {obs.GetX()[0]:.2f}")
+        warningtext2.AddText(f"observed value not in range, at {obs:.2f}")
         output.append(warningtext2)
     else:
         if (underflow != 0) or (overflow != 0):
@@ -101,7 +101,7 @@ def DrawText(stat, ntoys, pval, arrowrange, underflow, overflow):
                 warningstrings.append("%d overflow" % overflow)
             warningtext1.AddText(", ".join(warningstrings))
         elif arrowrange:
-            warningtext1.AddText(f"observed value not in range, at {obs.GetX()[0]:.2f}")
+            warningtext1.AddText(f"observed value not in range, at {obs:.2f}")
         output.append(warningtext1)
     return output
 
@@ -227,8 +227,8 @@ if args.statistic in ["AD", "KS"]:
         plot.DrawTitle(pads[0], args.title_right, 3)
         plot.DrawTitle(pads[0], title, 1)
 
-        arrow_not_in_range = (obs.GetX()[0] > toy_hist.GetBinLowEdge(args.bins + 1)) or (obs.GetX()[0] < toy_hist.GetBinLowEdge(0))
-        texts = DrawText(args.statistic, toy_graph.GetN(), pValue, arrow_not_in_range, underflow_count, overflow_count)
+        arrow_not_in_range = (obs.GetX()[0] > toy_hist.GetBinLowEdge(args.bins + 1)) or (obs.GetX()[0] < toy_hist.GetBinLowEdge(1))
+        texts = DrawText(args.statistic, toy_graph.GetN(), pValue, arrow_not_in_range, underflow_count, overflow_count, obs.GetX()[0])
         for text in texts:
             text.Draw()
 
@@ -296,8 +296,8 @@ else:
     plot.DrawTitle(pads[0], args.title_right, 3)
     plot.DrawTitle(pads[0], args.title_left, 1)
 
-    arrow_not_in_range = (obs.GetX()[0] > toy_hist.GetBinLowEdge(args.bins + 1)) or (obs.GetX()[0] < toy_hist.GetBinLowEdge(0))
-    texts = DrawText(args.statistic, toy_graph.GetN(), pValue, arrow_not_in_range, underflow_count, overflow_count)
+    arrow_not_in_range = (obs.GetX()[0] > toy_hist.GetBinLowEdge(args.bins + 1)) or (obs.GetX()[0] < toy_hist.GetBinLowEdge(1))
+    texts = DrawText(args.statistic, toy_graph.GetN(), pValue, arrow_not_in_range, underflow_count, overflow_count, obs.GetX()[0])
     for text in texts:
         text.Draw()
 
