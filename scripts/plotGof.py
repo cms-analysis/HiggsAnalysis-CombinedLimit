@@ -205,7 +205,7 @@ if args.statistic in ["AD", "KS"]:
         pads[0].GetFrame().Draw()
         toy_hist.GetYaxis().SetTitle(args.y_title)
         toy_hist.GetXaxis().SetTitle(args.x_title)
-        toy_hist.GetXaxis().SetLabelOffset(toy_hist.GetXaxis().GetLabelOffset()*2)
+        toy_hist.GetXaxis().SetLabelOffset(toy_hist.GetXaxis().GetLabelOffset() * 2)
 
         y_min, y_max = (plot.GetPadYMin(pads[0]), plot.GetPadYMax(pads[0]))
         plot.FixBothRanges(pads[0], 0, 0, y_max, 0.25)
@@ -274,7 +274,7 @@ else:
     pads[0].GetFrame().Draw()
     toy_hist.GetYaxis().SetTitle(args.y_title)
     toy_hist.GetXaxis().SetTitle(args.x_title)
-    toy_hist.GetXaxis().SetLabelOffset(toy_hist.GetXaxis().GetLabelOffset()*2)
+    toy_hist.GetXaxis().SetLabelOffset(toy_hist.GetXaxis().GetLabelOffset() * 2)
 
     y_min, y_max = (plot.GetPadYMin(pads[0]), plot.GetPadYMax(pads[0]))
     plot.FixBothRanges(pads[0], 0, 0, y_max, 0.25)
