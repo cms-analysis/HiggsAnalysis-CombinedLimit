@@ -804,7 +804,13 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (freezeAllGlobalObs_ && mc_bonly && mc_bonly->GetGlobalObservables()) utils::setAllConstant(*mc_bonly->GetGlobalObservables(), true);
 
   // Setup the CascadeMinimizer with discrete nuisances 
-  addDiscreteNuisances(w);
+  bool wsHasDiscretes = addDiscreteNuisances(w);
+
+  // Add a check that we're not trying to use discrete profiling with Bayesian methods 
+  if ((algo->name() == "BayesianSimple" || algo->name() == "MarkovChainMC") && wsHasDiscretes){
+      throw std::invalid_argument("Cannot currently use discrete parameters with Bayesian methods. Either remove discrete parameters or remove runtime def option ADD_DISCRETE_FALLBACK");
+  }
+
   // and give him the regular nuisances too
   addNuisances(nuisances);
   addFloatingParameters(w->allVars());
@@ -1194,17 +1200,20 @@ void Combine::addFloatingParameters(const RooArgSet &parameters){
 	 if (! arg->isConstant()) (CascadeMinimizerGlobalConfigs::O().allFloatingParameters).add(*arg);
         }
 }
-void Combine::addDiscreteNuisances(RooWorkspace *w){
+bool Combine::addDiscreteNuisances(RooWorkspace *w){
 
+    // return value 
+    bool hasDiscrete = false;
     RooArgSet *discreteParameters = (RooArgSet*) w->genobj("discreteParams");
  
     CascadeMinimizerGlobalConfigs::O().pdfCategories = RooArgList();
     CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams = RooArgList();
-
+    // Check for the discrete parameters 
     if (discreteParameters != 0) {
         for (RooAbsArg *arg : *discreteParameters) {
           RooCategory *cat = dynamic_cast<RooCategory*>(arg);
           if (cat && (!cat->isConstant() || runtimedef::get("ADD_DISCRETE_FALLBACK"))) {
+	        hasDiscrete = true;
 	        if (verbose){
               //std::cout << "Adding discrete " << cat->GetName() << "\n";
       	      CombineLogger::instance().log("Combine.cc",__LINE__,std::string(Form("Adding discrete %s ",cat->GetName())),__func__);
@@ -1220,6 +1229,7 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
          RooCategory *cat = dynamic_cast<RooCategory*>(arg);
          if (! (std::string(cat->GetName()).find("pdfindex") != std::string::npos )) continue;
          if (cat/* && !cat->isConstant()*/) {
+	       hasDiscrete = true;
 	       if (verbose){
               //std::cout << "Adding discrete " << cat->GetName() << "\n";
       	      CombineLogger::instance().log("Combine.cc",__LINE__,std::string(Form("Adding discrete %s ",cat->GetName())),__func__);
@@ -1228,6 +1238,7 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
          }
 	}
     }
+    
     // Now lets go through the list of parameters which are associated to this discrete nuisance
     RooArgSet clients;
     utils::getClients(CascadeMinimizerGlobalConfigs::O().pdfCategories,(w->allPdfs()),clients);
@@ -1241,6 +1252,7 @@ void Combine::addDiscreteNuisances(RooWorkspace *w){
 	if (! (v->isConstant())) (CascadeMinimizerGlobalConfigs::O().allRooMultiPdfParams).add(*v) ;
       }
     }
+    return hasDiscrete;
 }
 
 template <class Var>
