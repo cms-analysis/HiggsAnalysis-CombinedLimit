@@ -138,15 +138,15 @@ using namespace RooFit;
      double n1invalpha1 = n1*my_inv(fabs(alpha1));
       if(fabs(n1-1.0)>1.e-5) {
 	double invn1m1 = my_inv(n1-1.);
-	double leftpow = gbrmath::fast_pow(n1invalpha1,-n1*invn1m1);
+	double leftpow = gbrmath::fast_pow(n1invalpha1, n1);
 	double left0 = width*my_exp(-0.5*alpha1*alpha1)*invn1m1;
 	double left1, left2;
 	
 	if (xmax>(mean-alpha1*width)) left1 = n1invalpha1;
-	else left1 = gbrmath::fast_pow( leftpow*(n1invalpha1 - alpha1 - thigh), 1.-n1);
+	else left1 = leftpow * gbrmath::fast_pow(n1invalpha1 - alpha1 - thigh, 1. - n1);
 	
 	if (tmin<-1000.) left2 = 0.;
-	else left2 = gbrmath::fast_pow( leftpow*(n1invalpha1 - alpha1 - tmin ), 1.-n1);
+	else left2 = leftpow * gbrmath::fast_pow(n1invalpha1 - alpha1 - tmin, 1. - n1);
 	
 	left = left0*(left1-left2);
 	
@@ -175,15 +175,15 @@ using namespace RooFit;
       double n2invalpha2 = n2*my_inv(fabs(alpha2)); 
       if(fabs(n2-1.0)>1.e-5) {
 	double invn2m2 = my_inv(n2-1.);
-	double rightpow = gbrmath::fast_pow(n2invalpha2,-n2*invn2m2);
+	double rightpow = gbrmath::fast_pow(n2invalpha2, n2);
 	double right0 = width*my_exp(-0.5*alpha2*alpha2)*invn2m2;
 	double right1, right2;
 	
 	if (xmin<(mean+alpha2*width)) right1 = n2invalpha2;
-	else right1 = gbrmath::fast_pow( rightpow*(n2invalpha2 - alpha2 + tlow), 1.-n2);
+	else right1 = rightpow * gbrmath::fast_pow(n2invalpha2 - alpha2 + tlow, 1. - n2);
 	
 	if (tmax>1000.) right2 = 0.;
-	else right2 = gbrmath::fast_pow( rightpow*(n2invalpha2 - alpha2 + tmax), 1.-n2);
+	else right2 = rightpow * gbrmath::fast_pow(n2invalpha2 - alpha2 + tmax, 1. - n2);
 	
 	right = right0*(right1-right2);	
 	
