@@ -3,25 +3,25 @@ import sys
 
 import xlrd
 
-stdHeading = ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_alpha_s", "Pdf", "alpha_s")
+stdHeading = ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_alpha_s", "Total_pos", "Total_neg")
 xsecGroups = {
-    "ggH": {"col": "A", "heading": stdHeading},
-    "VBF": {"col": "I", "heading": stdHeading},
-    "WH": {"col": "Q", "heading": stdHeading + ("XS_WplusH_pb", "XS_WminusH_pb")},
-    "ZH": {"col": "AA", "heading": stdHeading + ("XS_ggZH_pb",)},
-    "ttH": {"col": "AJ", "heading": stdHeading},
+    "ggH": {"col": "A", "heading": ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_minus_TH","Gauss","Pdf_alpha_s", "Total_pos", "Total_neg")},
+    "VBF": {"col": "L", "heading": stdHeading},
+    "WH": {"col": "T", "heading": stdHeading + ("XS_WplusH_pb", "XS_WminusH_pb")},
+    "ZH": {"col": "AD", "heading": stdHeading + ("XS_ggZH_pb",)},
+    "ttH": {"col": "AM", "heading": stdHeading},
     "bbH": {
-        "col": "AR",
-        "heading": ("mH_GeV", "XS_pb", "Sca_Pdf_mb_mub_Hi", "Sca_Pdf_mb_mub_Lo"),
+        "col": "AU",
+        "heading": ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_as_mb", "Total_pos", "Total_neg"),
     },
-    "tH_tchan": {"col": "AZ", "heading": stdHeading + ("XS_tH_pb", "XS_tbarH_pb")},
-    "tH_schan": {"col": "BJ", "heading": stdHeading + ("XS_tH_pb", "XS_tbarH_pb")},
+    "tH_tchan": {"col": "BC", "heading": stdHeading + ("XS_tH_pb", "XS_tbarH_pb")},
+    "tH_schan": {"col": "BM", "heading": stdHeading + ("XS_tH_pb", "XS_tbarH_pb")},
     # 'total':  {'col':'BT', 'heading':('XS_pb',)},
-    "WminusH_lv": {"col": "BX", "heading": stdHeading + ("XS_gamma_pb",)},
-    "WplusH_lv": {"col": "CG", "heading": stdHeading + ("XS_gamma_pb",)},
-    "ZH_ll": {"col": "CP", "heading": stdHeading + ("XS_ggZH_pb", "XS_gamma_pb")},
-    "ZH_vv": {"col": "CZ", "heading": stdHeading + ("XS_ggZH_pb", "XS_gamma_pb")},
-    "VBF_qqH_schan": {"col": "DJ", "heading": ("mH_GeV", "XS_pb")},
+    #"WminusH_lv": {"col": "BX", "heading": stdHeading + ("XS_gamma_pb",)},
+    #"WplusH_lv": {"col": "CG", "heading": stdHeading + ("XS_gamma_pb",)},
+    #"ZH_ll": {"col": "CP", "heading": stdHeading + ("XS_ggZH_pb", "XS_gamma_pb")},
+    #"ZH_vv": {"col": "CZ", "heading": stdHeading + ("XS_ggZH_pb", "XS_gamma_pb")},
+    #"VBF_qqH_schan": {"col": "DJ", "heading": ("mH_GeV", "XS_pb")},
 }
 
 reducedHeading = ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_alpha_s")
@@ -39,39 +39,43 @@ xsecGroupsBSM = {
 }
 
 specs = {
-    "YR4 SM 7TeV": {
+    "7 TeV": {
         "rows": (6, 43),
         "groups": xsecGroups,
     },
-    "YR4 SM 8TeV": {
+    "8 TeV": {
         "rows": (6, 43),
         "groups": xsecGroups,
     },
-    "YR4 SM 13TeV": {
+    "13 TeV": {
         "rows": (6, 43),
         "groups": xsecGroups,
     },
-    "YR4 SM 14TeV": {
+    "13.6 TeV": {
         "rows": (6, 43),
         "groups": xsecGroups,
     },
-    "YR4 BSM 7TeV": {
+    "14 TeV": {
+        "rows": (6, 43),
+        "groups": xsecGroups,
+    },
+    "BSM 7TeV": {
         "rows": (6, 119),
         "groups": xsecGroupsBSM,
     },
-    "YR4 BSM 8TeV": {
+    "BSM 8TeV": {
         "rows": (6, 119),
         "groups": xsecGroupsBSM,
     },
-    "YR4 BSM 13TeV": {
+    "BSM 13TeV": {
         "rows": (6, 119),
         "groups": xsecGroupsBSM,
     },
-    "YR4 BSM 14TeV": {
+    "BSM 14TeV": {
         "rows": (6, 119),
         "groups": xsecGroupsBSM,
     },
-    "YR4 SM BR": {
+    "SM BR": {
         "rows": (7, 44),
         "groups": {
             "BR1": {
@@ -185,10 +189,17 @@ morespecs = {
 
 
 # import prettytable
-def print_table(table):
+def print_table(table, save_file=None):
     col_width = [max(len(x) for x in col) for col in zip(*table)]
     for line in table:
         print("  ".join("{:{}}".format(x, col_width[i]) for i, x in enumerate(line)))
+
+    # if given option, save_file, then also save to the file given too 
+    if save_file is not None:
+        with open(save_file, "w") as f:
+            for line in table:
+                f.write("  ".join("{:{}}".format(x, col_width[i]) for i, x in enumerate(line)) + "\n")
+        print(f"Saved table to {save_file}")
 
 
 # Based on http://stackoverflow.com/a/12640614/665025
@@ -202,10 +213,19 @@ def col2num(col_str):
     return col_num
 
 
-# import urllib2
-# response = urllib2.urlopen('https://twiki.cern.ch/twiki/pub/LHCPhysics/CERNYellowReportPageAt8TeV/Higgs_XSBR_YR3.xlsx')
-# f = xlrd.open_workbook(file_contents=response.read())
-
+def find_filename(sheet_name, group_name):
+    # given the sheet name and group name, find which of the dictionary keys match 
+    # and return the filename in the format sm/xs/{sheet_name}/{group_name}.txt
+    for key in specs.keys():
+        if key in sheet_name:
+            for group_key in specs[key]["groups"].keys():
+                if group_key in group_name:
+                    if "BR" in group_key:
+                        filename = f"sm/br/{group_name}.txt"
+                    else:
+                        xsfoldername = sheet_name.replace(" ", "")
+                        filename = f"sm/xs/{xsfoldername}/{xsfoldername}-{group_name}.txt"
+    return filename
 
 def formatval(v):
     try:
@@ -213,6 +233,8 @@ def formatval(v):
         v = float(v.encode("ascii", "ignore"))
     except AttributeError:
         pass
+    # want to have at most 4 decimal digits.
+    v = round(v, 4)
     return "{:+}".format(v)
 
 
@@ -244,8 +266,8 @@ def main(o):
                     print("Could not parse the followig tuple: ")
                     print(vals)
                     raise
-
-            print_table(table)
+            file_name=find_filename(s.name,group)
+            print_table(table, save_file=file_name)
 
 
 if __name__ == "__main__":
@@ -260,6 +282,12 @@ if __name__ == "__main__":
         default="INFO",
         metavar="LEVEL",
         help="Set the minimum logging level.",
+    )
+    parser.add_option(
+        "-s",
+        "--savefiles",
+        action="store_true",
+        help="Whether to save the tables to files in the sm directory.",
     )
 
     o, args = parser.parse_args()
