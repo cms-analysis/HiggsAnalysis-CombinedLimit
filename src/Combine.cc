@@ -442,6 +442,24 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
       if (optSimPdf_) {
           RooSimultaneousOpt *optpdf = new RooSimultaneousOpt(*pdf, TString(mc->GetPdf()->GetName())+"_opt");
+          if (isJSON && mc->GetObservables()) {
+            RooArgList extraConstrs;
+            for (RooAbsArg *arg : w->allPdfs()) {
+              auto *cpdf = dynamic_cast<RooAbsPdf *>(arg);
+
+              // skip if cpdf is not a pdf
+              if (!cpdf || cpdf == optpdf || dynamic_cast<RooProdPdf *>(cpdf)) continue;
+
+              // skip if cpdf depends on a observable
+              if (cpdf->dependsOn(*mc->GetObservables())) continue;
+
+              extraConstrs.add(*cpdf);
+            }
+            if (extraConstrs.getSize() > 0) {
+              if (verbose > 1) std::cout << "Attaching " << extraConstrs.getSize() << " constraint PDFs from JSON import." << std::endl;
+              optpdf->addExtraConstraints(extraConstrs);
+            }
+          }
           w->import(*optpdf);
           mc->SetPdf(*optpdf);
       }
