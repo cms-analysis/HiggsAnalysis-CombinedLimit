@@ -6,7 +6,7 @@ import xlrd
 stdHeading = ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_alpha_s", "Total_pos", "Total_neg")
 xsecGroups = {
     "ggH": {"col": "A", "heading": ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_minus_TH","Gauss","Pdf_alpha_s", "Total_pos", "Total_neg")},
-    "VBF": {"col": "L", "heading": stdHeading},
+    "vbfH": {"col": "L", "heading": stdHeading},
     "WH": {"col": "T", "heading": stdHeading + ("XS_WplusH_pb", "XS_WminusH_pb")},
     "ZH": {"col": "AD", "heading": stdHeading + ("XS_ggZH_pb",)},
     "ttH": {"col": "AM", "heading": stdHeading},
@@ -28,7 +28,7 @@ xsecGroups = {
 reducedHeading = ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_alpha_s")
 xsecGroupsBSM = {
     "ggH": {"col": "A", "heading": stdHeading + ("1_plus_dEW",)},
-    "VBF": {"col": "J", "heading": stdHeading},
+    "vbfH": {"col": "J", "heading": stdHeading},
     "WH": {"col": "S", "heading": reducedHeading},
     "ZH": {"col": "AD", "heading": reducedHeading},
     "bbH": {
