@@ -16,6 +16,7 @@ xsecGroups = {
     },
     "tH_tchan": {"col": "BC", "heading": stdHeading + ("XS_tH_pb", "XS_tbarH_pb")},
     "tH_schan": {"col": "BM", "heading": stdHeading + ("XS_tH_pb", "XS_tbarH_pb")},
+    "ggZH": {"col": "AD", "heading": ("mH_GeV", "SKIP", "SKIP", "SKIP", "SKIP", "SKIP", "SKIP", "XS_pb")},
     # 'total':  {'col':'BT', 'heading':('XS_pb',)},
     #"WminusH_lv": {"col": "BX", "heading": stdHeading + ("XS_gamma_pb",)},
     #"WplusH_lv": {"col": "CG", "heading": stdHeading + ("XS_gamma_pb",)},
@@ -253,18 +254,25 @@ def main(o):
             # open output
             # dump heading
             heading = props["heading"]
-            table.append(heading)
+            real_heading = [h for h in heading if h != "SKIP"]
+            table.append(real_heading)
             startRow, endRow = spec["rows"]
             for r in range(startRow - 1, endRow):
                 offset = col2num(props["col"]) - 1
                 vals = s.row_values(r)[offset : offset + len(heading)]
+                # remove headers that say "SKIP"
+                vals_keep = []
+                for i, v in enumerate(vals):
+                    if heading[i] == "SKIP":
+                        continue
+                    vals_keep.append(v)
                 if set(vals[1:]) == set(("",)):
                     continue
                 try:
-                    table.append(list(map(formatval, vals)))
+                    table.append(list(map(formatval, vals_keep)))
                 except ValueError:
                     print("Could not parse the followig tuple: ")
-                    print(vals)
+                    print(vals_keep)
                     raise
             file_name=find_filename(s.name,group)
             print_table(table, save_file=file_name)
