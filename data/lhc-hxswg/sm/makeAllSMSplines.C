@@ -1,6 +1,6 @@
 
 const std::string location = "./";  //"$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/";
-const int nxs = 9;
+const int nxs = 7;
 const int nbr = 11;
 const int nbr4f = 14;
 
@@ -42,7 +42,7 @@ void makeXSSplines(std::string sqrts="13"){
 
 	RooRealVar MH("MH","MH",125.09,120,130); MH.setConstant();
 
-	std::string xs[nxs] = {"WH","ZH","bbH","ggH","ttH","vbfH","ggZH","tHW","tHq"};
+	std::string xs[nxs] = {"WH","ZH","bbH","ggH","ttH","vbfH","ggZH"}; //"tHW","tHq"};
 
 	for (int xsi=0;xsi<nxs;xsi++){
 		std::string name = xs[xsi];
