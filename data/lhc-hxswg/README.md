@@ -1,6 +1,7 @@
 This folder contains easily accessible numbers for (B)SM Higgs predictions from the [LHCHXSWG](https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWG).
 
 Cross-sections and Branching ratios are sourced from the excel spreadsheet [here](https://twiki.cern.ch/twiki/pub/LHCPhysics/LHCHXSWG/Higgs_XSBR_YR4_update.xlsx), which you will also find in this directory. 
+YC5 cross-sections and citation in the spreadsheet [here](https://gitlab.cern.ch/LHCHIGGSXS/LHCHXSWG1/crosssections/-/blob/master/Higgs_cross_sections.xlsx?ref_type=heads)
 
 For the coupling modifiers (kappa framework), under the `couplings` directory, the coefficients for the scaling functions are taken from the [this Twiki](https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWG2KAPPA).
 
