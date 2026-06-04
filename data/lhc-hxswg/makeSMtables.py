@@ -3,6 +3,8 @@ import sys
 
 import xlrd
 
+from openpyxl import load_workbook
+
 stdHeading = ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_alpha_s", "Total_pos", "Total_neg")
 xsecGroups = {
     "ggH": {"col": "A", "heading": ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_minus_TH","Gauss","Pdf_alpha_s", "Total_pos", "Total_neg")},
@@ -16,6 +18,7 @@ xsecGroups = {
     },
     "tH_tchan": {"col": "BC", "heading": stdHeading + ("XS_tH_pb", "XS_tbarH_pb")},
     "tH_schan": {"col": "BM", "heading": stdHeading + ("XS_tH_pb", "XS_tbarH_pb")},
+    "tHW" : {"col": "BW", "heading": stdHeading },
     "ggZH": {"col": "AD", "heading": ("mH_GeV", "SKIP", "SKIP", "SKIP", "SKIP", "SKIP", "SKIP", "XS_pb")},
     # 'total':  {'col':'BT', 'heading':('XS_pb',)},
     #"WminusH_lv": {"col": "BX", "heading": stdHeading + ("XS_gamma_pb",)},
@@ -228,6 +231,37 @@ def find_filename(sheet_name, group_name):
                         filename = f"sm/xs/{xsfoldername}/{xsfoldername}-{group_name}.txt"
     return filename
 
+############################# openpyxl wrappers
+class OpenPyXLSheet(object):
+    def __init__(self, ws):
+        self.name = ws.title
+        # values_only=True returns plain Python values; normalize None to ''
+        self._rows = [list(row) for row in ws.iter_rows(values_only=True)]
+
+    def row_values(self, idx):
+        row = self._rows[idx]
+        return ["" if v is None else v for v in row]
+
+
+class OpenPyXLBook(object):
+    def __init__(self, wb):
+        self._sheets = [OpenPyXLSheet(ws) for ws in wb.worksheets]
+
+    def sheets(self):
+        return self._sheets
+
+
+def open_workbook(path):
+    if path.lower().endswith(".xlsx"):
+        wb = load_workbook(filename=path, data_only=True, read_only=True)
+        return OpenPyXLBook(wb)
+
+    if xlrd is None:
+        raise RuntimeError("Legacy .xls input requires xlrd, but xlrd is not installed.")
+
+    return xlrd.open_workbook(path)
+##################################################
+
 def formatval(v):
     try:
         # This is to remove pesky unicode symbols like \pm
@@ -240,7 +274,11 @@ def formatval(v):
 
 
 def main(o):
-    f = xlrd.open_workbook(o.input)
+    try:
+        f = xlrd.open_workbook(o.input) 
+    except:
+        f = open_workbook(o.input) ## openpyxl
+
     for s in f.sheets():
         try:
             spec = specs[s.name]
