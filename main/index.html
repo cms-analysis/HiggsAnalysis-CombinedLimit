@@ -596,6 +596,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#standalone-compilation-with-pixi-cmake-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standalone compilation with pixi (CMake-based)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2220,6 +2231,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#standalone-compilation-with-pixi-cmake-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standalone compilation with pixi (CMake-based)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2478,6 +2500,23 @@ cmake --install build
 <p>After installation the binaries and Python modules live inside the environment, so a new shell only requires:</p>
 <div class="highlight"><pre><span></span><code>conda activate combine
 </code></pre></div>
+<h5 id="standalone-compilation-with-pixi-cmake-based">Standalone compilation with <code>pixi</code> (CMake-based)</h5>
+<p>If you have access to CVMFS (for example on <code>lxplus</code>), a ready-to-use installation of <code>pixi</code> is available and can be set up by sourcing:</p>
+<div class="highlight"><pre><span></span><code>source /cvmfs/cms-griddata.cern.ch/cat/sw/pixi/latest/setup.sh
+</code></pre></div>
+<p>Otherwise, follow the <a href="https://pixi.sh/latest/#installation"><code>pixi</code> installation instructions</a>.</p>
+<p><a href="https://pixi.sh"><code>pixi</code></a> is an alternative to <code>conda</code> that resolves the same conda-forge dependencies but is workspace-centric: instead of a named global environment, it manages a project-local environment (in a <code>.pixi/</code> folder) described by the <code>pixi.toml</code> manifest that ships with this repository. The manifest also defines <code>configure</code>, <code>build</code> and <code>install</code> tasks, so the whole build is a single command:</p>
+<div class="highlight"><pre><span></span><code>git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+
+# Solve/install the dependencies and run the CMake configure + build + install
+# tasks in one go (each task runs inside the pixi environment automatically)
+pixi run install
+</code></pre></div>
+<p><code>pixi run</code> activates the environment for the duration of the command, so <code>$CONDA_PREFIX</code> is set and no separate activation step is needed. To get an interactive shell with the environment active (equivalent to <code>conda activate</code>), use:</p>
+<div class="highlight"><pre><span></span><code>pixi shell   # leave it again with `exit`
+</code></pre></div>
+<p>The <code>configure</code>/<code>build</code>/<code>install</code> tasks in <code>pixi.toml</code> wrap the same CMake invocation as the conda recipe above (including <code>-DUSE_VDT=OFF</code>). Advanced users who need to pass extra CMake options can still run the CMake steps by hand from inside <code>pixi shell</code>.</p>
 <h4 id="pre-compiled-image-with-cvmfs-dependency">Pre-compiled image with CVMFS dependency</h4>
 <p>Pre-compiled versions of the tool are available as container images from the <a href="http://gitlab-registry.cern.ch/cms-analysis/general/combine-container">GitLab CMS-analysis repository</a>. This container is built together with the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> package and is <strong>recommended for users with CVMFS access</strong>. </p>
 <div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">APPTAINER_CACHEDIR</span><span class="o">=</span><span class="s2">&quot;/tmp/</span><span class="k">$(</span>whoami<span class="k">)</span><span class="s2">/apptainer_cache&quot;</span>
