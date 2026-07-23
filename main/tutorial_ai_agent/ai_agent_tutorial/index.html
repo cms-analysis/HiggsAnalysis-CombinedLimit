@@ -2106,10 +2106,16 @@ you pick one with the <code>--model &lt;provider&gt;/&lt;model&gt;</code> flag (
 </tr>
 </tbody>
 </table>
-<p>For most CERN users the <strong><code>litellm</code></strong> provider is the right default. 
-If you don't have a subscription, a LiteLLM token can be obtained by subscribing to the e-group at this website <a href="https://gms.web.cern.ch/group/lumi-api-access">https://gms.web.cern.ch/group/lumi-api-access</a>.
-The key can then be exported by typing:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">LITELLM_API_KEY</span><span class="o">=</span>&lt;your-key&gt;
+<p>For most CERN users the <strong><code>litellm</code></strong> provider is the right default. Access is
+granted by subscribing to the e-group
+<a href="https://gms.web.cern.ch/group/lumi-api-access">lumi-api-access</a>. Once you are a
+member, you do <strong>not</strong> need to export anything: the setup script (step 2 below)
+reads a shared key from EOS automatically and prints a confirmation line
+(<code>LITELLM_API_KEY loaded from ...</code>). If you are not yet a member, it instead
+prints a short banner explaining how to subscribe.</p>
+<p>If you would rather use your own LiteLLM key, export it before launching and the
+setup script will not overwrite it:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">LITELLM_API_KEY</span><span class="o">=</span>&lt;your-key&gt;<span class="w">   </span><span class="c1"># optional — only if you use your own key</span>
 </code></pre></div>
 <p>To switch model for a session, pass <code>--model</code>, e.g. to use the (slow,
 no-key) self-hosted model:</p>
@@ -2126,10 +2132,13 @@ cmsenv
 <span class="nb">cd</span><span class="w"> </span>/path/to/your/analysis<span class="w">    </span><span class="c1"># where your datacards live</span>
 </code></pre></div>
 <p><strong>Step 2: source the assistant setup.</strong> This puts the <code>combagent</code> client (our maintained fork of opencode) on
-your <code>PATH</code> and wires in the Combine tools, skill, and model configuration:</p>
+your <code>PATH</code>, wires in the Combine tools, skill, and model configuration, and —
+if you are a member of the <code>lumi-api-access</code> e-group — loads the CERN LiteLLM
+key for you:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">source</span><span class="w"> </span>/cvmfs/cms-griddata.cern.ch/cat/sw/combine-assistant/latest/bin/setup.sh
-<span class="nb">export</span><span class="w"> </span><span class="nv">LITELLM_API_KEY</span><span class="o">=</span>&lt;your-key&gt;
 </code></pre></div>
+<p>You only need to <code>export LITELLM_API_KEY=&lt;your-key&gt;</code> here if you are using your
+own key instead of the shared one.</p>
 <p><strong>Step 3: launch the agent:</strong></p>
 <div class="highlight"><pre><span></span><code>combagent
 </code></pre></div>
