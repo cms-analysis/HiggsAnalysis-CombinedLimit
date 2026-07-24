@@ -22,17 +22,13 @@ RooArgSet ParametersByName(RooAbsReal const* pdf, RooArgSet const* dat_vars) {
   std::unique_ptr<RooArgSet> all_vars(pdf->getParameters(RooArgSet()));
   // Get the data variables and fill a set with all the names
   std::set<std::string> names;
-  RooFIter dat_it = dat_vars->fwdIterator();
-  RooAbsArg *dat_arg = nullptr;
-  while((dat_arg = dat_it.next())) {
+  for (auto const *dat_arg : *dat_vars) {
     names.insert(dat_arg->GetName());
   }
 
   // Build a new RooArgSet from all_vars, excluding any in names
   RooArgSet result_set;
-  RooFIter vars_it = all_vars->fwdIterator();
-  RooAbsArg *vars_arg = nullptr;
-  while((vars_arg = vars_it.next())) {
+  for (auto const *vars_arg : *all_vars) {
     if (!names.count(vars_arg->GetName())) {
       result_set.add(*vars_arg);
     }
