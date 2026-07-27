@@ -7,7 +7,7 @@ from openpyxl import load_workbook
 
 stdHeading = ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_alpha_s", "Total_pos", "Total_neg")
 xsecGroups = {
-    "ggH": {"col": "A", "heading": ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_minus_TH","Gauss","Pdf_alpha_s", "Total_pos", "Total_neg")},
+    "ggH": {"col": "A", "heading": ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_minus_TH", "Gauss", "Pdf_alpha_s", "Total_pos", "Total_neg")},
     "vbfH": {"col": "L", "heading": stdHeading},
     "WH": {"col": "T", "heading": stdHeading + ("XS_WplusH_pb", "XS_WminusH_pb")},
     "ZH": {"col": "AD", "heading": stdHeading + ("XS_ggZH_pb",)},
@@ -18,14 +18,14 @@ xsecGroups = {
     },
     "tH_tchan": {"col": "BC", "heading": stdHeading + ("XS_tH_pb", "XS_tbarH_pb")},
     "tH_schan": {"col": "BM", "heading": stdHeading + ("XS_tH_pb", "XS_tbarH_pb")},
-    "tHW" : {"col": "BW", "heading": stdHeading },
+    "tHW": {"col": "BW", "heading": stdHeading},
     "ggZH": {"col": "AD", "heading": ("mH_GeV", "SKIP", "SKIP", "SKIP", "SKIP", "SKIP", "SKIP", "XS_pb")},
     # 'total':  {'col':'BT', 'heading':('XS_pb',)},
-    #"WminusH_lv": {"col": "BX", "heading": stdHeading + ("XS_gamma_pb",)},
-    #"WplusH_lv": {"col": "CG", "heading": stdHeading + ("XS_gamma_pb",)},
-    #"ZH_ll": {"col": "CP", "heading": stdHeading + ("XS_ggZH_pb", "XS_gamma_pb")},
-    #"ZH_vv": {"col": "CZ", "heading": stdHeading + ("XS_ggZH_pb", "XS_gamma_pb")},
-    #"VBF_qqH_schan": {"col": "DJ", "heading": ("mH_GeV", "XS_pb")},
+    # "WminusH_lv": {"col": "BX", "heading": stdHeading + ("XS_gamma_pb",)},
+    # "WplusH_lv": {"col": "CG", "heading": stdHeading + ("XS_gamma_pb",)},
+    # "ZH_ll": {"col": "CP", "heading": stdHeading + ("XS_ggZH_pb", "XS_gamma_pb")},
+    # "ZH_vv": {"col": "CZ", "heading": stdHeading + ("XS_ggZH_pb", "XS_gamma_pb")},
+    # "VBF_qqH_schan": {"col": "DJ", "heading": ("mH_GeV", "XS_pb")},
 }
 
 reducedHeading = ("mH_GeV", "XS_pb", "Sca_Hi", "Sca_Lo", "Pdf_alpha_s")
@@ -198,7 +198,7 @@ def print_table(table, save_file=None):
     for line in table:
         print("  ".join("{:{}}".format(x, col_width[i]) for i, x in enumerate(line)))
 
-    # if given option, save_file, then also save to the file given too 
+    # if given option, save_file, then also save to the file given too
     if save_file is not None:
         with open(save_file, "w") as f:
             for line in table:
@@ -218,7 +218,7 @@ def col2num(col_str):
 
 
 def find_filename(sheet_name, group_name):
-    # given the sheet name and group name, find which of the dictionary keys match 
+    # given the sheet name and group name, find which of the dictionary keys match
     # and return the filename in the format sm/xs/{sheet_name}/{group_name}.txt
     for key in specs.keys():
         if key in sheet_name:
@@ -230,6 +230,7 @@ def find_filename(sheet_name, group_name):
                         xsfoldername = sheet_name.replace(" ", "")
                         filename = f"sm/xs/{xsfoldername}/{xsfoldername}-{group_name}.txt"
     return filename
+
 
 ############################# openpyxl wrappers
 class OpenPyXLSheet(object):
@@ -260,7 +261,10 @@ def open_workbook(path):
         raise RuntimeError("Legacy .xls input requires xlrd, but xlrd is not installed.")
 
     return xlrd.open_workbook(path)
+
+
 ##################################################
+
 
 def formatval(v):
     try:
@@ -275,9 +279,12 @@ def formatval(v):
 
 def main(o):
     try:
-        f = xlrd.open_workbook(o.input) 
-    except:
-        f = open_workbook(o.input) ## openpyxl
+        if o.input.endswith(".xls"):
+            f = xlrd.open_workbook(o.input)
+        else:
+            f = load_workbook(o.input)
+    except Exception as e:
+        print(f"Failed to open: {e}")
 
     for s in f.sheets():
         try:
@@ -312,7 +319,7 @@ def main(o):
                     print("Could not parse the followig tuple: ")
                     print(vals_keep)
                     raise
-            file_name=find_filename(s.name,group)
+            file_name = find_filename(s.name, group)
             print_table(table, save_file=file_name)
 
 
