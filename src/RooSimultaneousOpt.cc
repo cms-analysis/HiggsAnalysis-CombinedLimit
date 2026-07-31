@@ -17,10 +17,7 @@ RooSimultaneousOpt::createNLLImpl(RooAbsData& data, const RooLinkedList& cmdList
   auto timingScope = std::make_unique<ROOT::Math::Util::TimingScope>(
       [this](std::string const& msg) { oocoutI(this, Fitting) << msg << std::endl; }, "Creation of NLL object took");
 #endif
-  RooCmdConfig pc(Form("RooSimultaneousOpt::createNLL(%s)", GetName()));
-  pc.defineSet("cPars", "Constrain", 0, 0);
-  RooArgSet* cPars = pc.getSet("cPars");
-  auto nll = std::make_unique<cacheutils::CachingSimNLL>(this, &data, cPars);
+  auto nll = std::make_unique<cacheutils::CachingSimNLL>(this, &data);
   nll->setChannelMasks(this->channelMasks());
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,30,0)
     return nll.release();
