@@ -64,7 +64,7 @@ The likelihood in combine takes the general form:
 
 $$ \mathcal{L} =  \mathcal{L}_{\textrm{primary}} \cdot \mathcal{L}_{\textrm{auxiliary}} $$
 
-Where $\mathcal{L}_{\mathrm{auxiliary}}$ is equal to the probability of observing the event count data for a given set of model parameters, and $\mathcal{L}_{\mathrm{auxiliary}}$ represent some external constraints on the parameters.
+Where $\mathcal{L}_{\mathrm{primary}}$ is equal to the probability of observing the event count data for a given set of model parameters, and $\mathcal{L}_{\mathrm{auxiliary}}$ represent some external constraints on the parameters.
 The constraint term may be constraints from previous measurements (such as Jet Energy Scales) or prior beliefs about the value some parameter in the model should have.
 
 Both $\mathcal{L}_{\mathrm{primary}}$ and $\mathcal{L}_{\mathrm{auxiliary}}$ can be composed of many sublikelihoods, for example for observations of different bins and constraints on different nuisance parameters.
