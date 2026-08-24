@@ -2438,7 +2438,7 @@ It is numerically equal to the probability of observing the data, given the mode
 <p>Note, however that the likelihood is a function of the model parameters, not the data, which is why we distinguish it from the probability itself.</p>
 <p>The likelihood in combine takes the general form:</p>
 <div class="arithmatex">\[ \mathcal{L} =  \mathcal{L}_{\textrm{primary}} \cdot \mathcal{L}_{\textrm{auxiliary}} \]</div>
-<p>Where <span class="arithmatex">\(\mathcal{L}_{\mathrm{auxiliary}}\)</span> is equal to the probability of observing the event count data for a given set of model parameters, and <span class="arithmatex">\(\mathcal{L}_{\mathrm{auxiliary}}\)</span> represent some external constraints on the parameters.
+<p>Where <span class="arithmatex">\(\mathcal{L}_{\mathrm{primary}}\)</span> is equal to the probability of observing the event count data for a given set of model parameters, and <span class="arithmatex">\(\mathcal{L}_{\mathrm{auxiliary}}\)</span> represent some external constraints on the parameters.
 The constraint term may be constraints from previous measurements (such as Jet Energy Scales) or prior beliefs about the value some parameter in the model should have.</p>
 <p>Both <span class="arithmatex">\(\mathcal{L}_{\mathrm{primary}}\)</span> and <span class="arithmatex">\(\mathcal{L}_{\mathrm{auxiliary}}\)</span> can be composed of many sublikelihoods, for example for observations of different bins and constraints on different nuisance parameters.</p>
 <p>This form is entirely general. However, as with the model itself, there are typical forms that the likelihood takes which will cover most use cases, and for which combine is primarily designed.</p>
