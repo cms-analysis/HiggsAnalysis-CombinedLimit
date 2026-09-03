@@ -73,7 +73,7 @@ FastHisto::FastHisto(const FastHisto &other) :
 }
 
 int FastHisto::FindBin(const T &x) const {
-    auto match = std::lower_bound(binEdges_.begin(), binEdges_.end(), x);
+    auto match = std::upper_bound(binEdges_.begin(), binEdges_.end(), x);
     if (match == binEdges_.begin()) return -1;
     if (match == binEdges_.end()) return values_.size();
     return match - binEdges_.begin() - 1;
@@ -81,7 +81,7 @@ int FastHisto::FindBin(const T &x) const {
 
 
 FastHisto::T FastHisto::GetAt(const T &x) const {
-    auto match = std::lower_bound(binEdges_.begin(), binEdges_.end(), x);
+    auto match = std::upper_bound(binEdges_.begin(), binEdges_.end(), x);
     if (match == binEdges_.begin() || match == binEdges_.end()) return T(0.0);
     return values_[match - binEdges_.begin() - 1];
 }
@@ -140,10 +140,10 @@ FastHisto2D::FastHisto2D(const FastHisto2D &other) :
 }
 
 FastHisto2D::T FastHisto2D::GetAt(const T &x, const T &y) const {
-    auto matchx = std::lower_bound(binEdgesX_.begin(), binEdgesX_.end(), x);
+    auto matchx = std::upper_bound(binEdgesX_.begin(), binEdgesX_.end(), x);
     if (matchx == binEdgesX_.begin() || matchx == binEdgesX_.end()) return T(0.0);
     int ix = (matchx - binEdgesX_.begin() - 1);
-    auto matchy = std::lower_bound(binEdgesY_.begin(), binEdgesY_.end(), y);
+    auto matchy = std::upper_bound(binEdgesY_.begin(), binEdgesY_.end(), y);
     if (matchy == binEdgesY_.begin() || matchy == binEdgesY_.end()) return T(0.0);
     int iy = (matchy - binEdgesY_.begin() - 1);
     return values_[ix * binY_ + iy];
@@ -186,7 +186,7 @@ FastHisto2D::T FastHisto2D::GetMaxOnXY() const {
 
 
 FastHisto2D::T FastHisto2D::GetMaxOnX(const T &y) const {
-    auto matchy = std::lower_bound(binEdgesY_.begin(), binEdgesY_.end(), y);
+    auto matchy = std::upper_bound(binEdgesY_.begin(), binEdgesY_.end(), y);
     if (matchy == binEdgesY_.begin() || matchy == binEdgesY_.end()) return T(0.0);
     int iy = (matchy - binEdgesY_.begin() - 1);
     T ret = 0.0;
@@ -197,7 +197,7 @@ FastHisto2D::T FastHisto2D::GetMaxOnX(const T &y) const {
 }
 
 FastHisto2D::T FastHisto2D::GetMaxOnY(const T &x) const {
-    auto matchx = std::lower_bound(binEdgesX_.begin(), binEdgesX_.end(), x);
+    auto matchx = std::upper_bound(binEdgesX_.begin(), binEdgesX_.end(), x);
     if (matchx == binEdgesX_.begin() || matchx == binEdgesX_.end()) return T(0.0);
     int ix = (matchx - binEdgesX_.begin() - 1);
     return *std::max( &values_[ix * binY_], &values_[(ix+1) * binY_] );
@@ -247,13 +247,13 @@ FastHisto3D::FastHisto3D(const FastHisto3D &other) :
 }
 
 FastHisto3D::T FastHisto3D::GetAt(const T &x, const T &y, const T &z) const {
-    auto matchx = std::lower_bound(binEdgesX_.begin(), binEdgesX_.end(), x);
+    auto matchx = std::upper_bound(binEdgesX_.begin(), binEdgesX_.end(), x);
     if (matchx == binEdgesX_.begin() || matchx == binEdgesX_.end()) return T(0.0);
     int ix = (matchx - binEdgesX_.begin() - 1);
-    auto matchy = std::lower_bound(binEdgesY_.begin(), binEdgesY_.end(), y);
+    auto matchy = std::upper_bound(binEdgesY_.begin(), binEdgesY_.end(), y);
     if (matchy == binEdgesY_.begin() || matchy == binEdgesY_.end()) return T(0.0);
     int iy = (matchy - binEdgesY_.begin() - 1);
-    auto matchz = std::lower_bound(binEdgesZ_.begin(), binEdgesZ_.end(), z);
+    auto matchz = std::upper_bound(binEdgesZ_.begin(), binEdgesZ_.end(), z);
     if (matchz == binEdgesZ_.begin() || matchz == binEdgesZ_.end()) return T(0.0);
     int iz = (matchz - binEdgesZ_.begin() - 1);
     return values_[ix * binY_ *binZ_ +binZ_*iy + iz];

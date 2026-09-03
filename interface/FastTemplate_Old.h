@@ -76,13 +76,15 @@ class FastTemplate {
 
         void Dump() const ;
 
+        AT const &GetValues() const { return values_; }
+
     protected:
         unsigned int size_;
         AT values_;
 };
 class FastHisto : public FastTemplate {
     public:
-        FastHisto() : FastTemplate(), binEdges_(), binWidths_() {}
+        FastHisto() = default;
         FastHisto(const TH1 &hist) ;
         FastHisto(const FastHisto &other) ;
         FastHisto & operator=(const FastHisto &other) { 
@@ -123,6 +125,8 @@ class FastHisto : public FastTemplate {
 
         const T & GetEdge(unsigned int i) const { return binEdges_[i]; }
         const T & GetWidth(unsigned int i) const { return binWidths_[i]; }
+
+        AT const &GetBinEdges() const { return binEdges_; }
 
     private:
         AT binEdges_;
