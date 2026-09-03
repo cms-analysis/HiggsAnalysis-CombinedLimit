@@ -320,6 +320,24 @@ FastVerticalInterpHistPdfBase::FastVerticalInterpHistPdfBase(const FastVerticalI
 
 
 //_____________________________________________________________________________
+bool FastVerticalInterpHistPdfBase::redirectServersHook(const RooAbsCollection &newServerList,
+                                                        bool mustReplaceAll, bool nameChange,
+                                                        bool isRecursiveStep)
+{
+    // _coefList has already been re-pointed at the new servers,
+    // but _morphParams and _sentry still refer to the old coefficient objects. 
+    // Re-point both, and mark the cache dirty so the next evaluate() re-runs syncTotal().
+    _morphParams.resize(_coefList.getSize());
+    int i = 0;
+    for (RooAbsArg *a : _coefList) _morphParams[i++] = dynamic_cast<RooAbsReal *>(a);
+    _sentry.deps().removeAll();
+    _sentry.addVars(_coefList);
+    _sentry.setValueDirty();
+    _init = false;
+    return RooAbsPdf::redirectServersHook(newServerList, mustReplaceAll, nameChange, isRecursiveStep);
+}
+
+//_____________________________________________________________________________
 FastVerticalInterpHistPdfBase::~FastVerticalInterpHistPdfBase() = default;
 
 
@@ -766,6 +784,19 @@ Bool_t FastVerticalInterpHistPdf2Base::importWorkspaceHook(RooWorkspace& ws) {
   return kFALSE;
 }
 
+bool FastVerticalInterpHistPdf2Base::redirectServersHook(const RooAbsCollection &newServerList,
+                                                        bool mustReplaceAll, bool nameChange,
+                                                        bool isRecursiveStep)
+{
+    _morphParams.resize(_coefList.getSize());
+    int i = 0;
+    for (RooAbsArg *a : _coefList) _morphParams[i++] = dynamic_cast<RooAbsReal *>(a);
+    _sentry.deps().removeAll();
+    _sentry.addVars(_coefList);
+    _sentry.setValueDirty();
+    return RooAbsPdf::redirectServersHook(newServerList, mustReplaceAll, nameChange, isRecursiveStep);
+}
+
 
 //_____________________________________________________________________________
 FastVerticalInterpHistPdf2Base::~FastVerticalInterpHistPdf2Base()
@@ -778,6 +809,7 @@ FastVerticalInterpHistPdf2Base::initBase() const
 {
     if (_initBase) return;
 
+    _morphParams.clear();
     for (RooAbsArg *coef : _coefList) {
         const RooAbsReal *rrv = dynamic_cast<RooAbsReal*>(coef);
         if (!rrv) {
