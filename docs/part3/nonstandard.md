@@ -566,6 +566,14 @@ The above output will produce the following scans.
 
 As expected, the curve obtained by allowing the `pdf_index` to float (labelled "Envelope") picks out the best function (maximum corrected likelihood) for each value of the signal strength.
 
+For fits where there is more than one such discrete nuisance parameter, the number of possible combinations of functions to search grows as the product of parameter values across parameters, which grows very fast. Instead of iterating through every combination  <span style="font-variant:small-caps;">Combine</span> will find the minimum log-likelihood through an iterative process as shown below,
+
+![](images/AlgoFlowChart.png)
+
+The loop continues until a threshold is reached (which can be controlled through the option `--cminDiscreteMinTol`). 
+
+The idea is that provided all other nuisance parameters and POIs are frozen, we assume that the likelihood function components associated with each of the discrete nuisance parameters are independant and so the total number of combinations reduces to a sum over values, rather than a product. In specific tests of an early diphoton Higgs analysis, this procedure was found to converge in around 3-4 iterations. Instead, you can force  <span style="font-variant:small-caps;">Combine</span> to try all possible combinations of functions by adding the option `--cminRunAllDiscreteCombinations`. 
+
 In general, the performance of <span style="font-variant:small-caps;">Combine</span> can be improved when using the discrete profiling method by including the option `--X-rtd MINIMIZER_freezeDisassociatedParams`. This will stop parameters not associated to the current PDF from floating in the fits. Additionally, you can include the following options:
 
 - `--X-rtd MINIMIZER_multiMin_maskChannels=<choice>` mask the channels that are not needed from the NLL:
