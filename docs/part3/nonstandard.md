@@ -570,9 +570,9 @@ For fits where there is more than one such discrete nuisance parameter, the numb
 
 ![](images/AlgoFlowChart.png)
 
-The loop continues until a threshold is reached (which can be controlled through the option `--cminDiscreteMinTol`). 
+The loop continues until either the tolerance threshold is reached (which can be controlled through the option `--cminDiscreteMinTol`), or a total of 15 trips around the loop has been completed. In specific tests of an early diphoton Higgs analysis, this procedure was found to converge in around 3-4 iterations and this is usually enough. 
 
-The idea is that provided all other nuisance parameters and POIs are frozen, we assume that the likelihood function components associated with each of the discrete nuisance parameters are independant and so the total number of combinations reduces to a sum over values, rather than a product. In specific tests of an early diphoton Higgs analysis, this procedure was found to converge in around 3-4 iterations. Instead, you can force  <span style="font-variant:small-caps;">Combine</span> to try all possible combinations of functions by adding the option `--cminRunAllDiscreteCombinations`. 
+The idea is that provided all other nuisance parameters and POIs are frozen, we assume that the likelihood function components associated with each of the discrete nuisance parameters are independant and so the total number of combinations reduces to a sum over values, rather than a product. Instead, you can force  <span style="font-variant:small-caps;">Combine</span> to try all possible combinations of functions by adding the option `--cminRunAllDiscreteCombinations`. 
 
 In general, the performance of <span style="font-variant:small-caps;">Combine</span> can be improved when using the discrete profiling method by including the option `--X-rtd MINIMIZER_freezeDisassociatedParams`. This will stop parameters not associated to the current PDF from floating in the fits. Additionally, you can include the following options:
 
