@@ -98,53 +98,124 @@ std::string HybridNew::mode_ = "";
 
 HybridNew::HybridNew() :
 LimitAlgo("HybridNew specific options") {
-    options_.add_options()
-        ("rule",    boost::program_options::value<std::string>(&rule_)->default_value(rule_),            "Rule to use: CLs, Pmu")
-        ("testStat",boost::program_options::value<std::string>(&testStat_)->default_value(testStat_),    "Test statistic: LEP, TEV, LHC, Profile.")
-        ("singlePoint",  boost::program_options::value<std::string>(&rValue_)->default_value(rValue_),  "Just compute CLs for the given value of the parameter of interest. In case of multiple parameters, use a syntax 'name=value,name2=value2,...'")
-        ("onlyTestStat", "Just compute test statistic for the data (or toy if using -t N), i.e don't throw toys to calculate actual p-values (works only with --singlePoint)")
-        ("generateNuisances",            boost::program_options::value<bool>(&genNuisances_)->default_value(genNuisances_), "Generate nuisance parameters for each toy")
-        ("generateExternalMeasurements", boost::program_options::value<bool>(&genGlobalObs_)->default_value(genGlobalObs_), "Generate external measurements for each toy, taken from the GlobalObservables of the ModelConfig")
-        ("fitNuisances", boost::program_options::value<bool>(&fitNuisances_)->default_value(fitNuisances_), "Fit the nuisance parameters first, before generating the toy data. Set this option to false to acheive the same results as with --bypassFrequentistFit. When not generating toys, eg as in when running with --readHybridresult, this has no effect")
-        ("searchAlgo", boost::program_options::value<std::string>(&algo_)->default_value(algo_),         "Algorithm to use to search for the limit (bisection, logSecant)")
-        ("toysH,T", boost::program_options::value<unsigned int>(&nToys_)->default_value(nToys_),         "Number of Toy MC extractions to compute Pmu, Pb and CLs")
-        ("clsAcc",  boost::program_options::value<double>(&clsAccuracy_ )->default_value(clsAccuracy_),  "Absolute accuracy on CLs to reach to terminate the scan")
-        ("rAbsAcc", boost::program_options::value<double>(&rAbsAccuracy_)->default_value(rAbsAccuracy_), "Absolute accuracy on r to reach to terminate the scan. Zero switches off this requirement")
-        ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(rRelAccuracy_), "Relative accuracy on r to reach to terminate the scan. Zero switches off this requirement")
-        ("interpAcc", boost::program_options::value<double>(&interpAccuracy_)->default_value(interpAccuracy_), "Minimum uncertainty from interpolation delta(x)/(max(x)-min(x))")
-        ("iterations,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(iterations_), "Number of times to throw 'toysH' toys to compute the p-values (for --singlePoint if clsAcc is set to zero disabling adaptive generation)")
-        ("fork",    boost::program_options::value<unsigned int>(&fork_)->default_value(fork_),           "Fork to N processes before running the toys (0 by default == no forking). Only use if you're an expert in combine!")
-        ("saveHybridResult",  "Save result in the output file")
-        ("readHybridResults", "Read and merge results from file (requires option '--grid' or '--toysFile')")
-        ("grid",    boost::program_options::value<std::string>(&gridFile_), "Use the specified file containing a grid of SamplingDistributions for the limit (implies readHybridResults).\n For calculating CLs/pmu values with --singlePoint or if calculating the Signfiicance with LHCmode LHC-significance ( or any option with --signif) use '--toysFile=x.root --readHybridResult' !")
-        ("expectedFromGrid", boost::program_options::value<float>(&quantileForExpectedFromGrid_)->default_value(0.5), "Use the grid to compute the expected limit for this quantile")
-        ("signalForSignificance", boost::program_options::value<std::string>()->default_value("1"), "Use this value of the parameter of interest when generating signal toys for expected significance (same syntax as --singlePoint)")
-        ("clsQuantiles", boost::program_options::value<bool>(&clsQuantiles_)->default_value(clsQuantiles_), "Compute correct quantiles of CLs or Pmu instead of assuming they're the same as those for Pb")
-        //("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(importanceSamplingNull_),
-        //                           "Enable importance sampling for null hypothesis (background only)")
-        //("importanceSamplingAlt",  boost::program_options::value<bool>(&importanceSamplingAlt_)->default_value(importanceSamplingAlt_),
-        //                           "Enable importance sampling for alternative hypothesis (signal plus background)")
-        ("optimizeTestStatistics", boost::program_options::value<bool>(&optimizeTestStatistics_)->default_value(optimizeTestStatistics_),
-                                   "Use optimized test statistics if the likelihood is not extended (works for LEP and TEV test statistics).")
-        ("optimizeProductPdf",     boost::program_options::value<bool>(&optimizeProductPdf_)->default_value(optimizeProductPdf_),
-                                   "Optimize the code factorizing pdfs")
-        //("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer used for profiling (Minuit vs Minuit2)")
-        //("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
-        ("plot",   boost::program_options::value<std::string>(&plot_), "Save a plot of the result (test statistics distributions or limit scan)")
-        ("frequentist", "Shortcut to switch to Frequentist mode (--generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1)")
-        ("newToyMCSampler", boost::program_options::value<bool>(&newToyMCSampler_)->default_value(newToyMCSampler_), "Use new ToyMC sampler with support for mixed binned-unbinned generation. On by default, you can turn it off if it doesn't work for your workspace.")
-        ("fullGrid", "Evaluate p-values at all grid points, without optimitations")
-        ("saveGrid", "Save CLs or (or FC p-value) at all grid points in the output tree. The value of 'r' is saved in the 'limit' branch, while the CLs or p-value in the 'quantileExpected' branch and the uncertainty on 'limitErr' (since there's no quantileExpectedErr)")
-        ("noUpdateGrid", "Do not update test statistics at grid points")
-        ("fullBToys", "Run as many B toys as S ones (default is to run 1/4 of b-only toys)")
-        ("pvalue", "Report p-value instead of significance (when running with --significance)")
-        ("adaptiveToys",boost::program_options::value<float>(&adaptiveToys_)->default_value(adaptiveToys_), "Throw fewer toys far from interesting contours , --toysH scaled by scale when probability is far from any of CL_i = {importanceContours} ")
-        ("importantContours",boost::program_options::value<std::string>(&scaleAndConfidenceSelection_)->default_value(scaleAndConfidenceSelection_), "Throw fewer toys far from interesting contours , format : CL_1,CL_2,..CL_N (--toysH scaled down when probability is far from any of CL_i) ")
-        ("maxProbability", boost::program_options::value<float>(&maxProbability_)->default_value(maxProbability_),  "when point is >  maxProbability countour, don't bother throwing toys")
-        ("confidenceTolerance", boost::program_options::value<float>(&confidenceToleranceForToyScaling_)->default_value(confidenceToleranceForToyScaling_),  "Determine what 'far' means for adatptiveToys. (relative in terms of (1-cl))")
-        ("LHCmode", boost::program_options::value<std::string>(&mode_)->default_value(mode_),  "Shortcuts for LHC style running modes. --LHCmode LHC-significance: --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1 --testStat=LHC (Q_LHC, modified for discovery) --significance, --LHCmode LHC-limits: --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1 --testStat=LHC (Q_LHC, modified for upper limits) --rule CLs, --LHCmode LHC-feldman-cousins: --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1 --testStat=PL (Q_Profile, includes boundaries) --rule Pmu")
+  options_.add_options()(
+      "rule", boost::program_options::value<std::string>(&rule_)->default_value(rule_), "Rule to use: CLs, Pmu")(
+      "testStat",
+      boost::program_options::value<std::string>(&testStat_)->default_value(testStat_),
+      "Test statistic: LEP, TEV, LHC, Profile.")(
+      "singlePoint",
+      boost::program_options::value<std::string>(&rValue_)->default_value(rValue_),
+      "Just compute CLs for the given value of the parameter of interest. In case of multiple parameters, use a syntax "
+      "'name=value,name2=value2,...'")("onlyTestStat",
+                                       "Just compute test statistic for the data (or toy if using -t N), i.e don't "
+                                       "throw toys to calculate actual p-values (works only with --singlePoint)")(
+      "generateNuisances",
+      boost::program_options::value<bool>(&genNuisances_)->default_value(genNuisances_),
+      "Generate nuisance parameters for each toy")(
+      "generateExternalMeasurements",
+      boost::program_options::value<bool>(&genGlobalObs_)->default_value(genGlobalObs_),
+      "Generate external measurements for each toy, taken from the GlobalObservables of the ModelConfig")(
+      "fitNuisances",
+      boost::program_options::value<bool>(&fitNuisances_)->default_value(fitNuisances_),
+      "Fit the nuisance parameters first, before generating the toy data. Set this option to false to acheive the same "
+      "results as with --bypassFrequentistFit. When not generating toys, eg as in when running with "
+      "--readHybridresult, this has no effect")(
+      "searchAlgo",
+      boost::program_options::value<std::string>(&algo_)->default_value(algo_),
+      "Algorithm to use to search for the limit (bisection, logSecant)")(
+      "toysH,T",
+      boost::program_options::value<unsigned int>(&nToys_)->default_value(nToys_),
+      "Number of Toy MC extractions to compute Pmu, Pb and CLs")(
+      "clsAcc",
+      boost::program_options::value<double>(&clsAccuracy_)->default_value(clsAccuracy_),
+      "Absolute accuracy on CLs to reach to terminate the scan")(
+      "rAbsAcc",
+      boost::program_options::value<double>(&rAbsAccuracy_)->default_value(rAbsAccuracy_),
+      "Absolute accuracy on r to reach to terminate the scan. Zero switches off this requirement")(
+      "rRelAcc",
+      boost::program_options::value<double>(&rRelAccuracy_)->default_value(rRelAccuracy_),
+      "Relative accuracy on r to reach to terminate the scan. Zero switches off this requirement")(
+      "interpAcc",
+      boost::program_options::value<double>(&interpAccuracy_)->default_value(interpAccuracy_),
+      "Minimum uncertainty from interpolation delta(x)/(max(x)-min(x))")(
+      "iterations,i",
+      boost::program_options::value<unsigned int>(&iterations_)->default_value(iterations_),
+      "Number of times to throw 'toysH' toys to compute the p-values (for --singlePoint if clsAcc is set to zero "
+      "disabling adaptive generation)")("fork",
+                                        boost::program_options::value<unsigned int>(&fork_)->default_value(fork_),
+                                        "Fork to N processes before running the toys (0 by default == no forking). "
+                                        "Only use if you're an expert in combine!")("saveHybridResult",
+                                                                                    "Save result in the output file")(
+      "readHybridResults", "Read and merge results from file (requires option '--grid' or '--toysFile')")(
+      "grid",
+      boost::program_options::value<std::string>(&gridFile_),
+      "Use the specified file containing a grid of SamplingDistributions for the limit (implies readHybridResults).\n "
+      "For calculating CLs/pmu values with --singlePoint or if calculating the Signfiicance with LHCmode "
+      "LHC-significance ( or any option with --signif) use '--toysFile=x.root --readHybridResult' !")(
+      "expectedFromGrid",
+      boost::program_options::value<float>(&quantileForExpectedFromGrid_)->default_value(0.5),
+      "Use the grid to compute the expected limit for this quantile")(
+      "signalForSignificance",
+      boost::program_options::value<std::string>()->default_value("1"),
+      "Use this value of the parameter of interest when generating signal toys for expected significance (same syntax "
+      "as --singlePoint)")(
+      "clsQuantiles",
+      boost::program_options::value<bool>(&clsQuantiles_)->default_value(clsQuantiles_),
+      "Compute correct quantiles of CLs or Pmu instead of assuming they're the same as those for Pb")
+      //("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(importanceSamplingNull_),
+      //                           "Enable importance sampling for null hypothesis (background only)")
+      //("importanceSamplingAlt",  boost::program_options::value<bool>(&importanceSamplingAlt_)->default_value(importanceSamplingAlt_),
+      //                           "Enable importance sampling for alternative hypothesis (signal plus background)")
+      ("optimizeTestStatistics",
+       boost::program_options::value<bool>(&optimizeTestStatistics_)->default_value(optimizeTestStatistics_),
+       "Use optimized test statistics if the likelihood is not extended (works for LEP and TEV test statistics).")(
+          "optimizeProductPdf",
+          boost::program_options::value<bool>(&optimizeProductPdf_)->default_value(optimizeProductPdf_),
+          "Optimize the code factorizing pdfs")
+      //("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer used for profiling (Minuit vs Minuit2)")
+      //("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
+      ("plot",
+       boost::program_options::value<std::string>(&plot_),
+       "Save a plot of the result (test statistics distributions or limit scan)")(
+          "frequentist",
+          "Shortcut to switch to Frequentist mode (--generateNuisances=0 --generateExternalMeasurements=1 "
+          "--fitNuisances=1)")("newToyMCSampler",
+                               boost::program_options::value<bool>(&newToyMCSampler_)->default_value(newToyMCSampler_),
+                               "Use new ToyMC sampler with support for mixed binned-unbinned generation. On by "
+                               "default, you can turn it off if it doesn't work for your workspace.")(
+          "fullGrid", "Evaluate p-values at all grid points, without optimitations")(
+          "saveGrid",
+          "Save CLs or (or FC p-value) at all grid points in the output tree. The value of 'r' is saved in the 'limit' "
+          "branch, while the CLs or p-value in the 'quantileExpected' branch and the uncertainty on 'limitErr' (since "
+          "there's no quantileExpectedErr)")("noUpdateGrid", "Do not update test statistics at grid points")(
+          "fullBToys", "Run as many B toys as S ones (default is to run 1/4 of b-only toys)")(
+          "pvalue", "Report p-value instead of significance (when running with --significance)")(
+          "adaptiveToys",
+          boost::program_options::value<float>(&adaptiveToys_)->default_value(adaptiveToys_),
+          "Throw fewer toys far from interesting contours , --toysH scaled by scale when probability is far from any "
+          "of CL_i = {importanceContours} ")(
+          "importantContours",
+          boost::program_options::value<std::string>(&scaleAndConfidenceSelection_)
+              ->default_value(scaleAndConfidenceSelection_),
+          "Throw fewer toys far from interesting contours , format : CL_1,CL_2,..CL_N (--toysH scaled down when "
+          "probability is far from any of CL_i) ")(
+          "maxProbability",
+          boost::program_options::value<float>(&maxProbability_)->default_value(maxProbability_),
+          "when point is >  maxProbability countour, don't bother throwing toys")(
+          "confidenceTolerance",
+          boost::program_options::value<float>(&confidenceToleranceForToyScaling_)
+              ->default_value(confidenceToleranceForToyScaling_),
+          "Determine what 'far' means for adatptiveToys. (relative in terms of (1-cl))")(
+          "LHCmode",
+          boost::program_options::value<std::string>(&mode_)->default_value(mode_),
+          "Shortcuts for LHC style running modes. --LHCmode LHC-significance: --generateNuisances=0 "
+          "--generateExternalMeasurements=1 --fitNuisances=1 --testStat=LHC (Q_LHC, modified for discovery) "
+          "--significance, --LHCmode LHC-limits: --generateNuisances=0 --generateExternalMeasurements=1 "
+          "--fitNuisances=1 --testStat=LHC (Q_LHC, modified for upper limits) --rule CLs, --LHCmode "
+          "LHC-feldman-cousins: --generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1 --testStat=PL "
+          "(Q_Profile, includes boundaries) --rule Pmu")
 
-    ;
+      ;
 }
 
 void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
@@ -227,13 +298,14 @@ void HybridNew::applyDefaultOptions() {
 }
 
 double HybridNew::limitAccuracy(double limit) {
-    // The stricter requirement wins; zero switches one off
-    const double off = std::numeric_limits<double>::infinity();
-    double absReq = (rAbsAccuracy_ > 0 ? rAbsAccuracy_ : off);
-    double relReq = (rRelAccuracy_ > 0 ? rRelAccuracy_ * std::fabs(limit) : off);
-    // Unmeetable at limit == 0
-    if (relReq == 0) relReq = off;
-    return std::min(absReq, relReq);
+  // The stricter requirement wins; zero switches one off
+  const double off = std::numeric_limits<double>::infinity();
+  double absReq = (rAbsAccuracy_ > 0 ? rAbsAccuracy_ : off);
+  double relReq = (rRelAccuracy_ > 0 ? rRelAccuracy_ * std::fabs(limit) : off);
+  // Unmeetable at limit == 0
+  if (relReq == 0)
+    relReq = off;
+  return std::min(absReq, relReq);
 }
 
 void HybridNew::validateOptions() {
@@ -273,8 +345,12 @@ void HybridNew::validateOptions() {
         fitNuisances_ = false;
     }
     if (reportPVal_ && workingMode_ != MakeSignificance) throw std::invalid_argument("HybridNew: option --pvalue must go together with --significance");
-    if (rAbsAccuracy_ < 0 || rRelAccuracy_ < 0) throw std::invalid_argument("HybridNew: rAbsAcc and rRelAcc must not be negative");
-    if (rAbsAccuracy_ == 0 && rRelAccuracy_ == 0) throw std::invalid_argument("HybridNew: rAbsAcc and rRelAcc cannot both be zero, since a zero switches off that accuracy requirement and the search would have nothing left to converge to");
+    if (rAbsAccuracy_ < 0 || rRelAccuracy_ < 0)
+      throw std::invalid_argument("HybridNew: rAbsAcc and rRelAcc must not be negative");
+    if (rAbsAccuracy_ == 0 && rRelAccuracy_ == 0)
+      throw std::invalid_argument(
+          "HybridNew: rAbsAcc and rRelAcc cannot both be zero, since a zero switches off that accuracy requirement and "
+          "the search would have nothing left to converge to");
 }
 
 void HybridNew::setupPOI(RooStats::ModelConfig *mc_s) {
@@ -441,9 +517,14 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       limitErr = std::max(limit-rMin, rMax-limit);
       expoFit.SetRange(rMin,rMax);
 
-      if (limitErr < limitAccuracy(limit) && (!doFC_) ) {  // need to look for intervals for FC
-          if (verbose > 1) CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("  reached accuracy %6.4f below %6.4f ", limitErr,limitAccuracy(limit))),__func__);
-          done = true;
+      if (limitErr < limitAccuracy(limit) && (!doFC_)) {  // need to look for intervals for FC
+        if (verbose > 1)
+          CombineLogger::instance().log(
+              "HybridNew.cc",
+              __LINE__,
+              std::string(Form("  reached accuracy %6.4f below %6.4f ", limitErr, limitAccuracy(limit))),
+              __func__);
+        done = true;
       }
   } else {
       limitPlot_.reset(new TGraphErrors());
@@ -499,8 +580,14 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
 
           // exit if reached accuracy on r
           if (limitErr < limitAccuracy(limit)) {
-              if (verbose > 1) CombineLogger::instance().log("HybridNew.cc",__LINE__,std::string(Form("Reached accuracy %6.4f below %6.4f.", limitErr,limitAccuracy(limit))),__func__);
-              done = true; break;
+            if (verbose > 1)
+              CombineLogger::instance().log(
+                  "HybridNew.cc",
+                  __LINE__,
+                  std::string(Form("Reached accuracy %6.4f below %6.4f.", limitErr, limitAccuracy(limit))),
+                  __func__);
+            done = true;
+            break;
           }
 
           // evaluate point
@@ -522,17 +609,19 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
               if (verbose > 0) CombineLogger::instance().log("HybridNew.cc",__LINE__,"Trying to move the interval edges closer",__func__);
               double rMinBound = rMin, rMaxBound = rMax;
               // try to reduce the size of the interval
-              while (clsMin.second == 0 || fabs(rMin-limit) > limitAccuracy(limit)) {
-                  rMin = 0.5*(rMin+limit);
-                  clsMin = eval(w, mc_s, mc_b, data, rMin, true, clsTarget);
-                  if (fabs(clsMin.first-clsTarget) <= 2*clsMin.second) break;
-                  rMinBound = rMin;
+              while (clsMin.second == 0 || fabs(rMin - limit) > limitAccuracy(limit)) {
+                rMin = 0.5 * (rMin + limit);
+                clsMin = eval(w, mc_s, mc_b, data, rMin, true, clsTarget);
+                if (fabs(clsMin.first - clsTarget) <= 2 * clsMin.second)
+                  break;
+                rMinBound = rMin;
               }
-              while (clsMax.second == 0 || fabs(rMax-limit) > limitAccuracy(limit)) {
-                  rMax = 0.5*(rMax+limit);
-                  clsMax = eval(w, mc_s, mc_b, data, rMax, true, clsTarget);
-                  if (fabs(clsMax.first-clsTarget) <= 2*clsMax.second) break;
-                  rMaxBound = rMax;
+              while (clsMax.second == 0 || fabs(rMax - limit) > limitAccuracy(limit)) {
+                rMax = 0.5 * (rMax + limit);
+                clsMax = eval(w, mc_s, mc_b, data, rMax, true, clsTarget);
+                if (fabs(clsMax.first - clsTarget) <= 2 * clsMax.second)
+                  break;
+                rMaxBound = rMax;
               }
               expoFit.SetRange(rMinBound,rMaxBound);
               break;
@@ -597,12 +686,14 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
 		// sanity check fit result
 		  limit = expoFit.GetParameter(2);
 		  limitErr = expoFit.GetParError(2);
-		  if (limitErr < limitAccuracy(limit)) break;
-	    }
-	    // add one point in the interval.
-	    double rTry = RooRandom::uniform()*(rMaxBound-rMinBound)+rMinBound;
-	    if (i != imax) eval(w, mc_s, mc_b, data, rTry, true, clsTarget);
-	}
+                  if (limitErr < limitAccuracy(limit))
+                    break;
+            }
+            // add one point in the interval.
+            double rTry = RooRandom::uniform() * (rMaxBound - rMinBound) + rMinBound;
+            if (i != imax)
+              eval(w, mc_s, mc_b, data, rTry, true, clsTarget);
+        }
       }
 
   }

@@ -96,7 +96,7 @@ private:
   void validateOptions() ;
 
   // Convergence requirement on the limit uncertainty
-  static double limitAccuracy(double limit) ;
+  static double limitAccuracy(double limit);
 
   // make sure our rValues_ is contains all pois in the model, and does not contain anything else
   void setupPOI(RooStats::ModelConfig *mc_s) ;
