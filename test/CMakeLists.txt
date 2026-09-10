@@ -289,6 +289,14 @@ COMBINE_ADD_TEST(roo_bernstein_fast_schema_evolution
     PASSREGEX "All checks passed"
 )
 
+# HybridNew must reach the relative accuracy (issue #1232)
+COMBINE_ADD_TEST(hybridnew_accuracy
+    COMMAND python3 test_hybridnew_accuracy.py
+    COPY_TO_BUILDDIR ${REPO}/test/test_hybridnew_accuracy.py
+                    ${REPO}/data/ci/hybridnew_small_limit_counting.txt
+    PASSREGEX "All checks passed"
+)
+
 # test_interference.py
 COMBINE_ADD_TEST(test_interference_py
     COMMAND python3 test_interference.py

@@ -1,0 +1,18 @@
+# Counting experiment with a large signal expectation, so that the 95% CL upper limit on the
+# signal strength comes out well below 1 (r ~ 0.05). That is the regime in which the HybridNew
+# convergence criterion used to be dominated by the absolute accuracy rAbsAcc, see issue #1232.
+# Used by test/test_hybridnew_accuracy.py.
+imax 1  number of channels
+jmax 1  number of backgrounds
+kmax 2  number of nuisance parameters
+------------
+bin         bin1
+observation 0
+------------
+bin           bin1   bin1
+process       sig    bkg
+process         0      1
+rate           47.60  1.47
+------------
+deltaS  lnN    1.20    -    20% uncertainty on signal
+deltaB  lnN      -   1.50   50% uncertainty on background
