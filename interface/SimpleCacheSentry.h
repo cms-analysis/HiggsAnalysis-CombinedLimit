@@ -31,7 +31,10 @@ class SimpleCacheSentry : public RooAbsArg {
         void copyCache(const RooAbsArg* source, Bool_t valueOnly=kFALSE, Bool_t setValDirty=kTRUE) override {}
         void attachToTree(TTree& t, Int_t bufSize=32000) override {}
         void attachToVStore(RooVectorDataStore& vstore) override {}
+
+#if ROOT_VERSION_CODE<ROOT_VERSION(6,41,0)
         void setTreeBranchStatus(TTree& t, Bool_t active) override {}
+#endif
         void fillTreeBranch(TTree& t) override {}
         Bool_t isIdentical(const RooAbsArg& other, Bool_t assumeSameType=kFALSE) const override;
     private:
