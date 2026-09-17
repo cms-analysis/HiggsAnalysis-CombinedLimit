@@ -36,7 +36,7 @@ jobs:
         with:
           path: HiggsAnalysis/CombinedLimit
 
-      - uses: cvmfs-contrib/github-action-cvmfs@v4
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
         with:
           cvmfs_repositories: 'cms-griddata.cern.ch'
 

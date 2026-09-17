@@ -59,7 +59,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: cvmfs-contrib/github-action-cvmfs@v4
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
         with:
           cvmfs_repositories: ${{ (env.CMSSW_VERSION != '') && 'cms.cern.ch' || 'sft.cern.ch' }}
 
