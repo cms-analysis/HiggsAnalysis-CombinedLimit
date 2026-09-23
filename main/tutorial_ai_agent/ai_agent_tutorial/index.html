@@ -2037,10 +2037,11 @@ helps.</p>
   nothing to install on lxplus) and <strong>Claude Code</strong> (Anthropic's client, handy
   if you already use it locally).</li>
 <li><strong>MCP servers</strong>: the "tools" the agent is allowed to call. There are two: a
-  <strong>retrieval</strong> server that searches four Combine sources (the documentation,
-  the <a href="https://arxiv.org/abs/2404.06614">Combine paper</a>, the source code, and
-  the <a href="https://cms-talk.web.cern.ch/c/physics/cat/cat-stats/279">cms-talk statistics forum</a>),
-  and an <strong>execution</strong> server that runs Combine commands.</li>
+  <strong>retrieval</strong> server that searches five Combine sources (the documentation,
+  the <a href="https://arxiv.org/abs/2404.06614">Combine paper</a>, the source code, the
+  <a href="https://cms-talk.web.cern.ch/c/physics/cat/cat-stats/279">cms-talk statistics forum</a>,
+  and the archived HyperNews forums that preceded it), and an <strong>execution</strong>
+  server that runs Combine commands.</li>
 <li><strong>A skill</strong>: a short set of instructions that tells the agent <em>how</em> to use
   Combine: which source to consult for which kind of question, how to read the
   output, and to always cite what it found.</li>
@@ -2085,9 +2086,9 @@ you pick one with the <code>--model &lt;provider&gt;/&lt;model&gt;</code> flag (
 </thead>
 <tbody>
 <tr>
-<td><strong><code>litellm</code></strong> (default)</td>
-<td>A key from the <strong>CERN LiteLLM gateway</strong></td>
-<td>Recommended for CERN users. Data stays within CERN's governed gateway.</td>
+<td><strong><code>aigw</code></strong> (default)</td>
+<td>Your own key from the <strong>CERN AI Gateway</strong></td>
+<td>Recommended for CERN users: data stays within CERN's governed gateway. Serves <code>qwen3.8-27b-fp16</code> (the default — CERN-hosted, free to use) and OpenAI's <code>gpt-5.6-sol/terra/luna-preview</code> (larger and stronger, but metered).</td>
 </tr>
 <tr>
 <td><code>anthropic</code></td>
@@ -2106,20 +2107,43 @@ you pick one with the <code>--model &lt;provider&gt;/&lt;model&gt;</code> flag (
 </tr>
 </tbody>
 </table>
-<p>For most CERN users the <strong><code>litellm</code></strong> provider is the right default. Access is
-granted by subscribing to the e-group
-<a href="https://gms.web.cern.ch/group/lumi-api-access">lumi-api-access</a>. Once you are a
-member, you do <strong>not</strong> need to export anything: the setup script (step 2 below)
-reads a shared key from EOS automatically and prints a confirmation line
-(<code>LITELLM_API_KEY loaded from ...</code>). If you are not yet a member, it instead
-prints a short banner explaining how to subscribe.</p>
-<p>If you would rather use your own LiteLLM key, export it before launching and the
-setup script will not overwrite it:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">LITELLM_API_KEY</span><span class="o">=</span>&lt;your-key&gt;<span class="w">   </span><span class="c1"># optional — only if you use your own key</span>
+<p>The <code>litellm</code> provider, which used to be the default, pointed at the CERN
+LiteLLM gateway; that gateway has been <strong>decommissioned</strong> and its models no
+longer answer.</p>
+<p>For most CERN users the <strong><code>aigw</code></strong> provider is the right choice. Keys are
+per-user (there is no shared key) and must belong to the <code>cms-combine-agent</code>
+team, so getting one takes four steps:</p>
+<ol>
+<li>
+<p><strong>Subscribe to the e-group</strong>
+   <a href="https://groups-portal.web.cern.ch/group/cms-combine-agent-users/details"><code>cms-combine-agent-users</code></a>.</p>
+<p><img alt="Subscribing to the cms-combine-agent-users e-group" src="../egroup_subscribe.png" /></p>
+</li>
+<li>
+<p><strong>Log in once</strong> at <a href="https://aigw.cern.ch">aigw.cern.ch</a>. The gateway
+   registers you on that first visit and adds you to the team a few minutes
+   later. Until then you are in the default <em>sandbox</em> team, which offers fewer
+   models than <code>cms-combine-agent</code>.</p>
+</li>
+<li>
+<p><strong>Create a key</strong> at
+   <a href="https://aigw.cern.ch/ui/api-keys/">aigw.cern.ch/ui/api-keys</a>, selecting the
+   <strong><code>cms-combine-agent</code></strong> team. If the team is not offered, step 2 has not gone
+   through yet — wait a few minutes and reload. Leave the model selection at
+   <strong>All Team Models</strong>.</p>
+<p><img alt="Creating an API key for the cms-combine-agent team" src="../aigw_api_key.png" /></p>
+</li>
+<li>
+<p><strong>Export it</strong> in the shell where you launch the agent:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">AIGW_API_KEY</span><span class="o">=</span>&lt;your-key&gt;
 </code></pre></div>
-<p>To switch model for a session, pass <code>--model</code>, e.g. to use the (slow,
-no-key) self-hosted model:</p>
-<div class="highlight"><pre><span></span><code>opencode<span class="w"> </span>--model<span class="w"> </span>cern-vm/qwen2.5-coder:7b
+</li>
+</ol>
+<p>Putting that <code>export</code> in your shell profile saves repeating it every session.
+The setup script in step 2 below does <strong>not</strong> fetch a key for you: if
+<code>AIGW_API_KEY</code> is unset it prints these instructions and nothing else.</p>
+<p>To switch model for a session, pass <code>--model</code>:</p>
+<div class="highlight"><pre><span></span><code>combagent<span class="w"> </span>--model<span class="w"> </span>aigw/gpt-5.6-luna-preview
 </code></pre></div>
 <h2 id="example-1-combagent-on-lxplus-main-workflow">Example 1: combagent on lxplus (main workflow)</h2>
 <p>This is the recommended way to use the assistant. Everything is on CVMFS, so
@@ -2131,14 +2155,15 @@ Use your own CMSSW area with Combine built in it (see the
 cmsenv
 <span class="nb">cd</span><span class="w"> </span>/path/to/your/analysis<span class="w">    </span><span class="c1"># where your datacards live</span>
 </code></pre></div>
-<p><strong>Step 2: source the assistant setup.</strong> This puts the <code>combagent</code> client (our maintained fork of opencode) on
-your <code>PATH</code>, wires in the Combine tools, skill, and model configuration, and —
-if you are a member of the <code>lumi-api-access</code> e-group — loads the CERN LiteLLM
-key for you:</p>
+<p><strong>Step 2: source the assistant setup.</strong> This puts the <code>combagent</code> client (our
+maintained fork of opencode) on your <code>PATH</code> and wires in the Combine tools,
+skill, and model configuration:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">source</span><span class="w"> </span>/cvmfs/cms-griddata.cern.ch/cat/sw/combine-assistant/latest/bin/setup.sh
+<span class="nb">export</span><span class="w"> </span><span class="nv">AIGW_API_KEY</span><span class="o">=</span>&lt;your-key&gt;
 </code></pre></div>
-<p>You only need to <code>export LITELLM_API_KEY=&lt;your-key&gt;</code> here if you are using your
-own key instead of the shared one.</p>
+<p>The key is yours to create — see <a href="#choosing-a-model">Choosing a model</a> above —
+and the setup script does not fetch one for you. If <code>AIGW_API_KEY</code> is unset it
+prints those same instructions instead.</p>
 <p><strong>Step 3: launch the agent:</strong></p>
 <div class="highlight"><pre><span></span><code>combagent
 </code></pre></div>
@@ -2159,8 +2184,8 @@ own key instead of the shared one.</p>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <code>litellm</code> models and the self-hosted <code>cern-vm</code> require the CERN network (lxplus/SWAN, or
-VPN).</p>
+<p>The <code>aigw</code> models and the self-hosted <code>cern-vm</code> require the CERN network
+(lxplus/SWAN, or VPN).</p>
 </div>
 <h2 id="example-2-claude-code-locally">Example 2: Claude Code, locally</h2>
 <p>If you already use <a href="https://claude.com/claude-code">Claude Code</a> on your own
