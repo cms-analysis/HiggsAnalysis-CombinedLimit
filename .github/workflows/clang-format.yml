@@ -35,7 +35,8 @@ jobs:
 
       - name: Run git-clang-format
         run: |
-          PR_BASE=$(git rev-list ${{ github.event.pull_request.head.sha }} ^${{ github.event.pull_request.base.sha }} | tail --lines 1 | xargs -I {} git rev-parse {}~1)
+          git fetch --no-tags origin ${{ github.event.pull_request.base.ref }}
+          PR_BASE=$(git merge-base ${{ github.event.pull_request.head.sha }} origin/${{ github.event.pull_request.base.ref }})
           echo "running git clang-format against $PR_BASE commit"
           git \
           -c color.ui=always \
