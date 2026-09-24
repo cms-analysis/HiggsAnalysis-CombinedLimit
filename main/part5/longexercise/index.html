@@ -2679,7 +2679,7 @@ tie the normalisations of the backgrounds in the CR and SR together. This has a 
 <p>In this section we will continue to use the same SR as in the previous one, however we will switch to a lower signal mass hypothesis, <span class="arithmatex">\(m_{\phi}=200\)</span>GeV, as its sensitivity depends more strongly on the background prediction than the high mass signal, so is better for illustrating the use of CRs. Here the nominal signal (<code>r=1</code>) has been normalised to a cross section of 1 pb.</p>
 <p>The SR datacard for the 200 GeV signal is <code>datacard_part3.txt</code>. Two further datacards are provided: <code>datacard_part3_ttbar_cr.txt</code> and <code>datacard_part3_DY_cr.txt</code>
 which represent the CRs for the Drell-Yan and <span class="arithmatex">\(\text{t}\bar{\text{t}}\)</span> processes as described above.
-The cross section and acceptance uncertainties for these processes have pre-emptively been removed from the SR card.
+The cross section and acceptance uncertainties for these processes have preemptively been removed from the SR card.
 However we cannot get away with neglecting acceptance effects altogether.
 We are still implicitly using the MC simulation to predict to the ratio of events in the CR and SR, and this ratio will in general carry a theoretical acceptance uncertainty.
 If the CRs are well chosen then this uncertainty should be smaller than the direct acceptance uncertainty in the SR however.
@@ -2887,7 +2887,7 @@ To split the systematic uncertainty into different components we just need to ru
 </ul>
 <p>With <span style="font-variant:small-caps;">Combine</span> we are not limited to parametrising the signal with a single scaling parameter <code>r</code>. In fact we can define any arbitrary scaling using whatever functions and parameters we would like.
 For example, when measuring the couplings of the Higgs boson to the different SM particles we would introduce a POI for each coupling parameter, for example <span class="arithmatex">\(\kappa_{\text{W}}\)</span>, <span class="arithmatex">\(\kappa_{\text{Z}}\)</span>, <span class="arithmatex">\(\kappa_{\tau}\)</span> etc. We would then generate scaling terms for each <span class="arithmatex">\(i\rightarrow \text{H}\rightarrow j\)</span> process in terms of how the cross section (<span class="arithmatex">\(\sigma_i(\kappa)\)</span>) and branching ratio (<span class="arithmatex">\(\frac{\Gamma_i(\kappa)}{\Gamma_{\text{tot}}(\kappa)}\)</span>) scale relative to the SM prediction.</p>
-<p>This parametrisation of the signal (and possibly backgrounds too) is specified in a <strong>physics model</strong>. This is a python class that is used by <code>text2workspace.py</code> to construct the model in terms of RooFit objects. There is documentation on using phyiscs models <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/#physics-models">here</a>.</p>
+<p>This parametrisation of the signal (and possibly backgrounds too) is specified in a <strong>physics model</strong>. This is a python class that is used by <code>text2workspace.py</code> to construct the model in terms of RooFit objects. There is documentation on using physics models <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/#physics-models">here</a>.</p>
 <h3 id="a-writing-a-simple-physics-model">A: Writing a simple physics model</h3>
 <p>An example physics model that just implements a single parameter <code>r</code> is given in <code>DASModel.py</code>:</p>
 <details>

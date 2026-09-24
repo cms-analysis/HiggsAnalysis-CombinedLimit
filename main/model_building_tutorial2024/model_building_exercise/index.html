@@ -2156,7 +2156,7 @@
 <h1 id="building-statistical-models-with-combine">Building statistical models with Combine</h1>
 <h2 id="getting-started">Getting started</h2>
 <p>To get started, you should have a working setup of <span style="font-variant:small-caps;">Combine</span>, please follow the instructions from the <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users">home page</a>. Make sure to use the latest recommended release.</p>
-<p>After setting up <span style="font-variant:small-caps;">Combine</span>, you can access the working directory for this tutorial which contains all of the inputs and scripts needed in this excercise exercise:</p>
+<p>After setting up <span style="font-variant:small-caps;">Combine</span>, you can access the working directory for this tutorial which contains all of the inputs and scripts needed in this exercise exercise:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="nv">$CMSSW_BASE</span>/src/HiggsAnalysis/CombinedLimit/
 git<span class="w"> </span>checkout<span class="w"> </span>main<span class="w"> </span>
 scram<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="w"> </span>--ignore<span class="o">=</span><span class="m">2</span><span class="k">)</span>
@@ -2314,7 +2314,7 @@ rate_B rateParam *  process_B  @0*@1 rate_A*ratio
 <p><div class="highlight"><pre><span></span><code>name extArg rootfile:workspacename
 </code></pre></div>
 The <code>extArg</code> syntax allows to import <code>RooAbsReal</code> object from an external workspace. This object can be another free floating parameter, or a function of other parameters. In this section we are going to import <code>RooSpline1D</code> objects which define how various Higgs production cross sections depend on the Higgs mass (<code>MH</code> parameter). </p>
-<p>The datacard we are going to use in this section <code>htt_tt_125_8TeV.txt</code> correspond to 8 TeV analysis and Higgs mass of 125 GeV. To excercise the <code>extArg</code> features, let's rescale the signal templates to 13 TeV cross section values. 
+<p>The datacard we are going to use in this section <code>htt_tt_125_8TeV.txt</code> correspond to 8 TeV analysis and Higgs mass of 125 GeV. To exercise the <code>extArg</code> features, let's rescale the signal templates to 13 TeV cross section values. 
 The 13 and 8 TeV cross sections predictions from YR4 are stored in the <code>$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/</code>
 in <code>sm_yr4_13TeV.root</code> and <code>sm_yr4_8TeV.root</code> files respectively, let's inspect the contents of <code>sm_yr4_13TeV.root</code>: </p>
 <p><div class="highlight"><pre><span></span><code> TFile*     /afs/cern.ch/work/a/anigamov/rootv630/CMSSW_16_0_0/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/sm_yr4_13TeV.root  

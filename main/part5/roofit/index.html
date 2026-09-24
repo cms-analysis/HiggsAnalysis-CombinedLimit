@@ -2107,7 +2107,7 @@ if (typeof requirejs !== 'undefined') {
 
 </script>
 
-<p>The main objects we are interested in using from <code>RooFit</code> are <em>probability denisty functions</em> or (PDFs). We can construct the PDF,</p>
+<p>The main objects we are interested in using from <code>RooFit</code> are <em>probability density functions</em> or (PDFs). We can construct the PDF,</p>
 <div class="arithmatex">\[
 f(m|M_{H},\sigma)
 \]</div>
@@ -2251,7 +2251,7 @@ if (typeof requirejs !== 'undefined') {
 </script>
 
 <p>Note that as we change the value of <code>MH</code>, the PDF gets updated at the same time.</p>
-<p>PDFs can be used to generate Monte Carlo data. One of the benefits of <code>RooFit</code> is that to do so only uses a single line of code! As before, we have to tell <code>RooFit</code> which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" <span class="arithmatex">\(m\)</span>. The arguments for the function are the set of observables, follwed by the number of events,</p>
+<p>PDFs can be used to generate Monte Carlo data. One of the benefits of <code>RooFit</code> is that to do so only uses a single line of code! As before, we have to tell <code>RooFit</code> which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" <span class="arithmatex">\(m\)</span>. The arguments for the function are the set of observables, followed by the number of events,</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="9:2"><input checked="checked" id="__tabbed_9_1" name="__tabbed_9" type="radio" /><input id="__tabbed_9_2" name="__tabbed_9" type="radio" /><div class="tabbed-labels"><label for="__tabbed_9_1">C++</label><label for="__tabbed_9_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -2567,7 +2567,7 @@ if (typeof requirejs !== 'undefined') {
 <p>The probability to observe the dataset we have is given by the product of such probabilities for each of our data points, so that</p>
 <div class="arithmatex">\[\mathcal{L}(\alpha) \propto \prod_{i} f(m_{i}|\alpha)\]</div>
 <p>Note that for a specific dataset, the <span class="arithmatex">\(dm\)</span> factors which should be there are constnant. They can therefore be absorbed into the constant of proportionality!</p>
-<p>The maximum likelihood esitmator for <span class="arithmatex">\(\alpha\)</span>, usually written as <span class="arithmatex">\(\hat{\alpha}\)</span>, is found by maximising <span class="arithmatex">\(\mathcal{L}(\alpha)\)</span>.</p>
+<p>The maximum likelihood estimator for <span class="arithmatex">\(\alpha\)</span>, usually written as <span class="arithmatex">\(\hat{\alpha}\)</span>, is found by maximising <span class="arithmatex">\(\mathcal{L}(\alpha)\)</span>.</p>
 <p>Note that this will not depend on the value of the constant of proportionality so we can ignore it. This is true in most scenarios because usually only the <em>ratio</em> of likelihoods is needed, in which the constant factors out.</p>
 <p>Obviously this multiplication of exponentials can lead to very large (or very small) numbers which can lead to numerical instabilities. To avoid this, we can take logs of the likelihood. Its also common to multiply this by -1 and minimize the resulting <strong>N</strong>egative <strong>L</strong>og <strong>L</strong>ikelihood : <span class="arithmatex">\(\mathrm{-Log}\mathcal{L}(\alpha)\)</span>.</p>
 <p><code>RooFit</code> can construct the <strong>NLL</strong> for us.</p>

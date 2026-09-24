@@ -2229,7 +2229,7 @@ Where "Name" can be specified by you.</p>
 <p>For example, to get the correct output from a Type B analysis with no aggregating, you can run </p>
 <div class="highlight"><pre><span></span><code>python<span class="w"> </span>test/simplifiedLikelihoods/convertSLRootToPython.py<span class="w"> </span>-O<span class="w"> </span>mymodel.py<span class="w"> </span>-s<span class="w"> </span>SLinput.root:shapes_prefit/total_signal<span class="w">  </span>-b<span class="w"> </span>SLinput.root:shapes_prefit/total_M2<span class="w"> </span>d<span class="w"> </span>-d<span class="w"> </span>SLinput.root:shapes_prefit/total_data<span class="w"> </span>-c<span class="w"> </span>SLinput.root:shapes_prefit/total_M2
 </code></pre></div>
-<p>The output will be a python file with the right format for the SL tool. You can mix different ROOT files for these inputs. Note that the <code>SLtools</code> package also has some tools to covert <code>.yaml</code>-based inputs into the python config for you.</p>
+<p>The output will be a python file with the right format for the SL tool. You can mix different ROOT files for these inputs. Note that the <code>SLtools</code> package also has some tools to convert <code>.yaml</code>-based inputs into the python config for you.</p>
 <h3 id="run-a-likelihood-scan-with-the-sl">Run a likelihood scan with the SL</h3>
 <p>If you have checked out the <a href="https://gitlab.cern.ch/SimplifiedLikelihood/SLtools/-/blob/master/README.md">SLtools</a>, you can create a simple python script as the one below to produce a scan of the simplified likelihood from your inputs.</p>
 <div class="highlight"><pre><span></span><code><span class="ch">#! /usr/bin/env python</span>

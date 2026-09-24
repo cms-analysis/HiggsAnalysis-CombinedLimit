@@ -2244,7 +2244,7 @@ What do they mean, and how are they determined?</p>
 Wilks' theorem tells us what the expected distribution of the likelihood ratio <span class="arithmatex">\(\Lambda = \frac{\mathrm{L}(r)}{\mathrm{L}(\hat{r})}\)</span> is, and from this we can construct confidence intervals.
 In practice, we use the log-likelihood ratio <span class="arithmatex">\(t_r \equiv -2 \ln( \Lambda )\)</span>, rather than the likelihood ratio itself.
 The confidence interval is constructed by finding all values of <code>r</code> for which the <span class="arithmatex">\(-2 \ln(\Lambda)\)</span> is below a threshold value which depends on the confidence level we are using.</p>
-<p>We can also calculat the best fit value and confidence interval using the <code>FitDiagnostics</code> routine:</p>
+<p>We can also calculate the best fit value and confidence interval using the <code>FitDiagnostics</code> routine:</p>
 <div class="highlight"><pre><span></span><code>combine -M FitDiagnostics datacard.txt --rMin -10 --rMax 10
 </code></pre></div>
 <p>which should give you a compatible result. 
@@ -2271,7 +2271,7 @@ Both algorithms take the best fit value <span class="arithmatex">\(\hat{r}\)</sp
 The asymmetric intervals are "minos errors", which means that the crossing points were determined by explicitly scanning the likelihood as a function of <code>r</code> to look for the crossing, while minimizing other parameters at each step (profiling).
 The symmetric intervals are "hesse errors", which means that the crossing points were determined by taking the matrix of second-order partial derivatives (Hessian) at the minimum, and inverting it to estimate the crossing assuming all other derivatives vanish.</p>
 <blockquote>
-<p>The information printed under the <code>Status</code> section of the <code>RooFitResult</code> is showing that the minimization suceeded and that the hessian was positive definite, i.e. that all the second derivates are positive, as they should be at the minimum of a function. 
+<p>The information printed under the <code>Status</code> section of the <code>RooFitResult</code> is showing that the minimization succeeded and that the hessian was positive definite, i.e. that all the second derivates are positive, as they should be at the minimum of a function. 
 If the HESSE status is not 0 or the covariance matrix quality indicates it had to be forced positive definite, this indicates that there are problems with the fit.</p>
 </blockquote>
 <h3 id="running-an-explicit-likelihood-scan">Running an explicit likelihood scan</h3>
@@ -2310,13 +2310,13 @@ The full command is then:</p>
 </code></pre></div>
 <p>We can inspect the results of all of our toy fits by opening the <code>higgsCombineTest.MultiDimFit.mH120.123456.root</code> file our command created, and looking at the <code>limit</code> tree contained in it.
 The log-likelihood ratio <span class="arithmatex">\(-\ln(\Lambda)\)</span> is stored in the <code>deltaNLL</code> branch of the tree.
-For the <code>fixed</code> algorithm, there are two entries stored in the tree for every dataset: one for the best fit point, and one for the fixed point passed as the aregument to <code>--fixedPointPOIs</code>.
+For the <code>fixed</code> algorithm, there are two entries stored in the tree for every dataset: one for the best fit point, and one for the fixed point passed as the argument to <code>--fixedPointPOIs</code>.
 In order to select only the values we are interest in we can pass the requirement <code>quantileExpected &gt;= 0</code> to our TTree selection, because combine uses the value <code>-1</code> for <code>quantileExpected</code> to indicate best fit points.</p>
 <p>You can draw the <span class="arithmatex">\(t_{\mu}\)</span> distribution with:</p>
 <div class="highlight"><pre><span></span><code>root -l higgsCombineTest.MultiDimFit.mH120.123456.root
 root [1] &gt; limit-&gt;Draw(&quot;2*deltaNLL&quot;,&quot;quantileExpected &gt;= 0&quot;)
 </code></pre></div>
-<p>To test wether or not this point should be rejected, we first define the confidence level of our rejection, say <span class="arithmatex">\(1\sigma\)</span> (approximately 68%), then we use the empirical distribution of the test statistic to estimate the cut-off value of the test statistic.
+<p>To test whether or not this point should be rejected, we first define the confidence level of our rejection, say <span class="arithmatex">\(1\sigma\)</span> (approximately 68%), then we use the empirical distribution of the test statistic to estimate the cut-off value of the test statistic.
 This is done for you in the script <code>get_quantile.py</code>, which you can run:</p>
 <div class="highlight"><pre><span></span><code>python3 get_quantile.py --input higgsCombineTest.MultiDimFit.mH120.123456.root
 </code></pre></div>
@@ -2381,7 +2381,7 @@ We therefore prefer to set only an upper bound, which we can do by modifying the
 You can check thiswith the <code>HybridNew</code> method, and the slightly modified datacard <code>datacard_underfluctuation.txt</code>:</p>
 <div class="highlight"><pre><span></span><code>combine -M HybridNew --frequentist --testStat=Profile datacard_underfluctuation.txt  --rule Pmu --rMin -5 --rMax 10
 </code></pre></div>
-<p>The above command is telling combine to calculate the limit, but we have to pass the non-standard arguemnts <code>--testStat=Profile --rule Pmu</code> to tell combine to use the profile likelihood ratio test statistic <span class="arithmatex">\(t_{\mu}\)</span> directly, and not to use the <span class="arithmatex">\(\mathrm{CL}_\mathrm{s}\)</span> criterion which is normally applied.</p>
+<p>The above command is telling combine to calculate the limit, but we have to pass the non-standard arguments <code>--testStat=Profile --rule Pmu</code> to tell combine to use the profile likelihood ratio test statistic <span class="arithmatex">\(t_{\mu}\)</span> directly, and not to use the <span class="arithmatex">\(\mathrm{CL}_\mathrm{s}\)</span> criterion which is normally applied.</p>
 <p>Usually at the LHC, for upper limits we use the modified test statistic <span class="arithmatex">\(\tilde{q}_{\mu}\)</span> which is set to 0 for <span class="arithmatex">\(\mu &lt; \hat{\mu}\)</span> but also replaces <span class="arithmatex">\(\hat{\mu}\)</span> with 0 if <span class="arithmatex">\(\min(\hat{\mu},0)\)</span> so that upper limits are always positive.</p>
 <p>If we use the standard LHC test statistic we will get a positive limit:</p>
 <div class="highlight"><pre><span></span><code>combine -M HybridNew --frequentist --testStat=LHC --rule Pmu  datacard_underfluctuation.txt  

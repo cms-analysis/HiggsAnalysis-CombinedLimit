@@ -2421,8 +2421,8 @@ These non-count data are usually considered as auxiliary information which are u
 <p>The event count data may be binned histograms of the number of events with two photons with different bins of invariant mass of the photons.
 The expected counts would include signal contributions from processes where a Higgs boson is produced, as well as background contributions from processes where two photons are produced through other mechanisms, like radiation off a quark.
 The expected counts may also depend on parameters such as the energy resolution of the measured photons and the total luminosity of collisions being considered in the dataset, these can be parameterized in the model as auxiliary information.</p>
-<p>The analysis itself might be split into multiple channels, targetting different Higgs production modes with different event selection criteria.
-Furthermore, the analysis may eventually be combined with other analyses, such as a measurement targetting Higgs production where the Higgs boson decays into four leptons, rather than two photons.</p>
+<p>The analysis itself might be split into multiple channels, targeting different Higgs production modes with different event selection criteria.
+Furthermore, the analysis may eventually be combined with other analyses, such as a measurement targeting Higgs production where the Higgs boson decays into four leptons, rather than two photons.</p>
 <p>Combine provides the functionality for building the statistical models and combining all the channels or analyses together into one common analysis.</p>
 </details>
 <h3 id="sets-of-observation-models">Sets of Observation Models</h3>
@@ -2468,7 +2468,7 @@ We will write in a mostly frequentist framework, though combine can be used for 
 <p>In principle the form of the likelihood can be any function where the corresponding <span class="arithmatex">\(p\)</span> is a valid probability distribution.
 In practice, most of the auxiliary terms are gaussian, and the definition of <span class="arithmatex">\(\nu\)</span> is chosen such that the central observation <span class="arithmatex">\(y = 0\)</span> , and the width of the gaussian is one.</p>
 <p>Note that on its own, the form of the auxiliary term is not meaningful; what is meaningful is the relationship between the auxiliary term and how the model expectation is altered by the parameter.
-Any co-ordinate transformation of the parameter values can be absorbed into the definition of the parameter.
+Any coordinate transformation of the parameter values can be absorbed into the definition of the parameter.
 A reparameterization would change the mathematical form of the auxiliary term, but would also simultaneously change how the model depends on the parameter in such a way that the total likelihood is unchanged.
 e.g. if you define  <span class="arithmatex">\(\nu = \sigma(tt)\)</span> or <span class="arithmatex">\(\nu = \sigma(tt) - \sigma_0\)</span> you will change the form of the constraint term, but the you will not change the overall likelihood.</p>
 <h2 id="likelihoods-implemented-in-combine">Likelihoods implemented in Combine</h2>
@@ -2507,7 +2507,7 @@ M_{cp}(\mu) = \begin{cases}
     1    &amp;\mathrm{otherwise} \end{cases}
 \]</div>
 <p>However, combine supports many more models beyond this.
-As well as built-in support for models with <a href="../../part2/physicsmodels/#multisignalmodel-ready-made-model-for-multiple-signal-processes">multiple parameters of interest</a>, combine comes with many pre-defined models which go beyond simple process normalization, which are targetted at various types of searches and measurements.</p>
+As well as built-in support for models with <a href="../../part2/physicsmodels/#multisignalmodel-ready-made-model-for-multiple-signal-processes">multiple parameters of interest</a>, combine comes with many pre-defined models which go beyond simple process normalization, which are targeted at various types of searches and measurements.</p>
 <h4 id="normalization-effects">Normalization Effects</h4>
 <p>The overall normalization <span class="arithmatex">\(N\)</span> is affected differently by the different types of nuisances parameters, and takes the general form</p>
 <div class="arithmatex">\[N = \prod_X \prod_i f_X(\vec{\nu}_{X}^{i})\mathrm{,}\]</div>
@@ -2595,20 +2595,20 @@ p_{e} \propto \exp{\left(-0.5 \left(\frac{(\nu_{e} - y_{e})}{\sigma}\right)^2 \r
 p_{e} = \mathrm{Poiss}( \nu_{e}; y_{e} ) \mathrm{;\ or~} \\
 p_{e} \propto \mathrm{constant\ (on\ some\ interval\ [a,b])}.
 \]</div>
-<p>Which form they have depends on the type of nuisance paramater:</p>
+<p>Which form they have depends on the type of nuisance parameter:</p>
 <ul>
 <li>The shape (<span class="arithmatex">\(\vec{\nu}_{S}\)</span>) and log-normal (<span class="arithmatex">\(\vec{\nu}_{L}\)</span>), nuisance parameters always use gaussian constraint terms;</li>
 <li>The gamma (<span class="arithmatex">\(\vec{\nu}_{G}\)</span>) nuisance parameters always use Poisson constraints;</li>
 <li>The rate parameters (<span class="arithmatex">\(\vec{\nu}_{\rho}\)</span>) may have either Gaussian or Uniform constraints; and</li>
 <li>The model statistical uncertiainties (<span class="arithmatex">\(\vec{\nu}_{B}\)</span>) may use Gaussian or  Poisson Constraints.</li>
 </ul>
-<p>While combine does not provide functionality for user-defined auxiliary pdfs, the effect of nuisance paramters is highly customizable through the form of the dependence of <span class="arithmatex">\(n^\mathrm{exp}_{cb}\)</span> on the parameter.</p>
+<p>While combine does not provide functionality for user-defined auxiliary pdfs, the effect of nuisance parameters is highly customizable through the form of the dependence of <span class="arithmatex">\(n^\mathrm{exp}_{cb}\)</span> on the parameter.</p>
 <h3 id="overview-of-the-template-based-likelihood-model-in-combine">Overview of the template-based likelihood model in Combine</h3>
 <p>An overview of the binned likelihood model built by combine is given below.
 Note that <span class="arithmatex">\(M_{cp}\)</span> can be chosen by the user from a set of predefined models, or defined by the user themselves.</p>
 <p><img alt="" src="../CombineLikelihoodEqns.png" /></p>
 <h3 id="parametric-likelihoods-in-combine">Parametric Likelihoods in Combine</h3>
-<p>As with the template likelihood, the parameteric likelihood implemented in combine implements likelihoods for multiple process and multiple channels.
+<p>As with the template likelihood, the parametric likelihood implemented in combine implements likelihoods for multiple process and multiple channels.
 Unlike the template likelihoods, the <a href="../../part2/settinguptheanalysis/#unbinned-or-parametric-shape-analysis">parametric likelihoods are defined using custom probability density functions</a>, which are functions of continuous observables, rather than discrete, binned counts.
 Because the pdfs are functions of a continuous variable, the likelihood can be evaluated over unbinned data.
 They can still, also, be used for analysis on <a href="../../part2/settinguptheanalysis/#caveat-on-using-parametric-pdfs-with-binned-datasets">binned data</a>.</p>
@@ -2649,7 +2649,7 @@ The default model is one where <span class="arithmatex">\(\vec{\mu}\)</span> sim
 <p>The user may define any number of nuisance parameters which morph the shape of the pdf according to functional forms defined by the user.
 These nuisance parameters are included as <span class="arithmatex">\(\vec{\nu}_\rho\)</span> uncertainties, which may have gaussian or uniform constraints, and include user-defined process normalization effects.</p>
 <h3 id="combining-template-based-and-parametric-likelihoods">Combining template-based and parametric Likelihoods</h3>
-<p>While we presented the likelihoods for the template and parameteric models separately, they can also be combined into a single likelihood, by treating them each as separate channels.
+<p>While we presented the likelihoods for the template and parametric models separately, they can also be combined into a single likelihood, by treating them each as separate channels.
 When combining the models, the data likelihoods of the binned and unbinned channels are multiplied.</p>
 <div class="arithmatex">\[ \mathcal{L}_{\mathrm{combined}} = \mathcal{L}_{\mathrm{primary}} \cdot \mathcal{L}_\mathrm{auxiliary} =  \left(\prod_{c_\mathrm{template}} \mathcal{L}_{\mathrm{primary}}^{c_\mathrm{template}}\right) \left(\prod_{c_\mathrm{parametric}} \mathcal{L}_{\mathrm{primary}}^{c_\mathrm{parametric}}\right)\cdot \mathcal{L}_{\mathrm{auxiliary}} \]</div>
 <h1 id="references-and-external-literature">References and External Literature</h1>
