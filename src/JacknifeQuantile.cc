@@ -117,7 +117,7 @@ void QuantileCalculator::partition(int m, bool doJacknife)
     }
     if (doJacknife) {
         // at this point sumw[j] has the weights of j... 
-        // now I have to get the weights of everyhing else
+        // now I have to get the weights of everything else
         // start with all weights
         for (int j = 0; j < m; ++j) sumw_[m] += sumw_[j];
         // and then subtract
@@ -135,7 +135,7 @@ void QuantileCalculator::quantiles(double quantile, bool doJacknife)
         double threshold  = quantile * sumw_[j];
         int ilow = 0, ihigh = n-1;
         for (int i = 0; i < n; ++i) {
-            if ((points_[i].set == j) == doJacknife) continue; // if jacknife, cut away just one piece, otherwise cut away everthing else
+            if ((points_[i].set == j) == doJacknife) continue; // if jacknife, cut away just one piece, otherwise cut away everything else
             //std::cout << "\t\t\t" << points_[i].x << std::endl;;
             if (runningSum + points_[i].w <= threshold) { 
                 runningSum += points_[i].w;

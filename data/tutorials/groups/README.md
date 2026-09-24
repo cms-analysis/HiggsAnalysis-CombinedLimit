@@ -3,7 +3,7 @@
 The files in this directory are a tutorial on:
 - defining groups of nuisances,
 - creating snapshots from fits, and
-- breaking down uncertainties by freezing groups of nuisances while starting from the snaphot.
+- breaking down uncertainties by freezing groups of nuisances while starting from the snapshot.
 
 The files in this directory are:
 - [`myanalysis.dc.txt`](./myanalysis.dc.txt): a two-bin counting experiment datacard with some tension built into the observation and multiple nuisance groups defined.
@@ -94,7 +94,7 @@ group_exp:(CMS_scale_j,CMS_res_j,El_SFs,lumi_8TeV,Mu_SFs,btagSFs_bcjets,bkgNorm3
 group_sigtheo:(SIGpfd,SIGeff,SIGscale)
 group_theo:(ZZnorm,ZHnorm,DY_NLO,SIGpfd,SIGeff,SIGscale,tWnorm,WZnorm,WWnorm)
 
-1) The best-fit snaphot has the following best-fit values:
+1) The best-fit snapshot has the following best-fit values:
 CMS_res_j	  = -0.132802	 +/-  0.989801
 CMS_scale_j	  = -0.173259	 +/-  0.976373
 DY_NLO	  = 0.0191775	 +/-  0.994808

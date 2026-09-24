@@ -303,7 +303,7 @@ class ModelBuilder(ModelBuilderBase):
                     open_files[(fin, wsn)] = wstmp
                     # fitmp.Close()
 
-        # First do independant parameters, then expressions
+        # First do independent parameters, then expressions
         for rp in self.DC.rateParams.keys():
             for rk in range(len(self.DC.rateParams[rp])):
                 type = self.DC.rateParams[rp][rk][0][-1]

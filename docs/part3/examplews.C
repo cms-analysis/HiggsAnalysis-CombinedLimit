@@ -12,7 +12,7 @@
 
     // ---------------------------- SIGNAL REGION -------------------------------------------------------------------//
     // Make a dataset, this will be just four bins in MET.
-    // its easiest to make this from a histogram. Set the contents to "somehting"
+    // it's easiest to make this from a histogram. Set the contents to "something"
     TH1F data_th1("data_obs_SR","Data observed in signal region",4,200,1000);
     data_th1.SetBinContent(1,100);
     data_th1.SetBinContent(2,50);
@@ -36,7 +36,7 @@
     // Create a RooParametericHist which contains those yields, last argument is just for the binning,
     // can use the data TH1 for that
     RooParametricHist p_bkg("bkg_SR", "Background PDF in signal region",met,bkg_SR_bins,data_th1);
-    // Always include a _norm term which should be the sum of the yields (thats how combine likes to play with pdfs)
+    // Always include a _norm term which should be the sum of the yields (that's how combine likes to play with pdfs)
     RooAddition p_bkg_norm("bkg_SR_norm","Total Number of events from background in signal region",bkg_SR_bins);
 
     // Every signal region needs a signal
@@ -78,7 +78,7 @@
     // use polynomials for example.
 
 
-    RooFormulaVar TF("TF","Trasnfer factor","2*TMath::Power(1.01,@0)*TMath::Power(1.02,@1)",RooArgList(efficiency,acceptance) );
+    RooFormulaVar TF("TF","Transfer factor","2*TMath::Power(1.01,@0)*TMath::Power(1.02,@1)",RooArgList(efficiency,acceptance) );
 
     // Finally, we need to make each bin of the background in the control region a function of the background in the signal and the transfer factor
     // N_CR = N_SR x TF

@@ -219,7 +219,7 @@ class CombineToolBase:
                 idx = cmd_list.index(arg)
                 assert idx != -1 and idx < len(cmd_list)
                 return cmd_list[idx + 1]
-        raise RuntimeError("The workspace argument must be specified explicity with -d or --datacard")
+        raise RuntimeError("The workspace argument must be specified explicitly with -d or --datacard")
 
     def extract_lib_arg(self, cmd_list=[]):
         for arg in ["-L", "--LoadLibrary"]:

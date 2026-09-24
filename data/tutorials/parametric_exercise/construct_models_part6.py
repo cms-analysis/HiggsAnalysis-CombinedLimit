@@ -243,7 +243,7 @@ print("Using ROOT version: %s" % ROOT.__version__)
 #         ROOT.RooFit.SumW2Error(True)
 #         )
 #
-#     # Make RooCategory index object to control which pdf is acitve
+#     # Make RooCategory index object to control which pdf is active
 #     index[cat] = ROOT.RooCategory("pdfindex_%s"%cat,
 #         "Index of Pdf which is active for %s"%cat
 #         )

@@ -63,7 +63,7 @@ optional arguments:
   --mass MASS           Signal mass to use (default:*)
 ```
 `printLevel` adjusts how much information is printed to the screen. When set to 0, the results are only written to the json file, but not to the screen. When set to 1 (default), the number of warnings/alerts
-of a given type is printed to the screen. Setting this option to 2 prints the same information as level 1, and additionally prints which uncertainties are affected (if the check is related to uncertainties) or which processes are affected (if the check is related only to processes). When `printLevel` is set to 3, the information from level 2 is printed, and additionaly for checks related to uncertainties it prints which processes are affected.
+of a given type is printed to the screen. Setting this option to 2 prints the same information as level 1, and additionally prints which uncertainties are affected (if the check is related to uncertainties) or which processes are affected (if the check is related only to processes). When `printLevel` is set to 3, the information from level 2 is printed, and additionally for checks related to uncertainties it prints which processes are affected.
 
 To print information to screen, the script parses the json file that contains the results of the validation checks. Therefore, if you have already run the validation tool and produced this json file, you can simply change the `printLevel` by re-running the tool with `printLevel` set to a different value, and enabling the `--readOnly` option.
 
@@ -243,7 +243,7 @@ Where `sigrate_tot` is the total signal yield in the analysis category and `proc
 
 ## What to do in case of a warning
 
-These checks are mostly a tool to help you investigate your datacards: a warning does not necessarily mean there is a mistake in your datacard, but you should use it as a starting point to investigate. Empty processes and emtpy shape uncertainties connected to nonempty processes will most likely be unintended. The same holds for cases where the 'up' and 'down' shape templates are identical. If there are bins that contain signal but no background contributions, this should be corrected. See the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) for more information on that point.
+These checks are mostly a tool to help you investigate your datacards: a warning does not necessarily mean there is a mistake in your datacard, but you should use it as a starting point to investigate. Empty processes and empty shape uncertainties connected to nonempty processes will most likely be unintended. The same holds for cases where the 'up' and 'down' shape templates are identical. If there are bins that contain signal but no background contributions, this should be corrected. See the [FAQ](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part4/usefullinks/#faq) for more information on that point.
 
 For other checks it depends on the situation whether there is a problem or not. Some examples:
 

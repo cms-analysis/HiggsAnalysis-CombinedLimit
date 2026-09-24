@@ -144,7 +144,7 @@ Combine::Combine() :
       ("snapshotName", po::value<std::string>(&snapshotName_)->default_value(""), "Default snapshot name for pre-fit snapshot for reading or writing to workspace")
       ("modelConfigName",  po::value<std::string>(&modelConfigName_)->default_value("ModelConfig"), "ModelConfig name, when reading it from or writing it to a ROOT file.")
       ("modelConfigNameB", po::value<std::string>(&modelConfigNameB_)->default_value("%s_bonly"), "Name of the ModelConfig for b-only hypothesis.\n"
-                                                                                                  "If not present, it will be made from the singal model taking zero signal strength.\n"
+                                                                                                  "If not present, it will be made from the signal model taking zero signal strength.\n"
                                                                                                   "A '%s' in the name will be replaced with the modelConfigName.")
       ("bypassFrequentistFit",   "Skip actual minimization for constructing frequentist toys (eg because loaded snapshot already corresponds to desired postfit)")
       ("overrideSnapshotMass",   "Override MH loaded from a snapshot with the one passed on the command line")
@@ -1078,7 +1078,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	}
       } else {
         w->loadSnapshot("clean"); // (*) this is needed in case running over toys+fits, to avoid starting from previous fit 
-				  //-- constraints are set to toy values if frequentist (below) or set back to 0 (unecessarily) here. 
+				  //-- constraints are set to toy values if frequentist (below) or set back to 0 (unnecessarily) here. 
 	absdata_toy = dynamic_cast<RooAbsData *>(readToysFromHere->Get(TString::Format("toys/toy_%d",iToy)));
 	if (absdata_toy == 0) {
 	  std::cerr << "Toy toy_"<<iToy<<" not found in " << readToysFromHere->GetName() << ". List follows:\n";

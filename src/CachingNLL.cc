@@ -786,8 +786,8 @@ cacheutils::CachingAddNLL::setData(RooAbsData &data, bool cloneData)
             }
             if (all_equal) binWidths_.resize(1);
         } else {
-            //printf("channel %s (binned likelihood? %d), can't do binned intergals. nobs %d, obs %s, nbins %d, ndata %d\n", pdf_->GetName(), pdf_->getAttribute("BinnedLikelihood"), obs->getSize(), (xvar ? xvar->GetName() : "<nil>"), (xvar ? xvar->numBins() : -999), data_->numEntries());
-            CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("channel %s (binned likelihood? %d), can't do binned intergals. nobs %d, obs %s, nbins %d, ndata %d"
+            //printf("channel %s (binned likelihood? %d), can't do binned integrals. nobs %d, obs %s, nbins %d, ndata %d\n", pdf_->GetName(), pdf_->getAttribute("BinnedLikelihood"), obs->getSize(), (xvar ? xvar->GetName() : "<nil>"), (xvar ? xvar->numBins() : -999), data_->numEntries());
+            CombineLogger::instance().log("CachingNLL.cc",__LINE__,std::string(Form("channel %s (binned likelihood? %d), can't do binned integrals. nobs %d, obs %s, nbins %d, ndata %d"
                     , pdf_->GetName(), pdf_->getAttribute("BinnedLikelihood"), obs->getSize(), (xvar ? xvar->GetName() : "<nil>"), (xvar ? xvar->numBins() : -999), data_->numEntries())),__func__);
         }
     }
@@ -1034,7 +1034,7 @@ cacheutils::CachingSimNLL::evaluate() const
         if (pdfs_[idx]) {
             if (!channelMasks_.empty() && channelMasks_[idx]->getVal() != 0.) {
                 // std::cout << "Channel " << pdfs_[idx]->GetName() << " will be masked as " 
-                //     << channelMasks_[idx]->GetName() << " evalutes to " 
+                //     << channelMasks_[idx]->GetName() << " evaluates to " 
                 //     << channelMasks_[idx]->getVal() << "\n";
                 continue;
             }

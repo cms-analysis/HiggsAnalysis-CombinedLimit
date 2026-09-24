@@ -66,7 +66,7 @@ class InvisibleWidth(SMLikeHiggsModel):
         ]:
             self.SMH.makeBR(d)
 
-        ## total witdhs, normalized to the SM one
+        ## total widths, normalized to the SM one
         self.modelBuilder.factory_('expr::invisibleWidth_Gscal_Vectors("@0*@0 * (@1+@2)", kV, SM_BR_hzz, SM_BR_hww)')
         self.modelBuilder.factory_('expr::invisibleWidth_Gscal_tau("@0*@0 * (@1+@2)", ktau, SM_BR_htt, SM_BR_hmm)')
         self.modelBuilder.factory_('expr::invisibleWidth_Gscal_top("@0*@0 * (@1+@2)", ktop, SM_BR_htoptop, SM_BR_hcc)')

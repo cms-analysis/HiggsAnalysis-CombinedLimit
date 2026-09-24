@@ -1,7 +1,7 @@
 # Automatic statistical uncertainties
 
 ## Introduction
-The `text2workspace.py` script is able to produce a type of workspace, using a set of new histogram classes, in which bin-wise statistical uncertainties are added automatically. This can be built for shape-based datacards where the inputs are in TH1 format. Datacards that use RooDataHists are not supported. The bin errrors (i.e. values returned by `TH1::GetBinError`) are used to model the uncertainties.
+The `text2workspace.py` script is able to produce a type of workspace, using a set of new histogram classes, in which bin-wise statistical uncertainties are added automatically. This can be built for shape-based datacards where the inputs are in TH1 format. Datacards that use RooDataHists are not supported. The bin errors (i.e. values returned by `TH1::GetBinError`) are used to model the uncertainties.
 
 By default the script will attempt to assign a single nuisance parameter to scale the sum of the process yields in each bin, constrained by the total uncertainty, instead of requiring separate parameters, one per process. This is sometimes referred to as the [Barlow-Beeston](http://inspirehep.net/record/35053)-lite approach, and is useful as it minimises the number of parameters required in the maximum likelihood fit. A useful description of this approach may be found in section 5 of [this report](https://arxiv.org/pdf/1103.0354.pdf).
 

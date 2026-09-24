@@ -66,7 +66,7 @@ bg_others lnN    -     -     -   1.30   30% uncertainty on the rest of the backg
     -   **`lnN`** stands for [Log-normal](http://en.wikipedia.org/wiki/Log-normal_distribution), which is the recommended choice for multiplicative corrections (efficiencies, cross sections, ...).
         If **Δx/x** is the relative uncertainty in the multiplicative correction, one should put **1+Δx/x** in the column corresponding to the process and channel. Asymmetric log-normals are instead supported by providing <strong>κ<sub>down</sub>/κ<sub>up</sub></strong> where <strong>κ<sub>down</sub></strong> is the ratio of the the yield to the nominal value for a -1σ deviation of the nuisance parameter and <strong>κ<sub>up</sub></strong> is the ratio of the yield to the nominal value for a $+1\sigma$ deviation. Note that for a single-value log-normal with value $\kappa=1+\Delta x/x$, the yield of the process it is associated with is multiplied by $\kappa^{\theta}$. At $\theta=0$ the nominal yield is retained, at $\theta=1\sigma$ the yield is multiplied by $\kappa$ and at $\theta=-1\sigma$ the yield is multiplied by $1/\kappa$. This means that an uncertainty represented as <code>1.2</code> does not multiply the nominal yield by 0.8 for $\theta=-1\sigma$; but by 0.8333. It may therefore be desirable to encode large uncertainties that have a symmetric effect on the yield as asymmetric log-normals instead. 
     -   **`gmN`** stands for [Gamma](http://en.wikipedia.org/wiki/Gamma_distribution), and is the recommended choice for the statistical uncertainty in a background determined from the number of events in a control region (or in an MC sample with limited sample size).
-        If the control region or simulated sample contains **N** events, and the extrapolation factor from the control region to the signal region is **α**, one shoud put **N** just after the **`gmN`** keyword, and then the value of **α** in the relevant (bin,process) column. The yield specified in the **`rate`** line for this (bin,process) combination should equal **Nα**.
+        If the control region or simulated sample contains **N** events, and the extrapolation factor from the control region to the signal region is **α**, one should put **N** just after the **`gmN`** keyword, and then the value of **α** in the relevant (bin,process) column. The yield specified in the **`rate`** line for this (bin,process) combination should equal **Nα**.
     -   **`lnU`** stands for log-uniform distribution. A value of **1+ε** in the column will imply that the yield of this background is allowed to float freely between **x(1+ε)** and **x/(1+ε)**. In particular, if ε is small, this is approximately **(x-Δx,x+Δx)** with **ε=Δx/x**.
         This distribution is typically useful when you want to set a large a-priori uncertainty on a given background process, and then rely on the correlation between channels to constrain it. Note that for this use case, we usually recommend using [a `rateParam`](#rate-parameters) instead. If you do use **`lnU`**, please be aware that while Gaussian-like uncertainties behave in a similar way under profiling and marginalization, uniform uncertainties do not. This means the impact of the uncertainty on the result will depend on how the nuisance parameters are treated. 
 -   The next (#channels)*(#processes) columns indicate the relative effect of the systematic uncertainty on the rate of each process in each channel. The columns are aligned with those in the previous lines declaring bins, processes, and rates.
@@ -205,12 +205,12 @@ If there is also an uncertainty that affects the shape, e.g. the jet energy scal
 
 `shapes * * shapes.root $CHANNEL/$PROCESS/nominal  $CHANNEL/$PROCESS/$SYSTEMATIC`
 
-or a postifx can be added to the histogram name:
+or a postfix can be added to the histogram name:
 
 `shapes * * shapes.root $CHANNEL/$PROCESS  $CHANNEL/$PROCESS_$SYSTEMATIC`
 
 !!! warning
-    If you have a nuisance parameter that has shape effects on some processes (using `shape`) *and* rate effects on other processes (using `lnN`) you should use a single line for the systematic uncertainty with `shape?`. This will tell <span style="font-variant:small-caps;">Combine</span> to fist look for Up/Down systematic templates for that process and if it doesnt find them, it will interpret the number that you put for the process as a `lnN` instead. 
+    If you have a nuisance parameter that has shape effects on some processes (using `shape`) *and* rate effects on other processes (using `lnN`) you should use a single line for the systematic uncertainty with `shape?`. This will tell <span style="font-variant:small-caps;">Combine</span> to fist look for Up/Down systematic templates for that process and if it doesn't find them, it will interpret the number that you put for the process as a `lnN` instead. 
 
 For a detailed example of a template-based binned analysis, see the [H→ττ 2014 DAS tutorial](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_shape_analysis_using_templates), or in our [Tutorial](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/#part-2-a-shape-based-analysis) pages. 
 
@@ -417,7 +417,7 @@ If a nuisance parameter needs to be renamed for certain processes/channels, it c
 nuisance edit rename process channel oldname newname [options]
 ```
 Note that the wildcard (**\***) can be used for either a process, a channel, or both. 
-This will have the effect that nuisance parameters affecting a given process/channel will be renamed, thereby de-correlating between processes/channels.  Use the option `ifexists` to skip/avoid an error if the nuisance paremeter is not found. 
+This will have the effect that nuisance parameters affecting a given process/channel will be renamed, thereby de-correlating between processes/channels.  Use the option `ifexists` to skip/avoid an error if the nuisance parameter is not found. 
 This kind of command will only affect nuisances of the type **`shape[N]`**, **`lnN`**. Instead, if you also want to change the names of **`param`** type nuisances, you can use a global version 
 
 ```nohighlight

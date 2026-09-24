@@ -52,7 +52,7 @@ LimitAlgo("AsymptoticLimits specific options") {
         ("singlePoint",  boost::program_options::value<double>(&rValue_),  "Just compute CLs for the given value of r")
         //("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer used for profiling (Minuit vs Minuit2)")
         //("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
-        //("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
+        //("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Strategy for minimizer")
         ("qtilde", boost::program_options::value<bool>(&qtilde_)->default_value(qtilde_),  "Allow only non-negative signal strengths (default is true).")
         ("rule",    boost::program_options::value<std::string>(&rule_)->default_value(rule_),            "Rule to use: CLs, Pmu")
         ("picky", "Abort on fit failures")
@@ -73,7 +73,7 @@ void AsymptoticLimits::applyOptions(const boost::program_options::variables_map 
             throw std::invalid_argument("AsymptoticLimits: option 'run' can only be 'observed', 'expected', 'both' (the default) or 'blind' (a-priori expected)");
     }
     picky_ = vm.count("picky");
-    noFitAsimov_ = vm.count("noFitAsimov") || vm.count("bypassFrequentistFit"); // aslo pick up base option from combine
+    noFitAsimov_ = vm.count("noFitAsimov") || vm.count("bypassFrequentistFit"); // also pick up base option from combine
 
     if (rule_=="CLs") doCLs_ = true;
     else if (rule_=="Pmu") doCLs_ = false;

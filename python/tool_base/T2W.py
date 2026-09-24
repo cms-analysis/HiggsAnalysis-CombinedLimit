@@ -23,7 +23,7 @@ class T2W(CombineToolBase):
         1) Each argument is either a single datacard file or a directory
         2) If a datacard, and if the --cc option is not specified, go to the
            directory where the card is located, do text2workspace.py on that
-           card. If -m is not set explicity and the enclosing directory name
+           card. If -m is not set explicitly and the enclosing directory name
            is convertible to float set the -m argument to this, otherwise the
            -m argument will not be used.
         3) If a directory, cd to it and combine all .txt files, then do

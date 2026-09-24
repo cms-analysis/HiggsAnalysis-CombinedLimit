@@ -43,7 +43,7 @@ def read_scaling(path):
             raise RuntimeError(f"Scaling data invalid: array shape incorrect for {shortname}")
         npar = len(item["parameters"])
         if item["scaling"].shape[1] != npar * (npar + 1) // 2:
-            raise RuntimeError(f"Scaling data invalid: array has insufficent terms for parameters in {shortname}")
+            raise RuntimeError(f"Scaling data invalid: array has insufficient terms for parameters in {shortname}")
     return out
 
 

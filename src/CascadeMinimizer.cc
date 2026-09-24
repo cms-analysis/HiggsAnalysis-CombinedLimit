@@ -412,7 +412,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
     }
 
-    freezeDiscParams(true); // We should do anyway this since there can also be some indeces which are frozen 
+    freezeDiscParams(true); // We should do anyway this since there can also be some indices which are frozen 
 
     bool doMultipleMini = (CascadeMinimizerGlobalConfigs::O().pdfCategories.getSize()>0);
     if (runtimedef::get(std::string("MINIMIZER_skipDiscreteIterations"))) doMultipleMini=false;
@@ -454,7 +454,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     }else{
       // Do the discrete nuisance magic
 
-      // clean parameters before minimization but dont include the pdf indeces of course!
+      // clean parameters before minimization but dont include the pdf indices of course!
       RooArgSet reallyCleanParameters;
       std::unique_ptr<RooArgSet> nllParams(nll_.getParameters((const RooArgSet*)0));
       nllParams->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
@@ -514,7 +514,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     return ret;
 }
 
-bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, bool& ret, double& minimumNLL, int verbose, bool cascade,int mode, std::vector<std::vector<bool> >&contributingIndeces){
+bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, bool& ret, double& minimumNLL, int verbose, bool cascade,int mode, std::vector<std::vector<bool> >&contributingindices){
     static bool freezeDisassParams = runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"));
     static int maskChannels = freezeDisassParams ? runtimedef::get(std::string("MINIMIZER_multiMin_maskChannels")) : 0;
     cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
@@ -527,7 +527,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
      Mode 2 -- Full scan over the remaining combinations after mode 1
     */
 
-    //std::cout << " At the start of the looping over the Indeces, minimum NLL is " << minimumNLL << std::endl; 
+    //std::cout << " At the start of the looping over the indices, minimum NLL is " << minimumNLL << std::endl; 
     // If the barlow-beeston minimisation is being used we can disable it temporarily,
     // saves time if we don't have to call enable/disable on the CMSHistErrorPropagators
     // repeatedly for no purpose
@@ -539,34 +539,34 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
     bool newDiscreteMinimum = false;
 
-    RooArgList pdfCategoryIndeces = CascadeMinimizerGlobalConfigs::O().pdfCategories; 
-    int numIndeces = pdfCategoryIndeces.getSize();
+    RooArgList pdfCategoryindices = CascadeMinimizerGlobalConfigs::O().pdfCategories; 
+    int numindices = pdfCategoryindices.getSize();
     
-    // create all combinations of indeces 
+    // create all combinations of indices 
     std::vector<int> pdfSizes;
 
     RooCategory *fPdf;
 
-    std::vector<int> bestIndeces(numIndeces,0);
+    std::vector<int> bestindices(numindices,0);
 
-    // Set to the current best indeces
-    for (int id=0;id<numIndeces;id++) {
-	int c =((RooCategory*)(pdfCategoryIndeces.at(id)))->getIndex();
-	bestIndeces[id]=c;
+    // Set to the current best indices
+    for (int id=0;id<numindices;id++) {
+	int c =((RooCategory*)(pdfCategoryindices.at(id)))->getIndex();
+	bestindices[id]=c;
     } 
 
-    if (mode==0) { // mode 0 makes the indeces
-      contributingIndeces.clear();
-      for (int id=0;id<numIndeces;id++){
-    	int npdf = ((RooCategory*)(pdfCategoryIndeces.at(id)))->numTypes();
+    if (mode==0) { // mode 0 makes the indices
+      contributingindices.clear();
+      for (int id=0;id<numindices;id++){
+    	int npdf = ((RooCategory*)(pdfCategoryindices.at(id)))->numTypes();
 	std::vector<bool> indexFlags(npdf,true);
-	contributingIndeces.push_back(indexFlags);
+	contributingindices.push_back(indexFlags);
       }
     }
 
     // now find the number of available pdfs
-    for (int id=0;id<numIndeces;id++){
-    	int npdf = ((RooCategory*)(pdfCategoryIndeces.at(id)))->numTypes();
+    for (int id=0;id<numindices;id++){
+    	int npdf = ((RooCategory*)(pdfCategoryindices.at(id)))->numTypes();
 	pdfSizes.push_back(npdf);
     }
 
@@ -589,9 +589,9 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     if ( ( mode==0 ) /*&& runShortCombinations )*/ || mode ==1 ) myCombos = utils::generateOrthogonalCombinations(pdfSizes);
     else myCombos = utils::generateCombinations(pdfSizes);
 
-    // Reorder to start from the "best indeces"
-    //if (mode!=0) utils::reorderCombinations(myCombos,pdfSizes,bestIndeces);
-    utils::reorderCombinations(myCombos,pdfSizes,bestIndeces);
+    // Reorder to start from the "best indices"
+    //if (mode!=0) utils::reorderCombinations(myCombos,pdfSizes,bestindices);
+    utils::reorderCombinations(myCombos,pdfSizes,bestindices);
 
     std::vector<std::vector<int> >::iterator my_it = myCombos.begin();
     if (mode!=0) my_it++; // already did the best fit case
@@ -604,15 +604,15 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 	     bool isValidCombo = true;
 	
 	     int pdfIndex=0, changedIndex = -1;
-	     // Set the current indeces;
+	     // Set the current indices;
 	     std::vector<int> cit = *my_it;
 	     for (std::vector<int>::iterator it = cit.begin();
 	         it!=cit.end(); it++){
 
-		 isValidCombo &= (contributingIndeces)[pdfIndex][*it];
+		 isValidCombo &= (contributingindices)[pdfIndex][*it];
 		 if (!isValidCombo ) /*&& runShortCombinations)*/ continue;
 
-	     	 fPdf = (RooCategory*) pdfCategoryIndeces.at(pdfIndex);
+	     	 fPdf = (RooCategory*) pdfCategoryindices.at(pdfIndex);
                  if (fPdf->getIndex() != *it) changedIndex = pdfIndex;
 		 fPdf->setIndex(*it);
 		 pdfIndex++;
@@ -622,8 +622,8 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
       
       if (verbose>2) {
 	std::cout << "Setting indices := ";
-	for (int id=0;id<numIndeces;id++) {
-		std::cout << ((RooCategory*)(pdfCategoryIndeces.at(id)))->getIndex() << " ";
+	for (int id=0;id<numindices;id++) {
+		std::cout << ((RooCategory*)(pdfCategoryindices.at(id)))->getIndex() << " ";
 	}
         std::cout << std::endl;
       }
@@ -631,7 +631,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
       if (fitCounter>0) params->assignValueOnly(reallyCleanParameters); // no need to reset from 0'th fit
 
       if (maskChannels == 2 && simnll) {
-        for (int id=0;id<numIndeces;id++)  ((RooCategory*)(pdfCategoryIndeces.at(id)))->setConstant(id != changedIndex && changedIndex != -1);
+        for (int id=0;id<numindices;id++)  ((RooCategory*)(pdfCategoryindices.at(id)))->setConstant(id != changedIndex && changedIndex != -1);
         simnll->setMaskNonDiscreteChannels(true);
       }
       // Remove parameters which are not associated to the current PDF (only works if using --X-rtd MINIMIZER_freezeDisassociatedParams)
@@ -645,7 +645,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
       ret =  improve(verbose, cascade, freezeDisassParams);
 
       if (maskChannels == 2 && simnll) {
-        for (int id=0;id<numIndeces;id++)  ((RooCategory*)(pdfCategoryIndeces.at(id)))->setConstant(false);
+        for (int id=0;id<numindices;id++)  ((RooCategory*)(pdfCategoryindices.at(id)))->setConstant(false);
         simnll->setMaskNonDiscreteChannels(false);
       }
       freezeDiscParams(false);
@@ -662,14 +662,14 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 	        minimumNLL = thisNllValue;	
                 //std::cout << " .... Found a better fit! hoorah! " << minimumNLL << std::endl; 
     		snap.assignValueOnly(*params);
-		// set the best indeces again
-		for (int id=0;id<numIndeces;id++) {
-			if (bestIndeces[id] != ((RooCategory*)(pdfCategoryIndeces.at(id)))->getIndex() ) newDiscreteMinimum = true;
-			bestIndeces[id]=((RooCategory*)(pdfCategoryIndeces.at(id)))->getIndex();	
+		// set the best indices again
+		for (int id=0;id<numindices;id++) {
+			if (bestindices[id] != ((RooCategory*)(pdfCategoryindices.at(id)))->getIndex() ) newDiscreteMinimum = true;
+			bestindices[id]=((RooCategory*)(pdfCategoryindices.at(id)))->getIndex();	
 		}
                 if (verbose>2 && newDiscreteMinimum) {
                     std::cout << " .... Better fit corresponds to a new set of indices :=" ; 
-                    for (int id=0;id<numIndeces;id++) { std::cout << " " << bestIndeces[id]; }
+                    for (int id=0;id<numindices;id++) { std::cout << " " << bestindices[id]; }
                     std::cout << std::endl;
                 }
       }
@@ -684,9 +684,9 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 		int modid   =0;
 		int modcount=0;
 
-      		for (int id=0;id<numIndeces;id++) {
-			RooCategory* thisCat = (RooCategory*)(pdfCategoryIndeces.at(id));
-			if (thisCat->getIndex()!=bestIndeces[id]){
+      		for (int id=0;id<numindices;id++) {
+			RooCategory* thisCat = (RooCategory*)(pdfCategoryindices.at(id));
+			if (thisCat->getIndex()!=bestindices[id]){
 				modid=id;
 				modcount++;
 			}
@@ -694,10 +694,10 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 		
 		if (modcount==1){
 		  // Step 2, remove its current index from the allowed indexes
-		  RooCategory* thisCat = (RooCategory*)(pdfCategoryIndeces.at(modid));
+		  RooCategory* thisCat = (RooCategory*)(pdfCategoryindices.at(modid));
 		  int cIndex = thisCat->getIndex();
-		  if (cIndex!=bestIndeces[modid]){ // don't remove the best pdf for this index!
-			(contributingIndeces)[modid][cIndex]=false;
+		  if (cIndex!=bestindices[modid]){ // don't remove the best pdf for this index!
+			(contributingindices)[modid][cIndex]=false;
 		  }
 		}
         }
@@ -706,8 +706,8 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     }
 
     // Assign best values ;
-    for (int id=0;id<numIndeces;id++) {
-	((RooCategory*)(pdfCategoryIndeces.at(id)))->setIndex(bestIndeces[id]);	
+    for (int id=0;id<numindices;id++) {
+	((RooCategory*)(pdfCategoryindices.at(id)))->setIndex(bestindices[id]);	
     } 
     params->assignValueOnly(snap);
 
@@ -839,7 +839,7 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
     ROOT::Math::IOptions & options = ROOT::Math::MinimizerOptions::Default("Minuit2");
     options.SetValue("StorageLevel", minuit2StorageLevel_);
     
-    // Note that the options are not applied again when recreating a CascadeMinimizer so need to set the global attributes (should we make the modifiable options persistant too?)
+    // Note that the options are not applied again when recreating a CascadeMinimizer so need to set the global attributes (should we make the modifiable options persistent too?)
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer(defaultMinimizerType_.c_str(),defaultMinimizerAlgo_.c_str());
     ROOT::Math::MinimizerOptions::SetDefaultTolerance(defaultMinimizerTolerance_);
     if (defaultMinimizerPrecision_ > 0.) {

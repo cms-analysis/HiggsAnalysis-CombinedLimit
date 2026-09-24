@@ -186,7 +186,7 @@ class CvCfXgHiggs(SMLikeHiggsModel):
         # Rgluglu = ROOT.RooScaleHGluGluLOSMPlusX('Rgluglu', 'LO SM Hgluglu scaling', mH, CF, mb, CF)
         # self.modelBuilder.out.safe_import(Rgluglu)
 
-        ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total
+        ## partial widths, normalized to the SM one, for decays scaling with F, V and total
         for d in [
             "htt",
             "hbb",
@@ -283,7 +283,7 @@ class CfXgHiggs(SMLikeHiggsModel):
         # Rgluglu = ROOT.RooScaleHGluGluLOSMPlusX('Rgluglu', 'LO SM Hgluglu scaling', mH, CF, mb, CF)
         # self.modelBuilder.out.safe_import(Rgluglu)
 
-        ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total
+        ## partial widths, normalized to the SM one, for decays scaling with F, V and total
         for d in [
             "htt",
             "hbb",

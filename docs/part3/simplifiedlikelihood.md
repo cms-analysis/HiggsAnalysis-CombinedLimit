@@ -127,7 +127,7 @@ For example, to get the correct output from a Type B analysis with no aggregatin
 python test/simplifiedLikelihoods/convertSLRootToPython.py -O mymodel.py -s SLinput.root:shapes_prefit/total_signal  -b SLinput.root:shapes_prefit/total_M2 d -d SLinput.root:shapes_prefit/total_data -c SLinput.root:shapes_prefit/total_M2
 ```
 
-The output will be a python file with the right format for the SL tool. You can mix different ROOT files for these inputs. Note that the `SLtools` package also has some tools to covert `.yaml`-based inputs into the python config for you.
+The output will be a python file with the right format for the SL tool. You can mix different ROOT files for these inputs. Note that the `SLtools` package also has some tools to convert `.yaml`-based inputs into the python config for you.
 
 ### Run a likelihood scan with the SL 
 

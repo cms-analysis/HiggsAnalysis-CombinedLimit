@@ -59,7 +59,7 @@ def iddify(x):
     slang = {
         r"[Cc]ross[ -][Ss]ection": "XS",
         r"[Tt]rigger(\s+[Ee]ff(s|ic(ienc(y|ies))?))?": "Trig",
-        r"([Ii]ntegrated\s+)?[Ll]umi(nosity)": "Lumi",
+        r"([Ii]ntegrated\s+)?[Ll]umi(nosity)": "Lumi",  # codespell:ignore ntegrated
         r"[Ee]ff(s|ic(ienc(y|ies))?)": "Eff",
         r"[Nn]orm(alization)": "Norm",
         r"[Rr]eco(nstruction)": "Reco",

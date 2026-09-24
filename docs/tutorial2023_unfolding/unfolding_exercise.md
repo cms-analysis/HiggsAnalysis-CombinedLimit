@@ -40,7 +40,7 @@ The measurement is performed within the Simplified Template Cross Section (STXS)
 
 ![](figures/simplifiedXS_VH_1_2.png) 
 
-Note that for this STXS measurement, as well as measuring the cross-section as a function of the $p_{T}$ of the vector boson, the measurement includes some information on the number of additional jets and is performed over multiple different production modes, for different production processes. However, it is common to focus on a single distribution (e.g. $p_{T}$) for a signle process, (e.g. $t\bar{t}$).
+Note that for this STXS measurement, as well as measuring the cross-section as a function of the $p_{T}$ of the vector boson, the measurement includes some information on the number of additional jets and is performed over multiple different production modes, for different production processes. However, it is common to focus on a single distribution (e.g. $p_{T}$) for a single process, (e.g. $t\bar{t}$).
 
 In this tutorial we will focus on the ZH production, with the Z boson decaying to charged leptons, and Higgs boson reconstructed with the resolved $b\bar{b}$ pair. We will also use only a part of the Run 2 categories, we will not achieve the same sensitivity as the full analysis. Note that ggZH and ZH production modes are combined in the fit, since it is not possible to resolve them at this stage of the analysis. The STXS categories are defined independently of the Higgs decay channel, to streamline the combinations of the cross section measurement. 
 
@@ -56,7 +56,7 @@ In the second part of the tutorial we will perform the same measurement with a m
 When determining the detector-level binning for any differential analysis the main goal is to chose a binning that distinguishes contributions from the various generator-level bins well. In the simplest case it can be done with the cut-based approach, i.e. applying the same binning for the detector-level observables as is being applied to the generator-level quantities being measured. In this case, that means binning in $p_{T}(Z)$ and $n_{\text{add. jets}}$. 
 Due to the good lepton $p_{T}$ resolution we can follow the original STXS scheme quite closely with the detector-level selection, with one exception, it is not possible to access the very-low transverse momenta bin $p_{T}(Z)<75$ GeV.  
 
-In `counting/regions` dicrectory you can find the datacards with five detector-level categories, each targetting a corresponding generator-level bin. Below you can find an example of the datacard for the detector-level bin with $p_{T}(Z)>400$ GeV. 
+In `counting/regions` directory you can find the datacards with five detector-level categories, each targeting a corresponding generator-level bin. Below you can find an example of the datacard for the detector-level bin with $p_{T}(Z)>400$ GeV. 
 
 ```
 imax    1 number of bins
@@ -79,7 +79,7 @@ You can see the contributions from various background processes, namely Z+jets, 
 
 One of the most important stages in the analysis design, is to make sure that the detector-level categories are well-chosen to target the corresponding generator-level processes.
 
-To explicitly check the correspondance between detector- and generator-level, one can plot the contributions of each of the generator-level bins in all of the detector-level bins. You can use the script provided in the tutorial git-lab page. This script uses `CombineHarvester` to loop over detector-level bins, and get the rate at which each of the signal processes (generator-level bins) contributes to that detector-level bin; which is then used to plot the migration matrix. 
+To explicitly check the correspondence between detector- and generator-level, one can plot the contributions of each of the generator-level bins in all of the detector-level bins. You can use the script provided in the tutorial git-lab page. This script uses `CombineHarvester` to loop over detector-level bins, and get the rate at which each of the signal processes (generator-level bins) contributes to that detector-level bin; which is then used to plot the migration matrix. 
 
 ```shell
 python scripts/get_migration_matrix.py counting/combined_ratesOnly.txt
@@ -236,7 +236,7 @@ python scripts/make_XSplot.py summary_zh_stxs.json
 ## POI correlations
 
 In addition to the cross-section measurements it is very important to publish covariance or correlation information of the measured cross sections. 
-This allows the measurement to be properly intepreted or reused in combined fits.  
+This allows the measurement to be properly interpreted or reused in combined fits.  
 
 The correlation matrix or covariance matrix can be extracted from the results after the fit. Here we can use the `FitDiagnostics` or `MultiDimFit` method.
 

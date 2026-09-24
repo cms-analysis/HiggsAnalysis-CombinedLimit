@@ -116,7 +116,7 @@ parser.add_option(
     dest="interl",
     default=1,
     type="int",
-    help="If >1, excute only 1/I of the points in each job",
+    help="If >1, execute only 1/I of the points in each job",
 )
 parser.add_option("-v", "--verbose", dest="v", default=0, type="int", help="Verbosity")
 parser.add_option(
@@ -139,7 +139,7 @@ parser.add_option(
     "--uidir",
     dest="uidir",
     default="",
-    help="Sepcify a CRAB UI directory.  If not provided using the normal crab_0_timestamp",
+    help="Specify a CRAB UI directory.  If not provided using the normal crab_0_timestamp",
 )
 parser.add_option("-m", "--mass", dest="mass", default=120, type="float", help="Hypothesis mass (mH)")
 # parser.add_option("--fork",           dest="fork",     default=1,   type="int",  help="Cores to use (leave to 1)") # no fork in batch jobs for now
@@ -194,7 +194,7 @@ if [ "$n" = "" ]; then
   exit 2;
 fi
 
-## Save memory on batch systems by avoinding a redundant fork when only one child will be ever spawned
+## Save memory on batch systems by avoiding a redundant fork when only one child will be ever spawned
 nchild={fork};
 if  [[ "$nchild" == "1" && "$n" == "1" ]]; then
     nchild=0;

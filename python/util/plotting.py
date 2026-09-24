@@ -1282,12 +1282,12 @@ def FixOverlay():
 
 def FixBoxPadding(pad, box, frac):
     # Get the bounds of the box - these are in the normalised
-    # Pad co-ordinates.
+    # Pad coordinates.
     p_x1 = box.GetX1()
     p_x2 = box.GetX2()
     p_y1 = box.GetY1()
 
-    # Convert to normalised co-ordinates in the frame
+    # Convert to normalised coordinates in the frame
     f_x1 = (p_x1 - pad.GetLeftMargin()) / (1.0 - pad.GetLeftMargin() - pad.GetRightMargin())
     f_x2 = (p_x2 - pad.GetLeftMargin()) / (1.0 - pad.GetLeftMargin() - pad.GetRightMargin())
     f_y1 = (p_y1 - pad.GetBottomMargin()) / (1.0 - pad.GetTopMargin() - pad.GetBottomMargin())

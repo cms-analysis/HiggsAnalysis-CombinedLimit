@@ -62,7 +62,7 @@ class CvCfHiggs(SMLikeHiggsModel):
         @1*(@1*(0.07244520735564258 + (0.0008318872718720393 - 6.16997610275555e-6*@2)*@2) + \
         @0*(-0.5967377257521194 + (-0.005998590071444782 + 0.00003972712648748393*@2)*@2))\
         ",CV,CF,MH)')
-        ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total
+        ## partial widths, normalized to the SM one, for decays scaling with F, V and total
         for d in [
             "htt",
             "hbb",
@@ -178,7 +178,7 @@ class C5qlHiggs(SMLikeHiggsModel):
             "hss",
         ]:
             self.SMH.makeBR(d)
-        ## total witdhs, normalized to the SM one
+        ## total widths, normalized to the SM one
         self.modelBuilder.factory_('expr::C5ql_Gscal_sumglu("@0*@0 * @1", Cglu, SM_BR_hgluglu)')
         self.modelBuilder.factory_('expr::C5ql_Gscal_sumg("@0*@0 * @1", Cg, SM_BR_hgg)')
         self.modelBuilder.factory_('expr::C5ql_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hzg )')
@@ -291,7 +291,7 @@ class C5udHiggs(SMLikeHiggsModel):
             "hss",
         ]:
             self.SMH.makeBR(d)
-        ## total witdhs, normalized to the SM one
+        ## total widths, normalized to the SM one
         self.modelBuilder.factory_('expr::C5ud_Gscal_sumglu("@0*@0 * @1", Cglu, SM_BR_hgluglu)')
         self.modelBuilder.factory_('expr::C5ud_Gscal_sumg("@0*@0 * @1", Cg, SM_BR_hgg)')
         self.modelBuilder.factory_('expr::C5ud_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hzg )')
@@ -477,7 +477,7 @@ class CzwHiggs(SMLikeHiggsModel):
         self.modelBuilder.doVar("Cw[1,0,10]")
         self.modelBuilder.factory_('expr::Cz("@0*@1",Cw, Czw)')
 
-        ## total witdhs, normalized to the SM one
+        ## total widths, normalized to the SM one
         self.modelBuilder.factory_('expr::Czw_Gscal_tot("@0*@1 + @2*@3 + (1.0-@1-@3)", \
                                    Cw, SM_BR_hww, Cz, SM_BR_hzz)')
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM)
@@ -557,7 +557,7 @@ class CwzHiggs(SMLikeHiggsModel):
         self.modelBuilder.doVar("Cz[1,0,10]")
         self.modelBuilder.factory_('expr::Cw("@0*@1",Cz, Cwz)')
 
-        ## total witdhs, normalized to the SM one
+        ## total widths, normalized to the SM one
         self.modelBuilder.factory_('expr::Cwz_Gscal_tot("@0*@1 + @2*@3 + (1.0-@1-@3)", \
                                    Cw, SM_BR_hww, Cz, SM_BR_hzz)')
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM)

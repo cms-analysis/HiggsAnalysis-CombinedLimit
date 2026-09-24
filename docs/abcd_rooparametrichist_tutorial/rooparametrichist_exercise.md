@@ -274,8 +274,8 @@ for i in range(1,histD_obs.GetNbinsX()+1):
 
 
 #Define the parametric histogram for control region B.
-#Here we consider the B region to be the transfering region, so the region for which each bin content will be multiplied by a transfer factor (determined by C, D yields)
-#The RooParametricHist is initalized giving as input the observable, the RooArgList of the bins previously built and a template TH1F. 
+#Here we consider the B region to be the transferring region, so the region for which each bin content will be multiplied by a transfer factor (determined by C, D yields)
+#The RooParametricHist is initialized giving as input the observable, the RooArgList of the bins previously built and a template TH1F. 
 param_hist_B_region = RooParametricHist("bkg_B", "Background PDF in B region",variable_z,process_B_region_bins,histB_pr)
 
 #Here we define the total normalization for the RooparametricHist in the B region
@@ -286,7 +286,7 @@ getattr(ws, "import")(param_hist_B_region, RooFit.Rename("bkg_B"))
 getattr(ws, "import")(param_Bkg_B_norm, RooFit.Rename("bkg_B"+"_norm"),RooFit.RecycleConflictNodes())
 
 #Define the parametric histogram for control region C.
-#The RooParametricHist is initalized giving as input the observable, the RooArgList of the bins previously built and a template TH1F. 
+#The RooParametricHist is initialized giving as input the observable, the RooArgList of the bins previously built and a template TH1F. 
 param_hist_C_region = RooParametricHist("bkg_C", "Background PDF in C region",variable_z,process_C_region_bins,histC_pr)
 
 #Here we define the total normalization for the RooparametricHist in the C region
@@ -324,7 +324,7 @@ TF_list = []
 process_AB_region_bins_list = []
 
 #Compute per-bin transfer factor
-#Loop over the bins of the transfering region B, and compute the transfer factors as C/D
+#Loop over the bins of the transferring region B, and compute the transfer factors as C/D
 for i in range(1,histB_pr.GetNbinsX()+1):
     #Define transfer factor as a RooFormulaVar. Use the method .obj for RooWorkSpace to retrieve the yield for a given bin and region
     TF_i = RooFormulaVar("TF"+str(i),"Transfer factor C/D bin " + str(i),"(@0/@1)",RooArgList(ws.obj("Bkg_C_region_bin_"+str(i)) , ws.obj("Bkg_D_region_bin_"+str(i)) ))
