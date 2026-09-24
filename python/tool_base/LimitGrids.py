@@ -316,7 +316,7 @@ class HybridNewGrid(CombineToolBase):
             else:
                 dist = abs(CLs - crossing) / CLsErr
                 if verbose:
-                    print(f">>>> CLs = {CLs:g} +/- {CLsErr:g}, reached {dist:.1f} sigma signifance")
+                    print(f">>>> CLs = {CLs:g} +/- {CLsErr:g}, reached {dist:.1f} sigma significance")
                 if dist < signif:
                     signif_results[contour] = False
             results[contour] = (CLs, CLsErr, dist, testStatObs)
@@ -703,7 +703,7 @@ class HybridNewGrid(CombineToolBase):
         null_vals = [x * sign * 2.0 for x in result.GetNullDistribution().GetSamplingDistribution()]
         alt_vals = [x * sign * 2.0 for x in result.GetAltDistribution().GetSamplingDistribution()]
         if len(null_vals) == 0 or len(alt_vals) == 0:
-            print(">> Errror in PlotTestStat for %s, null and/or alt distributions are empty")
+            print(">> Error in PlotTestStat for %s, null and/or alt distributions are empty")
             return
         plot.ModTDRStyle()
         canv = ROOT.TCanvas(name, name)

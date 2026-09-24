@@ -52,7 +52,7 @@ class TwoHypotesisHiggs(PhysicsModel):
         for po in physOptions:
             if po == "fqqIncluded":
                 print("Will consider fqq = fraction of qqH in Alt signal (signal strength will be left floating)")
-                # Here alsways setting muFloating if fqq in model, should this be kept optional?
+                # Here always setting muFloating if fqq in model, should this be kept optional?
                 self.fqqIncluded = True
                 self.muFloating = True
             if po == "fqqFloating":

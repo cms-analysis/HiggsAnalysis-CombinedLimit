@@ -158,7 +158,7 @@ COMBINE_ADD_TEST(counting_datacard_from_csv
     COMMAND combineTool.py -M MultiDimFit counting_datacard.root --fromfile fixed.csv
     COPY_TO_BUILDDIR ${REPO}/data/tutorials/multiDim/fixed.csv
     FIXTURES_REQUIRED counting_datacard
-    # The output is unfortunatley not predictable on all platforms: on
+    # The output is unfortunately not predictable on all platforms: on
     # CMSSW_11_3_4 - ROOT 6.22.09 and conda with ROOT 6.26.04, it will not
     # print the combine commands that the tool is running.
     # TODO: investigate this.

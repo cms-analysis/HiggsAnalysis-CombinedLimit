@@ -104,7 +104,7 @@ In practice, the likelihood can be used to construct confidence regions for a se
 
 $$ \Lambda \equiv \frac{\mathcal{L}(\vec{\mu},\vec{\hat{\nu}}(\vec{\mu}))}{\mathcal{L}(\vec{\hat{\mu}},\vec{\hat{\nu}})} $$
 
-i.e. the ratio of the profile likelihood at point $\vec{\mu}$ to the maxmimum likelihood. For technical reasons, the negative logarithm of this quantity is typically used in practice.
+i.e. the ratio of the profile likelihood at point $\vec{\mu}$ to the maximum likelihood. For technical reasons, the negative logarithm of this quantity is typically used in practice.
 
 Each point $\vec{\mu}$ can be tested to see if it is in the confidence region, by checking the value of the likelihood ratio at that point and comparing it to the expected distribution if that point were the true generating value of the data.
 
@@ -140,7 +140,7 @@ This procedure has to be followed sepately for each parameter $\mu_i$ for which 
 
 The Hessian method relies on the second derivatives (i.e. the [hessian](https://en.wikipedia.org/wiki/Hessian_matrix)) of the likelihood at the best fit point.
 
-By assuming that the shape of the likelihood function is well described by its second-order approximation, the values at which $-\log(\Lambda) = \gamma_{\mathrm{CL}}$ can be calculated analytically without the need for a seach
+By assuming that the shape of the likelihood function is well described by its second-order approximation, the values at which $-\log(\Lambda) = \gamma_{\mathrm{CL}}$ can be calculated analytically without the need for a search
 
 $$ \mu_i^{\mathrm{crossing}} - \hat{\mu} \propto \left(\frac{\partial^2{\mathcal{L}(\vec{\hat{\mu}})}}{\partial\mu_i^2}\right)^{-2} $$
 

@@ -314,10 +314,10 @@ git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
 scram b -j$(nproc --ignore=2)
 ```
 
-See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation for full instructions and reccomended versions.
+See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation for full instructions and recommended versions.
 
 !!! info
-    Starting with <span style="font-variant:small-caps;">Combine v10</span>, specific ombineTool functionalities for job submition and parallelization (`combineTool.py`) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package. For these tasks you no longer have to follow the instructions above.
+    Starting with <span style="font-variant:small-caps;">Combine v10</span>, specific ombineTool functionalities for job submission and parallelization (`combineTool.py`) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package. For these tasks you no longer have to follow the instructions above.
 
 
 ## Citation

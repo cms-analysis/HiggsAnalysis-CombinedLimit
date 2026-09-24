@@ -61,7 +61,7 @@ TH1D *th1fmorph(const char *chname,
   // * idebug          : Default is zero, no internal information displayed. 
   // *                   Values between 1 and increase the verbosity of 
   // *                   informational output which may prove helpful to
-  // *                   understand errors and pathalogical results.
+  // *                   understand errors and pathological results.
   // * 
   // * The routine returns a pointer (TH1 *) to a new histogram which is
   // * the interpolated result.

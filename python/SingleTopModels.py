@@ -101,7 +101,7 @@ class KappaVKappaT(LHCHCGBaseModel):
             self.modelBuilder.factory_('expr::Scaling_ggH_13TeV("@0*@0", kappa_g)')
             self.modelBuilder.factory_('expr::Scaling_ggH_14TeV("@0*@0", kappa_g)')
 
-        ## partial witdhs, normalized to the SM one
+        ## partial widths, normalized to the SM one
         self.modelBuilder.factory_('expr::c7_Gscal_Z("@0*@0*@1*@2", kappa_V, SM_BR_hzz, HiggsDecayWidth_UncertaintyScaling_hzz)')
         self.modelBuilder.factory_('expr::c7_Gscal_W("@0*@0*@1*@2", kappa_V, SM_BR_hww, HiggsDecayWidth_UncertaintyScaling_hww)')
         if not self.coupleTopTau:
@@ -122,7 +122,7 @@ class KappaVKappaT(LHCHCGBaseModel):
         self.modelBuilder.factory_("sum::c7_SMBRs(%s)" % (",".join("SM_BR_" + X for X in "hzz hww htt hmm hcc hbb hss hgluglu hgg hzg".split())))
         self.modelBuilder.out.function("c7_SMBRs").Print("")
 
-        ## total witdh, normalized to the SM one
+        ## total width, normalized to the SM one
         self.modelBuilder.factory_(
             'expr::c7_Gscal_tot("(@1+@2+@3+@4+@5+@6+@7)/@8/(1-@0)", BRinv, c7_Gscal_Z, c7_Gscal_W, c7_Gscal_tau, c7_Gscal_top, c7_Gscal_bottom, c7_Gscal_gluon, c7_Gscal_gamma, c7_SMBRs)'
         )

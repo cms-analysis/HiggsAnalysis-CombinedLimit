@@ -432,7 +432,7 @@ Int_t Triangle::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, c
 Double_t Triangle::analyticalIntegral(Int_t code, const char* rangeName) const 
 {
 
-  // WARNING, ASSSUMES TURN TO BE IN INTERVAL
+  // WARNING, ASSUMES TURN TO BE IN INTERVAL
   assert(code==1) ;
   //whole triangle
   Double_t sumleft = sqrt(1+ (turn+start)*(turn+start) ) ;

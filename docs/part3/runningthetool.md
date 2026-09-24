@@ -117,7 +117,7 @@ where **$WORD** is any user defined keyword from the datacard which has been set
 A few command-line options can be used to control this output:
 
 -   The option `-n` allows you to specify part of the name of the root file. e.g. if you pass `-n HWW` the root file will be called `higgsCombineHWW....` instead of `higgsCombineTest`
--   The option `-m` allows you to specify the (Higgs boson) mass hypothesis, which gets written in the filename and in the output tree. This simplifies the bookeeping, as it becomes possible to merge multiple trees corresponding to different (Higgs boson) masses using `hadd`. Quantities can then be plotted as a function of the mass. The default value is m=120.
+-   The option `-m` allows you to specify the (Higgs boson) mass hypothesis, which gets written in the filename and in the output tree. This simplifies the bookkeeping, as it becomes possible to merge multiple trees corresponding to different (Higgs boson) masses using `hadd`. Quantities can then be plotted as a function of the mass. The default value is m=120.
 -   The option `-s` can be used to specify the seed (eg `-s 12345`) used in toy generation. If this option is given, the name of the file will be extended by this seed, eg `higgsCombineTest.AsymptoticLimits.mH120.12345.root`
 -   The option `--keyword-value` allows you to specify the value of a keyword in the datacard such that **$WORD** (in the datacard) will be given the value of **VALUE** in the command `--keyword-value WORD=VALUE`, eg  `higgsCombineTest.AsymptoticLimits.mH120.WORDVALUE.12345.root`
 

@@ -129,7 +129,7 @@ It looks like a good fit!
 **Tasks and questions:**
 
   -   Run the code above for yourself (or uncomment the relevant sections in `python3 construct_models_part1.py`) to produce the plots of the signal mass distribution and the signal model.
-  -   Do you understand the output from the `fitTo` command (i.e the mimimization)? From now on we will add the option `ROOT.RooFit.PrintLevel(-1)` when fitting the models to surpress the minimizer output.
+  -   Do you understand the output from the `fitTo` command (i.e the minimization)? From now on we will add the option `ROOT.RooFit.PrintLevel(-1)` when fitting the models to suppress the minimizer output.
 
 But what if the mean of the model does not correspond directly to the Higgs boson mass i.e. there are some reconstruction effects. Let's instead define the mean of the model as:
 
@@ -987,7 +987,7 @@ In order to combine the two categories into a single datacard, we make use of th
 combineCards.py datacard_part6_Tag0.txt datacard_part6_Tag1.txt > datacard_part6_combined.txt
 ```
 ### Running the fits
-If we use the default `text2workspace` command on the combined datacard, then this will introduce a single signal strength modifer which modifies the rate of all signal processes (ggH and VBF) by the same factor.
+If we use the default `text2workspace` command on the combined datacard, then this will introduce a single signal strength modifier which modifies the rate of all signal processes (ggH and VBF) by the same factor.
 
 **Tasks and questions:**
 

@@ -258,7 +258,7 @@ A typical case would be scaling by $1/\sqrt{L}$, where $L$ is a luminosity scale
 This factory syntax is flexible, but for our use case the typical format will be: `expr::[function name]("[formula]", [arg0], [arg1], ...)`. The `arg0`, `arg1` ... are represented in the formula by `@0`, `@1`,... placeholders.
 
 !!! warning
-    We are playing a slight trick here with the `lumiscale` parameter. At the point at which `text2workspace.py` is building these scaling terms the `lumiscale` for the `rateParam` has not yet been created. By writing `lumiscale[1]` we are telling RooFit to create this variable with an initial value of 1, and then later this will be re-used by the `rateParam` creation.
+    We are playing a slight trick here with the `lumiscale` parameter. At the point at which `text2workspace.py` is building these scaling terms the `lumiscale` for the `rateParam` has not yet been created. By writing `lumiscale[1]` we are telling RooFit to create this variable with an initial value of 1, and then later this will be reused by the `rateParam` creation.
 
 A similar option, `--X-nuisance-group-function`, can be used to scale whole groups of nuisances (see [groups of nuisances](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/settinguptheanalysis/#groups-of-nuisances)). Instead of a regular expression just give the group name instead,
 
@@ -543,7 +543,7 @@ If the `discrete` nuisance is left floating, it will be profiled by looping thro
 !!! warning
     You should be careful since MINOS knows nothing about the discrete nuisances and hence estimations of uncertainties will be incorrect via MINOS. Instead, uncertainties from scans and limits will correctly account for these nuisance parameters. Currently the Bayesian methods will _not_ properly treat the nuisance parameters, so some care should be taken when interpreting Bayesian results.
 
-As an example, we can peform a likelihood scan as a function of the Higgs boson signal strength in the toy Hgg datacard. By leaving the object `pdf_index` non-constant, at each point in the likelihood scan, the PDFs will be iterated over and the one that gives the lowest -2 times log-likelihood, including the correction factor $c$ (as defined in the paper linked above) will be stored in the output tree. We can also check the scan when we fix at each PDF individually to check that the envelope is achieved. For this, you will need to include the option `--X-rtd REMOVE_CONSTANT_ZERO_POINT=1`. In this way, we can take a look at the absolute value to compare the curves, if we also include `--saveNLL`.
+As an example, we can perform a likelihood scan as a function of the Higgs boson signal strength in the toy Hgg datacard. By leaving the object `pdf_index` non-constant, at each point in the likelihood scan, the PDFs will be iterated over and the one that gives the lowest -2 times log-likelihood, including the correction factor $c$ (as defined in the paper linked above) will be stored in the output tree. We can also check the scan when we fix at each PDF individually to check that the envelope is achieved. For this, you will need to include the option `--X-rtd REMOVE_CONSTANT_ZERO_POINT=1`. In this way, we can take a look at the absolute value to compare the curves, if we also include `--saveNLL`.
 
 For example for a full scan, you can run
 
@@ -572,7 +572,7 @@ For fits where there is more than one such discrete nuisance parameter, the numb
 
 The loop continues until either the tolerance threshold is reached (which can be controlled through the option `--cminDiscreteMinTol`), or a total of 15 trips around the loop has been completed. In specific tests of an early diphoton Higgs analysis, this procedure was found to converge in around 3-4 iterations and this is usually enough. 
 
-The idea is that provided all other nuisance parameters and POIs are frozen, we assume that the likelihood function components associated with each of the discrete nuisance parameters are independant and so the total number of combinations reduces to a sum over values, rather than a product. Instead, you can force  <span style="font-variant:small-caps;">Combine</span> to try all possible combinations of functions by adding the option `--cminRunAllDiscreteCombinations`. 
+The idea is that provided all other nuisance parameters and POIs are frozen, we assume that the likelihood function components associated with each of the discrete nuisance parameters are independent and so the total number of combinations reduces to a sum over values, rather than a product. Instead, you can force  <span style="font-variant:small-caps;">Combine</span> to try all possible combinations of functions by adding the option `--cminRunAllDiscreteCombinations`. 
 
 In general, the performance of <span style="font-variant:small-caps;">Combine</span> can be improved when using the discrete profiling method by including the option `--X-rtd MINIMIZER_freezeDisassociatedParams`. This will stop parameters not associated to the current PDF from floating in the fits. Additionally, you can include the following options:
 
@@ -586,7 +586,7 @@ You may want to check with the <span style="font-variant:small-caps;">Combine</s
 
 [RooSplineND](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/interface/RooSplineND.h) can be used to interpolate from a tree of points to produce a continuous function in N-dimensions. This function can then be used as input to workspaces allowing for parametric rates/cross-sections/efficiencies. It can also be used to up-scale the resolution of likelihood scans (i.e like those produced from <span style="font-variant:small-caps;">Combine</span>) to produce smooth contours.
 
-The spline makes use of a radial basis decomposition to produce a continous $N \to 1$ map (function) from $M$ provided sample points. The function of the $N$ variables $\vec{x}$
+The spline makes use of a radial basis decomposition to produce a continuous $N \to 1$ map (function) from $M$ provided sample points. The function of the $N$ variables $\vec{x}$
 is assumed to be of the form,
 
 $$
@@ -776,7 +776,7 @@ void examplews(){
 
     // ---------------------------- SIGNAL REGION -------------------------------------------------------------------//
     // Make a dataset, this will be just four bins in MET.
-    // its easiest to make this from a histogram. Set the contents to "somehting"
+    // it's easiest to make this from a histogram. Set the contents to "something"
     TH1F data_th1("data_obs_SR","Data observed in signal region",nbins,xbins);
 
     data_th1.SetBinContent(1,100);
@@ -801,7 +801,7 @@ void examplews(){
     // Create a RooParametericHist which contains those yields, last argument is just for the binning,
     // can use the data TH1 for that
     RooParametricHist p_bkg("bkg_SR", "Background PDF in signal region",met,bkg_SR_bins,data_th1);
-    // Always include a _norm term which should be the sum of the yields (thats how combine likes to play with pdfs)
+    // Always include a _norm term which should be the sum of the yields (that's how combine likes to play with pdfs)
     RooAddition p_bkg_norm("bkg_SR_norm","Total Number of events from background in signal region",bkg_SR_bins);
 
     // Every signal region needs a signal
@@ -845,7 +845,7 @@ void examplews(){
     // use polynomials for example.
 
 
-    RooFormulaVar TF("TF","Trasnfer factor","2*TMath::Power(1.01,@0)*TMath::Power(1.02,@1)",RooArgList(efficiency,acceptance) );
+    RooFormulaVar TF("TF","Transfer factor","2*TMath::Power(1.01,@0)*TMath::Power(1.02,@1)",RooArgList(efficiency,acceptance) );
 
     // Finally, we need to make each bin of the background in the control region a function of the background in the signal and the transfer factor
     // N_CR = N_SR x TF
@@ -960,7 +960,7 @@ We could imagine that the transfer factor could be associated with some uncertai
 We need to make the transfer factor a function of these parameters, since variations in these uncertainties will lead to variations of the transfer factor. Here we have assumed Log-normal effects (i.e the same as putting lnN in the CR datacard), but we could use _any function_ which could be used to parameterize the effect - for example if the systematic uncertainty is due to some alternate template, we could use polynomials.
 
 ```c++
-   RooFormulaVar TF("TF","Trasnfer factor","2*TMath::Power(1.01,@0)*TMath::Power(1.02,@1)",RooArgList(efficiency,acceptance) );
+   RooFormulaVar TF("TF","Transfer factor","2*TMath::Power(1.01,@0)*TMath::Power(1.02,@1)",RooArgList(efficiency,acceptance) );
 ```
 
 Then, we need to make each bin of the background in the control region a function of the background in the signal region and the transfer factor - i.e $N*{CR} = N*{SR} \times TF $.
@@ -1065,7 +1065,7 @@ kmax \* number of nuisance parameters
 ---
 
 shapes data*obs control param_ws.root wspace:data_obs_CR
-shapes background control param_ws.root wspace:bkg_CR wspace:bkg_CR*$SYSTEMATIC # the background model pdf which is dependant on that in the SR, note other backgrounds can be added as usual
+shapes background control param_ws.root wspace:bkg_CR wspace:bkg_CR*$SYSTEMATIC # the background model pdf which is dependent on that in the SR, note other backgrounds can be added as usual
 
 ---
 

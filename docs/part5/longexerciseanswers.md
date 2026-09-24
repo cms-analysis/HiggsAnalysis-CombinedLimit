@@ -175,7 +175,7 @@ Only tasks, no questions in this section
 <details>
 <summary><b>Show answer</b></summary>
   
- <b> The most important uncertainty is <code>norm_jetFakes</code>, followed by two MC statistical uncerainties (<code>prop_binsignal_region_bin8</code> and <code>prop_binsignal_region_bin9</code>).</b>
+ <b> The most important uncertainty is <code>norm_jetFakes</code>, followed by two MC statistical uncertainties (<code>prop_binsignal_region_bin8</code> and <code>prop_binsignal_region_bin9</code>).</b>
 
 </details>
   - In the plot, some parameters do not show a plotted point for the fitted value, but rather just a numerical value - why?

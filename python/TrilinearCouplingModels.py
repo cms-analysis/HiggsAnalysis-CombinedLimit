@@ -103,12 +103,12 @@ class TrilinearHiggsKappaVKappaF(LHCHCGBaseModel):
         )
         self.modelBuilder.factory_(
             'expr::kVkFkl_Gscal_gamma("(@0+@6)*@1*@4 + @2*@3*@5",  Scaling_hgg, SM_BR_hgg, Scaling_hzg, SM_BR_hzg, HiggsDecayWidth_UncertaintyScaling_hgg, HiggsDecayWidth_UncertaintyScaling_hzg, kl_scalBR_hgg)'
-        )  # no kappa_lambda dependance on H->zg known yet ?
+        )  # no kappa_lambda dependence on H->zg known yet ?
         # fix to have all BRs add up to unity
         self.modelBuilder.factory_("sum::kVkFkl_SMBRs(%s)" % (",".join("SM_BR_" + X for X in "hzz hww htt hmm hcc hbb hss hgluglu hgg hzg".split())))
         self.modelBuilder.out.function("kVkFkl_SMBRs").Print("")
 
-        ## total witdh, normalized to the SM one (just the sum over the partial widths/SM total BR)
+        ## total width, normalized to the SM one (just the sum over the partial widths/SM total BR)
         self.modelBuilder.factory_(
             'expr::kVkFkl_Gscal_tot("(@0+@1+@2+@3+@4+@5+@6)/@7", kVkFkl_Gscal_Z, kVkFkl_Gscal_W, kVkFkl_Gscal_tau, kVkFkl_Gscal_top, kVkFkl_Gscal_bottom, kVkFkl_Gscal_gluon, kVkFkl_Gscal_gamma, kVkFkl_SMBRs)'
         )
@@ -488,12 +488,12 @@ class TrilinearHiggsKappaVKappaFSTXS12(LHCHCGBaseModel):
         )
         self.modelBuilder.factory_(
             'expr::kVkFkl_Gscal_gamma("(@0+@6)*@1*@4 + @2*@3*@5",  Scaling_hgg, SM_BR_hgg, Scaling_hzg, SM_BR_hzg, HiggsDecayWidth_UncertaintyScaling_hgg, HiggsDecayWidth_UncertaintyScaling_hzg, kl_scalBR_hgg)'
-        )  # no kappa_lambda dependance on H->zg known yet ?
+        )  # no kappa_lambda dependence on H->zg known yet ?
         # fix to have all BRs add up to unity
         self.modelBuilder.factory_("sum::kVkFkl_SMBRs(%s)" % (",".join("SM_BR_" + X for X in "hzz hww htt hmm hcc hbb hss hgluglu hgg hzg".split())))
         self.modelBuilder.out.function("kVkFkl_SMBRs").Print("")
 
-        ## total witdh, normalized to the SM one (just the sum over the partial widths/SM total BR)
+        ## total width, normalized to the SM one (just the sum over the partial widths/SM total BR)
         self.modelBuilder.factory_(
             'expr::kVkFkl_Gscal_tot("(@0+@1+@2+@3+@4+@5+@6)/@7", kVkFkl_Gscal_Z, kVkFkl_Gscal_W, kVkFkl_Gscal_tau, kVkFkl_Gscal_top, kVkFkl_Gscal_bottom, kVkFkl_Gscal_gluon, kVkFkl_Gscal_gamma, kVkFkl_SMBRs)'
         )

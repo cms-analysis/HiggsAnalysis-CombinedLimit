@@ -19,18 +19,18 @@ def Eval(obj, x, params):
     return obj.Eval(x[0])
 
 
-def Permutations(indicies):
-    """Calculate the number of unique permutations of a set of indicies
+def Permutations(indices):
+    """Calculate the number of unique permutations of a set of indices
 
     Args:
-        indicies (list): A list of integer indicies, e.g [0, 1, 2, 3]
+        indices (list): A list of integer indices, e.g [0, 1, 2, 3]
 
     Returns:
         int: number of unique permutations
     """
-    uniques = sorted(set(indicies))
-    freqs = [indicies.count(x) for x in uniques]
-    n_perms = math.factorial(len(indicies))
+    uniques = sorted(set(indices))
+    freqs = [indices.count(x) for x in uniques]
+    n_perms = math.factorial(len(indices))
     for freq in freqs:
         n_perms = n_perms / math.factorial(freq)
     return n_perms
@@ -163,7 +163,7 @@ class TaylorExpand(CombineToolBase):
         group.add_argument("--config", help=("json configuration file"))
         group.add_argument("--order", type=int, default=2, help=("Taylor expand up to and including this order"))
         group.add_argument("--cross-order", type=int, default=2, help=("Taylor expand up to and including this order for the cross-order terms"))
-        group.add_argument("--choose-POIs", default=None, help=("Explict list POIs to expand in"))
+        group.add_argument("--choose-POIs", default=None, help=("Explicit list POIs to expand in"))
         group.add_argument("--do-fits", action="store_true", help=("Actually do the fits"))
         group.add_argument("--test-mode", type=int, default=0, help=("Test on the workspace"))
         group.add_argument("--test-args", type=str, default="", help=("List of comma separated args to be interpreted by the test-mode"))
@@ -394,7 +394,7 @@ class TaylorExpand(CombineToolBase):
                             has_all_terms = False
                             break
                     if has_all_terms:
-                        # print 'Testing if term %s is skipable based on %s' % (str(item), str(skip_item))
+                        # print 'Testing if term %s is skippable based on %s' % (str(item), str(skip_item))
                         perm_ratio = float(Permutations(item)) / float(Permutations(skip_item[0]))
                         fact_ratio = float(math.factorial(len(skip_item[0]))) / float(math.factorial(len(item)))
                         expected = cached_terms[skip_item[0]] * perm_ratio * fact_ratio

@@ -186,7 +186,7 @@ for fname in args:
         if options.binned:
             datasets = [ROOT.RooDataHist(d.GetName(), d.GetTitle(), obs, d) for d in datasets]
         if options.verbose:
-            print(" splitted datasets:")
+            print(" split datasets:")
             for i, d in enumerate(datasets):
                 print("   dataset %d: %15s, %6d entries, %8.1f events" % (i, d.GetName(), d.numEntries(), d.sumEntries()))
                 if options.verbose > 1:

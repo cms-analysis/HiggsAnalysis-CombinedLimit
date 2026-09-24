@@ -103,7 +103,7 @@ def addDatacardParserOptions(parser):
         dest="poisson",
         default=0,
         type="int",
-        help="If set to a positive number, binned datasets wih more than this number of entries will be generated using Poissonians",
+        help="If set to a positive number, binned datasets with more than this number of entries will be generated using Poissonians",
     )
     parser.add_option(
         "--default-morphing",
@@ -146,7 +146,7 @@ def addDatacardParserOptions(parser):
         dest="noData",
         default=False,
         action="store_true",
-        help="Do not save the RooDataSet in the ouput workspace",
+        help="Do not save the RooDataSet in the output workspace",
     )
     parser.add_option(
         "--optimize-simpdf-constraints",

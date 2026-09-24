@@ -214,7 +214,7 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<RooAbsReal*> channelMasks_;
         std::vector<bool>        internalMasks_;
         RooArgSet                activeParameters_, activeCatParameters_;
-        double                   maskingOffset_ = 0;     // offset to ensure that interal or constraint masking doesn't change NLL value
+        double                   maskingOffset_ = 0;     // offset to ensure that internal or constraint masking doesn't change NLL value
         double                   maskingOffsetZero_ = 0; // and associated zero point
 };
 

@@ -147,7 +147,7 @@ bool Significance::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::M
         }
         delete res;
       }
-      //bool thisTry = (doSignificance_ ?  runSignificance(w,mc_s,data,limit,limitErr) : runLimit(w,mc_s,data,limit,limitErr)); <- only run signficance here now 
+      //bool thisTry = (doSignificance_ ?  runSignificance(w,mc_s,data,limit,limitErr) : runLimit(w,mc_s,data,limit,limitErr)); <- only run significance here now 
       bool thisTry =  runSignificance(w,mc_s,data,limit,limitErr) ;
       if (!thisTry) continue;
       if (tries_ == 1) { success = true; break; }
@@ -167,7 +167,7 @@ bool Significance::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::M
         }
       }
       if (verbose > 0) {
-          std::cout << "Numer of tries: " << i << "   Number of successes: " << nresults 
+          std::cout << "Number of tries: " << i << "   Number of successes: " << nresults 
                     << ", Outliers: " << noutlier << " (frac = " << noutlier/double(nresults) << ")"
                     << ", Spread of non-outliers: " << spreadIn <<" / of outliers: " << spreadOut << std::endl;
       }

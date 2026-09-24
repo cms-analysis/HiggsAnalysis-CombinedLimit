@@ -31,7 +31,7 @@ Can display (most) contents of `*.root` files, such as histograms e.g. the [`sha
 It needs to be a valid JSON file, with the following fields:
 
 * `labels`, required
-    * type: `Arrray` of N `String`s
+    * type: `Array` of N `String`s
     * the nuisance/fit parameter labels
 * `cov` or `cor`, at least one of them
     * type: `Array` of N `Array`s of N `Number`s between -1 and 1

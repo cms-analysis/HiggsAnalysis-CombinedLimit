@@ -91,7 +91,7 @@ class LambdaduHiggs(SMLikeHiggsModel):
         ]:
             self.SMH.makeBR(d)
 
-        ## total witdhs, normalized to the SM one
+        ## total widths, normalized to the SM one
         self.modelBuilder.factory_('expr::lambdadu_Gscal_Vectors("@0*@0 * (@1+@2)", kV, SM_BR_hzz, SM_BR_hww)')
         self.modelBuilder.factory_('expr::lambdadu_Gscal_up("@0*@0 * (@1+@2)", ku, SM_BR_hcc, SM_BR_htoptop)')
         self.modelBuilder.factory_('expr::lambdadu_Gscal_down("@0*@0 * (@1+@2+@3+@4)", kd, SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss)')
@@ -218,7 +218,7 @@ class LambdalqHiggs(SMLikeHiggsModel):
         ]:
             self.SMH.makeBR(d)
 
-        ## total witdhs, normalized to the SM one
+        ## total widths, normalized to the SM one
         self.modelBuilder.factory_('expr::lambdalq_Gscal_Vectors("@0*@0 * (@1+@2)", kV, SM_BR_hzz, SM_BR_hww)')
         self.modelBuilder.factory_('expr::lambdalq_Gscal_quarks("@0*@0 * (@1+@2+@3+@4+@5)", kq, SM_BR_hcc, SM_BR_hbb, SM_BR_htoptop, SM_BR_hss, SM_BR_hgluglu)')
         self.modelBuilder.factory_('expr::lambdalq_Gscal_leptons("@0*@0 * (@1+@2)", kl, SM_BR_htt, SM_BR_hmm)')
@@ -325,7 +325,7 @@ class C5qlHiggs(SMLikeHiggsModel):
             "hss",
         ]:
             self.SMH.makeBR(d)
-        ## total witdhs, normalized to the SM one
+        ## total widths, normalized to the SM one
         self.modelBuilder.factory_('expr::C5ql_Gscal_sumglu("@0*@0 * @1", Cglu, SM_BR_hgluglu)')
         self.modelBuilder.factory_('expr::C5ql_Gscal_sumg("@0*@0 * @1", Cg, SM_BR_hgg)')
         self.modelBuilder.factory_('expr::C5ql_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hzg )')
@@ -438,7 +438,7 @@ class C5udHiggs(SMLikeHiggsModel):
             "hss",
         ]:
             self.SMH.makeBR(d)
-        ## total witdhs, normalized to the SM one
+        ## total widths, normalized to the SM one
         self.modelBuilder.factory_('expr::C5ud_Gscal_sumglu("@0*@0 * @1", Cglu, SM_BR_hgluglu)')
         self.modelBuilder.factory_('expr::C5ud_Gscal_sumg("@0*@0 * @1", Cg, SM_BR_hgg)')
         self.modelBuilder.factory_('expr::C5ud_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hzg )')

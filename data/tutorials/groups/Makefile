@@ -11,7 +11,7 @@ all: allfits
 	@echo "0) Note the text2workspace printout regarding groups, that helps figuring out what is going on:"
 	@grep "group_" logs/myanalysis.T2W.log
 	@echo
-	@echo "1) The best-fit snaphot has the following best-fit values:"
+	@echo "1) The best-fit snapshot has the following best-fit values:"
 	@tail -n28 logs/myanalysis_bestfit.log
 	@echo
 	@echo "=> Note how nuisances are pulled from zero."

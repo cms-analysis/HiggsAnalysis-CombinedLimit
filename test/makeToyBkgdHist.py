@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 ########
-# Author: Jessica Brinson (jbrinson@cern.ch), The Ohio State Unversity
+# Author: Jessica Brinson (jbrinson@cern.ch), The Ohio State University
 # Date created: 7 Aug, 2014
 ##############
 # Script to generate root file with a histogram containing

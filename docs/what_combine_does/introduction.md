@@ -19,11 +19,11 @@ Combine can be used for analyses in HEP ranging from simple counting experiments
 Combine provides a powerful, human-readable, and lightweight interface for [building likelihood models](../../part2/settinguptheanalysis/#preparing-the-datacard) for both [binned](../../part2/settinguptheanalysis/#binned-shape-analysis) and [unbinned](../../part2/settinguptheanalysis/#unbinned-or-parametric-shape-analysis) data.
 The likelihood definition allows the user to define many processes which contribute to the observation, as well as multiple channels which may be fit simultaneously.
 
-Furthermore, combine provides a powerful and intuitive interface for [combining models](../../part2/settinguptheanalysis/#combination-of-multiple-datacards), as it was originally developped for combinations of higgs boson analysis at the CMS experiment.
+Furthermore, combine provides a powerful and intuitive interface for [combining models](../../part2/settinguptheanalysis/#combination-of-multiple-datacards), as it was originally developed for combinations of higgs boson analysis at the CMS experiment.
 
 The interface simplifies many common tasks, while providing many options for customizations.
 Common nuisance parameter types are defined for easy use, while user-defined functions can also be provided.
-Input histograms defining the model can be provide in root format, or in other tabular formats compatable with pandas.
+Input histograms defining the model can be provide in root format, or in other tabular formats compatible with pandas.
 
 Custom [physics models](../../part2/physicsmodels/) can be defined in python which determine how the parameters of interest alter the model, and a number of predefined models are provided by default.
 
@@ -37,7 +37,7 @@ Combine implements various methods for [commonly used statistical tests](../../p
 Statistical tests can be customized to use various test statistics and confidence levels, as well as providing different output formats.
 
 A number of asymptotic methods, relying on Wilks' theorem, and valid in appropriate conditions are implemented for fast evaluation.
-Generation of pseudo-data from the model can also be performed, and tests are implemented to automatically run over emprical distributions without relying on asymptotic approximations.
+Generation of pseudo-data from the model can also be performed, and tests are implemented to automatically run over empirical distributions without relying on asymptotic approximations.
 Pseudo-data generation and fitting over the pseudo-data can be customized in a number of ways.
 
 ## Validation and Inspection

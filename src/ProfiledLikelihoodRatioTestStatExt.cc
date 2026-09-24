@@ -227,7 +227,7 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     }
     double thisNLL = nullNLL;
 
-    // Check number of floating paramters 
+    // Check number of floating parameters 
     int nfloatingpars = utils::countFloating(*(nll_->getParameters( (const RooArgSet*) 0)));
     if (initialR == 0 || oneSided_ != oneSidedDef || bestFitR < initialR) { 
         // must do constrained fit (if there's something to fit besides XS)

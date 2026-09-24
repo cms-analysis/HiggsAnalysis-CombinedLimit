@@ -75,7 +75,7 @@ if len(args) < 1:
 
 def remove_empty_strings(list):
     """
-    Remove emptry strings from list
+    Remove empty strings from list
     """
     indices = []
     for idx in range(len(list)):
@@ -150,7 +150,7 @@ def main():
         len(dropped) + len(kept),
         ": (",
         confused,
-        "not pruned due to missmatch of inputs).",
+        "not pruned due to mismatch of inputs).",
     )
     print("# Check the output files uncertainty-pruning-keep.txt and uncertainty-pruning-drop.txt")
     print("# for the full list of pruned and and kept parameters.                                ")

@@ -68,7 +68,7 @@ parser.add_option(
     "--Print",
     default=False,
     action="store_true",
-    help="Just print the toys directory to see whats there",
+    help="Just print the toys directory to see what's there",
 )
 parser.add_option(
     "-E",
@@ -129,14 +129,14 @@ def findPOIvals(fi, m):
     ti = fi.Get("toys")
     for k in ti.GetListOfKeys():
         obj = k
-        nam = obj.GetName()
-        if "HypoTestResult" not in nam:
+        name = obj.GetName()
+        if "HypoTestResult" not in name:
             continue
-        if m not in nam:
+        if m not in name:
             continue
-        if options.poi not in nam:
+        if options.poi not in name:
             continue
-        lhs = nam[nam.find(options.poi) + len(options.poi) : -1]
+        lhs = name[name.find(options.poi) + len(options.poi) : -1]
         val = float(lhs[0 : lhs.find("_")])
         retvals.append(val)
     return retvals
