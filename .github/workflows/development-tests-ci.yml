@@ -42,9 +42,9 @@ jobs:
         env:
           LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
           LCG_ARCH: ${{ matrix.LCG_ARCH }}
-          # VDT doesn't seem to be available in LCG_102.
+          # VDT doesn't seem to be available in LCG_102 and dev3/latest.
           # But also it's very good to also test builds with USE_VDT=OFF.
-          USE_VDT: ${{ matrix.LCG_RELEASE != 'LCG_102' && 'TRUE' || 'FALSE' }}
+          USE_VDT: ${{ (matrix.LCG_RELEASE != 'LCG_102' && matrix.LCG_RELEASE != 'dev3/latest') && 'TRUE' || 'FALSE' }}
         run: >-
           source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
           root --version;
