@@ -263,6 +263,7 @@ jobs:
 
       - name: Prepare artifact name
         id: artifact_name
+        if: always()
         run: |
           SAFE_NAME=$(echo "${{ matrix.CMSSW_VERSION || matrix.LCG_RELEASE }}" | tr '/' '_')
           SAFE_ROOT=$(echo "${{ matrix.ROOT }}" | tr ' /' '_')
