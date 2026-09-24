@@ -528,7 +528,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                 if (minim.algo().find("Minuit2") != std::string::npos) {
                     minim.minimizer().minimize("Minuit","minimize");
                 } else {
-                    minim.minimizer().minimize("Minuit2","minmize");
+                    minim.minimizer().minimize("Minuit2","minimize");
                 }
             }
 	    
