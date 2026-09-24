@@ -1,6 +1,6 @@
 name: clang-tidy-review
 
-on: 
+on:
   pull_request:
     paths:
       - '**.h'
@@ -14,46 +14,30 @@ concurrency:
 jobs:
   review:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v7
 
-      - name: Setup Python
-        uses: actions/setup-python@v7
+      - name: Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.10.2
         with:
-          python-version: "3.11"
-
-      - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v2.0.9
-        with:
-          version: "17.0.6"
-
-      - name: install lit
-        run: pip install lit
+          pixi-bin-path: ${{ github.workspace }}/pixi
+          run-install: false
 
       - name: Run clang-tidy
         uses: ZedThree/clang-tidy-review@v0.23.1
         id: review
         with:
-          build_dir: build
-          apt_packages: cmake,libgtest-dev,libtinfo-dev,libvdt-dev,libxml2,libxml2-dev,libzstd-dev,wget,zlib1g-dev
+          build_dir: ../build_combine
           split_workflow: true
           config_file: .clang-tidy
           cmake_command: >
-            cmake . -B build -DINSTALL_PYTHON=FALSE -DCMAKE_EXPORT_COMPILE_COMMANDS=ON || true && 
-            rm -rf build && 
-            set -x && 
-            wget https://github.com/mamba-org/micromamba-releases/releases/download/1.5.10-0/micromamba-linux-64 && 
-            mv ./micromamba-linux-64 ./micromamba && 
-            chmod a+x ./micromamba && 
-            export PATH="$PWD:$PATH" && 
-            eval "$(micromamba shell hook -s posix)" && 
-            micromamba create -n clang-tidy-review -y --log-level warning -f $GITHUB_WORKSPACE/conda_env.yml && 
-            export PATH=${PATH}:/github/home/micromamba/envs/clang-tidy-review/bin && 
-            export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/github/home/micromamba/envs/clang-tidy-review/lib && 
-            export PYTHONPATH=${PYTHONPATH}:/github/home/micromamba/envs/clang-tidy-review/lib/python && 
-            find /github/home/micromamba/ -iname "*vdt" && 
-            micromamba run -n clang-tidy-review cmake . -B build -DINSTALL_PYTHON=FALSE -DUSE_VDT=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_PREFIX_PATH=/github/home/micromamba/envs/clang-tidy-review
+            ./pixi run --locked
+            cmake -S . -B ../build_combine
+            -G Ninja
+            -DUSE_VDT=OFF
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
       - name: Upload artifacts
         uses: ZedThree/clang-tidy-review/upload@v0.23.1
