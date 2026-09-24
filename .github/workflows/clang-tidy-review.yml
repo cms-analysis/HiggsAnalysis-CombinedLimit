@@ -24,7 +24,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v2.0.3
+        uses: KyleMayes/install-llvm-action@v2.0.9
         with:
           version: "17.0.6"
 
