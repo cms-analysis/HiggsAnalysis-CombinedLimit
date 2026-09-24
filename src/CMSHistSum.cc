@@ -412,6 +412,24 @@ void CMSHistSum::updateCache() const {
   }
 }
 
+std::vector<double> CMSHistSum::getFuncValList(std::size_t fnIdx) {
+  staging_ = compcache_[fnIdx];
+  if (vtype_[fnIdx] == CMSHistFunc::VerticalSetting::LogQuadLinear) {
+    staging_.Exp();
+    staging_.Scale(storage_[process_fields_[fnIdx]].Integral() / staging_.Integral());
+  }
+  staging_.CropUnderflows();
+  std::vector<double> result = staging_.GetValues();
+  for (unsigned j = 0; j < bintypes_.size(); ++j) {
+    if (bintypes_[j][0] == 1) {
+      double x = vbinpars_[j][0]->getVal();
+      result[j] += binerrors_[fnIdx][j] * x;
+    } else if (bintypes_[j][0] == 2 || bintypes_[j][0] == 3)
+      result[j] += scaledbinmods_[fnIdx][j];
+  }
+  return result;
+}
+
 void CMSHistSum::runBarlowBeeston() const {
   updateCache();
   const unsigned n = bb_.use.size();
