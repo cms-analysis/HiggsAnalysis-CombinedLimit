@@ -268,7 +268,7 @@ jobs:
           SAFE_ROOT=$(echo "${{ matrix.ROOT }}" | tr ' /' '_')
           echo "name=outputs-${SAFE_NAME}-ROOT${SAFE_ROOT}" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         name: Upload outputs
         with:
