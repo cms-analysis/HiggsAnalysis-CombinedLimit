@@ -32,7 +32,7 @@ jobs:
         # (../build_combine) then lands in HiggsAnalysis/, outside the source.
         working-directory: HiggsAnalysis/CombinedLimit
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: HiggsAnalysis/CombinedLimit
 

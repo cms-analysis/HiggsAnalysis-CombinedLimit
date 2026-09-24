@@ -31,7 +31,7 @@ jobs:
       LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
       LCG_ARCH: ${{ matrix.LCG_ARCH }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: cvmfs-contrib/github-action-cvmfs@v5
         with:
