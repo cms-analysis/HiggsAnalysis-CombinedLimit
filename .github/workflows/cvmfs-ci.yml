@@ -11,6 +11,7 @@ on:
       - '**.cxx'
       - '**.py'
       - '**.yml'
+      - '**/BuildFile.xml'
   push:
     branches:
       - main
@@ -115,6 +116,7 @@ jobs:
           shell: bash
           options: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  --mount source=cmsusr,destination=/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
           run: |
+            set -e
             cd /home/cmsusr/
             source /cvmfs/cms.cern.ch/cmsset_default.sh
             scram project ${CMSSW_VERSION}
