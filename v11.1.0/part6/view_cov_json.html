@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>view covariance</title>
+    <style type="text/less">
+      body {
+        margin: 0;
+      }
+      #app {
+        &.loading {
+          cursor: progress;
+        }
+        div.overlay {
+          opacity: 0.8;
+          height: 100%;
+          width: 100%;
+          position: fixed;
+          z-index: 100;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          &.dragging {
+            background-color: lightgreen;
+            cursor: copy;
+          }
+        }
+        table {
+          border-spacing: 0;
+          tr:first-child {
+            > * {
+              background: white;
+              position: sticky;
+              top: 0;
+              border-bottom: 1px solid black;
+              min-width: 1.5em;
+              &:first-child {
+                z-index: 2;
+                text-align: left;
+              }
+              &:nth-child(n + 2) {
+                writing-mode: vertical-rl;
+                writing-mode: sideways-lr;
+                vertical-align: bottom;
+                text-align: center;
+              }
+            }
+          }
+
+          tr {
+            > *:first-child {
+              background: white;
+              position: sticky;
+              left: 0;
+              border-right: 1px solid black;
+              text-align: right;
+            }
+            > *:nth-child(2n + 3) {
+              border-right: 1px solid #ddd;
+            }
+            > *:nth-child(4n + 5) {
+              border-right: 1px solid #bbb;
+            }
+            > *:nth-child(8n + 9) {
+              border-right: 1px solid #999;
+            }
+          }
+
+          tr:nth-child(2n + 3) > * {
+            border-bottom: 1px solid #ddd;
+          }
+          tr:nth-child(4n + 5) > * {
+            border-bottom: 1px solid #bbb;
+          }
+          tr:nth-child(8n + 9) > * {
+            border-bottom: 1px solid #999;
+          }
+        }
+        fieldset {
+          textarea {
+            width: 100%;
+            resize: vertical;
+          }
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/less@3" charset="utf-8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2" charset="utf-8"></script>
+    <script>
+      const ffilter = (filters) => {
+        const syntax = /([+-]?)([~"\$\^\/]?)(.+)/;
+        const funcs = filters
+          .split("\n")
+          .map((l) => l.trim())
+          .filter((l) => l && !l.startsWith("#"))
+          .map((l) => syntax.exec(l))
+          .map(([, res, cmp, ref]) => {
+            res = res != "-";
+            switch (cmp) {
+              case "^":
+                return [res, (sub) => sub.startsWith(ref)];
+              case "$":
+                return [res, (sub) => sub.endsWith(ref)];
+              case '"':
+                return [res, (sub) => sub === ref];
+              case "/":
+                try {
+                  const re = new RegExp(ref);
+                  return [res, (sub) => re.test(sub)];
+                } catch {
+                  return [res, (sub) => false];
+                }
+              default:
+                return [res, (sub) => sub.includes(ref)];
+            }
+          });
+        return (sub) =>
+          funcs.reduce(
+            (acc, [res, func]) => (func(sub) ? res : acc === undefined && res ? false : acc),
+            undefined
+          ) !== false;
+      };
+
+      const app = new Vue({
+        data: {
+          raw: null,
+          info: undefined,
+          dragging: 0,
+          loading: false,
+
+          which: "cov",
+          filters: "",
+          filterHelp: `Filter syntax: <I><M><filter>
+            <I>nclusion rule, optional: + include (default), - exclude
+            <M>atch behaviour, optional: ~ anywhere (default), ^ at beginning, $ at end, " exact, / regular expression
+            <filter> string
+          empty lines and lines starting with # are ignored
+          all items are included by default unless the first filter is an include rule (+)
+          `
+            .replace(/^(?:\s\s)+/gm, "")
+            .replace(/^\s/gm, "   "),
+          replacements: "",
+          replacementHelp: "Label replacement syntax: <regular expression> [<replacement>]",
+
+          hpos: "#0000ff",
+          hneg: "#ff0000",
+          thresh: 0.01,
+          clusterColor: "#00aa00",
+          clusterNum: 25,
+        },
+        computed: {
+          either() {
+            const { cov, cor } = this.raw;
+            return [cov, cor].includes(undefined);
+          },
+          filtered() {
+            if (!this.raw) return {labels: [], mat: []};
+            const {
+              which,
+              thresh,
+              raw: { labels, [which]: mat },
+            } = this;
+            const keepL = labels.map(ffilter(this.filters));
+            const keepT = keepL.map(
+              (keep, i) =>
+                keep &&
+                mat[i].some((val, j) => {
+                  const abs = Math.abs(val);
+                  return keepL[j] && thresh <= abs && i !== j;
+                })
+            );
+
+            const labR = labels.map(this.replace);
+            const labC = {};
+            labR.forEach((repl, i) => {
+              if (!(repl in labC)) labC[repl] = [];
+              labC[repl].push(labels[i]);
+            });
+
+            return {
+              collisions: labR
+                .filter((repl, i) => keepT[i] && labC[repl].length > 1)
+                .map((repl) => `${repl}: ${labC[repl].join(", ")}`)
+                .join("\n"),
+              labels: labR.filter((_, i) => keepT[i]),
+              original: labR,
+              skipped: labR.filter((_, i) => !keepT[i]),
+              mat: mat.filter((_, i) => keepT[i]).map((row) => row.filter((_, i) => keepT[i])),
+            };
+          },
+          clusters() {
+            const stat = {};
+            for (const label of this.filtered.labels)
+              for (const part of label.split("_")) stat[part] = (stat[part] || 0) + 1;
+
+            return Object.fromEntries(
+              Object.entries(stat)
+                .filter(([_, num]) => num > 1)
+                .sort((a, b) => b[1] - a[1] || (b[0] < a[0] ? -1 : b[0] > a[0]))
+                .slice(0, this.clusterNum)
+                .map(([part], i, array) => [
+                  part,
+                  (360 * i) / (array.length > 5 ? array.length * 1.2 : array.length),
+                ])
+            );
+          },
+          hrange() {
+            return [this.rgb2h(this.hneg), this.rgb2h(this.hpos)];
+          },
+          replace() {
+            const items = this.replacements
+              .split(/\n\s*/g)
+              .map((item) => item.trim().match(/(\S+)\s*(.*)/))
+              .filter((p) => p)
+              .map(([, src, dst]) => [RegExp(src), dst]);
+            return (orig) => items.reduce((curr, [src, dst]) => curr.replace(src, dst), orig);
+          },
+        },
+        methods: {
+          dropped(ev) {
+            ev.preventDefault();
+            this.dragging = 0;
+            const { target } = ev;
+            const { files } = ev.dataTransfer ?? target;
+            if (!files || !files.length) return;
+            const { fs0, fs1 } = this.$refs;
+            for (const fs of [fs0, fs1])
+                fs.files = files;
+            const file = files[0];
+            const info = {
+              name: file.name || "???",
+              size: file.size ? (file.size / (1 << 10)).toFixed(0) : "???",
+              date: file.lastModified ? new Date(file.lastModified).toLocaleString() : "???",
+            };
+            this.loading = true;
+            file
+              .text()
+              .then((data) => {
+                const { labels, cov, cor, qual } = JSON.parse(data);
+                if (
+                  labels instanceof Array &&
+                  labels.length &&
+                  (cov || cor) &&
+                  [cov, cor].every(
+                    (mat) =>
+                      mat === undefined ||
+                      (mat instanceof Array &&
+                        mat.length == labels.length &&
+                        mat.every((row) => row instanceof Array && row.length === labels.length))
+                  )
+                ) {
+                  this.raw = Object.freeze({ labels, cov, cor, qual });
+                  if (cov && !cor) this.which = "cov";
+                  if (!cov && cor) this.which = "cor";
+                  this.info = info;
+                }
+              })
+              .finally(() => (this.loading = false));
+          },
+          rows(text) {
+            return Math.max(2, Math.min(text.split("\n").length, 5));
+          },
+          rgb2h(rgb) {
+            const [r, g, b] = rgb
+              .replace(/^#/, "")
+              .match(/[a-f0-9]{2}/g)
+              .slice(0, 3)
+              .map((v) => parseInt(v, 16) / 255);
+            const cmax = Math.max(r, g, b);
+            const delta = cmax - Math.min(r, g, b);
+            if (delta === 0) return 0;
+
+            let h;
+            if (cmax === r) h = ((g - b) / delta) % 6;
+            else if (cmax == g) h = (b - r) / delta + 2;
+            else h = (r - g) / delta + 4;
+
+            return h * 60;
+          },
+          text(num) {
+            const abs = Math.abs(num);
+            if (0.005 > abs || abs > 0.995) return "";
+            return num.toFixed(2).replace("0.", ".");
+          },
+          style(num) {
+            const hue = this.hrange[num > 0 ? 1 : 0];
+            const val = 100 - 50 * Math.abs(num);
+            const col = `hsl(${hue.toFixed(0)}deg, 100%, ${val.toFixed(1)}%)`;
+            return { "background-color": col, color: val < 80 ? "white" : "black" };
+          },
+          title(i, j) {
+            const { labels, mat } = this.filtered;
+            return `Value: ${mat[i][j].toFixed(5)}\nRow: ${labels[i]}\nCol: ${labels[j]}`;
+          },
+        },
+        components: {
+          clabel: {
+            props: { label: String },
+            render(ce) {
+              const {
+                label,
+                $root: { clusters, clusterColor },
+              } = this;
+              return ce(
+                "div",
+                {},
+                label
+                  .split("_")
+                  .map((part) => [
+                    "_",
+                    part in clusters
+                      ? ce(
+                          "span",
+                          {
+                            style: {
+                              color: clusterColor,
+                              filter: `hue-rotate(${clusters[part]}deg)`,
+                            },
+                          },
+                          part
+                        )
+                      : part,
+                  ])
+                  .flat()
+                  .slice(1)
+              );
+            },
+          },
+        },
+      });
+
+      window.onload = () => app.$mount("#app");
+      window.ondragover = (ev) => ev.preventDefault();
+      window.ondragenter = (ev) => app.dragging++;
+      window.ondragleave = (ev) => app.dragging--;
+      window.ondrop = (ev) => app.dropped(ev);
+    </script>
+  </head>
+  <body>
+    <div id="app" :class="{loading}">
+      <div
+        v-show="!raw || dragging"
+        :class="{overlay: true, dragging}"
+        @dragenter="dragging++"
+        @dragleave="dragging--"
+      >
+        <h1>Load a covariance matrix by dragging its <tt>.cov.json</tt> onto the page!</h1>
+        <label>... or select it <input ref="fs0" type="file" accept=".cov.json" @input="dropped"/></label>
+        <fieldset style="margin-top:3em">
+          <legend><b>JSON file layout reference</b></legend>
+          <h4>fields</h4>
+          <dl>
+            <dt><code>labels</code></dt>
+              <dd><code>Array</code> of N <code>String</code>s</dd>
+              <dd>the nuisance/fit parameter labels</dd>
+            <dt><code>cov</code> or <code>cor</code></dt>
+              <dd><code>Array</code> of N <code>Array</code>s of N <code>Number</code>s between -1 and 1</dd>
+              <dd>the covariance/correlation matrix</dd>
+              <dd>at least one of them must be given</dd>
+            <dt><pre>qual</pre></dt>
+              <dd>the fit quality number, optional</dd>
+          </dl>
+          <h4>example</h4>
+          <pre>{
+  "labels": ["lumi", "BR", "r"],
+  "cov": [
+    [1   , 0.1, 0.01],
+    [0.1 , 1  , 0.1 ],
+    [0.01, 0.1, 1   ]
+  ]
+}</pre>
+        </fieldset>
+      </div>
+      <table v-show="raw">
+        <tr>
+          <td>
+            <div :title="`Size: ${info?.size}kB\nDate: ${info?.date}`">
+              <input ref="fs1" type="file" accept=".cov.json" @input="dropped"/>
+              <span v-show="raw?.qual !== undefined">(Quality: {{raw?.qual}})</span>
+            </div>
+            <fieldset v-if="raw">
+              <legend>
+                Display
+                <select v-model="which" :disabled="either"
+                  ><option value="cov">covariance</option
+                  ><option value="cor">correlation</option></select
+                >
+              </legend>
+              <label
+                >Hue range: <input type="color" v-model="hneg" />-<input
+                  type="color"
+                  v-model="hpos" /></label
+              ><br />
+              <textarea
+                placeholder="Replacements"
+                :title="replacementHelp"
+                v-model="replacements"
+                :rows="rows(replacements)"
+              ></textarea>
+              <br />
+              <div v-show="filtered.collisions" :title="filtered.collisions">
+                Label collisions after label replacements!
+              </div>
+              <label
+                >Color cluster<input
+                  type="range"
+                  min="0"
+                  max="50"
+                  :title="clusterNum"
+                  v-model.number="clusterNum" /><input type="color" v-model="clusterColor"
+              /></label>
+            </fieldset>
+            <fieldset v-if="raw">
+              <legend>Filters ({{filtered.original.length}} ➜ {{filtered.labels.length}})</legend>
+              <label
+                title="off-diagonals must have at least this value for the row/column to be included"
+                >Threshold
+                <input type="range" min="0" max="1" step="0.01" v-model.number="thresh" /><input
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  v-model.number="thresh"
+                  size="3" /></label
+              ><br />
+              <textarea
+                placeholder="Filters"
+                :title="filterHelp"
+                v-model="filters"
+                :rows="rows(filters)"
+              ></textarea>
+            </fieldset>
+          </td>
+          <th v-for="l, i in filtered.labels"><clabel :label="l" /></th>
+        </tr>
+        <tr v-for="row, i in filtered.mat">
+          <th><clabel :label="filtered.labels[i]" /></th>
+          <td v-for="v, j in row" v-text="text(v)" :title="title(i, j)" :style="style(v)"></td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
