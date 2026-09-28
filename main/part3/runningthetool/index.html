@@ -1166,10 +1166,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#grid-submission-with-crab3" class="md-nav__link">
+  <a href="#grid-submission-with-crab" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Grid submission with crab3
+        Grid submission with CRAB
       
     </span>
   </a>
@@ -2176,10 +2176,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#grid-submission-with-crab3" class="md-nav__link">
+  <a href="#grid-submission-with-crab" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Grid submission with crab3
+        Grid submission with CRAB
       
     </span>
   </a>
@@ -2538,7 +2538,7 @@ The <code>--singlePoint</code> option is over-ridden, so that this will produce 
 <h3 id="grid-submission-with-combinetool">Grid submission with combineTool</h3>
 <p>For more CPU-intensive tasks, for example determining limits for complex models using toys, it is generally not feasible to compute all the results interactively. Instead, these jobs can be submitted to the Grid.</p>
 <p>In this example we will use the <code>HybridNew</code> method of <span style="font-variant:small-caps;">Combine</span> to determine an upper limit for a sub-channel of the Run 1 SM <span class="arithmatex">\(H\rightarrow\tau\tau\)</span> analysis. For full documentation, see the section on <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-limits-with-toys">computing limits with toys</a>.</p>
-<p>With this model it would take too long to find the limit in one go, so instead we create a set of jobs in which each one throws toys and builds up the test statistic distributions for a fixed value of the signal strength. These jobs can then be submitted to a batch system or to the Grid using <code>crab3</code>. From the set of output distributions it is possible to extract the expected and observed limits.</p>
+<p>With this model it would take too long to find the limit in one go, so instead we create a set of jobs in which each one throws toys and builds up the test statistic distributions for a fixed value of the signal strength. These jobs can then be submitted to a batch system or to the Grid using <code>CRAB</code>. From the set of output distributions it is possible to extract the expected and observed limits.</p>
 <p>For this we will use <code>combineTool.py</code></p>
 <p>First we need to build a workspace from the <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/data/tutorials/htt/125/htt_tt.txt"><span class="arithmatex">\(H\rightarrow\tau\tau\)</span> datacard</a>,</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>text2workspace.py<span class="w"> </span>data/tutorials/htt/125/htt_mt.txt<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span>
@@ -2567,9 +2567,9 @@ Expected 97.5%: r &lt; 1.7200
 <span class="o">[</span>DRY-RUN<span class="o">]</span>:<span class="w"> </span>combine<span class="w"> </span>-d<span class="w"> </span>htt_mt.root<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>-T<span class="w"> </span><span class="m">2000</span><span class="w"> </span>-s<span class="w"> </span>-1<span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">2</span>.0<span class="w"> </span>-n<span class="w"> </span>.Test.POINT.2.0
 </code></pre></div>
 <p>When the <code>--dry-run</code> option is removed each command will be run in sequence.</p>
-<h3 id="grid-submission-with-crab3">Grid submission with crab3</h3>
-<p>Submission to the grid with <code>crab3</code> works in a similar way. Before doing so, ensure that the <code>crab3</code> environment has been sourced in addition to the CMSSW environment. We will use the example of generating a grid of test-statistic distributions for limits.</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>cmsenv<span class="p">;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>/cvmfs/cms.cern.ch/crab3/crab.sh
+<h3 id="grid-submission-with-crab">Grid submission with CRAB</h3>
+<p>Submission to the grid with <code>CRAB</code> works in a similar way. Note that the <code>CRAB</code> environment is automatically added in CMSSW environment. We will use the example of generating a grid of test-statistic distributions for limits.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>cmsenv
 $<span class="w"> </span>combineTool.py<span class="w"> </span>-d<span class="w"> </span>htt_mt.root<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>--clsAcc<span class="w"> </span><span class="m">0</span><span class="w"> </span>-T<span class="w"> </span><span class="m">2000</span><span class="w"> </span>-s<span class="w"> </span>-1<span class="w"> </span>--singlePoint<span class="w"> </span><span class="m">0</span>.2:2.0:0.05<span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>--job-mode<span class="w"> </span>crab3<span class="w"> </span>--task-name<span class="w"> </span>grid-test<span class="w"> </span>--custom-crab<span class="w"> </span>custom_crab.py
 </code></pre></div>
 <p>The option <code>--custom-crab</code> should point to a python file python containing a function of the form <code>custom_crab(config)</code> that will be used to modify the default crab configuration. You can use this to set the output site to your local grid site, or modify other options such as the voRole, or the site blacklist/whitelist.</p>
@@ -2579,7 +2579,7 @@ $<span class="w"> </span>combineTool.py<span class="w"> </span>-d<span class="w"
   <span class="n">config</span><span class="o">.</span><span class="n">Site</span><span class="o">.</span><span class="n">storageSite</span> <span class="o">=</span> <span class="s1">&#39;T2_CH_CERN&#39;</span>
   <span class="n">config</span><span class="o">.</span><span class="n">Site</span><span class="o">.</span><span class="n">blacklist</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SOME_SITE&#39;</span><span class="p">,</span> <span class="s1">&#39;SOME_OTHER_SITE&#39;</span><span class="p">]</span>
 </code></pre></div>
-<p>Again it is possible to use the option <code>--dry-run</code> to see what the complete crab config will look like before actually submitting it.</p>
+<p>Again it is possible to use the option <code>--dry-run</code> to see what the complete CRAB config will look like before actually submitting it.</p>
 <p>Once submitted, the progress can be monitored using the standard <code>crab</code> commands. When all jobs are completed, copy the output from your site's storage element to the local output folder.</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>crab<span class="w"> </span>getoutput<span class="w"> </span>-d<span class="w"> </span>crab_grid-test
 <span class="c1"># Now we have to un-tar the output files</span>
