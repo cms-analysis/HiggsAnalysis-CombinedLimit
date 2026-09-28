@@ -279,7 +279,7 @@ For more CPU-intensive tasks, for example determining limits for complex models 
 
 In this example we will use the `HybridNew` method of <span style="font-variant:small-caps;">Combine</span> to determine an upper limit for a sub-channel of the Run 1 SM $H\rightarrow\tau\tau$ analysis. For full documentation, see the section on [computing limits with toys](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-limits-with-toys).
 
-With this model it would take too long to find the limit in one go, so instead we create a set of jobs in which each one throws toys and builds up the test statistic distributions for a fixed value of the signal strength. These jobs can then be submitted to a batch system or to the Grid using `crab3`. From the set of output distributions it is possible to extract the expected and observed limits.
+With this model it would take too long to find the limit in one go, so instead we create a set of jobs in which each one throws toys and builds up the test statistic distributions for a fixed value of the signal strength. These jobs can then be submitted to a batch system or to the Grid using `CRAB`. From the set of output distributions it is possible to extract the expected and observed limits.
 
 For this we will use `combineTool.py`
 
@@ -322,12 +322,12 @@ combineTool.py -M HybridNew -d htt_mt.root --LHCmode LHC-limits --singlePoint 0.
 
 When the `--dry-run` option is removed each command will be run in sequence.
 
-### Grid submission with crab3
+### Grid submission with CRAB
 
-Submission to the grid with `crab3` works in a similar way. Before doing so, ensure that the `crab3` environment has been sourced in addition to the CMSSW environment. We will use the example of generating a grid of test-statistic distributions for limits.
+Submission to the grid with `CRAB` works in a similar way. Note that the `CRAB` environment is automatically added in CMSSW environment. We will use the example of generating a grid of test-statistic distributions for limits.
 
 ```sh
-$ cmsenv; source /cvmfs/cms.cern.ch/crab3/crab.sh
+$ cmsenv
 $ combineTool.py -d htt_mt.root -M HybridNew --LHCmode LHC-limits --clsAcc 0 -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveToys --saveHybridResult -m 125 --job-mode crab3 --task-name grid-test --custom-crab custom_crab.py
 ```
 
@@ -342,7 +342,7 @@ def custom_crab(config):
   config.Site.blacklist = ['SOME_SITE', 'SOME_OTHER_SITE']
 ```
 
-Again it is possible to use the option `--dry-run` to see what the complete crab config will look like before actually submitting it.
+Again it is possible to use the option `--dry-run` to see what the complete CRAB config will look like before actually submitting it.
 
 Once submitted, the progress can be monitored using the standard `crab` commands. When all jobs are completed, copy the output from your site's storage element to the local output folder.
 
