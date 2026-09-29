@@ -11,7 +11,7 @@ https://link.springer.com/article/10.1007/JHEP07(2013)035), [JHEP 1404 (2014) 11
 text2workspace.py datacard.txt -P HiggsAnalysis.CombinedLimit.STXStoEFTModel:model
 ```
 
-| <div style="width:160px"></div> | `model` | <div style="width:190px">`--PO`</div> | <div style="width:220px">POIs</div> | <div style="width:460px">Description</div> |
+| <div style="width:120px"></div> | <div style="width:100px"></div> `model` | <div style="width:190px">`--PO`</div> | <div style="width:220px">POIs</div> | <div style="width:460px">Description</div> |
 | --- | --- | --- | --- | --- |
 | Stage 0 | `Stage0toEFT` | `--PO freezeOtherParameters=0`, `--PO BRU=1`, `--PO STXSU=1`, `--PO fixProcesses=bin1,bin2`, `--PO higgsMassRange=x,y` | HEL coefficients (see below) | Scales stage 0 production bins and Higgs branching ratios. |
 | Stage 1 | `Stage1toEFT` | Same as stage 0 | HEL coefficients (see below) | Scales stage 1 production bins and Higgs branching ratios. |
@@ -35,7 +35,7 @@ The Stage 1.2 interpretation uses the SMEFT [[Phys. Rept. 793 (2019) 1-98](https
 text2workspace.py datacard.txt -P HiggsAnalysis.CombinedLimit.STXStoSMEFTModel:STXStoSMEFT
 ```
 
-| <div style="width:160px"></div> | `model` | <div style="width:190px">`--PO`</div> | <div style="width:220px">POIs</div> | <div style="width:460px">Description</div> |
+| <div style="width:120px"></div> | <div style="width:100px"></div>  `model` | <div style="width:190px">`--PO`</div> | <div style="width:220px">POIs</div> | <div style="width:460px">Description</div> |
 | --- | --- | --- | --- | --- |
 | Stage 1.2 SMEFT | `STXStoSMEFT` | `--PO parametrisation=name`, `--PO linear_only=1`, `--PO linquad_only=1`, `--PO expand_equations=1`, `--PO stage0=1`, `--PO eigenvalueThreshold=value`, `--PO fixProcesses=bin1,bin2`, `--PO higgsMassRange=x,y` | Wilson coefficients from the selected `pois.yaml`; see below | Scales production and decay using SMEFT interference and quadratic terms. |
 
