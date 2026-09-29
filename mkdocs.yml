@@ -15,6 +15,7 @@ nav:
           - "Physics Models":
               - "Introduction": part2/physicsmodels.md
               - "SM Higgs Coupling Models": part2/higgscouplings.md
+              - "STXS to EFT Models": part2/hstxsmodels.md
               - "BSM Higgs Models": part2/bsm-higgs-models.md
           - "Automatic MC Statistical Uncertainties": part2/bin-wise-stats.md
         - Running Combine:
