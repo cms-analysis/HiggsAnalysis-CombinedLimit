@@ -1,7 +1,6 @@
 //---------------------------------------------------------------------------
 #include "RooFit.h"
 
-#include "Riostream.h"
 #include <TMath.h>
 #include <cassert>
 #include <cmath>

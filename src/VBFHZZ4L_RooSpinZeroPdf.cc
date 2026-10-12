@@ -5,7 +5,6 @@ This means that for example for L1, T5's normalization should be tiny, because t
 multiplied by a very large g1_prime2^4.
 */
 
-#include "Riostream.h"
 #include "../interface/VBFHZZ4L_RooSpinZeroPdf.h"
 #include "RooAbsReal.h"
 #include "RooAbsCategory.h"

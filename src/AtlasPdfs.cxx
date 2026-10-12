@@ -19,8 +19,6 @@ END_HTML
 
 #include "RooFit.h"
 
-#include "Riostream.h"
-#include "Riostream.h"
 #include <math.h>
 #include "TMath.h"
 
@@ -382,8 +380,6 @@ END_HTML
 
 #include "RooFit.h"
 
-#include "Riostream.h"
-#include "Riostream.h"
 #include <math.h>
 #include <memory>
 #include "TMath.h"
@@ -821,7 +817,6 @@ RooBSpline::CacheElem::~CacheElem()
 #include "RooFit.h"
 
 #include <math.h>
-#include "Riostream.h"
 #include "TMath.h"
 
 //#include "RooParamKeysPdf.h"
@@ -1182,8 +1177,6 @@ Double_t RooParamKeysPdf::analyticalIntegral(Int_t code, const char* /*rangeName
  *****************************************************************************/ 
 
 // Your description goes here... 
-
-#include "Riostream.h" 
 
 //#include "RooStarMomentMorph.h" 
 #include "RooAbsCategory.h" 

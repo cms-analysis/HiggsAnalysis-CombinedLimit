@@ -25,7 +25,6 @@
 
 #include "RooFit.h"
 
-#include "Riostream.h"
 #include <math.h>
 #include "TMath.h"
 #include "Math/SpecFunc.h"

@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "RooFit.h"
-#include "Riostream.h"
 
 #include "RooRealVar.h"
 #include "RooMsgService.h"
