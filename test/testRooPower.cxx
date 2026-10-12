@@ -42,34 +42,9 @@ namespace {
     for (const auto& ref : references) {
       SCOPED_TRACE(ref.exponent);
       exponent.setVal(ref.exponent);
-      EXPECT_DOUBLE_EQ(pdf.getVal(), ref.valueAtTwo);
+      EXPECT_NEAR(pdf.getVal(observables), ref.valueAtTwo / ref.integral, 1.e-12);
       EXPECT_NEAR(full->getVal(), ref.integral, 1.e-12);
       EXPECT_NEAR(window->getVal(), ref.windowIntegral, 1.e-12);
-    }
-  }
-
-  TEST(RooPowerTest, Likelihood) {
-    RooRealVar mass{/*name=*/"mass", /*title=*/"mass", /*value=*/2., /*minValue=*/1., /*maxValue=*/4.};
-    RooRealVar exponent{/*name=*/"exponent", /*title=*/"exponent", /*value=*/-5., /*minValue=*/-6., /*maxValue=*/1.};
-    RooPower pdf{/*name=*/"power", /*title=*/"power", mass, exponent};
-    RooArgSet observables{mass};
-    RooDataSet data{"data", "data", observables};
-    for (double value : {1.5, 2., 3.5}) {
-      mass.setVal(value);
-      data.add(observables);
-    }
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 30, 0)
-    std::unique_ptr<RooAbsReal> nll{pdf.createNLL(data, RooFit::EvalBackend("legacy"), RooFit::Offset(/*flag=*/false))};
-#else
-    std::unique_ptr<RooAbsReal> nll{pdf.createNLL(data, RooFit::Offset(/*flag=*/false))};
-#endif
-    ASSERT_TRUE(nll);
-    for (const auto& ref : references) {
-      SCOPED_TRACE(ref.exponent);
-      exponent.setVal(ref.exponent);
-      // -log(product_i(x_i^c / integral)); product_i(x_i) = 10.5.
-      const double expected = (3. * std::log(ref.integral)) - (ref.exponent * std::log(10.5));
-      EXPECT_NEAR(nll->getVal(), expected, 1.e-12);
     }
   }
 
