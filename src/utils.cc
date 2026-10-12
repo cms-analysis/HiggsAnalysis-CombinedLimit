@@ -1174,6 +1174,19 @@ std::unique_ptr<RooArgSet> utils::getAllParameters(const RooAbsArg &func, const 
   return getAllParameters(func, data.get());
 }
 
+utils::ConstantCategoriesGuard::ConstantCategoriesGuard(const RooAbsReal &func) {
+  std::unique_ptr<RooArgSet> params{getAllParameters(func)};
+  for (RooAbsArg *arg : *params) {
+    auto *cat = dynamic_cast<RooCategory *>(arg);
+    if (cat && !cat->isConstant()) {
+      cat->setConstant(true);
+      m_changed.add(*cat);
+    }
+  }
+}
+
+utils::ConstantCategoriesGuard::~ConstantCategoriesGuard() { setAllConstant(m_changed, /*constant=*/false); }
+
 namespace Utils {
 
   bool starts_with(std::string_view str, std::string_view prefix) {

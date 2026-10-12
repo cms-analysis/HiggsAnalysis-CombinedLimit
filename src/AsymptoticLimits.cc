@@ -524,12 +524,13 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
             }
             minim.setStrategy(2);
 	    
-            if (tries == 1) { 
-                if (minim.algo().find("Minuit2") != std::string::npos) {
-                    minim.minimizer().minimize("Minuit","minimize");
-                } else {
-                    minim.minimizer().minimize("Minuit2","minimize");
-                }
+            if (tries == 1) {
+              utils::ConstantCategoriesGuard constantCategories(nll);
+              if (minim.algo().find("Minuit2") != std::string::npos) {
+                minim.minimizer().minimize(/*type=*/"Minuit", /*alg=*/"minimize");
+              } else {
+                minim.minimizer().minimize(/*type=*/"Minuit2", /*alg=*/"minimize");
+              }
             }
 	    
         }

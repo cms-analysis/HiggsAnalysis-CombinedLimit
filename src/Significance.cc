@@ -299,6 +299,8 @@ bool Significance::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 
 double Significance::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const {
     auto nll = combineCreateNLL(pdf, data, nuisances, /*offset=*/false);
+    // keep the RooMinimizer from doing its own discrete profiling
+    utils::ConstantCategoriesGuard constantCategories(*nll);
     RooMinimizer minim(*nll);
     minim.setStrategy(0);
     minim.setPrintLevel(verbose-1);
