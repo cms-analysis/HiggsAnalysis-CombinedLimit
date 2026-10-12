@@ -188,6 +188,21 @@ if(NOT CMSSW_VERSION STREQUAL "CMSSW_11_3_4")
   )
 endif()
 
+# RooMultiPdf
+if(NOT CMSSW_VERSION MATCHES "^CMSSW_11")
+  # This test does not work with the ROOT 6.22 of CMSSW_11; the condition is
+  # inherited from the former cvmfs-ci.yml step.
+  ADD_COMBINE_TEST(multipdf
+    T2W_COMMAND
+      text2workspace.py ${REPO}/data/ci/datacard_RooMultiPdf.txt.gz -o ws_RooMultiPdf.root
+    COMBINE_COMMANDS
+      "combine -M MultiDimFit -m 125.38 --setParameters pdf_index_ggh=2 --freezeParameters MH --cminDefaultMinimizerTolerance 0.001 --cminDefaultMinimizerStrategy 1 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles ws_RooMultiPdf.root"
+      # Also run Hesse on the result. The lower verbosity hides RooFit warnings
+      # about Hesse stepping to the boundary of r, which not all ROOT versions print.
+      "combine -v -1 -M MultiDimFit -m 125.38 --setParameters pdf_index_ggh=2 --freezeParameters MH --cminDefaultMinimizerTolerance 0.001 --cminDefaultMinimizerStrategy 1 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles --saveFitResult ws_RooMultiPdf.root"
+  )
+endif()
+
 # Template analysis CMSHistFunc
 ADD_COMBINE_TEST(cmshistfunc
   T2W_COMMAND
