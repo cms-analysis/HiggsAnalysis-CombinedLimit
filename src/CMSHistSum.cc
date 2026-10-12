@@ -1175,6 +1175,38 @@ inline bool approxSymmetricKappas(double kLo, double kHi,
     return diff <= std::max(absLogTol, relLogTol * scale);
 }
 
+/// Duplicated in JSONFactories_Combine.cxx and VerticalInterpHistPdf.cc: single-bin counting nodes go to the RooPoisson importer.
+inline bool isSingleBinCountingDist(RooFit::Detail::JSONNode const &elem)
+{
+    auto const *axes = elem.find("axes");
+    if (!axes || axes->num_children() != 1) return false;
+    for (auto const &ax : axes->children()) {
+        if (ax.has_child("edges")) {
+            if (ax["edges"].num_children() != 2) return false; // two edges == one bin
+        } else {
+            auto const *nb = ax.find("nbins");
+            if (!nb || nb->val_int() != 1) return false;
+            // the count axis n_obs_bin<b> is unbounded above; a 1-bin shape channel is not
+            auto const *mx = ax.find("max");
+            if (mx && !mx->is_null()) return false;
+        }
+    }
+
+    auto const *samples = elem.find("samples");
+    if (!samples || samples->num_children() == 0) return false;
+    for (auto const &s : samples->children()) {
+        auto const *data = s.find("data");
+        if (!data || !data->has_child("contents") || (*data)["contents"].num_children() != 1) return false;
+        if (auto const *mods = s.find("modifiers")) {
+            for (auto const &m : mods->children()) {
+                std::string const mtype = m["type"].val();
+                if (mtype != "normsys" && mtype != "normfactor" && mtype != "custom") return false;
+            }
+        }
+    }
+    return true;
+}
+
 /// The actual importer
 class CMSHistSumHistFactoryImporter final : public RooFit::JSONIO::Importer {
 public:
@@ -1184,6 +1216,10 @@ public:
 
       // Basic validation
       if (!elem.has_child("name"))
+         return false;
+
+      // Single-bin counting nodes belong to the RooPoisson/RooAddition importer.
+      if (isSingleBinCountingDist(elem))
          return false;
 
       const std::string distName = elem["name"].val();
