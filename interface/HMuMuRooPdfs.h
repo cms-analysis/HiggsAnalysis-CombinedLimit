@@ -50,7 +50,7 @@ class RooExpPdf : public RooAbsPdf {
  public:
   RooExpPdf() {};  
   RooExpPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a1, const bool & _offset = true);   // standard exponential centered at Z-boson mass
-  RooExpPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a1, RooAbsReal& _m);  // exponential with free paramaters for center x0
+  RooExpPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a1, RooAbsReal& _m);  // exponential with free parameters for center x0
   RooExpPdf(const RooExpPdf& other, const char* name=0) ;
   
   TObject* clone(const char* newname) const override {

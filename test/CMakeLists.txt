@@ -158,7 +158,7 @@ COMBINE_ADD_TEST(counting_datacard_from_csv
     COMMAND combineTool.py -M MultiDimFit counting_datacard.root --fromfile fixed.csv
     COPY_TO_BUILDDIR ${REPO}/data/tutorials/multiDim/fixed.csv
     FIXTURES_REQUIRED counting_datacard
-    # The output is unfortunatley not predictable on all platforms: on
+    # The output is unfortunately not predictable on all platforms: on
     # CMSSW_11_3_4 - ROOT 6.22.09 and conda with ROOT 6.26.04, it will not
     # print the combine commands that the tool is running.
     # TODO: investigate this.
@@ -280,9 +280,17 @@ if(BUILD_TESTS AND NOT DEFINED standalone_tests)
     )
 endif()
 
-
+# ModelTools.py
 COMBINE_ADD_TEST(test_model_tools_py
     COMMAND python3 ${REPO}/test/test_model_tools.py
+)
+
+# RooBernsteinFast v1 -> v2 schema evolution
+COMBINE_ADD_TEST(roo_bernstein_fast_schema_evolution
+    COMMAND python3 test_roo_bernstein_fast_schema_evolution.py
+    COPY_TO_BUILDDIR ${REPO}/test/test_roo_bernstein_fast_schema_evolution.py
+                    ${REPO}/data/ci/test_bernstein_fast_v1.root
+    PASSREGEX "All checks passed"
 )
 
 # test_interference.py
@@ -399,15 +407,16 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
 #
 #   cd build
 #   ctest -j$(nproc)
-#   cd test
 #   sh create_reference_files.sh
+#   cp references/*.out /path/to/source/test/references/
 #
-# You have now a new reference files directory in build/test/references that
-# you can use to replace test/references in the repository.
+# The script is placed in CMAKE_CURRENT_BINARY_DIR, which is the same
+# directory where CTest generates the workspace .root files. This is
+# build/test/ for non-standalone builds and build/ for standalone builds.
 
 get_property(all_combine_commands GLOBAL PROPERTY ALL_COMBINE_COMMANDS)
 message(STATUS "All combine commands:")
-set(_outfile "${CMAKE_BINARY_DIR}/test/create_reference_files.sh")
+set(_outfile "${CMAKE_CURRENT_BINARY_DIR}/create_reference_files.sh")
 file(WRITE "${_outfile}" "#!/usr/bin/env bash\n\n")
 file(APPEND "${_outfile}" "rm -rf references\n\n")
 file(APPEND "${_outfile}" "mkdir references\n\n")

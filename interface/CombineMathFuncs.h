@@ -385,7 +385,7 @@ inline Double_t parametricMorphFunction(const int j,
 
   int ndim = nMorphs;
   // apply all morphs one by one to the bin
-  // almost certaintly a faster way to do this in a vectorized way ....
+  // almost certainly a faster way to do this in a vectorized way ....
   for (int i = 0; i < ndim; ++i) {
     double x = morphCoeffs[i];
     double a = 0.5 * x, b = smoothStepFunc(x, smoothRegion);

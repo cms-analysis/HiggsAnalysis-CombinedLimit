@@ -3,9 +3,9 @@ n_obs[2,0,10000];
 observables = set( n_obs );
 
 /// ----- parameters of interest -----
-// signal strenght
+// signal strength
 r[0,20];
-// set of all paramers of interest
+// set of all parameters of interest
 POI = set(r);
 
 S[1];

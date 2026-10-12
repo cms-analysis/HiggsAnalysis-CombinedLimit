@@ -1,5 +1,5 @@
 # Main Features of Combine
-This exercise is designed to recreate the main workflow needed to perform a statistical analysis with Combine. It will start assuming you already prepared your inputs (**shapes, yields, and systematic uncertainties**) and will proceed step by step to perform validation test of your setup and produce some standard results. For more detailed procedure you can always find detailed informations in the  <span style="font-variant:small-caps;">Combine</span> [manual](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/) and in the [Long exercise tutorial](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/part5/longexercise/). 
+This exercise is designed to recreate the main workflow needed to perform a statistical analysis with Combine. It will start assuming you already prepared your inputs (**shapes, yields, and systematic uncertainties**) and will proceed step by step to perform validation test of your setup and produce some standard results. For more detailed procedure you can always find detailed information in the  <span style="font-variant:small-caps;">Combine</span> [manual](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/) and in the [Long exercise tutorial](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/part5/longexercise/). 
 
 As for the Long exercise, we will work with a simplified version of a real analysis, that nonetheless will have many features of the full analysis. The analysis is a search for an additional heavy neutral Higgs boson decaying to tau lepton pairs. Such a signature is predicted in many extensions of the standard model, in particular the minimal supersymmetric standard model (MSSM). You can read about the analysis in the paper [here](https://arxiv.org/pdf/1803.06553.pdf). The statistical inference makes use of a variable called the total transverse mass ($M_{\mathrm{T}}^{\mathrm{tot}}$) that provides good discrimination between the resonant high-mass signal and the main backgrounds, which have a falling distribution in this high-mass region. The events selected in the analysis are split into several categories which target the main di-tau final states as well as the two main production modes: gluon-fusion (ggH) and b-jet associated production (bbH). One example is given below for the fully-hadronic final state in the b-tag category which targets the bbH signal:
 
@@ -80,7 +80,7 @@ Compared to the counting experiment we must also consider the effect of uncertai
 
 Add the following shape uncertainties: `top_pt_ttbar_shape` affecting `ttbar`,the tau energy scale uncertainties `CMS_scale_t_1prong0pi0_13TeV`, `CMS_scale_t_1prong1pi0_13TeV` and `CMS_scale_t_3prong0pi0_13TeV` affecting all processes except `jetFakes`, and `CMS_eff_t_highpt` also affecting the same processes.
 
-Once this is done you can convert the text datacard into a RooFit workspace. If we feed the datacard directly into Combine, this step will be done internally every time we run. It is a good idea to do it explicitely especially for more complex analyses, since the conversion step can take a notable amount of time. For this we use the `text2workspace.py` command:
+Once this is done you can convert the text datacard into a RooFit workspace. If we feed the datacard directly into Combine, this step will be done internally every time we run. It is a good idea to do it explicitly especially for more complex analyses, since the conversion step can take a notable amount of time. For this we use the `text2workspace.py` command:
 
 ```shell
 text2workspace.py datacard_part2.txt -m 800 -o workspace_part2.root
@@ -143,7 +143,7 @@ In this section we will continue to use the same SR as in the previous one, howe
 
 The SR datacard for the 200 GeV signal is `datacard_part3.txt`. Two further datacards are provided: `datacard_part3_ttbar_cr.txt` and `datacard_part3_DY_cr.txt`
 which represent the CRs for the Drell-Yan and $\text{t}\bar{\text{t}}$ processes as described above.
-The cross section and acceptance uncertainties for these processes have pre-emptively been removed from the SR card.
+The cross section and acceptance uncertainties for these processes have preemptively been removed from the SR card.
 However we cannot get away with neglecting acceptance effects altogether.
 We are still implicitly using the MC simulation to predict to the ratio of events in the CR and SR, and this ratio will in general carry a theoretical acceptance uncertainty.
 If the CRs are well chosen then this uncertainty should be smaller than the direct acceptance uncertainty in the SR however.

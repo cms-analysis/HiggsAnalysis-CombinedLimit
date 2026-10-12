@@ -1,7 +1,7 @@
 # Counting experiment with multiple channels
 # Extremely simplified version of the 35/pb H->TT analysis for mA = 90 GeV
 # where shapes hardly matter as higgs has the same shape as Z->TT
-# We make the following very simplificatory assumtions:
+# We make the following very simplificatory assumptions:
 # - we consider only Z->TT and "everything else" (mostly QCD)
 # - systematical uncertainties are simplified
 imax 3  number of channels

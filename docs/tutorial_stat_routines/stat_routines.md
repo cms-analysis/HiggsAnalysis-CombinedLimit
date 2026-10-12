@@ -71,7 +71,7 @@ Wilks' theorem tells us what the expected distribution of the likelihood ratio $
 In practice, we use the log-likelihood ratio $t_r \equiv -2 \ln( \Lambda )$, rather than the likelihood ratio itself.
 The confidence interval is constructed by finding all values of `r` for which the $-2 \ln(\Lambda)$ is below a threshold value which depends on the confidence level we are using.
 
-We can also calculat the best fit value and confidence interval using the `FitDiagnostics` routine:
+We can also calculate the best fit value and confidence interval using the `FitDiagnostics` routine:
 
 ```
 combine -M FitDiagnostics datacard.txt --rMin -10 --rMax 10
@@ -107,7 +107,7 @@ However, the different intervals estimate this value in different ways.
 The asymmetric intervals are "minos errors", which means that the crossing points were determined by explicitly scanning the likelihood as a function of `r` to look for the crossing, while minimizing other parameters at each step (profiling).
 The symmetric intervals are "hesse errors", which means that the crossing points were determined by taking the matrix of second-order partial derivatives (Hessian) at the minimum, and inverting it to estimate the crossing assuming all other derivatives vanish.
 
-> The information printed under the `Status` section of the `RooFitResult` is showing that the minimization suceeded and that the hessian was positive definite, i.e. that all the second derivates are positive, as they should be at the minimum of a function. 
+> The information printed under the `Status` section of the `RooFitResult` is showing that the minimization succeeded and that the hessian was positive definite, i.e. that all the second derivates are positive, as they should be at the minimum of a function. 
 > If the HESSE status is not 0 or the covariance matrix quality indicates it had to be forced positive definite, this indicates that there are problems with the fit.
 
 ### Running an explicit likelihood scan
@@ -172,7 +172,7 @@ combine -M MultiDimFit datacard.txt --rMin -10 --rMax 10 --algo fixed --fixedPoi
 
 We can inspect the results of all of our toy fits by opening the `higgsCombineTest.MultiDimFit.mH120.123456.root` file our command created, and looking at the `limit` tree contained in it.
 The log-likelihood ratio $-\ln(\Lambda)$ is stored in the `deltaNLL` branch of the tree.
-For the `fixed` algorithm, there are two entries stored in the tree for every dataset: one for the best fit point, and one for the fixed point passed as the aregument to `--fixedPointPOIs`.
+For the `fixed` algorithm, there are two entries stored in the tree for every dataset: one for the best fit point, and one for the fixed point passed as the argument to `--fixedPointPOIs`.
 In order to select only the values we are interest in we can pass the requirement `quantileExpected >= 0` to our TTree selection, because combine uses the value `-1` for `quantileExpected` to indicate best fit points.
 
 You can draw the $t_{\mu}$ distribution with:
@@ -183,7 +183,7 @@ root [1] > limit->Draw("2*deltaNLL","quantileExpected >= 0")
 ```
 
 
-To test wether or not this point should be rejected, we first define the confidence level of our rejection, say $1\sigma$ (approximately 68%), then we use the empirical distribution of the test statistic to estimate the cut-off value of the test statistic.
+To test whether or not this point should be rejected, we first define the confidence level of our rejection, say $1\sigma$ (approximately 68%), then we use the empirical distribution of the test statistic to estimate the cut-off value of the test statistic.
 This is done for you in the script `get_quantile.py`, which you can run:
 
 
@@ -293,7 +293,7 @@ You can check thiswith the `HybridNew` method, and the slightly modified datacar
 combine -M HybridNew --frequentist --testStat=Profile datacard_underfluctuation.txt  --rule Pmu --rMin -5 --rMax 10
 ```
 
-The above command is telling combine to calculate the limit, but we have to pass the non-standard arguemnts `--testStat=Profile --rule Pmu` to tell combine to use the profile likelihood ratio test statistic $t_{\mu}$ directly, and not to use the $\mathrm{CL}_\mathrm{s}$ criterion which is normally applied.
+The above command is telling combine to calculate the limit, but we have to pass the non-standard arguments `--testStat=Profile --rule Pmu` to tell combine to use the profile likelihood ratio test statistic $t_{\mu}$ directly, and not to use the $\mathrm{CL}_\mathrm{s}$ criterion which is normally applied.
 
 Usually at the LHC, for upper limits we use the modified test statistic $\tilde{q}_{\mu}$ which is set to 0 for $\mu < \hat{\mu}$ but also replaces $\hat{\mu}$ with 0 if $\min(\hat{\mu},0)$ so that upper limits are always positive.
 

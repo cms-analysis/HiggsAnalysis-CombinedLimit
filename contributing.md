@@ -106,7 +106,7 @@ mike deploy <version> <alias>
 Note that this will only affect your *local* copy of the gh-pages documentation. In order to view the pages locally you can use `mike serve` instead of `mkdocs serve`.
 
 **NOTE:** mkdocs builds that use internal links (or images, etc.) with absolute paths will work for local deployment, but will break when deployed to the public documentations pages.
-Please ensure you use relative paths. Currently, this is the only known feature where the behvaiour differs between local mkdocs and public page deployment.
+Please ensure you use relative paths. Currently, this is the only known feature where the behaviour differs between local mkdocs and public page deployment.
 If you'd like to test the deployment directly, the suggested method is to set up a docs page using your personal github account; this should mimic the exact settings of the official page.
 
 ## Github Actions
@@ -163,10 +163,10 @@ When creating a new release, follow this checklist to ensure version strings are
 3. **Update test reference files**
    - Regenerate reference files with the new version (note that you will have to recompile using `-DBUILD_TESTS=TRUE`):
      ```bash
-     cd build/test
+     cd build
+     ctest -j$(nproc)
      sh create_reference_files.sh
-     cp *.out ../../test/references
-     cd ../..
+     cp references/*.out /path/to/source/test/references/
      ```
 
 4. **Verify version consistency**

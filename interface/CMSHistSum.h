@@ -86,8 +86,8 @@ protected:
   int n_morphs_;
 
   std::vector<FastTemplate> storage_;  // All nominal and vmorph templates
-  std::vector<int> process_fields_; // Indicies for process templates in storage_
-  std::vector<int> vmorph_fields_; // Indicies for vmorph templates in storage_
+  std::vector<int> process_fields_; // indices for process templates in storage_
+  std::vector<int> vmorph_fields_; // indices for vmorph templates in storage_
 
   std::vector<FastTemplate> binerrors_; // Bin errors for each process
 

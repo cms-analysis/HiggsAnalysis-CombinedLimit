@@ -1,0 +1,62 @@
+name: Pixi CI
+
+# Builds Combine with the `pixi` workflow (conda-forge deps resolved from the
+# pixi.toml manifest) and runs the unit tests. This is the pixi analogue of the
+# conda `build` job in ci.yml, and guards that pixi.toml / pixi.lock stay usable.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'pixi.toml'
+      - 'pixi.lock'
+      - '**CMakeLists.txt'
+      - '**.cmake'
+      - '**.h'
+      - '**.cc'
+      - '**.cxx'
+      - '**.py'
+      - '.github/workflows/pixi-ci.yml'
+  push:
+    branches:
+      - main
+
+jobs:
+  pixi-build:
+    runs-on: ubuntu-22.04
+    name: Build and test with pixi (CVMFS)
+    defaults:
+      run:
+        # Match the conda job and the pixi docs: the source must live at a path
+        # ending in HiggsAnalysis/CombinedLimit. The out-of-source build dir
+        # (../build_combine) then lands in HiggsAnalysis/, outside the source.
+        working-directory: HiggsAnalysis/CombinedLimit
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: HiggsAnalysis/CombinedLimit
+
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
+        with:
+          cvmfs_repositories: 'cms-griddata.cern.ch'
+
+      - name: Build (with tests) and run ctest under pixi
+        run: |
+          set -euxo pipefail
+          # Ready-to-use pixi installation shipped on CVMFS (as documented in
+          # docs/index.md). If cms-griddata.cern.ch is ever unavailable to the
+          # runner, replace this with: curl -fsSL https://pixi.sh/install.sh | bash
+          source /cvmfs/cms-griddata.cern.ch/cat/sw/pixi/latest/setup.sh
+          pixi --version
+          # Solve the environment and fail if pixi.lock is out of sync with pixi.toml.
+          pixi install --locked
+          # CI-only task: same build as `install` but with -DBUILD_TESTS=ON.
+          pixi run install-tests
+          # Smoke-check the executables and the exact command that motivated the
+          # pandas dependency.
+          pixi run combine --help > /dev/null
+          pixi run text2workspace.py --help > /dev/null
+          pixi run combine -M AsymptoticLimits -d data/tutorials/counting/realistic-counting-experiment.txt
+          # Full unit-test battery.
+          ulimit -s unlimited
+          pixi run ctest --test-dir ../build_combine/test --output-on-failure

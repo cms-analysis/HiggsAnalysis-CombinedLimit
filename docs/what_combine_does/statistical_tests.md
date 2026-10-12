@@ -213,7 +213,7 @@ Regardless of which of these test statistics is used, the standard test-methodol
 
 Even for an experiment with almost no sensitivity to new physics, 5% of the time the experiment is performed we expect the experimenter to find $p_{\mu} \lt 0.05$ for small values of $\mu$ and set limits on parameter values to which the experiment is not sensitive!
 
-In order to avoid such situations the $\mathrm{CL}_{s}$ criterion was developped, as explained in these [two](https://cdsweb.cern.ch/record/451614) [papers](https://arxiv.org/abs/hep-ex/9902006).
+In order to avoid such situations the $\mathrm{CL}_{s}$ criterion was developed, as explained in these [two](https://cdsweb.cern.ch/record/451614) [papers](https://arxiv.org/abs/hep-ex/9902006).
 Rather than requiring $p_{\mu} \lt (1-\mathrm{CL})$ to exclude $\mu$, as would be done in the general framework described above, the $\mathrm{CL}_{s}$ criterion requires:
 
 
@@ -246,7 +246,7 @@ Once the distribution is determined, a p-value for the statistic can be derived 
 
 ### Channel Compatibility test using the likelihood ratio
 
-When performing an anlysis across many different channels (for example, different Higgs decay modes), it is often interesting to check the level of compatibility of the various channels.
+When performing an analysis across many different channels (for example, different Higgs decay modes), it is often interesting to check the level of compatibility of the various channels.
 
 Combine implements a [channel compatibility test](../../part3/commonstatsmethods/#channel-compatibility), by considering the a model, $\mathcal{M}_{\mathrm{c-independent}}$, in which the signal is independent in every channel.
 As a test statistic, this test uses the likelihood ratio between the best fit value of the nominal model and the model with independent signal strength for each channel:

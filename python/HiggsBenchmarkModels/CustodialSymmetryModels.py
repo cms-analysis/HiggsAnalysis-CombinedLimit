@@ -93,7 +93,7 @@ class LambdaWZHiggs(SMLikeHiggsModel):
         ]:
             self.SMH.makeBR(d)
 
-        ## total witdhs, normalized to the SM one
+        ## total widths, normalized to the SM one
         self.modelBuilder.factory_('expr::lambdaWZ_Gscal_Z("@0*@0 * @1", kZ, SM_BR_hzz)')
         self.modelBuilder.factory_('expr::lambdaWZ_Gscal_W("@0*@0 * @1", kW, SM_BR_hww)')
         self.modelBuilder.factory_(
@@ -289,7 +289,7 @@ class CzwHiggs(SMLikeHiggsModel):
         self.modelBuilder.doVar("Cw[1,0,10]")
         self.modelBuilder.factory_('expr::Cz("@0*@1",Cw, Czw)')
 
-        ## total witdhs, normalized to the SM one
+        ## total widths, normalized to the SM one
         self.modelBuilder.factory_('expr::Czw_Gscal_tot("@0*@1 + @2*@3 + (1.0-@1-@3)", \
                                    Cw, SM_BR_hww, Cz, SM_BR_hzz)')
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM)
@@ -368,7 +368,7 @@ class CwzHiggs(SMLikeHiggsModel):
             self.SMH.makeBR(d)
         self.modelBuilder.factory_('expr::Cw("@0*@1",Cz, Cwz)')
 
-        ## total witdhs, normalized to the SM one
+        ## total widths, normalized to the SM one
         self.modelBuilder.factory_('expr::Cwz_Gscal_tot("@0*@1 + @2*@3 + (1.0-@1-@3)", \
                                    Cw, SM_BR_hww, Cz, SM_BR_hzz)')
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM)

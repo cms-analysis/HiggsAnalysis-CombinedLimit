@@ -101,7 +101,7 @@ Double_t VerticalInterpPdf::evaluate() const
 Bool_t VerticalInterpPdf::checkObservables(const RooArgSet* nset) const 
 {
   // Check if FUNC is valid for given normalization set.
-  // Coeffient and FUNC must be non-overlapping, but func-coefficient 
+  // Coefficient and FUNC must be non-overlapping, but func-coefficient 
   // pairs may overlap each other
   //
   // In the present implementation, coefficients may not be observables or derive

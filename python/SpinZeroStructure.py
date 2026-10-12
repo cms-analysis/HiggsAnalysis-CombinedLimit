@@ -248,7 +248,7 @@ class SpinZeroHiggs(SpinZeroHiggsBase):
             raise ValueError("Specified both muFixed and muAsPOI!")
 
         if not self.muAsPOI and not self.fai1POI and not self.fai2POI and not self.phiai1POI and not self.phiai2POI:
-            print("No POIs detected, switching to default configuration: Floating nuisance mu, floating POI fai1, eveything else fixed")
+            print("No POIs detected, switching to default configuration: Floating nuisance mu, floating POI fai1, everything else fixed")
             self.muFloating = True
             self.muAsPOI = False
             self.fai1Floating = True

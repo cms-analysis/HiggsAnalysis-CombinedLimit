@@ -28,7 +28,7 @@ class Datacard:
         self.shapeMap = {}
         ## boolean that indicates whether the datacard contains shapes or not
         self.hasShapes = False
-        ## dirct of {name of uncert, boolean to indicate whether it is a flat parametric uncertainty or not}
+        ## dict of {name of uncert, boolean to indicate whether it is a flat parametric uncertainty or not}
         self.flatParamNuisances = {}
         ## dict of rateParam, key is f"{bin}AND{process}", per bin/process they are a list
         self.rateParams = {}
@@ -36,7 +36,7 @@ class Datacard:
         self.extArgs = {}
         ## maintain the names of rate modifiers
         self.rateParamsOrder = set()
-        ## dirct of {name of uncert, boolean to indicate whether this nuisance is floating or not}
+        ## dict of {name of uncert, boolean to indicate whether this nuisance is floating or not}
         self.frozenNuisances = set()
 
         # Allows for nuisance renaming of "shape" systematics
@@ -204,7 +204,7 @@ MB.doModel()
         three elements: [0] path to the file that contains the the shapes, [1] path to the shape histogram in the
         input file, [2] path to the uncertainty histograms in the input file. The elements of the list are returned
         as obtained from the datacard. The function actually does not return the full list but the first second or
-        thrid element as indicated by idx. If there is no entry for a given bin, process and idx an empty list is
+        third element as indicated by idx. If there is no entry for a given bin, process and idx an empty list is
         returned.
         """
         path = ""

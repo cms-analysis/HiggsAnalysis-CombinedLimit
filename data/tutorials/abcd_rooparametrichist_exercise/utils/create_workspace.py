@@ -179,8 +179,8 @@ def main():
         process_D_region_bins.add(process_D_region_bins_list[i - 1])
 
     # Define the parametric histogram for control region B.
-    # Here we consider the B region to be the transfering region, so the region for which each bin content will be multiplied by a transfer factor (determined by C, D yields)
-    # The RooParametricHist is initalized giving as input the observable, the RooArgList of the bins previously built and a template TH1F.
+    # Here we consider the B region to be the transferring region, so the region for which each bin content will be multiplied by a transfer factor (determined by C, D yields)
+    # The RooParametricHist is initialized giving as input the observable, the RooArgList of the bins previously built and a template TH1F.
     param_hist_B_region = RooParametricHist("bkg_B", "Background PDF in B region", variable_z, process_B_region_bins, histB_pr)
 
     # Here we define the total normalization for the RooparametricHist in the B region
@@ -219,7 +219,7 @@ def main():
     process_AB_region_bins_list = []
 
     # Compute per-bin transfer factor
-    # Loop over the bins of the transfering region B, and compute the transfer factors as C/D
+    # Loop over the bins of the transferring region B, and compute the transfer factors as C/D
     for i in range(1, histB_pr.GetNbinsX() + 1):
         # Define transfer factor as a RooFormulaVar. Use the method .obj for RooWorkSpace to retrieve the yield for a given bin and region
         TF_i = RooFormulaVar(

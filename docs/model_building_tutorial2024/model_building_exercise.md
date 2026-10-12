@@ -3,7 +3,7 @@
 ## Getting started
 To get started, you should have a working setup of <span style="font-variant:small-caps;">Combine</span>, please follow the instructions from the [home page](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#within-cmssw-recommended-for-cms-users). Make sure to use the latest recommended release.
 
-After setting up <span style="font-variant:small-caps;">Combine</span>, you can access the working directory for this tutorial which contains all of the inputs and scripts needed in this excercise exercise:
+After setting up <span style="font-variant:small-caps;">Combine</span>, you can access the working directory for this tutorial which contains all of the inputs and scripts needed in this exercise exercise:
 
 ```shell
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/
@@ -241,12 +241,12 @@ name extArg rootfile:workspacename
 ```
 The `extArg` syntax allows to import `RooAbsReal` object from an external workspace. This object can be another free floating parameter, or a function of other parameters. In this section we are going to import `RooSpline1D` objects which define how various Higgs production cross sections depend on the Higgs mass (`MH` parameter). 
 
-The datacard we are going to use in this section `htt_tt_125_8TeV.txt` correspond to 8 TeV analysis and Higgs mass of 125 GeV. To excercise the `extArg` features, let's rescale the signal templates to 13 TeV cross section values. 
+The datacard we are going to use in this section `htt_tt_125_8TeV.txt` correspond to 8 TeV analysis and Higgs mass of 125 GeV. To exercise the `extArg` features, let's rescale the signal templates to 13 TeV cross section values. 
 The 13 and 8 TeV cross sections predictions from YR4 are stored in the `$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/`
 in `sm_yr4_13TeV.root` and `sm_yr4_8TeV.root` files respectively, let's inspect the contents of `sm_yr4_13TeV.root`: 
 
 ```
- TFile*		/afs/cern.ch/work/a/anigamov/rootv630/CMSSW_14_1_0_pre4/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/sm_yr4_13TeV.root	
+ TFile*		/afs/cern.ch/work/a/anigamov/rootv630/CMSSW_16_0_0/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm/sm_yr4_13TeV.root	
   KEY: RooWorkspace	xs_13TeV;1	xs_13TeV
   KEY: TProcessID	ProcessID0;1	2fd49e90-f1a0-11e8-9717-b052b8bcbeef
 root [2] xs_13TeV->Print()

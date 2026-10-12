@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Script for batch sumbission of Asymptotic Limit Calculator
+# Script for batch submission of Asymptotic Limit Calculator
 
 import commands
 import glob

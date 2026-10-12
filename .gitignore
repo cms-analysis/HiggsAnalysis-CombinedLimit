@@ -4,3 +4,6 @@
 build/
 install/
 site
+# pixi environments
+.pixi
+*.egg-info

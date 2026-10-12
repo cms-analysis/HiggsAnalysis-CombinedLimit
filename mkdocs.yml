@@ -36,6 +36,7 @@ nav:
           - "Statistical Tests Basics":   tutorial_stat_routines/stat_routines.md
           - "Model Building":             model_building_tutorial2024/model_building_exercise.md
           - "Per-Bin Transfer Factors with Parametric Histograms": abcd_rooparametrichist_tutorial/rooparametrichist_exercise.md
+          - "AI Assistant":               tutorial_ai_agent/ai_agent_tutorial.md
         - "In-Browser Tools":
           - "In-Browser Tools":           part6/in_browser_tools.md
           - "Open: jsROOT (external)":     https://root.cern/js/latest/

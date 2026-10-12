@@ -68,14 +68,14 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
     options_.add_options()
         //("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer (Minuit vs Minuit2)")
         //("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer")
-        //("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
+        //("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Strategy for minimizer")
         ("preFitValue",        boost::program_options::value<float>(&preFitValue_)->default_value(preFitValue_),  "Value of signal strength pre-fit, also used for pre-fit plots, normalizations and uncertainty calculations (note this overrides --expectSignal for these features)")
         ("do95",       boost::program_options::value<bool>(&do95_)->default_value(do95_),  "Also compute 2-sigma interval from delta(nll) = 1.92 instead of 0.5")
         ("robustFit",  boost::program_options::value<bool>(&robustFit_)->default_value(robustFit_),  "Search manually for 1 and 2 sigma bands instead of using Minos")
         ("maxFailedSteps",  boost::program_options::value<int>(&maxFailedSteps_)->default_value(maxFailedSteps_),  "How many failed steps to retry before giving up")
         ("stepSize",        boost::program_options::value<float>(&stepSize_)->default_value(stepSize_),  "Step size for robust fits (multiplier of the range)")
         ("setRobustFitAlgo",      boost::program_options::value<std::string>(&minimizerAlgoForMinos_)->default_value(minimizerAlgoForMinos_), "Choice of minimizer (Minuit vs Minuit2) for profiling in robust fits")
-        ("setRobustFitStrategy",  boost::program_options::value<int>(&minimizerStrategyForMinos_)->default_value(minimizerStrategyForMinos_),      "Stragegy for minimizer for profiling in robust fits")
+        ("setRobustFitStrategy",  boost::program_options::value<int>(&minimizerStrategyForMinos_)->default_value(minimizerStrategyForMinos_),      "Strategy for minimizer for profiling in robust fits")
         ("setRobustFitTolerance",  boost::program_options::value<float>(&minimizerToleranceForMinos_)->default_value(minimizerToleranceForMinos_),      "Tolerance for minimizer for profiling in robust fits")
         ("setCrossingTolerance",  boost::program_options::value<float>(&crossingTolerance_)->default_value(crossingTolerance_),      "Tolerance for finding the NLL crossing in robust fits")
         ("profilingMode", boost::program_options::value<std::string>()->default_value("all"), "What to profile when computing uncertainties: all, none (at least for now).")
@@ -84,7 +84,7 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         ("protectUnbinnedChannels", "Protect PDF from going negative in unbinned channels")
         ("autoBoundsPOIs", boost::program_options::value<std::string>(&autoBoundsPOIs_)->default_value(autoBoundsPOIs_), "Adjust bounds for these POIs if they end up close to the boundary. Can be a list of POIs, or \"*\" to get all")
         ("autoMaxPOIs", boost::program_options::value<std::string>(&autoMaxPOIs_)->default_value(autoMaxPOIs_), "Adjust maxima for these POIs if they end up close to the boundary. Can be a list of POIs, or \"*\" to get all")
-        ("forceRecreateNLL",  "Always recreate NLL when running on multiple toys rather than re-using nll with new dataset")
+        ("forceRecreateNLL",  "Always recreate NLL when running on multiple toys rather than reusing nll with new dataset")
         ("nllbackend", boost::program_options::value<std::string>(&Combine::nllBackend())->default_value(Combine::nllBackend()), "DEBUG OPTION, DO NOT USE! Set backend to create NLL. Choices: combine (default behavior), cpu, legacy, codegen")      
 
     ;
@@ -314,7 +314,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
         // get the parameter to scan, amd output variable in fit result
         RooRealVar &r = dynamic_cast<RooRealVar &>(*rs.at(i));
 	RooAbsArg *rfloat = ret->floatParsFinal().find(r.GetName());
-  // r might be a bin-by-bin parameter that was minimzed analytically,
+  // r might be a bin-by-bin parameter that was minimized analytically,
   // therefore not appearing in floatParsFinal().
 	if (!rfloat && runtimedef::get("MINIMIZER_no_analytic")) {
                 fprintf(sentry.trueStdOut(), "Skipping %s. Looks like the last fit did not float this parameter. You could try running --algo grid to get the uncertainties.\n",r.GetName());

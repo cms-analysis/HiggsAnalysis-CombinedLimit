@@ -2626,7 +2626,7 @@ double Roo4lMasses2D_Bkg::evaluate() const
 		a13_bkgd = 0.543254;
 	}
 	else{
-		std::cout << "Invalid paramters for this PDF!" << std::endl;
+		std::cout << "Invalid parameters for this PDF!" << std::endl;
 	}
 	
 	
@@ -2813,7 +2813,7 @@ double Roo4lMasses2D_BkgGGZZ::evaluate() const
 		a9_bkgd = 0.0277349;
 	}
 	else{
-		std::cout << "Invalid paramters for this PDF!" << std::endl;
+		std::cout << "Invalid parameters for this PDF!" << std::endl;
 	}
 	
 	

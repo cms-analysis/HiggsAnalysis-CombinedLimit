@@ -128,7 +128,7 @@ class TestSuite:
         return jobs
 
     def _createDir(self, clear=False):
-        "Prepare directoy"
+        "Prepare directory"
         if self._dir[0] == "/":
             raise RuntimeError("directory must be a relative path")
         if clear and os.access(self._dir, os.W_OK):

@@ -32,19 +32,19 @@ should be sufficient. To choose a release version, you can find the latest
 releases on github under
 [https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases)
 
-#### Combine v10 - recommended version
+#### Combine v11 - recommended version
 
 The nominal installation method is inside CMSSW. The current release targets
-the CMSSW `14_1_X` series because of the recent switch to el9 at lxplus machines.
+the CMSSW `16_0_X` series.
 
-Currently, the recommended tag is **v10.6.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v10.6.0)
+Currently, the recommended tag is **v11.1.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v11.1.0)
 The `git clone` command below contains this tag and is optimised to reduce disk usage.
 
 ```sh
-cmsrel CMSSW_14_1_0_pre4
-cd CMSSW_14_1_0_pre4/src
+cmsrel CMSSW_16_0_0
+cd CMSSW_16_0_0/src
 cmsenv
-git -c advice.detachedHead=false clone --depth 1 --branch v10.6.0 https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+git -c advice.detachedHead=false clone --depth 1 --branch v11.1.0 https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 scramv1 b clean; scramv1 b -j$(nproc --ignore=2) # always make a clean build, with n - 2 cores on the system
 ```
@@ -158,7 +158,7 @@ A typical environment that can be used on `lxplus` is the [LCG software stack](h
 
 It can be activated as follows
 ```bash
-LCG_RELEASE=LCG_106 # includes ROOT 6.32, like CMSSW_14_1_0_pre4
+LCG_RELEASE=LCG_106 # includes ROOT 6.32, like CMSSW_16_0_0
 # LCG_RELEASE=dev3/latest # includes nightly build of ROOT master, useful for development
 LCG_PATH=/cvmfs/sft.cern.ch/lcg/views/$LCG_RELEASE/x86_64-el9-gcc13-opt
 
@@ -195,6 +195,34 @@ After installation the binaries and Python modules live inside the environment, 
 conda activate combine
 ```
 
+##### Standalone compilation with `pixi` (CMake-based)
+If you have access to CVMFS (for example on `lxplus`), a ready-to-use installation of `pixi` is available and can be set up by sourcing:
+
+```
+source /cvmfs/cms-griddata.cern.ch/cat/sw/pixi/latest/setup.sh
+```
+
+Otherwise, follow the [`pixi` installation instructions](https://pixi.sh/latest/#installation).
+
+[`pixi`](https://pixi.sh) is an alternative to `conda` that resolves the same conda-forge dependencies but is workspace-centric: instead of a named global environment, it manages a project-local environment (in a `.pixi/` folder) described by the `pixi.toml` manifest that ships with this repository. The manifest also defines `configure`, `build` and `install` tasks, so the whole build is a single command:
+
+```
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+
+# Solve/install the dependencies and run the CMake configure + build + install
+# tasks in one go (each task runs inside the pixi environment automatically)
+pixi run install
+```
+
+`pixi run` activates the environment for the duration of the command, so `$CONDA_PREFIX` is set and no separate activation step is needed. To get an interactive shell with the environment active (equivalent to `conda activate`), use:
+
+```
+pixi shell   # leave it again with `exit`
+```
+
+The `configure`/`build`/`install` tasks in `pixi.toml` wrap the same CMake invocation as the conda recipe above (including `-DUSE_VDT=OFF`). Advanced users who need to pass extra CMake options can still run the CMake steps by hand from inside `pixi shell`.
+
 #### Pre-compiled image with CVMFS dependency 
 
 Pre-compiled versions of the tool are available as container images from the [GitLab CMS-analysis repository](http://gitlab-registry.cern.ch/cms-analysis/general/combine-container). This container is built together with the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) package and is **recommended for users with CVMFS access**. 
@@ -208,7 +236,7 @@ Then in the Apptainer shell:
 
 ```shell
 source /cvmfs/cms.cern.ch/cmsset_default.sh
-cd /home/cmsusr/CMSSW_14_1_0_pre4/
+cd /home/cmsusr/CMSSW_16_0_0/
 cmsenv  # Ignore errors
 ```
 
@@ -286,10 +314,10 @@ git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
 scram b -j$(nproc --ignore=2)
 ```
 
-See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation for full instructions and reccomended versions.
+See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation for full instructions and recommended versions.
 
 !!! info
-    Starting with <span style="font-variant:small-caps;">Combine v10</span>, specific ombineTool functionalities for job submition and parallelization (`combineTool.py`) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package. For these tasks you no longer have to follow the instructions above.
+    Starting with <span style="font-variant:small-caps;">Combine v10</span>, specific ombineTool functionalities for job submission and parallelization (`combineTool.py`) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package. For these tasks you no longer have to follow the instructions above.
 
 
 ## Citation

@@ -4,7 +4,7 @@ from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 
 
 ### Scale the signal higgs at MH by 'r'
-### Scale the backgroud higgs_SM at MH_SM by r_SM
+### Scale the background higgs_SM at MH_SM by r_SM
 ### r_SM can be fixed or floating (as nuisance or POI)
 class TwoHiggsBase(PhysicsModel):
     def __init__(self):

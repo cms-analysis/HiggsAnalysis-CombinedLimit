@@ -20,7 +20,7 @@ TH2 *treeToHist2D(TTree *t, TString x, TString y, TString name, TCut cut, double
     for (int ix = 1; ix <= xbins; ++ix) {
         for (int iy = 1; iy <= ybins; ++iy) {
              double z = prof->GetBinContent(ix,iy);
-             if (z != z) z = (name.Contains("bayes") ? 0 : 999); // protect agains NANs
+             if (z != z) z = (name.Contains("bayes") ? 0 : 999); // protect against NANs
              h2d->SetBinContent(ix, iy, z);
         }
     }

@@ -1,0 +1,38 @@
+[workspace]
+authors = ["Massimiliano Galli <massimiliano.galli@cern.ch>"]
+channels = ["conda-forge"]
+name = "CombinedLimit"
+platforms = ["linux-64", "linux-aarch64", "osx-arm64", "osx-64"]
+version = "0.1.0"
+
+[tasks]
+# Build out-of-source: the build dir must sit OUTSIDE the source tree, because
+# CMakeLists symlinks build/HiggsAnalysis/CombinedLimit back to the source root
+# and an in-source build dir turns that into an infinite path cycle.
+# The Python X.Y in the install path is derived from the interpreter that pixi
+# installed, so the version is pinned in exactly one place: the `python`
+# dependency below. Update that, and this task follows automatically.
+configure = 'cmake -S . -B ../build_combine -G Ninja -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_INSTALL_PYTHONDIR=lib/python$(python -c "import sysconfig; print(sysconfig.get_python_version())")/site-packages -DUSE_VDT=OFF'
+build = { cmd = "cmake --build ../build_combine", depends-on = ["configure"] }
+install = { cmd = "cmake --install ../build_combine", depends-on = ["build"] }
+
+# CI-only variant: identical to the chain above but with -DBUILD_TESTS=ON so the
+# unit tests are compiled. Kept separate from `configure`/`install` on purpose,
+# so a plain `pixi run install` never builds tests for regular users. The
+# configure line must stay in sync with `configure` above (only the extra
+# -DBUILD_TESTS=ON differs).
+configure-tests = 'cmake -S . -B ../build_combine -G Ninja -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_INSTALL_PYTHONDIR=lib/python$(python -c "import sysconfig; print(sysconfig.get_python_version())")/site-packages -DUSE_VDT=OFF -DBUILD_TESTS=ON'
+build-tests = { cmd = "cmake --build ../build_combine", depends-on = ["configure-tests"] }
+install-tests = { cmd = "cmake --install ../build_combine", depends-on = ["build-tests"] }
+
+[dependencies]
+python = "3.12.*"
+root = "6.34.*"
+gsl = ">=2.7,<3"
+boost-cpp = ">=1.85.0,<2"
+vdt = ">=0.4.4,<0.5"
+eigen = ">=5.0.1,<6"
+tbb = ">=2022.3.0,<2023"
+cmake = ">=4.2.3,<5"
+ninja = ">=1.13.2,<2"
+pandas = ">=2,<3"

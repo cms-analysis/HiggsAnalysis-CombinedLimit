@@ -62,7 +62,7 @@ The paper for the <span style="font-variant:small-caps;">Combine</span> tool is 
 
 ### CMS Statistics Committee
 
-* You can find much more statistics theory and reccomendations on various statistical procedures in the [CMS Statistics Committee Twiki Pages](https://twiki.cern.ch/twiki/bin/viewauth/CMS/StatisticsCommittee#Recommendations_from_the_Committ)
+* You can find much more statistics theory and recommendations on various statistical procedures in the [CMS Statistics Committee Twiki Pages](https://twiki.cern.ch/twiki/bin/viewauth/CMS/StatisticsCommittee#Recommendations_from_the_Committ)
 
 # FAQ
 
@@ -75,7 +75,7 @@ The paper for the <span style="font-variant:small-caps;">Combine</span> tool is 
 * _Why does changing the observation in data affect my expected limit?_
     * The expected limit (if using either the default behaviour of `-M AsymptoticLimits` or using the `LHC-limits` style limit setting with toys) uses the _**post-fit**_ expectation of the background model to generate toys. This means that first the model is fit to the _**observed data**_ before toy generation. See the sections on [blind limits](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#blind-limits) and [toy generation](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#toy-data-generation) to avoid this behavior. 
 * _How can I deal with an interference term which involves a negative contribution?_
-    * You will need to set up a specific PhysicsModel to deal with this, however you can [see this section](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/#interference) to implement such a model that can incorperate a negative contribution to the physics process
+    * You will need to set up a specific PhysicsModel to deal with this, however you can [see this section](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/#interference) to implement such a model that can incorporate a negative contribution to the physics process
 * _How does <span style="font-variant:small-caps;">Combine</span> work?_
     * That is not a question that can be answered without someone's head exploding; please try to formulate something specific.
 * _What does fit status XYZ mean?_ 

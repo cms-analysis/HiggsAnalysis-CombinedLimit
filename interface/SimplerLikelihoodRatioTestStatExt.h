@@ -4,7 +4,7 @@
 /**
   BEGIN_HTML
   <p>
-  SimplerLikelihoodRatioTestStatOpt: an optimized implementaion of the simple likelihood ratio 
+  SimplerLikelihoodRatioTestStatOpt: an optimized implementation of the simple likelihood ratio 
      test statistics Q = - ln( L(data|null) / L(data|alt) )
   </p>
 

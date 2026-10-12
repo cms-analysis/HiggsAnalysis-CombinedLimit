@@ -517,7 +517,7 @@ void FastVerticalInterpHistPdfBase::syncTotal(FastTemplate &cache, const FastTem
     // if necessary go back to linear scale
     if (_smoothAlgo < 0) {
         cache.Exp();
-        //printf("Done exponential tranformation\n");  cache.Dump();
+        //printf("Done exponential transformation\n");  cache.Dump();
     } else {
         cache.CropUnderflows();
     }
@@ -1042,7 +1042,7 @@ void FastVerticalInterpHistPdf2Base::syncTotal(FastTemplate &cache, const FastTe
     // if necessary go back to linear scale
     if (_smoothAlgo < 0) {
         cache.Exp();
-        //printf("Done exponential tranformation\n");  cache.Dump();
+        //printf("Done exponential transformation\n");  cache.Dump();
     } else {
         cache.CropUnderflows();
     }

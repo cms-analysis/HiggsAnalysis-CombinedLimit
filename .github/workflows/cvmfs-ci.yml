@@ -11,6 +11,7 @@ on:
       - '**.cxx'
       - '**.py'
       - '**.yml'
+      - '**/BuildFile.xml'
   push:
     branches:
       - main
@@ -57,9 +58,9 @@ jobs:
       LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
       LCG_ARCH: ${{ matrix.LCG_ARCH }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: cvmfs-contrib/github-action-cvmfs@v4
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
         with:
           cvmfs_repositories: ${{ (env.CMSSW_VERSION != '') && 'cms.cern.ch' || 'sft.cern.ch' }}
 
@@ -85,9 +86,9 @@ jobs:
         env:
           LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
           LCG_ARCH: ${{ matrix.LCG_ARCH }}
-          # VDT doesn't seem to be available in LCG_102.
+          # VDT doesn't seem to be available in LCG_102 and dev3/latest.
           # But also it's very good to also test builds with USE_VDT=OFF.
-          USE_VDT: ${{ matrix.LCG_RELEASE != 'LCG_102' && 'TRUE' || 'FALSE' }}
+          USE_VDT: ${{ (matrix.LCG_RELEASE != 'LCG_102' && matrix.LCG_RELEASE != 'dev3/latest') && 'TRUE' || 'FALSE' }}
         run: >-
           source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
           root --version;
@@ -115,6 +116,7 @@ jobs:
           shell: bash
           options: -v /cvmfs:/cvmfs:shared -v ${{ github.workspace }}:/work/CombinedLimit  --mount source=cmsusr,destination=/home/cmsusr -w /home/cmsusr -e CMSSW_VERSION=${{ matrix.CMSSW_VERSION }} -e SCRAM_ARCH=${{ matrix.SCRAM_ARCH }}
           run: |
+            set -e
             cd /home/cmsusr/
             source /cvmfs/cms.cern.ch/cmsset_default.sh
             scram project ${CMSSW_VERSION}
@@ -242,7 +244,7 @@ jobs:
 
       - name: Upload to codecov.io
         if: ${{ success() && (matrix.coverage == true) }}
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: ./coverage.info
           fail_ci_if_error: true

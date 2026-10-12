@@ -365,7 +365,7 @@ In this section we will continue to use the same SR as in the previous one, howe
 
 The SR datacard for the 200 GeV signal is `datacard_part3.txt`. Two further datacards are provided: `datacard_part3_ttbar_cr.txt` and `datacard_part3_DY_cr.txt`
 which represent the CRs for the Drell-Yan and $\text{t}\bar{\text{t}}$ processes as described above.
-The cross section and acceptance uncertainties for these processes have pre-emptively been removed from the SR card.
+The cross section and acceptance uncertainties for these processes have preemptively been removed from the SR card.
 However we cannot get away with neglecting acceptance effects altogether.
 We are still implicitly using the MC simulation to predict to the ratio of events in the CR and SR, and this ratio will in general carry a theoretical acceptance uncertainty.
 If the CRs are well chosen then this uncertainty should be smaller than the direct acceptance uncertainty in the SR however.
@@ -642,7 +642,7 @@ Topics covered in this section:
 With <span style="font-variant:small-caps;">Combine</span> we are not limited to parametrising the signal with a single scaling parameter `r`. In fact we can define any arbitrary scaling using whatever functions and parameters we would like.
 For example, when measuring the couplings of the Higgs boson to the different SM particles we would introduce a POI for each coupling parameter, for example $\kappa_{\text{W}}$, $\kappa_{\text{Z}}$, $\kappa_{\tau}$ etc. We would then generate scaling terms for each $i\rightarrow \text{H}\rightarrow j$ process in terms of how the cross section ($\sigma_i(\kappa)$) and branching ratio ($\frac{\Gamma_i(\kappa)}{\Gamma_{\text{tot}}(\kappa)}$) scale relative to the SM prediction.
 
-This parametrisation of the signal (and possibly backgrounds too) is specified in a **physics model**. This is a python class that is used by `text2workspace.py` to construct the model in terms of RooFit objects. There is documentation on using phyiscs models [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/#physics-models).
+This parametrisation of the signal (and possibly backgrounds too) is specified in a **physics model**. This is a python class that is used by `text2workspace.py` to construct the model in terms of RooFit objects. There is documentation on using physics models [here](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part2/physicsmodels/#physics-models).
 
 ### A: Writing a simple physics model
 An example physics model that just implements a single parameter `r` is given in `DASModel.py`:

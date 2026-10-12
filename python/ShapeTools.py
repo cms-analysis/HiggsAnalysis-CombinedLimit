@@ -663,7 +663,7 @@ class ShapeBuilder(ModelBuilder):
         if (channel, process, syst) in _cache:
             if self.options.verbose > 2:
                 print(
-                    "recyling (%s,%s,%s) -> %s\n"
+                    "recycling (%s,%s,%s) -> %s\n"
                     % (
                         channel,
                         process,

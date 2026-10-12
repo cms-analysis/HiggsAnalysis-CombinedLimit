@@ -1,146 +1,90 @@
-/*****************************************************************************
- * RooBernsteinFast
- * Josh Bendavid (CERN)
- * Fast templated version of RooBernstein class using SMatrices
- * 
- * 
- *   
- *       
- *****************************************************************************/
 #ifndef ROO_BERNSTEINFAST
 #define ROO_BERNSTEINFAST
 
-#include "RooAbsPdf.h"
-#include "RooRealProxy.h"
+#include "RooBernstein.h"
 #include "RooListProxy.h"
-#include "RooChangeTracker.h"
-#include "TMath.h"
-#include "Math/SMatrix.h"
+#include "RooRealConstant.h"
 
-class RooRealVar;
-class RooArgList ;
+#include <TClass.h>
+#include <TDataMember.h>
 
-template<int N> class RooBernsteinFast : public RooAbsPdf {
+#include <stdexcept>
+#include <string>
+
+template<int N> class RooBernsteinFast : public RooBernstein {
 public:
 
+  RooBernsteinFast() = default;
 
-  
-  RooBernsteinFast() {}
-  
   RooBernsteinFast(const char *name, const char *title,
-                RooAbsReal& x, const RooArgList& coefList) :
-    RooAbsPdf(name, title),
-    _x("x", "Dependent", this, x),
-    _coefList("coefList","List of coefficients",this)
-    {
-      _coefList.add(coefList);
-      
-      
-      //precompute coefficients for integral
-      for (int ipow=0; ipow<=N; ++ipow) {
-        _rvector(ipow) = 1.0/((double)ipow+1.0);
-      }
+                   RooAbsReal& x, const RooArgList& coefList) :
+    // NOTE: RooBernstein takes RooAbsRealLValue& for x, while this constructor
+    // keeps RooAbsReal& for backward compatibility. The dynamic_cast will throw
+    // at runtime if x is not actually a RooAbsRealLValue.
+    RooBernstein(name, title,
+                 dynamic_cast<RooAbsRealLValue&>(x),
+                 buildFullList(coefList))
+  {}
 
-      //precompute coefficients for conversion from bernstein basis to power basis
-      for (int ibern=0; ibern<=N; ++ibern) {
-        for (int ipow=0; ipow<ibern; ++ipow) {
-          _cmatrix(ipow,ibern) = 0.;
-        }
-        for (int ipow=ibern; ipow<=N; ++ipow) {
-          _cmatrix(ipow, ibern) = pow(-1.,ipow-ibern)*TMath::Binomial(N,ipow)*TMath::Binomial(ipow,ibern);
-        }
-      }
-      
-    }                
-                
+  RooBernsteinFast(const RooBernsteinFast& other, const char* name = nullptr) :
+    RooBernstein(other, name) {}
 
-  RooBernsteinFast(const RooBernsteinFast& other, const char* name = 0) :
-      RooAbsPdf(other, name), 
-    _x("x", this, other._x), 
-    _coefList("coefList",this,other._coefList),
-    _cmatrix(other._cmatrix),
-    _rvector(other._rvector),
-    _bernvector(other._bernvector),
-    _powvector(other._powvector),
-    _xvector(other._xvector) {}
-  
-  
   TObject* clone(const char* newname) const override { return new RooBernsteinFast(*this, newname); }
-  ~RooBernsteinFast() override { }
-  
-  
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override
-    {
-      
-      // No analytical calculation available (yet) of integrals over subranges (as for standard RooBernstein)
-      if (rangeName && strlen(rangeName)) {
-        return 0 ;
-      }      
-      
-      if (matchArgs(allVars, analVars, _x)) return 1;
-      return 0;
-    }
-    
-    
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override
-    {
 
-      _bernvector[0] = 1.0;
-      for (int ipow=1; ipow<=N; ++ipow) {
-        _bernvector[ipow] = static_cast<RooAbsReal*>(_coefList.at(ipow-1))->getVal();
-      }     
-      
-      _powvector = _cmatrix*_bernvector;
-        
-      double xmin = _x.min();
-      double xmax = _x.max();    
-      return (xmax-xmin)*ROOT::Math::Dot(_powvector,_rvector);
+  // Called after RooFit's pass-2 proxy resolution, at which point all
+  // RooAbsArg* pointers in proxies are valid. Objects read from version-1
+  // files were written with N coefficients (c0=1 was implicit); RooBernstein
+  // requires N+1 explicit coefficients. Fix up here.
+  void ioStreamerPass2() override {
+    RooBernstein::ioStreamerPass2(); // resolves all proxies in base
 
+    // RooBernstein::_coefList is private; access it via TClass reflection.
+    // RooBernstein is the only base, so its subobject starts at offset 0.
+    TClass *cl = TClass::GetClass("RooBernstein");
+    TDataMember *dm = cl ? cl->GetDataMember("_coefList") : nullptr;
+    if (!dm) {
+      throw std::runtime_error("RooBernsteinFast: RooBernstein::_coefList not found via reflection");
     }
 
-protected:
+    auto &proxy = *reinterpret_cast<RooListProxy *>(
+        reinterpret_cast<char *>(static_cast<RooBernstein *>(this)) + dm->GetOffset());
 
-  typedef ROOT::Math::SMatrix<double,N+1,N+1,ROOT::Math::MatRepStd<double,N+1,N+1> > MType;
-  typedef ROOT::Math::SVector<double,N+1> VType;
-  
-  RooRealProxy _x;
-  RooListProxy _coefList ;
-  MType _cmatrix;            //conversion matrix between bernstein and power bases
-  VType _rvector;            //vector of integration coefficients
-  mutable VType _bernvector; //coefficients in bernstein basis
-  mutable VType _powvector;  //coefficients in power basis
-  mutable VType _xvector;    //vector of powers of x variable
-  
-  Double_t evaluate() const override
-    {
+    if (proxy.size() == static_cast<std::size_t>(N) + 1)
+      return; // new (v2) file, already has the explicit c0
 
-      _bernvector[0] = 1.0;
-      bool changed = false;
-      for (int ipow=1; ipow<=N; ++ipow) {
-        double rval = static_cast<RooAbsReal*>(_coefList.at(ipow-1))->getVal();
-        if (_bernvector[ipow] != rval) {
-          _bernvector[ipow] = rval;
-          changed = true;
-        }
-      }
-      
-      if (changed) {
-        _powvector = _cmatrix*_bernvector;   
-      }
-      
-      double xmin = _x.min();
-      double xmax = _x.max();
-      double x = (_x - xmin) / (xmax - xmin); // rescale to [0,1]
-      _xvector[0] = 1.;
-      for (int ipow=1; ipow<=N; ++ipow) {
-        _xvector[ipow] = x*_xvector[ipow-1];
-      }
-      
-      return ROOT::Math::Dot(_powvector,_xvector);
-      
+    if (proxy.size() != static_cast<std::size_t>(N)) {
+      throw std::runtime_error("RooBernsteinFast<" + std::to_string(N) +
+                               "> schema evolution failed: read " +
+                               std::to_string(proxy.size()) + " coefficients");
     }
 
-  ClassDefOverride(RooBernsteinFast,1) // Polynomial PDF
+    // Rebuild the list with c0=1.0 prepended.
+    RooArgList updated;
+    updated.add(RooRealConstant::value(1.0));
+    updated.add(proxy);
+    proxy.removeAll();
+    proxy.add(updated);
+  }
+
+  ClassDefOverride(RooBernsteinFast, 2)
+
+private:
+
+  // RooBernstein expects N+1 coefficients; RooBernsteinFast fixed c0=1 internally,
+  // so we prepend a constant 1.0 to the user-supplied N coefficients.
+  static RooArgList buildFullList(const RooArgList& coefList) {
+    if (static_cast<int>(coefList.size()) != N) {
+      throw std::invalid_argument("RooBernsteinFast<" + std::to_string(N) + "> requires exactly " +
+                                  std::to_string(N) + " coefficients, got " +
+                                  std::to_string(coefList.size()));
+    }
+
+    RooArgList full;
+    full.add(RooRealConstant::value(1.0));
+    full.add(coefList);
+    return full;
+  }
+
 };
 
 #endif

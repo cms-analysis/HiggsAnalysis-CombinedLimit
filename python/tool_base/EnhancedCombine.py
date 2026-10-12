@@ -188,7 +188,7 @@ class EnhancedCombine(CombineToolBase):
             bound_pars = list(bnd.keys())
             print("Found bounds for parameters %s" % ",".join(bound_pars))
             # Fill a dictionaries of the bound info of the form:
-            #  { 'PAR1' : [(MASS, LOWER, UPER), ...], ...}
+            #  { 'PAR1' : [(MASS, LOWER, UPPER), ...], ...}
             bound_vals = {}
             for par in bound_pars:
                 bound_vals[par] = list()

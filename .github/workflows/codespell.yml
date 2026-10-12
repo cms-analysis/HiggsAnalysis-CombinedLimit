@@ -1,0 +1,21 @@
+name: codespell
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  
+permissions:
+  contents: read
+
+jobs:
+  codespell:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Spell check
+        uses: codespell-project/actions-codespell@v2

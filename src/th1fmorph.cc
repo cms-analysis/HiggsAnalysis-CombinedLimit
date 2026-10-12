@@ -63,7 +63,7 @@ TH1_t *th1fmorph_(const char *chname,
   // * idebug          : Default is zero, no internal information displayed. 
   // *                   Values between 1 and increase the verbosity of 
   // *                   informational output which may prove helpful to
-  // *                   understand errors and pathalogical results.
+  // *                   understand errors and pathological results.
   // * 
   // * The routine returns a pointer (TH1_t *) to a new histogram which is
   // * the interpolated result.
@@ -164,7 +164,7 @@ TH1_t *th1fmorph_(const char *chname,
   // *      1 to nbins. We allocate some extra space for the derived distributions
   // *      because there may be as many as nb1+nb2+2 edges in the intermediate 
   // *      interpolated cdf described by xdisn[i] (position of edge i) and 
-  // *      sigdisn[i] (cummulative probability up this edge) before we project 
+  // *      sigdisn[i] (cumulative probability up this edge) before we project 
   // *      into the final binning.
 
   Value_t *dist1=hist1->GetArray(); 
@@ -317,7 +317,7 @@ TH1_t *th1fmorph_(const char *chname,
       Double_t y20 = sigdis2[ix2];
       Double_t y21 = sigdis2[ix2+1];
 
-      //......Calculate where the cummulative probability y in distribution 1
+      //......Calculate where the cumulative probability y in distribution 1
       //      intersects between the 2 points from distribution 2 which 
       //      bracket it.
 
@@ -339,7 +339,7 @@ TH1_t *th1fmorph_(const char *chname,
       Double_t y10 = sigdis1[ix1];
       Double_t y11 = sigdis1[ix1+1];
 
-      //......Calculate where the cummulative probability y in distribution 2
+      //......Calculate where the cumulative probability y in distribution 2
       //      intersects between the 2 points from distribution 1 which 
       //      brackets it.
 
@@ -351,7 +351,7 @@ TH1_t *th1fmorph_(const char *chname,
     }
 
     //......Interpolate between the x's in the 2 distributions at the 
-    //      cummulative probability y. Store the (x,y) for provisional 
+    //      cumulative probability y. Store the (x,y) for provisional 
     //      edge nx3 in (xdisn[nx3],sigdisn[nx3]). nx3 grows for each point
     //      we add the the arrays. Note: Should probably turn the pair into 
     //      a structure to make the code more object-oriented and readable.
@@ -407,7 +407,7 @@ TH1_t *th1fmorph_(const char *chname,
   // *......The beginning may be empty, so we have to step up to the first
   // *      edge where the result is nonzero. We zero the bins which have
   // *      and upper (!) edge which is below the first point of the
-  // *      cummulative distribution we are going to project to this
+  // *      cumulative distribution we are going to project to this
   // *      output histogram binning.
   // *
 
@@ -449,7 +449,7 @@ TH1_t *th1fmorph_(const char *chname,
           *(x-xdisn[ix3])/(xdisn[ix3+1]-xdisn[ix3]);
       } else {  // Is this ever used?
         y = 0;
-        cout << "Warning - th1fmorph: This probably shoudn't happen! " 
+        cout << "Warning - th1fmorph: This probably shouldn't happen! " 
              << endl;
         cout << "Warning - th1fmorph: Zero slope solving x(y)" << endl;
       }

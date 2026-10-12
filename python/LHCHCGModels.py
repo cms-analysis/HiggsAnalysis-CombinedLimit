@@ -518,7 +518,7 @@ class Kappas(LHCHCGBaseModel):
             self.modelBuilder.factory_('expr::Scaling_ggH_13TeV("@0*@0", kappa_g)')
             self.modelBuilder.factory_('expr::Scaling_ggH_14TeV("@0*@0", kappa_g)')
 
-        ## partial witdhs, normalized to the SM one
+        ## partial widths, normalized to the SM one
         kappa_mu_expr = "kappa_mu" if self.promote_hmm else "kappa_tau"
         self.modelBuilder.factory_('expr::c7_Gscal_Z("@0*@0*@1*@2", ' + self.kappa_Z + ", SM_BR_hzz, HiggsDecayWidth_UncertaintyScaling_hzz)")
         self.modelBuilder.factory_('expr::c7_Gscal_W("@0*@0*@1*@2", ' + self.kappa_W + ", SM_BR_hww, HiggsDecayWidth_UncertaintyScaling_hww)")
@@ -547,7 +547,7 @@ class Kappas(LHCHCGBaseModel):
         else:
             self.modelBuilder.factory_('expr::c7_Gscal_bottom("@0*@0 * (@1*@3+@2)", kappa_b, SM_BR_hbb, SM_BR_hss, HiggsDecayWidth_UncertaintyScaling_hbb)')
 
-        ## total witdh, normalized to the SM one
+        ## total width, normalized to the SM one
         if not self.addWidth:
             self.modelBuilder.factory_(
                 'expr::c7_Gscal_tot("(@1+@2+@3+@4+@5+@6+@7)/@8/(1-@0-@9)", BRinv, c7_Gscal_Z, c7_Gscal_W, c7_Gscal_tau, c7_Gscal_top, c7_Gscal_bottom, c7_Gscal_gluon, c7_Gscal_gamma, c7_SMBRs, BRundet)'
@@ -803,7 +803,7 @@ class KappaVKappaF(LHCHCGBaseModel):
                 CW="kVkV_" + ds,
                 Ctau="kFkF_" + ds,
             )
-            ## partial witdhs, normalized to the SM one
+            ## partial widths, normalized to the SM one
             self.modelBuilder.factory_(f'expr::c7_Gscal_Z_{ds}("@0*@0*@1*@2", kVkV_{ds}, SM_BR_hzz, HiggsDecayWidth_UncertaintyScaling_hzz)')
             self.modelBuilder.factory_(f'expr::c7_Gscal_W_{ds}("@0*@0*@1*@2", kVkV_{ds}, SM_BR_hww, HiggsDecayWidth_UncertaintyScaling_hww)')
             self.modelBuilder.factory_(
@@ -820,7 +820,7 @@ class KappaVKappaF(LHCHCGBaseModel):
                 % (ds, ds, ds)
             )
 
-            ## total witdh, normalized to the SM one
+            ## total width, normalized to the SM one
             self.modelBuilder.factory_(
                 'expr::c7_Gscal_tot_%s("(@0+@1+@2+@3+@4+@5+@6)/@7/(1-@8)", c7_Gscal_Z_%s, c7_Gscal_W_%s, c7_Gscal_tau_%s, c7_Gscal_top_%s, c7_Gscal_bottom_%s, c7_Gscal_gluon_%s, c7_Gscal_gamma_%s, c7_SMBRs, BRinv)'
                 % (ds, ds, ds, ds, ds, ds, ds, ds)
