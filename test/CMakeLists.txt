@@ -270,6 +270,11 @@ COMBINE_ADD_TEST(template_analysis-text2workspace
 
 
 if(BUILD_TESTS AND NOT DEFINED standalone_tests)
+    COMBINE_ADD_GTEST(roopower
+        testRooPower.cxx
+        LIBRARIES HiggsAnalysisCombinedLimit
+        LABELS RooPower
+    )
     # Build and run the testCreateNLL helper on the generated workspace
     COMBINE_ADD_GTEST(template-analysis-testCreateNLL
         testCreateNLL.cxx
