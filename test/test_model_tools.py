@@ -7,7 +7,6 @@ import ROOT
 
 from HiggsAnalysis.CombinedLimit.ModelTools import ModelBuilderBase
 
-
 for n_terms in (1, 400):
     # Setup
     builder = ModelBuilderBase.__new__(ModelBuilderBase)
