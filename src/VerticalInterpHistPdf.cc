@@ -902,6 +902,7 @@ void FastVerticalInterpHistPdf2::initNominal(TObject *templ) {
     TH1 *hist = dynamic_cast<TH1*>(templ);
     if (hist) {
         _cacheNominal = FastHisto(*hist);
+        _inputNominal = _cacheNominal;
     } else {
         RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(templ);
         const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
@@ -946,6 +947,8 @@ void FastVerticalInterpHistPdf2::initComponent(int dim, TObject *thi, TObject *t
     TH1 *histLo = dynamic_cast<TH1*>(tlo);
     if (histHi && histLo) {
         hi = *histHi; lo = *histLo; 
+        if (_inputMorphs.size() < _morphs.size()) _inputMorphs.resize(_morphs.size());
+        _inputMorphs[dim] = {hi, lo};
     } else {
         RooAbsPdf *pdfHi = dynamic_cast<RooAbsPdf *>(thi);
         RooAbsPdf *pdfLo = dynamic_cast<RooAbsPdf *>(tlo);

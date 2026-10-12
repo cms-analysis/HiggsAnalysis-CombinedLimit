@@ -317,7 +317,8 @@ public:
   FastVerticalInterpHistPdf2(const FastVerticalInterpHistPdf2& other, const char* name=0) :
     FastVerticalInterpHistPdf2Base(other, name),
     _x("x",this,other._x),
-    _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
+    _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog),
+    _inputNominal(other._inputNominal), _inputMorphs(other._inputMorphs)  {}
   explicit FastVerticalInterpHistPdf2(const FastVerticalInterpHistPdf& other, const char* name=0) ;
   TObject* clone(const char* newname) const override { return new FastVerticalInterpHistPdf2(*this,newname) ; }
 
@@ -330,6 +331,10 @@ public:
 
   FastHisto const &cacheNominal() const { return _cacheNominal; }
 
+  /// Input TH1 templates before normalization/sum-diff transform (for exact HS3 export); empty when read from file.
+  FastHisto const &inputNominal() const { return _inputNominal; }
+  std::vector<std::pair<FastHisto, FastHisto>> const &inputMorphs() const { return _inputMorphs; }
+
   friend class FastVerticalInterpHistPdf2V;
 protected:
   RooRealProxy   _x;
@@ -340,6 +345,9 @@ protected:
   /// Cache of nominal pdf (additive morphing) and its bin-by-bin logarithm (multiplicative)
   FastHisto _cacheNominal; 
   FastHisto _cacheNominalLog; 
+
+  FastHisto _inputNominal; //! not to be serialized
+  std::vector<std::pair<FastHisto, FastHisto>> _inputMorphs; //! not to be serialized
 
   void syncTotal() const ;
   void initNominal(TObject *nominal) ;
