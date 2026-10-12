@@ -276,16 +276,16 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
     if (simnll) {
       simnll->setZeroPoint();
     }
-   }
+  }
 
-   //TStopwatch tw;
-   // need to re-run Migrad before running minos
-   int iret = -1;
-   {
-     utils::ConstantCategoriesGuard constantCategories(nll_);
-     minimizer_->minimize(myType.c_str(), "Migrad");
-     iret = minimizer_->minos(params);
-   }
+  //TStopwatch tw;
+  // need to re-run Migrad before running minos
+  int iret = -1;
+  {
+    utils::ConstantCategoriesGuard constantCategories(nll_);
+    minimizer_->minimize(myType.c_str(), "Migrad");
+    iret = minimizer_->minos(params);
+  }
    if (verbose>0 ) CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,std::string(Form("Minos finished with status=%d",iret)),__func__);
    freezeDiscParams(false);
 

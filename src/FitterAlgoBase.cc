@@ -1,5 +1,6 @@
 #include "../interface/FitterAlgoBase.h"
 #include <limits>
+#include <memory>
 #include <cmath>
 
 #include "RooRealVar.h"
@@ -160,7 +161,7 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
               break;
       }
 
-      std::unique_ptr<RooArgSet> params{mc_s->GetPdf()->getParameters(data)};
+      std::unique_ptr<RooArgSet> params{utils::getAllParameters(*mc_s->GetPdf(), data)};
       for (RooAbsArg *a : *params) {
           RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
           if (rrv == 0 || rrv->isConstant()) continue;
@@ -274,7 +275,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     ret = (saveFitResult || rs.getSize() ? minim.save() : new RooFitResult("dummy","success"));
     if (verbose > 1 && ret != 0 && (saveFitResult || rs.getSize())) { ret->Print("V");  }
 
-    std::unique_ptr<RooArgSet> allpars(pdf.getParameters(data));
+    std::unique_ptr<RooArgSet> allpars{utils::getAllParameters(pdf, data)};
     RooArgSet* bestFitPars = (RooArgSet*)allpars->snapshot() ;
 
     // I'm done here

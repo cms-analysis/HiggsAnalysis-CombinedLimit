@@ -21,7 +21,7 @@ BestFitSigmaTestStat::BestFitSigmaTestStat(
     ((RooRealVar*)snap_.find(params.first()->GetName()))->setConstant(false);
     poi_.add(snap_);
     if (nuisances) { nuisances_.add(*nuisances); snap_.addClone(*nuisances, /*silent=*/true); }
-    params_.reset(pdf_->getParameters(observables));
+    params_ = utils::getAllParameters(*pdf_, observables);
 }
 
 

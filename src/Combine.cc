@@ -963,7 +963,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	    // print the values of the parameters used to generate the toy
 	    if (verbose > 2) {
 	      CombineLogger::instance().log("Combine.cc",__LINE__, "Generate Asimov toy from parameter values ... ",__func__);
-              std::unique_ptr<RooArgSet> params{genPdf->getParameters((const RooArgSet*)0)};
+              std::unique_ptr<RooArgSet> params{utils::getAllParameters(*genPdf)};
               for (RooAbsArg *a : *params) {
 	  	    TString varstring = utils::printRooArgAsString(a);
 	  	    CombineLogger::instance().log("Combine.cc",__LINE__,varstring.Data(),__func__);
@@ -1062,21 +1062,22 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (verbose > 2) {
 	  CombineLogger::instance().log("Combine.cc",__LINE__, std::string(Form("Generating toy %d/%d, from parameter values ... ",iToy,nToys)),__func__);
-    std::unique_ptr<RooArgSet> params{genPdf->getParameters((const RooArgSet*)0)};
-    for (RooAbsArg *a : *params) {
-	  	TString varstring = utils::printRooArgAsString(a);
-	  	CombineLogger::instance().log("Combine.cc" ,__LINE__,varstring.Data(),__func__);
-	  }
-	}
+          std::unique_ptr<RooArgSet> params{utils::getAllParameters(*genPdf)};
+          for (RooAbsArg *a : *params) {
+            TString varstring = utils::printRooArgAsString(a);
+            CombineLogger::instance().log("Combine.cc", __LINE__, varstring.Data(), __func__);
+          }
+        }
 
-	// Also save the current state of the tree here but specify the quantile as -2 (i.e not the default, something specific to the toys)
-	if (saveToys_) commitPoint(false,-2);
-	if (isExtended) {
+        // Also save the current state of the tree here but specify the quantile as -2 (i.e not the default, something specific to the toys)
+        if (saveToys_)
+          commitPoint(/*expected=*/false, /*quantile=*/-2);
+        if (isExtended) {
           absdata_toy = newToyMC.generate(weightVar_); // as simple as that
-	} else {
-	  RooDataSet *data_toy = genPdf->generate(*observables,1);
-	  absdata_toy = data_toy;
-	}
+        } else {
+          RooDataSet *data_toy = genPdf->generate(*observables, 1);
+          absdata_toy = data_toy;
+        }
       } else {
         w->loadSnapshot("clean"); // (*) this is needed in case running over toys+fits, to avoid starting from previous fit 
 				  //-- constraints are set to toy values if frequentist (below) or set back to 0 (unnecessarily) here. 
