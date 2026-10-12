@@ -1,6 +1,7 @@
 #include "../interface/CachingNLL.h"
 #include "../interface/utils.h"
 #include "../interface/FnTimer.h"
+#include <memory>
 #include <stdexcept>
 #include <RooCategory.h>
 #include <RooDataSet.h>
@@ -168,7 +169,7 @@ cacheutils::ValuesCache::ValuesCache(const RooAbsReal &pdf, const RooArgSet &obs
     directMode_(false)
 {
     assert(size <= MaxItems_);
-    std::unique_ptr<RooArgSet> params(pdf.getParameters(obs));
+    std::unique_ptr<RooArgSet> params{utils::getAllParameters(pdf, obs)};
     //std::cout << "Parameters for pdf " << pdf.GetName() << " (" << pdf.ClassName() << "):"; params->Print("");
     items[0] = new Item(*params);
 }
@@ -560,7 +561,7 @@ cacheutils::CachingAddNLL::setup_()
         throw std::invalid_argument(errmsg);
     }
 
-    std::unique_ptr<RooArgSet> params(pdf_->getParameters(*data_));
+    std::unique_ptr<RooArgSet> params{utils::getAllParameters(*pdf_, *data_)};
     for (RooAbsArg *a : *params) {
         if (dynamic_cast<RooRealVar *>(a))  params_.add(*a);
         else if (dynamic_cast<RooCategory *>(a)) catParams_.add(*a);

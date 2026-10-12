@@ -1,15 +1,15 @@
 #ifndef HiggsAnalysis_CombinedLimit_utils_h
 #define HiggsAnalysis_CombinedLimit_utils_h
 
-#include <vector>
-#include <string>
-#include <unordered_map>
-#include <TGraphAsymmErrors.h>
-#include <TString.h>
-#include <RooHistError.h>
-#include <RooFitResult.h>
 #include <RooAddPdf.h>
+#include <RooArgSet.h>
+#include <RooFitResult.h>
+#include <TGraphAsymmErrors.h>
 #include <TH1.h>
+#include <TString.h>
+#include <memory>
+#include <string>
+#include <vector>
 class RooDataHist;
 class RooAbsData;
 class RooAbsPdf;
@@ -122,6 +122,17 @@ namespace utils {
     int countFloating(const RooArgSet &);
     RooArgSet returnAllVars(RooWorkspace *);
     bool freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiPdfs, const RooArgSet & allRooMultiPdfParams, bool freeze=true);
+
+    /// Collect all fundamental nodes that `func` depends on by value, except
+    /// those depending on `obs`. Unlike RooAbsArg::getParameters(), this
+    /// bypasses getParametersHook(), which RooMultiPdf uses since ROOT 6.38 to
+    /// report only the parameters of the selected pdf. Use it wherever Combine
+    /// needs the parameters of all candidate pdfs. The first overload appends
+    /// to `out`.
+    void getAllParameters(const RooAbsArg &func, const RooArgSet *obs, RooArgSet &out);
+    std::unique_ptr<RooArgSet> getAllParameters(const RooAbsArg &func, const RooArgSet *obs = nullptr);
+    std::unique_ptr<RooArgSet> getAllParameters(const RooAbsArg &func, const RooArgSet &obs);
+    std::unique_ptr<RooArgSet> getAllParameters(const RooAbsArg &func, const RooAbsData &data);
 
 }
 

@@ -9,6 +9,7 @@
 #include <cmath>
 #include <vector>
 #include <string>
+#include <memory>
 #include <stdexcept>
 #include <algorithm>
 #include <unistd.h>
@@ -1245,7 +1246,7 @@ bool Combine::addDiscreteNuisances(RooWorkspace *w){
     for (RooAbsArg *arg : clients) {
       (CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs).add(*(dynamic_cast<RooMultiPdf*>(arg)));
       RooAbsPdf *pdf = dynamic_cast<RooAbsPdf*>(arg);
-      std::unique_ptr<RooArgSet> pdfPars{pdf->getParameters((const RooArgSet*)0)};
+      std::unique_ptr<RooArgSet> pdfPars{utils::getAllParameters(*pdf)};
       for (RooAbsArg *a : *pdfPars) {
 	RooRealVar *v = dynamic_cast<RooRealVar *>(a);
 	if (!v) continue;
