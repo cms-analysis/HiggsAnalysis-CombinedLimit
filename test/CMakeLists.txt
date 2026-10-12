@@ -280,6 +280,10 @@ if(BUILD_TESTS AND NOT DEFINED standalone_tests)
     )
 endif()
 
+# ModelTools.py
+COMBINE_ADD_TEST(test_model_tools_py
+    COMMAND python3 ${REPO}/test/test_model_tools.py
+)
 
 # RooBernsteinFast v1 -> v2 schema evolution
 COMBINE_ADD_TEST(roo_bernstein_fast_schema_evolution
