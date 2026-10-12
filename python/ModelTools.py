@@ -85,13 +85,6 @@ class ModelBuilderBase:
     def factory_(self, X):
         if self.options.verbose >= 7:
             print("RooWorkspace::factory('%s')" % X)
-        if len(X) > 1000:
-            print(
-                "Executing factory with a string of length ",
-                len(X),
-                " > 1000, could trigger a bug: ",
-                X,
-            )
         ret = self.out.factory(X)
         if ret:
             if self.options.verbose >= 7:
