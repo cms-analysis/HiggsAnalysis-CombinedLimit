@@ -838,8 +838,9 @@ bool tryExportHistFactory(RooJSONFactoryWSTool *tool, const CMSHistSum *hs, JSON
     RooJSONFactoryWSTool::testValidName(axname, false);
     ax["name"] << axname;
     ax["nbins"] << static_cast<int>(hs->nBins());
-    ax["min"] << x->getMin();
-    ax["max"] << x->getMax();
+    // CMS_TH1obs_<channel> is a dummy bin index; its declared range is not always [0, nBins].
+    ax["min"] << 0.0;
+    ax["max"] << static_cast<double>(hs->nBins());
 
     // Samples array
     auto &samples = elem["samples"].set_seq();
