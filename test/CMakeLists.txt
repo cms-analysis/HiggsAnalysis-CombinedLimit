@@ -281,6 +281,10 @@ if(BUILD_TESTS AND NOT DEFINED standalone_tests)
 endif()
 
 
+COMBINE_ADD_TEST(test_model_tools_py
+    COMMAND python3 ${REPO}/test/test_model_tools.py
+)
+
 # test_interference.py
 COMBINE_ADD_TEST(test_interference_py
     COMMAND python3 test_interference.py
