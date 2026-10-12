@@ -46,6 +46,9 @@ public:
 
   RooArgList * setupBinPars(double poissonThreshold);
 
+  /// True if setupBinPars created Barlow-Beeston-lite parameters (autoMCStats threshold >= 0)
+  bool hasBinPars() const { return binpars_.getSize() > 0; }
+
   std::unique_ptr<RooArgSet> getSentryArgs() const;
 
   void printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
