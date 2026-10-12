@@ -106,8 +106,9 @@ bool AsymptoticLimits::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
     if (verbose > 0) std::cout << "Will compute " << what_ << " limit(s) using minimizer " << minimizerAlgo_ 
                         << " with strategy " << minimizerStrategy_ << " and tolerance " << minimizerTolerance_ << std::endl;
     */
-    hasDiscreteParams_ = false;  
-    if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
+    hasDiscreteParams_ = false;
+    if (!params_)
+      params_ = utils::getAllParameters(*mc_s->GetPdf(), data);
     for (RooAbsArg *a : *params_) {
       if (a->IsA()->InheritsFrom(RooCategory::Class())) { hasDiscreteParams_ = true; break; }
     }
@@ -165,8 +166,9 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
   r->setConstant(false);
   r->setVal(0.1*r->getMax());
   r->setMin(qtilde_ ? 0 : -r->getMax());
- 
-  if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
+
+  if (!params_)
+    params_ = utils::getAllParameters(*mc_s->GetPdf(), data);
 
   hasFloatParams_ = false;
   for (RooAbsArg *a : *params_) {
@@ -392,7 +394,8 @@ std::vector<std::pair<float,float> > AsymptoticLimits::runLimitExpected(RooWorks
     RooAbsData *asimov = asimovDataset(w, mc_s, mc_b, data, /*overwrite=*/ doNonStandardAsimov_);
 
     // 2b) load asimov global observables
-    if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
+    if (!params_)
+      params_ = utils::getAllParameters(*mc_s->GetPdf(), data);
     *params_ = snapGlobalObsAsimov;
 
     // 3) solve for q_mu
@@ -523,7 +526,7 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                 break;
             }
             minim.setStrategy(2);
-	    
+
             if (tries == 1) {
               utils::ConstantCategoriesGuard constantCategories(nll);
               if (minim.algo().find("Minuit2") != std::string::npos) {
@@ -532,7 +535,6 @@ float AsymptoticLimits::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVa
                 minim.minimizer().minimize(/*type=*/"Minuit2", /*alg=*/"minimize");
               }
             }
-	    
         }
         if (minosStat != -1) return r->getVal()+r->getAsymErrorHi();
     } else {

@@ -147,7 +147,7 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
     params.snapshot(snap_,false);
     ((RooRealVar*)snap_.find(params.first()->GetName()))->setConstant(false);
     if (nuisances) { nuisances_.add(*nuisances); snap_.addClone(*nuisances, /*silent=*/true); }
-    params_.reset(pdf_->getParameters(observables));
+    params_ = utils::getAllParameters(*pdf_, observables);
     DBG(DBG_PLTestStat_ctor, (std::cout << "Observables: " << std::endl)) DBG(DBG_PLTestStat_ctor, (observables.Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "All params: " << std::endl))  DBG(DBG_PLTestStat_ctor, (params_->Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "Snapshot: " << std::endl))    DBG(DBG_PLTestStat_ctor, (snap_.Print("V")))

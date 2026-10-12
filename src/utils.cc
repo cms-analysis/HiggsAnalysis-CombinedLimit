@@ -391,7 +391,7 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
         }
     }
     ;
-    std::unique_ptr<RooArgSet> params{pdf->getParameters(*model.GetObservables())};
+    std::unique_ptr<RooArgSet> params{getAllParameters(*pdf, *model.GetObservables())};
     for (RooAbsArg *a : *params) {
         if (a->getAttribute("flatParam") && a->isConstant()) {
             ok = false; errors << "ERROR: parameter " << a->GetName() << " is declared as flatParam but is constant.\n";
@@ -420,7 +420,7 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
             factorizedPdf.release();
             ok = false; errors << "ERROR: have nuisance parameters, but can't factorize the pdf\n";
         }
-        std::unique_ptr<RooArgSet> obsParams(factorizedPdf->getParameters(*model.GetObservables()));
+        std::unique_ptr<RooArgSet> obsParams{getAllParameters(*factorizedPdf, *model.GetObservables())};
         for (RooAbsArg *a : *model.GetNuisanceParameters()) {
             if (!obsParams->contains(*a))  {
                 errors << "WARNING: model pdf does not depend on nuisace parameter " << a->GetName() << "\n";

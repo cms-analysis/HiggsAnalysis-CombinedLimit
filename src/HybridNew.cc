@@ -798,13 +798,13 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
   std::unique_ptr<RooArgSet> paramsToFit;
 
   // Count the number of floating, non POI parameters, if there are more than 0, then we would need to fit to estimate their values for the generation ...
-  RooArgSet floatParsModel(*(mc_s->GetPdf()->getParameters(data)));
+  RooArgSet floatParsModel(*utils::getAllParameters(*mc_s->GetPdf(), data));
   floatParsModel.remove(poi);
   int nNonPoiFloatingParameters = utils::countFloating(floatParsModel);
   if (fitNuisances_ && nNonPoiFloatingParameters) {  // We need to fit the model first (to the data) if there are nuisance parameters (constrained or unconstrained)
     TStopwatch timer;
     utils::setAllConstant(poi, true);
-    paramsToFit.reset(mc_s->GetPdf()->getParameters(data));
+    paramsToFit = utils::getAllParameters(*mc_s->GetPdf(), data);
     RooStats::RemoveConstantParameters(&*paramsToFit);
     /// Background-only fit. In 1D case, can use model_s with POI set to zero, but in nD must use model_b.
     RooAbsPdf *pdfB = mc_b->GetPdf();
@@ -1405,8 +1405,8 @@ RooStats::HypoTestResult * HybridNew::evalFrequentist(RooStats::HybridCalculator
     RooArgSet nuis(*hc.GetAlternateModel()->GetNuisanceParameters());
     RooArgSet gobs(*hc.GetAlternateModel()->GetGlobalObservables());
     RooArgSet nullPoi(*hc.GetNullModel()->GetSnapshot());
-    std::unique_ptr<RooAbsCollection> parS(hc.GetAlternateModel()->GetPdf()->getParameters(obs));
-    std::unique_ptr<RooAbsCollection> parB(hc.GetNullModel()->GetPdf()->getParameters(obs));
+    std::unique_ptr<RooAbsCollection> parS{utils::getAllParameters(*hc.GetAlternateModel()->GetPdf(), obs)};
+    std::unique_ptr<RooAbsCollection> parB{utils::getAllParameters(*hc.GetNullModel()->GetPdf(), obs)};
     RooArgList constraintsS, constraintsB;
     RooAbsPdf *factorS = hc.GetAlternateModel()->GetPdf();
     RooAbsPdf *factorB = hc.GetNullModel()->GetPdf();

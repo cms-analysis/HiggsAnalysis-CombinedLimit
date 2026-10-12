@@ -52,8 +52,10 @@ Double_t
 SimplerLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& nullPOI) 
 {
     // get parameters, if not there already
-    if (paramsNull_.get() == 0) paramsNull_.reset(pdfNull_->getParameters(data));
-    if (paramsAlt_.get() == 0)  paramsAlt_.reset(pdfAlt_->getParameters(data));
+    if (!paramsNull_)
+      paramsNull_ = utils::getAllParameters(*pdfNull_, data);
+    if (!paramsAlt_)
+      paramsAlt_ = utils::getAllParameters(*pdfAlt_, data);
 
     // if the dataset is not empty, redirect pdf nodes to the dataset
     bool nonEmpty = data.numEntries() > 0;
