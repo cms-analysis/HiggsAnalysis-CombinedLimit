@@ -933,8 +933,9 @@ bool tryExportHistFactory(RooJSONFactoryWSTool *tool, const CMSHistSum *hs, JSON
         tool->queueExport(*par);
       }
 
-      // Staterror modifier (if errors were exported)
-      if (anyErr) {
+      // Staterror modifier only if there are Barlow-Beeston-lite parameters: with autoMCStats -1
+      // (no bin parameters) the model has no statistical terms, and a staterror would add them.
+      if (anyErr && hs->hasBinPars()) {
         auto &m = mods.append_child().set_map();
         m["name"] << "mcstat";
         m["type"] << "staterror";

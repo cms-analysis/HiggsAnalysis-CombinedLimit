@@ -168,6 +168,9 @@ public:
     return morphTemplate(iproc, imorph, false, density);
   }
 
+  /// True if setupBinPars created Barlow-Beeston-lite parameters (autoMCStats threshold >= 0)
+  bool hasBinPars() const { return binpars_.getSize() > 0; }
+
   /// Per-bin MC stat errors for a process
   FastTemplate binErrors(unsigned iproc, bool density=true) const
   {
