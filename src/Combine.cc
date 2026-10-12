@@ -443,6 +443,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (optSimPdf_) {
           RooSimultaneousOpt *optpdf = new RooSimultaneousOpt(*pdf, TString(mc->GetPdf()->GetName())+"_opt");
           if (isJSON && mc->GetObservables()) {
+            // adding cats to observables
+            RooArgSet obsWithCats(*mc->GetObservables());
+            obsWithCats.add(w->allCats(), /*silent=*/true);
+            mc->SetObservables(obsWithCats);
             RooArgList extraConstrs;
             for (RooAbsArg *arg : w->allPdfs()) {
               auto *cpdf = dynamic_cast<RooAbsPdf *>(arg);
@@ -463,6 +467,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           w->import(*optpdf);
           mc->SetPdf(*optpdf);
       }
+    }
+    if (verbose > 1) {
+      auto optpdf_ = dynamic_cast<RooSimultaneousOpt*>(mc->GetPdf());
+      if (optpdf_) std::cout << "RooSimOpt has (" << optpdf_->extraConstraints().size() << "/" << w->allPdfs().size() << ") of all pdfs present in ws added as extraConstraints" << std::endl;
     }
     if (expectSignalSet_ && POI->getSize() > 1 ) std::cerr << "ModelConfig '" << modelConfigName_ << "' defines more than one parameter of interest and you have set --expectSignal=" << expectSignal_ << ", which combine will likely interpret incorrectly. You should use --setParameters instead of --expectSignal." << std::endl;
     if (mc_bonly == 0 && !noMCbonly_) {
