@@ -1176,3 +1176,768 @@ void FastVerticalInterpHistPdf2V::fill(std::vector<Double_t> &out) const
     }
 }
 
+
+#include <set>
+
+#include "RooFitHS3/RooJSONFactoryWSTool.h"
+#include "RooFitHS3/JSONIO.h"
+#include "RooAddPdf.h"
+#include "RooConstVar.h"
+#include "RooRealVar.h"
+#include "RooProduct.h"
+#include "../interface/ProcessNormalization.h"
+#include "../interface/AsymPow.h"
+#include <charconv>
+#include <map>
+#include <string>
+#include <vector>
+
+using RooFit::Detail::JSONNode;
+
+
+namespace {
+
+void exportOtherFactorModifiers(RooJSONFactoryWSTool* tool, JSONNode& mods, RooAbsReal const* factor) {
+  if (auto* rcv = dynamic_cast<RooConstVar const*>(factor)) {
+    auto& m = mods.append_child().set_map();
+    m["name"] << rcv->GetName();
+    m["parameter"] << rcv->getVal();
+    m["type"] << "normfactor";
+  } else if (auto* rrv = dynamic_cast<RooRealVar const*>(factor)) {
+    auto& m = mods.append_child().set_map();
+    m["name"] << rrv->GetName();
+    m["parameter"] << rrv->GetName();
+    m["type"] << "normfactor";
+    tool->queueExport(*rrv);
+  } else if (auto* prod = dynamic_cast<RooProduct const*>(factor)) {
+    for (auto* comp : prod->realComponents()) {
+      exportOtherFactorModifiers(tool, mods, static_cast<RooAbsReal*>(comp));
+    }
+  } else {
+    // handling other (e.g. RooAddition)
+    auto& m = mods.append_child().set_map();
+    m["name"] << factor->GetName();
+    m["type"] << "custom";
+    tool->queueExport(*factor);
+  }
+}
+
+
+bool parse_double(const std::string& input, double& out)
+{
+    const char* begin = input.data();
+    const char* end   = input.data() + input.size();
+
+    double tmp;
+    auto [ptr, ec] = std::from_chars(begin, end, tmp);
+
+    if((ec == std::errc() && ptr == end)){
+      out = tmp;
+      return true;
+    }
+    return false;
+}
+
+// Helper: try to pick a reasonable process name.
+static std::string cms_fast_vertinterp_hist_pdf_process_name(const FastVerticalInterpHistPdf2 * pdf, unsigned ip)
+{
+  
+  if (pdf && pdf->stringAttributes().count("combine.process")) {
+    return pdf->getStringAttribute("combine.process");
+  }
+  
+  if(pdf){
+    return pdf->GetName();
+  }
+  
+  return "proc_"+std::to_string(ip);
+}
+
+/// Helper: read an array of doubles
+static std::vector<double> readDoubleArray(RooFit::Detail::JSONNode const &arr, std::string const &what)
+{
+   std::vector<double> out;
+   out.reserve(arr.num_children());
+
+   for(const auto& c:arr.children()){
+     out.push_back(c.val_double());
+   }
+   return out;
+}
+
+static std::unique_ptr<TH1D> readTH1D(RooFit::Detail::JSONNode const &arr, RooRealVar x, std::string hname)
+{
+    std::vector<double> contents = readDoubleArray(arr, hname + ".data.contents");
+    
+    bool oldAddDirStatus = TH1::AddDirectoryStatus();
+    TH1::AddDirectory(false);
+    auto h = std::make_unique<TH1D>(hname.c_str(), hname.c_str(), x.numBins(), x.getMin(), x.getMax());
+    TH1::AddDirectory(oldAddDirStatus);
+    for(int ib=1; ib<=x.numBins();++ib){
+        h->SetBinContent(ib, contents[ib -1]);
+    }
+    return h;
+}
+
+
+
+inline bool isSingleBinCountingDist(RooFit::Detail::JSONNode const &elem)
+{
+    auto const *axes = elem.find("axes");
+    if (!axes || axes->num_children() != 1) return false;
+    for (auto const &ax : axes->children()) {
+        if (ax.has_child("edges")) {
+            if (ax["edges"].num_children() != 2) return false; // two edges == one bin
+        } else {
+            auto const *nb = ax.find("nbins");
+            if (!nb || nb->val_int() != 1) return false;
+            // the count axis n_obs_bin<b> is unbounded above; a 1-bin shape channel is not
+            auto const *mx = ax.find("max");
+            if (mx && !mx->is_null()) return false;
+        }
+    }
+
+    auto const *samples = elem.find("samples");
+    if (!samples || samples->num_children() == 0) return false;
+    for (auto const &s : samples->children()) {
+        auto const *data = s.find("data");
+        if (!data || !data->has_child("contents") || (*data)["contents"].num_children() != 1) return false;
+        if (auto const *mods = s.find("modifiers")) {
+            for (auto const &m : mods->children()) {
+                std::string const mtype = m["type"].val();
+                if (mtype != "normsys" && mtype != "normfactor" && mtype != "custom") return false;
+            }
+        }
+    }
+    return true;
+}
+
+inline bool approxSymmetricKappas(double kLo, double kHi, double absLogTol = 1e-10, double relLogTol = 1e-10) {
+if (!(kLo > 0.0) || !(kHi > 0.0))
+    return false;
+if (!std::isfinite(kLo) || !std::isfinite(kHi))
+    return false;
+
+const double a = std::log(kLo);
+const double b = std::log(kHi);
+
+const double diff = std::abs(a + b);
+const double scale = std::max(std::abs(a), std::abs(b));  // 0 if both ~1
+return diff <= std::max(absLogTol, relLogTol * scale);
+}
+
+static RooRealVar &getOrMakeParameter(RooJSONFactoryWSTool *tool, std::string const &parName,
+                                     double init = 1.0, double lo = 0.0, double hi = 10.0)
+{
+   if (auto *arg = tool->workspace()->arg(parName.c_str())) {
+      auto *rrv = dynamic_cast<RooRealVar *>(arg);
+      if (!rrv)
+         throw std::runtime_error("histfactory_dist importer: parameter '" + parName + "' exists but is not RooRealVar");
+      return *rrv;
+   }
+   auto *rrv = new RooRealVar(parName.c_str(), parName.c_str(), init, lo, hi);
+   tool->workspace()->import(*rrv, RooFit::RecycleConflictNodes());
+   return *dynamic_cast<RooRealVar *>(tool->workspace()->arg(parName.c_str()));
+}
+
+/// Per-export state threaded through the modifier emitters below.
+struct HistFactoryExportCtx {
+   RooArgSet observables;                                //!< channel observables, for constraint lookup
+   std::map<std::string, std::string> constraintCache;   //!< theta name -> constraint pdf name ("" = none)
+   std::map<std::string, std::string> sampleConstraints; //!< parameter -> constraint name, reset per sample
+   std::string sampleName;
+};
+
+
+std::string resolveConstraintPdfName(RooJSONFactoryWSTool *tool, HistFactoryExportCtx &ctx, RooAbsArg const &theta)
+{
+   const std::string thetaName(theta.GetName());
+   auto cached = ctx.constraintCache.find(thetaName);
+   if (cached != ctx.constraintCache.end()) return cached->second;
+
+   RooWorkspace *ws = tool->workspace();
+   RooAbsPdf *constraint = nullptr;
+
+   // Fast path: ShapeTools.py names every constraint pdf "<theta>_Pdf".
+   if (auto *byName = ws->pdf((thetaName + "_Pdf").c_str())) {
+      if (byName->dependsOn(theta)) constraint = byName;
+   }
+
+   if (!constraint) {
+      for (auto *arg : ws->allPdfs()) {
+         auto *pdf = dynamic_cast<RooAbsPdf *>(arg);
+         if (!pdf || !pdf->dependsOn(theta)) continue;
+         if (pdf->dependsOn(ctx.observables)) continue;
+         constraint = pdf;
+         break;
+      }
+   }
+
+   std::string name;
+   if (constraint) {
+      name = constraint->GetName();
+      // The referenced name has to exist in the output, and this exporter does not
+      // autoExportDependants.
+      tool->queueExport(*constraint);
+   }
+   ctx.constraintCache[thetaName] = name;
+   return name;
+}
+
+
+void registerConstraint(HistFactoryExportCtx &ctx, std::string const &param, std::string const &constraint)
+{
+   auto res = ctx.sampleConstraints.emplace(param, constraint);
+   if (!res.second && res.first->second != constraint) {
+      RooJSONFactoryWSTool::error("SumOfFastVerticalInterpHistPdf2: sample '" + ctx.sampleName + "': parameter '" +
+                                  param + "' is referenced by modifiers with inconsistent constraints ('" +
+                                  res.first->second + "' vs '" + constraint +
+                                  "'); refusing to emit inconsistent output.");
+   }
+}
+
+void exportNormSys(RooJSONFactoryWSTool *tool, HistFactoryExportCtx &ctx, JSONNode &mods, RooAbsArg const &theta,
+                   double kappaLo, double kappaHi)
+{
+   const std::string constraint = resolveConstraintPdfName(tool, ctx, theta);
+   registerConstraint(ctx, theta.GetName(), constraint);
+
+   auto &m = mods.append_child().set_map();
+   m["name"] << theta.GetName();
+   m["parameter"] << theta.GetName();
+   m["type"] << "normsys";
+   if (!constraint.empty()) m["constraint"] << constraint;
+   auto &data = m["data"].set_map();
+   data["lo"] << kappaLo;
+   data["hi"] << kappaHi;
+   tool->queueExport(theta);
+}
+
+/// The pieces of a RooAddPdf coefficient this exporter knows how to write.
+struct CoefficientParts {
+   ProcessNormalization const *pn = nullptr;     //!< at most one, and optional -- see below
+   std::vector<AsymPow const *> asymPows;        //!< shape-systematic rate terms (ShapeTools' systeff_*)
+   std::vector<RooAbsReal const *> plainFactors; //!< bare RooRealVar / RooConstVar factors
+   RooAbsArg const *customCoeff = nullptr;       //!< bare coefficient of an unrecognised type
+};
+
+
+bool decomposeCoefficient(RooAbsArg *coeff, CoefficientParts &out, std::string &err)
+{
+   auto classifyProductFactor = [&out, &err](RooAbsArg const *factor) {
+      if (auto const *pn = dynamic_cast<ProcessNormalization const *>(factor)) {
+         if (out.pn) {
+            err = "more than one ProcessNormalization ('" + std::string(out.pn->GetName()) + "' and '" +
+                  factor->GetName() + "')";
+            return false;
+         }
+         out.pn = pn;
+         return true;
+      }
+      if (auto const *ap = dynamic_cast<AsymPow const *>(factor)) {
+         out.asymPows.push_back(ap);
+         return true;
+      }
+      if (dynamic_cast<RooRealVar const *>(factor) || dynamic_cast<RooConstVar const *>(factor)) {
+         out.plainFactors.push_back(static_cast<RooAbsReal const *>(factor));
+         return true;
+      }
+      err = "component '" + std::string(factor->GetName()) + "' of type " + factor->ClassName() +
+            ", which is neither a ProcessNormalization nor an AsymPow nor a plain variable";
+      return false;
+   };
+
+   if (auto *prod = dynamic_cast<RooProduct *>(coeff)) {
+      for (auto *comp : prod->components()) {
+         if (!classifyProductFactor(comp)) return false;
+      }
+      return true;
+   }
+
+   if (auto const *pn = dynamic_cast<ProcessNormalization const *>(coeff)) {
+      out.pn = pn;
+   } else if (dynamic_cast<RooRealVar const *>(coeff) || dynamic_cast<RooConstVar const *>(coeff)) {
+      out.plainFactors.push_back(static_cast<RooAbsReal const *>(coeff));
+   } else {
+      out.customCoeff = coeff;
+   }
+   return true;
+}
+
+
+static int activeBins(RooArgList const &summands, std::string const &name)
+{
+    int n = -1;
+    for (auto const *s : summands) {
+        int size = static_cast<FastVerticalInterpHistPdf2 const *>(s)->cacheNominal().size();
+        if (n < 0 || size < n) n = size;
+    }
+    for (auto const *s : summands) {
+        auto const &pdf = *static_cast<FastVerticalInterpHistPdf2 const *>(s);
+        if (!pdf.morphs().empty() && int(pdf.cacheNominal().size()) > n) {
+            RooJSONFactoryWSTool::error("SumOfFastVerticalInterpHistPdf2 '" + name + "': morphing sample '" +
+                                        pdf.GetName() + "' has more active bins than the " + std::to_string(n) +
+                                        " shared by all samples.");
+        }
+    }
+    return n;
+}
+
+
+static std::vector<double> croppedHead(FastHisto const &nominal, int nBins, double &headSum)
+{
+    double total = 0.;
+    for (unsigned ib = 0; ib < nominal.size(); ++ib) total += std::max(nominal[ib], 1e-9) * nominal.GetWidth(ib);
+    std::vector<double> out(nBins);
+    headSum = 0.;
+    for (int ib = 0; ib < nBins; ++ib) {
+        out[ib] = std::max(nominal[ib], 1e-9) / total;
+        headSum += out[ib] * nominal.GetWidth(ib);
+    }
+    return out;
+}
+
+bool tryExportHistFactory(RooJSONFactoryWSTool *tool, const RooAddPdf *sum, JSONNode &elem){
+    auto summands = sum->pdfList();
+    const unsigned nProcs = summands.getSize();
+    if(nProcs==0){
+        RooJSONFactoryWSTool::warning("SumOfFastVerticalInterpHistPdf2 '" + std::string(sum->GetName()) + "': no Processes found!");
+        return false;
+    } 
+
+    std::set<RooRealVar const *> observables;
+    for(auto summand : summands){
+        auto const *hpdf = dynamic_cast<FastVerticalInterpHistPdf2 const *>(summand);
+        // This exports RooAddPdfs of FastVerticalInterpHistPdf2, so if anything else is present, exit here.
+        if(!hpdf) {
+            RooJSONFactoryWSTool::warning("SumOfFastVerticalInterpHistPdf2 '" + std::string(sum->GetName()) + "': summand was something other than FastVerticalInterpHistPdf2!");
+            return false;
+        }
+        observables.insert(&hpdf->x());
+    }
+    if(observables.size() != 1){
+        RooJSONFactoryWSTool::error("SumOfFastVerticalInterpHistPdf2 '" + std::string(sum->GetName()) +
+                                     "': summands do not share a common observable.");
+    }
+
+    auto const *x  =  dynamic_cast<RooRealVar const *>(*observables.begin());
+    if (!x) {
+        RooJSONFactoryWSTool::error("SumOfFastVerticalInterpHistPdf2 '" + std::string(sum->GetName()) +
+                                    "': shared observable is not a RooRealVar; cannot export axis metadata.");
+    }
+
+    std::vector<CoefficientParts> coefParts(nProcs);
+    for (unsigned ip = 0; ip < nProcs; ++ip) {
+        auto *coeff = sum->coefList().at(ip);
+        if (!coeff) continue;
+        std::string err;
+        if (!decomposeCoefficient(coeff, coefParts[ip], err)) {
+            RooJSONFactoryWSTool::warning("SumOfFastVerticalInterpHistPdf2 '" + std::string(sum->GetName()) +
+                                          "': coefficient '" + coeff->GetName() + "' has " + err +
+                                          "; declining this export path.");
+            return false;
+        }
+    }
+
+    HistFactoryExportCtx ctx;
+    ctx.observables.add(*x);
+
+    auto &axes = elem["axes"].set_seq();
+    auto &ax = axes.append_child().set_map();
+
+    std::string axname(x->GetName());
+    RooJSONFactoryWSTool::testValidName(axname,false);
+    ax["name"] << axname;
+
+    auto &samples = elem["samples"].set_seq();
+
+    const int nBins = activeBins(summands, sum->GetName());
+
+    for (unsigned ip = 0; ip < nProcs; ++ip) {
+        auto * fvih = dynamic_cast<const FastVerticalInterpHistPdf2 *>(summands.at(ip));
+        const std::string sampleName(cms_fast_vertinterp_hist_pdf_process_name(fvih, ip));
+        auto &s = samples.append_child().set_map();
+        s["name"] << sampleName;
+
+        const auto nominal = fvih->cacheNominal();
+
+        auto &dataNode = s["data"].set_map();
+        double yieldScale = 1.;
+        if (int(nominal.size()) > nBins) {
+            // unmorphed, with active bins beyond the axis (activeBins() declines the other case)
+            auto const head = croppedHead(nominal, nBins, yieldScale);
+            RooJSONFactoryWSTool::exportArray(nBins, head.data(), dataNode["contents"]);
+        } else {
+            // Built from histograms in this process: write the input nominal back unchanged.
+            auto const &input = fvih->inputNominal();
+            auto const &contents = input.fullsize() == unsigned(nBins) ? input.Values() : nominal.Values();
+            RooJSONFactoryWSTool::exportArray(nBins, contents.data(), dataNode["contents"]);
+        }
+
+        auto &mods = s["modifiers"].set_seq();
+
+        ctx.sampleName = sampleName;
+        ctx.sampleConstraints.clear();
+
+        // Shape part of every nuisance in the coefList.
+
+        for(unsigned icoeff=0; icoeff < fvih->coefList().size(); ++icoeff){
+            RooAbsReal * coeff = dynamic_cast<RooAbsReal * >(fvih->coefList().at(icoeff));
+            const std::string constraint = resolveConstraintPdfName(tool, ctx, *coeff);
+            registerConstraint(ctx, coeff->GetName(), constraint);
+            auto &m = mods.append_child().set_map();
+            m["name"] << coeff->GetName();
+            m["parameter"] << coeff->GetName();
+            m["type"] << "histosys";
+            if (!constraint.empty()) m["constraint"] << constraint;
+            auto & data = m["data"].set_map();
+            FastTemplate morph_sum = fvih->morphs().at(icoeff).sum;
+            FastTemplate morph_diff = fvih->morphs().at(icoeff).diff;
+            FastTemplate hi(nBins), lo(nBins);
+            if (fvih->smoothAlgo() < 0) {
+                RooJSONFactoryWSTool::error("smoothalog <0 not implemented yet.");
+            }
+            // Built from histograms in this process (e.g. by the importer below): write the input
+            // templates back unchanged. Reimporting them normalizes them the same way again.
+            auto const &inputMorphs = fvih->inputMorphs();
+            const bool haveInput = icoeff < inputMorphs.size() && inputMorphs[icoeff].first.fullsize() == unsigned(nBins);
+            for (int ib = 0; haveInput && ib<nBins; ++ib){
+                hi[ib] = inputMorphs[icoeff].first[ib];
+                lo[ib] = inputMorphs[icoeff].second[ib];
+            }
+            for (int ib = 0; !haveInput && ib<nBins; ++ib){
+                hi[ib] = (morph_sum[ib]+morph_diff[ib])/2.;
+                lo[ib] = (morph_sum[ib]-morph_diff[ib])/2.;
+
+                if(fvih->smoothAlgo() < 0){
+                    hi[ib] = exp(hi[ib])*nominal[ib];
+                    lo[ib] = exp(lo[ib])*nominal[ib];
+                }else{
+                    hi[ib] = hi[ib]+nominal[ib];
+                    lo[ib] = lo[ib]+nominal[ib];
+                }
+            }
+            RooJSONFactoryWSTool::exportArray(nBins, hi.Values().data(), data["hi"].set_map()["contents"]);
+            RooJSONFactoryWSTool::exportArray(nBins, lo.Values().data(), data["lo"].set_map()["contents"]);
+            tool->queueExport(*coeff);
+        }
+        // Rate part. decomposeCoefficient() already validated this in the decline pass above.
+        auto const &parts = coefParts[ip];
+        if (auto const *pn = parts.pn) {
+
+            
+            auto const &logKappa = pn->logKappa();
+            for (int i = 0; i < static_cast<int>(logKappa.size()); ++i) {
+                exportNormSys(tool, ctx, mods, pn->thetaList()[i], std::exp(-logKappa[i]), std::exp(logKappa[i]));
+            }
+            auto const &logAsymmKappa = pn->logAsymmKappa();
+            for (int i = 0; i < static_cast<int>(logAsymmKappa.size()); ++i) {
+                exportNormSys(tool, ctx, mods, pn->asymmThetaList()[i], std::exp(logAsymmKappa[i].first),
+                              std::exp(logAsymmKappa[i].second));
+            }
+
+            const double nom = pn->nominalValue() * yieldScale;
+            if (nom != 1.) {
+                auto &m = mods.append_child().set_map();
+                m["name"] << sampleName + "_norm_nominal";
+                m["parameter"] << nom;
+                m["type"] << "normfactor";
+            }
+            for (auto const *of : pn->otherFactorList()) {
+                exportOtherFactorModifiers(tool, mods, static_cast<RooAbsReal const *>(of));
+            }
+        } else if (yieldScale != 1.) {
+            auto &m = mods.append_child().set_map();
+            m["name"] << sampleName + "_norm_nominal";
+            m["parameter"] << yieldScale;
+            m["type"] << "normfactor";
+        }
+
+
+        for (auto const *ap : parts.asymPows) {
+            exportNormSys(tool, ctx, mods, ap->theta(), ap->kappaLow().getVal(), ap->kappaHigh().getVal());
+        }
+
+        for (auto const *pf : parts.plainFactors) {
+            exportOtherFactorModifiers(tool, mods, pf);
+        }
+
+        if (parts.customCoeff) {
+            auto &m = mods.append_child().set_map();
+            m["name"] << parts.customCoeff->GetName();
+            m["type"] << "custom";
+            tool->queueExport(*parts.customCoeff);
+        }
+    }
+    
+
+    ax["nbins"] << nBins;
+    ax["min"] << 0.0;
+    ax["max"] << static_cast<double>(nBins);
+
+    return true;
+}
+
+class FastVerticalInterpHistPdf2Streamer : public RooFit::JSONIO::Exporter {
+public:
+
+    std::string const & key() const override {
+        static const std::string keystring("");
+        return keystring;
+    }
+    bool exportObject(RooJSONFactoryWSTool *tool, const RooAbsArg *p, JSONNode &elem) const override {
+        // FastVerticalInterpHistPdf2 is exported as part of histfactory_dist below.
+        return true;
+    }
+};
+
+
+class SumOfFastVerticalInterpHistPdf2Streamer_RooAddition : public RooFit::JSONIO::Exporter {
+public:
+    bool autoExportDependants() const override {return false;}
+    std::string const & key() const override { 
+        static const std::string keystring("histfactory_dist");
+        return keystring;
+    }
+
+    bool exportObject(RooJSONFactoryWSTool *tool, const RooAbsArg *p, JSONNode &elem) const override {
+        auto sum = static_cast<const RooAddPdf *>(p);
+        // std::map<int, std::vector<RooAbsPdf>> sub_sums;
+        // unsigned n_pdf = sum->pdfList().size();
+        // for(unsigned ipdf=0; ipdf<n_pdf;++ipdf ){
+        //     auto *sub_pdf = dynamic_cast<const FastVerticalInterpHistPdf2 *>(sum->pdfList().at(ipdf))
+        //     if (!sub_pdf){}
+        // }
+        // TODO: split AddPdf into sub-sums with same binning
+        // TODO: loop ober sub-subsums and export.
+        if(sum) {
+            bool retval = tryExportHistFactory(tool, sum, elem);
+            if(!retval) return false;
+            elem["type"] << key();
+            std::cout << "exporting Sum of FastVerticalInterpHistPdf2s" << std::endl;
+
+            return true;
+        }
+        return false;
+    }
+
+};
+
+bool allTemplatesNormalized(RooFit::Detail::JSONNode const &elem)
+{
+    auto normalized = [](RooFit::Detail::JSONNode const &contents) {
+        std::vector<double> v;
+        for (auto const &c : contents.children()) v.push_back(c.val_double());
+        double sum = 0.;
+        for (double x : v) sum += x;
+        return std::abs(sum - 1.) <= 1e-6;
+    };
+    auto const *samples = elem.find("samples");
+    if (!samples) return false;
+    for (auto const &s : samples->children()) {
+        auto const *contents = s.find("data", "contents");
+        if (!contents || !normalized(*contents)) return false;
+        if (auto const *mods = s.find("modifiers")) {
+            for (auto const &m : mods->children()) {
+                if (m["type"].val() != "histosys") continue;
+                auto const *hi = m.find("data", "hi", "contents");
+                auto const *lo = m.find("data", "lo", "contents");
+                if (!hi || !lo || !normalized(*hi) || !normalized(*lo)) return false;
+            }
+        }
+    }
+    return true;
+}
+
+class SumOfFastVerticalInterpHistPdf2Factory_RooAddition : public RooFit::JSONIO::Importer{
+public:
+    bool importArg(RooJSONFactoryWSTool *tool, RooFit::Detail::JSONNode const &elem) const override
+    {
+        using RooFit::Detail::JSONNode;
+
+        if (!elem.has_child("name")) return false;
+        const std::string distName = elem["name"].val();
+
+        // Single-bin counting nodes belong to the RooPoisson/RooAddition importer.
+        if (isSingleBinCountingDist(elem)) return false;
+
+        // Only equals a histfactory_dist if all templates are unit-normalized (as our exporter writes them); event-count templates go to the CMSHistSum importer.
+        if (!allTemplatesNormalized(elem)) return false;
+
+        // Axes: we only support 1D here
+        if (!elem.has_child("axes") || elem["axes"].num_children() != 1)
+            throw std::runtime_error("Sum of FastVerticalInterpHistPdf2 importer: '" + distName + "' must have exactly one axis");
+
+        RooArgSet observables = RooJSONFactoryWSTool::readAxes(elem);
+        RooRealVar* x = dynamic_cast<RooRealVar*>(observables.first());
+
+        // Ensure ONE exists (fixed at 1) in case ProcessNormalization has not a norm of its own.
+        RooAbsReal* ONE = dynamic_cast<RooAbsReal*>(tool->workspace()->arg("ONE"));
+        if (!ONE) {
+            auto* one = new RooConstVar("ONE", "ONE", 1.0);
+            tool->workspace()->import(*one, RooFit::RecycleConflictNodes());
+            ONE = dynamic_cast<RooAbsReal*>(tool->workspace()->arg("ONE"));
+        }
+
+        // Samples
+        if (!elem.has_child("samples") || elem["samples"].num_children() == 0)
+            throw std::runtime_error("Sum of FastVerticalInterpHistPdf2  importer: '" + distName + "' has no samples");
+
+
+        // structure to construct: RooAddPdf(summands=FastVerticalPdf(hist;histosys-params), coeff=ProcessNorm(normsys, normfactor))
+        RooArgList summand_list;
+        RooArgList coeff_list;
+        for(const auto &s : elem["samples"].children()){
+            RooArgList histosys_coeff;
+            TList histosys_funcs;
+            const std::string sampleName = s["name"].val();
+            // data.contents (required)
+            if (!s.has_child("data") || !s["data"].has_child("contents")) {
+                throw std::runtime_error("Sum of FastVerticalInterpHistPdf2 importer: sample '" + sampleName + "' missing data.contents");
+            }
+
+            const std::string nom_hname = distName + "_" + sampleName + "_nominal";
+            auto h = readTH1D(s["data"]["contents"], *x, nom_hname);
+            // adding nominal template
+            histosys_funcs.Add(h.release());
+
+            RooArgList normsys_pars;
+            RooArgList normfactor_pars;
+            std::vector<std::pair<double, double>> normsys_vals;
+            // Parameters carrying a histosys on this sample. A normsys sharing one of these names is
+            // the yield half of a `shape` systematic and gets rebuilt as a standalone AsymPow below.
+            std::set<std::string> histosys_par_names;
+            double norm_nom = 1.;
+
+            if (s.has_child("modifiers")) {
+                for (const auto& m: s["modifiers"].children()) {
+                    const std::string mtype = m["type"].val();
+                    const std::string mname = m["name"].val();
+
+                    if (mtype == "normfactor"){
+                        double numeric = 1.;
+                        if(parse_double(m["parameter"].val(), numeric)){
+                            // Literal-number normfactors are constants (nominal + RooConstVar factors) and multiply together; read via val_double() since val() has only 6 digits.
+                            norm_nom *= m["parameter"].val_double();
+                        } else {
+                            RooRealVar &p = getOrMakeParameter(tool, mname, 1.0, 0.0, 10.0);
+                            normfactor_pars.add(p);
+                        }
+                    }else if (mtype == "custom") {
+
+                        // This might be normalization factor that is given by a ProcessNormalization or RooFormulaVar
+                        RooAbsReal* obj = tool->workspace()->function(mname);
+                        if (!obj) {
+                        throw std::runtime_error("Sum of FastVerticalInterpHistPdf2 importer: custom modifier '" + mname + "' on sample '" +
+                                                sampleName +
+                                                "' not yet imported, there seems to be a priority/ordering issue");
+                        }
+                        normfactor_pars.add(*obj);
+
+                    } else if (mtype == "staterror") {
+                        return false;
+                        RooJSONFactoryWSTool::warning("SumOfFastVerticalInterpHistPdf2 importer: sample '" + sampleName + "' has a staterror modifier " + mname);
+                    } else if ( mtype == "normsys"){
+
+                        auto * par = m.find("parameter");
+                        std::string parname(par ? par->val() : "alpha_"+mname);
+                        RooRealVar &p = getOrMakeParameter(tool, parname, 0.0, -10.0, 10.0);
+                        auto & data = m["data"];
+                        double hi = data["hi"].val_double();
+                        double lo = data["lo"].val_double();
+                        normsys_pars.add(p);
+                        normsys_vals.push_back(std::make_pair(lo,hi));
+
+                    } else if ( mtype == "histosys" ){
+
+                        auto * par = m.find("parameter");
+                        std::string parname(par ? par->val() : "alpha_"+mname);
+
+                        RooRealVar& p = getOrMakeParameter(tool, parname, 0.0, -10., 10.0);
+
+                        auto &data = m["data"];
+                        auto low = readTH1D(data["lo"]["contents"], *x, mname+"Low_"+sampleName);
+                        auto high = readTH1D(data["hi"]["contents"], *x, mname+"High_"+sampleName);
+                        // adding first hi, then lo, since FastVerticalInterpHistPdf2::FastVerticalInterpHistPdf2 dictates this order.
+                        histosys_funcs.Add(high.release());
+                        histosys_funcs.Add(low.release());
+                        histosys_coeff.add(p);
+                        histosys_par_names.insert(parname);
+
+                    } else {
+                    throw std::runtime_error("Sum of FastVerticalInterpHistPdf2 importer: modifier type '" + mtype + "' on sample '" + sampleName +
+                                            "' is not supported by this Sum of FastVerticalInterpHistPdf2 importer yet");
+                    }
+
+                } 
+            }
+            std::string summand_name = distName + "_" +sampleName; 
+            FastVerticalInterpHistPdf2 * fvih = new FastVerticalInterpHistPdf2(summand_name.c_str(),summand_name.c_str(), *x, histosys_funcs, histosys_coeff);
+            fvih->setStringAttribute("combine.process", sampleName.c_str());
+            summand_list.add(*fvih);
+
+            // The yield is the ProcessNormalization's own nominal value, as text2workspace.py builds it
+            const std::string pnName = distName + "_processnorm_" +sampleName;
+            auto * pn = new ProcessNormalization(pnName.c_str(), pnName.c_str(), norm_nom);
+
+            RooArgList asymPows;
+            std::set<std::string> promoted;
+            for(unsigned i = 0; i < normsys_pars.size(); ++i){
+                auto par = dynamic_cast<RooAbsReal*>(&normsys_pars[i]);
+                if (!par) RooJSONFactoryWSTool::error("Sum of FastVerticalInterpHistPdf2 importer: sample '" +
+                                                      sampleName + "': normsys parameter is not a RooAbsReal");
+                const std::string parname(par->GetName());
+
+                if (histosys_par_names.count(parname) && promoted.insert(parname).second) {
+                    const std::string apName = distName + "_asympow_" + sampleName + "_" + parname;
+                    auto *kLo = new RooConstVar((apName + "_kappaLo").c_str(), "", normsys_vals[i].first);
+                    auto *kHi = new RooConstVar((apName + "_kappaHi").c_str(), "", normsys_vals[i].second);
+                    asymPows.add(*new AsymPow(apName.c_str(), apName.c_str(), *kLo, *kHi, *par));
+                    continue;
+                }
+
+                if(approxSymmetricKappas(normsys_vals[i].first, normsys_vals[i].second)) {
+                    pn->addLogNormal(normsys_vals[i].second, *par);
+                } else {
+                    pn->addAsymmLogNormal(normsys_vals[i].first, normsys_vals[i].second, *par);
+                }
+            }
+
+            for(unsigned i = 0; i < normfactor_pars.size(); ++i){
+                auto par = dynamic_cast<RooAbsReal*>(&normfactor_pars[i]);
+                if (!par) RooJSONFactoryWSTool::error("Sum of FastVerticalInterpHistPdf2 importer: sample '" +
+                                                      sampleName + "': normfactor is not a RooAbsReal");
+                pn->addOtherFactor(*par);
+            }
+
+            if (asymPows.empty()) {
+                coeff_list.add(*pn);
+            } else {
+                const std::string prodName = distName + "_norm_final_" + sampleName;
+                RooArgList factors(*pn);
+                factors.add(asymPows);
+                coeff_list.add(*new RooProduct(prodName.c_str(), prodName.c_str(), factors));
+            }
+
+        }
+
+        RooAddPdf * sum = new RooAddPdf(distName.c_str(), distName.c_str(), summand_list, coeff_list);
+        tool->workspace()->import(*sum, RooFit::RecycleConflictNodes());
+        sum = dynamic_cast<RooAddPdf*>(tool->workspace()->function(distName.c_str()));
+        if (!sum) throw std::runtime_error("Sum of FastVerticalInterpHistPdf2 importer: failed to import Sum of FastVerticalInterpHistPdf2 '" + distName + "'");
+        return true;
+        
+    }
+};
+
+#include "static_execute.h"
+
+STATIC_EXECUTE( []() {
+    using namespace RooFit::JSONIO;
+
+    registerExporter<FastVerticalInterpHistPdf2Streamer>("FastVerticalInterpHistPdf2",false);
+    registerExporter<SumOfFastVerticalInterpHistPdf2Streamer_RooAddition>("RooAddPdf", true);
+    registerImporter<SumOfFastVerticalInterpHistPdf2Factory_RooAddition>("histfactory_dist",true);
+});
+
+}
