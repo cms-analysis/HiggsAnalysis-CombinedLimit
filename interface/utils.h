@@ -134,6 +134,22 @@ namespace utils {
     std::unique_ptr<RooArgSet> getAllParameters(const RooAbsArg &func, const RooArgSet &obs);
     std::unique_ptr<RooArgSet> getAllParameters(const RooAbsArg &func, const RooAbsData &data);
 
+    /// Keep the floating RooCategory parameters of `func` constant for the
+    /// lifetime of this object. Since ROOT 6.38, RooMinimizer runs its own
+    /// discrete profiling over floating categories (checked at minimization
+    /// time); Combine does this itself in the CascadeMinimizer.
+    class ConstantCategoriesGuard {
+      public:
+        explicit ConstantCategoriesGuard(const RooAbsReal &func);
+        ~ConstantCategoriesGuard();
+        ConstantCategoriesGuard(const ConstantCategoriesGuard &) = delete;
+        ConstantCategoriesGuard(ConstantCategoriesGuard &&) = delete;
+        ConstantCategoriesGuard &operator=(const ConstantCategoriesGuard &) = delete;
+        ConstantCategoriesGuard &operator=(ConstantCategoriesGuard &&) = delete;
+      private:
+        RooArgSet m_changed;
+    };
+
 }
 
 namespace Utils {

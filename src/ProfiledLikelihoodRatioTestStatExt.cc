@@ -408,6 +408,8 @@ double ProfiledLikelihoodTestStatOpt::minNLL(bool constrained, RooRealVar *r)
 bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosity, bool zeroPoint) 
 {
     static bool do_debug = (runtimedef::get("DEBUG_MINIM") || runtimedef::get("DEBUG_PLTSO") > 1);
+    // keep the RooMinimizer from doing its own discrete profiling
+    utils::ConstantCategoriesGuard constantCategories(nll);
     double initialNll = nll.getVal();
     std::unique_ptr<RooArgSet> pars;
     bool ret = false;
