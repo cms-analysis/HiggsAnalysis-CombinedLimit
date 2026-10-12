@@ -1,11 +1,5 @@
 #include "../interface/HGGRooPdfs.h"
 
-#if __has_include("ROOT/RVersion.hxx")
-#include "ROOT/RVersion.hxx"
-#else
-#include "RVersion.h"
-#endif
-
 #include "RooAbsReal.h"
 #include "RooArgSet.h"
 #include "RooDataSet.h"
