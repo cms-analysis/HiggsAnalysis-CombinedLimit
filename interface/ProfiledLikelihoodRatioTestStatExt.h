@@ -5,15 +5,24 @@
 #include <vector>
 
 class RooMinimizer;
+class RooRealVar;
 #include <RooAbsPdf.h>
 #include <RooAbsData.h>
 #include <RooArgSet.h>
 #include <RooStats/TestStatistic.h>
-#include "RooSimultaneousOpt.h"
-#include "CachingNLL.h"
 
 namespace nllutils {
     bool robustMinimize(RooAbsReal &nll, RooMinimizer &minimizer, int verbosity=0, bool zeroPoint=false);
+
+    /// Create the NLL of `pdf` for `data` into `nll`, constraining `nuisances`.
+    /// For a RooSimultaneousOpt, an existing `nll` is reused by just swapping
+    /// the dataset. Returns true if `nll` can be kept for later evaluations,
+    /// false if the caller should drop it once done with this dataset.
+    bool createOrReuseNLL(RooAbsPdf &pdf, RooAbsData &data, const RooArgSet &nuisances, std::unique_ptr<RooAbsReal> &nll);
+
+    /// Minimize `nll` with a CascadeMinimizer and return the value at the
+    /// minimum. `poi` is only used in the unconstrained mode.
+    double minimizeNLL(RooAbsReal &nll, bool constrained, RooRealVar *poi, int verbosity);
 }
 
 class ProfiledLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
@@ -39,10 +48,7 @@ class ProfiledLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
         std::unique_ptr<RooAbsReal> nllNull_, nllAlt_;
         Int_t verbosity_;
 
-        // create NLL. if returns true, it can be kept, if false it should be deleted at the end of Evaluate
-        bool createNLLWrapper(RooAbsPdf &pdf, RooAbsData &data, std::unique_ptr<RooAbsReal> &nll) ;
-
-        double minNLL(std::unique_ptr<RooAbsReal> &nll) ;
+        double minNLL(RooAbsReal &nll) const ;
 }; // TestSimpleStatistics
 
 
@@ -76,9 +82,13 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
         Int_t verbosity_;
         OneSidedness oneSided_;
 
-        // create NLL. if returns true, it can be kept, if false it should be deleted at the end of Evaluate
-        bool createNLLWrapper(RooAbsPdf &pdf, RooAbsData &data) ;
-        double minNLL(bool constrained, RooRealVar *r=0) ;
+        /// Common start of both Evaluate() overloads: save the current
+        /// parameter values into `initialState`, load the snapshot, fix the
+        /// globally constrained nuisances to their global observables and set
+        /// up `nll_` for `data`. Returns the POI to profile, and whether `nll_`
+        /// can be kept after this evaluation.
+        RooRealVar *setupEvaluation(RooAbsData &data, RooArgSet &initialState, bool &canKeepNLL) ;
+        double minNLL(bool constrained, RooRealVar *r) ;
 }; // TestSimpleStatistics
 
 
