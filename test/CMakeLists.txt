@@ -200,6 +200,9 @@ if(NOT CMSSW_VERSION MATCHES "^CMSSW_11")
       # Also run Hesse on the result. The lower verbosity hides RooFit warnings
       # about Hesse stepping to the boundary of r, which not all ROOT versions print.
       "combine -v -1 -M MultiDimFit -m 125.38 --setParameters pdf_index_ggh=2 --freezeParameters MH --cminDefaultMinimizerTolerance 0.001 --cminDefaultMinimizerStrategy 1 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles --saveFitResult ws_RooMultiPdf.root"
+    # The last digit of the Minos uncertainties differs between ROOT versions,
+    # so compare floating point numbers with a relative tolerance of 1 %.
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
   )
 endif()
 

@@ -273,7 +273,7 @@ endfunction()
 #   T2W_COMMAND
 #   COMBINE_COMMANDS
 function(ADD_COMBINE_TEST TEST_BASENAME)
-    cmake_parse_arguments(ARG "" "" "COPY_TO_BUILDDIR;T2W_COMMAND;COMBINE_COMMANDS" ${ARGN})
+    cmake_parse_arguments(ARG "" "" "COPY_TO_BUILDDIR;T2W_COMMAND;COMBINE_COMMANDS;DIFFCMD" ${ARGN})
 
   # --- text2workspace test ---
   COMBINE_ADD_TEST(${TEST_BASENAME}-text2workspace
@@ -296,6 +296,7 @@ function(ADD_COMBINE_TEST TEST_BASENAME)
       FIXTURES_REQUIRED ${TEST_BASENAME} # requires corresponding text2workspace run
       # We compare the output to reference files to validate the best-fit parameter values
       CHECKOUT OUTPUT ${TEST_BASENAME}.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/${TEST_BASENAME}.out
+      DIFFCMD ${ARG_DIFFCMD}
       # For this test, we are not interested in the standard error, but you could
       # compare this too:
       # CHECKERR
