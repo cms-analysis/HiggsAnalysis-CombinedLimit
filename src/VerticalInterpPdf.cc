@@ -6,8 +6,6 @@
 #include "RooFit/Detail/RooNormalizedPdf.h"
 #endif
 
-#include "Riostream.h"
-
 #include "RooRealVar.h"
 #include "RooRealIntegral.h"
 #include "RooMsgService.h"

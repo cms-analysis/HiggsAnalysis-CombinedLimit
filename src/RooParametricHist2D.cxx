@@ -1,9 +1,6 @@
 /***************************************************************************** 
  *****************************************************************************/ 
 
-
-#include "Riostream.h" 
-
 #include "RooAbsData.h"
 #include "RooAbsPdf.h"
 #include "../interface/RooParametricHist2D.h" 
