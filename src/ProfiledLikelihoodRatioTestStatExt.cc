@@ -1,9 +1,12 @@
 #include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
 #include "../interface/Combine.h"
+#include "../interface/CombineUtils.h"
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/CachingNLL.h"
+#include "../interface/RooSimultaneousOpt.h"
 #include "../interface/utils.h"
+#include <memory>
 #include <stdexcept>
 #include <RooRealVar.h>
 #include <RooMinimizer.h>
@@ -73,8 +76,8 @@ Double_t ProfiledLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSe
     DBGV(DBG_TestStat_params, (std::cout << "Parameters of null pdf (pre-fit)" << pdfNull_->GetName() << "\n"))
     DBGV(DBG_TestStat_params, (paramsNull_->Print("V")))
 
-    bool canKeepNullNLL = createNLLWrapper(*pdfNull_, data, nllNull_);
-    double nullNLL = minNLL(nllNull_);
+    bool canKeepNullNLL = nllutils::createOrReuseNLL(*pdfNull_, data, nuisances_, nllNull_);
+    double nullNLL = minNLL(*nllNull_);
     if (!canKeepNullNLL) nllNull_.reset();
     
     *paramsAlt_ = nuisances_;
@@ -82,8 +85,8 @@ Double_t ProfiledLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSe
         
     DBGV(DBG_TestStat_params, (std::cout << "Parameters of alt pdf " << pdfAlt_->GetName() << "\n"))
     DBGV(DBG_TestStat_params, (paramsAlt_->Print("V")))
-    bool canKeepAltNLL = createNLLWrapper(*pdfAlt_, data, nllAlt_);
-    double altNLL = minNLL(nllAlt_);
+    bool canKeepAltNLL = nllutils::createOrReuseNLL(*pdfAlt_, data, nuisances_, nllAlt_);
+    double altNLL = minNLL(*nllAlt_);
     if (!canKeepAltNLL) nllAlt_.reset();
     
     DBG(DBG_TestStat_params, (printf("Pln: null = %+8.4f, alt = %+8.4f\n", nullNLL, altNLL)))
@@ -95,33 +98,19 @@ Double_t ProfiledLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSe
     return ret;
 }
 
-bool ProfiledLikelihoodRatioTestStatOpt::createNLLWrapper(RooAbsPdf &pdf, RooAbsData &data, std::unique_ptr<RooAbsReal> &nll_) 
-{
-    if (typeid(pdf) == typeid(RooSimultaneousOpt)) {
-        if (nll_.get() == 0) nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
-        else ((cacheutils::CachingSimNLL&)(*nll_)).setData(data);
-        return true;
-    } else {
-        nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
-        return false;
-    }
-}
-
-
-double ProfiledLikelihoodRatioTestStatOpt::minNLL(std::unique_ptr<RooAbsReal> &nll_) 
-{
+double ProfiledLikelihoodRatioTestStatOpt::minNLL(RooAbsReal &nll) const {
 #if defined(DBG_TestStat_NOFIT) && (DBG_TestStat_NOFIT > 0)
     if (verbosity_ > 0) std::cout << "Profiling likelihood for pdf " << pdf.GetName() << std::endl;
     return combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false)->getVal();
 #endif
-    CascadeMinimizer minim(*nll_, CascadeMinimizer::Constrained);
+    CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
     minim.setStrategy(0);
     minim.minimize(verbosity_-2);
     if (verbosity_ > 1) {
         std::unique_ptr<RooFitResult> res(minim.save());
         res->Print("V");
     }
-    return nll_->getVal();
+    return nll.getVal();
 }
 
 //============================================================================================================================================
@@ -168,30 +157,10 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
 {
     bool do_debug = runtimedef::get("DEBUG_PLTSO");
     //static bool do_rescan = runtimedef::get("PLTSO_FULL_RESCAN");
-    DBG(DBG_PLTestStat_main, (std::cout << "Being evaluated on " << data.GetName() << std::endl))
-
-    // Take snapshot of initial state, to restore it at the end 
-    RooArgSet initialState; params_->snapshot(initialState);
-
-    DBG(DBG_PLTestStat_pars, std::cout << "Being evaluated on " << data.GetName() << ": params before snapshot are " << std::endl)
-    DBG(DBG_PLTestStat_pars, params_->Print("V"))
-    // Initialize parameters
-    *params_ = snap_;
-
-    //set value of "globalConstrained" nuisances to the value of the corresponding global observable and set them constant
-    for (int i=0; i<gobsParams_.getSize(); ++i) {
-      RooRealVar *nuis = (RooRealVar*)gobsParams_.at(i);
-      RooRealVar *gobs = (RooRealVar*)gobs_.at(i);
-      nuis->setVal(gobs->getVal());
-      nuis->setConstant();
-    }
-        
-    DBG(DBG_PLTestStat_pars, std::cout << "Being evaluated on " << data.GetName() << ": params after snapshot are " << std::endl)
-    DBG(DBG_PLTestStat_pars, params_->Print("V"))
-    // Initialize signal strength (or the first parameter)
-    RooRealVar *rIn = (RooRealVar *) poi_.first();
-    RooRealVar *r   = (RooRealVar *) params_->find(rIn->GetName());
-    bool canKeepNLL = createNLLWrapper(*pdf_, data);
+    RooArgSet initialState;
+    bool canKeepNLL = false;
+    RooRealVar *r = setupEvaluation(data, initialState, canKeepNLL);
+    auto *rIn = dynamic_cast<RooRealVar *>(poi_.first());
     double initialR = rIn->getVal();
 
     // Perform unconstrained minimization (denominator)
@@ -286,30 +255,9 @@ std::vector<Double_t> ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, 
     static bool do_debug = runtimedef::get("DEBUG_PLTSO");
     std::vector<Double_t> ret(rVals.size(), 0);
 
-    DBG(DBG_PLTestStat_main, (std::cout << "Being evaluated on " << data.GetName() << std::endl))
-
-    // Take snapshot of initial state, to restore it at the end 
-    RooArgSet initialState; params_->snapshot(initialState);
-
-    DBG(DBG_PLTestStat_pars, std::cout << "Being evaluated on " << data.GetName() << ": params before snapshot are " << std::endl)
-    DBG(DBG_PLTestStat_pars, params_->Print("V"))
-    // Initialize parameters
-    *params_ = snap_;
-
-    //set value of "globalConstrained" nuisances to the value of the corresponding global observable and set them constant
-    for (int i=0; i<gobsParams_.getSize(); ++i) {
-      RooRealVar *nuis = (RooRealVar*)gobsParams_.at(i);
-      RooRealVar *gobs = (RooRealVar*)gobs_.at(i);
-      nuis->setVal(gobs->getVal());
-      nuis->setConstant();
-    }
-        
-    DBG(DBG_PLTestStat_pars, std::cout << "Being evaluated on " << data.GetName() << ": params after snapshot are " << std::endl)
-    DBG(DBG_PLTestStat_pars, params_->Print("V"))
-    // Initialize signal strength
-    RooRealVar *rIn = (RooRealVar *) poi_.first();
-    RooRealVar *r   = (RooRealVar *) params_->find(rIn->GetName());
-    bool canKeepNLL = createNLLWrapper(*pdf_, data);
+    RooArgSet initialState;
+    bool canKeepNLL = false;
+    RooRealVar *r = setupEvaluation(data, initialState, canKeepNLL);
 
     double initialR = rVals.back();
 
@@ -317,7 +265,6 @@ std::vector<Double_t> ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, 
     r->setMin(0); if (initialR == 0 || (oneSided_ != oneSidedDef)) r->removeMax(); else r->setMax(1.1*initialR); 
     r->setVal(initialR == 0 ? 0.5 : 0.5*initialR); //best guess
     r->setConstant(false);
-    DBG(DBG_PLTestStat_pars, (std::cout << "r In: ")) DBG(DBG_PLTestStat_pars, (rIn->Print(""))) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
     DBG(DBG_PLTestStat_pars, std::cout << "r before the fit: ") DBG(DBG_PLTestStat_pars, r->Print("")) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
 
     if (do_debug) std::cout << "PERFORMING UNCONSTRAINED FIT " << r->GetName() << " [ " << r->getMin() << " - " << r->getVal() << " - " << r->getMax() << " ] "<< std::endl;
@@ -383,25 +330,62 @@ std::vector<Double_t> ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, 
     //return std::min(thisNLL-nullNLL, 0.);
     return ret;
 }
-bool ProfiledLikelihoodTestStatOpt::createNLLWrapper(RooAbsPdf &pdf, RooAbsData &data) 
-{
-    if (typeid(pdf) == typeid(RooSimultaneousOpt)) {
-        if (nll_.get() == 0) nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
-        else ((cacheutils::CachingSimNLL&)(*nll_)).setData(data);
-        return true;
-    } else {
-        nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
-        return false;
-    }
+RooRealVar *ProfiledLikelihoodTestStatOpt::setupEvaluation(RooAbsData &data,
+                                                           RooArgSet &initialState,
+                                                           bool &canKeepNLL) {
+  DBG(DBG_PLTestStat_main, (std::cout << "Being evaluated on " << data.GetName() << std::endl))
+
+  // Take snapshot of initial state, to restore it at the end
+  params_->snapshot(initialState);
+
+  DBG(DBG_PLTestStat_pars,
+      std::cout << "Being evaluated on " << data.GetName() << ": params before snapshot are " << std::endl)
+  DBG(DBG_PLTestStat_pars, params_->Print("V"))
+  // Initialize parameters
+  *params_ = snap_;
+
+  //set value of "globalConstrained" nuisances to the value of the corresponding global observable and set them constant
+  for (int i = 0; i < gobsParams_.getSize(); ++i) {
+    auto *nuis = dynamic_cast<RooRealVar *>(gobsParams_.at(i));
+    auto *gobs = dynamic_cast<RooRealVar *>(gobs_.at(i));
+    nuis->setVal(gobs->getVal());
+    nuis->setConstant();
+  }
+
+  DBG(DBG_PLTestStat_pars,
+      std::cout << "Being evaluated on " << data.GetName() << ": params after snapshot are " << std::endl)
+  DBG(DBG_PLTestStat_pars, params_->Print("V"))
+  // Signal strength (or the first parameter), as present in the parameters of the NLL
+  auto *r = dynamic_cast<RooRealVar *>(params_->find(poi_.first()->GetName()));
+  canKeepNLL = nllutils::createOrReuseNLL(*pdf_, data, nuisances_, nll_);
+  return r;
 }
 
-double ProfiledLikelihoodTestStatOpt::minNLL(bool constrained, RooRealVar *r) 
-{
-    CascadeMinimizer::Mode mode(constrained ? CascadeMinimizer::Constrained : CascadeMinimizer::Unconstrained);
-    CascadeMinimizer minim(*nll_, mode, r);
-    minim.setNuisanceParameters(&nuisances_);
-    minim.minimize(verbosity_-2);
-    return nll_->getVal();
+double ProfiledLikelihoodTestStatOpt::minNLL(bool constrained, RooRealVar *r) {
+  return nllutils::minimizeNLL(*nll_, constrained, r, verbosity_);
+}
+
+//============================================================ nllutils
+bool nllutils::createOrReuseNLL(RooAbsPdf &pdf,
+                                RooAbsData &data,
+                                const RooArgSet &nuisances,
+                                std::unique_ptr<RooAbsReal> &nll) {
+  if (typeid(pdf) == typeid(RooSimultaneousOpt)) {
+    if (!nll)
+      nll = combineCreateNLL(pdf, data, &nuisances, /*offset=*/false);
+    else
+      dynamic_cast<cacheutils::CachingSimNLL &>(*nll).setData(data);
+    return true;
+  }
+  nll = combineCreateNLL(pdf, data, &nuisances, /*offset=*/false);
+  return false;
+}
+
+double nllutils::minimizeNLL(RooAbsReal &nll, bool constrained, RooRealVar *poi, int verbosity) {
+  CascadeMinimizer::Mode mode(constrained ? CascadeMinimizer::Constrained : CascadeMinimizer::Unconstrained);
+  CascadeMinimizer minim(nll, mode, poi);
+  minim.minimize(verbosity - 2);
+  return nll.getVal();
 }
 
 //============================================================ProfiledLikelihoodRatioTestStatExt
