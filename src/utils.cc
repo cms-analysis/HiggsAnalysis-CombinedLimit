@@ -8,6 +8,7 @@
 #include <cmath>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <string>
 #include <memory>
 #include <typeinfo>
@@ -1134,6 +1135,43 @@ bool utils::freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiP
 	}
 
 	return false;
+}
+
+void utils::getAllParameters(const RooAbsArg &func, const RooArgSet *obs, RooArgSet &out) {
+  std::unordered_set<const RooAbsArg *> visited;
+  std::vector<const RooAbsArg *> stack{&func};
+  while (!stack.empty()) {
+    const RooAbsArg *node = stack.back();
+    stack.pop_back();
+    for (RooAbsArg *server : node->servers()) {
+      if (!server->isValueServer(*node))
+        continue;
+      if (!visited.insert(server).second)
+        continue;
+      if (server->isFundamental()) {
+        if (!obs || !server->dependsOn(*obs))
+          out.add(*server, /*silent=*/true);
+      } else {
+        stack.push_back(server);
+      }
+    }
+  }
+  // same ordering as RooAbsArg::getParameters()
+  out.sort();
+}
+
+std::unique_ptr<RooArgSet> utils::getAllParameters(const RooAbsArg &func, const RooArgSet *obs) {
+  auto out = std::make_unique<RooArgSet>("parameters");
+  getAllParameters(func, obs, *out);
+  return out;
+}
+
+std::unique_ptr<RooArgSet> utils::getAllParameters(const RooAbsArg &func, const RooArgSet &obs) {
+  return getAllParameters(func, &obs);
+}
+
+std::unique_ptr<RooArgSet> utils::getAllParameters(const RooAbsArg &func, const RooAbsData &data) {
+  return getAllParameters(func, data.get());
 }
 
 namespace Utils {
