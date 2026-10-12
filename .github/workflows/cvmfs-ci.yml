@@ -189,7 +189,7 @@ jobs:
             ctest3 --output-on-failure .
 
       - uses: ./.github/actions/run-in-cvmfs
-        name: Countind datacard Fixed Point from csv
+        name: Counting datacard Fixed Point from csv
         if: ${{ env.CMSSW_VERSION != '' }}
         with:
           script: |
