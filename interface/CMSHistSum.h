@@ -6,6 +6,7 @@
 #include "RooAbsReal.h"
 #include "RooArgSet.h"
 #include "RooListProxy.h"
+#include <cmath>
 #include "RooRealProxy.h"
 #include "Rtypes.h"
 #include "TH1F.h"
@@ -135,30 +136,36 @@ public:
     return retval;
   }
 
-  /// Stored up-template for a given vmorph
-  FastTemplate upTemplate(unsigned iproc, unsigned imorph, bool density=true) const
+  FastTemplate morphTemplate(unsigned iproc, unsigned imorph, bool up, bool density=true) const
   {
+    const int field = morphCode(iproc, imorph) + (up ? 1 : 0);
     FastTemplate retval(nominalTemplate(iproc));
-    retval.Meld(storage_.at(morphCode(iproc,imorph) + 1), storage_.at(morphCode(iproc,imorph) + 0), 0.5, 0);
+    if (!inputStorage_.empty()) {
+      retval = inputStorage_.at(field);
+    } else {
+      FastTemplate const &sum = storage_.at(morphCode(iproc, imorph) + 0);
+      FastTemplate const &diff = storage_.at(morphCode(iproc, imorph) + 1);
+      const double x = up ? 0.5 : -0.5, y = up ? 1.0 : -1.0;
+      if (vtype_.at(iproc) == CMSHistFunc::VerticalSetting::LogQuadLinear) {
+        for (size_t i = 0; i < nBins(); ++i) retval[i] *= std::exp(x * (diff[i] + y * sum[i]));
+      } else {
+        retval.Meld(diff, sum, x, y);
+      }
+    }
     if(!density){
       for(size_t i=0; i<nBins(); ++i){
 	retval[i] *= binWidth(i);
       }
-    }    
+    }
     return retval;
   }
-
-  /// Stored down-template for a given vmorph
+  FastTemplate upTemplate(unsigned iproc, unsigned imorph, bool density=true) const
+  {
+    return morphTemplate(iproc, imorph, true, density);
+  }
   FastTemplate downTemplate(unsigned iproc, unsigned imorph, bool density=true) const
   {
-    FastTemplate retval(nominalTemplate(iproc));    
-    retval.Meld(storage_.at(morphCode(iproc,imorph) + 1), storage_.at(morphCode(iproc,imorph) + 0), -0.5, 0);
-    if(!density){
-      for(size_t i=0; i<nBins(); ++i){
-	retval[i] *= binWidth(i);
-      }
-    }    
-    return retval;
+    return morphTemplate(iproc, imorph, false, density);
   }
 
   /// Per-bin MC stat errors for a process
@@ -199,6 +206,7 @@ protected:
   std::vector<FastTemplate> storage_;  // All nominal and vmorph templates
   std::vector<int> process_fields_; // indices for process templates in storage_
   std::vector<int> vmorph_fields_; // indices for vmorph templates in storage_
+  std::vector<FastTemplate> inputStorage_; //! storage_ before the sum/diff conversion (HS3 export), not persisted
 
   std::vector<FastTemplate> binerrors_; // Bin errors for each process
 

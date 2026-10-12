@@ -120,6 +120,10 @@ CMSHistSum::CMSHistSum(const char* name,
 #endif
   }
 
+  // Keep the input templates for the HS3 export: the sum/diff conversion below does not
+  // round-trip exactly. Transient, so workspaces read from file use the stored sum/diff.
+  inputStorage_ = storage_;
+
   // Next populate the storage_ index positions for fast lookup later
   process_fields_ = std::vector<int>(n_procs_, 0);
   vmorph_fields_ = std::vector<int>(n_procs_ * n_morphs_, -1);
@@ -182,6 +186,7 @@ CMSHistSum::CMSHistSum(
       n_procs_(other.n_procs_),
       n_morphs_(other.n_morphs_),
       storage_(other.storage_),
+      inputStorage_(other.inputStorage_),
       process_fields_(other.process_fields_),
       vmorph_fields_(other.vmorph_fields_),
       binerrors_(other.binerrors_),
