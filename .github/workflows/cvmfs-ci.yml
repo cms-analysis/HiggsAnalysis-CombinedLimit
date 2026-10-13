@@ -17,7 +17,7 @@ on:
       - main
 jobs:
   test_workflow:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -34,25 +34,19 @@ jobs:
             CMSSW_VERSION: "CMSSW_14_0_0_pre1"
             SCRAM_ARCH: "el9_amd64_gcc12"
             ROOT: "6.26.11"
-          - LCG_RELEASE: "LCG_102"
-            LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
-            ROOT: "6.26.04"
           - IMAGE: "cmscloud/al9-cms"
             CMSSW_VERSION: "CMSSW_16_0_0"
             SCRAM_ARCH: "el9_amd64_gcc13"
             ROOT: "6.36.07"
-          - LCG_RELEASE: "LCG_106"
-            LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
-            ROOT: "6.32.02"
           - LCG_RELEASE: "LCG_108"
-            LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
+            LCG_ARCH: "x86_64-ubuntu2404-gcc13-opt"
             ROOT: "6.36.02"
             coverage: true
           - LCG_RELEASE: "LCG_110"
-            LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
+            LCG_ARCH: "x86_64-ubuntu2404-gcc13-opt"
             ROOT: "6.40.02"
           - LCG_RELEASE: "dev3/latest"
-            LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
+            LCG_ARCH: "x86_64-ubuntu2404-gcc13-opt"
             ROOT: "LCG master"
     name: ${{ matrix.CMSSW_VERSION }}${{ matrix.LCG_RELEASE }} - ROOT ${{ matrix.ROOT }}
     env:
@@ -89,9 +83,9 @@ jobs:
         env:
           LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
           LCG_ARCH: ${{ matrix.LCG_ARCH }}
-          # VDT doesn't seem to be available in LCG_102 and dev3/latest.
+          # VDT doesn't seem to be available in dev3/latest.
           # But also it's very good to also test builds with USE_VDT=OFF.
-          USE_VDT: ${{ (matrix.LCG_RELEASE != 'LCG_102' && matrix.LCG_RELEASE != 'dev3/latest') && 'TRUE' || 'FALSE' }}
+          USE_VDT: ${{ matrix.LCG_RELEASE != 'dev3/latest' && 'TRUE' || 'FALSE' }}
         run: >-
           source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
           root --version;
