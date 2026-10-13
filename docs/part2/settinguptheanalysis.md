@@ -68,7 +68,7 @@ bg_others lnN    -     -     -   1.30   30% uncertainty on the rest of the backg
     -   **`gmN`** stands for [Gamma](http://en.wikipedia.org/wiki/Gamma_distribution), and is the recommended choice for the statistical uncertainty in a background determined from the number of events in a control region (or in an MC sample with limited sample size).
         If the control region or simulated sample contains **N** events, and the extrapolation factor from the control region to the signal region is **α**, one should put **N** just after the **`gmN`** keyword, and then the value of **α** in the relevant (bin,process) column. The yield specified in the **`rate`** line for this (bin,process) combination should equal **Nα**.
     -   **`lnU`** stands for log-uniform distribution. A value of **1+ε** in the column will imply that the yield of this background is allowed to float freely between **x(1+ε)** and **x/(1+ε)**. In particular, if ε is small, this is approximately **(x-Δx,x+Δx)** with **ε=Δx/x**.
-        This distribution is typically useful when you want to set a large a-priori uncertainty on a given background process, and then rely on the correlation between channels to constrain it. Note that for this use case, we usually recommend using [a `rateParam`](#rate-parameters) instead. If you do use **`lnU`**, please be aware that while Gaussian-like uncertainties behave in a similar way under profiling and marginalization, uniform uncertainties do not. This means the impact of the uncertainty on the result will depend on how the nuisance parameters are treated. 
+        This distribution is typically useful when you want to set a large a-priori uncertainty on a given background process, and then rely on the correlation between channels to constrain it. Note that for this use case, we usually recommend using [a `rateParam`](#rate-parameters) instead. If you do use **`lnU`**, please be aware that while Gaussian-like uncertainties behave in a similar way under profiling and marginalization, uniform uncertainties do not. This means the impact of the uncertainty on the result will depend on how the nuisance parameters are treated. The analogous parameter for a shape-altering uncertainty is **`shapeU`**, described in the section on [template shape uncertainties](#template-shape-uncertainties).
 -   The next (#channels)*(#processes) columns indicate the relative effect of the systematic uncertainty on the rate of each process in each channel. The columns are aligned with those in the previous lines declaring bins, processes, and rates.
 
 In the example, there are 5 uncertainties:
@@ -211,6 +211,18 @@ or a postfix can be added to the histogram name:
 
 !!! warning
     If you have a nuisance parameter that has shape effects on some processes (using `shape`) *and* rate effects on other processes (using `lnN`) you should use a single line for the systematic uncertainty with `shape?`. This will tell <span style="font-variant:small-caps;">Combine</span> to fist look for Up/Down systematic templates for that process and if it doesn't find them, it will interpret the number that you put for the process as a `lnN` instead. 
+
+#### Freely-floating shape uncertainties: `shapeU`
+
+A shape uncertainty can also be declared with the type **`shapeU`**. The Up/Down templates are interpolated in the same way as for **`shape`**, but the nuisance parameter is **allowed to float freely** between [-1, 1] instead of being constrained with a unit Gaussian. This is the shape analogue of **`lnU`**.
+
+```nohighlight
+alpha  shapeU   -           1   background shape is anywhere between alpha_Down and alpha_Up
+```
+
+In a fit, the same bounded shape parameter can also be obtained from a regular **`shape`** uncertainty by promoting its nuisance parameter to a POI with `--redefineSignalPOIs` and setting its range with `--setParameterRanges`. The two setups are not interchangeable in every workflow, though: a promoted parameter is no longer a nuisance parameter, so methods that randomize or freeze nuisance parameters treat it differently.
+
+#### Detailed example
 
 For a detailed example of a template-based binned analysis, see the [H→ττ 2014 DAS tutorial](https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_shape_analysis_using_templates), or in our [Tutorial](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/#part-2-a-shape-based-analysis) pages. 
 

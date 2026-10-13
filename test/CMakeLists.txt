@@ -188,6 +188,28 @@ if(NOT CMSSW_VERSION STREQUAL "CMSSW_11_3_4")
   )
 endif()
 
+# RooMultiPdf
+if(NOT CMSSW_VERSION MATCHES "^CMSSW_11")
+  # This test does not work with the ROOT 6.22 of CMSSW_11; the condition is
+  # inherited from the former cvmfs-ci.yml step.
+  ADD_COMBINE_TEST(multipdf
+    T2W_COMMAND
+      text2workspace.py ${REPO}/data/ci/datacard_RooMultiPdf.txt.gz -o ws_RooMultiPdf.root
+    # Both commands run with the lowest verbosity: with ROOT >= 6.38, Minos
+    # stepping to the boundary of r makes RooFit print range-clipping warnings
+    # on every likelihood evaluation, and on some platforms Migrad probes a
+    # point where the Chebychev transfer functions are negative, which
+    # produces an evaluation error log. Neither affects the fit result.
+    COMBINE_COMMANDS
+      "combine -v -1 -M MultiDimFit -m 125.38 --setParameters pdf_index_ggh=2 --freezeParameters MH --cminDefaultMinimizerTolerance 0.001 --cminDefaultMinimizerStrategy 1 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles ws_RooMultiPdf.root"
+      # Also run Hesse on the result.
+      "combine -v -1 -M MultiDimFit -m 125.38 --setParameters pdf_index_ggh=2 --freezeParameters MH --cminDefaultMinimizerTolerance 0.001 --cminDefaultMinimizerStrategy 1 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles --saveFitResult ws_RooMultiPdf.root"
+    # The last digit of the Minos uncertainties differs between ROOT versions,
+    # so compare floating point numbers with a relative tolerance of 1 %.
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+  )
+endif()
+
 # Template analysis CMSHistFunc
 ADD_COMBINE_TEST(cmshistfunc
   T2W_COMMAND
@@ -245,14 +267,16 @@ ADD_COMBINE_TEST(template_analysis_large_integrals_cmshistsum
 )
 
 # RooParametricHist
-# Unfortunately, the result of this test is not deterministic, so we can't enable it yet.
-# TODO: understand why this is, enable the test here, and remove corresponding test from cvmfs-ci.yml
-# ADD_COMBINE_TEST(parametric_hist
-#   T2W_COMMAND
-#   text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO map=.*/*hcc*:r[1,-500,500] --PO map=.*/zcc:z[1,-5,5] ${REPO}/data/ci/datacard_RooParametricHist.txt -o ws_RooParametricHist.root
-#   COMBINE_COMMANDS
-#     "combine -M MultiDimFit ws_RooParametricHist.root --algo singles"
-# )
+ADD_COMBINE_TEST(parametric_hist
+  COPY_TO_BUILDDIR ${REPO}/data/ci/shapes_RooParametricHist.root
+  T2W_COMMAND
+  text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO map=.*/*hcc*:r[1,-500,500] --PO map=.*/zcc:z[1,-5,5] ${REPO}/data/ci/datacard_RooParametricHist.txt -o ws_RooParametricHist.root
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit ws_RooParametricHist.root --algo singles"
+  # The last digits of the Minos uncertainties differ between ROOT versions,
+  # so compare floating point numbers with a relative tolerance of 1 %.
+  DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+)
 
 # Template analysis CMSHistFunc with channel masks
 ADD_COMBINE_TEST(cmshistsum_channel_masks

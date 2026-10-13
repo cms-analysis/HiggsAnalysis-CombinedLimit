@@ -1,43 +1,10 @@
-#include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
-#include "../interface/Combine.h"
 #include "../interface/BestFitSigmaTestStat.h"
-#include "../interface/CascadeMinimizer.h"
-#include "../interface/CloseCoutSentry.h"
+#include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
 #include "../interface/utils.h"
-#include <stdexcept>
+
 #include <RooRealVar.h>
-#include <RooMinimizer.h>
-#include <RooFitResult.h>
-#include <RooSimultaneous.h>
-#include <RooCategory.h>
-#include <RooRandom.h>
-#include <Math/MinimizerOptions.h>
-#include <RooStats/RooStatsUtils.h>
-#include "../interface/ProfilingTools.h"
 
-//---- Uncomment this and run with --perfCounters to get statistics of successful and failed fits
-#define DEBUG_FIT_STATUS
-#ifdef DEBUG_FIT_STATUS
-#define  COUNT_ONE(x) PerfCounter::add(x);
-#else
-#define  COUNT_ONE(X) 
-#endif
-
-//---- Uncomment this and set some of these to 1 to get more debugging
-#if 0
-#define DBG(X,Z) if (X) { Z; }
-#define DBGV(X,Z) if (X>1) { Z; }
-#define DBG_TestStat_params 0 // ProfiledLikelihoodRatioTestStatOpt::Evaluate; 1 = dump nlls; 2 = dump params at each eval
-#define DBG_TestStat_NOFIT  0 // FIXME HACK: if set, don't profile the likelihood, just evaluate it
-#define DBG_PLTestStat_ctor 0 // dump parameters in c-tor
-#define DBG_PLTestStat_pars 0 // dump parameters in eval
-#define DBG_PLTestStat_fit  0 // dump fit result
-#define DBG_PLTestStat_main 1 // limited debugging (final NLLs, failed fits)
-#else
-#define DBG(X,Z) 
-#define DBGV(X,Z) 
-#endif
-
+#include <iostream>
 
 //============================================================================================================================================
 BestFitSigmaTestStat::BestFitSigmaTestStat(
@@ -54,7 +21,7 @@ BestFitSigmaTestStat::BestFitSigmaTestStat(
     ((RooRealVar*)snap_.find(params.first()->GetName()))->setConstant(false);
     poi_.add(snap_);
     if (nuisances) { nuisances_.add(*nuisances); snap_.addClone(*nuisances, /*silent=*/true); }
-    params_.reset(pdf_->getParameters(observables));
+    params_ = utils::getAllParameters(*pdf_, observables);
 }
 
 
@@ -69,7 +36,7 @@ Double_t BestFitSigmaTestStat::Evaluate(RooAbsData& data, RooArgSet& /*nullPOI*/
     // Initialize signal strength
     RooRealVar *rIn = (RooRealVar *) poi_.first();
     RooRealVar *r   = (RooRealVar *) params_->find(rIn->GetName());
-    bool canKeepNLL = createNLLWrapper(*pdf_, data);
+    bool canKeepNLL = nllutils::createOrReuseNLL(*pdf_, data, nuisances_, nll_);
 
     double initialR = rIn->getVal();
 
@@ -79,7 +46,7 @@ Double_t BestFitSigmaTestStat::Evaluate(RooAbsData& data, RooArgSet& /*nullPOI*/
 
     std::cout << "Doing a fit for with " << r->GetName() << " in range [ " << r->getMin() << " , " << r->getMax() << "]" << std::endl;
     std::cout << "Starting point is " << r->GetName() << " = " << r->getVal() << std::endl;
-    minNLL(/*constrained=*/false, r);
+    nllutils::minimizeNLL(*nll_, /*constrained=*/false, r, verbosity_);
     double bestFitR = r->getVal();
     std::cout << "Fit result was " << r->GetName() << " = " << r->getVal() << std::endl;
 
@@ -89,24 +56,4 @@ Double_t BestFitSigmaTestStat::Evaluate(RooAbsData& data, RooArgSet& /*nullPOI*/
     if (!canKeepNLL) nll_.reset();
 
     return bestFitR;
-}
-
-bool BestFitSigmaTestStat::createNLLWrapper(RooAbsPdf &pdf, RooAbsData &data) 
-{
-    if (typeid(pdf) == typeid(RooSimultaneousOpt)) {
-        if (nll_.get() == 0) nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
-        else ((cacheutils::CachingSimNLL&)(*nll_)).setData(data);
-        return true;
-    } else {
-        nll_ = combineCreateNLL(pdf, data, &nuisances_, /*offset=*/false);
-        return false;
-    }
-}
-
-double BestFitSigmaTestStat::minNLL(bool constrained, RooRealVar *r) 
-{
-    CascadeMinimizer::Mode mode(constrained ? CascadeMinimizer::Constrained : CascadeMinimizer::Unconstrained);
-    CascadeMinimizer minim(*nll_, mode, r);
-    minim.minimize(verbosity_-2);
-    return nll_->getVal();
 }

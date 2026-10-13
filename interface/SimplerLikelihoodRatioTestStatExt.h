@@ -71,29 +71,6 @@ class SimplerLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
         double evalSimpleNLL(RooAbsData &data,  RooAbsPdf *pdf);
         void unrollSimPdf(RooSimultaneous *pdf, std::vector<RooAbsPdf *> &out);
 
-}; // 
-
-// ===== This below is identical to the RooStats::SimpleLikelihoodRatioTestStat also in implementation
-//       I've made a copy here just to be able to put some debug hooks inside.
-#if 0
-class SimplerLikelihoodRatioTestStatExt : public RooStats::TestStatistic {
-    public:
-        SimplerLikelihoodRatioTestStatExt(const RooArgSet &obs, RooAbsPdf &pdfNull, RooAbsPdf &pdfAlt, const RooArgSet & paramsNull = RooArgSet(), const RooArgSet & paramsAlt = RooArgSet()) ;
-
-        virtual ~SimplerLikelihoodRatioTestStatExt() ;
-
-        virtual Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) ;
-
-        virtual const TString GetVarName() const {
-            return TString::Format("-log(%s/%s)", pdfNull_->GetName(), pdfAlt_->GetName()); 
-        }
-
-    private:
-        RooAbsPdf *pdfNull_, *pdfAlt_;
-        RooArgSet snapNull_, snapAlt_; 
-        std::unique_ptr<RooArgSet> paramsNull_, paramsAlt_;
-        std::unique_ptr<RooAbsPdf> pdfNullOwned_, pdfAltOwned_;
-}; // TestSimpleStatistics
-#endif
+}; //
 
 #endif

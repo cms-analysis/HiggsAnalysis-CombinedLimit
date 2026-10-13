@@ -1,5 +1,6 @@
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "../interface/CachingNLL.h"
 #include "../interface/Significance.h"
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/utils.h"
@@ -54,23 +55,11 @@ CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) 
 }
 
 void CascadeMinimizer::remakeMinimizer() {
-  std::unique_ptr<RooArgSet> nllParams(nll_.getParameters((const RooArgSet*)nullptr));
-  RooArgSet changedSet;
-
   // The RooMinimizer can't deal with floating categories, so we need to set them constant at least while creating the minimizer.
-  for (RooAbsArg *arg : *nllParams) {
-    auto *cat = dynamic_cast<RooCategory *>(arg);
-    if (cat && !cat->isConstant()) {
-      cat->setConstant(true);
-      changedSet.add(*cat);
-    }
-  }
+  utils::ConstantCategoriesGuard constantCategories(nll_);
 
   minimizer_.reset();  // avoid two copies in memory
   minimizer_ = std::make_unique<RooMinimizer>(nll_);
-
-  // Change categories back to how they were
-  utils::setAllConstant(changedSet, /*constant=*/false);
 }
 
 bool CascadeMinimizer::freezeDiscParams(const bool freeze)
@@ -185,6 +174,10 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
     // freeze non active parameters if MINIMIZER_freezeDisassociatedParams enabled
     freezeDiscParams(true);
 
+    // Combine does the discrete profiling itself, keep the RooMinimizer from
+    // looping over the pdf indices.
+    utils::ConstantCategoriesGuard constantCategories(nll_);
+
     if (maxcalls) {
         minimizer_->setMaxFunctionCalls(maxcalls);
         minimizer_->setMaxIterations(maxcalls);
@@ -255,38 +248,44 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
 
 
 bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
-   
-   cacheutils::CachingSimNLL *simnllbb = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
-   if (simnllbb && !runtimedef::get(std::string("MINIMIZER_no_analytic"))) {
-      // if one of the barlow-beeston params is in "params", we don't actually
-      // want to freeze it here. Trick is to set all floating ones constant now,
-      // then call setAnalyticBarlowBeeston, which will initiate bb only for the
-      // floating ones, before unfreezing params again.
-      RooArgSet toFreeze(params);
-      RooStats::RemoveConstantParameters(&toFreeze);
-      utils::setAllConstant(toFreeze, true);
-      simnllbb->setAnalyticBarlowBeeston(true);
-      utils::setAllConstant(toFreeze, false);
-      remakeMinimizer();
-   }
-   if (!minimizer_.get()) remakeMinimizer();
-   minimizer_->setPrintLevel(verbose-1); // for debugging
-   std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
-   std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
+  // Freeze the disassociated parameters before the RooMinimizer is
+  // (re)created: RooMinimizer::minos() addresses parameters by their position
+  // among the floating ones, which Minuit fixes at construction time.
+  bool needRemake = freezeDiscParams(true);
 
-   if (setZeroPoint_) {
-      cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
-      if (simnll) { 
-         simnll->setZeroPoint();
-      }
-   }
+  auto *simnllbb = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
+  if (simnllbb && !runtimedef::get(std::string("MINIMIZER_no_analytic"))) {
+    // if one of the barlow-beeston params is in "params", we don't actually
+    // want to freeze it here. Trick is to set all floating ones constant now,
+    // then call setAnalyticBarlowBeeston, which will initiate bb only for the
+    // floating ones, before unfreezing params again.
+    RooArgSet toFreeze(params);
+    RooStats::RemoveConstantParameters(&toFreeze);
+    utils::setAllConstant(toFreeze, /*constant=*/true);
+    simnllbb->setAnalyticBarlowBeeston(/*flag=*/true);
+    utils::setAllConstant(toFreeze, /*constant=*/false);
+    needRemake = true;
+  }
+  if (needRemake || !minimizer_)
+    remakeMinimizer();
+  minimizer_->setPrintLevel(verbose - 1);  // for debugging
+  const std::string &myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
 
-   //TStopwatch tw;
-   // freeze parameters not active under current indexes if MINIMIZER_freezeDisassociatedParams enabled
-   freezeDiscParams(true);
-   // need to re-run Migrad before running minos
-   minimizer_->minimize(myType.c_str(), "Migrad");
-   int iret = minimizer_->minos(params); 
+  if (setZeroPoint_) {
+    auto *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
+    if (simnll) {
+      simnll->setZeroPoint();
+    }
+  }
+
+  //TStopwatch tw;
+  // need to re-run Migrad before running minos
+  int iret = -1;
+  {
+    utils::ConstantCategoriesGuard constantCategories(nll_);
+    minimizer_->minimize(myType.c_str(), "Migrad");
+    iret = minimizer_->minos(params);
+  }
    if (verbose>0 ) CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,std::string(Form("Minos finished with status=%d",iret)),__func__);
    freezeDiscParams(false);
 
@@ -329,7 +328,11 @@ bool CascadeMinimizer::hesse(int verbose ) {
    }
 
    freezeDiscParams(true);
-   int iret = minimizer_->hesse(); 
+   int iret = -1;
+   {
+     utils::ConstantCategoriesGuard constantCategories(nll_);
+     iret = minimizer_->hesse();
+   }
    freezeDiscParams(false);
 
    if (setZeroPoint_) {
@@ -436,7 +439,11 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
         if (simnll) simnll->setZeroPoint();
         if (optConst) minimizer_->optimizeConst(std::max(0,optConst));
         if (rooFitOffset) minimizer_->setOffsetting(std::max(0,rooFitOffset));
-        minimizer_->minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+        {
+          utils::ConstantCategoriesGuard constantCategories(nll_);
+          minimizer_->minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(),
+                               ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+        }
         if (simnll) simnll->clearZeroPoint();
         utils::setAllConstant(frozen,false);
         freezeDiscParams(false);

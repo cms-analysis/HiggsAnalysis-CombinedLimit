@@ -1,4 +1,5 @@
 #include "../interface/SimpleCacheSentry.h"
+#include "../interface/utils.h"
 
 SimpleCacheSentry::SimpleCacheSentry() :  _deps("deps","deps",this)   {}
 
@@ -48,9 +49,16 @@ void SimpleCacheSentry::addVars(const RooAbsCollection &vars)
 
 void SimpleCacheSentry::addFunc(const RooAbsArg &func, const RooArgSet *obs) 
 {
-    RooArgSet *deps = func.getParameters(obs,false);
-    addVars(*deps);
-    delete deps;
+  // The sentry must go dirty when any leaf below func changes, so bypass the
+  // pruning that getParameters() allows through getParametersHook().
+  RooArgSet deps;
+  if (func.isFundamental()) {
+    if (!obs || !func.dependsOn(*obs))
+      deps.add(func);
+  } else {
+    utils::getAllParameters(func, obs, deps);
+  }
+  addVars(deps);
 }
 
 Bool_t SimpleCacheSentry::isIdentical(const RooAbsArg& other, 

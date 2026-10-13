@@ -6,6 +6,7 @@
 #include <RooArgSet.h>
 #include <RooProdPdf.h>
 #include <RooUniform.h>
+#include <TString.h>
 #include "../interface/utils.h"
 #include "../interface/Combine.h"
 #include "../interface/ToyMCSamplerOpt.h"
@@ -22,12 +23,12 @@ RooAbsData *asimovutils::asimovDatasetNominal(RooStats::ModelConfig *mc, double 
 
 	if (verbose>2) {
 	    CombineLogger::instance().log("AsimovUtils.cc",__LINE__,"Parameters after fit for asimov dataset",__func__);
-    	    std::unique_ptr<RooArgSet> params{mc->GetPdf()->getParameters((const RooArgSet*) 0)};
-    	    for (RooAbsArg *a : *params) {
-	  	TString varstring = utils::printRooArgAsString(a);
-	  	CombineLogger::instance().log("AsimovUtils.cc",__LINE__,std::string(Form("%s",varstring.Data())),__func__);
-	    }
-	}
+            std::unique_ptr<RooArgSet> params{utils::getAllParameters(*mc->GetPdf())};
+            for (RooAbsArg *a : *params) {
+              TString varstring = utils::printRooArgAsString(a);
+              CombineLogger::instance().log("AsimovUtils.cc", __LINE__, std::string(varstring.Data()), __func__);
+            }
+        }
 
         RooRealVar *weightVar = 0;
         RooAbsData *asimov = newToyMC.generateAsimov(weightVar,verbose); 
@@ -45,7 +46,7 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
                 needsFit &= true;
             } else {
                 // Do we have free parameters anyway that need fitting?
-                std::unique_ptr<RooArgSet> params(mc->GetPdf()->getParameters(realdata));
+                std::unique_ptr<RooArgSet> params{utils::getAllParameters(*mc->GetPdf(), realdata)};
                 for (RooAbsArg *a : *params) {
                     RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
                     if ( rrv != 0 && rrv->isConstant() == false ) { needsFit &= true; break; }
@@ -66,7 +67,7 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
 
 	if (verbose>2) { 
 	    CombineLogger::instance().log("AsimovUtils.cc",__LINE__,"Parameters after fit for asimov dataset",__func__);
-            std::unique_ptr<RooArgSet> params{mc->GetPdf()->getParameters(realdata)};
+            std::unique_ptr<RooArgSet> params{utils::getAllParameters(*mc->GetPdf(), realdata)};
             for (RooAbsArg *a : *params) {
 	  	TString varstring = utils::printRooArgAsString(a);
 	  	CombineLogger::instance().log("AsimovUtils.cc",__LINE__,std::string(Form("%s",varstring.Data())),__func__);

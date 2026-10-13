@@ -8,6 +8,7 @@
 #include <cmath>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <string>
 #include <memory>
 #include <typeinfo>
@@ -390,7 +391,7 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
         }
     }
     ;
-    std::unique_ptr<RooArgSet> params{pdf->getParameters(*model.GetObservables())};
+    std::unique_ptr<RooArgSet> params{getAllParameters(*pdf, *model.GetObservables())};
     for (RooAbsArg *a : *params) {
         if (a->getAttribute("flatParam") && a->isConstant()) {
             ok = false; errors << "ERROR: parameter " << a->GetName() << " is declared as flatParam but is constant.\n";
@@ -419,7 +420,7 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
             factorizedPdf.release();
             ok = false; errors << "ERROR: have nuisance parameters, but can't factorize the pdf\n";
         }
-        std::unique_ptr<RooArgSet> obsParams(factorizedPdf->getParameters(*model.GetObservables()));
+        std::unique_ptr<RooArgSet> obsParams{getAllParameters(*factorizedPdf, *model.GetObservables())};
         for (RooAbsArg *a : *model.GetNuisanceParameters()) {
             if (!obsParams->contains(*a))  {
                 errors << "WARNING: model pdf does not depend on nuisace parameter " << a->GetName() << "\n";
@@ -1135,6 +1136,56 @@ bool utils::freezeAllDisassociatedRooMultiPdfParameters(const RooArgSet & multiP
 
 	return false;
 }
+
+void utils::getAllParameters(const RooAbsArg &func, const RooArgSet *obs, RooArgSet &out) {
+  std::unordered_set<const RooAbsArg *> visited;
+  std::vector<const RooAbsArg *> stack{&func};
+  while (!stack.empty()) {
+    const RooAbsArg *node = stack.back();
+    stack.pop_back();
+    for (RooAbsArg *server : node->servers()) {
+      if (!server->isValueServer(*node))
+        continue;
+      if (!visited.insert(server).second)
+        continue;
+      if (server->isFundamental()) {
+        if (!obs || !server->dependsOn(*obs))
+          out.add(*server, /*silent=*/true);
+      } else {
+        stack.push_back(server);
+      }
+    }
+  }
+  // same ordering as RooAbsArg::getParameters()
+  out.sort();
+}
+
+std::unique_ptr<RooArgSet> utils::getAllParameters(const RooAbsArg &func, const RooArgSet *obs) {
+  auto out = std::make_unique<RooArgSet>("parameters");
+  getAllParameters(func, obs, *out);
+  return out;
+}
+
+std::unique_ptr<RooArgSet> utils::getAllParameters(const RooAbsArg &func, const RooArgSet &obs) {
+  return getAllParameters(func, &obs);
+}
+
+std::unique_ptr<RooArgSet> utils::getAllParameters(const RooAbsArg &func, const RooAbsData &data) {
+  return getAllParameters(func, data.get());
+}
+
+utils::ConstantCategoriesGuard::ConstantCategoriesGuard(const RooAbsReal &func) {
+  std::unique_ptr<RooArgSet> params{getAllParameters(func)};
+  for (RooAbsArg *arg : *params) {
+    auto *cat = dynamic_cast<RooCategory *>(arg);
+    if (cat && !cat->isConstant()) {
+      cat->setConstant(true);
+      m_changed.add(*cat);
+    }
+  }
+}
+
+utils::ConstantCategoriesGuard::~ConstantCategoriesGuard() { setAllConstant(m_changed, /*constant=*/false); }
 
 namespace Utils {
 
