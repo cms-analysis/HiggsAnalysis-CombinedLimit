@@ -213,13 +213,16 @@ jobs:
         run: |
           # Create lcov report
           # capture coverage info
-          lcov --directory . --capture --output-file coverage.info --gcov-tool $CONDA_PREFIX/bin/gcov --ignore-errors gcov
+          # lcov 2.x (Ubuntu 24.04) turns gcov end-line mismatches for gtest TEST()
+          # bodies and unused remove patterns into hard errors, so demote them.
+          lcov --directory . --capture --output-file coverage.info --gcov-tool $CONDA_PREFIX/bin/gcov --ignore-errors gcov,mismatch,inconsistent
           # filter out system and extra files.
           # To also not include test code in coverage add them with full path to the patterns: '*/ci/*'
           lcov --remove coverage.info \
             '/usr/*' \
             "${HOME}/.cache/*" \
             '*/ci/*' \
+            --ignore-errors unused \
             --output-file coverage.info
           # output coverage data for debugging (optional)
           lcov --list coverage.info
