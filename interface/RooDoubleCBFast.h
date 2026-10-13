@@ -45,6 +45,11 @@ public:
               RooAbsReal& _n2
            );
 
+  // RooCrystalBall::clone() would otherwise produce a plain RooCrystalBall,
+  // silently changing the class of every cloned or imported object.
+  RooDoubleCBFast(const RooDoubleCBFast& other, const char* name = nullptr) : RooCrystalBall(other, name) {}
+  TObject* clone(const char* newname) const override { return new RooDoubleCBFast(*this, newname); }
+
   // In-place migration from v1 (RooAbsPdf base) to v2 (RooCrystalBall base).
   // Uses TClass reflection to set RooCrystalBall's private proxy members
   // without calling the destructor, which would corrupt ROOT's TProcessID state.
