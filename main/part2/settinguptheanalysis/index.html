@@ -788,6 +788,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#freely-floating-shape-uncertainties-shapeu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Freely-floating shape uncertainties: shapeU
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detailed-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detailed example
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2120,6 +2142,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#freely-floating-shape-uncertainties-shapeu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Freely-floating shape uncertainties: shapeU
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detailed-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detailed example
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2338,7 +2382,7 @@ bg_others lnN    -     -     -   1.30   30% uncertainty on the rest of the backg
 <li><strong><code>gmN</code></strong> stands for <a href="http://en.wikipedia.org/wiki/Gamma_distribution">Gamma</a>, and is the recommended choice for the statistical uncertainty in a background determined from the number of events in a control region (or in an MC sample with limited sample size).
     If the control region or simulated sample contains <strong>N</strong> events, and the extrapolation factor from the control region to the signal region is <strong>α</strong>, one should put <strong>N</strong> just after the <strong><code>gmN</code></strong> keyword, and then the value of <strong>α</strong> in the relevant (bin,process) column. The yield specified in the <strong><code>rate</code></strong> line for this (bin,process) combination should equal <strong>Nα</strong>.</li>
 <li><strong><code>lnU</code></strong> stands for log-uniform distribution. A value of <strong>1+ε</strong> in the column will imply that the yield of this background is allowed to float freely between <strong>x(1+ε)</strong> and <strong>x/(1+ε)</strong>. In particular, if ε is small, this is approximately <strong>(x-Δx,x+Δx)</strong> with <strong>ε=Δx/x</strong>.
-    This distribution is typically useful when you want to set a large a-priori uncertainty on a given background process, and then rely on the correlation between channels to constrain it. Note that for this use case, we usually recommend using <a href="#rate-parameters">a <code>rateParam</code></a> instead. If you do use <strong><code>lnU</code></strong>, please be aware that while Gaussian-like uncertainties behave in a similar way under profiling and marginalization, uniform uncertainties do not. This means the impact of the uncertainty on the result will depend on how the nuisance parameters are treated. </li>
+    This distribution is typically useful when you want to set a large a-priori uncertainty on a given background process, and then rely on the correlation between channels to constrain it. Note that for this use case, we usually recommend using <a href="#rate-parameters">a <code>rateParam</code></a> instead. If you do use <strong><code>lnU</code></strong>, please be aware that while Gaussian-like uncertainties behave in a similar way under profiling and marginalization, uniform uncertainties do not. This means the impact of the uncertainty on the result will depend on how the nuisance parameters are treated. The analogous parameter for a shape-altering uncertainty is <strong><code>shapeU</code></strong>, described in the section on <a href="#template-shape-uncertainties">template shape uncertainties</a>.</li>
 </ul>
 </li>
 <li>The next (#channels)*(#processes) columns indicate the relative effect of the systematic uncertainty on the rate of each process in each channel. The columns are aligned with those in the previous lines declaring bins, processes, and rates.</li>
@@ -2482,6 +2526,12 @@ Then, to give a simple example for two channels ("e", "mu") with three processes
 <p class="admonition-title">Warning</p>
 <p>If you have a nuisance parameter that has shape effects on some processes (using <code>shape</code>) <em>and</em> rate effects on other processes (using <code>lnN</code>) you should use a single line for the systematic uncertainty with <code>shape?</code>. This will tell <span style="font-variant:small-caps;">Combine</span> to fist look for Up/Down systematic templates for that process and if it doesn't find them, it will interpret the number that you put for the process as a <code>lnN</code> instead. </p>
 </div>
+<h4 id="freely-floating-shape-uncertainties-shapeu">Freely-floating shape uncertainties: <code>shapeU</code></h4>
+<p>A shape uncertainty can also be declared with the type <strong><code>shapeU</code></strong>. The Up/Down templates are interpolated in the same way as for <strong><code>shape</code></strong>, but the nuisance parameter is <strong>allowed to float freely</strong> between [-1, 1] instead of being constrained with a unit Gaussian. This is the shape analogue of <strong><code>lnU</code></strong>.</p>
+<div class="highlight"><pre><span></span><code>alpha  shapeU   -           1   background shape is anywhere between alpha_Down and alpha_Up
+</code></pre></div>
+<p>In a fit, the same bounded shape parameter can also be obtained from a regular <strong><code>shape</code></strong> uncertainty by promoting its nuisance parameter to a POI with <code>--redefineSignalPOIs</code> and setting its range with <code>--setParameterRanges</code>. The two setups are not interchangeable in every workflow, though: a promoted parameter is no longer a nuisance parameter, so methods that randomize or freeze nuisance parameters treat it differently.</p>
+<h4 id="detailed-example">Detailed example</h4>
 <p>For a detailed example of a template-based binned analysis, see the <a href="https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise#A_shape_analysis_using_templates">H→ττ 2014 DAS tutorial</a>, or in our <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/#part-2-a-shape-based-analysis">Tutorial</a> pages. </p>
 <h3 id="unbinned-or-parametric-shape-analyses">Unbinned or parametric shape analyses</h3>
 <p>In some cases, it can be convenient to describe the expected signal and background shapes in terms of analytical functions, rather than templates. Typical examples are searches/measurements where the signal is apparent as a narrow peak over a smooth continuum background. In this context, uncertainties affecting the shapes of the signal and backgrounds can be implemented naturally as uncertainties in the parameters of those analytical functions. It is also possible to adopt an agnostic approach in which the parameters of the background model are left freely floating in the fit to the data, i.e. only requiring the background to be well described by a smooth function.</p>
