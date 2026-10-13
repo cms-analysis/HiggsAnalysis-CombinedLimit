@@ -40,7 +40,7 @@ jobs:
           - IMAGE: "cmscloud/al9-cms"
             CMSSW_VERSION: "CMSSW_16_0_0"
             SCRAM_ARCH: "el9_amd64_gcc13"
-            ROOT: "6.36.07"            
+            ROOT: "6.36.07"
           - LCG_RELEASE: "LCG_106"
             LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
             ROOT: "6.32.02"
@@ -48,6 +48,9 @@ jobs:
             LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
             ROOT: "6.36.02"
             coverage: true
+          - LCG_RELEASE: "LCG_110"
+            LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
+            ROOT: "6.40.02"
           - LCG_RELEASE: "dev3/latest"
             LCG_ARCH: "x86_64-ubuntu2204-gcc11-opt"
             ROOT: "LCG master"
@@ -128,13 +131,13 @@ jobs:
             echo ${PATH}
             root --version
             combine --help
-            
+
       - uses: ./.github/actions/run-in-cvmfs
-        name: Check scripts/*.py executables 
+        name: Check scripts/*.py executables
         # Only run this test in CMSSW mode, because otherwise we already run this in the unit tests
         if: ${{ env.CMSSW_VERSION != '' }}
         with:
-          script: |            
+          script: |
             combineCards.py --help
             combineTool.py --help
             commentUncerts.py --help
@@ -146,7 +149,7 @@ jobs:
             plotLimits.py --help
             pruneUncerts.py --help
             text2workspace.py --help
-            
+
       - name: Run Tests (LCG)
         if: ${{ env.CMSSW_VERSION == '' }}
         env:
