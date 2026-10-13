@@ -288,11 +288,10 @@ MB.doModel()
 
         return list(set(allVars))
 
-    def add_syst_id(self, lsyst):
-        if lsyst in list(self.systIDMap.keys()):
-            self.systIDMap[lsyst].append(len(self.systs) - 1)
-        else:
-            self.systIDMap[lsyst] = [len(self.systs) - 1]
+    def add_syst_id(self, lsyst, idx=None):
+        if idx is None:
+            idx = len(self.systs) - 1
+        self.systIDMap.setdefault(lsyst, []).append(idx)
 
     def renameNuisanceParameter(self, oldname, newname, process_list=[], channel_list=[]):
         """
@@ -303,31 +302,25 @@ MB.doModel()
         for specific channels/processes, then you should specify a
         process (list or leave empty for all) and channel (list or leave empty for all)
         """
-        existingclashes = {}
-        for lsyst, nofloat, pdf0, args0, errline0 in self.systs[:]:
-            if lsyst == newname:  # found the nuisance exists
-                existingclashes[lsyst] = (nofloat, pdf0, args0, errline0)
-
         found = False
-        nuisanceID = i = -1
 
         if process_list == []:
             process_list = self.processes
         if channel_list == []:
             channel_list = self.bins
 
-        for lsyst, nofloat, pdf0, args0, errline0 in self.systs[:]:
-            i += 1
+        for i, (lsyst, nofloat, pdf0, args0, errline0) in enumerate(self.systs):
             if lsyst == oldname:  # found the nuisance
-                nuisanceID = i
                 found = True
-                # check if the new name exists
-                if lsyst in list(existingclashes.keys()):
-                    nofloat1, pdf1, args1, errline1 = existingclashes[lsyst]
-
-                else:
-                    pass
-                self.systs[nuisanceID][0] = newname
+                # Rebuild the entry instead of assigning into it, so that this
+                # also works when the entries are stored as immutable tuples.
+                self.systs[i] = [newname, nofloat, pdf0, args0, errline0]
+                self.add_syst_id(newname, i)
+                old_ids = self.systIDMap.get(oldname, [])
+                if i in old_ids:
+                    old_ids.remove(i)
+                if oldname in self.systIDMap and not old_ids:
+                    del self.systIDMap[oldname]
                 if "shape" in pdf0:
                     for b in channel_list:
                         for p in process_list:
