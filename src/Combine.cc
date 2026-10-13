@@ -54,8 +54,6 @@
 #include <boost/program_options.hpp>
 #include <boost/program_options/value_semantic.hpp>
 
-#include <regex>
-
 #include "../interface/LimitAlgo.h"
 #include "../interface/utils.h"
 #include "../interface/CloseCoutSentry.h"
@@ -262,56 +260,25 @@ namespace {
 }  // namespace
 
 std::string Combine::parseRegex(std::string instr, const RooArgSet *nuisances, RooWorkspace *w) {
-  // expand regexps inside the "rgx{}" option
-  while (instr.find("rgx{") != std::string::npos) {          
-    size_t pos1 = instr.find("rgx{");
-    size_t pos2 = instr.find('}',pos1);
-    std::string prestr = instr.substr(0,pos1);
-    std::string poststr = instr.substr(pos2+1,instr.size()-pos2);
-    std::string reg_esp = instr.substr(pos1+4,pos2-pos1-4);
-    
-    std::regex rgx( reg_esp, std::regex::ECMAScript);
-    
-    std::string matchingParams="";
-    for (RooAbsArg *a : *nuisances) {
-        const std::string &target = a->GetName();
-        std::smatch match;
-        if (std::regex_match(target, match, rgx)) {
-            matchingParams = matchingParams + target + ",";
-        }
+  // replace each "<prefix>{<regex>}" with the comma-separated names of the members of coll matching the regex
+  auto expand = [&instr](const char *prefix, const RooAbsCollection &coll) {
+    const std::string tag = std::string(prefix) + "{";
+    for (size_t pos1 = instr.find(tag); pos1 != std::string::npos; pos1 = instr.find(tag)) {
+      size_t pos2 = instr.find('}', pos1);
+      if (pos2 == std::string::npos)
+        throw std::invalid_argument("Missing closing brace in " + instr);
+      std::string matchingParams;
+      for (RooAbsArg *a : utils::selectByRegex(coll, instr.substr(pos1 + tag.size(), pos2 - pos1 - tag.size()))) {
+        matchingParams += std::string(a->GetName()) + ",";
+      }
+      instr.replace(pos1, pos2 + 1 - pos1, matchingParams);
+      instr = removeDuplicateCommas(instr);
     }
-
-    instr = prestr+matchingParams+poststr;
-    instr = removeDuplicateCommas(instr);
-  }
-
-  // expand regexps inside the "var{}" option        
-  while (instr.find("var{") != std::string::npos) {          
-    size_t pos1 = instr.find("var{");
-    size_t pos2 = instr.find('}',pos1);
-    std::string prestr = instr.substr(0,pos1);
-    std::string poststr = instr.substr(pos2+1,instr.size()-pos2);
-    std::string reg_esp = instr.substr(pos1+4,pos2-pos1-4);
-    
-    std::regex rgx( reg_esp, std::regex::ECMAScript);
-    
-    std::string matchingParams="";
-    for (RooAbsArg *a : w->components()) {
-
-        if ( ! (a->IsA()->InheritsFrom(RooRealVar::Class()) || a->IsA()->InheritsFrom(RooCategory::Class()))) continue;
-
-        const std::string &target = a->GetName();
-        // std::cout<<"var "<<target<<std::endl;
-        std::smatch match;
-        if (std::regex_match(target, match, rgx)) {
-            matchingParams = matchingParams + target + ",";
-        }
-    }
-
-    instr = prestr+matchingParams+poststr;
-    instr = removeDuplicateCommas(instr);
-  }
-
+  };
+  // "rgx{}" matches the constrained nuisance parameters, "var{}" any variable or category in the workspace
+  if (nuisances)
+    expand("rgx", *nuisances);
+  expand("var", utils::returnAllVars(w));
   return instr;
 }
 
@@ -549,6 +516,22 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   const RooArgSet * nuisances = mc->GetNuisanceParameters(); // note: may be null
   if (dynamic_cast<RooRealVar*>(POI->first()) == 0) throw std::invalid_argument("First parameter of interest is not a RooRealVar");
 
+  // Update the nuisance parameters of both model configs and the local pointer
+  auto setNuisances = [&](const RooArgSet &newNuis) {
+    mc->SetNuisanceParameters(newNuis);
+    if (mc_bonly)
+      mc_bonly->SetNuisanceParameters(newNuis);
+    nuisances = mc->GetNuisanceParameters();
+  };
+  auto removeNuisances = [&](const RooAbsCollection &toRemove) {
+    if (!nuisances)
+      return;
+    RooArgSet newNuis(*nuisances);
+    newNuis.remove(toRemove, /*silent=*/true, /*matchByNameOnly=*/true);
+    if (newNuis.getSize() < nuisances->getSize())
+      setNuisances(newNuis);
+  };
+
   if (nuisances && runtimedef::get("ADD_DISCRETE_FALLBACK")) {
     RooArgSet newNuis;
     std::string startswith = "u_CMS_Hgg_env_pdf_";
@@ -559,11 +542,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         std::cout << "Removed nuisance from set: " << arg->GetName() << "\n";
       }
     }
-    if (newNuis.getSize() < nuisances->getSize()) {
-      mc->SetNuisanceParameters(newNuis);
-      if (mc_bonly) mc_bonly->SetNuisanceParameters(newNuis);
-      nuisances = mc->GetNuisanceParameters();
-    }
+    if (newNuis.getSize() < nuisances->getSize())
+      setNuisances(newNuis);
   }
 
   if (dataset.find(':') != std::string::npos) {
@@ -637,15 +617,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (verbose > 0) { std::cout << "Redefining the POIs to be: "; newPOIs.Print(""); }
       mc->SetParametersOfInterest(newPOIs);
       POI = mc->GetParametersOfInterest();
-      if (nuisances) {
-          RooArgSet newNuis(*nuisances);
-          newNuis.remove(*POI);
-          if (newNuis.getSize() < nuisances->getSize()) {
-              mc->SetNuisanceParameters(newNuis);
-              if (mc_bonly) mc_bonly->SetNuisanceParameters(newNuis);
-              nuisances = mc->GetNuisanceParameters();
-          }
-      } 
+      removeNuisances(*POI);
   }
 
   // Always reset the POIs to floating (post-fit workspaces can actually have them frozen in some cases, in any case they can be re-frozen in the next step 
@@ -653,131 +625,88 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       static_cast<RooRealVar*>(arg)->setConstant(0);
   }
 
-  if (floatNuisances_ != "") {
-      floatNuisances_ = parseRegex(floatNuisances_, nuisances, w);
-
-      RooArgSet toFloat;
-      if (floatNuisances_=="all") {
-          toFloat.add(*nuisances);
-      } else {
-          std::vector<std::string> nuisToFloat = Utils::split(floatNuisances_, ",");
-          for (int k=0; k<(int)nuisToFloat.size(); k++) {
-              if (nuisToFloat[k]=="") continue;
-              else if(nuisToFloat[k]=="all") {
-                  toFloat.add(*nuisances);
-                  continue;
-              }
-              else if (!w->fundArg(nuisToFloat[k].c_str())) {
-                  std::cout<<"WARNING: cannot float nuisance parameter "<<nuisToFloat[k].c_str()<<" if it doesn't exist!"<<std::endl;
-                  continue;
-              }
-              const RooAbsArg *arg = (RooAbsArg*)w->fundArg(nuisToFloat[k].c_str());              
-              toFloat.add(*arg);
+  // The parameters named in a --floatParameters/--freezeParameters list: comma-separated names after
+  // the expansion of rgx{} and var{} patterns, where `allKeyword` stands for all constrained nuisances
+  const char *const funcName = __func__;
+  auto parametersFromList =
+      [&](const std::string &list, const char *allKeyword, const char *action, const char *actionIng) {
+        RooArgSet out;
+        for (const std::string &name : Utils::split(parseRegex(list, nuisances, w), /*delim=*/",")) {
+          if (name.empty())
+            continue;
+          if (name == allKeyword) {
+            if (nuisances)
+              out.add(*nuisances);
+            continue;
           }
-      }
+          const RooAbsArg *arg = w->fundArg(name.c_str());
+          if (!arg) {
+            std::cout << "WARNING: cannot " << action << " nuisance parameter " << name << " if it doesn't exist!\n";
+            continue;
+          }
+          out.add(*arg);
+        }
+        if (verbose > 0) {
+          CombineLogger::instance().log(
+              "Combine.cc", __LINE__, std::string(actionIng) + " the following parameters:", funcName);
+          for (RooAbsArg *a : out)
+            CombineLogger::instance().log("Combine.cc", __LINE__, a->GetName(), funcName);
+        }
+        return out;
+      };
 
-      if (verbose > 0) {  
-      	//std::cout << "Floating the following parameters: "; toFloat.Print(""); 
-        CombineLogger::instance().log("Combine.cc",__LINE__,"Floating the following parameters:",__func__); 
-        for (RooAbsArg *a : toFloat) {
-           CombineLogger::instance().log("Combine.cc",__LINE__,a->GetName(),__func__); 
-	      }
-      }
-      utils::setAllConstant(toFloat, false);
+  if (!floatNuisances_.empty()) {
+    utils::setAllConstant(parametersFromList(floatNuisances_, "all", "float", "Floating"), /*constant=*/false);
   }
-  
-  if (freezeNuisances_ != "") {
-      freezeNuisances_ = parseRegex(freezeNuisances_, nuisances, w);
 
+  if (!freezeNuisances_.empty()) {
+    RooArgSet toFreeze = parametersFromList(freezeNuisances_, "allConstrainedNuisances", "freeze", "Freezing");
+    utils::setAllConstant(toFreeze, /*constant=*/true);
+    removeNuisances(toFreeze);
+  }
+
+  if (!freezeNuisanceGroups_.empty()) {
+    for (std::string group : Utils::split(freezeNuisanceGroups_, /*delim=*/",")) {
+      bool freeze_complement = Utils::starts_with(group, "^");
+      if (freeze_complement)
+        group.erase(0, 1);
+      const RooArgSet *groupNuisances = w->set(("group_" + group).c_str());
+      if (!groupNuisances) {
+        std::cerr << "Unknown nuisance group: " << group << '\n';
+        throw std::invalid_argument("Unknown nuisance group name");
+      }
       RooArgSet toFreeze;
-      if (freezeNuisances_=="allConstrainedNuisances") {
+      if (freeze_complement) {
+        if (nuisances)
           toFreeze.add(*nuisances);
+        toFreeze.remove(*groupNuisances, /*silent=*/true, /*matchByNameOnly=*/true);
       } else {
-          std::vector<std::string> nuisToFreeze = Utils::split(freezeNuisances_, ",");
-          for (int k=0; k<(int)nuisToFreeze.size(); k++) {
-              if (nuisToFreeze[k]=="") continue;
-              else if(nuisToFreeze[k]=="allConstrainedNuisances") {
-                  toFreeze.add(*nuisances);
-                  continue;
-              }
-              else if (!w->fundArg(nuisToFreeze[k].c_str())) {
-                  std::cout<<"WARNING: cannot freeze nuisance parameter "<<nuisToFreeze[k].c_str()<<" if it doesn't exist!"<<std::endl;
-                  continue;
-              }
-              const RooAbsArg *arg = (RooAbsArg*)w->fundArg(nuisToFreeze[k].c_str());              
-              toFreeze.add(*arg);
-          }
+        toFreeze.add(*groupNuisances);
       }
-
-      if (verbose > 0) {  
-      	//std::cout << "Freezing the following parameters: "; toFreeze.Print("");
-        CombineLogger::instance().log("Combine.cc",__LINE__,"Freezing the following parameters: ",__func__); 
-        for (RooAbsArg *a : toFreeze) {
-           CombineLogger::instance().log("Combine.cc",__LINE__,a->GetName(),__func__); 
-	      }
+      if (verbose > 0) {
+        std::cout << "Freezing the following nuisance parameters: ";
+        toFreeze.Print("");
       }
-      utils::setAllConstant(toFreeze, true);
-      if (nuisances) {
-          RooArgSet newnuis(*nuisances);
-          newnuis.remove(toFreeze, /*silent=*/true, /*byname=*/true);      
-          mc->SetNuisanceParameters(newnuis);
-          if (mc_bonly) mc_bonly->SetNuisanceParameters(newnuis);
-          nuisances = mc->GetNuisanceParameters();
-      }
+      utils::setAllConstant(toFreeze, /*constant=*/true);
+      removeNuisances(toFreeze);
+    }
   }
 
-  if (freezeNuisanceGroups_ != "") {
-      std::vector<string> nuisanceGroups = Utils::split(freezeNuisanceGroups_, ",");
-      for (std::vector<string>::iterator ng_it=nuisanceGroups.begin();ng_it!=nuisanceGroups.end();ng_it++){
-        bool freeze_complement=false;
-      	if (Utils::starts_with(*ng_it,"^")){
-          freeze_complement=true;
-          (*ng_it).erase(0,1);
-        } 
-
-        if (!w->set(Form("group_%s",(*ng_it).c_str()))){
-                std::cerr << "Unknown nuisance group: " << (*ng_it) << std::endl;
-                throw std::invalid_argument("Unknown nuisance group name");
-        }
-        RooArgSet groupNuisances(*(w->set(Form("group_%s",(*ng_it).c_str()))));
-        RooArgSet toFreeze;
-
-        if (freeze_complement) {
-          RooArgSet still_floating(*mc->GetNuisanceParameters());
-          still_floating.remove(groupNuisances,true,true);	
-          toFreeze.add(still_floating);
-        } else {
-          toFreeze.add(groupNuisances);
-        }
-	
-        if (verbose > 0) {  std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print(""); }
-        utils::setAllConstant(toFreeze, true);
-        if (nuisances) {
-          RooArgSet newnuis(*nuisances);
-          newnuis.remove(toFreeze, /*silent=*/true, /*byname=*/true);      
-          mc->SetNuisanceParameters(newnuis);
-          if (mc_bonly) mc_bonly->SetNuisanceParameters(newnuis);
-          nuisances = mc->GetNuisanceParameters();
-        }
-      }
-  }
-
-  if (freezeWithAttributes_ != "") {
-    std::vector<string> nuisanceAttrs = Utils::split(freezeWithAttributes_, ",");
-    for (auto const& attr : nuisanceAttrs) {
+  if (!freezeWithAttributes_.empty()) {
+    for (auto const &attr : Utils::split(freezeWithAttributes_, /*delim=*/",")) {
+      if (!nuisances)
+        break;
       RooArgSet toFreeze;
-      if (nuisances) {
-         for (RooAbsArg *arg : *nuisances) {
-           if (arg->attributes().count(attr)) toFreeze.add(*arg);
-         }
-         if (verbose > 0) {  std::cout << "Freezing the following nuisance parameters: "; toFreeze.Print(""); }
-         utils::setAllConstant(toFreeze, true);
-         RooArgSet newnuis(*nuisances);
-         newnuis.remove(toFreeze, /*silent=*/true, /*byname=*/true);
-         mc->SetNuisanceParameters(newnuis);
-         if (mc_bonly) mc_bonly->SetNuisanceParameters(newnuis);
-         nuisances = mc->GetNuisanceParameters();
+      for (RooAbsArg *arg : *nuisances) {
+        if (arg->attributes().count(attr))  // can use contains() only in C++20
+          toFreeze.add(*arg);
       }
+      if (verbose > 0) {
+        std::cout << "Freezing the following nuisance parameters: ";
+        toFreeze.Print("");
+      }
+      utils::setAllConstant(toFreeze, /*constant=*/true);
+      removeNuisances(toFreeze);
     }
   }
 
@@ -1280,28 +1209,20 @@ void Combine::addBranches(const std::string& trackString, RooWorkspace* w, std::
     std::stringstream ss(trackString);
     std::string token;
     while(std::getline(ss,token,',')) {
-      if (Utils::starts_with(token, "rgx{") && token.back() == '}') {
-          std::string reg_esp = token.substr(4, token.size()-5);
-          std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
-          std::regex rgx( reg_esp, std::regex::ECMAScript);
-
-          RooArgSet allParams(w->allVars());
-          for (RooAbsArg *a : allParams) {
-              Var *tmp = dynamic_cast<Var *>(a);
-              if(tmp==nullptr) continue;
-              const std::string &target = tmp->GetName();
-              std::smatch match;
-              if (std::regex_match(target, match, rgx)) {
-                  if (tmp->isConstant()) continue;
-                  trackMap.emplace_back(tmp,0.f);
-              }
-          }
+      std::string pattern;
+      if (utils::extractBracedSpec(token, /*prefix=*/"rgx", pattern)) {
+        std::cout << "interpreting " << pattern << " as regex\n";
+        for (RooAbsArg *a : utils::selectByRegex(w->allVars(), pattern)) {
+          Var *tmp = dynamic_cast<Var *>(a);
+          if (tmp && !tmp->isConstant())
+            trackMap.emplace_back(tmp, 0.F);
+        }
       } else {
-          Var *a =(Var*)w->obj(token.c_str());
-          if (a == 0) throw std::invalid_argument(vtype+" "+(token)+" not in model.");
-          trackMap.emplace_back(a,0.f);
+        Var *a = (Var *)w->obj(token.c_str());
+        if (a == nullptr)
+          throw std::invalid_argument(vtype + " " + (token) + " not in model.");
+        trackMap.emplace_back(a, 0.F);
       }
-
     }
   }
 
