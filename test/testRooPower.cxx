@@ -48,6 +48,29 @@ namespace {
     }
   }
 
+  TEST(RooPowerTest, ZeroLowerBound) {
+    struct ZeroBoundReference {
+      double upper, exponent, integral, derivative;
+    };
+    const double nearMinusOne = std::nextafter(-1., 0.);
+    const double q = nearMinusOne + 1.;
+    const std::array<ZeroBoundReference, 4> cases{{
+        {.upper = 4., .exponent = -0.5, .integral = 4., .derivative = 4. * (std::log(4.) - 2.)},
+        {.upper = 4., .exponent = 0., .integral = 4., .derivative = 4. * (std::log(4.) - 1.)},
+        {.upper = 4., .exponent = 1., .integral = 8., .derivative = 8. * (std::log(4.) - 0.5)},
+        {.upper = 1., .exponent = nearMinusOne, .integral = 1. / q, .derivative = -1. / (q * q)},
+    }};
+    for (const auto& ref : cases) {
+      SCOPED_TRACE(::testing::Message() << "upper=" << ref.upper << ", c=" << std::setprecision(17) << ref.exponent);
+      EXPECT_NEAR(RooFit::Detail::MathFuncs::powerIntegral(0., ref.upper, ref.exponent),
+                  ref.integral,
+                  1.e-12 * std::abs(ref.integral));
+      EXPECT_NEAR(RooFit::Detail::MathFuncs::powerIntegralDc(0., ref.upper, ref.exponent),
+                  ref.derivative,
+                  1.e-12 * std::abs(ref.derivative));
+    }
+  }
+
   TEST(RooPowerTest, IntegralAndDerivativeScan) {
     // Eight points per decade, including the exact limit and its adjacent floating-point values
     std::set<double> points{-1., 0., std::nextafter(-1., -2.), std::nextafter(-1., 0.)};
@@ -56,7 +79,7 @@ namespace {
       points.insert(-1. - offset);
       points.insert(-1. + offset);
     }
-    const std::array<std::array<double, 2>, 2> ranges{{{1., 4.}, {100., 180.}}};
+    const std::array<std::array<double, 2>, 3> ranges{{{1., 4.}, {100., 180.}, {1.e-300, 1.e100}}};
     for (const auto& range : ranges) {
       SCOPED_TRACE(::testing::Message() << "range=[" << range[0] << ", " << range[1] << "]");
       // Evaluate the closed-form function with 100 decimal digits: the quotient

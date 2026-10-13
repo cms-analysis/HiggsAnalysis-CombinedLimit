@@ -480,10 +480,15 @@ inline Double_t powerIntegral(const double xMin, const double xMax, const double
     return std::log(xMax) - log(xMin);
   }
 
-  // If we're close to -1, use exmp1 to avoid numerical issues
+  if (xMin == 0.0 && t > 0.0) {
+    return pow(xMax, t) / t;
+  }
+
+  // If we're close to -1, use expm1 to avoid numerical issues
   if (std::abs(t) < 1e-4) {
     const double logMin = log(xMin);
-    const double logRatio = log(xMax / xMin);
+    const double ratio = xMax / xMin;
+    const double logRatio = std::isfinite(ratio) ? log(ratio) : log(xMax) - logMin;
     return std::exp(t * logMin) * std::expm1(t * logRatio) / t;
   }
 
@@ -506,8 +511,11 @@ inline Double_t powerIntegralDc(const double xMin, const double xMax, const doub
   // this derivative via differentiating under the integral sign.
   // This avoids dropping the c-dependence of this derivative.
   const double t = c + 1.0;
-  const double logMin = std::log(xMin);
   const double logMax = std::log(xMax);
+  if (xMin == 0.0 && t > 0.0) {
+    return pow(xMax, t) * (t * logMax - 1.0) / (t * t);
+  }
+  const double logMin = std::log(xMin);
 
   return (logMax * logMax * powerIntegralPhi(t * logMax)) - (logMin * logMin * powerIntegralPhi(t * logMin));
 }
