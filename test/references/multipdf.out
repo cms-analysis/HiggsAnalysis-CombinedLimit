@@ -12,3 +12,10 @@ Adding discrete pdf_index_ggh
 Set Default Index of Parameter pdf_index_ggh To : 2 (was: 2 )
 Adding discrete pdf_index_ggh 
    r :    +0.629   -0.629/+0.649 (68%)
+ <<< Combine >>> 
+ <<< v11.1.0 >>>
+>>> Random number generator seed is 123456
+>>> Method used is MultiDimFit
+Set Default Index of Parameter pdf_index_ggh To : 0 (was: 2 )
+Adding discrete pdf_index_ggh 
+   r :    +0.629   -0.629/+0.648 (68%)

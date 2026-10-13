@@ -75,7 +75,6 @@ void configureCascadeMinimizerState(RooWorkspace &ws, RooStats::ModelConfig &mc)
   }
 
   cfg.pdfCategories = RooArgList();
-  cfg.allRooMultiPdfParams = RooArgList();
   cfg.allRooMultiPdfs = RooArgList();
 
   if (auto *discreteParameters = dynamic_cast<RooArgSet *>(ws.genobj("discreteParams"));
@@ -110,15 +109,6 @@ void configureCascadeMinimizerState(RooWorkspace &ws, RooStats::ModelConfig &mc)
         continue;
       if (!cfg.allRooMultiPdfs.containsInstance(*multi))
         cfg.allRooMultiPdfs.add(*multi);
-
-      std::unique_ptr<RooArgSet> pdfParams{multi->getParameters((const RooArgSet *)nullptr)};
-      for (RooAbsArg *a : *pdfParams) {
-        auto *var = dynamic_cast<RooRealVar *>(a);
-        if (!var || var->isConstant())
-          continue;
-        if (!cfg.allRooMultiPdfParams.containsInstance(*var))
-          cfg.allRooMultiPdfParams.add(*var);
-      }
     }
   }
 }
