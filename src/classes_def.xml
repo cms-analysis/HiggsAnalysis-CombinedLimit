@@ -197,6 +197,7 @@
   <class name="CMSHistErrorPropagator" />
   <class name="CMSHistSum" />
   <class name="CMSHistFuncWrapper" />
+  <class name="CMSHistSumWrapper" />
   <class name="SimpleTaylorExpansion1D" />
   <class name="RooTaylorExpansion" />
 	<class name="RooDoubleCBFast" />
