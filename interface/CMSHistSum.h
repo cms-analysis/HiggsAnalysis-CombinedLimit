@@ -66,6 +66,15 @@ public:
   RooArgList const& coefList() const { return coeffpars_; }
   // RooArgList const& funcList() const { return funcs_; }
 
+  // Per-process views (CMSHistSumWrapper), in the same order as coefList().
+  // Uses the wrappers stored in the workspace if there are any, otherwise
+  // they are created on first call and owned by this object.
+  RooArgList wrapperList() const;
+
+  // Fill result with the current shape of process idx, including its share
+  // of the bin-wise shifts
+  void fillProcessShape(unsigned idx, FastHisto& result) const;
+
   RooAbsReal const& getXVar() const { return x_.arg(); }
 
   static void EnableFastVertical();
