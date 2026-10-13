@@ -5,8 +5,6 @@ class RooAbsReal;
 class RooArgSet;
 class RooRealVar;
 #include <RooArgSet.h>
-#include <RooListProxy.h>
-#include <RooSetProxy.h>
 #include "RooMinimizer.h"
 #include <boost/program_options.hpp>
 
@@ -34,7 +32,6 @@ class CascadeMinimizer {
         static const boost::program_options::options_description & options() { return options_; }
         void trivialMinimize(const RooAbsReal &nll, RooRealVar &r, int points=100) const ;
         //void collectIrrelevantNuisances(RooAbsCollection &irrelevant) const ;
-	bool freezeDiscParams(const bool);
         void setAutoBounds(const RooArgSet *pois) ;
         void setAutoMax(const RooArgSet *pois) ; 
 	double tolerance() {return defaultMinimizerTolerance_;};
@@ -126,7 +123,6 @@ class CascadeMinimizerGlobalConfigs{
 	  RooArgList nuisanceParameters; 
 	  RooArgList allFloatingParameters; 
 	  RooArgList parametersOfInterest; 
-	  RooArgList allRooMultiPdfParams;
 	  RooArgList allRooMultiPdfs;
 
 	  static CascadeMinimizerGlobalConfigs& O(){
