@@ -467,8 +467,65 @@ inline Double_t parametricHistIntegral(const double* parVals,
   return sum;
 }
 
+/// BEGIN: RooPower
+inline Double_t powerEvaluate(const double x, const double c) { return pow(x, c); }
+
+inline Double_t powerIntegral(const double xMin, const double xMax, const double c) {
+  if (c == 0.0) {
+    return xMax - xMin;
+  }
+
+  const double t = c + 1.0;
+  if (t == 0.0) {
+    return std::log(xMax) - log(xMin);
+  }
+
+  // If we're close to -1, use exmp1 to avoid numerical issues
+  if (std::abs(t) < 1e-4) {
+    const double logMin = log(xMin);
+    const double logRatio = log(xMax / xMin);
+    return std::exp(t * logMin) * std::expm1(t * logRatio) / t;
+  }
+
+  return (pow(xMax, t) - pow(xMin, t)) / t;
+}
+
+// phi(t) = d/dt [(exp(t) - 1) / t]
+inline double powerIntegralPhi(const double t) {
+  // If we're close to 0 (c = -1), use a Taylor expansion to avoid numerical issues
+  if (std::abs(t) < 1e-2) {
+    return 0.5 + (t * (1.0 / 3.0 + (t * (1.0 / 8.0 + (t * (1.0 / 30.0 + t / 144.0))))));
+  }
+
+  return (t * exp(t) - std::expm1(t)) / (t * t);
+}
+
+inline Double_t powerIntegralDc(const double xMin, const double xMax, const double c) {
+  // Analytical derivative of the integral with respect to c
+  // This is needed to communicate to clad that one can compute
+  // this derivative via differentiating under the integral sign.
+  // This avoids dropping the c-dependence of this derivative.
+  const double t = c + 1.0;
+  const double logMin = std::log(xMin);
+  const double logMax = std::log(xMax);
+
+  return (logMax * logMax * powerIntegralPhi(t * logMax)) - (logMin * logMin * powerIntegralPhi(t * logMin));
+}
+/// END: RooPower
+
 } // namespace MathFuncs
 } // namespace Detail
 } // namespace RooFit
+
+namespace clad::custom_derivatives::RooFit::Detail::MathFuncs {
+
+  inline void powerIntegral_pullback(
+      double xMin, double xMax, double c, double d_out, double* d_xMin, double* d_xMax, double* d_c) {
+    *d_xMin -= d_out * pow(xMin, c);
+    *d_xMax += d_out * pow(xMax, c);
+    *d_c += d_out * ::RooFit::Detail::MathFuncs::powerIntegralDc(xMin, xMax, c);
+  }
+
+} // namespace clad::custom_derivatives::RooFit::Detail::MathFuncs
 
 #endif
