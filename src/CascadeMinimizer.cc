@@ -1,5 +1,6 @@
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "../interface/CachingNLL.h"
 #include "../interface/Significance.h"
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/utils.h"
