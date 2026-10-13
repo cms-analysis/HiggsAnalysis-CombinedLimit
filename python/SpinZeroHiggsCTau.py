@@ -53,7 +53,7 @@ class SpinZeroHiggsCTau(PhysicsModel):
                     self.ctauFloating = False
 
             if not self.muAsPOI and not self.ctauPOI:
-                print("No POIs detected: Switching to default configuration: Floating nuisance mu, floating POI ctau, eveything else fixed")
+                print("No POIs detected: Switching to default configuration: Floating nuisance mu, floating POI ctau, everything else fixed")
                 self.muFloating = True
                 self.muAsPOI = False
                 self.ctauFloating = True

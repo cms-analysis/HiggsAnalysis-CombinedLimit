@@ -1,7 +1,6 @@
 //---------------------------------------------------------------------------
 #include "RooFit.h"
 
-#include "Riostream.h"
 #include <TMath.h>
 #include <cassert>
 #include <cmath>
@@ -97,7 +96,7 @@ void RooParametricShapeBinPdf::setTH1Binning(const TH1 &_Hnominal){
   }
 }
 //---------------------------------------------------------------------------
-/// Return the parameteric p.d.f
+/// Return the parametric p.d.f
 RooAbsPdf* RooParametricShapeBinPdf::getPdf() const {
   return mypdf ? ((RooAbsPdf*)mypdf.absArg()) : 0 ;
 }

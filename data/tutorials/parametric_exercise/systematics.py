@@ -25,9 +25,7 @@ print("Using ROOT version: %s" % ROOT.__version__)
 #         key = "%s%s01Sigma" % (syst, direction)
 #         name = "ggH_Tag0_%s" % (key)
 #         t = f.Get(name)
-#         mc[key] = ROOT.RooDataSet(
-#             name, name, t, ROOT.RooArgSet(mass, weight), "", "weight" )
-#             )
+#         mc[key] = ROOT.RooDataSet(name, name, t, ROOT.RooArgSet(mass, weight), "", "weight")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # for syst in ['JEC','photonID']:

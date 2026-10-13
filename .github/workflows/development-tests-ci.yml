@@ -2,7 +2,7 @@ name: CI with CVMFS for AD tests
 
 on:
   workflow_dispatch:
-  pull_request_target:
+  pull_request:
     types: [ labeled ]
     branches: [ main ]
 
@@ -31,9 +31,9 @@ jobs:
       LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
       LCG_ARCH: ${{ matrix.LCG_ARCH }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: cvmfs-contrib/github-action-cvmfs@v4
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
         with:
           cvmfs_repositories: ${{ (env.CMSSW_VERSION != '') && 'cms.cern.ch' || 'sft.cern.ch' }}
 
@@ -42,9 +42,9 @@ jobs:
         env:
           LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
           LCG_ARCH: ${{ matrix.LCG_ARCH }}
-          # VDT doesn't seem to be available in LCG_102.
+          # VDT doesn't seem to be available in LCG_102 and dev3/latest.
           # But also it's very good to also test builds with USE_VDT=OFF.
-          USE_VDT: ${{ matrix.LCG_RELEASE != 'LCG_102' && 'TRUE' || 'FALSE' }}
+          USE_VDT: ${{ (matrix.LCG_RELEASE != 'LCG_102' && matrix.LCG_RELEASE != 'dev3/latest') && 'TRUE' || 'FALSE' }}
         run: >-
           source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
           root --version;
@@ -263,12 +263,13 @@ jobs:
 
       - name: Prepare artifact name
         id: artifact_name
+        if: always()
         run: |
           SAFE_NAME=$(echo "${{ matrix.CMSSW_VERSION || matrix.LCG_RELEASE }}" | tr '/' '_')
           SAFE_ROOT=$(echo "${{ matrix.ROOT }}" | tr ' /' '_')
           echo "name=outputs-${SAFE_NAME}-ROOT${SAFE_ROOT}" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         name: Upload outputs
         with:

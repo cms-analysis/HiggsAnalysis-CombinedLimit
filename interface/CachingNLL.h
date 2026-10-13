@@ -185,7 +185,9 @@ class CachingSimNLL  : public RooAbsReal {
         void setMaskNonDiscreteChannels(bool mask) ;
         friend class CachingAddNLL;
         // trap this call, since we don't care about propagating it to the sub-components
+#if ROOT_VERSION_CODE<ROOT_VERSION(6,41,0)
         void constOptimizeTestStatistic(ConstOpCode opcode, Bool_t doAlsoTrackingOpt=kTRUE) override { }
+#endif
     private:
         void setup_();
         RooSimultaneous   *pdfOriginal_;
@@ -212,7 +214,7 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<RooAbsReal*> channelMasks_;
         std::vector<bool>        internalMasks_;
         RooArgSet                activeParameters_, activeCatParameters_;
-        double                   maskingOffset_ = 0;     // offset to ensure that interal or constraint masking doesn't change NLL value
+        double                   maskingOffset_ = 0;     // offset to ensure that internal or constraint masking doesn't change NLL value
         double                   maskingOffsetZero_ = 0; // and associated zero point
 };
 

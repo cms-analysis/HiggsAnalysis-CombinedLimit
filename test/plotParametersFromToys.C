@@ -142,7 +142,7 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 		double p_err  =0;
 
 		int nToysInTree = tree_->GetEntries();
-		// Find out if paramter is fitted value or constraint term
+		// Find out if parameter is fitted value or constraint term
 		bool isFitted = findNuisancePre(name);
 		if (doPull && isFitted){
 			
@@ -399,13 +399,13 @@ void plotParametersFromToys(std::string inputFile, std::string dataFits="", std:
 				*data,RooFit::Constrain(*mc_s->GetNuisanceParameters()));
 
 			
-			// grab r (mu) from workspace to set to 0 for bonly fit since it wasnt floating. Only if it exists 
+			// grab r (mu) from workspace to set to 0 for bonly fit since it wasn't floating. Only if it exists 
 			RooRealVar *r = w->var("r"); 
 			if (r) {
 				r->setVal(0);
 				fitargs.add(*r);
 			} else {
-				std::cout << " No overall signal strength r in workspace, ingoring pois for signal/background only comparisons" << std::endl; 
+				std::cout << " No overall signal strength r in workspace, ignoring pois for signal/background only comparisons" << std::endl; 
 			}
 			
 			w->saveSnapshot("bestfitparams",fitargs,true);	

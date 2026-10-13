@@ -40,7 +40,7 @@ std::string GetQualififedName(std::string const& str);
  * Determine the total amount of time spent in a function
  *
  * An FnTimer instance should typically be declared as a static variable at
- * the beginning of a function, follwed by a call to the Inc() method, which
+ * the beginning of a function, followed by a call to the Inc() method, which
  * will increment the counter. The Inc() method also returns an FnTimer::Token
  * object that records the time at which it is constructed and then destroyed,
  * the latter occurring automatically at the end of the function. At the end

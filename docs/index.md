@@ -37,14 +37,14 @@ releases on github under
 The nominal installation method is inside CMSSW. The current release targets
 the CMSSW `16_0_X` series.
 
-Currently, the recommended tag is **v11.0.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v11.0.0)
+Currently, the recommended tag is **v11.1.0**: [see release notes](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/releases/tag/v11.1.0)
 The `git clone` command below contains this tag and is optimised to reduce disk usage.
 
 ```sh
 cmsrel CMSSW_16_0_0
 cd CMSSW_16_0_0/src
 cmsenv
-git -c advice.detachedHead=false clone --depth 1 --branch v11.0.0 https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+git -c advice.detachedHead=false clone --depth 1 --branch v11.1.0 https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 scramv1 b clean; scramv1 b -j$(nproc --ignore=2) # always make a clean build, with n - 2 cores on the system
 ```
@@ -314,10 +314,10 @@ git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
 scram b -j$(nproc --ignore=2)
 ```
 
-See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation for full instructions and reccomended versions.
+See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation for full instructions and recommended versions.
 
 !!! info
-    Starting with <span style="font-variant:small-caps;">Combine v10</span>, specific ombineTool functionalities for job submition and parallelization (`combineTool.py`) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package. For these tasks you no longer have to follow the instructions above.
+    Starting with <span style="font-variant:small-caps;">Combine v10</span>, specific ombineTool functionalities for job submission and parallelization (`combineTool.py`) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package. For these tasks you no longer have to follow the instructions above.
 
 
 ## Citation

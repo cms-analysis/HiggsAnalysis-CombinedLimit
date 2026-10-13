@@ -323,7 +323,7 @@ public:
   Bool_t setBinIntegrator(RooArgSet& allVars);
   void useHorizontalMorphing(Bool_t val) { _useHorizMorph=val; }
 
-#if ROOT_VERSION_CODE>=ROOT_VERSION(5,34,15)
+#if ROOT_VERSION_CODE>=ROOT_VERSION(5,34,15) && ROOT_VERSION_CODE<ROOT_VERSION(6,41,0)
   void fixCache() { _cacheMgr.setClearOnRedirect(kFALSE) ; }
   CacheMode canNodeBeCached() const override { return RooAbsArg::NotAdvised ; } ;
 #endif

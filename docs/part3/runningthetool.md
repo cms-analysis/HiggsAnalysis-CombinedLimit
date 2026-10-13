@@ -117,7 +117,7 @@ where **$WORD** is any user defined keyword from the datacard which has been set
 A few command-line options can be used to control this output:
 
 -   The option `-n` allows you to specify part of the name of the root file. e.g. if you pass `-n HWW` the root file will be called `higgsCombineHWW....` instead of `higgsCombineTest`
--   The option `-m` allows you to specify the (Higgs boson) mass hypothesis, which gets written in the filename and in the output tree. This simplifies the bookeeping, as it becomes possible to merge multiple trees corresponding to different (Higgs boson) masses using `hadd`. Quantities can then be plotted as a function of the mass. The default value is m=120.
+-   The option `-m` allows you to specify the (Higgs boson) mass hypothesis, which gets written in the filename and in the output tree. This simplifies the bookkeeping, as it becomes possible to merge multiple trees corresponding to different (Higgs boson) masses using `hadd`. Quantities can then be plotted as a function of the mass. The default value is m=120.
 -   The option `-s` can be used to specify the seed (eg `-s 12345`) used in toy generation. If this option is given, the name of the file will be extended by this seed, eg `higgsCombineTest.AsymptoticLimits.mH120.12345.root`
 -   The option `--keyword-value` allows you to specify the value of a keyword in the datacard such that **$WORD** (in the datacard) will be given the value of **VALUE** in the command `--keyword-value WORD=VALUE`, eg  `higgsCombineTest.AsymptoticLimits.mH120.WORDVALUE.12345.root`
 
@@ -279,7 +279,7 @@ For more CPU-intensive tasks, for example determining limits for complex models 
 
 In this example we will use the `HybridNew` method of <span style="font-variant:small-caps;">Combine</span> to determine an upper limit for a sub-channel of the Run 1 SM $H\rightarrow\tau\tau$ analysis. For full documentation, see the section on [computing limits with toys](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#computing-limits-with-toys).
 
-With this model it would take too long to find the limit in one go, so instead we create a set of jobs in which each one throws toys and builds up the test statistic distributions for a fixed value of the signal strength. These jobs can then be submitted to a batch system or to the Grid using `crab3`. From the set of output distributions it is possible to extract the expected and observed limits.
+With this model it would take too long to find the limit in one go, so instead we create a set of jobs in which each one throws toys and builds up the test statistic distributions for a fixed value of the signal strength. These jobs can then be submitted to a batch system or to the Grid using `CRAB`. From the set of output distributions it is possible to extract the expected and observed limits.
 
 For this we will use `combineTool.py`
 
@@ -322,12 +322,12 @@ combineTool.py -M HybridNew -d htt_mt.root --LHCmode LHC-limits --singlePoint 0.
 
 When the `--dry-run` option is removed each command will be run in sequence.
 
-### Grid submission with crab3
+### Grid submission with CRAB
 
-Submission to the grid with `crab3` works in a similar way. Before doing so, ensure that the `crab3` environment has been sourced in addition to the CMSSW environment. We will use the example of generating a grid of test-statistic distributions for limits.
+Submission to the grid with `CRAB` works in a similar way. Note that the `CRAB` environment is automatically added in CMSSW environment. We will use the example of generating a grid of test-statistic distributions for limits.
 
 ```sh
-$ cmsenv; source /cvmfs/cms.cern.ch/crab3/crab.sh
+$ cmsenv
 $ combineTool.py -d htt_mt.root -M HybridNew --LHCmode LHC-limits --clsAcc 0 -T 2000 -s -1 --singlePoint 0.2:2.0:0.05 --saveToys --saveHybridResult -m 125 --job-mode crab3 --task-name grid-test --custom-crab custom_crab.py
 ```
 
@@ -342,7 +342,7 @@ def custom_crab(config):
   config.Site.blacklist = ['SOME_SITE', 'SOME_OTHER_SITE']
 ```
 
-Again it is possible to use the option `--dry-run` to see what the complete crab config will look like before actually submitting it.
+Again it is possible to use the option `--dry-run` to see what the complete CRAB config will look like before actually submitting it.
 
 Once submitted, the progress can be monitored using the standard `crab` commands. When all jobs are completed, copy the output from your site's storage element to the local output folder.
 

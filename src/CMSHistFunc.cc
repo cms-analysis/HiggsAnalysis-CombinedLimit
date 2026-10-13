@@ -884,7 +884,7 @@ void CMSHistFunc::prepareInterpCache(Cache& c1,
         x21 = cache_.GetEdge(ix2 + 1);
         y21 = c2.cdf[ix2 + 1];
       }
-      // .....Calculate where the cummulative probability y in distribution 1
+      // .....Calculate where the cumulative probability y in distribution 1
       //      intersects between the 2 points from distribution 2 which
       //      bracket it.
 
@@ -909,7 +909,7 @@ void CMSHistFunc::prepareInterpCache(Cache& c1,
         y11 = c1.cdf[ix1 + 1];
       }
 
-      // .....Calculate where the cummulative probability y in distribution 2
+      // .....Calculate where the cumulative probability y in distribution 2
       //      intersects between the 2 points from distribution 1 which
       //      brackets it.
 
@@ -921,7 +921,7 @@ void CMSHistFunc::prepareInterpCache(Cache& c1,
     }
 
     // .....Interpolate between the x's in the 2 distributions at the
-    //      cummulative probability y. Store the (x,y) for provisional
+    //      cumulative probability y. Store the (x,y) for provisional
     //      edge nx3 in (xdisn[nx3],sigdisn[nx3]). nx3 grows for each point
     //      we add the the arrays. Note: Should probably turn the pair into
     //      a structure to make the code more object-oriented and readable.
@@ -1007,7 +1007,7 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
   // distributions
   // *      because there may be as many as nb1+nb2+2 edges in the intermediate
   // *      interpolated cdf described by xdisn[i] (position of edge i) and
-  // *      sigdisn[i] (cummulative probability up this edge) before we project
+  // *      sigdisn[i] (cumulative probability up this edge) before we project
   // *      into the final binning.
   // Float_t const* dist1 = hist1.GetArray();
   // Float_t const* dist2 = hist2.GetArray();
@@ -1069,7 +1069,7 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
   // *......The beginning may be empty, so we have to step up to the first
   // *      edge where the result is nonzero. We zero the bins which have
   // *      and upper (!) edge which is below the first point of the
-  // *      cummulative distribution we are going to project to this
+  // *      cumulative distribution we are going to project to this
   // *      output histogram binning.
   // *
 
@@ -1123,7 +1123,7 @@ FastTemplate CMSHistFunc::cdfMorph(unsigned idx, double par1, double par2,
                                (x - xdisn[ix3]) / (xdisn[ix3 + 1] - xdisn[ix3]);
       } else {  // Is this ever used?
         y = 0;
-        std::cout << "Warning - th1fmorph: This probably shoudn't happen! "
+        std::cout << "Warning - th1fmorph: This probably shouldn't happen! "
                   << std::endl;
         std::cout << "Warning - th1fmorph: Zero slope solving x(y)"
                   << std::endl;

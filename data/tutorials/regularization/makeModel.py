@@ -72,7 +72,7 @@ class Model:
         xmax = 10.0
         self.x_cont = ROOT.RooRealVar("x_cont", "x", xmin, xmax)
         self.pdf_cont = ROOT.RooGenericPdf("pt-sig", "@0*@0*@0*TMath::Exp(-@0)", ROOT.RooArgList(self.x_cont))
-        # this actually lives on the reco specturm
+        # this actually lives on the reco spectrum
         self.bkg_cont = ROOT.RooGenericPdf("pt-bkg", "Exp(-@0)", ROOT.RooArgList(self.x_cont))
         # self.cdf_pt = self.pt_cont.createCdf()
 
@@ -268,7 +268,7 @@ class Model:
                 self.Import(norm)
                 self.Import(pdf)
 
-        print("-> writing worspace to file", self.fname)
+        print("-> writing workspace to file", self.fname)
         self.w.writeToFile(self.fname)
         print("-> adding  histograms to", self.fname)
         self.fOut = ROOT.TFile.Open(self.fname, "UPDATE")

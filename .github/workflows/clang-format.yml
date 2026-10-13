@@ -15,13 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout PR branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
 
@@ -35,7 +35,8 @@ jobs:
 
       - name: Run git-clang-format
         run: |
-          PR_BASE=$(git rev-list ${{ github.event.pull_request.head.sha }} ^${{ github.event.pull_request.base.sha }} | tail --lines 1 | xargs -I {} git rev-parse {}~1)
+          git fetch --no-tags origin ${{ github.event.pull_request.base.ref }}
+          PR_BASE=$(git merge-base ${{ github.event.pull_request.head.sha }} origin/${{ github.event.pull_request.base.ref }})
           echo "running git clang-format against $PR_BASE commit"
           git \
           -c color.ui=always \

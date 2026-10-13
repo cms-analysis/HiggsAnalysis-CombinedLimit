@@ -190,7 +190,7 @@ private:
 };
  
 
-///// Alpha function for Erf*Pow2 funtion
+///// Alpha function for Erf*Pow2 function
 
 class RooAlpha4ErfPow2Pdf : public RooAbsPdf {
 public:

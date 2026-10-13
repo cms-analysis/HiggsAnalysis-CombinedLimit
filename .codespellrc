@@ -1,0 +1,4 @@
+[codespell]
+ignore-words = .codespell-ignore
+skip = *.lock,*.pdf
+ignore-regex = <I>nclusion

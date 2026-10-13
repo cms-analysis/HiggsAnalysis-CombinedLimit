@@ -113,7 +113,7 @@ script.write("""
 #!/bin/bash
 #############################################################
 #
-# Driver script for comuting Bayesian Limits
+# Driver script for computing Bayesian Limits
 #
 # author: Giovanni Petrucciani, UCSD
 #         from a similar script by Luca Lista, INFN

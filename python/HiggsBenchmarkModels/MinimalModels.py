@@ -83,7 +83,7 @@ class HiggsMinimal(SMLikeHiggsModel):
         ]:
             self.SMH.makeBR(d)
 
-        ## total witdh, normalized to the SM one
+        ## total width, normalized to the SM one
         self.modelBuilder.factory_('expr::minimal_Gscal_gg("@0*@0 * @1", kgamma, SM_BR_hgg)')
         self.modelBuilder.factory_('expr::minimal_Gscal_gluglu("@0*@0 * @1", kgluon, SM_BR_hgluglu)')
         self.modelBuilder.factory_(

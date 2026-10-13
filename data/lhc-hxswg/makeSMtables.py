@@ -316,7 +316,7 @@ def main(o):
                 try:
                     table.append(list(map(formatval, vals_keep)))
                 except ValueError:
-                    print("Could not parse the followig tuple: ")
+                    print("Could not parse the following tuple: ")
                     print(vals_keep)
                     raise
             file_name = find_filename(s.name, group)

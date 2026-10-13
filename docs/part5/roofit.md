@@ -200,7 +200,7 @@ if (typeof requirejs !== 'undefined') {
 
 </script>
 
-The main objects we are interested in using from `RooFit` are *probability denisty functions* or (PDFs). We can construct the PDF,
+The main objects we are interested in using from `RooFit` are *probability density functions* or (PDFs). We can construct the PDF,
 
 $$
 f(m|M_{H},\sigma)
@@ -354,7 +354,7 @@ if (typeof requirejs !== 'undefined') {
 
 Note that as we change the value of `MH`, the PDF gets updated at the same time.
 
-PDFs can be used to generate Monte Carlo data. One of the benefits of `RooFit` is that to do so only uses a single line of code! As before, we have to tell `RooFit` which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" $m$. The arguments for the function are the set of observables, follwed by the number of events,
+PDFs can be used to generate Monte Carlo data. One of the benefits of `RooFit` is that to do so only uses a single line of code! As before, we have to tell `RooFit` which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" $m$. The arguments for the function are the set of observables, followed by the number of events,
 
 === "C++"
 
@@ -714,7 +714,7 @@ $$\mathcal{L}(\alpha) \propto \prod_{i} f(m_{i}|\alpha)$$
 
 Note that for a specific dataset, the $dm$ factors which should be there are constnant. They can therefore be absorbed into the constant of proportionality!
 
-The maximum likelihood esitmator for $\alpha$, usually written as $\hat{\alpha}$, is found by maximising $\mathcal{L}(\alpha)$.
+The maximum likelihood estimator for $\alpha$, usually written as $\hat{\alpha}$, is found by maximising $\mathcal{L}(\alpha)$.
 
 Note that this will not depend on the value of the constant of proportionality so we can ignore it. This is true in most scenarios because usually only the *ratio* of likelihoods is needed, in which the constant factors out.
 

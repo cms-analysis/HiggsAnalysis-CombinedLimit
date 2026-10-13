@@ -24,7 +24,7 @@ class CMSExternalMorph : public RooAbsReal {
     CMSExternalMorph(CMSExternalMorph const& other, const char* name = 0);
     ~CMSExternalMorph() override;
 
-    /* Batch accessor for CMSHistFunc / CMSHistSum, to be overriden by concrete
+    /* Batch accessor for CMSHistFunc / CMSHistSum, to be overridden by concrete
      * implementations. hasChanged() should indicate whether or not
      * batchGetBinValues() would return a new vector, given the state of
      * any dependent variables. 

@@ -85,13 +85,6 @@ class ModelBuilderBase:
     def factory_(self, X):
         if self.options.verbose >= 7:
             print("RooWorkspace::factory('%s')" % X)
-        if len(X) > 1000:
-            print(
-                "Executing factory with a string of length ",
-                len(X),
-                " > 1000, could trigger a bug: ",
-                X,
-            )
         ret = self.out.factory(X)
         if ret:
             if self.options.verbose >= 7:
@@ -303,7 +296,7 @@ class ModelBuilder(ModelBuilderBase):
                     open_files[(fin, wsn)] = wstmp
                     # fitmp.Close()
 
-        # First do independant parameters, then expressions
+        # First do independent parameters, then expressions
         for rp in self.DC.rateParams.keys():
             for rk in range(len(self.DC.rateParams[rp])):
                 type = self.DC.rateParams[rp][rk][0][-1]

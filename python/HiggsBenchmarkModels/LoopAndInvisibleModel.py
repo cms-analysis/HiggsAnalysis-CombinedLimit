@@ -88,7 +88,7 @@ class HiggsLoops(SMLikeHiggsModel):
         ]:
             self.SMH.makeBR(d)
 
-        ## total witdh, normalized to the SM one
+        ## total width, normalized to the SM one
         if self.doHZg:
             self.modelBuilder.factory_(
                 "sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop)"
@@ -205,7 +205,7 @@ class HiggsLoopsInvisible(SMLikeHiggsModel):
         ]:
             self.SMH.makeBR(d)
 
-        ## total witdh, normalized to the SM one
+        ## total width, normalized to the SM one
         self.modelBuilder.factory_(
             "sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop, SM_BR_hzg)"
         )

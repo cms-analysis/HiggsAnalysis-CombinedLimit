@@ -9,7 +9,6 @@
 class RooRealVar;
 class RooAbsReal;
 
-#include "Riostream.h"
 #include "TMath.h"
 #include <TH1.h>
 

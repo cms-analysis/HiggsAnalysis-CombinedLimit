@@ -59,7 +59,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
         self.STXSScalingFunctions = {}
         self.DecayScalingFunctions = {}
         # Options
-        self.floatMass = False  # Initally false, require external option to float mass
+        self.floatMass = False  # Initially false, require external option to float mass
         self.doSTXSU = STXSU
         self.doBRU = BRU
         self.fixTHandBBH = fixTHandBBH  # if false scaling function for tH, bbH MUST be defined in input txt file
@@ -282,7 +282,7 @@ class STXStoEFTBaseModel(SMLikeHiggsModel):
             else:
                 raise ValueError("[ERROR] Scaling function for %s does not exist" % what)
 
-        # replace "-" in formula string by "+-" and then turn into list, splitting by delimeter "+"
+        # replace "-" in formula string by "+-" and then turn into list, splitting by delimiter "+"
         formula = re.sub("-", "+-", formula).split("+")
 
         # define list to hold name of terms
@@ -520,7 +520,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
             XSscal = None
             BRscal = None
 
-            # Extract STXS stage process belongs to: in descreasing order as want most recent th. unc
+            # Extract STXS stage process belongs to: in decreasing order as want most recent th. unc
             if production in self.PROCESSES["stage1_1"]:
                 key = "stage1_1"
             elif production in self.PROCESSES["stage1"]:
@@ -570,7 +570,7 @@ class AllStagesToEFTModel(STXStoEFTBaseModel):
                 THUscaler = "uncertainty_scaling_%s" % decay
                 self.modelBuilder.factory_(f'expr::uncertainty_scaling_{decay}("@0",HiggsDecayWidth_UncertaintyScaling_{decay})')
 
-            # Combine XS and BR scaling: incuding theory unc if option selected
+            # Combine XS and BR scaling: including theory unc if option selected
             if (self.doSTXSU) | (self.doBRU):
                 self.modelBuilder.factory_("prod::{}({})".format(name, ",".join([XSscal, BRscal, THUscaler])))
             else:
@@ -667,7 +667,7 @@ class StageXToEFTModel(STXStoEFTBaseModel):
             XSscal = None
             BRscal = None
 
-            # Extract STXS stage process belongs to: in descreasing order as want most recent th. unc
+            # Extract STXS stage process belongs to: in decreasing order as want most recent th. unc
             if production in self.PROCESSES["stage%s" % self.stage]:
                 key = "stage%s" % self.stage
             elif production in self.PROCESSES["fixedproc"]:
@@ -697,7 +697,7 @@ class StageXToEFTModel(STXStoEFTBaseModel):
                 THUscaler = "uncertainty_scaling_%s" % decay
                 self.modelBuilder.factory_(f'expr::uncertainty_scaling_{decay}("@0",HiggsDecayWidth_UncertaintyScaling_{decay})')
 
-            # Combine XS and BR scaling: incuding theory unc if option selected
+            # Combine XS and BR scaling: including theory unc if option selected
             if (self.doSTXSU) | (self.doBRU):
                 self.modelBuilder.factory_("prod::{}({})".format(name, ",".join([XSscal, BRscal, THUscaler])))
             else:
@@ -732,7 +732,7 @@ def convert_to_STXS(_production, _decay):
         _production = re.sub("ggH_0J_PTH_10_200", "ggH_0J_PTH_GT10", _production)
         # ggH: 2J should be GE2J
         _production = re.sub("ggH_2J", "ggH_GE2J", _production)
-        # ggH: havent split VBFTOPO, choose one with larger cross section, 3J
+        # ggH: haven't split VBFTOPO, choose one with larger cross section, 3J
         _production = re.sub("ggH_VBF", "ggH_VBFTOPO_JET3", _production)
 
         # qqH: names all wrong, combination of 1 and 1.1

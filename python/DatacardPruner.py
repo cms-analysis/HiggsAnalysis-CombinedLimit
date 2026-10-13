@@ -14,7 +14,7 @@ class DatacardPruner:
     Description:
 
     This is a class to prune uncertainties of an existing set of datacards. In pruning decision is based on the relative shift
-    of the nuisance parameter by the maximum likelihood fit. Nuisance parameters with a shift below a certaint threshold are
+    of the nuisance parameter by the maximum likelihood fit. Nuisance parameters with a shift below a certain threshold are
     added to a list of parameters to be pruned. The pruning step needs as inputs the directory that contains all datacards,
     which are supposed to be processed and the output(s) of one (or more) maximum likelihood fit(s) that have been processed
     by the script diffNuisances.py to give a result of all pulls in txt format. A list of these fit results should be made
@@ -59,7 +59,7 @@ class DatacardPruner:
     def combine_fit_results(self, FITRESULTS):
         """
         uses: FITRESULTS (list of one or more files containing the pulls of the max-likelihood fit), self.metric
-        Create a pseudo file of fit results form a list of fit results based on a subset of datacards. From multiply occuring
+        Create a pseudo file of fit results form a list of fit results based on a subset of datacards. From multiply occurring
         uncertainties larger pulls will replace smaller pulls according to the corresponding metric. The combined pseudo file
         will be written to the tmp directory. The return value will be the full path to the combined pseudo file.
         """
@@ -196,7 +196,7 @@ class DatacardPruner:
         """
         uses: DATACARD (absolute path to the datacard)
         Determine all lnN uncertainties from a given datacard. For correlated uncertainties the largest relative
-        uncertainty over all occurences is determined and added to a dictionary. eturn value is the dictionary
+        uncertainty over all occurrences is determined and added to a dictionary. eturn value is the dictionary
         mapping the name of the uncertainty to the maximal relative uncertainty.
         """
         lnN_uncerts = {}
@@ -243,8 +243,8 @@ class DatacardPruner:
     def prune(self, UNCERTS):
         """
         uses: UNCERTS (dictionary of uncertainty names mapped to uncertainty values, self.fit_results, self.metric,
-        self.theshold, self.blacklist, self.whitelist
-        Take the pruning decision by relative shift of the uncertainty by the maximum likelihood fit. Retrun value is a
+        self.threshold, self.blacklist, self.whitelist
+        Take the pruning decision by relative shift of the uncertainty by the maximum likelihood fit. Return value is a
         list of names for uncertainties to be pruned (=excluded) from the datacards and a list of names of nuisance
         parameters to be kept and an integer indicating in how many cases a nuisances parameter listed in FITRESULTS did
         NOT have any correspondence in the list of keys of UNCERTS.
@@ -260,10 +260,10 @@ class DatacardPruner:
             name = line.split()[0]
             if name == "name" or name == "r":
                 continue
-            missmatch = False
+            mismatch = False
             if name not in UNCERTS:
                 confused += 1
-                missmatch = True
+                mismatch = True
                 print(
                     "Warning: uncertainty:",
                     name,
@@ -279,7 +279,7 @@ class DatacardPruner:
                     val = float(pulls[1])
                 if self.metric == "max":
                     val = max(abs(float(pulls[0])), float(pulls[1]))
-                if not missmatch:
+                if not mismatch:
                     val *= UNCERTS[name]
                 else:
                     val = 99999.0

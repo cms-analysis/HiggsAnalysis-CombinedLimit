@@ -8,8 +8,6 @@
 // Souvik Das
 // 8/1/2013
 
-#include "Riostream.h" 
-
 #include "../interface/GaussExp.h" 
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 

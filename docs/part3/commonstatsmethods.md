@@ -564,7 +564,7 @@ substituting `<quantile>` with 0.5 for the median, 0.84 for the +ve side of the 
 You should note that  <span style="font-variant:small-caps;">Combine</span> will update the grid to improve the accuracy on the extracted limit by default. If you want to avoid this, you can use the option `--noUpdateGrid`. This will mean only the toys/points you produced in the grid will be used to compute the limit.
 
 !!! warning
-    This option should not be used with `--expectedFromGrid` if you did not create the grid with the same option. The reason is that the value of the test-statistic that is used to calculate the limit will not be properly calcualted if `--noUpdateGrid` is included. In future versions of the tool, this option will be ignored if using `--expectedFromGrid`. 
+    This option should not be used with `--expectedFromGrid` if you did not create the grid with the same option. The reason is that the value of the test-statistic that is used to calculate the limit will not be properly calculated if `--noUpdateGrid` is included. In future versions of the tool, this option will be ignored if using `--expectedFromGrid`. 
 
 The splitting of the jobs can be left to the user's preference. However, users may wish to use `combineTool.py` for automating this, as described in the section on [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)
 
@@ -629,7 +629,7 @@ The *observed* significance can be calculated as
 combine -M HybridNew datacard.txt --LHCmode LHC-significance --readHybridResult --toysFile=input.root [--pvalue ]
 ```
 
-where the option `--pvalue` will replace the result stored in the **limit** branch output tree to be the p-value instead of the signficance.
+where the option `--pvalue` will replace the result stored in the **limit** branch output tree to be the p-value instead of the significance.
 
 ### Expected significance, assuming some signal
 
@@ -656,7 +656,7 @@ and then to run on many toy MC data sets to determine the distribution of the go
 combine -M GoodnessOfFit datacard.txt --algo=<some-algo> -t <number-of-toys> -s <seed>
 ```
 
-When computing the goodness-of-fit, by default the signal strength is left floating in the fit, so that the measure is independent from the presence or absence of a signal. It is possible to fixe the signal strength to some value by passing the option `--fixedSignalStrength=<value>`.
+When computing the goodness-of-fit, by default the signal strength is left floating in the fit, so that the measure is independent from the presence or absence of a signal. It is possible to fix the signal strength to some value by passing the option `--fixedSignalStrength=<value>`.
 
 The following algorithms are implemented:
 
@@ -964,7 +964,7 @@ This can be used to save time when performing scans so that the best fit does no
 text2workspace.py hgg_datacard_mva_8TeV_bernsteins.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass --PO higgsMassRange=120,130 -o testmass.root`
 ```
 
--  Perfom the fit, *saving* the workspace
+-  Perform the fit, *saving* the workspace
 
 ```sh
 combine -m 123 -M MultiDimFit --saveWorkspace -n teststep1 testmass.root  --verbose 9
@@ -993,7 +993,7 @@ In <span style="font-variant:small-caps;">Combine</span>, you can perform this t
 combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint  param1=value1,param2=value2,param3=value3,... --saveHybridResult [Other options for toys, iterations etc as with limits]
 ```
 
-Note that you can also split this calculationg into several separate runs (remembering to set a random seed `-s -1` each time the above command is run) and `hadd` the resulting `.root` output files into a single file `toys.root`. This can then be read in and used to calculate $p_{\vec{\mu}}$ by using the same command as above but replacing the option `--saveHybridResult` with `--readHybridResult --toysFile toys.root`.  
+Note that you can also split this calculating into several separate runs (remembering to set a random seed `-s -1` each time the above command is run) and `hadd` the resulting `.root` output files into a single file `toys.root`. This can then be read in and used to calculate $p_{\vec{\mu}}$ by using the same command as above but replacing the option `--saveHybridResult` with `--readHybridResult --toysFile toys.root`.  
 
 The point belongs to your confidence region if $p_{\vec{\mu}}$ is larger than $\alpha$ (e.g. 0.3173 for a 1σ region, $1-\alpha=0.6827$).
 
@@ -1018,7 +1018,7 @@ and,
 
 $$q(\vec{\mu}) = - 2 \ln \mathcal{L}(\vec{\mu},\hat{\hat{\vec{\nu}}}(\vec{\mu}))/\mathcal{L}(\vec{\mu}_{B},\hat{\hat{\vec{\nu}}}(\vec{\mu}_{B})),$$
 
-if $\hat{\vec{\mu}}$ is outside of the bounded range. Here $\vec{\mu}_{B}$ and $\hat{\hat{\vec{\nu}}}(\vec{\mu}_{B})$ are the values of $\vec{\mu}$ and $\vec{\nu}$ which maximise the likelihood *excluding values outside of the bounded region* for $\vec{\mu}$ - typically, $\vec{\mu}_{B}$ will be found at one of the boundaries which is imposed. For example if there is one parameter of interest $\mu$ , if the boundary $\mu>0$ is imposed, you will typically expect $\mu_{B}=0$, when $\hat{\mu}\leq 0$, and $\mu_{B}=\hat{\mu}$ otherewise.
+if $\hat{\vec{\mu}}$ is outside of the bounded range. Here $\vec{\mu}_{B}$ and $\hat{\hat{\vec{\nu}}}(\vec{\mu}_{B})$ are the values of $\vec{\mu}$ and $\vec{\nu}$ which maximise the likelihood *excluding values outside of the bounded region* for $\vec{\mu}$ - typically, $\vec{\mu}_{B}$ will be found at one of the boundaries which is imposed. For example if there is one parameter of interest $\mu$ , if the boundary $\mu>0$ is imposed, you will typically expect $\mu_{B}=0$, when $\hat{\mu}\leq 0$, and $\mu_{B}=\hat{\mu}$ otherwise.
 
 This can sometimes be an issue as Minuit may not know if has successfully converged when the minimum lies outside of that range. If there is no upper/lower boundary, just set that value to something far from the region of interest.
 

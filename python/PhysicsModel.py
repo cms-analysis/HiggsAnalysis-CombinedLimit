@@ -37,7 +37,7 @@ class PhysicsModelBase(metaclass=ABCMeta):
     def getChannelMask(self, bin):
         "Return the name of a RooAbsReal to mask the given bin (args != 0 => masked)"
         name = "mask_%s" % bin
-        # Check that the mask expression does't exist already, it might do
+        # Check that the mask expression doesn't exist already, it might do
         # if it was already defined in the datacard
         if not self.modelBuilder.out.arg(name):
             self.modelBuilder.doVar("%s[0]" % name)

@@ -147,7 +147,7 @@ parser.add_option(
     action="store_true",
     help="Keep histograms of the llr for toys (and the datavalue) in the output file (warning, increases run time)",
 )
-# parser.add_option("-f","--filesdir",dest="filesdir",default='',type=str,help="Directory to recursively search for toys, use dir:reg to search fo regular expression inside dir")
+# parser.add_option("-f","--filesdir",dest="filesdir",default='',type=str,help="Directory to recursively search for toys, use dir:reg to search for regular expression inside dir")
 parser.add_option(
     "-f",
     "--filesdir",
@@ -155,7 +155,7 @@ parser.add_option(
     type="str",
     action="callback",
     callback=get_confs,
-    help="Directory to recursively search for toys, use dir:reg to search fo regular expression inside dir (comma separate for multiple dirs)",
+    help="Directory to recursively search for toys, use dir:reg to search for regular expression inside dir (comma separate for multiple dirs)",
 )
 options, args = parser.parse_args()
 
@@ -414,7 +414,7 @@ def mergePoints(original, appended):
                 if p.has_data() and not options.storeToys:
                     po.nToys += p.nToys
                     po.nToysPass += p.nToysPass
-                    po.set_data(p.data)  # if po already has data, this wont do anything
+                    po.set_data(p.data)  # if po already has data, this won't do anything
                 else:
                     for toy in p.toys:
                         po.commit_toy(toy)  # this will just do the right thing
@@ -585,7 +585,7 @@ if options.oned:
 
 # For 2D /************************************************************************/
 # One histogram with ALL values of CL, also one TGraph per value of CL (although
-# they won't look great probably as the interpolation is wrong. It will say whehter
+# they won't look great probably as the interpolation is wrong. It will say whether
 # a point is in or out of each CL contour
 # Also a histogram with number of toys thrown (found) at each point
 # Also one TGraph with each stored point in it
@@ -663,7 +663,7 @@ else:
         grXY.Write()
 
 outFile.Close()
-print("Created File ", outFile.GetName(), " containing confidance contours")
+print("Created File ", outFile.GetName(), " containing confidence contours")
 if options.storeToys:
     print("Saved histograms of toys and data to file")
 # for f in failedFiles : print f, # for debugging/removing failed files

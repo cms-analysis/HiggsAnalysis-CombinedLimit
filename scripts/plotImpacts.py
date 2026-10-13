@@ -270,7 +270,7 @@ def MakeSummaryPage():
     # right_margin = 0.97
     row_h = (max_y - min_y) / float(nDraw)
     boxes = []
-    occurances = {}
+    occurrences = {}
 
     def DrawBoxes(color):
         for i in range(nDraw):
@@ -291,9 +291,9 @@ def MakeSummaryPage():
     DrawBoxes(ROOT.kRed - 10)
     for i in range(nDraw):
         par = params[ranking_pull[i][0]]
-        if par["name"] not in occurances:
-            occurances[par["name"]] = [None, None, None]
-        occurances[par["name"]][0] = i
+        if par["name"] not in occurrences:
+            occurrences[par["name"]] = [None, None, None]
+        occurrences[par["name"]][0] = i
         SetEntryText(latex)
         latex.DrawLatex(0.03, max_y - ((float(i) + 0.5) * row_h), par["name"])
         SetEntryValue(latex)
@@ -307,9 +307,9 @@ def MakeSummaryPage():
     DrawBoxes(ROOT.kGreen - 10)
     for i in range(nDraw):
         par = params[ranking_constraint[i][0]]
-        if par["name"] not in occurances:
-            occurances[par["name"]] = [None, None, None]
-        occurances[par["name"]][1] = i
+        if par["name"] not in occurrences:
+            occurrences[par["name"]] = [None, None, None]
+        occurrences[par["name"]][1] = i
         SetEntryText(latex)
         latex.DrawLatex(0.03, max_y - ((float(i) + 0.5) * ((0.9 - 0.1) / float(nDraw))), par["name"])
         SetEntryValue(latex)
@@ -323,9 +323,9 @@ def MakeSummaryPage():
     DrawBoxes(ROOT.kBlue - 10)
     for i in range(nDraw):
         par = params[ranking_impact[i][0]]
-        if par["name"] not in occurances:
-            occurances[par["name"]] = [None, None, None]
-        occurances[par["name"]][2] = i
+        if par["name"] not in occurrences:
+            occurrences[par["name"]] = [None, None, None]
+        occurrences[par["name"]][2] = i
         SetEntryText(latex)
         latex.DrawLatex(0.03, 0.9 - ((float(i) + 0.5) * ((0.9 - 0.1) / float(nDraw))), par["name"])
         SetEntryValue(latex)
@@ -342,7 +342,7 @@ def MakeSummaryPage():
         for col in [1, 2, 3, 4, 6, 7, 15, ROOT.kOrange]:
             marker_styles.append((style, col))
     curr_marker = 0
-    for parname, entries in occurances.items():
+    for parname, entries in occurrences.items():
         # print(parname, entries)
         multiple = entries.count(None) <= 1
         if multiple:
