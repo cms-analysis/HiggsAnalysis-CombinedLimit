@@ -10,8 +10,11 @@
 #include "../interface/VerticalInterpPdf.h"
 #include "../interface/CombineMathFuncs.h"
 #include "../interface/RooParametricHist.h"
+#include "../interface/HGGRooPdfs.h"
 
+#include <RooAbsRealLValue.h>
 #include <RooUniformBinning.h>
+#include <stdexcept>
 
 void RooFit::Experimental::codegenImpl(AsymPow& arg, CodegenContext& ctx) {
   ctx.addResult(&arg,
@@ -270,6 +273,10 @@ void RooFit::Experimental::codegenImpl(RooParametricHist& arg, CodegenContext& c
   ctx.addResult(&arg, code.str());
 }
 
+void RooFit::Experimental::codegenImpl(RooPower& arg, CodegenContext& ctx) {
+  ctx.addResult(&arg, ctx.buildCall("RooFit::Detail::MathFuncs::powerEvaluate", arg.base(), arg.exponent()));
+}
+
 std::string RooFit::Experimental::codegenIntegralImpl(VerticalInterpPdf& arg,
                                                       int code,
                                                       const char* rangeName,
@@ -310,6 +317,19 @@ std::string RooFit::Experimental::codegenIntegralImpl(RooParametricHist& arg,
                        rangeName ? std::string("\"") + rangeName + "\"" : std::string("nullptr"),
                        xMin,
                        xMax);
+}
+
+std::string RooFit::Experimental::codegenIntegralImpl(RooPower& arg,
+                                                      int code,
+                                                      const char* rangeName,
+                                                      CodegenContext& ctx) {
+  if (code != 1) {
+    throw std::invalid_argument("RooPower: unsupported analytical integral code");
+  }
+
+  const auto& x = dynamic_cast<const RooAbsRealLValue&>(arg.base());
+  return ctx.buildCall(
+      "RooFit::Detail::MathFuncs::powerIntegral", x.getMin(rangeName), x.getMax(rangeName), arg.exponent());
 }
 
 #endif  // ROOT_VERSION_CODE >= ROOT_VERSION(6,36,0)
