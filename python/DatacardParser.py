@@ -681,7 +681,7 @@ def parseCard(file, options):
     for lsyst, nofloat, pdf, args, errline in ret.systs:
         nonNullEntries = 0
         if pdf == "param" or pdf == "constr" or pdf == "discrete" or pdf == "rateParam" or pdf == "flatParam":  # this doesn't have an errline
-            syst2.append((lsyst, nofloat, pdf, args, errline))
+            syst2.append([lsyst, nofloat, pdf, args, errline])
             continue
         for b, p, s in ret.keyline:
             r = errline[b][p]
@@ -689,7 +689,7 @@ def parseCard(file, options):
             if not nullEffect and ret.exp[b][p] != 0:
                 nonNullEntries += 1  # is this a zero background?
         if nonNullEntries != 0:
-            syst2.append((lsyst, nofloat, pdf, args, errline))
+            syst2.append([lsyst, nofloat, pdf, args, errline])
 
         elif nuisances != -1:
             nuisances -= 1  # remove from count of nuisances, since qe skipped it
