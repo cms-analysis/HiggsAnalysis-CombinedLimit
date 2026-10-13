@@ -195,10 +195,14 @@ if(NOT CMSSW_VERSION MATCHES "^CMSSW_11")
   ADD_COMBINE_TEST(multipdf
     T2W_COMMAND
       text2workspace.py ${REPO}/data/ci/datacard_RooMultiPdf.txt.gz -o ws_RooMultiPdf.root
+    # Both commands run with the lowest verbosity: with ROOT >= 6.38, Minos
+    # stepping to the boundary of r makes RooFit print range-clipping warnings
+    # on every likelihood evaluation, and on some platforms Migrad probes a
+    # point where the Chebychev transfer functions are negative, which
+    # produces an evaluation error log. Neither affects the fit result.
     COMBINE_COMMANDS
-      "combine -M MultiDimFit -m 125.38 --setParameters pdf_index_ggh=2 --freezeParameters MH --cminDefaultMinimizerTolerance 0.001 --cminDefaultMinimizerStrategy 1 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles ws_RooMultiPdf.root"
-      # Also run Hesse on the result. The lower verbosity hides RooFit warnings
-      # about Hesse stepping to the boundary of r, which not all ROOT versions print.
+      "combine -v -1 -M MultiDimFit -m 125.38 --setParameters pdf_index_ggh=2 --freezeParameters MH --cminDefaultMinimizerTolerance 0.001 --cminDefaultMinimizerStrategy 1 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles ws_RooMultiPdf.root"
+      # Also run Hesse on the result.
       "combine -v -1 -M MultiDimFit -m 125.38 --setParameters pdf_index_ggh=2 --freezeParameters MH --cminDefaultMinimizerTolerance 0.001 --cminDefaultMinimizerStrategy 1 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles --saveFitResult ws_RooMultiPdf.root"
     # The last digit of the Minos uncertainties differs between ROOT versions,
     # so compare floating point numbers with a relative tolerance of 1 %.
