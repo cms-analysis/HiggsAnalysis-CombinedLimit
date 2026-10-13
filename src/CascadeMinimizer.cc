@@ -392,9 +392,11 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
 
    TStopwatch tw; tw.Start();
    utils::setAllConstant(frozen,false);
-   
+
    // Run one last fully floating fit to maintain RooFitResult
-   ret = improve(verbose, cascade); 
+   // We force a reset of the minimizer to ensure parameters that were frozen the last time
+   // the minimiser was constructed are picked up as floating again.
+   ret = improve(verbose, cascade, /*forceResetMinimizer=*/true);
    minimumNLL = nll_.getVal();
 
    tw.Stop(); if (verbose > 2) std::cout << "Full fit done in " << tw.RealTime() << std::endl;
