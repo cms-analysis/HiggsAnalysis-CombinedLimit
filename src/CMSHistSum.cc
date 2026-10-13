@@ -1,5 +1,6 @@
 #include "../interface/CMSHistSum.h"
 #include "../interface/CMSHistFuncWrapper.h"
+#include "../interface/CMSHistSumWrapper.h"
 #include <stdexcept>
 #include <vector>
 #include <ostream>
@@ -185,6 +186,7 @@ CMSHistSum::CMSHistSum(
       vtype_(other.vtype_),
       vsmooth_par_(other.vsmooth_par_),
       bintypes_(other.bintypes_),
+      staging_(other.staging_),
       cache_(other.cache_),
       sentry_(name ? TString(name) + "_sentry" : TString(other.GetName())+"_sentry", ""),
       binsentry_(name ? TString(name) + "_binsentry" : TString(other.GetName())+"_binsentry", ""),
@@ -667,6 +669,65 @@ std::unique_ptr<RooArgSet> CMSHistSum::getSentryArgs() const {
 Double_t CMSHistSum::evaluate() const {
   updateCache();
   return cache().GetAt(x_);
+}
+
+void CMSHistSum::fillProcessShape(unsigned idx, FastHisto& result) const {
+  updateCache();
+
+  result = compcache_[idx];
+  if (vtype_[idx] == CMSHistFunc::VerticalSetting::LogQuadLinear) {
+    result.Exp();
+    result.Scale(storage_[process_fields_[idx]].Integral() / result.Integral());
+  }
+  result.CropUnderflows();
+
+  // bintypes might have size == 0 if we never ran setupBinPars()
+  for (unsigned j = 0; j < bintypes_.size(); ++j) {
+    if (bintypes_[j][0] == 0) {
+      continue;
+    } else if (bintypes_[j][0] == 1) {
+      // Single Barlow-Beeston parameter: share the total shift between the
+      // processes in proportion to their contribution to the squared error
+      if (err2sum_[j] > 0. && coeffvals_[idx] > 0.) {
+        double x = vbinpars_[j][0]->getVal();
+        double e = binerrors_[idx][j];
+        result[j] += x * (toterr_[j] * e * e * coeffvals_[idx]) / err2sum_[j];
+      }
+    } else if (idx < bintypes_[j].size() && (bintypes_[j][idx] == 2 || bintypes_[j][idx] == 3)) {
+      result[j] += scaledbinmods_[idx][j];
+    }
+  }
+}
+
+RooArgList CMSHistSum::wrapperList() const {
+  // Wrappers that already exist, either imported into the workspace by
+  // text2workspace or created by a previous call, are clients of this object
+  std::vector<RooAbsArg*> wrappers(coeffpars_.getSize(), nullptr);
+  for (RooAbsArg *arg : valueClients()) {
+    CMSHistSumWrapper const* wrapper = dynamic_cast<CMSHistSumWrapper const*>(arg);
+    if (wrapper && wrapper->idx() < wrappers.size() && !wrappers[wrapper->idx()]) {
+      wrappers[wrapper->idx()] = arg;
+    }
+  }
+
+  RooArgList result;
+  CMSHistSum* self = const_cast<CMSHistSum*>(this);
+  for (int i = 0; i < coeffpars_.getSize(); ++i) {
+    RooAbsArg* wrapper = wrappers[i];
+    if (!wrapper) {
+      RooAbsArg const* coeff = coeffpars_.at(i);
+      // Use the index for the name, coefficients are not necessarily unique
+      // (e.g. the signals in the background-only model all use "ZERO")
+      TString name = TString::Format("%s_proc%d_wrapper", GetName(), i);
+      wrapper = new CMSHistSumWrapper(name, "", const_cast<RooAbsReal&>(x_.arg()), *self, i);
+      for (const char* attr : {"combine.process", "combine.channel"}) {
+        if (coeff->getStringAttribute(attr)) wrapper->setStringAttribute(attr, coeff->getStringAttribute(attr));
+      }
+      self->addOwnedComponents(*wrapper);
+    }
+    result.add(*wrapper);
+  }
+  return result;
 }
 
 std::map<std::string, Double_t> CMSHistSum::getProcessNorms() const {
