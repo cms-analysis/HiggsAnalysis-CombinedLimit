@@ -105,6 +105,13 @@ function(COMBINE_ADD_TEST test)
     set(_command ${_command} -DCNVCMD=${_outcnvcmd})
   endif()
 
+  #- Filter volatile lines (e.g. the Combine version) from the output before
+  #  comparing it to the reference file. The same filter is applied when
+  #  generating the reference files, see create_reference_files.sh.
+  if(ARG_OUTREF AND NOT ARG_OUTCNV)
+    set(ARG_OUTCNV ${CMAKE_CURRENT_SOURCE_DIR}/filter_test_output.sh)
+  endif()
+
   if(ARG_OUTCNV)
     string(REPLACE ";" "^" _outcnv "${ARG_OUTCNV}")
     set(_command ${_command} -DCNV=${_outcnv})
