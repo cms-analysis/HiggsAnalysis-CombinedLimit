@@ -1,4 +1,4 @@
-#include "CombineHarvester/CombineTools/interface/BinByBin.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/BinByBin.h"
 #include <iostream>
 #include <string>
 #include <vector>

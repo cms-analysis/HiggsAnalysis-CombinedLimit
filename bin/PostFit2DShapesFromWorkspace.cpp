@@ -3,10 +3,10 @@
 #include "boost/format.hpp"
 #include "TSystem.h"
 #include "TH2F.h"
-#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
-#include "CombineHarvester/CombineTools/interface/ParseCombineWorkspace.h"
-#include "CombineHarvester/CombineTools/interface/TFileIO.h"
-#include "CombineHarvester/CombineTools/interface/Logging.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/ParseCombineWorkspace.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/TFileIO.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Logging.h"
 
 namespace po = boost::program_options;
 

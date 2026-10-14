@@ -4,8 +4,8 @@
 #include <map>
 #include <vector>
 #include <set>
-#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
-#include "CombineHarvester/CombineTools/interface/Object.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Object.h"
 
 namespace ch {
 

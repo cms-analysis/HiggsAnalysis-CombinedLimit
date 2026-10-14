@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include "CombineHarvester/CombineTools/interface/json.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/json.h"
 
 namespace ch {
 /**

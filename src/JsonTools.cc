@@ -1,4 +1,4 @@
-#include "CombineHarvester/CombineTools/interface/JsonTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/JsonTools.h"
 
 #include <fstream>
 #include <string>

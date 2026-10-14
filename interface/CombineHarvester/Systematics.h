@@ -2,8 +2,8 @@
 #define CombineTools_Systematics_h
 #include <vector>
 #include <string>
-#include "CombineHarvester/CombineTools/interface/Process.h"
-#include "CombineHarvester/CombineTools/interface/Logging.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Process.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Logging.h"
 
 namespace ch {
 namespace syst {

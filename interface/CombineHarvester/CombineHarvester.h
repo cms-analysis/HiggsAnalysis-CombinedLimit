@@ -14,12 +14,12 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "RooWorkspace.h"
-#include "CombineHarvester/CombineTools/interface/Process.h"
-#include "CombineHarvester/CombineTools/interface/Systematic.h"
-#include "CombineHarvester/CombineTools/interface/Parameter.h"
-#include "CombineHarvester/CombineTools/interface/Observation.h"
-#include "CombineHarvester/CombineTools/interface/Utilities.h"
-#include "CombineHarvester/CombineTools/interface/HistMapping.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Process.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Systematic.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Parameter.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Observation.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Utilities.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/HistMapping.h"
 #include "HiggsAnalysis/CombinedLimit/interface/VerticalInterpPdf.h"
 
 namespace ch {

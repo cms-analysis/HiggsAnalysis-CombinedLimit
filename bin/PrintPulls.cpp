@@ -19,7 +19,7 @@
 #include "boost/algorithm/string.hpp"
 #include "boost/program_options.hpp"
 
-#include "CombineHarvester/CombineTools/interface/Plotting_Style.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Plotting_Style.h"
 
 namespace po = boost::program_options;
 using namespace std;

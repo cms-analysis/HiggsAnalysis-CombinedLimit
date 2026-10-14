@@ -1,7 +1,7 @@
-#include "CombineHarvester/CombineTools/interface/Systematic.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Systematic.h"
 #include <iostream>
 #include "boost/format.hpp"
-#include "CombineHarvester/CombineTools/interface/Logging.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Logging.h"
 #include <regex>
 
 namespace {

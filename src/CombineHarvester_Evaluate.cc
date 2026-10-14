@@ -1,4 +1,4 @@
-#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
 #include <vector>
 #include <map>
 #include <string>
@@ -14,13 +14,13 @@
 #include "TDirectory.h"
 #include "TH1.h"
 #include "TH2.h"
-#include "CombineHarvester/CombineTools/interface/Observation.h"
-#include "CombineHarvester/CombineTools/interface/Process.h"
-#include "CombineHarvester/CombineTools/interface/Systematic.h"
-#include "CombineHarvester/CombineTools/interface/Parameter.h"
-#include "CombineHarvester/CombineTools/interface/MakeUnique.h"
-#include "CombineHarvester/CombineTools/interface/Utilities.h"
-#include "CombineHarvester/CombineTools/interface/Algorithm.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Observation.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Process.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Systematic.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Parameter.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/MakeUnique.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Utilities.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Algorithm.h"
 
 // #include "TMath.h"
 // #include "boost/format.hpp"

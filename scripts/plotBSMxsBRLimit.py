@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
-import CombineHarvester.CombineTools.maketable as maketable
+import HiggsAnalysis.CombinedLimit.CombineHarvester.maketable as maketable
 import ROOT
 import math
 import argparse

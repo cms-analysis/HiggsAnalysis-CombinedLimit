@@ -19,10 +19,10 @@
 
 // #include "Utilities/interface/FnRootTools.h"
 
-#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
-#include "CombineHarvester/CombineTools/interface/Utilities.h"
-#include "CombineHarvester/CombineTools/interface/TFileIO.h"
-#include "CombineHarvester/CombineTools/interface/SOverBTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Utilities.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/TFileIO.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/SOverBTools.h"
 
 namespace po = boost::program_options;
 

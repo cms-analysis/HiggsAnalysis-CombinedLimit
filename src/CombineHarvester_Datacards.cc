@@ -1,4 +1,4 @@
-#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
 #include <cmath>
 #include <vector>
 #include <map>
@@ -21,15 +21,15 @@
 #include "RooCategory.h"
 #include "RooConstVar.h"
 
-#include "CombineHarvester/CombineTools/interface/Observation.h"
-#include "CombineHarvester/CombineTools/interface/Process.h"
-#include "CombineHarvester/CombineTools/interface/Systematic.h"
-#include "CombineHarvester/CombineTools/interface/Parameter.h"
-#include "CombineHarvester/CombineTools/interface/MakeUnique.h"
-#include "CombineHarvester/CombineTools/interface/Utilities.h"
-#include "CombineHarvester/CombineTools/interface/TFileIO.h"
-#include "CombineHarvester/CombineTools/interface/Algorithm.h"
-#include "CombineHarvester/CombineTools/interface/zstr.hpp"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Observation.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Process.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Systematic.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Parameter.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/MakeUnique.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Utilities.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/TFileIO.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Algorithm.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/zstr.hpp"
 namespace ch {
 
 // Bug fix for RooConstVar CompatibilityA

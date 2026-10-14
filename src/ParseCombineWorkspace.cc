@@ -1,4 +1,4 @@
-#include "CombineHarvester/CombineTools/interface/ParseCombineWorkspace.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/ParseCombineWorkspace.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h"
 #include <iostream>
 #include <string>
@@ -10,7 +10,7 @@
 #include "RooProdPdf.h"
 #include "RooRealSumPdf.h"
 #include "RooStats/ModelConfig.h"
-#include "CombineHarvester/CombineTools/interface/Logging.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Logging.h"
 
 namespace ch {
 void ParseCombineWorkspacePy(CombineHarvester& cb, RooWorkspace const& ws,

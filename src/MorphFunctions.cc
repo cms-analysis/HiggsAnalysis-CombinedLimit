@@ -1,4 +1,4 @@
-#include "CombineHarvester/CombinePdfs/interface/MorphFunctions.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/MorphFunctions.h"
 #include <iostream>
 #include <set>
 #include <vector>
@@ -12,7 +12,7 @@
 #include "RooDataHist.h"
 #include "RooProduct.h"
 #include "RooConstVar.h"
-#include "CombineHarvester/CombineTools/interface/Logging.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Logging.h"
 
 namespace ch {
 

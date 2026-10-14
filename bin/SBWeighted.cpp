@@ -6,11 +6,11 @@
 #include "boost/format.hpp"
 #include "boost/program_options.hpp"
 
-#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
-#include "CombineHarvester/CombineTools/interface/SOverBTools.h"
-#include "CombineHarvester/CombineTools/interface/TFileIO.h"
-#include "CombineHarvester/CombineTools/interface/Plotting.h"
-#include "CombineHarvester/CombineTools/interface/Plotting_Style.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/SOverBTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/TFileIO.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Plotting.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Plotting_Style.h"
 
 namespace po = boost::program_options;
 

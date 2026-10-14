@@ -5,8 +5,8 @@
 #include "TH1.h"
 #include "RooAbsReal.h"
 #include "RooDataHist.h"
-#include "CombineHarvester/CombineTools/interface/MakeUnique.h"
-#include "CombineHarvester/CombineTools/interface/Object.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/MakeUnique.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Object.h"
 
 namespace ch {
 

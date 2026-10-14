@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-from __future__ import absolute_import
-from __future__ import print_function
-import CombineHarvester.CombineTools.ch as ch
+import HiggsAnalysis.CombinedLimit.CombineHarvester.ch as ch
 import ROOT
 import argparse
 import math

@@ -1,4 +1,4 @@
-#include "CombineHarvester/CombineTools/interface/Parameter.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Parameter.h"
 #include <iostream>
 #include <string>
 #include <limits>

@@ -1,7 +1,7 @@
 #ifndef CombineTools_BinByBin_h
 #define CombineTools_BinByBin_h
 #include <string>
-#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
 
 namespace ch {
 /**

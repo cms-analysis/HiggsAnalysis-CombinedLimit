@@ -1,4 +1,4 @@
-#include "CombineHarvester/CombineTools/interface/Object.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Object.h"
 #include <iostream>
 namespace ch {
 

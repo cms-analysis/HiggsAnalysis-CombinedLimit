@@ -1,9 +1,7 @@
-from __future__ import absolute_import
-import CombineHarvester.CombineTools.plotting as plot
+import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import ROOT as R
 from array import array
 import json
-from six.moves import range
 
 def Tablefrom1DGraph(rootfile, filename):
     graph = [R.TGraph() for i in range(6)]

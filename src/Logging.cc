@@ -1,4 +1,4 @@
-#include "CombineHarvester/CombineTools/interface/Logging.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Logging.h"
 #include <string>
 #include <iostream>
 #include "boost/lexical_cast.hpp"

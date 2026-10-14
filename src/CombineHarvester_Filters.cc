@@ -1,12 +1,12 @@
-#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
 #include <vector>
 #include <string>
 #include <utility>
 #include <set>
-#include "CombineHarvester/CombineTools/interface/Observation.h"
-#include "CombineHarvester/CombineTools/interface/Process.h"
-#include "CombineHarvester/CombineTools/interface/Systematic.h"
-#include "CombineHarvester/CombineTools/interface/Algorithm.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Observation.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Process.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Systematic.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Algorithm.h"
 
 namespace ch {
 

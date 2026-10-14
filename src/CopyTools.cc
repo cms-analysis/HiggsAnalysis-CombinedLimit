@@ -1,8 +1,8 @@
-#include "CombineHarvester/CombineTools/interface/CopyTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CopyTools.h"
 #include <string>
 #include <vector>
-#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
-#include "CombineHarvester/CombineTools/interface/Systematic.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Systematic.h"
 
 
 namespace ch {

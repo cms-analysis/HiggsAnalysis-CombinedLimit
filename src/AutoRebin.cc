@@ -1,4 +1,4 @@
-#include "CombineHarvester/CombineTools/interface/AutoRebin.h" 
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/AutoRebin.h" 
 #include <iostream> 
 #include <string> 
 #include <vector> 

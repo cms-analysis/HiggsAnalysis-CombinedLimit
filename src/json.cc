@@ -73,7 +73,7 @@ license you like.
 
 
 
-#include "CombineHarvester/CombineTools/interface/json.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/json.h"
 
 
 // //////////////////////////////////////////////////////////////////////

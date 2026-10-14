@@ -1,4 +1,4 @@
-#include "CombineHarvester/CombineTools/interface/SOverBTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/SOverBTools.h"
 #include "TH1.h"
 #include "TAxis.h"
 

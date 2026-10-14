@@ -1,4 +1,4 @@
-#include "CombineHarvester/CombineTools/interface/ValidationTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/ValidationTools.h"
 #include <iostream>
 #include <vector>
 #include <set>
@@ -11,7 +11,7 @@
 #include "RooDataHist.h"
 #include "RooAbsReal.h"
 #include "RooAbsData.h"
-#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
 
 namespace ch {
 using json = nlohmann::json;

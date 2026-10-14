@@ -40,7 +40,7 @@ if(USE_VDT)
   find_package(Vdt REQUIRED)
 endif()
 find_package(LCG QUIET) # only used for FindBoost in StatAnalysis
-find_package(Boost CONFIG REQUIRED COMPONENTS program_options filesystem)
+find_package(Boost CONFIG REQUIRED COMPONENTS program_options filesystem regex)
 
 message(STATUS "Using ROOT From: ${ROOT_INCLUDE_DIRS}")
 include(${ROOT_USE_FILE})
@@ -69,6 +69,7 @@ if(COMBINE_CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} interface/*.h*)
+file(GLOB CH_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} interface/CombineHarvester/*.h*)
 file(GLOB SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.c*)
 
 # includes require "HiggsAnalysis/CombinedLimit" prefix in many places
@@ -96,6 +97,23 @@ endif()
 add_executable(combine bin/combine.cpp)
 target_link_libraries(combine PUBLIC ${LIBNAME})
 set_target_properties(combine PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+# CombineHarvester command-line tools
+set(CH_EXECUTABLES
+    PostFitShapesFromWorkspace
+    PostFit2DShapesFromWorkspace
+    PrintPulls
+    NuisanceSummary
+    ImpactsTable
+    RoundTrip
+    SBWeighted
+    YieldTable
+)
+foreach(exe ${CH_EXECUTABLES})
+  add_executable(${exe} bin/${exe}.cpp)
+  target_link_libraries(${exe} PUBLIC ${LIBNAME} Boost::program_options)
+  set_target_properties(${exe} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+endforeach()
 
 if(MODIFY_ROOTMAP)
         # edit the generated rootmap in-situ before installation
@@ -160,6 +178,8 @@ set(python_scripts
     ${CMAKE_SOURCE_DIR}/scripts/plotBSMxsBRLimit.py
     ${CMAKE_SOURCE_DIR}/scripts/plotLimits.py
     ${CMAKE_SOURCE_DIR}/scripts/debugChains.py
+    ${CMAKE_SOURCE_DIR}/scripts/ValidateDatacards.py
+    ${CMAKE_SOURCE_DIR}/scripts/partialCorrelationEdit.py
 )
 add_custom_command(
     OUTPUT "${CMAKE_BINARY_DIR}/.stamp_python_scripts"
@@ -189,12 +209,13 @@ install(TARGETS ${LIBNAME}
         LIBRARY DESTINATION lib
         PUBLIC_HEADER DESTINATION include/HiggsAnalysis/CombinedLimit/interface
         )
+install(FILES ${CH_HEADERS} DESTINATION include/HiggsAnalysis/CombinedLimit/interface/CombineHarvester)
 # dictionary requires classes.h to be in include path exactly as it was specified
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/HiggsAnalysis/CombinedLimit/src/classes.h
         DESTINATION include/HiggsAnalysis/CombinedLimit/src)
 
 # Install the "combine" executable in the bin directory.
-install(TARGETS combine DESTINATION bin)
+install(TARGETS combine ${CH_EXECUTABLES} DESTINATION bin)
 
 # Install the scripts like "text2workspace.py" to the bin directory.
 install(DIRECTORY scripts/ DESTINATION ${CMAKE_INSTALL_BINDIR} USE_SOURCE_PERMISSIONS)

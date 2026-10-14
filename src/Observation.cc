@@ -1,7 +1,7 @@
-#include "CombineHarvester/CombineTools/interface/Observation.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Observation.h"
 #include <iostream>
 #include "boost/format.hpp"
-#include "CombineHarvester/CombineTools/interface/Logging.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Logging.h"
 
 namespace {
 auto format_obs(const ch::Observation& val) {

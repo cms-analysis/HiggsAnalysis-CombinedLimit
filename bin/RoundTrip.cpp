@@ -2,8 +2,8 @@
 #include "TSystem.h"
 #include "boost/program_options.hpp"
 #include "boost/format.hpp"
-#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
-#include "CombineHarvester/CombineTools/interface/TFileIO.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/TFileIO.h"
 
 namespace po = boost::program_options;
 

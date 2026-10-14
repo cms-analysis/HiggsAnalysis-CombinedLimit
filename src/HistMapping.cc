@@ -1,4 +1,4 @@
-#include "CombineHarvester/CombineTools/interface/HistMapping.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/HistMapping.h"
 #include <string>
 #include "boost/format.hpp"
 

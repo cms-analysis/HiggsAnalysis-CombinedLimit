@@ -5,7 +5,7 @@
 #include "RooWorkspace.h"
 #include "RooHistPdf.h"
 #include "RooBinning.h"
-#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wuninitialized"
 #pragma GCC diagnostic ignored "-Wignored-qualifiers"

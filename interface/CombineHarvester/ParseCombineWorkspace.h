@@ -2,7 +2,7 @@
 #define CombineTools_ParseCombineWorkspace_h
 #include <string>
 #include "RooWorkspace.h"
-#include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
 
 class RooAddPdf;
 class RooAbsPdf;

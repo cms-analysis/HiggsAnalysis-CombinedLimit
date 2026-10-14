@@ -7,7 +7,7 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "TDirectory.h"
-#include "CombineHarvester/CombineTools/interface/Logging.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Logging.h"
 
 namespace ch {
 

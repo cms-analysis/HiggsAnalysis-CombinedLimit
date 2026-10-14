@@ -1,8 +1,8 @@
-#include "CombineHarvester/CombineTools/interface/Process.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Process.h"
 #include <iostream>
 #include <string>
 #include "boost/format.hpp"
-#include "CombineHarvester/CombineTools/interface/Logging.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Logging.h"
 
 namespace {
 auto format_proc(const ch::Process& val) {

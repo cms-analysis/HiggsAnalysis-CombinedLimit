@@ -9,7 +9,7 @@
  * namespace :(
  */
 #include <string>
-#include "CombineHarvester/CombineTools/interface/Systematic.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Systematic.h"
 
 namespace ch { class CombineHarvester; }
 

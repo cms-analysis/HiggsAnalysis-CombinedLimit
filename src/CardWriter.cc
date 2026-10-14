@@ -1,11 +1,11 @@
-#include "CombineHarvester/CombineTools/interface/CardWriter.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CardWriter.h"
 #include <iostream>
 #include <set>
 #include <string>
 #include <vector>
 #include "boost/format.hpp"
-#include "CombineHarvester/CombineTools/interface/Logging.h"
-#include "CombineHarvester/CombineTools/interface/Algorithm.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Logging.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Algorithm.h"
 
 namespace ch {
 
