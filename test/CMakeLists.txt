@@ -291,6 +291,42 @@ ADD_COMBINE_TEST(cmshistsum_channel_masks
     "combine -M MultiDimFit ws_template-analysis-channel_masks.root --algo singles  --setParameterRanges r=-5,5 --setParameters mask_htt_tt_2_8TeV=1 --X-rtd FAST_VERTICAL_MORPH"
 )
 
+# FitDiagnostics with per-process shapes and normalisations, CMSHistErrorPropagator.
+# The three fitdiagnostics tests below should give identical outputs: per-process
+# yields, and the content and error of every bin of the saved shapes. Floats are
+# compared with a small tolerance to allow for differences between platforms.
+ADD_COMBINE_TEST(cmshistfunc_fitdiagnostics
+  T2W_COMMAND
+    text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o cmshistfunc_fitdiagnostics.root
+  COMBINE_COMMANDS
+    "combine -M FitDiagnostics cmshistfunc_fitdiagnostics.root -n cmshistfunc --saveShapes --saveNormalizations --saveWithUncertainties --numToysForShapes 20"
+    "python3 ${REPO}/test/mlfitNormsToText.py -u fitDiagnosticscmshistfunc.root"
+    "python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticscmshistfunc.root"
+  DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.001
+)
+
+# FitDiagnostics with CMSHistSum, using the CMSHistSumWrappers stored in the workspace
+ADD_COMBINE_TEST(cmshistsum_fitdiagnostics
+  T2W_COMMAND
+    text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o cmshistsum_fitdiagnostics.root --use-histsum
+  COMBINE_COMMANDS
+    "combine -M FitDiagnostics cmshistsum_fitdiagnostics.root -n cmshistsum --saveShapes --saveNormalizations --saveWithUncertainties --numToysForShapes 20"
+    "python3 ${REPO}/test/mlfitNormsToText.py -u fitDiagnosticscmshistsum.root"
+    "python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticscmshistsum.root"
+  DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.001
+)
+
+# FitDiagnostics with CMSHistSum, wrappers created on the fly by CMSHistSum::wrapperList()
+ADD_COMBINE_TEST(cmshistsum_fitdiagnostics_nowrappers
+  T2W_COMMAND
+    text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o cmshistsum_fitdiagnostics_nowrappers.root --use-histsum --no-wrappers
+  COMBINE_COMMANDS
+    "combine -M FitDiagnostics cmshistsum_fitdiagnostics_nowrappers.root -n cmshistsum_nowrappers --saveShapes --saveNormalizations --saveWithUncertainties --numToysForShapes 20"
+    "python3 ${REPO}/test/mlfitNormsToText.py -u fitDiagnosticscmshistsum_nowrappers.root"
+    "python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticscmshistsum_nowrappers.root"
+  DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.001
+)
+
 # Template-analysis datacard -> text2workspace
 COMBINE_ADD_TEST(template_analysis-text2workspace
     COMMAND text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o template-analysis_shape_autoMCStats.root
