@@ -345,6 +345,13 @@ COMBINE_ADD_TEST(setParameters-out-of-range
     PASSREGEX "outside its range"
 )
 
+# With autoMCStats, the Barlow-Beeston parameters are constant during the
+# analytic minimization and floating again when the fit result is saved. Check
+# that printing that fit result (done for -v 2 and above) does not crash.
+COMBINE_ADD_TEST(multidimfit-verbose-analytic-bb
+    COMMAND combine -M MultiDimFit ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt --algo singles -v 2
+)
+
 # Test that setting a parameter outside its range via regex throws an error
 COMBINE_ADD_TEST(setParameters-out-of-range-regex
     COMMAND combine -M MultiDimFit ${REPO}/data/tutorials/counting/simple-counting-experiment.txt --setParameters "rgx{r}=-1.05"

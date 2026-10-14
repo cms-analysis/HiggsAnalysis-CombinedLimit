@@ -26,7 +26,7 @@ class CascadeMinimizer {
         // declare nuisance parameters for pre-fit
         void setNuisanceParameters(const RooArgSet *nuis) { nuisances_ = nuis; }
         RooMinimizer & minimizer() { return *minimizer_; }
-        RooFitResult *save() { return minimizer().save(); }
+        RooFitResult *save();
         void  setStrategy(int strategy) { strategy_ = strategy; }
         void  setErrorLevel(float errorLevel) { minimizer_->setErrorLevel(errorLevel); }
         static void  initOptions() ;
@@ -42,6 +42,8 @@ class CascadeMinimizer {
     private:
         RooAbsReal & nll_;
         std::unique_ptr<RooMinimizer> minimizer_;
+        /// parameters that were constant when minimizer_ was created
+        RooArgSet minimizerConstParams_;
         Mode         mode_;
         static int          strategy_;
         RooRealVar * poi_; 
