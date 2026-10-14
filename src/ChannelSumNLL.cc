@@ -9,6 +9,7 @@
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6, 30, 0)
 
+#include "../interface/CMSHistHelpers.h"
 #include "../interface/CombineLogger.h"
 #include "../interface/RooMultiPdfCombine.h"
 #include "../interface/SimNLLBase.h"
@@ -120,14 +121,22 @@ void cacheutils::ChannelSumNLL::setup(RooAbsData &data) {
     nll->SetName(subName(*this, label.c_str()).c_str());
     m_channelNames.push_back(label);
     m_categorySyncs.push_back(syncs);
-    // The RooMultiPdfs of the original pdf, for the penalty of the original index.
+    // The RooMultiPdfs of the original pdf, for the penalty of the original
+    // index, and its histogram nodes: they share their parameters with the
+    // copies inside the RooFit likelihood, so the Barlow-Beeston step can run
+    // on them.
     std::vector<RooMultiPdf const *> multiPdfs;
+    std::vector<RooAbsReal const *> hists;
     std::unique_ptr<RooArgSet> components{pdf->getComponents()};
     for (RooAbsArg const *component : *components) {
       if (auto const *multiPdf = dynamic_cast<RooMultiPdf const *>(component))
         multiPdfs.push_back(multiPdf);
+      if (isCMSHist(*component))
+        hists.push_back(dynamic_cast<RooAbsReal const *>(component));
     }
     m_channelMultiPdfs.push_back(multiPdfs);
+    m_channelHists.push_back(hists);
+    setHistogramData(m_channelHists.size() - 1, *channelData);
     RooArgSet params;
     nll->getParameters(/*observables=*/nullptr, params, /*stripDisconnected=*/false);
     replaceClonesByOriginals(params);
@@ -258,6 +267,7 @@ bool cacheutils::ChannelSumNLL::setData(RooAbsData &data, bool /*cloneData*/) {
     }
     // The channel likelihoods keep a pointer to the data, we own it.
     m_terms[i]->setData(*channelData, /*cloneData=*/false);
+    setHistogramData(i, *channelData);
   }
   // Only release the old datasets after all terms point to the new ones.
   m_datasets = std::move(newDatasets);
@@ -266,8 +276,41 @@ bool cacheutils::ChannelSumNLL::setData(RooAbsData &data, bool /*cloneData*/) {
   return true;
 }
 
+void cacheutils::ChannelSumNLL::setHistogramData(std::size_t iChannel, RooAbsData const &channelData) const {
+  for (RooAbsReal const *hist : m_channelHists[iChannel]) {
+    cmsHistVisit(*hist, [&](auto const &h) { h.setData(channelData); });
+  }
+}
+
+void cacheutils::ChannelSumNLL::setAnalyticBarlowBeeston(bool flag) {
+  for (std::size_t i = 0; i < m_nChannels; ++i) {
+    // Like in CachingSimNLL, a masked channel never has it switched on.
+    bool channelFlag = flag && !isMasked(i);
+    for (RooAbsReal const *hist : m_channelHists[i]) {
+      cmsHistVisit(*hist, [&](auto const &h) { h.setAnalyticBarlowBeeston(channelFlag); });
+    }
+  }
+  m_analyticBarlowBeeston = flag;
+  setValueDirty();
+}
+
+void cacheutils::ChannelSumNLL::runAnalyticBarlowBeeston() const {
+  if (!m_analyticBarlowBeeston)
+    return;
+  // The best fit values are pushed into the shared bin-by-bin parameters, and
+  // the likelihood terms see the change like any other parameter update.
+  for (std::size_t i = 0; i < m_nChannels; ++i) {
+    if (isMasked(i))
+      continue;
+    for (RooAbsReal const *hist : m_channelHists[i]) {
+      cmsHistVisit(*hist, [](auto const &h) { h.runBarlowBeeston(); });
+    }
+  }
+}
+
 double cacheutils::ChannelSumNLL::evaluate() const {
   syncCategories();
+  runAnalyticBarlowBeeston();
   ROOT::Math::KahanSum<double> sum;
   for (std::size_t i = 0; i < m_terms.size(); ++i) {
     if (isMasked(i))
@@ -348,6 +391,10 @@ void cacheutils::ChannelSumNLL::gradient(double *out) const {
   if (m_gradientMapsDirty)
     updateGradientMaps();
   syncCategories();
+  // The Barlow-Beeston parameters are constant at their conditional minimum,
+  // where the derivative of the likelihood with respect to them vanishes, so
+  // the gradient with respect to the other parameters is the full one.
+  runAnalyticBarlowBeeston();
   std::fill_n(out, m_nGradientParams, 0.0);
 
   for (std::size_t i = 0; i < m_terms.size(); ++i) {
@@ -364,6 +411,8 @@ void cacheutils::ChannelSumNLL::gradient(double *out) const {
 }
 
 void cacheutils::ChannelSumNLL::setZeroPoint() {
+  syncCategories();
+  runAnalyticBarlowBeeston();
   for (std::size_t i = 0; i < m_terms.size(); ++i) {
     m_zeroPoints[i] = m_terms[i]->getVal();
   }
