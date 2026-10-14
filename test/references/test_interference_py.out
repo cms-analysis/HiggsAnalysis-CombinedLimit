@@ -232,7 +232,6 @@ Will scale ch1/VBFHH using CMSInterferenceFunc dependent on parameters ["expr::a
 Will scale ch1/background by 1
 Injecting external morph for prop_binch1_processVBFHH_externalMorph
  <<< Combine >>> 
- <<< v11.1.0 >>>
 >>> Random number generator seed is 123456
 >>> Method used is GenerateOnly
 Generate toy 1/10
@@ -250,7 +249,6 @@ median expected limit: r < 0 @ 95%CL (10 toyMC)
    68% expected band : 0 < r < 0
    95% expected band : 0 < r < 0
  <<< Combine >>> 
- <<< v11.1.0 >>>
 >>> Random number generator seed is 123456
 >>> Method used is MultiDimFit
 Doing initial fit: 
@@ -338,7 +336,6 @@ median expected limit: r < 0 @ 95%CL (10 toyMC)
    68% expected band : 0 < r < 0
    95% expected band : 0 < r < 0
  <<< Combine >>> 
- <<< v11.1.0 >>>
 >>> Random number generator seed is 123456
 >>> Method used is MultiDimFit
 Doing initial fit: 
