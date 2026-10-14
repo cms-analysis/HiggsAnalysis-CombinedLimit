@@ -1,0 +1,13 @@
+ <<< Combine >>> 
+>>> Random number generator seed is 123456
+>>> Method used is MultiDimFit
+Set Range of Parameter r To : (-5,5)
+Set Default Value of Parameter mask_ch2 To : 1
+>>> 1 out of 2 channels masked
+
+Doing initial fit: 
+Created nll_model_s_data_obs with 2 channels and 37 constraint terms, RooFit backend "codegen", analytic gradient: yes
+
+ --- MultiDimFit ---
+best fit parameter values and profile-likelihood uncertainties: 
+   r :    -3.012   -1.988/+2.084 (68%)

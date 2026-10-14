@@ -370,6 +370,67 @@ if(ROOT_VERSION VERSION_GREATER_EQUAL 6.30)
   )
 endif()
 
+# The same on the "codegen" backend (analytic gradient from clad), which needs
+# the RooRealSumPdf integral fix of ROOT 6.41.01 (see CombineCodegenImpl.cxx).
+# Each fit compiles the likelihood anew, so only this backend runs here.
+if(ROOT_VERSION VERSION_GREATER_EQUAL 6.41.01)
+  set(_autoMCStats_codegen_fit "combine -M MultiDimFit cmshistsum_autoMCStats_codegen.root --algo singles --setParameterRanges r=-5,5 --nllbackend codegen")
+  ADD_COMBINE_TEST(cmshistsum_autoMCStats_codegen
+    T2W_COMMAND
+      text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o cmshistsum_autoMCStats_codegen.root --for-fits --no-wrappers --use-histsum
+    COMBINE_COMMANDS
+      "${_autoMCStats_codegen_fit}"
+      "${_autoMCStats_codegen_fit} --X-rtd MINIMIZER_no_analytic"
+      "combine -M FitDiagnostics cmshistsum_autoMCStats_codegen.root --rMin -5 --rMax 5 --nllbackend codegen"
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+  )
+  ADD_COMBINE_TEST(cmshistsum_autoMCStats_channel_masks_codegen
+    T2W_COMMAND
+      bash -c "combineCards.py ch1=${REPO}/data/ci/template-analysis_shape_autoMCStats.txt ch2=${REPO}/data/ci/template-analysis_shape_autoMCStats.txt > cmshistsum_autoMCStats_channel_masks_codegen.txt && text2workspace.py cmshistsum_autoMCStats_channel_masks_codegen.txt -o cmshistsum_autoMCStats_channel_masks_codegen.root --channel-masks --for-fits --no-wrappers --use-histsum"
+    COMBINE_COMMANDS
+      "combine -M MultiDimFit cmshistsum_autoMCStats_channel_masks_codegen.root --algo singles --setParameterRanges r=-5,5 --setParameters mask_ch2=1 --nllbackend codegen"
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+  )
+  # Shape systematics and an autoMCStats threshold that gives bins with one
+  # Poisson or Gaussian parameter per process, with both histogram classes.
+  # combineCards.py makes the shape paths absolute, so that the modified card
+  # can live in the build directory.
+  set(_poisson_bins_fit "combine -M MultiDimFit --algo singles --setParameterRanges r=-5,5")
+  ADD_COMBINE_TEST(cmshist_poisson_bins
+    T2W_COMMAND
+      bash -c "combineCards.py ${REPO}/data/ci/template-analysis_shapeInterp.txt | sed 's/autoMCStats 0/autoMCStats 10/' > cmshist_poisson_bins.txt && text2workspace.py cmshist_poisson_bins.txt -o cmshist_poisson_bins_histsum.root --mass 200 --for-fits --no-wrappers --use-histsum && text2workspace.py cmshist_poisson_bins.txt -o cmshist_poisson_bins_errprop.root --mass 200 --for-fits --no-wrappers"
+    COMBINE_COMMANDS
+      "${_poisson_bins_fit} cmshist_poisson_bins_histsum.root --nllbackend cpu"
+      "${_poisson_bins_fit} cmshist_poisson_bins_histsum.root --nllbackend codegen"
+      "${_poisson_bins_fit} cmshist_poisson_bins_errprop.root --nllbackend cpu"
+      "${_poisson_bins_fit} cmshist_poisson_bins_errprop.root --nllbackend codegen"
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+  )
+  # The same with the logarithmic vertical morphing of "shapeN", with the
+  # CMSHistErrorPropagator only: CMSHistSum applies the Poisson bin parameters
+  # to the templates before the exponentiation, which doesn't fit well on any
+  # backend.
+  ADD_COMBINE_TEST(cmshist_shapeN_poisson_bins
+    T2W_COMMAND
+      bash -c "combineCards.py ${REPO}/data/ci/template-analysis_shapeNInterp.txt | sed 's/autoMCStats 0/autoMCStats 10/' > cmshist_shapeN_poisson_bins.txt && text2workspace.py cmshist_shapeN_poisson_bins.txt -o cmshist_shapeN_poisson_bins.root --mass 200 --for-fits --no-wrappers"
+    COMBINE_COMMANDS
+      "${_poisson_bins_fit} cmshist_shapeN_poisson_bins.root --nllbackend cpu"
+      "${_poisson_bins_fit} cmshist_shapeN_poisson_bins.root --nllbackend codegen"
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+  )
+  if(BUILD_TESTS AND NOT DEFINED standalone_tests)
+    # Values and gradients of the codegen backend on these workspaces, with
+    # and without the analytic Barlow-Beeston minimization.
+    COMBINE_ADD_GTEST(cmshist-codegen
+        testCMSHistCodegen.cxx
+        LIBRARIES HiggsAnalysisCombinedLimit
+    )
+    set_property(TEST gtest-cmshist-codegen
+        PROPERTY FIXTURES_REQUIRED "cmshistsum;cmshistfunc;cmshist_poisson_bins"
+    )
+  endif()
+endif()
+
 # Template-analysis datacard -> text2workspace
 COMBINE_ADD_TEST(template_analysis-text2workspace
     COMMAND text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o template-analysis_shape_autoMCStats.root

@@ -1,0 +1,28 @@
+ <<< Combine >>> 
+>>> Random number generator seed is 123456
+>>> Method used is MultiDimFit
+Set Range of Parameter r To : (-5,5)
+Doing initial fit: 
+Created nll_model_s_data_obs with 1 channels and 19 constraint terms, RooFit backend "codegen", analytic gradient: yes
+
+ --- MultiDimFit ---
+best fit parameter values and profile-likelihood uncertainties: 
+   r :    -3.012   -1.988/+2.084 (68%)
+ <<< Combine >>> 
+>>> Random number generator seed is 123456
+>>> Method used is MultiDimFit
+Set Range of Parameter r To : (-5,5)
+Doing initial fit: 
+Created nll_model_s_data_obs with 1 channels and 19 constraint terms, RooFit backend "codegen", analytic gradient: yes
+
+ --- MultiDimFit ---
+best fit parameter values and profile-likelihood uncertainties: 
+   r :    -3.001   -1.999/+2.061 (68%)
+ <<< Combine >>> 
+>>> Random number generator seed is 123456
+>>> Method used is FitDiagnostics
+Created nll_simNuisancePdf_globalData with 0 channels and 19 constraint terms, RooFit backend "cpu", analytic gradient: no
+Created nll_model_s_data_obs with 1 channels and 19 constraint terms, RooFit backend "codegen", analytic gradient: yes
+
+ --- FitDiagnostics ---
+Best fit r: -3.01973  -1.98027/+2.09106  (68% CL)
