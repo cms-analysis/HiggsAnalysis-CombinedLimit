@@ -12,6 +12,7 @@
 #include "../interface/CMSHistHelpers.h"
 #include "../interface/CombineLogger.h"
 #include "../interface/RooMultiPdfCombine.h"
+#include "../interface/RooSimultaneousOpt.h"
 #include "../interface/SimNLLBase.h"
 #include "../interface/utils.h"
 
@@ -102,9 +103,24 @@ void cacheutils::ChannelSumNLL::setup(RooAbsData &data) {
 
   RooFit::EvalBackend backendArg(m_evalBackend);
 
+  // The channel masks of a RooSimultaneousOpt are aligned with the bins of
+  // the index category, i.e. with the states in insertion order like
+  // RooAbsCategoryLValue::setBin(), which is not the iteration order.
+  RooArgList const *maskVars = nullptr;
+  if (auto const *simOpt = dynamic_cast<RooSimultaneousOpt const *>(m_simPdf)) {
+    if (!simOpt->channelMasks().empty())
+      maskVars = &simOpt->channelMasks();
+  }
+  auto const nBins = static_cast<std::size_t>(indexCat.numBins(/*rangeName=*/nullptr));
+  if (maskVars && maskVars->size() != nBins) {
+    throw std::logic_error(std::string("ChannelSumNLL: the pdf ") + m_simPdf->GetName() + " has " +
+                           std::to_string(maskVars->size()) + " channel masks for " + std::to_string(nBins) +
+                           " channels");
+  }
+
   // One RooFit likelihood per channel; the channel pdfs hold no constraints anymore.
-  for (auto const &state : indexCat) {
-    std::string const &label = state.first;
+  for (std::size_t iBin = 0; iBin < nBins; ++iBin) {
+    std::string const &label = indexCat.getOrdinal(iBin).first;
     RooAbsPdf *pdf = m_factorizedPdf->getPdf(label.c_str());
     if (!pdf)
       continue;
@@ -120,6 +136,8 @@ void cacheutils::ChannelSumNLL::setup(RooAbsData &data) {
     }
     nll->SetName(subName(*this, label.c_str()).c_str());
     m_channelNames.push_back(label);
+    m_channelMaskVars.push_back(maskVars ? dynamic_cast<RooAbsReal const *>(maskVars->at(static_cast<int>(iBin)))
+                                         : nullptr);
     m_categorySyncs.push_back(syncs);
     // The RooMultiPdfs of the original pdf, for the penalty of the original
     // index, and its histogram nodes: they share their parameters with the

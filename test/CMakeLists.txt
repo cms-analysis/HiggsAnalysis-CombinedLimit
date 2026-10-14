@@ -357,6 +357,17 @@ if(ROOT_VERSION VERSION_GREATER_EQUAL 6.30)
       "${_autoMCStats_fitdiag} --nllbackend cpu"
     DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
   )
+  # The same with two channels and a channel mask: the masked channel is left
+  # out of the likelihood and its Barlow-Beeston parameters are not minimized.
+  set(_autoMCStats_masks_fit "combine -M MultiDimFit cmshistsum_autoMCStats_channel_masks.root --algo singles --setParameterRanges r=-5,5 --setParameters mask_ch2=1")
+  ADD_COMBINE_TEST(cmshistsum_autoMCStats_channel_masks
+    T2W_COMMAND
+      bash -c "combineCards.py ch1=${REPO}/data/ci/template-analysis_shape_autoMCStats.txt ch2=${REPO}/data/ci/template-analysis_shape_autoMCStats.txt > cmshistsum_autoMCStats_channel_masks.txt && text2workspace.py cmshistsum_autoMCStats_channel_masks.txt -o cmshistsum_autoMCStats_channel_masks.root --channel-masks --for-fits --no-wrappers --use-histsum"
+    COMBINE_COMMANDS
+      "${_autoMCStats_masks_fit} --nllbackend combine"
+      "${_autoMCStats_masks_fit} --nllbackend cpu"
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+  )
 endif()
 
 # Template-analysis datacard -> text2workspace
@@ -396,7 +407,7 @@ if(NOT DEFINED standalone_tests)
     # Check that the NLLs computed with different backends are consistent for various cases
     foreach(backend IN LISTS nll_consistency_backends)
         set(nll_consistency_cases extra_constraints multipdf_penalty
-            ignore_constraint_poi_selection ignore_constraint_selected_nuisance ignored_extra_constraint)
+            ignore_constraint_poi_selection ignore_constraint_selected_nuisance ignored_extra_constraint masked_channel)
         # The generic constraint-only regression uses an empty-channel model;
         # the Combine backend requires at least one channel.
         if(NOT backend STREQUAL "combine")
