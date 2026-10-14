@@ -245,10 +245,10 @@ Generate toy 7/10
 Generate toy 8/10
 Generate toy 9/10
 Generate toy 10/10
-mean   expected limit: r < 3.70018e-316 +/- 0 @ 95%CL (10 toyMC)
-median expected limit: r < 3.70018e-316 @ 95%CL (10 toyMC)
-   68% expected band : 3.70018e-316 < r < 3.70018e-316
-   95% expected band : 3.70018e-316 < r < 3.70018e-316
+mean   expected limit: r < 0 +/- 0 @ 95%CL (10 toyMC)
+median expected limit: r < 0 @ 95%CL (10 toyMC)
+   68% expected band : 0 < r < 0
+   95% expected band : 0 < r < 0
  <<< Combine >>> 
  <<< v11.1.0 >>>
 >>> Random number generator seed is 123456
@@ -333,10 +333,10 @@ best fit parameter values:
     kl :    +1.283
     kv :    +0.565
    k2v :    +0.200
-mean   expected limit: r < 2.63385e-316 +/- 0 @ 95%CL (10 toyMC)
-median expected limit: r < 2.63385e-316 @ 95%CL (10 toyMC)
-   68% expected band : 2.63385e-316 < r < 2.63385e-316
-   95% expected band : 2.63385e-316 < r < 2.63385e-316
+mean   expected limit: r < 0 +/- 0 @ 95%CL (10 toyMC)
+median expected limit: r < 0 @ 95%CL (10 toyMC)
+   68% expected band : 0 < r < 0
+   95% expected band : 0 < r < 0
  <<< Combine >>> 
  <<< v11.1.0 >>>
 >>> Random number generator seed is 123456
@@ -421,8 +421,8 @@ best fit parameter values:
     kl :    +1.283
     kv :    +0.565
    k2v :    +0.200
-mean   expected limit: r < 2.88465e-316 +/- 0 @ 95%CL (10 toyMC)
-median expected limit: r < 2.88465e-316 @ 95%CL (10 toyMC)
-   68% expected band : 2.88465e-316 < r < 2.88465e-316
-   95% expected band : 2.88465e-316 < r < 2.88465e-316
+mean   expected limit: r < 0 +/- 0 @ 95%CL (10 toyMC)
+median expected limit: r < 0 @ 95%CL (10 toyMC)
+   68% expected band : 0 < r < 0
+   95% expected band : 0 < r < 0
 Out of 10 toys, {'kl': 0, 'kv': 0, 'k2v': 0} are not matching (tolerance: 1e-4) between CMSHistFunc and CMSHistSum

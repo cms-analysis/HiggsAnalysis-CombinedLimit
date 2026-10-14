@@ -279,7 +279,9 @@ int main(int argc, char **argv) {
   TFile *test = new TFile(fileName, "RECREATE"); outputFile = test;
   TTree *t = new TTree("limit", "limit");
   int syst, iToy, iSeed, iChannel; 
-  double mass, limit, limitErr; 
+  double mass = 0.0;
+  double limit = 0.0;
+  double limitErr = 0.0;
   t->Branch("limit",&limit,"limit/D");
   t->Branch("limitErr",&limitErr,"limitErr/D");
   t->Branch("mh",   &mass, "mh/D");
