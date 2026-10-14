@@ -299,6 +299,11 @@ COMBINE_ADD_TEST(template_analysis-text2workspace
 
 
 if(BUILD_TESTS AND NOT DEFINED standalone_tests)
+    COMBINE_ADD_GTEST(hzz4l-readfile
+        testHZZ4LReadFile.cxx
+        LIBRARIES HiggsAnalysisCombinedLimit
+        LABELS HZZ4L
+    )
     COMBINE_ADD_GTEST(roopower
         testRooPower.cxx
         LIBRARIES HiggsAnalysisCombinedLimit
