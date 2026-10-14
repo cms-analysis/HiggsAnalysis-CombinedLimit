@@ -1,9 +1,13 @@
+#include <algorithm>
 #include "../interface/CMSHistSum.h"
 #include "../interface/CMSHistFuncWrapper.h"
+#include "../interface/ProcessNormalization.h"
+#include "../interface/AsymPow.h"
 #include <stdexcept>
 #include <vector>
 #include <ostream>
 #include <memory>
+#include <functional>
 #include "Math/ProbFuncMathCore.h"
 #include "Math/QuantFuncMathCore.h"
 #include "RooRealProxy.h"
@@ -13,7 +17,10 @@
 #include "RooConstVar.h"
 #include "RooGaussian.h"
 #include "RooProduct.h"
+#include "RooAddition.h"
 #include "vectorized.h"
+#include <charconv>
+#include <string>
 
 #define HFVERBOSE 0
 
@@ -117,6 +124,10 @@ CMSHistSum::CMSHistSum(const char* name,
 #endif
   }
 
+  // Keep the input templates for the HS3 export: the sum/diff conversion below does not
+  // round-trip exactly. Transient, so workspaces read from file use the stored sum/diff.
+  inputStorage_ = storage_;
+
   // Next populate the storage_ index positions for fast lookup later
   process_fields_ = std::vector<int>(n_procs_, 0);
   vmorph_fields_ = std::vector<int>(n_procs_ * n_morphs_, -1);
@@ -179,6 +190,7 @@ CMSHistSum::CMSHistSum(
       n_procs_(other.n_procs_),
       n_morphs_(other.n_morphs_),
       storage_(other.storage_),
+      inputStorage_(other.inputStorage_),
       process_fields_(other.process_fields_),
       vmorph_fields_(other.vmorph_fields_),
       binerrors_(other.binerrors_),
@@ -193,7 +205,11 @@ CMSHistSum::CMSHistSum(
       external_morphs_("external_morphs", this, other.external_morphs_),
       external_morph_indices_(other.external_morph_indices_)
 {
-      initialize();
+  // removed the initialize call here
+  // calling initialize here can lead to stale pointers, as a call to RedirectServers such as during a RooWorkspace import
+  // can lead to the not-yet-redirected servers ending up in the in-workspace version of this object
+  // thus, it is safer to rely on the "lazy" call to initialize that happens in updateCache
+  // initialize();
 }
 
 void CMSHistSum::initialize() const {
@@ -778,4 +794,926 @@ void CMSHistSum::injectExternalMorph(int idx, CMSExternalMorph& morph) {
 }
 
 #undef HFVERBOSE
+
+ClassImp(CMSHistSum)
+
+
+#include "RooFitHS3/RooJSONFactoryWSTool.h"
+#include "RooFitHS3/JSONIO.h"
+
+using RooFit::Detail::JSONNode;
+
+// Helper: try to pick a reasonable process name.
+static std::string cms_hist_sum_process_name(const CMSHistSum &hs, unsigned ip)
+{
+  auto *coeff = hs.coeffAt(ip);   
+  
+  if (coeff && coeff->stringAttributes().count("combine.process")) {
+    return coeff->getStringAttribute("combine.process");
+  }
+  
+  if(coeff){
+    return coeff->GetName();
+  }
+  
+  return "proc_" + std::to_string(ip);
+}
+
+void exportOtherFactorModifiers(RooJSONFactoryWSTool* tool, JSONNode& mods, RooAbsReal* factor) {
+  if (auto* rcv = dynamic_cast<RooConstVar*>(factor)) {
+    auto& m = mods.append_child().set_map();
+    m["name"] << rcv->GetName();
+    m["parameter"] << rcv->getVal();
+    m["type"] << "normfactor";
+  } else if (auto* rrv = dynamic_cast<RooRealVar*>(factor)) {
+    auto& m = mods.append_child().set_map();
+    m["name"] << rrv->GetName();
+    m["parameter"] << rrv->GetName();
+    m["type"] << "normfactor";
+    tool->queueExport(*rrv);
+  } else if (auto* prod = dynamic_cast<RooProduct*>(factor)) {
+    for (auto* comp : prod->components()) {
+      exportOtherFactorModifiers(tool, mods, static_cast<RooAbsReal*>(comp));
+    }
+  } else {
+    // handling other (e.g. RooAddition)
+    auto& m = mods.append_child().set_map();
+    m["name"] << factor->GetName();
+    m["type"] << "custom";
+    tool->queueExport(*factor);
+  }
+}
+
+// Rate coefficient -> modifiers; recurses into RooProduct (ProcessNormalization x AsymPow per `shape` systematic).
+void exportCoeffModifier(RooJSONFactoryWSTool* tool, JSONNode& mods, RooAbsArg const* c,
+                          std::string const& sampleName) {
+  if (!c) {
+    // do nothing
+  } else if (auto* rcv = dynamic_cast<RooConstVar const*>(c)) {
+    // the const'ness of the const parameter is handled elsewhere, we can just pretend like it's a normal NF here
+    auto& m = mods.append_child().set_map();
+    m["name"] << rcv->GetName();
+    m["parameter"] << rcv->GetName();
+    m["type"] << "normfactor";
+  } else if (auto* rrv = dynamic_cast<RooRealVar const*>(c)) {
+    auto& m = mods.append_child().set_map();
+    m["name"] << rrv->GetName();
+    m["parameter"] << rrv->GetName();
+    m["type"] << "normfactor";
+    tool->queueExport(*rrv);
+  } else if (auto* pn = dynamic_cast<const ProcessNormalization*>(c)) {
+    double nom = pn->nominalValue();
+    auto variations = pn->sigmaVariationsAll();
+    for (const auto& v : variations) {
+      auto& m = mods.append_child().set_map();
+      m["name"] << std::get<0>(v);
+      m["parameter"] << std::get<0>(v);
+      m["type"] << "normsys";
+      auto& data = m["data"].set_map();
+      // sigmaVariationsAll() already gives the relative factors at -1/+1 sigma (the nominal is
+      // its own normfactor below), which is what normsys lo/hi mean.
+      data["lo"] << std::get<1>(v);
+      data["hi"] << std::get<2>(v);
+    }
+
+    for (auto& of : pn->otherFactorList()) {
+      exportOtherFactorModifiers(tool, mods, static_cast<RooAbsReal*>(of));
+    }
+
+    if (nom != 1.) {
+      auto& m = mods.append_child().set_map();
+      m["name"] << sampleName + "_norm_nominal";
+      m["parameter"] << nom;
+      m["type"] << "normfactor";
+    }
+  } else if (auto* ap = dynamic_cast<const AsymPow*>(c)) {
+    auto& m = mods.append_child().set_map();
+    m["name"] << ap->theta().GetName();
+    m["parameter"] << ap->theta().GetName();
+    m["type"] << "normsys";
+    auto& data = m["data"].set_map();
+    data["lo"] << ap->kappaLow().getVal();
+    data["hi"] << ap->kappaHigh().getVal();
+    tool->queueExport(ap->theta());
+  } else if (auto* prod = dynamic_cast<RooProduct const*>(c)) {
+    for (auto* comp : const_cast<RooProduct*>(prod)->components()) {
+      exportCoeffModifier(tool, mods, comp, sampleName);
+    }
+  } else {
+    auto& m = mods.append_child().set_map();
+    m["name"] << c->GetName();
+    m["type"] << "custom";
+    tool->queueExport(*c);
+  }
+}
+
+bool tryExportHistFactory(RooJSONFactoryWSTool* tool, const CMSHistSum* hs, JSONNode& elem) {
+  // if we have external morphs injected, you probably want to error out for now.
+  if (hs->hasExternalMorphs()) {  // optional accessor; otherwise remove and always allow
+    RooJSONFactoryWSTool::error(
+        "CMSHistSum '" + std::string(hs->GetName()) +
+        "': exporting with external morphs is not implemented (cannot express as HistFactory modifiers).");
+  }
+
+    // Axes: HistFactory exporter uses RooRealVar axis metadata.
+    // Use the independent variable name and its range.
+    RooAbsReal const &xAbs = hs->getXVar(); 
+    auto const *x = dynamic_cast<RooRealVar const *>(&xAbs);
+    if (!x) {
+      RooJSONFactoryWSTool::error("CMSHistSum '" + std::string(hs->GetName()) +
+                                 "': x is not a RooRealVar; cannot export axis metadata.");
+    }
+
+    auto &axes = elem["axes"].set_seq();
+    auto &ax = axes.append_child().set_map();
+    std::string axname = x->GetName();
+    RooJSONFactoryWSTool::testValidName(axname, false);
+    ax["name"] << axname;
+    ax["nbins"] << static_cast<int>(hs->nBins());
+    // CMS_TH1obs_<channel> is a dummy bin index; its declared range is not always [0, nBins].
+    ax["min"] << 0.0;
+    ax["max"] << static_cast<double>(hs->nBins());
+
+    // Samples array
+    auto &samples = elem["samples"].set_seq();
+
+    const unsigned nProcs = hs->nProcs();
+    const unsigned nMorphs = hs->nMorphs();
+    const unsigned nBins  = hs->nBins();
+
+    for (unsigned ip = 0; ip < nProcs; ++ip) {
+      const std::string sampleName = cms_hist_sum_process_name(*hs, ip);
+
+      auto &s = samples.append_child().set_map();
+      s["name"] << sampleName;
+
+      auto &dataNode = s["data"].set_map();
+
+      auto const &nomT = hs->nominalTemplate(ip, false);
+      auto const &errs = hs->binErrors(ip, false);
+
+    RooJSONFactoryWSTool::exportArray(nBins, nomT.Values().data(), dataNode["contents"]);
+      // If there are nonzero bin errors, export them and add staterror modifier (HistFactory style).
+      bool anyErr = false;
+      for (double e : errs.Values()) { if (e != 0.0) { anyErr = true; break; } }
+      if (anyErr) {
+        RooJSONFactoryWSTool::exportArray(nBins, errs.Values().data(), dataNode["errors"]);
+      }
+
+      // --- Modifiers
+      auto &mods = s["modifiers"].set_seq();
+
+    auto* coeff = hs->coeffAt(ip);
+    exportCoeffModifier(tool, mods, coeff, sampleName);
+
+      // Vertical morphs -> histosys modifiers
+      for (unsigned iv = 0; iv < nMorphs; ++iv) {
+        if(!hs->isMorphUsed(ip, iv)) continue;
+
+        RooAbsReal const *par = hs->morphPar(iv);
+        if (!par) continue;
+        const std::string sysName = par->GetName();
+
+        auto const &upT = hs->upTemplate(ip, iv, false); 
+        auto const &dnT = hs->downTemplate(ip, iv, false);
+	  
+        auto &m = mods.append_child().set_map();
+        m["name"] << sysName;
+        m["parameter"] << sysName;
+        m["type"] << "histosys";
+
+        auto &d = m["data"].set_map();
+        RooJSONFactoryWSTool::exportArray(nBins, dnT.Values().data(), d["lo"].set_map()["contents"]);
+        RooJSONFactoryWSTool::exportArray(nBins, upT.Values().data(), d["hi"].set_map()["contents"]);
+
+        tool->queueExport(*par);
+      }
+
+      // Staterror modifier only if there are Barlow-Beeston-lite parameters: with autoMCStats -1
+      // (no bin parameters) the model has no statistical terms, and a staterror would add them.
+      if (anyErr && hs->hasBinPars()) {
+        auto &m = mods.append_child().set_map();
+        m["name"] << "mcstat";
+        m["type"] << "staterror";
+      }
+    }
+    
+    return true;
+}
+
+namespace {
+// RAII: restores a RooRealVar to its original value when the guard goes out of scope -- used
+// while numerically probing CMSHistFunc's shape at fixed vertical-morph parameter points.
+struct ParamValueGuard {
+  RooRealVar* var;
+  double orig;
+  explicit ParamValueGuard(RooRealVar* v) : var(v), orig(v ? v->getVal() : 0.0) {}
+  ~ParamValueGuard() { if (var) var->setVal(orig); }
+  ParamValueGuard(ParamValueGuard const&) = delete;
+};
+
+// Evaluate a CMSHistFunc's shape at the given vmorph values (one per func->vmorphs()); false if a parameter is not a RooRealVar.
+bool probeCMSHistFuncShape(CMSHistFunc const* func, std::vector<double> const& thetas,
+                            std::vector<double>& out) {
+  RooArgList const& vm = func->vmorphs();
+  if (static_cast<int>(thetas.size()) != vm.getSize()) return false;
+
+  std::vector<std::unique_ptr<ParamValueGuard>> guards;
+  guards.reserve(vm.getSize());
+  for (int i = 0; i < vm.getSize(); ++i) {
+    auto* rrv = dynamic_cast<RooRealVar*>(vm.at(i));
+    if (!rrv) return false;
+    guards.push_back(std::make_unique<ParamValueGuard>(rrv));
+    rrv->setVal(thetas[i]);
+  }
+  func->updateCache();
+  auto const& c = func->cache();
+  auto const& vals = c.Values();
+  out.assign(vals.data(), vals.data() + c.fullsize());
+  return true;
+  // guards restore original parameter values here, on scope exit
+}
+
+std::string cms_hist_func_process_name(const CMSHistFunc &f)
+{
+  if (f.stringAttributes().count("combine.process")) {
+    return f.getStringAttribute("combine.process");
+  }
+  return f.GetName();
+}
+}  // namespace
+
+// Default autoMCStats path (no --use-histsum): one CMSHistFunc + rate coefficient per process, same content as CMSHistSum.
+bool tryExportHistFactoryFromPropagator(RooJSONFactoryWSTool* tool, const CMSHistErrorPropagator* prop, JSONNode& elem) {
+  RooArgList const& funcs = prop->funcList();
+  RooArgList const& coeffs = prop->coefList();
+  const unsigned nProcs = funcs.getSize();
+  if (nProcs == 0) {
+    RooJSONFactoryWSTool::warning("CMSHistErrorPropagator '" + std::string(prop->GetName()) + "': no processes found!");
+    return false;
+  }
+
+  // Decline pass: every process must be a plain vertical-only CMSHistFunc before a single byte is
+  // written into elem, mirroring the contract documented in VerticalInterpHistPdf.cc.
+  std::vector<CMSHistFunc const*> hfuncs(nProcs);
+  for (unsigned ip = 0; ip < nProcs; ++ip) {
+    hfuncs[ip] = dynamic_cast<CMSHistFunc const*>(funcs.at(ip));
+    if (!hfuncs[ip]) {
+      RooJSONFactoryWSTool::warning("CMSHistErrorPropagator '" + std::string(prop->GetName()) +
+                                    "': func '" + funcs.at(ip)->GetName() +
+                                    "' is not a CMSHistFunc; declining this export path.");
+      return false;
+    }
+    if (hfuncs[ip]->hmorphs().getSize() != 0) {
+      RooJSONFactoryWSTool::warning("CMSHistErrorPropagator '" + std::string(prop->GetName()) +
+                                    "': process '" + hfuncs[ip]->GetName() +
+                                    "' uses horizontal morphing, which this exporter cannot yet represent; declining.");
+      return false;
+    }
+    for (auto* m : hfuncs[ip]->vmorphs()) {
+      if (!dynamic_cast<RooRealVar const*>(m)) {
+        RooJSONFactoryWSTool::warning("CMSHistErrorPropagator '" + std::string(prop->GetName()) +
+                                      "': process '" + hfuncs[ip]->GetName() +
+                                      "' has a vertical-morph parameter that is not a RooRealVar; declining.");
+        return false;
+      }
+    }
+  }
+
+  RooAbsReal const &xAbs = hfuncs[0]->getXVar();
+  auto const *x = dynamic_cast<RooRealVar const *>(&xAbs);
+  if (!x) {
+    RooJSONFactoryWSTool::error("CMSHistErrorPropagator '" + std::string(prop->GetName()) +
+                                "': x is not a RooRealVar; cannot export axis metadata.");
+  }
+
+  auto &axes = elem["axes"].set_seq();
+  auto &ax = axes.append_child().set_map();
+  std::string axname = x->GetName();
+  RooJSONFactoryWSTool::testValidName(axname, false);
+  ax["name"] << axname;
+  // nbins/min/max are written below, once nBins is known from the samples.
+
+  auto &samples = elem["samples"].set_seq();
+  int nBins = 0;
+
+  for (unsigned ip = 0; ip < nProcs; ++ip) {
+    CMSHistFunc const *func = hfuncs[ip];
+    const std::string sampleName = cms_hist_func_process_name(*func);
+    RooArgList const &vm = func->vmorphs();
+    const unsigned nMorphs = vm.getSize();
+
+    std::vector<double> nomVals;
+    if (!probeCMSHistFuncShape(func, std::vector<double>(nMorphs, 0.0), nomVals)) {
+      RooJSONFactoryWSTool::error("CMSHistErrorPropagator '" + std::string(prop->GetName()) +
+                                  "': failed to probe nominal shape for '" + sampleName + "'.");
+    }
+
+    const int proc_nBins = static_cast<int>(nomVals.size());
+    if (nBins != 0 && proc_nBins != nBins) {
+      RooJSONFactoryWSTool::error("CMSHistErrorPropagator '" + std::string(prop->GetName()) +
+                                  "': samples have not the same number of bins!");
+    }
+    nBins = proc_nBins;
+
+    auto &s = samples.append_child().set_map();
+    s["name"] << sampleName;
+    auto &dataNode = s["data"].set_map();
+    RooJSONFactoryWSTool::exportArray(nBins, nomVals.data(), dataNode["contents"]);
+
+    auto const &errs = func->errors();
+    bool anyErr = false;
+    for (double e : errs.Values()) { if (e != 0.0) { anyErr = true; break; } }
+    if (anyErr) {
+      RooJSONFactoryWSTool::exportArray(nBins, errs.Values().data(), dataNode["errors"]);
+    }
+
+    auto &mods = s["modifiers"].set_seq();
+
+    // Rate part -- same coefficient dispatch CMSHistSum's own export uses.
+    auto* coeff = (ip < static_cast<unsigned>(coeffs.getSize())) ? coeffs.at(ip) : nullptr;
+    exportCoeffModifier(tool, mods, coeff, sampleName);
+
+    // Vertical morphs -> histosys, probed at theta = +-1, sorted by name (CMSHistSum's order).
+    std::vector<unsigned> morphOrder(nMorphs);
+    for (unsigned iv = 0; iv < nMorphs; ++iv) morphOrder[iv] = iv;
+    std::sort(morphOrder.begin(), morphOrder.end(), [&vm](unsigned a, unsigned b) {
+      return std::string(vm.at(a)->GetName()) < std::string(vm.at(b)->GetName());
+    });
+    for (unsigned iv : morphOrder) {
+      RooAbsArg const *par = vm.at(iv);
+      if (!par) continue;
+
+      std::vector<double> hiThetas(nMorphs, 0.0), loThetas(nMorphs, 0.0);
+      hiThetas[iv] = 1.0;
+      loThetas[iv] = -1.0;
+      std::vector<double> hiVals, loVals;
+      if (!probeCMSHistFuncShape(func, hiThetas, hiVals) ||
+          !probeCMSHistFuncShape(func, loThetas, loVals)) {
+        RooJSONFactoryWSTool::error("CMSHistErrorPropagator '" + std::string(prop->GetName()) +
+                                    "': failed to probe shape for '" + sampleName + "' / '" +
+                                    par->GetName() + "'.");
+      }
+
+      const std::string sysName = par->GetName();
+      auto &m = mods.append_child().set_map();
+      m["name"] << sysName;
+      m["parameter"] << sysName;
+      m["type"] << "histosys";
+      auto &d = m["data"].set_map();
+      RooJSONFactoryWSTool::exportArray(nBins, loVals.data(), d["lo"].set_map()["contents"]);
+      RooJSONFactoryWSTool::exportArray(nBins, hiVals.data(), d["hi"].set_map()["contents"]);
+
+      tool->queueExport(*par);
+    }
+
+    // Staterror modifier (if errors were exported and there are bin parameters) -- same bare
+    // HistFactory-style marker tryExportHistFactory uses.
+    if (anyErr && prop->hasBinPars()) {
+      auto &m = mods.append_child().set_map();
+      m["name"] << "mcstat";
+      m["type"] << "staterror";
+    }
+  }
+
+  ax["nbins"] << nBins;
+  ax["min"] << 0.0;
+  ax["max"] << static_cast<double>(nBins);
+  return true;
+}
+
+#include "RooRealSumPdf.h"
+#include "RooProdPdf.h"
+
+const CMSHistSum* getCMSHistSum(const RooRealSumPdf* pdf){
+  CMSHistSum* sum = 0;
+  if(pdf->funcList().size() == 1 && pdf->coefList().size() == 1 && pdf->coefList().at(0)->GetName() == std::string("ONE") && (sum = dynamic_cast<CMSHistSum*>(pdf->funcList().at(0))) && sum)
+    return sum;
+  return nullptr;
+}
+
+const CMSHistSum* getCMSHistSum(const RooProdPdf* pdf){
+  RooRealSumPdf* sum = 0;
+  if(pdf->getComponents()->getSize() == 1 && (sum = dynamic_cast<RooRealSumPdf*>(pdf->getComponents()->first())) && sum){
+    return getCMSHistSum(sum);
+  }
+  return nullptr;
+}
+
+// As getCMSHistSum, for the default autoMCStats path (CMSHistErrorPropagator instead of CMSHistSum).
+const CMSHistErrorPropagator* getCMSHistErrorPropagator(const RooRealSumPdf* pdf){
+  CMSHistErrorPropagator* prop = 0;
+  if(pdf->funcList().size() == 1 && pdf->coefList().size() == 1 && pdf->coefList().at(0)->GetName() == std::string("ONE") && (prop = dynamic_cast<CMSHistErrorPropagator*>(pdf->funcList().at(0))) && prop)
+    return prop;
+  return nullptr;
+}
+
+const CMSHistErrorPropagator* getCMSHistErrorPropagator(const RooProdPdf* pdf){
+  RooRealSumPdf* sum = 0;
+  if(pdf->getComponents()->getSize() == 1 && (sum = dynamic_cast<RooRealSumPdf*>(pdf->getComponents()->first())) && sum){
+    return getCMSHistErrorPropagator(sum);
+  }
+  return nullptr;
+}
+
+class CMSHistSumStreamer_CMSHistSum : public RooFit::JSONIO::Exporter {
+public:
+   bool autoExportDependants() const override { return false; }
+   std::string const &key() const override
+   {
+      static const std::string keystring = "histfactory";
+      return keystring;
+   }
+   bool exportObject(RooJSONFactoryWSTool *tool, const RooAbsArg *p, JSONNode &elem) const override
+   {
+     auto sum = dynamic_cast<const CMSHistSum*>(p);
+     if(sum){
+       auto retval = tryExportHistFactory(tool,sum,elem);
+       if(!retval) return false;
+       elem["type"] << key();
+        std::cout << "exporting CMSHistSum to histfactory" << std::endl;
+       return true;
+     }
+     return false;
+   }
+};
+
+
+class CMSHistSumStreamer_SumPdf : public RooFit::JSONIO::Exporter {
+public:
+   bool autoExportDependants() const override { return false; }
+   std::string const &key() const override
+   {
+      static const std::string keystring = "histfactory_dist";
+      return keystring;
+   }
+   bool exportObject(RooJSONFactoryWSTool *tool, const RooAbsArg *p, JSONNode &elem) const override
+   {
+     auto* rsp = dynamic_cast<const RooRealSumPdf*>(p);
+     if(auto sum = getCMSHistSum(rsp)){
+       auto retval = tryExportHistFactory(tool,sum,elem);
+       if(retval){
+	 elem["type"] << key();
+  std::cout << "exporting RooRealSumPdf to histfactory" << std::endl;
+
+	 return true;
+       }
+       std::cout << "failure" << std::endl;
+       return false;
+     }
+     if(auto prop = getCMSHistErrorPropagator(rsp)){
+       auto retval = tryExportHistFactoryFromPropagator(tool,prop,elem);
+       if(retval){
+         elem["type"] << key();
+         std::cout << "exporting RooRealSumPdf (CMSHistErrorPropagator) to histfactory" << std::endl;
+         return true;
+       }
+       std::cout << "failure" << std::endl;
+     }
+     return false;
+   }
+};
+
+
+class CMSHistSumStreamer_ProdPdf : public RooFit::JSONIO::Exporter {
+public:
+   bool autoExportDependants() const override { return false; }
+   std::string const &key() const override
+   {
+      static const std::string keystring = "histfactory_dist";
+      return keystring;
+   }
+   bool exportObject(RooJSONFactoryWSTool *tool, const RooAbsArg *p, JSONNode &elem) const override
+   {
+     auto* pp = dynamic_cast<const RooProdPdf*>(p);
+     if(auto sum = getCMSHistSum(pp)){
+       auto retval = tryExportHistFactory(tool,sum,elem);
+       if(!retval) return false;
+       elem["type"] << key();
+      std::cout << "exporting RooProdPdf to histfactory" << std::endl;
+       return true;
+     }
+     if(auto prop = getCMSHistErrorPropagator(pp)){
+       auto retval = tryExportHistFactoryFromPropagator(tool,prop,elem);
+       if(!retval) return false;
+       elem["type"] << key();
+       std::cout << "exporting RooProdPdf (CMSHistErrorPropagator) to histfactory" << std::endl;
+       return true;
+     }
+     return false;
+   }
+};
+
+#include "static_execute.h"
+
+STATIC_EXECUTE([]() {
+  using namespace RooFit::JSONIO;
+  
+  registerExporter<CMSHistSumStreamer_SumPdf>(RooRealSumPdf::Class(), true);
+  registerExporter<CMSHistSumStreamer_ProdPdf>(RooProdPdf::Class(), true);
+  registerExporter<CMSHistSumStreamer_CMSHistSum>("CMSHistSum", false);    
+ });
+
+namespace {
+
+/// Helper: read an array of doubles
+static std::vector<double> readDoubleArray(RooFit::Detail::JSONNode const &arr, std::string const &what)
+{
+   std::vector<double> out;
+   out.reserve(arr.num_children());
+   for(const auto& c:arr.children()){
+     out.push_back(c.val_double());
+   }
+   return out;
+}
+
+FastHisto readFastHisto(const JSONNode &n,
+					 const std::string &name,
+					 RooArgSet const &vars)
+{
+  if (!n.has_child("contents"))
+    RooJSONFactoryWSTool::error("no contents given");
+  
+  JSONNode const &contents = n["contents"];
+  if (!contents.is_seq())
+    RooJSONFactoryWSTool::error("contents are not in list form");
+  
+  JSONNode const *errors = nullptr;
+  if (n.has_child("errors")) {
+    errors = &n["errors"];
+    if (!errors->is_seq())
+      RooJSONFactoryWSTool::error("errors are not in list form");
+  }
+
+  if (vars.size() != 1) {
+    std::stringstream errMsg;
+    errMsg << "readFastHisto only supports 1D, got vars.size()=" << vars.size();
+    RooJSONFactoryWSTool::error(errMsg.str());
+  }
+
+  auto *x = dynamic_cast<RooRealVar *>(vars.first());
+  if (!x)
+    RooJSONFactoryWSTool::error("readFastHisto expects a RooRealVar observable");
+  
+  const RooAbsBinning &binning = x->getBinning();
+  const int nbins = binning.numBins();
+  
+  if (static_cast<int>(contents.num_children()) != nbins) {
+    std::stringstream errMsg;
+    errMsg << "inconsistent bin numbers: contents=" << contents.num_children() << ", nbins=" << nbins;
+    RooJSONFactoryWSTool::error(errMsg.str());
+  }
+  if (errors && static_cast<int>(errors->num_children()) != nbins) {
+    std::stringstream errMsg;
+    errMsg << "inconsistent bin numbers: errors=" << errors->num_children() << ", nbins=" << nbins;
+    RooJSONFactoryWSTool::error(errMsg.str());
+  }
+  
+  // Read contents
+  std::vector<double> vals;
+  vals.reserve(contents.num_children());
+  for (auto const &cont : contents.children()) {
+    vals.push_back(cont.val_double());
+  }
+  
+  // Build bin edges (nbins+1)
+  std::vector<double> edges;
+  edges.reserve(static_cast<std::size_t>(nbins) + 1u);
+  for (int i = 0; i < nbins; ++i) edges.push_back(binning.binLow(i));
+  edges.push_back(binning.binHigh(nbins - 1));
+  
+  // Construct FastHisto directly
+  return FastHisto(edges, vals);
+}
+  
+
+/// Helper: ensure/lookup observable RooRealVar by name
+static RooRealVar &getObservable(RooJSONFactoryWSTool *tool, std::string const &obsName,
+                                 double xmin, double xmax)
+{
+   // If it exists already, use it.
+   if (auto *arg = tool->workspace()->arg(obsName.c_str())) {
+      auto *rrv = dynamic_cast<RooRealVar *>(arg);
+      if (!rrv)
+         throw std::runtime_error("histfactory_dist importer: observable '" + obsName + "' exists but is not RooRealVar");
+      return *rrv;
+   }
+
+   // Otherwise create it (range from axis definition)
+   auto *rrv = new RooRealVar(obsName.c_str(), obsName.c_str(), 0.0, xmin, xmax);
+   tool->workspace()->import(*rrv, RooFit::RecycleConflictNodes());
+   return *dynamic_cast<RooRealVar *>(tool->workspace()->arg(obsName.c_str()));
+}
+
+/// Helper: ensure/lookup a parameter (RooRealVar) used by normfactor modifiers
+static RooRealVar &getOrMakeParameter(RooJSONFactoryWSTool *tool, std::string const &parName,
+                                     double init = 1.0, double lo = 0.0, double hi = 10.0)
+{
+   if (auto *arg = tool->workspace()->arg(parName.c_str())) {
+      auto *rrv = dynamic_cast<RooRealVar *>(arg);
+      if (!rrv)
+         throw std::runtime_error("histfactory_dist importer: parameter '" + parName + "' exists but is not RooRealVar");
+      return *rrv;
+   }
+   auto *rrv = new RooRealVar(parName.c_str(), parName.c_str(), init, lo, hi);
+   tool->workspace()->import(*rrv, RooFit::RecycleConflictNodes());
+   return *dynamic_cast<RooRealVar *>(tool->workspace()->arg(parName.c_str()));
+}
+
+bool parse_double(const std::string& input, double& out)
+{
+    const char* begin = input.data();
+    const char* end   = input.data() + input.size();
+
+    double tmp;
+    auto [ptr, ec] = std::from_chars(begin, end, tmp);
+
+    // Successful conversion requires:
+    // 1) No error
+    // 2) Entire string was consumed
+    if((ec == std::errc() && ptr == end)){
+      out = tmp;
+      return true;
+    }
+    return false;
+}
+
+inline bool approxSymmetricKappas(double kLo, double kHi,
+                                 double absLogTol = 1e-10,
+                                 double relLogTol = 1e-10)
+{
+    // kappas must be positive and finite
+    if (!(kLo > 0.0) || !(kHi > 0.0)) return false;
+    if (!std::isfinite(kLo) || !std::isfinite(kHi)) return false;
+
+    const double a = std::log(kLo);
+    const double b = std::log(kHi);
+
+    // symmetric if a ≈ -b  <=>  (a + b) ≈ 0
+    const double diff  = std::abs(a + b);
+    const double scale = std::max(std::abs(a), std::abs(b)); // 0 if both ~1
+    return diff <= std::max(absLogTol, relLogTol * scale);
+}
+
+/// Duplicated in JSONFactories_Combine.cxx and VerticalInterpHistPdf.cc: single-bin counting nodes go to the RooPoisson importer.
+inline bool isSingleBinCountingDist(RooFit::Detail::JSONNode const &elem)
+{
+    auto const *axes = elem.find("axes");
+    if (!axes || axes->num_children() != 1) return false;
+    for (auto const &ax : axes->children()) {
+        if (ax.has_child("edges")) {
+            if (ax["edges"].num_children() != 2) return false; // two edges == one bin
+        } else {
+            auto const *nb = ax.find("nbins");
+            if (!nb || nb->val_int() != 1) return false;
+            // the count axis n_obs_bin<b> is unbounded above; a 1-bin shape channel is not
+            auto const *mx = ax.find("max");
+            if (mx && !mx->is_null()) return false;
+        }
+    }
+
+    auto const *samples = elem.find("samples");
+    if (!samples || samples->num_children() == 0) return false;
+    for (auto const &s : samples->children()) {
+        auto const *data = s.find("data");
+        if (!data || !data->has_child("contents") || (*data)["contents"].num_children() != 1) return false;
+        if (auto const *mods = s.find("modifiers")) {
+            for (auto const &m : mods->children()) {
+                std::string const mtype = m["type"].val();
+                if (mtype != "normsys" && mtype != "normfactor" && mtype != "custom") return false;
+            }
+        }
+    }
+    return true;
+}
+
+/// The actual importer
+class CMSHistSumHistFactoryImporter final : public RooFit::JSONIO::Importer {
+public:
+   bool importArg(RooJSONFactoryWSTool *tool, RooFit::Detail::JSONNode const &elem) const override
+   {
+      using RooFit::Detail::JSONNode;
+
+      // Basic validation
+      if (!elem.has_child("name"))
+         return false;
+
+      // Single-bin counting nodes belong to the RooPoisson/RooAddition importer.
+      if (isSingleBinCountingDist(elem))
+         return false;
+
+      const std::string distName = elem["name"].val();
+
+      // Axes: we only support 1D here
+      if (!elem.has_child("axes") || elem["axes"].num_children() != 1)
+         throw std::runtime_error("CMSHistSum importer: '" + distName + "' must have exactly one axis");
+
+      RooArgSet observables = RooJSONFactoryWSTool::readAxes(elem);
+      RooRealVar* x = dynamic_cast<RooRealVar*>(observables.first());
+      
+      // Samples
+      if (!elem.has_child("samples") || elem["samples"].num_children() == 0)
+         throw std::runtime_error("CMSHistSum importer: '" + distName + "' has no samples");
+
+      RooArgList funcs;
+      RooArgList coeffs;
+
+      // Ensure ONE exists (fixed at 1) for the wrapper RooRealSumPdf
+      RooAbsReal *ONE = dynamic_cast<RooAbsReal *>(tool->workspace()->arg("ONE"));
+      if (!ONE) {
+         auto *one = new RooConstVar("ONE", "ONE", 1.0);
+         tool->workspace()->import(*one, RooFit::RecycleConflictNodes());
+         ONE = dynamic_cast<RooAbsReal *>(tool->workspace()->arg("ONE"));
+      }      
+
+      for(const auto&s:elem["samples"].children()){
+	const std::string sampleName = s["name"].val();
+
+         // data.contents (required)
+         if (!s.has_child("data") || !s["data"].has_child("contents"))
+            throw std::runtime_error("CMSHistSum importer: sample '" + sampleName + "' missing data.contents");
+         std::vector<double> contents = readDoubleArray(s["data"]["contents"], sampleName + ".data.contents");
+         if (static_cast<int>(contents.size()) != x->numBins())
+            throw std::runtime_error("CMSHistSum importer: sample '" + sampleName + "' contents size != nbins");
+
+         // data.errors (optional, but we need it for staterror)
+         std::vector<double> errors;
+         if (s["data"].has_child("errors")) {
+            errors = readDoubleArray(s["data"]["errors"], sampleName + ".data.errors");
+            if (static_cast<int>(errors.size()) != x->numBins())
+               throw std::runtime_error("CMSHistSum importer: sample '" + sampleName + "' errors size != nbins");
+         } else {
+	   errors.assign(x->numBins(), 0.0);
+         }
+
+         // Build a TH1D with that binning (uniform, defined by axis min/max/nbins)
+         const std::string hname = distName + "_" + sampleName + "_nominal";
+         auto h = std::make_unique<TH1D>(hname.c_str(), hname.c_str(), x->numBins(), x->getMin(), x->getMax());
+         for (int ib = 1; ib <= x->numBins(); ++ib) {
+            h->SetBinContent(ib, contents[ib - 1]);
+            h->SetBinError(ib, errors[ib - 1]);
+         }
+
+	 const std::string funcName = distName + "_histosys_" + sampleName;
+         auto *func = new CMSHistFunc(funcName.c_str(), funcName.c_str(), *x, *h);
+
+	 struct VMorph {
+	   FastHisto low;
+	   FastHisto high;
+	   VMorph(const FastHisto& low_, const FastHisto& high_):low(std::move(low_)),high(std::move(high_)){}
+	 };
+	 RooArgList vmorph_pars;
+	 std::vector<VMorph> vmorphs;
+
+	 // Rate modifiers become a product of ProcessNormalizations, one per [sym normsys][asym normsys][other][_norm_nominal] run (exportCoeffModifier's order).
+	 struct RateSegment {
+	   enum Phase { Sym, Asym, Other, Nominal } phase = Sym;
+	   std::vector<std::pair<RooAbsReal*, std::pair<double,double>>> normsys;
+	   RooArgList others;
+	   double nominal = 1.;
+	 };
+	 std::vector<RateSegment> segments;
+	 auto segmentFor = [&segments](RateSegment::Phase phase) -> RateSegment& {
+	   if (segments.empty() || segments.back().phase > phase) segments.emplace_back();
+	   segments.back().phase = phase;
+	   return segments.back();
+	 };
+	 const std::string normNominalName = sampleName + "_norm_nominal";
+
+         if (s.has_child("modifiers")) {
+	   for(const auto& m:s["modifiers"].children()){
+	     const std::string mtype = m["type"].val();
+	     const std::string mname = m["name"].val();
+
+               if (mtype == "normfactor") {
+                  // Typical: a floating POI or nuisance scaling a process yield
+		  double value;
+		  if(parse_double(m["parameter"].val(),value)){
+		    // numeric: val() keeps only 6 significant digits, so read it with val_double()
+		    value = m["parameter"].val_double();
+		    if (mname == normNominalName) {
+		      segmentFor(RateSegment::Nominal).nominal = value;
+		    } else {
+		      auto *c = new RooConstVar(mname.c_str(), mname.c_str(), value);
+		      tool->workspace()->import(*c, RooFit::RecycleConflictNodes());
+		      segmentFor(RateSegment::Other).others.add(*tool->workspace()->arg(mname.c_str()));
+		    }
+		  } else {
+		    RooRealVar &p = getOrMakeParameter(tool, m["parameter"].val(), 1.0, 0.0, 10.0);
+		    segmentFor(RateSegment::Other).others.add(p);
+		  }
+	       } else if (mtype == "custom"){
+                  // This might be normalization factor that is given by a ProcessNormalization or RooFormulaVar
+                  RooAbsReal *obj = tool->workspace()->function(mname);
+		  if(!obj){
+		    throw std::runtime_error(
+					     "CMSHistSum importer: custom modifier '" + mname + "' on sample '" + sampleName +
+					     "' not yet imported, there seems to be a priority/ordering issue");
+		  }
+		  segmentFor(RateSegment::Other).others.add(*obj);
+               } else if (mtype == "staterror") {
+                  // Already encoded via per-bin errors; CMSHistSum will handle BBB if configured.
+                  continue;
+	       } else if (mtype == "normsys"){
+		 auto *parameter = m.find("parameter");
+		 std::string parname(parameter ? parameter->val() : "alpha_" + mname);
+		 RooRealVar &p = getOrMakeParameter(tool, parname, 0.0, -10., 10.0);
+		 auto& data = m["data"];
+		 double lo = data["lo"].val_double();
+		 double hi = data["hi"].val_double();
+		 const bool sym = approxSymmetricKappas(lo, hi);
+		 segmentFor(sym ? RateSegment::Sym : RateSegment::Asym).normsys.push_back({&p, {lo, hi}});
+	       } else if (mtype == "histosys"){
+		 // collect all the histosys first, will assign them later when we know how many there are
+		 auto *parameter = m.find("parameter");
+		 std::string parname(parameter ? parameter->val() : "alpha_" + mname);
+		 RooRealVar &p = getOrMakeParameter(tool, parname, 0.0, -10., 10.0);		 
+		 vmorph_pars.add(p);
+		 auto &data = m["data"];
+		 auto low  = readFastHisto(data["lo"], mname + "Low_" + sampleName, *x);
+		 auto high = readFastHisto(data["hi"], mname + "High_" + sampleName, *x);		 
+		 vmorphs.emplace_back(std::move(low),std::move(high));
+               } else {
+                  // Shape and other modifiers: not safely mappable without CMSHistFunc’s public morphing API.
+                  throw std::runtime_error(
+                      "CMSHistSum importer: modifier type '" + mtype + "' on sample '" + sampleName +
+                      "' is not supported by this CMSHistSum importer yet");
+               }
+	   }
+         }
+
+	 assert(vmorphs.size() == vmorph_pars.size());
+
+	 // actually assign the morphs
+	 func->setVerticalMorphs(vmorph_pars);
+	 func->prepareStorage();
+	 for(size_t i=0; i<vmorphs.size(); ++i){
+	   func->setShape(0, 0, i+1, 0, vmorphs[i].low);
+	   func->setShape(0, 0, i+1, 1, vmorphs[i].high);
+	 }
+         funcs.add(*func);
+
+	 RooArgList coeffFactors;
+	 for (std::size_t iseg = 0; iseg < segments.size(); ++iseg) {
+	   RateSegment const &seg = segments[iseg];
+	   const std::string pnName = distName + "_overallsys_" + sampleName + (iseg ? "_" + std::to_string(iseg) : "");
+	   auto* pn = new ProcessNormalization(pnName.c_str(), pnName.c_str(), seg.nominal);
+	   for (auto const &[par, kappas] : seg.normsys) {
+	     // lo/hi are the relative factors at theta = -1/+1: symmetric kappa = hi (kappa^theta)
+	     if (approxSymmetricKappas(kappas.first, kappas.second)) {
+	       pn->addLogNormal(kappas.second, *par);
+	     } else {
+	       pn->addAsymmLogNormal(kappas.first, kappas.second, *par);
+	     }
+	   }
+	   for (auto *other : seg.others) pn->addOtherFactor(static_cast<RooAbsReal &>(*other));
+	   coeffFactors.add(*pn);
+	 }
+
+         // One coefficient object per sample, even for a single (possibly shared) factor: it
+         // carries the sample name for the exporter (cms_hist_sum_process_name).
+         const std::string coeffName = distName + "_" + sampleName + "_rate";
+         auto *prod = new RooProduct(coeffName.c_str(), coeffName.c_str(), coeffFactors);
+         prod->setStringAttribute("combine.process", sampleName.c_str());
+         tool->workspace()->import(*prod, RooFit::RecycleConflictNodes());
+         RooAbsReal *coeff = tool->workspace()->function(coeffName.c_str());
+         if (!coeff)
+            throw std::runtime_error("CMSHistSum importer: failed to import coefficient product '" + coeffName + "'");
+         coeffs.add(*coeff);
+      }
+
+      // Construct CMSHistSum
+      const std::string sumName = distName + "_cmshistsum";
+      auto *sum = new CMSHistSum(sumName.c_str(), sumName.c_str(), *x, funcs, coeffs);
+      tool->workspace()->import(*sum, RooFit::RecycleConflictNodes());
+      sum = dynamic_cast<CMSHistSum *>(tool->workspace()->function(sumName.c_str()));
+      if (!sum)
+         throw std::runtime_error("CMSHistSum importer: failed to import CMSHistSum '" + sumName + "'");
+
+      // Wrap into RooRealSumPdf with ONE coefficient
+      // RooRealSumPdf(name,title, funcs, coeffs) uses:
+      //   sum over i coeff_i * func_i ; here: one term: 1 * CMSHistSum
+      RooArgList pdfFuncs;
+      RooArgList pdfCoeffs;
+      pdfFuncs.add(*sum);
+      pdfCoeffs.add(*ONE);
+      
+      auto *pdf = new RooRealSumPdf(distName.c_str(), distName.c_str(), pdfFuncs, pdfCoeffs, true /*extended*/);
+      tool->workspace()->import(*pdf, RooFit::RecycleConflictNodes());
+
+      return true;
+   }
+};
+
+STATIC_EXECUTE([]() {
+   using namespace RooFit::JSONIO;
+
+   // priority=true so this wins over the standard HistFactoryImporter
+   registerImporter<CMSHistSumHistFactoryImporter>("histfactory_dist", /*priority*/ true);
+});
+
+} // namespace
+
+
+
 

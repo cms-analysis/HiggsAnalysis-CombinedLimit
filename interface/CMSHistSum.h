@@ -6,6 +6,7 @@
 #include "RooAbsReal.h"
 #include "RooArgSet.h"
 #include "RooListProxy.h"
+#include <cmath>
 #include "RooRealProxy.h"
 #include "Rtypes.h"
 #include "TH1F.h"
@@ -75,6 +76,126 @@ public:
 
   void runBarlowBeeston() const;
 
+
+public:
+  /// Number of processes and morph parameters
+  unsigned nProcs() const { return static_cast<unsigned>(n_procs_); }
+  unsigned nMorphs() const { return static_cast<unsigned>(n_morphs_); }
+
+  /// Number of bins and bin width (cache_ carries the binning)
+  unsigned nBins() const { return static_cast<unsigned>(cache_.size()); }
+  double binWidth(unsigned ibin) const { return cache_.GetWidth(static_cast<int>(ibin)); }
+
+  /// True if external morphs were attached (not supported by the HistFactory-style exporter)
+  bool hasExternalMorphs() const
+  {
+    return (external_morphs_.getSize() > 0) || (!external_morph_indices_.empty());
+  }
+
+  /// Coefficient parameter for a given process
+  RooAbsReal const* coeffAt(unsigned iproc) const
+  {
+    if (iproc >= coeffpars_.size()) return nullptr;
+    return static_cast<const RooAbsReal*>(&(coeffpars_[iproc]));
+  }  
+  
+  /// Morphing parameter by global morph index (may be null before init()).
+  RooAbsReal const* morphPar(unsigned imorph) const
+  {
+    if (imorph >= morphpars_.size()) return nullptr;
+    return static_cast<RooAbsReal*>(morphpars_.at(imorph));
+  }
+
+  /// Returns the storage index of the nominal template for a process.
+  int processField(unsigned iproc) const
+  {
+    return process_fields_.at(static_cast<std::size_t>(iproc));
+  }
+
+  /// Returns the storage index base for morph templates for a given (process,morph).
+  /// -1 means: this process does not have that morph.
+  int morphCode(unsigned iproc, unsigned imorph) const
+  {
+    return vmorph_fields_.at(iproc * n_morphs_ + imorph);
+  }
+
+  bool isMorphUsed(unsigned iproc, unsigned imorph) const
+  {
+    return (morphCode(iproc,imorph) >= 0);
+  }
+
+  /// Nominal template (FastTemplate) for a process
+  FastTemplate nominalTemplate(unsigned iproc, bool density=true) const
+  {
+    FastTemplate retval (storage_.at(processField(iproc)));
+    if(!density){
+      for(size_t i=0; i<nBins(); ++i){
+	retval[i] *= binWidth(i);
+      }
+    }
+    return retval;
+  }
+
+  FastTemplate morphTemplate(unsigned iproc, unsigned imorph, bool up, bool density=true) const
+  {
+    const int field = morphCode(iproc, imorph) + (up ? 1 : 0);
+    FastTemplate retval(nominalTemplate(iproc));
+    if (!inputStorage_.empty()) {
+      retval = inputStorage_.at(field);
+    } else {
+      FastTemplate const &sum = storage_.at(morphCode(iproc, imorph) + 0);
+      FastTemplate const &diff = storage_.at(morphCode(iproc, imorph) + 1);
+      const double x = up ? 0.5 : -0.5, y = up ? 1.0 : -1.0;
+      if (vtype_.at(iproc) == CMSHistFunc::VerticalSetting::LogQuadLinear) {
+        for (size_t i = 0; i < nBins(); ++i) retval[i] *= std::exp(x * (diff[i] + y * sum[i]));
+      } else {
+        retval.Meld(diff, sum, x, y);
+      }
+    }
+    if(!density){
+      for(size_t i=0; i<nBins(); ++i){
+	retval[i] *= binWidth(i);
+      }
+    }
+    return retval;
+  }
+  FastTemplate upTemplate(unsigned iproc, unsigned imorph, bool density=true) const
+  {
+    return morphTemplate(iproc, imorph, true, density);
+  }
+  FastTemplate downTemplate(unsigned iproc, unsigned imorph, bool density=true) const
+  {
+    return morphTemplate(iproc, imorph, false, density);
+  }
+
+  /// True if setupBinPars created Barlow-Beeston-lite parameters (autoMCStats threshold >= 0)
+  bool hasBinPars() const { return binpars_.getSize() > 0; }
+
+  /// Per-bin MC stat errors for a process
+  FastTemplate binErrors(unsigned iproc, bool density=true) const
+  {
+    FastTemplate retval = binerrors_.at(iproc);
+    if(!density){
+      for(size_t i=0; i<nBins(); ++i){
+	retval[i] *= binWidth(i);
+      }
+    }
+    return retval;
+  }
+
+  /// Vertical morphing type for a process (QuadLinear / LogQuadLinear)
+  CMSHistFunc::VerticalSetting vtype(unsigned iproc) const
+  {
+    return vtype_.at(iproc);
+  }
+
+  /// Optional: smoothing parameter used by CMSHistFunc vertical morphing
+  double vsmoothPar(unsigned iproc) const
+  {
+    return vsmooth_par_.at(static_cast<std::size_t>(iproc));
+  }
+
+  
 protected:
   RooRealProxy x_;
 
@@ -88,6 +209,7 @@ protected:
   std::vector<FastTemplate> storage_;  // All nominal and vmorph templates
   std::vector<int> process_fields_; // indices for process templates in storage_
   std::vector<int> vmorph_fields_; // indices for vmorph templates in storage_
+  std::vector<FastTemplate> inputStorage_; //! storage_ before the sum/diff conversion (HS3 export), not persisted
 
   std::vector<FastTemplate> binerrors_; // Bin errors for each process
 

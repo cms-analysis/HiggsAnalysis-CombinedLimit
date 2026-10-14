@@ -98,6 +98,8 @@ class CMSHistFunc : public RooAbsReal {
 
   void setShape(unsigned hindex, unsigned hpoint, unsigned vindex,
                 unsigned vpoint, TH1 const& hist);
+  void setShape(unsigned hindex, unsigned hpoint, unsigned vindex,
+                unsigned vpoint, const FastHisto& hist);
 
   Double_t evaluate() const override;
 
@@ -140,6 +142,9 @@ class CMSHistFunc : public RooAbsReal {
 
   inline FastTemplate const& errors() const { return binerrors_; }
   inline FastHisto const& cache() const { return rebin_ ? rebin_cache_ : cache_; }
+
+  inline RooArgList const& vmorphs() const { return vmorphs_; }
+  inline RooArgList const& hmorphs() const { return hmorphs_; }
 
   CMSHistFuncWrapper const* wrapper() const;
 

@@ -26,7 +26,7 @@ class RooSpline1D : public RooAbsReal {
       ~RooSpline1D() override ;
 
       TObject * clone(const char *newname) const override ;
-
+ 
     protected:
         Double_t evaluate() const override;
 
@@ -37,6 +37,15 @@ class RooSpline1D : public RooAbsReal {
 
         mutable ROOT::Math::Interpolator *interp_; //! not to be serialized        
         void init() const ;
+
+    public:
+        RooAbsReal const &x() const { return static_cast<RooAbsReal const &>(*xvar_.absArg()); }
+        std::vector<double> const &xVals() const { return x_; }
+        std::vector<double> const &yVals() const { return y_; }
+        std::string const &type() const { return type_; }
+  
+    private:
+  
 
   ClassDefOverride(RooSpline1D,1) // Smooth interpolation	
 };

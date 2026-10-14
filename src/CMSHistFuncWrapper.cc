@@ -106,4 +106,50 @@ Double_t CMSHistFuncWrapper::analyticalIntegral(Int_t code,
   return 0;
 }
 
+#include "RooFitHS3/RooJSONFactoryWSTool.h"
+#include "RooFitHS3/JSONIO.h"
+#include "static_execute.h"
+
+namespace {
+using RooFit::Detail::JSONNode;
+
+// Wrappers are plotting-only (not in the likelihood) but always exported by ROOT: write a frozen "step" snapshot, as a declining exporter would leave a broken stub.
+class CMSHistFuncWrapperStreamer : public RooFit::JSONIO::Exporter {
+public:
+   // func_/err_ have no exporters of their own and are already inlined in the snapshot.
+   bool autoExportDependants() const override { return false; }
+   std::string const &key() const override
+   {
+      static const std::string keystring = "step";
+      return keystring;
+   }
+   bool exportObject(RooJSONFactoryWSTool *tool, const RooAbsArg *p, JSONNode &elem) const override
+   {
+     auto const *wrapper = dynamic_cast<const CMSHistFuncWrapper *>(p);
+     if (!wrapper) return false;
+
+     wrapper->updateCache();
+     auto const &c = wrapper->cache();
+
+     // exportHisto() takes the bin count from the variable, which need not match the cache: use a throwaway clone.
+     auto const *xOrig = dynamic_cast<RooRealVar const *>(&wrapper->getXVar());
+     if (!xOrig) return false;
+     RooRealVar xTmp(xOrig->GetName(), xOrig->GetTitle(), xOrig->getMin(), xOrig->getMax());
+     xTmp.setBins(static_cast<int>(c.fullsize()));
+     RooArgSet obs(xTmp);
+     tool->exportHisto(obs, c.fullsize(), c.Values().data(), elem["data"].set_map());
+     // The snapshot reimports as a RooHistFunc of the real observable, which ROOT exports as a
+     // dependant; export it here too, so the first export already matches.
+     tool->queueExport(*xOrig);
+     elem["type"] << key();
+     return true;
+   }
+};
+
+STATIC_EXECUTE([]() {
+  using namespace RooFit::JSONIO;
+  registerExporter<CMSHistFuncWrapperStreamer>(CMSHistFuncWrapper::Class(), false);
+});
+}  // namespace
+
 #undef HFVERBOSE

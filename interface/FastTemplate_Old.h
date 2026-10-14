@@ -75,7 +75,8 @@ class FastTemplate {
         void SetActiveSize(unsigned int size) { size_ = size; }
 
         void Dump() const ;
-
+        const AT& Values() const { return values_; }
+  
     protected:
         unsigned int size_;
         AT values_;
@@ -85,6 +86,7 @@ class FastHisto : public FastTemplate {
         FastHisto() : FastTemplate(), binEdges_(), binWidths_() {}
         FastHisto(const TH1 &hist) ;
         FastHisto(const FastHisto &other) ;
+        FastHisto(const AT &binEdges, const AT &contents);
         FastHisto & operator=(const FastHisto &other) { 
             if (size() != other.size()) {
                 size_ = other.size_;

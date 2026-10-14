@@ -42,6 +42,7 @@ class CMSHistFuncWrapper : public RooAbsReal {
   void updateCache() const;
 
   inline FastHisto const& cache() const { return cache_; }
+  inline RooAbsReal const& getXVar() const { return x_.arg(); }
 
   friend class CMSHistV<CMSHistFuncWrapper>;
 

@@ -29,3 +29,44 @@ RooGaussian * SimpleGaussianConstraint::make(RooGaussian &c) {
 }
 
 ClassImp(SimpleGaussianConstraint)
+
+#include <RooFitHS3/JSONIO.h>
+
+namespace {
+
+  auto RooFitHS3_wsexportkeys = R"({
+    "SimpleGaussianConstraint": {
+        "type": "gaussian_dist",
+        "proxies": {
+            "x": "x",
+            "mean": "mean",
+            "sigma": "sigma"
+        }
+    }
+})";
+
+auto RooFitHS3_wsfactoryexpression = R"({
+    "gaussian_dist": {
+        "class":"SimpleGaussianConstraint",
+        "arguments":[
+            "x",
+            "mean",
+            "sigma"
+        ]
+    }
+})";
+} // namespace
+
+#include "static_execute.h"
+
+STATIC_EXECUTE([]() {
+  std::stringstream exportkeys;
+  std::stringstream factoryexpressions;
+  SimpleGaussianConstraint::Class();
+  exportkeys << ::RooFitHS3_wsexportkeys;
+  RooFit::JSONIO::loadExportKeys(exportkeys);
+  factoryexpressions << ::RooFitHS3_wsfactoryexpression;
+  RooFit::JSONIO::loadFactoryExpressions(factoryexpressions);
+  return 0;
+ });
+

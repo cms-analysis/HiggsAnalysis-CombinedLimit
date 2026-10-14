@@ -43,6 +43,7 @@
 #include <RooGaussian.h>
 #include <RooWorkspace.h>
 #include <RooCategory.h>
+#include <RooFitHS3/RooJSONFactoryWSTool.h>
 
 #include <RooStats/RooStatsUtils.h>
 #include <RooStats/ModelConfig.h>
@@ -347,10 +348,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       unlink(tmpFile); // this is to be deleted, since we'll use tmpFile+".root"
   }
 
-  bool isTextDatacard = false, isBinary = hlfFile.EndsWith(".root");
+  bool isTextDatacard = false, isBinary = hlfFile.EndsWith(".root"), isJSON = hlfFile.EndsWith(".json");
   TString fileToLoad = ((hlfFile[0] == '/' || hlfFile.Contains("://")) ? hlfFile : pwd+"/"+hlfFile);
   if (!(fileToLoad.Contains("://") && isBinary) && !boost::filesystem::exists(fileToLoad.Data())) throw std::invalid_argument(("File "+fileToLoad+" does not exist").Data());
-  if (hlfFile.EndsWith(".hlf") || isBinary) {
+  if (hlfFile.EndsWith(".hlf") || isBinary || isJSON) {
     // nothing to do
   } else {
     TString txtFile = fileToLoad.Data();
@@ -384,25 +385,36 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   if (verbose <= 2) RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
+
+  // Enable silent clipping to restore old RooFit behavior for parameters going out of range
+  RooRealVar::enableSilentClipping();
+
   // Load the model, but going in a temporary directory to avoid polluting the current one with garbage from 'cexpr'
   RooWorkspace *w = 0; RooStats::ModelConfig *mc = 0, *mc_bonly = 0;
 
-  if (isBinary) {
-    TFile *fIn = TFile::Open(fileToLoad); 
-    if (!fIn) throw std::runtime_error(("Could not open file "+fileToLoad).Data());
-    garbageCollect.tfile = fIn; // request that we close this file when done
-
-    w = dynamic_cast<RooWorkspace *>(fIn->Get(workspaceName_.c_str()));
-
-    if (fIn->GetCacheRead()) {
-      fIn->GetCacheRead()->Close();
-    }
-
-    if (w == 0) {  
+  if (isBinary || isJSON) {
+    if(isBinary){
+      TFile *fIn = TFile::Open(fileToLoad); 
+      if (!fIn) throw std::runtime_error(("Could not open file "+fileToLoad).Data());
+      garbageCollect.tfile = fIn; // request that we close this file when done
+      
+      w = dynamic_cast<RooWorkspace *>(fIn->Get(workspaceName_.c_str()));
+      
+      if (fIn->GetCacheRead()) {
+	fIn->GetCacheRead()->Close();
+      }
+      
+      if (w == 0) {  
         std::cerr << "Could not find workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl; fIn->ls(); 
         throw std::invalid_argument("Missing Workspace"); 
+      }
+    } else {
+      w = new RooWorkspace("w");
+      RooJSONFactoryWSTool tool(*w);
+      RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+      tool.importJSON(fileToLoad.Data());
+      RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);      
     }
-
 
     if (verbose > 3) { std::cout << "Input workspace '" << workspaceName_ << "': \n"; w->Print("V"); }
     RooRealVar *MH = w->var("MH");
@@ -431,9 +443,35 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
       if (optSimPdf_) {
           RooSimultaneousOpt *optpdf = new RooSimultaneousOpt(*pdf, TString(mc->GetPdf()->GetName())+"_opt");
+          if (isJSON && mc->GetObservables()) {
+            // adding cats to observables
+            RooArgSet obsWithCats(*mc->GetObservables());
+            obsWithCats.add(w->allCats(), /*silent=*/true);
+            mc->SetObservables(obsWithCats);
+            RooArgList extraConstrs;
+            for (RooAbsArg *arg : w->allPdfs()) {
+              auto *cpdf = dynamic_cast<RooAbsPdf *>(arg);
+
+              // skip if cpdf is not a pdf
+              if (!cpdf || cpdf == optpdf || dynamic_cast<RooProdPdf *>(cpdf)) continue;
+
+              // skip if cpdf depends on a observable
+              if (cpdf->dependsOn(*mc->GetObservables())) continue;
+
+              extraConstrs.add(*cpdf);
+            }
+            if (extraConstrs.getSize() > 0) {
+              if (verbose > 1) std::cout << "Attaching " << extraConstrs.getSize() << " constraint PDFs from JSON import." << std::endl;
+              optpdf->addExtraConstraints(extraConstrs);
+            }
+          }
           w->import(*optpdf);
           mc->SetPdf(*optpdf);
       }
+    }
+    if (verbose > 1) {
+      auto optpdf_ = dynamic_cast<RooSimultaneousOpt*>(mc->GetPdf());
+      if (optpdf_) std::cout << "RooSimOpt has (" << optpdf_->extraConstraints().size() << "/" << w->allPdfs().size() << ") of all pdfs present in ws added as extraConstraints" << std::endl;
     }
     if (expectSignalSet_ && POI->getSize() > 1 ) std::cerr << "ModelConfig '" << modelConfigName_ << "' defines more than one parameter of interest and you have set --expectSignal=" << expectSignal_ << ", which combine will likely interpret incorrectly. You should use --setParameters instead of --expectSignal." << std::endl;
     if (mc_bonly == 0 && !noMCbonly_) {

@@ -244,19 +244,24 @@ void CMSHistFunc::prepareStorage() {
 }
 
 void CMSHistFunc::setShape(unsigned hindex, unsigned hpoint, unsigned vindex,
-                           unsigned vpoint, TH1 const& hist) {
+                           unsigned vpoint, FastHisto const& hist) {
   unsigned idx = getIdx(hindex, hpoint, vindex, vpoint);
 #if HFVERBOSE > 0
   std::cout << "hindex: " << hindex << " hpoint: " << hpoint
             << " vindex: " << vindex << " vpoint: " << vpoint
             << " mapped to idx: " << idx << "\n";
 #endif
-  storage_.at(idx) = FastHisto(hist);
+  storage_.at(idx) = hist;
   if (divide_by_width_) {
     for (unsigned i = 0; i < storage_[idx].size(); ++i) {
       storage_.at(idx)[i] /= cache_.GetWidth(i);
     }
   }
+}
+
+void CMSHistFunc::setShape(unsigned hindex, unsigned hpoint, unsigned vindex,
+                           unsigned vpoint, TH1 const& hist) {
+  setShape(hindex,hpoint,vindex,vpoint,FastHisto(hist));
 }
 
 void CMSHistFunc::updateCache() const {

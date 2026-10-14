@@ -34,7 +34,7 @@ message (STATUS "Python module installed to   : " ${CMAKE_INSTALL_PYTHONDIR})
 # cmake path/to/source # change this path to where-ever you cloned Combine repo to
 # make -j4
 
-find_package(ROOT REQUIRED COMPONENTS MathMore RooFitCore RooFit RooStats HistFactory)
+find_package(ROOT REQUIRED COMPONENTS MathMore RooFitCore RooFit RooStats HistFactory RooFitHS3)
 find_package(Eigen3 REQUIRED)
 if(USE_VDT)
   find_package(Vdt REQUIRED)

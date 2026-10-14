@@ -558,24 +558,24 @@ class ShapeBuilder(ModelBuilder):
             self.TH1Observables = {}
             self.out.binVars = ROOT.RooArgSet()
             self.out.maxbins = max([shapeBins[k] for k in shapeBins.keys()])
-            if self.options.optimizeTemplateBins:
-                if self.options.verbose > 1:
-                    stderr.write("Will use binning variable CMS_th1x with %d bins\n" % self.out.maxbins)
-                self.doVar("CMS_th1x[0,%d]" % self.out.maxbins)
-                self.out.var("CMS_th1x").setBins(self.out.maxbins)
-                self.out.binVars.add(self.out.var("CMS_th1x"))
-                shapeObs["CMS_th1x"] = self.out.var("CMS_th1x")
-                for b in shapeBins:
-                    self.TH1Observables[b] = "CMS_th1x"
-            else:
-                for b in shapeBins:
-                    binVar = "CMS_th1x_%s" % b
+            for b in shapeBins:
+                th1x = "CMS_TH1obs_"+str(b)
+                if self.options.optimizeTemplateBins:
+                    if self.options.verbose > 1:
+                        stderr.write("Will use binning variable "+th1x+" with %d bins\n" % shapeBins[b])
+                    self.doVar(th1x + "[0,%d]" % shapeBins[b])
+                    self.out.var(th1x).setBins(shapeBins[b])
+                    self.out.binVars.add(self.out.var(th1x))
+                    shapeObs[th1x] = self.out.var(th1x)
+                    self.TH1Observables[b] = th1x
+                else:
+                    binVar = th1x + "_%s" % b
                     if self.options.verbose > 1:
                         stderr.write("Will use binning variable %s with %d bins\n" % (binVar, shapeBins[b]))
                     self.doVar("%s[0,%d]" % (binVar, shapeBins[b]))
                     self.out.var(binVar).setBins(shapeBins[b])
                     self.out.binVars.add(self.out.var(binVar))
-                    shapeObs["CMS_th1x_%s" % b] = self.out.var(binVar)
+                    shapeObs[th1x + "_%s" % b] = self.out.var(binVar)
                     self.TH1Observables[b] = binVar
         if shapeTypes.count("TH1") == len(shapeTypes):
             self.out.mode = "binned"
