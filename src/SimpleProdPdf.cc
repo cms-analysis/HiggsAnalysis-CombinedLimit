@@ -1,15 +1,28 @@
 #include "../interface/SimpleProdPdf.h"
 #include "../interface/RooCheapProduct.h"
 
-#include <string>
+#include "RooAbsArg.h"
+#include "RooAbsPdf.h"
+#include "RooAbsReal.h"
+#include "RooArgList.h"
+#include "RooArgSet.h"
+#include "RooHistPdf.h"
+#include "RooNameReg.h"
+
+#include <ROOT/RConfig.hxx>  // for ROOT_VERSION
+
+#include "Rtypes.h"
+#include "RtypesCore.h"
+#include "TString.h"
+
 #include <memory>
 #include <stdexcept>
-#include "RooHistPdf.h"
+#include <vector>
 
-SimpleProdPdf::SimpleProdPdf() : RooAbsPdf() {}
+SimpleProdPdf::SimpleProdPdf() : _cacheMgr(this, 10) {}
 
 SimpleProdPdf::SimpleProdPdf(const char* name, const char* title, RooArgList const& pdfList)
-    : RooAbsPdf(name, title), _pdfList("!pdfs", "List of PDFs", this) {
+    : RooAbsPdf(name, title), _pdfList("!pdfs", "List of PDFs", this), _cacheMgr(this, 10) {
   for (RooAbsArg *arg : pdfList) {
     RooAbsPdf* pdf = dynamic_cast<RooAbsPdf*>(arg);
     if (!pdf) {
@@ -22,9 +35,11 @@ SimpleProdPdf::SimpleProdPdf(const char* name, const char* title, RooArgList con
   }
 }
 
-SimpleProdPdf::SimpleProdPdf(const char* name, const char* title, RooArgList& pdfList,
+SimpleProdPdf::SimpleProdPdf(const char* name,
+                             const char* title,
+                             RooArgList& pdfList,
                              std::vector<int> const& pdfSettings)
-    : RooAbsPdf(name, title), _pdfList("!pdfs", "List of PDFs", this) {
+    : RooAbsPdf(name, title), _pdfList("!pdfs", "List of PDFs", this), _cacheMgr(this, 10) {
   int iSetting = -1;
   for (RooAbsArg *arg : pdfList) {
     ++iSetting;
@@ -52,7 +67,8 @@ SimpleProdPdf::SimpleProdPdf(const char* name, const char* title, RooProdPdf con
 SimpleProdPdf::SimpleProdPdf(const SimpleProdPdf& other, const char* name)
     : RooAbsPdf(other, name),
       _pdfList("!pdfs", this, other._pdfList),
-      _pdfSettings(other._pdfSettings) {}
+      _pdfSettings(other._pdfSettings),
+      _cacheMgr(other._cacheMgr, this) {}
 
 Double_t SimpleProdPdf::evaluate() const {
     Double_t value = 1.0;
@@ -62,50 +78,99 @@ Double_t SimpleProdPdf::evaluate() const {
     return value;
 }
 
-RooAbsReal* SimpleProdPdf::createIntegral(const RooArgSet& iset, const RooArgSet* nset,
-                           const RooNumIntConfig* cfg, const char* rangeName) const {
-    RooArgList terms;
+bool SimpleProdPdf::forceAnalyticalInt(const RooAbsArg& /*dep*/) const { return true; }
 
-    std::vector<RooAbsPdf*> pdfVec;
-    std::vector<std::unique_ptr<RooArgSet>> iVarsVec;
-    for (int i = 0; i < _pdfList.getSize(); ++i) {
-      RooAbsPdf *iPdf = static_cast<RooAbsPdf*>(_pdfList.at(i));
-      std::unique_ptr<RooArgSet> iVars(iPdf->getVariables());
-      pdfVec.push_back(iPdf);
-      iVarsVec.emplace_back(static_cast<RooArgSet*>(iset.selectCommon(*iVars)));
-    }
-    for (unsigned i = 0; i < pdfVec.size(); ++i) {
-      if (_pdfSettings.at(i) == 1) {
-        for (unsigned j = 0; j < pdfVec.size(); ++j) {
-          if (j == i) continue;
-          iVarsVec.at(i)->remove(*iVarsVec.at(j));
-        }
+Int_t SimpleProdPdf::getAnalyticalIntegralWN(RooArgSet& allVars,
+                                             RooArgSet& analVars,
+                                             const RooArgSet* normSet,
+                                             const char* rangeName) const {
+  if (_forceNumInt)
+    return 0;
+  // All observables are integrated as a product of the integrals of the components
+  analVars.add(allVars);
+  return getIntegralCode(allVars, normSet, rangeName) + 1;
+}
+
+double SimpleProdPdf::analyticalIntegralWN(Int_t code, const RooArgSet* normSet, const char* rangeName) const {
+  if (code == 0)
+    return getVal(normSet);
+
+  auto* cache = dynamic_cast<CacheElem*>(_cacheMgr.getObjByIndex(code - 1));
+  if (cache == nullptr) {
+    // The cache was sterilized (e.g. after a server redirection), so rebuild
+    // the integral for this code from the sets of variables stored by name.
+    std::unique_ptr<RooArgSet> vars{getParameters(RooArgSet())};
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 26, 0)
+    RooArgSet nset = _cacheMgr.selectFromSet1(*vars, code - 1);
+    RooArgSet iset = _cacheMgr.selectFromSet2(*vars, code - 1);
+#else
+    RooArgSet nset, iset;
+    nset.add(*std::unique_ptr<RooArgSet>{_cacheMgr.nameSet1ByIndex(code - 1)->select(*vars)});
+    iset.add(*std::unique_ptr<RooArgSet>{_cacheMgr.nameSet2ByIndex(code - 1)->select(*vars)});
+#endif
+    Int_t code2 = getIntegralCode(iset, nset.empty() ? nullptr : &nset, rangeName);
+    cache = dynamic_cast<CacheElem*>(_cacheMgr.getObjByIndex(code2));
+  }
+  return cache->integral->getVal();
+}
+
+Int_t SimpleProdPdf::getIntegralCode(const RooArgSet& iset, const RooArgSet* nset, const char* rangeName) const {
+  Int_t sterileIdx = -1;
+  if (_cacheMgr.getObj(nset, &iset, &sterileIdx, rangeName)) {
+    return _cacheMgr.lastIndex();
+  }
+  auto cache = std::make_unique<CacheElem>();
+  cache->integral = makeIntegral(iset, nset, rangeName);
+  return _cacheMgr.setObj(nset, &iset, cache.release(), RooNameReg::ptr(rangeName));
+}
+
+// Build the integral over iset as the product of the integrals of the components
+std::unique_ptr<RooAbsReal> SimpleProdPdf::makeIntegral(const RooArgSet& iset,
+                                                        const RooArgSet* nset,
+                                                        const char* rangeName) const {
+  RooArgList terms;
+
+  std::vector<RooAbsPdf*> pdfVec;
+  std::vector<std::unique_ptr<RooArgSet>> iVarsVec;
+  for (int i = 0; i < _pdfList.getSize(); ++i) {
+    auto* iPdf = dynamic_cast<RooAbsPdf*>(_pdfList.at(i));
+    std::unique_ptr<RooArgSet> iVars(iPdf->getVariables());
+    pdfVec.push_back(iPdf);
+    // The cast is only redundant since ROOT 6.34, before that selectCommon() returned a RooAbsCollection*
+    iVarsVec.emplace_back(static_cast<RooArgSet*>(iset.selectCommon(*iVars)));  // NOLINT(readability-redundant-casting)
+  }
+  for (unsigned i = 0; i < pdfVec.size(); ++i) {
+    if (_pdfSettings.at(i) == 1) {
+      for (unsigned j = 0; j < pdfVec.size(); ++j) {
+        if (j == i)
+          continue;
+        iVarsVec.at(i)->remove(*iVarsVec.at(j));
       }
     }
-    for (unsigned i = 0; i < pdfVec.size(); ++i) {
-        TString intName = pdfVec.at(i)->GetName();
-        intName.Append(this->integralNameSuffix(*iVarsVec.at(i),nset,rangeName));
-        RooAbsArg *prexistingInt = nullptr;
-        if (pdfVec.at(i)->ownedComponents() != nullptr) {
-          prexistingInt = pdfVec.at(i)->ownedComponents()->find(intName);
-          if (prexistingInt) {
-            // std::cout << "Found pre-existing integral " << prexistingInt->GetName() << ", recycling...\n";
-            terms.add(*prexistingInt);
-          }
-        }
-        if (prexistingInt == nullptr) {
-          RooAbsReal *iInt = pdfVec.at(i)->createIntegral(*iVarsVec.at(i), nset, cfg, rangeName);
-          iInt->SetName(intName);
-          if (dynamic_cast<RooHistPdf*>(pdfVec.at(i))) {
-            pdfVec.at(i)->addOwnedComponents(*iInt);
-          }
-          terms.add(*iInt);
-        }
+  }
+  for (unsigned i = 0; i < pdfVec.size(); ++i) {
+    TString intName = pdfVec.at(i)->GetName();
+    intName.Append(this->integralNameSuffix(*iVarsVec.at(i), nset, rangeName));
+    RooAbsArg* prexistingInt = nullptr;
+    if (pdfVec.at(i)->ownedComponents() != nullptr) {
+      prexistingInt = pdfVec.at(i)->ownedComponents()->find(intName);
+      if (prexistingInt) {
+        // std::cout << "Found pre-existing integral " << prexistingInt->GetName() << ", recycling...\n";
+        terms.add(*prexistingInt);
+      }
     }
-    TString name(this->GetName()) ;
-    name.Append(this->integralNameSuffix(iset,nset,rangeName));
-    RooCheapProduct *prod = new RooCheapProduct(name, "", terms, true);
-    return prod;
+    if (prexistingInt == nullptr) {
+      RooAbsReal* iInt = pdfVec.at(i)->createIntegral(*iVarsVec.at(i), nset, nullptr, rangeName);
+      iInt->SetName(intName);
+      if (dynamic_cast<RooHistPdf*>(pdfVec.at(i))) {
+        pdfVec.at(i)->addOwnedComponents(*iInt);
+      }
+      terms.add(*iInt);
+    }
+  }
+  TString name(this->GetName());
+  name.Append(this->integralNameSuffix(iset, nset, rangeName));
+  return std::make_unique<RooCheapProduct>(name, /*title=*/"", terms, /*pruneConstants=*/true);
 }
 
 void SimpleProdPdf::printMetaArgs(std::ostream& os) const
