@@ -1207,7 +1207,7 @@ bool Combine::addDiscreteNuisances(RooWorkspace *w){
     // return value 
     bool hasDiscrete = false;
     RooArgSet *discreteParameters = (RooArgSet*) w->genobj("discreteParams");
- 
+
     CascadeMinimizerGlobalConfigs::O().pdfCategories = RooArgList();
     // Check for the discrete parameters 
     if (discreteParameters != 0) {
