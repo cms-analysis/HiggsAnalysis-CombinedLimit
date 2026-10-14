@@ -43,6 +43,69 @@ def DrawAxisHists(pads, axis_hists, def_pad=None):
         def_pad.cd()
 
 
+def DrawText(stat, ntoys, pval, arrowrange, underflow, overflow, obs):
+    output = []
+
+    textlabel = ROOT.TPaveText(0.78, 0.88, 0.90, 0.92, "NDC")
+    textlabel.SetBorderSize(0)
+    textlabel.SetFillStyle(0)
+    textlabel.SetTextAlign(32)
+    textlabel.SetTextSize(0.04)
+    textlabel.SetTextColor(1)
+    textlabel.SetTextFont(62)
+    textlabel.AddText(stat + ", %s Toys" % ntoys)
+    output.append(textlabel)
+
+    pvalue = ROOT.TPaveText(0.78, 0.83, 0.90, 0.87, "NDC")
+    pvalue.SetBorderSize(0)
+    pvalue.SetFillStyle(0)
+    pvalue.SetTextAlign(32)
+    pvalue.SetTextSize(0.04)
+    pvalue.SetTextColor(1)
+    pvalue.SetTextFont(62)
+    pvalue.AddText("p-value = %0.3f" % pval)
+    output.append(pvalue)
+
+    warningtext1 = ROOT.TPaveText(0.48, 0.77, 0.60, 0.81, "NDC")
+    warningtext1.SetBorderSize(0)
+    warningtext1.SetFillStyle(0)
+    warningtext1.SetTextAlign(22)
+    warningtext1.SetTextSize(0.04)
+    warningtext1.SetTextColor(2)
+    warningtext1.SetTextFont(62)
+
+    if arrowrange and ((underflow != 0) or (overflow != 0)):
+        warningstrings = []
+        if underflow != 0:
+            warningstrings.append("%d underflow" % underflow)
+        if overflow != 0:
+            warningstrings.append("%d overflow" % overflow)
+        warningtext1.AddText(", ".join(warningstrings))
+        output.append(warningtext1)
+
+        warningtext2 = ROOT.TPaveText(0.48, 0.72, 0.60, 0.76, "NDC")
+        warningtext2.SetBorderSize(0)
+        warningtext2.SetFillStyle(0)
+        warningtext2.SetTextAlign(22)
+        warningtext2.SetTextSize(0.04)
+        warningtext2.SetTextColor(2)
+        warningtext2.SetTextFont(62)
+        warningtext2.AddText(f"observed value not in range, at {obs:.2f}")
+        output.append(warningtext2)
+    else:
+        if (underflow != 0) or (overflow != 0):
+            warningstrings = []
+            if underflow != 0:
+                warningstrings.append("%d underflow" % underflow)
+            if overflow != 0:
+                warningstrings.append("%d overflow" % overflow)
+            warningtext1.AddText(", ".join(warningstrings))
+        elif arrowrange:
+            warningtext1.AddText(f"observed value not in range, at {obs:.2f}")
+        output.append(warningtext1)
+    return output
+
+
 ## Boilerplate
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -125,12 +188,14 @@ if args.statistic in ["AD", "KS"]:
         for i in range(toy_graph.GetN()):
             toy_hist.Fill(toy_graph.GetX()[i])
         pValue = js[args.mass][key]["p"]
+        underflow_count = toy_hist.GetBinContent(0)
+        overflow_count = toy_hist.GetBinContent(args.bins + 1)
         obs = plot.ToyTGraphFromJSON(js, [args.mass, key, "obs"])
-        arr = ROOT.TArrow(obs.GetX()[0], 0.001, obs.GetX()[0], toy_hist.GetMaximum() / 8, 0.02, "<|")
+        arr = ROOT.TArrow(obs.GetX()[0], 0.001, obs.GetX()[0], toy_hist.GetMaximum() / 6, 0.03, "<|")
         arr.SetLineColor(ROOT.kBlue)
         arr.SetFillColor(ROOT.kBlue)
         arr.SetFillStyle(1001)
-        arr.SetLineWidth(6)
+        arr.SetLineWidth(4)
         arr.SetLineStyle(1)
         arr.SetAngle(60)
         toy_hist.Draw()
@@ -138,10 +203,9 @@ if args.statistic in ["AD", "KS"]:
         pads[0].RedrawAxis()
         pads[0].RedrawAxis("g")
         pads[0].GetFrame().Draw()
-
-        # axis[0].GetYaxis().SetTitle(args.y_title)
-        # axis[0].GetXaxis().SetTitle(args.x_title)
-        # axis[0].GetXaxis().SetLabelOffset(axis[0].GetXaxis().GetLabelOffset()*2)
+        toy_hist.GetYaxis().SetTitle(args.y_title)
+        toy_hist.GetXaxis().SetTitle(args.x_title)
+        toy_hist.GetXaxis().SetLabelOffset(toy_hist.GetXaxis().GetLabelOffset() * 2)
 
         y_min, y_max = (plot.GetPadYMin(pads[0]), plot.GetPadYMax(pads[0]))
         plot.FixBothRanges(pads[0], 0, 0, y_max, 0.25)
@@ -159,29 +223,14 @@ if args.statistic in ["AD", "KS"]:
 
         legend.Draw()
 
-        plot.DrawCMSLogo(pads[0], "CMS", args.cms_sub, 11, 0.045, 0.035, 1.2, "", 0.8)
+        plot.DrawCMSLogo(pads[0], "CMS", args.cms_sub, 11, 0.095, 0.035, 1.2, "", 0.8)
         plot.DrawTitle(pads[0], args.title_right, 3)
         plot.DrawTitle(pads[0], title, 1)
 
-        textlabel = ROOT.TPaveText(0.68, 0.88, 0.80, 0.92, "NDC")
-        textlabel.SetBorderSize(0)
-        textlabel.SetFillStyle(0)
-        textlabel.SetTextAlign(32)
-        textlabel.SetTextSize(0.04)
-        textlabel.SetTextColor(1)
-        textlabel.SetTextFont(62)
-        textlabel.AddText(args.statistic + ", %s Toys" % (toy_graph.GetN()))
-        textlabel.Draw()
-
-        pvalue = ROOT.TPaveText(0.68, 0.83, 0.80, 0.87, "NDC")
-        pvalue.SetBorderSize(0)
-        pvalue.SetFillStyle(0)
-        pvalue.SetTextAlign(32)
-        pvalue.SetTextSize(0.04)
-        pvalue.SetTextColor(1)
-        pvalue.SetTextFont(62)
-        pvalue.AddText("p-value = %0.3f" % pValue)
-        pvalue.Draw()
+        arrow_not_in_range = (obs.GetX()[0] > toy_hist.GetBinLowEdge(args.bins + 1)) or (obs.GetX()[0] < toy_hist.GetBinLowEdge(1))
+        texts = DrawText(args.statistic, toy_graph.GetN(), pValue, arrow_not_in_range, underflow_count, overflow_count, obs.GetX()[0])
+        for text in texts:
+            text.Draw()
 
         canv.Print(key + args.output + ".pdf")
         canv.Print(key + args.output + ".png")
@@ -208,14 +257,14 @@ else:
     underflow_count = toy_hist.GetBinContent(0)
     overflow_count = toy_hist.GetBinContent(args.bins + 1)
     obs = plot.ToyTGraphFromJSON(js, [args.mass, "obs"])
-    arr = ROOT.TArrow(obs.GetX()[0], 0.001, obs.GetX()[0], toy_hist.GetMaximum() / 8, 0.02, "<|")
+    arr = ROOT.TArrow(obs.GetX()[0], 0.001, obs.GetX()[0], toy_hist.GetMaximum() / 6, 0.03, "<|")
     # if axis is None:
     # axis = plot.CreateAxisHists(1, graph_sets[-1].values()[0], True)
     # DrawAxisHists(pads, axis, pads[0])
     arr.SetLineColor(ROOT.kBlue)
     arr.SetFillColor(ROOT.kBlue)
     arr.SetFillStyle(1001)
-    arr.SetLineWidth(6)
+    arr.SetLineWidth(4)
     arr.SetLineStyle(1)
     arr.SetAngle(60)
     toy_hist.Draw()
@@ -223,9 +272,9 @@ else:
     pads[0].RedrawAxis()
     pads[0].RedrawAxis("g")
     pads[0].GetFrame().Draw()
-    # axis[0].GetYaxis().SetTitle(args.y_title)
-    # axis[0].GetXaxis().SetTitle(args.x_title)
-    # axis[0].GetXaxis().SetLabelOffset(axis[0].GetXaxis().GetLabelOffset()*2)
+    toy_hist.GetYaxis().SetTitle(args.y_title)
+    toy_hist.GetXaxis().SetTitle(args.x_title)
+    toy_hist.GetXaxis().SetLabelOffset(toy_hist.GetXaxis().GetLabelOffset() * 2)
 
     y_min, y_max = (plot.GetPadYMin(pads[0]), plot.GetPadYMax(pads[0]))
     plot.FixBothRanges(pads[0], 0, 0, y_max, 0.25)
@@ -243,69 +292,14 @@ else:
 
     legend.Draw()
 
-    plot.DrawCMSLogo(pads[0], "CMS", args.cms_sub, 11, 0.045, 0.035, 1.2, "", 0.8)
+    plot.DrawCMSLogo(pads[0], "CMS", args.cms_sub, 11, 0.095, 0.035, 1.2, "", 0.8)
     plot.DrawTitle(pads[0], args.title_right, 3)
     plot.DrawTitle(pads[0], args.title_left, 1)
 
-    textlabel = ROOT.TPaveText(0.68, 0.88, 0.80, 0.92, "NDC")
-    textlabel.SetBorderSize(0)
-    textlabel.SetFillStyle(0)
-    textlabel.SetTextAlign(32)
-    textlabel.SetTextSize(0.04)
-    textlabel.SetTextColor(1)
-    textlabel.SetTextFont(62)
-    textlabel.AddText(args.statistic + ", %s Toys" % (toy_graph.GetN()))
-    textlabel.Draw()
-
-    pvalue = ROOT.TPaveText(0.68, 0.83, 0.80, 0.87, "NDC")
-    pvalue.SetBorderSize(0)
-    pvalue.SetFillStyle(0)
-    pvalue.SetTextAlign(32)
-    pvalue.SetTextSize(0.04)
-    pvalue.SetTextColor(1)
-    pvalue.SetTextFont(62)
-    pvalue.AddText("p-value = %0.3f" % pValue)
-    pvalue.Draw()
-
-    arrow_not_in_range = (obs.GetX()[0] > toy_hist.GetBinLowEdge(args.bins + 1)) or (obs.GetX()[0] < toy_hist.GetBinLowEdge(0))
-
-    warningtext1 = ROOT.TPaveText(0.68, 0.78, 0.80, 0.82, "NDC")
-    warningtext1.SetBorderSize(0)
-    warningtext1.SetFillStyle(0)
-    warningtext1.SetTextAlign(32)
-    warningtext1.SetTextSize(0.04)
-    warningtext1.SetTextColor(2)
-    warningtext1.SetTextFont(62)
-
-    if arrow_not_in_range and ((underflow_count != 0) or (overflow_count != 0)):
-        warningstrings = []
-        if underflow_count != 0:
-            warningstrings.append("%d underflow" % underflow_count)
-        if overflow_count != 0:
-            warningstrings.append("%d overflow" % overflow_count)
-        warningtext1.AddText(", ".join(warningstrings))
-        warningtext1.Draw()
-
-        warningtext2 = ROOT.TPaveText(0.68, 0.73, 0.80, 0.77, "NDC")
-        warningtext2.SetBorderSize(0)
-        warningtext2.SetFillStyle(0)
-        warningtext2.SetTextAlign(32)
-        warningtext2.SetTextSize(0.04)
-        warningtext2.SetTextColor(2)
-        warningtext2.SetTextFont(62)
-        warningtext2.AddText("observed value not in range")
-        warningtext2.Draw()
-    else:
-        if (underflow_count != 0) or (overflow_count != 0):
-            warningstrings = []
-            if underflow_count != 0:
-                warningstrings.append("%d underflow" % underflow_count)
-            if overflow_count != 0:
-                warningstrings.append("%d overflow" % overflow_count)
-            warningtext1.AddText(", ".join(warningstrings))
-        elif arrow_not_in_range:
-            warningtext1.AddText("observed value not in range")
-        warningtext1.Draw()
+    arrow_not_in_range = (obs.GetX()[0] > toy_hist.GetBinLowEdge(args.bins + 1)) or (obs.GetX()[0] < toy_hist.GetBinLowEdge(1))
+    texts = DrawText(args.statistic, toy_graph.GetN(), pValue, arrow_not_in_range, underflow_count, overflow_count, obs.GetX()[0])
+    for text in texts:
+        text.Draw()
 
     canv.Print(".pdf")
     canv.Print(".png")
