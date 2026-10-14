@@ -54,6 +54,10 @@ namespace cacheutils {
   /// reports the originals. The per-channel datasets from splitting the input
   /// are owned here, because the terms keep their data by pointer.
   ///
+  /// The channel masks of a RooSimultaneousOpt (text2workspace.py
+  /// --channel-masks) are honored like in CachingSimNLL: a channel whose mask
+  /// is non-zero is left out of the sum, but not of getParameters().
+  ///
   /// setAnalyticBarlowBeeston() works like in CachingSimNLL: the bin-by-bin
   /// parameters of the histogram nodes of the original channel pdfs are set
   /// constant and their closed-form best fit is pushed into them before every
@@ -125,8 +129,11 @@ namespace cacheutils {
     void syncCategories() const;
     void replaceClonesByOriginals(RooArgSet &params) const;
     void updateGradientMaps() const;
+    /// Masked by the discrete profiling scan (setMaskNonDiscreteChannels()) or
+    /// by the channel mask of the RooSimultaneousOpt.
     bool isMasked(std::size_t i) const {
-      return i < m_nChannels && !m_internalMasks.empty() && !m_internalMasks[i];
+      return i < m_nChannels && ((!m_internalMasks.empty() && !m_internalMasks[i]) ||
+                                 (m_channelMaskVars[i] != nullptr && m_channelMaskVars[i]->getVal() != 0.));
     }
     /// Hand the observed counts of a channel to its histogram nodes, which the
     /// analytic Barlow-Beeston minimization needs.
@@ -145,6 +152,7 @@ namespace cacheutils {
     RooArgList m_constraints;
 
     std::vector<std::string> m_channelNames;
+    std::vector<RooAbsReal const *> m_channelMaskVars;  // the channel masks of a RooSimultaneousOpt, or nullptr
     std::vector<std::unique_ptr<RooAbsPdf>> m_privateChannelPdfs;
     std::vector<std::unique_ptr<RooCategory>> m_categoryClones;
     std::vector<std::vector<CategorySync>> m_categorySyncs;
