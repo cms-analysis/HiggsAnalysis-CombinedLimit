@@ -120,7 +120,7 @@ namespace utils {
     std::vector<std::vector<int> > generateCombinations(const std::vector<int> &vec);
     std::vector<std::vector<int> > generateOrthogonalCombinations(const std::vector<int> &vec);
     int countFloating(const RooArgSet &);
-    RooArgSet returnAllVars(RooWorkspace *);
+    RooArgSet returnAllVars(RooWorkspace*);
 
     /// Collect all fundamental nodes that `func` depends on by value, except
     /// those depending on `obs`. Unlike RooAbsArg::getParameters(), this

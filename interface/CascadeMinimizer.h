@@ -121,9 +121,9 @@ class CascadeMinimizerGlobalConfigs{
 	  //RooCategory* x;
 	  RooArgList pdfCategories; 
 	  RooArgList nuisanceParameters; 
-	  RooArgList allFloatingParameters; 
-	  RooArgList parametersOfInterest; 
-	  RooArgList allRooMultiPdfs;
+	  RooArgList allFloatingParameters;
+          RooArgList parametersOfInterest;
+          RooArgList allRooMultiPdfs;
 
 	  static CascadeMinimizerGlobalConfigs& O(){
 

@@ -48,12 +48,8 @@ std::map<std::string,std::vector<std::string> > const CascadeMinimizer::minimize
 ,{"GSLMultiMin"  ,{"ConjugateFR", "ConjugatePR", "BFGS", "BFGS2", "SteepestDescent"}}
 };
 
-CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi) :
-    nll_(nll),
-    mode_(mode),
-    poi_(poi)
-{
-    remakeMinimizer();
+CascadeMinimizer::CascadeMinimizer(RooAbsReal& nll, Mode mode, RooRealVar* poi) : nll_(nll), mode_(mode), poi_(poi) {
+  remakeMinimizer();
 }
 
 void CascadeMinimizer::remakeMinimizer() {
@@ -67,8 +63,7 @@ void CascadeMinimizer::remakeMinimizer() {
 /// Set constant all floating RooRealVar parameters of the given RooMultiPdfs
 /// that the currently active pdfs don't depend on. Returns the set of
 /// parameters that were changed, so the caller can float them again.
-static RooArgSet freezeDisassociatedParams(RooArgSet const &multiPdfs,
-                                           bool isVerbose = false) {
+static RooArgSet freezeDisassociatedParams(RooArgSet const& multiPdfs, bool isVerbose = false) {
   if (isVerbose) {
     multiPdfs.Print();
   }
@@ -78,10 +73,10 @@ static RooArgSet freezeDisassociatedParams(RooArgSet const &multiPdfs,
   // to the active pdf, hence utils::getAllParameters() is used here.
   RooArgSet multiPdfParams;
 
-  for (RooAbsArg *pdf : multiPdfs) {
+  for (RooAbsArg* pdf : multiPdfs) {
     std::unique_ptr<RooArgSet> pdfPars{utils::getAllParameters(*pdf)};
-    for (RooAbsArg *a : *pdfPars) {
-      if (auto *v = dynamic_cast<RooRealVar *>(a)) {
+    for (RooAbsArg* a : *pdfPars) {
+      if (auto* v = dynamic_cast<RooRealVar*>(a)) {
         if (!v->isConstant())
           multiPdfParams.add(*v);
       }
@@ -95,16 +90,15 @@ static RooArgSet freezeDisassociatedParams(RooArgSet const &multiPdfs,
   // For each multiPdf, get the active pdf and remove its parameters
   // from this list of params and then freeze the remaining ones
 
-  for (RooAbsArg *P : multiPdfs) {
-    auto *mpdf = dynamic_cast<RooMultiPdf *>(P);
-    if (!mpdf) continue;
-    RooAbsPdf *pdf = mpdf->getCurrentPdf();
+  for (RooAbsArg* P : multiPdfs) {
+    auto* mpdf = dynamic_cast<RooMultiPdf*>(P);
+    if (!mpdf)
+      continue;
+    RooAbsPdf* pdf = mpdf->getCurrentPdf();
     if (isVerbose)
       std::cout << " Current active PDF - " << pdf->GetName() << '\n';
-    std::unique_ptr<RooArgSet> pdfPars{
-        pdf->getParameters(static_cast<const RooArgSet *>(nullptr))};
-    RooStats::RemoveConstantParameters(
-        pdfPars.get());  // make sure still to ignore user set constants
+    std::unique_ptr<RooArgSet> pdfPars{pdf->getParameters(static_cast<const RooArgSet*>(nullptr))};
+    RooStats::RemoveConstantParameters(pdfPars.get());  // make sure still to ignore user set constants
     multiPdfParams.remove(*pdfPars);
   }
 
@@ -130,7 +124,7 @@ static RooArgSet freezeDiscParams() {
     return {};
   }
 
-  RooArgSet const &multiPdfs = CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs;
+  RooArgSet const& multiPdfs = CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs;
 
   return freezeDisassociatedParams(multiPdfs, freezeDisassParams_verb);
 }
@@ -298,7 +292,7 @@ bool CascadeMinimizer::improveOnce(int verbose, bool noHesse)
     }
 
     // restore original params
-    utils::setAllConstant(frozenSet,/*constant=*/false);
+    utils::setAllConstant(frozenSet, /*constant=*/false);
 
     return outcome;
 }
@@ -330,7 +324,7 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
   const std::string &myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
 
   if (setZeroPoint_) {
-    if (auto *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_)) {
+    if (auto* simnll = dynamic_cast<cacheutils::CachingSimNLL*>(&nll_)) {
       simnll->setZeroPoint();
     }
   }
@@ -344,7 +338,7 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
     iret = minimizer_->minos(params);
   }
    if (verbose>0 ) CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,std::string(Form("Minos finished with status=%d",iret)),__func__);
-   utils::setAllConstant(frozenSet,/*constant=*/false);
+   utils::setAllConstant(frozenSet, /*constant=*/false);
 
    //std::cout << "Run Minos in  "; tw.Print(); std::cout << std::endl;
 
@@ -390,10 +384,11 @@ bool CascadeMinimizer::hesse(int verbose ) {
      utils::ConstantCategoriesGuard constantCategories(nll_);
      iret = minimizer_->hesse();
    }
-   utils::setAllConstant(frozenSet,/*constant=*/false);
+   utils::setAllConstant(frozenSet, /*constant=*/false);
 
    if (setZeroPoint_) {
-      if (auto *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_)) simnll->clearZeroPoint();
+     if (auto* simnll = dynamic_cast<cacheutils::CachingSimNLL*>(&nll_))
+       simnll->clearZeroPoint();
    }
 
    return iret != 1;
@@ -421,10 +416,10 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
    // would be frozen below together with the nuisances and stay frozen while
    // the discrete scan activates the pdfs that depend on them.
    RooArgSet allRooMultiPdfParams;
-   for (RooAbsArg *pdf : CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs) {
+   for (RooAbsArg* pdf : CascadeMinimizerGlobalConfigs::O().allRooMultiPdfs) {
      std::unique_ptr<RooArgSet> pdfPars{utils::getAllParameters(*pdf)};
-     for (RooAbsArg *a : *pdfPars) {
-       if (auto *v = dynamic_cast<RooRealVar *>(a)) {
+     for (RooAbsArg* a : *pdfPars) {
+       if (auto* v = dynamic_cast<RooRealVar*>(a)) {
          if (!v->isConstant())
            allRooMultiPdfParams.add(*v);
        }
@@ -440,9 +435,9 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
 
    RooArgSet frozen{CascadeMinimizerGlobalConfigs::O().parametersOfInterest};
    frozen.add(nuisances);
-   
+
    RooStats::RemoveConstantParameters(&frozen);
-   utils::setAllConstant(frozen,/*constant=*/true);
+   utils::setAllConstant(frozen, /*constant=*/true);
 
    RooArgSet reallyCleanParameters;
    std::unique_ptr<RooArgSet> nllParams(nll_.getParameters((const RooArgSet*)0));
@@ -467,7 +462,7 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
    //if (simnll) simnll->clearZeroPoint();
 
    TStopwatch tw; tw.Start();
-   utils::setAllConstant(frozen,/*constant=*/false);
+   utils::setAllConstant(frozen, /*constant=*/false);
 
    // Run one last fully floating fit to maintain RooFitResult
    // We force a reset of the minimizer to ensure parameters that were frozen the last time
@@ -505,7 +500,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     if (preFit_ ) {
         RooArgSet frozen(nuisances);
         RooStats::RemoveConstantParameters(&frozen);
-        utils::setAllConstant(frozen,/*constant=*/true);
+        utils::setAllConstant(frozen, /*constant=*/true);
 
         remakeMinimizer();
         minimizer_->setPrintLevel(verbose-2);
@@ -520,7 +515,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
                                ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
         }
         if (simnll) simnll->clearZeroPoint();
-        utils::setAllConstant(frozen,/*constant=*/false);
+        utils::setAllConstant(frozen, /*constant=*/false);
         remakeMinimizer();
     }
     
@@ -548,9 +543,9 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
       RooArgSet reallyCleanParameters;
       std::unique_ptr<RooArgSet> nllParams(nll_.getParameters((const RooArgSet*)0));
       nllParams->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
-      nllParams->snapshot(reallyCleanParameters); // should remove also the nuisance parameters from here!
+      nllParams->snapshot(reallyCleanParameters);  // should remove also the nuisance parameters from here!
       // Before each step, reset the parameters back to their prefit state!
-      
+
       if (runShortCombinations) {
         // Initial fit under current index values
         improve(verbose, cascade);
@@ -579,8 +574,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
 
         // Run one last fully floating fit to maintain RooFitResult in case
         // freezeDisassociatedParams is ON
-        if (runtimedef::get(
-                std::string("MINIMIZER_freezeDisassociatedParams"))) {
+        if (runtimedef::get(std::string("MINIMIZER_freezeDisassociatedParams"))) {
           RooArgSet frozenSetFinalFit = freezeDiscParams();
           ret = improve(verbose, cascade, /*forceResetMinimizer=*/true);
           utils::setAllConstant(frozenSetFinalFit, /*constant=*/false);
@@ -601,7 +595,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
       //  " [WARNING] Are you sure your model is correct?\n");
       CombineLogger::instance().log("CascadeMinimizer.cc",__LINE__,"[WARNING] After fit, some parameters are found at the boundary (within ~1sigma)",__func__);
     }
-    utils::setAllConstant(frozenSet,/*constant=*/false);
+    utils::setAllConstant(frozenSet, /*constant=*/false);
     return ret;
 }
 
@@ -739,8 +733,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
         for (int id=0;id<numindices;id++)  ((RooCategory*)(pdfCategoryindices.at(id)))->setConstant(false);
         simnll->setMaskNonDiscreteChannels(false);
       }
-      utils::setAllConstant(frozenSet,/*constant=*/false);
-
+      utils::setAllConstant(frozenSet, /*constant=*/false);
 
       fitCounter++;
       double thisNllValue = nll_.getVal();
@@ -817,34 +810,62 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
 void CascadeMinimizer::initOptions() 
 {
-    options_.add_options()
-        ("cminPoiOnlyFit",  "First do a fit floating only the parameter of interest")
-        ("cminPreScan",  "Do a scan before first minimization")
-        ("cminPreFit", boost::program_options::value<int>(&preFit_)->default_value(preFit_), "if set to a value N > 0, a pre-fit with strategy (N-1) will be performed with the constrained nuisance parameters frozen.")
-        ("cminApproxPreFitTolerance", boost::program_options::value<double>(&approxPreFitTolerance_)->default_value(approxPreFitTolerance_), "If nonzero, first do a pre-fit with this tolerance (or 10 times the final tolerance, whichever is largest)")
-        ("cminApproxPreFitStrategy", boost::program_options::value<int>(&approxPreFitStrategy_)->default_value(approxPreFitStrategy_), "Strategy to use in the pre-fit")
-        ("cminSingleNuisFit", "First perform a minimization of each nuisance parameter individually")
-        ("cminFallbackAlgo", boost::program_options::value<std::vector<std::string> >(), "Fallback algorithms if the default minimizer fails (can use multiple ones). Syntax is algo[,subalgo][,strategy][:tolerance]")
-        ("cminSetZeroPoint", boost::program_options::value<bool>(&setZeroPoint_)->default_value(setZeroPoint_), "Change the reference point of the NLL to be zero during minimization")
-        ("cminOldRobustMinimize", boost::program_options::value<bool>(&oldFallback_)->default_value(oldFallback_), "Use the old 'robustMinimize' logic in addition to the cascade (for debug only)")
-        ("cminInitialHesse", boost::program_options::value<bool>(&firstHesse_)->default_value(firstHesse_), "Call Hesse before the minimization")
-        ("cminFinalHesse", boost::program_options::value<bool>(&lastHesse_)->default_value(lastHesse_), "Call Hesse after the minimization")
-	("cminDefaultMinimizerType",boost::program_options::value<std::string>(&defaultMinimizerType_)->default_value(defaultMinimizerType_), "Set the default minimizer Type")
-	("cminDefaultMinimizerAlgo",boost::program_options::value<std::string>(&defaultMinimizerAlgo_)->default_value(defaultMinimizerAlgo_), "Set the default minimizer Algo")
-	("cminDefaultMinimizerTolerance",boost::program_options::value<double>(&defaultMinimizerTolerance_)->default_value(defaultMinimizerTolerance_), "Set the default minimizer Tolerance")
-	("cminDefaultMinimizerPrecision",boost::program_options::value<double>(&defaultMinimizerPrecision_)->default_value(defaultMinimizerPrecision_), "Set the default minimizer precision")
-	("cminDefaultMinimizerStrategy",boost::program_options::value<int>(&strategy_)->default_value(strategy_), "Set the default minimizer (initial) strategy")
-        ("cminRunAllDiscreteCombinations",  "Run all combinations for discrete nuisances")
-        ("cminDiscreteMinTol", boost::program_options::value<double>(&discreteMinTol_)->default_value(discreteMinTol_), "Tolerance on min NLL for discrete combination iterations")
-        ("cminM2StorageLevel", boost::program_options::value<int>(&minuit2StorageLevel_)->default_value(minuit2StorageLevel_), "Storage level for minuit2 (0 = don't store intermediate covariances, 1 = store them)")
-        ;
+  options_.add_options()("cminPoiOnlyFit", "First do a fit floating only the parameter of interest")(
+      "cminPreScan", "Do a scan before first minimization")(
+      "cminPreFit",
+      boost::program_options::value<int>(&preFit_)->default_value(preFit_),
+      "if set to a value N > 0, a pre-fit with strategy (N-1) will be performed with the constrained nuisance "
+      "parameters frozen.")(
+      "cminApproxPreFitTolerance",
+      boost::program_options::value<double>(&approxPreFitTolerance_)->default_value(approxPreFitTolerance_),
+      "If nonzero, first do a pre-fit with this tolerance (or 10 times the final tolerance, whichever is largest)")(
+      "cminApproxPreFitStrategy",
+      boost::program_options::value<int>(&approxPreFitStrategy_)->default_value(approxPreFitStrategy_),
+      "Strategy to use in the pre-fit")("cminSingleNuisFit",
+                                        "First perform a minimization of each nuisance parameter individually")(
+      "cminFallbackAlgo",
+      boost::program_options::value<std::vector<std::string>>(),
+      "Fallback algorithms if the default minimizer fails (can use multiple ones). Syntax is "
+      "algo[,subalgo][,strategy][:tolerance]")(
+      "cminSetZeroPoint",
+      boost::program_options::value<bool>(&setZeroPoint_)->default_value(setZeroPoint_),
+      "Change the reference point of the NLL to be zero during minimization")(
+      "cminOldRobustMinimize",
+      boost::program_options::value<bool>(&oldFallback_)->default_value(oldFallback_),
+      "Use the old 'robustMinimize' logic in addition to the cascade (for debug only)")(
+      "cminInitialHesse",
+      boost::program_options::value<bool>(&firstHesse_)->default_value(firstHesse_),
+      "Call Hesse before the minimization")("cminFinalHesse",
+                                            boost::program_options::value<bool>(&lastHesse_)->default_value(lastHesse_),
+                                            "Call Hesse after the minimization")(
+      "cminDefaultMinimizerType",
+      boost::program_options::value<std::string>(&defaultMinimizerType_)->default_value(defaultMinimizerType_),
+      "Set the default minimizer Type")(
+      "cminDefaultMinimizerAlgo",
+      boost::program_options::value<std::string>(&defaultMinimizerAlgo_)->default_value(defaultMinimizerAlgo_),
+      "Set the default minimizer Algo")(
+      "cminDefaultMinimizerTolerance",
+      boost::program_options::value<double>(&defaultMinimizerTolerance_)->default_value(defaultMinimizerTolerance_),
+      "Set the default minimizer Tolerance")(
+      "cminDefaultMinimizerPrecision",
+      boost::program_options::value<double>(&defaultMinimizerPrecision_)->default_value(defaultMinimizerPrecision_),
+      "Set the default minimizer precision")("cminDefaultMinimizerStrategy",
+                                             boost::program_options::value<int>(&strategy_)->default_value(strategy_),
+                                             "Set the default minimizer (initial) strategy")(
+      "cminRunAllDiscreteCombinations", "Run all combinations for discrete nuisances")(
+      "cminDiscreteMinTol",
+      boost::program_options::value<double>(&discreteMinTol_)->default_value(discreteMinTol_),
+      "Tolerance on min NLL for discrete combination iterations")(
+      "cminM2StorageLevel",
+      boost::program_options::value<int>(&minuit2StorageLevel_)->default_value(minuit2StorageLevel_),
+      "Storage level for minuit2 (0 = don't store intermediate covariances, 1 = store them)");
 }
 
 bool CascadeMinimizer::checkAlgoInType(std::string type, std::string algo){
 
     std::map<std::string,std::vector<std::string> >::const_iterator v = minimizerAlgoMap_.find(type);
     if (v == minimizerAlgoMap_.end()) {
-        return false;
+      return false;
     }
     return std::find(v->second.begin(), v->second.end(), algo) != v->second.end();
 }
