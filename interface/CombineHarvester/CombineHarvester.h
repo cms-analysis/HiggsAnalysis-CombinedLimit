@@ -485,6 +485,9 @@ namespace ch {
 
     std::unordered_map<std::string, bool> flags_;
 
+  public:
+    // Public only so that rootcling can generate the dictionary for
+    // auto_stats_settings_ below
     struct AutoMCStatsSettings {
       double event_threshold;
       bool include_signal;
@@ -499,6 +502,7 @@ namespace ch {
       AutoMCStatsSettings() : AutoMCStatsSettings(0.) {}
     };
 
+  private:
     std::map<std::string, AutoMCStatsSettings> auto_stats_settings_;
     std::vector<std::string> post_lines_;
 

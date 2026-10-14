@@ -10,6 +10,7 @@
 #include "RooProdPdf.h"
 #include "RooRealSumPdf.h"
 #include "RooStats/ModelConfig.h"
+#include "RVersion.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Logging.h"
 
 namespace ch {
@@ -49,9 +50,15 @@ namespace ch {
 
     RooAbsData* data = ws.data(data_name.c_str());
     // Hard-coded the category as "CMS_channel". Could deduce instead...
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 37, 00)
+    std::vector<std::unique_ptr<RooAbsData>> split{data->split(RooCategory("CMS_channel", ""))};
+    for (auto& split_dat : split) {
+      RooAbsData* idat = split_dat.get();
+#else
     std::unique_ptr<TList> split(data->split(RooCategory("CMS_channel", "")));
     for (int i = 0; i < split->GetSize(); ++i) {
       RooAbsData* idat = dynamic_cast<RooAbsData*>(split->At(i));
+#endif
       cats.push_back(idat->GetName());
       FNLOGC(std::cout, v) << "Found data for category: " << cats.back() << "\n";
 
