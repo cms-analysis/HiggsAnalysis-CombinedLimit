@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Analytical NLL regressions and algorithmic consistency checks for various backends.
-"""
+"""Analytical NLL regressions and algorithmic consistency checks for various backends."""
+
 import argparse
 import math
 from pathlib import Path
@@ -14,7 +14,7 @@ import ROOT
 class Model:
     def __init__(self, layout="extra", observations=(0.0, 2.0), multipdf=False, signal=False):
         """
-        A two-channel model (channels a and b) with a single global nuisance theta and a single POI r. 
+        A two-channel model (channels a and b) with a single global nuisance theta and a single POI r.
         The nuisance is constrained by a unit Gaussian, and the channels are simple Gaussians
 
         The layout argument controls how the constraint is stored in the model:
@@ -24,7 +24,7 @@ class Model:
         The multipdf argument controls whether channel a uses a RooMultiPdf with two components:
             - The first component is a Gaussian with mean theta (or r + theta if signal=True)
             - The second component is a Gaussian with mean theta and a different width (alt_sigma)
-        
+
         The signal argument controls whether the means of the Gaussians depend on the POI r:
             - If signal=True, channel a's mean is r + theta and channel b's mean is r - theta
             - If signal=False, both channels' means are just theta
@@ -63,9 +63,11 @@ class Model:
             self.prod = ROOT.RooProdPdf("pdf_a_constrained", "", ROOT.RooArgList(self.a, self.constraint))
             self.channel_a = self.prod
         self.channel = ROOT.RooCategory("channel", "")
-        self.channel.defineType("a"); self.channel.defineType("b")
+        self.channel.defineType("a")
+        self.channel.defineType("b")
         self.pdf = ROOT.RooSimultaneousOpt("model_s", "", self.channel)
-        self.pdf.addPdf(self.channel_a, "a"); self.pdf.addPdf(self.b, "b")
+        self.pdf.addPdf(self.channel_a, "a")
+        self.pdf.addPdf(self.b, "b")
         if layout == "extra":
             self.pdf.addExtraConstraint(self.constraint)
 
@@ -77,12 +79,14 @@ class Model:
         self.pdf.addExtraConstraint(self.anchor_constraint)
         self.mask_a = ROOT.RooRealVar("mask_a", "", 0, 0, 1)
         self.mask_b = ROOT.RooRealVar("mask_b", "", 0, 0, 1)
-        self.mask_a.setConstant(True); self.mask_b.setConstant(True)
+        self.mask_a.setConstant(True)
+        self.mask_b.setConstant(True)
         self.pdf.addChannelMasks(ROOT.RooArgList(self.mask_a, self.mask_b))
         self.observables = ROOT.RooArgSet(self.x, self.channel)
         self.data = ROOT.RooDataSet("data_obs", "", self.observables)
         for label, value in zip(("a", "b"), observations):
-            self.channel.setLabel(label); self.x.setVal(value)
+            self.channel.setLabel(label)
+            self.x.setVal(value)
             self.data.add(self.observables)
         self.nuisances = ROOT.RooArgSet(self.theta)
 
@@ -93,8 +97,7 @@ class Model:
         previous_backend = str(ROOT.Combine.nllBackend())
         try:
             ROOT.Combine.setNllBackend(backend)
-            return ROOT.CombineUtils.combineCreateNLL(
-                self.pdf, self.data, self.nuisances if nuisances is None else nuisances, False)
+            return ROOT.CombineUtils.combineCreateNLL(self.pdf, self.data, self.nuisances if nuisances is None else nuisances, False)
         finally:
             ROOT.Combine.setNllBackend(previous_backend)
 
@@ -102,8 +105,10 @@ class Model:
         """
         deltaNLL for a given value of theta, relative to a baseline at theta=0
         """
-        self.theta.setVal(0); baseline = float(nll.getVal())
-        self.theta.setVal(value); result = float(nll.getVal()) - baseline
+        self.theta.setVal(0)
+        baseline = float(nll.getVal())
+        self.theta.setVal(value)
+        result = float(nll.getVal()) - baseline
         self.theta.setVal(0)
         return result
 
@@ -137,8 +142,9 @@ class LikelihoodBoundaryTest(unittest.TestCase):
         nll = model._nll(ARGS.backend)
         for theta in (-3, -1, 1, 3):
             with self.subTest(theta=theta):
-                self.assert_close(model._delta(nll, theta), 3 * 0.5 * theta**2,  # 0.5 from the two channels + theta
-                                  "extra Gaussian penalty must enter the likelihood")
+                self.assert_close(
+                    model._delta(nll, theta), 3 * 0.5 * theta**2, "extra Gaussian penalty must enter the likelihood"  # 0.5 from the two channels + theta
+                )
 
     def constraint_only_prefit(self):
         """
@@ -161,8 +167,9 @@ class LikelihoodBoundaryTest(unittest.TestCase):
             ROOT.Combine.setNllBackend(previous_backend)
         baseline = float(nll.getVal())
         theta.setVal(1)
-        self.assert_close(float(nll.getVal()) - baseline, 0.5,  # No channels, so only the constraint contributes
-                          "prefit constraint must survive generic NLL creation")
+        self.assert_close(
+            float(nll.getVal()) - baseline, 0.5, "prefit constraint must survive generic NLL creation"  # No channels, so only the constraint contributes
+        )
 
     def multipdf_penalty(self):
         """
@@ -171,7 +178,8 @@ class LikelihoodBoundaryTest(unittest.TestCase):
         """
         model = Model(layout="none", multipdf=True)
         nll = model._nll(ARGS.backend)
-        model.index.setIndex(0); baseline = float(nll.getVal())
+        model.index.setIndex(0)
+        baseline = float(nll.getVal())
         first_penalty = float(model.multi.getCorrection())
         model.index.setIndex(1)
 
@@ -180,8 +188,7 @@ class LikelihoodBoundaryTest(unittest.TestCase):
         self.assert_close(penalty, 0.5, "fixture must differ by one complexity parameter")
         with self.subTest(component="complexity penalty"):
             # Check that the penalty is included in the NLL
-            self.assert_close(float(nll.getVal()) - baseline, penalty,
-                              "nested RooMultiPdf penalty must enter the likelihood")
+            self.assert_close(float(nll.getVal()) - baseline, penalty, "nested RooMultiPdf penalty must enter the likelihood")
 
         # Verify that the selected shape is evaluated too, not just the penalty
         model.alt_sigma.setVal(1.5)
@@ -207,8 +214,7 @@ class LikelihoodBoundaryTest(unittest.TestCase):
         model = Model(layout="embedded")
         model.constraint.setAttribute("ignoreConstraint", True)
         nll = model._nll(ARGS.backend)
-        self.assert_close(model._delta(nll), -1,
-                          "ignoreConstraint must exclude a selected nuisance constraint")
+        self.assert_close(model._delta(nll), -1, "ignoreConstraint must exclude a selected nuisance constraint")
 
     def ignored_extra_constraint(self):
         """
@@ -226,11 +232,25 @@ class LikelihoodBoundaryTest(unittest.TestCase):
         path = directory / "workspace.root"
         model = Model(layout=layout, signal=True)
         model.write_workspace(path)
-        command = [ARGS.combine, "-M", method, str(path), "-n", ".boundary", "--noMCbonly", "1",
-                   "--nllbackend", ARGS.backend, "--cminDefaultMinimizerStrategy", "0",
-                   "--cminDefaultMinimizerTolerance", "0.001", "-v", "0"] + extra_args
-        result = subprocess.run(command, cwd=directory, text=True, stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT, timeout=90)
+        command = [
+            ARGS.combine,
+            "-M",
+            method,
+            str(path),
+            "-n",
+            ".boundary",
+            "--noMCbonly",
+            "1",
+            "--nllbackend",
+            ARGS.backend,
+            "--cminDefaultMinimizerStrategy",
+            "0",
+            "--cminDefaultMinimizerTolerance",
+            "0.001",
+            "-v",
+            "0",
+        ] + extra_args
+        result = subprocess.run(command, cwd=directory, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=90)
         (directory / "combine.log").write_text(result.stdout)
         self.assertEqual(result.returncode, 0, result.stdout)
         return result.stdout
@@ -261,10 +281,8 @@ class LikelihoodBoundaryTest(unittest.TestCase):
         """
         with tempfile.TemporaryDirectory(prefix="fitdiagnostics-boundary-") as temp:
             directory = Path(temp)
-            log = self._run_algorithm("FitDiagnostics", "extra", directory,
-                                     ["--skipBOnlyFit", "--skipSBFit", "--out", str(directory)])
-            value, error = self._saved_result(directory / "fitDiagnostics.boundary.root",
-                                             "nuisances_prefit_res", log)
+            log = self._run_algorithm("FitDiagnostics", "extra", directory, ["--skipBOnlyFit", "--skipSBFit", "--out", str(directory)])
+            value, error = self._saved_result(directory / "fitDiagnostics.boundary.root", "nuisances_prefit_res", log)
             self.assert_close(value, 0, tolerance=5e-3)
             self.assert_close(error, 1, "prefit must retain the unit Gaussian constraint", tolerance=5e-3)
 
@@ -275,8 +293,7 @@ class LikelihoodBoundaryTest(unittest.TestCase):
         for layout in ("embedded", "extra"):
             with self.subTest(layout=layout), tempfile.TemporaryDirectory(prefix="compatibility-boundary-") as temp:
                 directory = Path(temp)
-                log = self._run_algorithm("ChannelCompatibilityCheck", layout, directory,
-                                         ["--saveFitResult", "--runMinos", "0"])
+                log = self._run_algorithm("ChannelCompatibilityCheck", layout, directory, ["--saveFitResult", "--runMinos", "0"])
                 path = directory / "higgsCombine.boundary.ChannelCompatibilityCheck.mH120.root"
                 value, error = self._saved_result(path, "fit_alternate", log)
                 self.assert_close(value, 0, tolerance=1e-2)
