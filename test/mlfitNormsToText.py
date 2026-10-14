@@ -36,7 +36,6 @@ if fit_s == None:
 if fit_b == None:
     raise RuntimeError("Missing fit_b in %s. Did you run FitDiagnostics with --saveNorm?" % file)
 
-iter = fit_s.createIterator()
 # Headline = "%-30s %-30s     pre-fit   signal+background Fit  bkg-only Fit"%("Channel","Process") if (prefit and errors) else "%-30s %-30s  signal+background Fit  bkg-only Fit"%("Channel","Process")
 if prefit and errors:
     headrow = ["Channel", "Process", "Pre-fit", "S+B Fit", "B-Only Fit"]
@@ -52,10 +51,7 @@ line = "".join(["-" for i in range(len(headline))])
 print(headline)
 print(line)
 
-while True:
-    norm_s = iter.Next()
-    if norm_s == None:
-        break
+for norm_s in fit_s:
     norm_b = fit_b.find(norm_s.GetName())
     norm_p = prefit.find(norm_s.GetName()) if prefit else None
     # we have to replace any non-standard characters with "_" otherwise the matching will screw up
