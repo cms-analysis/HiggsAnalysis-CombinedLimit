@@ -9,7 +9,7 @@
 
 namespace ch {
 
-/**
+  /**
  * Duplicate Observation objects in one instance, which are then modified by a
  * user-supplied function, before being inserted into another instance
  *
@@ -18,17 +18,16 @@ namespace ch {
  * accepts a single `ch::Observation *` argument, and that will be applied for
  * each duplicated object. 
  */
-template <typename Function>
-void CloneObs(ch::CombineHarvester& src, ch::CombineHarvester& dest,
-                Function func) {
-  src.ForEachObs([&](ch::Observation *obs) {
-    ch::Observation cpy = *obs;
-    func(&cpy);
-    dest.InsertObservation(cpy);
-  });
-}
+  template <typename Function>
+  void CloneObs(ch::CombineHarvester& src, ch::CombineHarvester& dest, Function func) {
+    src.ForEachObs([&](ch::Observation* obs) {
+      ch::Observation cpy = *obs;
+      func(&cpy);
+      dest.InsertObservation(cpy);
+    });
+  }
 
-/**
+  /**
  * Duplicate Process objects in one instance, which are then modified by a
  * user-supplied function, before being inserted into another instance
  *
@@ -37,17 +36,16 @@ void CloneObs(ch::CombineHarvester& src, ch::CombineHarvester& dest,
  * accepts a single `ch::Process *` argument, and that will be applied for
  * each duplicated object.
  */
-template <typename Function>
-void CloneProcs(ch::CombineHarvester& src, ch::CombineHarvester& dest,
-                Function func) {
-  src.ForEachProc([&](ch::Process *proc) {
-    ch::Process cpy = *proc;
-    func(&cpy);
-    dest.InsertProcess(cpy);
-  });
-}
+  template <typename Function>
+  void CloneProcs(ch::CombineHarvester& src, ch::CombineHarvester& dest, Function func) {
+    src.ForEachProc([&](ch::Process* proc) {
+      ch::Process cpy = *proc;
+      func(&cpy);
+      dest.InsertProcess(cpy);
+    });
+  }
 
-/**
+  /**
  * Duplicate Systematic objects in one instance, which are then modified by a
  * user-supplied function, before being inserted into another instance
  *
@@ -56,17 +54,16 @@ void CloneProcs(ch::CombineHarvester& src, ch::CombineHarvester& dest,
  * accepts a single `ch::Systematic *` argument, and that will be applied for
  * each duplicated object.
  */
-template <typename Function>
-void CloneSysts(ch::CombineHarvester& src, ch::CombineHarvester& dest,
-                Function func) {
-  src.ForEachSyst([&](ch::Systematic *sys) {
-    ch::Systematic cpy = *sys;
-    func(&cpy);
-    dest.InsertSystematic(cpy);
-  });
-}
+  template <typename Function>
+  void CloneSysts(ch::CombineHarvester& src, ch::CombineHarvester& dest, Function func) {
+    src.ForEachSyst([&](ch::Systematic* sys) {
+      ch::Systematic cpy = *sys;
+      func(&cpy);
+      dest.InsertSystematic(cpy);
+    });
+  }
 
-/**
+  /**
  * Duplicate the Process and Systematic objects in one instance, which are
  * then modified by a user-supplied function, before being inserted into
  * another instance
@@ -89,14 +86,13 @@ void CloneSysts(ch::CombineHarvester& src, ch::CombineHarvester& dest,
  *      p->set_mass("*");
  *     });
  */
-template <typename Function>
-void CloneProcsAndSysts(ch::CombineHarvester& src, ch::CombineHarvester& dest,
-                Function func) {
-  CloneProcs(src, dest, func);
-  CloneSysts(src, dest, func);
-}
+  template <typename Function>
+  void CloneProcsAndSysts(ch::CombineHarvester& src, ch::CombineHarvester& dest, Function func) {
+    CloneProcs(src, dest, func);
+    CloneSysts(src, dest, func);
+  }
 
-/**
+  /**
  * Replace all instances of an existing systematic with two copies having
  * modified values
  *
@@ -111,9 +107,12 @@ void CloneProcsAndSysts(ch::CombineHarvester& src, ch::CombineHarvester& dest,
  * @param val1 the new uncertainty value for the first duplicate
  * @param val2 the new uncertainty value for the second duplicate
  */
-void SplitSyst(ch::CombineHarvester& cb, std::string const& syst_in,
-               std::string const& split1, std::string const& split2,
-               double val1, double val2);
-}
+  void SplitSyst(ch::CombineHarvester& cb,
+                 std::string const& syst_in,
+                 std::string const& split1,
+                 std::string const& split2,
+                 double val1,
+                 double val2);
+}  // namespace ch
 
 #endif

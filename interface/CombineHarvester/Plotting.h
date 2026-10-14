@@ -26,8 +26,6 @@
 #include "TMultiGraph.h"
 #include "THStack.h"
 
-
-
 /**
  * @name Pad and axis histogram creation
  */
@@ -59,8 +57,7 @@ std::vector<TPad*> OnePad();
  * @return A vector of pointers to the new pads: [0] = upper, [1] = lower. The
  * current pad (`gPad`) will be set to the upper one.
  */
-std::vector<TPad*> TwoPadSplit(double split_point, double gap_low,
-                               double gap_high);
+std::vector<TPad*> TwoPadSplit(double split_point, double gap_low, double gap_high);
 
 /**
  * Create an empty TH1 from another TH1 for drawing the axes
@@ -88,8 +85,7 @@ TH1* CreateAxisHist(TH1* src, double xmin = 0, double xmax = -1);
  * @param xmax adjust the maximum of the drawn range of the x-axis (only if
  * `xmax > xmin`)
  */
-std::vector<TH1*> CreateAxisHists(unsigned n, TH1* src, double xmin = 0,
-                                  double xmax = -1);
+std::vector<TH1*> CreateAxisHists(unsigned n, TH1* src, double xmin = 0, double xmax = -1);
 
 /**
  * Create an empty TH1 from a TGraph for drawing the axes
@@ -118,8 +114,7 @@ TH1* CreateAxisHist(TGraph* src, bool at_limits);
  * x-values found in the TGraph. Set this option to true to fix the range to
  * these min/max values.
  */
-std::vector<TH1*> CreateAxisHists(unsigned n, TGraph* src,  bool at_limits);
-
+std::vector<TH1*> CreateAxisHists(unsigned n, TGraph* src, bool at_limits);
 
 /**
  * Finds the TH1 used to draw the axes on a given TPad
@@ -131,9 +126,8 @@ std::vector<TH1*> CreateAxisHists(unsigned n, TGraph* src,  bool at_limits);
  *
  * @return A pointer to the axis TH1 if it exists, a NULL pointer otherwise
  */
-TH1* GetAxisHist(TPad *pad);
+TH1* GetAxisHist(TPad* pad);
 /**@}*/
-
 
 /**
  * @name Object extraction and manipulation
@@ -156,7 +150,6 @@ TH1* GetAxisHist(TPad *pad);
  */
 TH1* MakeRatioHist(TH1* num, TH1* den, bool num_err, bool den_err);
 
-
 /**
  * Create a TGraph from entries in a TTree
  *
@@ -169,8 +162,7 @@ TH1* MakeRatioHist(TH1* num, TH1* den, bool num_err, bool den_err);
  * @param yvar Branch or expression for the y-values
  * @param selection Optional cut string to apply to each entry
  */
-TGraph TGraphFromTree(TTree* tree, TString const& xvar, TString const& yvar,
-                      TString const& selection = "");
+TGraph TGraphFromTree(TTree* tree, TString const& xvar, TString const& yvar, TString const& selection = "");
 
 /**
  * Create a TGraph2D from entries in a TTree
@@ -185,8 +177,8 @@ TGraph TGraphFromTree(TTree* tree, TString const& xvar, TString const& yvar,
  * @param zvar Branch or expression for the y-values
  * @param selection Optional cut string to apply to each entry
  */
-TGraph2D TGraph2DFromTree(TTree* tree, TString const& xvar, TString const& yvar,
-                          TString const& zvar, TString const& selection = "");
+TGraph2D TGraph2DFromTree(
+    TTree* tree, TString const& xvar, TString const& yvar, TString const& zvar, TString const& selection = "");
 
 /**
  * Shift all the graph y-values upwards such that there are no negative values
@@ -195,10 +187,8 @@ TGraph2D TGraph2DFromTree(TTree* tree, TString const& xvar, TString const& yvar,
  * Useful for fixing graphs of log-likelihood scans extracted from `combine`
  * where the true minimum was not found correctly in the initial fit.
  */
-void ReZeroTGraph(TGraph *gr);
+void ReZeroTGraph(TGraph* gr);
 /**@}*/
-
-
 
 /**
  * @name Plot decoration (colours, styles, text and legends)
@@ -235,9 +225,8 @@ int CreateTransparentColor(int color, float alpha);
  * @param y_min Set the y-axis minimum in the ratio plot
  * @param y_max Set the y-axis maximum in the ratio plot
  */
-void SetupTwoPadSplitAsRatio(std::vector<TPad*> const& pads, TH1* upper,
-                             TH1* lower, TString y_title, bool y_centered,
-                             float y_min, float y_max);
+void SetupTwoPadSplitAsRatio(
+    std::vector<TPad*> const& pads, TH1* upper, TH1* lower, TString y_title, bool y_centered, float y_min, float y_max);
 
 /**
  * Set a few style options for a two-pad setup used to show a data-MC
@@ -257,8 +246,7 @@ void SetupTwoPadSplitAsRatio(std::vector<TPad*> const& pads, TH1* upper,
  * @param y_min Set the y-axis minimum in the ratio plot
  * @param y_max Set the y-axis maximum in the ratio plot
  */
-void SetupTwoPadSplitAsRatio(std::vector<TPad*> const& pads, TString y_title,
-                             bool y_centered, float y_min, float y_max);
+void SetupTwoPadSplitAsRatio(std::vector<TPad*> const& pads, TString y_title, bool y_centered, float y_min, float y_max);
 
 /**
  * Sets standard x- and y-axis titles with given units
@@ -324,7 +312,7 @@ TLegend* PositionedLegend(double width, double height, int pos, double offset);
  *
  * @return A pointer to the newly created TLine
  */
-TLine* DrawHorizontalLine(TPad *pad, TLine* line, double yval);
+TLine* DrawHorizontalLine(TPad* pad, TLine* line, double yval);
 
 /**
  * Draw text in the top-margin region of a TPad
@@ -369,8 +357,8 @@ void DrawTitle(TPad* pad, TString text, int align);
  * @param relExtraDY Sets the position of the *extraText* relative to the
  * *cmsText*
  */
-void DrawCMSLogo(TPad* pad, TString cmsText, TString extraText, int iPosX,
-                 float relPosX, float relPosY, float relExtraDY);
+void DrawCMSLogo(
+    TPad* pad, TString cmsText, TString extraText, int iPosX, float relPosX, float relPosY, float relExtraDY);
 
 /**
  * Call DrawCMSLogo with some sensible defaults for the positioning parameters
@@ -383,13 +371,10 @@ void DrawCMSLogo(TPad* pad, TString cmsText, TString extraText, int iPosX,
 void DrawCMSLogo(TPad* pad, TString cmsText, TString extraText, int iPosX);
 /**@}*/
 
-
-
 /**
  * @name Axis adjustment and overlap checks
  */
 /**@{*/
-
 
 /**
  * Find the maximum value of all drawn objects in a given x-axis range
@@ -424,8 +409,7 @@ double GetPadYMax(TPad* pad);
  * @param fraction The fraction of the y-axis that *fix_y* should be
  * positioned (measured from the top of the frame)
  */
-void FixTopRange(TPad *pad, double fix_y, double fraction);
-
+void FixTopRange(TPad* pad, double fix_y, double fraction);
 
 /**
  * Modify the pad y-axis range to ensure there is at least a given gap between
@@ -443,15 +427,13 @@ void FixTopRange(TPad *pad, double fix_y, double fraction);
  * @param frac Desired fraction of the frame height between the bottom of the
  * TBox and the top of the drawn objects.
  */
-void FixBoxPadding(TPad *pad, TBox *box, double frac);
+void FixBoxPadding(TPad* pad, TBox* box, double frac);
 
 /**
  * Just re-draws the axes on the current TPad
  */
 void FixOverlay();
 /**@}*/
-
-
 
 //----------------------------------------------------------------------------
 // Pad and axis histogram creation
@@ -465,8 +447,7 @@ std::vector<TPad*> OnePad() {
   return result;
 }
 
-std::vector<TPad*> TwoPadSplit(double split_point, double gap_low,
-                               double gap_high) {
+std::vector<TPad*> TwoPadSplit(double split_point, double gap_low, double gap_high) {
   TPad* upper = new TPad("upper", "upper", 0., 0., 1., 1.);
   upper->SetBottomMargin(split_point + gap_high);
   upper->SetFillStyle(4000);
@@ -483,7 +464,7 @@ std::vector<TPad*> TwoPadSplit(double split_point, double gap_low,
 }
 
 TH1* CreateAxisHist(TH1* src, double xmin, double xmax) {
-  TH1 *res = reinterpret_cast<TH1F*>(src->Clone());
+  TH1* res = reinterpret_cast<TH1F*>(src->Clone());
   res->Reset();
   if (xmax > xmin) {
     res->SetAxisRange(xmin, xmax);
@@ -491,8 +472,7 @@ TH1* CreateAxisHist(TH1* src, double xmin, double xmax) {
   return res;
 }
 
-std::vector<TH1*> CreateAxisHists(unsigned n, TH1* src, double xmin,
-                                  double xmax) {
+std::vector<TH1*> CreateAxisHists(unsigned n, TH1* src, double xmin, double xmax) {
   std::vector<TH1*> result;
   for (unsigned i = 0; i < n; ++i) {
     result.push_back(CreateAxisHist(src, xmin, xmax));
@@ -501,11 +481,11 @@ std::vector<TH1*> CreateAxisHists(unsigned n, TH1* src, double xmin,
 }
 
 TH1* CreateAxisHist(TGraph* src, bool at_limits) {
-  TVirtualPad *backup = gPad;
+  TVirtualPad* backup = gPad;
   TCanvas tmp;
   tmp.cd();
   src->Draw("AP");
-  TH1 * result = (TH1*)src->GetHistogram()->Clone();
+  TH1* result = (TH1*)src->GetHistogram()->Clone();
   if (at_limits) {
     double min = 0;
     double max = 0;
@@ -516,8 +496,10 @@ TH1* CreateAxisHist(TGraph* src, bool at_limits) {
     max = x;
     for (int i = 1; i < src->GetN(); ++i) {
       src->GetPoint(i, x, y);
-      if (x < min) min = x;
-      if (x > max) max = x;
+      if (x < min)
+        min = x;
+      if (x > max)
+        max = x;
     }
     result->GetXaxis()->SetLimits(min, max);
   }
@@ -525,7 +507,7 @@ TH1* CreateAxisHist(TGraph* src, bool at_limits) {
   return result;
 }
 
-std::vector<TH1*> CreateAxisHists(unsigned n, TGraph* src,  bool at_limits) {
+std::vector<TH1*> CreateAxisHists(unsigned n, TGraph* src, bool at_limits) {
   std::vector<TH1*> result;
   for (unsigned i = 0; i < n; ++i) {
     result.push_back(CreateAxisHist(src, at_limits));
@@ -533,33 +515,36 @@ std::vector<TH1*> CreateAxisHists(unsigned n, TGraph* src,  bool at_limits) {
   return result;
 }
 
-TH1* GetAxisHist(TPad *pad) {
+TH1* GetAxisHist(TPad* pad) {
   TList* pad_obs = pad->GetListOfPrimitives();
-  if (!pad_obs) return NULL;
+  if (!pad_obs)
+    return NULL;
   TIter next(pad_obs);
   TObject* obj;
-  TH1 *hobj = 0;
+  TH1* hobj = 0;
   while ((obj = next())) {
     if (obj->InheritsFrom(TH1::Class())) {
       hobj = reinterpret_cast<TH1*>(obj);
       break;
     }
     if (obj->InheritsFrom(TMultiGraph::Class())) {
-      TMultiGraph *mg = reinterpret_cast<TMultiGraph*>(obj);
-      if (mg) return mg->GetHistogram();
+      TMultiGraph* mg = reinterpret_cast<TMultiGraph*>(obj);
+      if (mg)
+        return mg->GetHistogram();
     }
     if (obj->InheritsFrom(TGraph::Class())) {
-      TGraph *g = reinterpret_cast<TGraph*>(obj);
-      if (g) return g->GetHistogram();
+      TGraph* g = reinterpret_cast<TGraph*>(obj);
+      if (g)
+        return g->GetHistogram();
     }
     if (obj->InheritsFrom(THStack::Class())) {
-      THStack *hs = reinterpret_cast<THStack*>(obj);
-      if (hs) return hs->GetHistogram();
+      THStack* hs = reinterpret_cast<THStack*>(obj);
+      if (hs)
+        return hs->GetHistogram();
     }
   }
   return hobj;
 }
-
 
 //----------------------------------------------------------------------------
 // Object extraction and manipulation
@@ -567,39 +552,41 @@ TH1* GetAxisHist(TPad *pad) {
 TH1* MakeRatioHist(TH1* num, TH1* den, bool num_err, bool den_err) {
   TH1* result = reinterpret_cast<TH1*>(num->Clone());
   if (!num_err) {
-    for (int i = 1; i <= result->GetNbinsX(); ++i) result->SetBinError(i, 0.);
+    for (int i = 1; i <= result->GetNbinsX(); ++i)
+      result->SetBinError(i, 0.);
   }
   TH1* den_fix = reinterpret_cast<TH1*>(den->Clone());
   if (!den_err) {
-    for (int i = 1; i <= den_fix->GetNbinsX(); ++i) den_fix->SetBinError(i, 0.);
+    for (int i = 1; i <= den_fix->GetNbinsX(); ++i)
+      den_fix->SetBinError(i, 0.);
   }
   result->Divide(den_fix);
   delete den_fix;
   return result;
 }
 
-TGraph TGraphFromTree(TTree * tree, TString const& xvar, TString const& yvar,
-                     TString const& selection) {
-  tree->Draw(xvar+":"+yvar, selection, "goff");
+TGraph TGraphFromTree(TTree* tree, TString const& xvar, TString const& yvar, TString const& selection) {
+  tree->Draw(xvar + ":" + yvar, selection, "goff");
   TGraph gr(tree->GetSelectedRows(), tree->GetV1(), tree->GetV2());
   return gr;
 }
 
-TGraph2D TGraph2DFromTree(TTree* tree, TString const& xvar, TString const& yvar,
-                          TString const& zvar, TString const& selection) {
-  tree->Draw(xvar+":"+yvar+":"+zvar, selection, "goff");
+TGraph2D TGraph2DFromTree(
+    TTree* tree, TString const& xvar, TString const& yvar, TString const& zvar, TString const& selection) {
+  tree->Draw(xvar + ":" + yvar + ":" + zvar, selection, "goff");
   TGraph2D gr(tree->GetSelectedRows(), tree->GetV1(), tree->GetV2(), tree->GetV3());
   return gr;
 }
 
-void ReZeroTGraph(TGraph *gr) {
+void ReZeroTGraph(TGraph* gr) {
   unsigned n = gr->GetN();
   double min = 0.;
   double x = 0;
   double y = 0;
   for (unsigned i = 0; i < n; ++i) {
     gr->GetPoint(i, x, y);
-    if (y < min) min = y;
+    if (y < min)
+      min = y;
   }
   for (unsigned i = 0; i < n; ++i) {
     gr->GetPoint(i, x, y);
@@ -614,30 +601,25 @@ void ReZeroTGraph(TGraph *gr) {
 int CreateTransparentColor(int color, float alpha) {
   TColor* adapt = gROOT->GetColor(color);
   int new_idx = gROOT->GetListOfColors()->GetSize() + 1;
-  TColor* trans = new TColor(new_idx, adapt->GetRed(), adapt->GetGreen(),
-                             adapt->GetBlue(), "", alpha);
+  TColor* trans = new TColor(new_idx, adapt->GetRed(), adapt->GetGreen(), adapt->GetBlue(), "", alpha);
   trans->SetName(Form("userColor%i", new_idx));
   return new_idx;
 }
 
-void SetupTwoPadSplitAsRatio(std::vector<TPad*> const& pads,
-                      TString y_title, bool y_centered, float y_min,
-                      float y_max) {
-  TH1 *upper = GetAxisHist(pads[0]);
-  TH1 *lower = GetAxisHist(pads[1]);
-  SetupTwoPadSplitAsRatio(pads, upper, lower, y_title, y_centered, y_min,
-                          y_max);
+void SetupTwoPadSplitAsRatio(
+    std::vector<TPad*> const& pads, TString y_title, bool y_centered, float y_min, float y_max) {
+  TH1* upper = GetAxisHist(pads[0]);
+  TH1* lower = GetAxisHist(pads[1]);
+  SetupTwoPadSplitAsRatio(pads, upper, lower, y_title, y_centered, y_min, y_max);
 }
 
-void SetupTwoPadSplitAsRatio(std::vector<TPad*> const& pads, TH1* upper,
-                             TH1* lower, TString y_title, bool y_centered,
-                             float y_min, float y_max) {
+void SetupTwoPadSplitAsRatio(
+    std::vector<TPad*> const& pads, TH1* upper, TH1* lower, TString y_title, bool y_centered, float y_min, float y_max) {
   upper->GetXaxis()->SetTitle("");
   upper->GetXaxis()->SetLabelSize(0);
   double upper_h = 1. - pads[0]->GetTopMargin() - pads[0]->GetBottomMargin();
   double lower_h = 1. - pads[1]->GetTopMargin() - pads[1]->GetBottomMargin();
-  lower->GetYaxis()->SetTickLength(gStyle->GetTickLength() *
-                                   (upper_h / lower_h));
+  lower->GetYaxis()->SetTickLength(gStyle->GetTickLength() * (upper_h / lower_h));
   pads[1]->SetTickx(1);
   pads[1]->SetTicky(1);
   lower->GetYaxis()->SetTitle(y_title);
@@ -660,10 +642,9 @@ void StandardAxes(TAxis* xaxis, TAxis* yaxis, TString var, TString units) {
   }
 }
 
-
 void UnitAxes(TAxis* xaxis, TAxis* yaxis, TString var, TString units) {
   xaxis->SetTitle(var + " (" + units + ")");
-  yaxis->SetTitle("dN/d"+ var + " (1/" + units + ")");
+  yaxis->SetTitle("dN/d" + var + " (1/" + units + ")");
 }
 
 TLegend* PositionedLegend(double width, double height, int pos, double offset) {
@@ -680,30 +661,26 @@ TLegend* PositionedLegend(double width, double height, int pos, double offset) {
   }
   if (pos == 2) {
     double c = l + 0.5 * (1 - l - r);
-    leg = new TLegend(c - 0.5 * w, 1 - t - o - h, c + 0.5 * w, 1 - t - o, "",
-                      "NBNDC");
+    leg = new TLegend(c - 0.5 * w, 1 - t - o - h, c + 0.5 * w, 1 - t - o, "", "NBNDC");
   }
   if (pos == 3) {
-    leg = new TLegend(1 - r - o - w, 1 - t - o - h, 1 - r - o, 1 - t - o, "",
-                      "NBNDC");
+    leg = new TLegend(1 - r - o - w, 1 - t - o - h, 1 - r - o, 1 - t - o, "", "NBNDC");
   }
   if (pos == 4) {
     leg = new TLegend(l + o, b + o, l + o + w, b + o + h, "", "NBNDC");
   }
   if (pos == 5) {
     double c = l + 0.5 * (1 - l - r);
-    leg = new TLegend(c - 0.5 * w, b + o, c + 0.5 * w, b + o + h, "",
-                      "NBNDC");
+    leg = new TLegend(c - 0.5 * w, b + o, c + 0.5 * w, b + o + h, "", "NBNDC");
   }
   if (pos == 6) {
-    leg = new TLegend(1 - r - o - w, b + o, 1 - r - o, b + o + h, "",
-                      "NBNDC");
+    leg = new TLegend(1 - r - o - w, b + o, 1 - r - o, b + o + h, "", "NBNDC");
   }
   return leg;
 }
 
-TLine* DrawHorizontalLine(TPad *pad, TLine* line, double yval) {
-  TH1 *axis = GetAxisHist(pad);
+TLine* DrawHorizontalLine(TPad* pad, TLine* line, double yval) {
+  TH1* axis = GetAxisHist(pad);
   std::cout << "pad: " << pad << "\n";
   double xmin = axis->GetXaxis()->GetXmin();
   double xmax = axis->GetXaxis()->GetXmax();
@@ -711,15 +688,16 @@ TLine* DrawHorizontalLine(TPad *pad, TLine* line, double yval) {
 }
 
 void DrawTitle(TPad* pad, TString text, int align) {
-  TVirtualPad *pad_backup = gPad;
+  TVirtualPad* pad_backup = gPad;
   pad->cd();
   float t = pad->GetTopMargin();
   float l = pad->GetLeftMargin();
   float r = pad->GetRightMargin();
 
-  float pad_ratio = (static_cast<float>(pad->GetWh()) * pad->GetAbsHNDC()) /
-                    (static_cast<float>(pad->GetWw()) * pad->GetAbsWNDC());
-  if (pad_ratio < 1.) pad_ratio = 1.;
+  float pad_ratio =
+      (static_cast<float>(pad->GetWh()) * pad->GetAbsHNDC()) / (static_cast<float>(pad->GetWw()) * pad->GetAbsWNDC());
+  if (pad_ratio < 1.)
+    pad_ratio = 1.;
 
   float textSize = 0.6;
   float textOffset = 0.2;
@@ -732,18 +710,24 @@ void DrawTitle(TPad* pad, TString text, int align) {
   latex.SetTextFont(42);
   latex.SetTextSize(textSize * t * pad_ratio);
   double y_off = 1 - t + textOffset * t;
-  if (align == 1) latex.SetTextAlign(11);
-  if (align == 1) latex.DrawLatex(l, y_off, text);
-  if (align == 2) latex.SetTextAlign(21);
-  if (align == 2) latex.DrawLatex(l + (1 - l - r) * 0.5, y_off, text);
-  if (align == 3) latex.SetTextAlign(31);
-  if (align == 3) latex.DrawLatex(1 - r, y_off, text);
+  if (align == 1)
+    latex.SetTextAlign(11);
+  if (align == 1)
+    latex.DrawLatex(l, y_off, text);
+  if (align == 2)
+    latex.SetTextAlign(21);
+  if (align == 2)
+    latex.DrawLatex(l + (1 - l - r) * 0.5, y_off, text);
+  if (align == 3)
+    latex.SetTextAlign(31);
+  if (align == 3)
+    latex.DrawLatex(1 - r, y_off, text);
   pad_backup->cd();
 }
 
-void DrawCMSLogo(TPad* pad, TString cmsText, TString extraText, int iPosX,
-                 float relPosX, float relPosY, float relExtraDY) {
-  TVirtualPad *pad_backup = gPad;
+void DrawCMSLogo(
+    TPad* pad, TString cmsText, TString extraText, int iPosX, float relPosX, float relPosY, float relExtraDY) {
+  TVirtualPad* pad_backup = gPad;
   pad->cd();
   float cmsTextFont = 61;  // default is helvetic-bold
 
@@ -769,13 +753,20 @@ void DrawCMSLogo(TPad* pad, TString cmsText, TString extraText, int iPosX,
   }
   int alignY_ = 3;
   int alignX_ = 2;
-  if (iPosX / 10 == 0) alignX_ = 1;
-  if (iPosX == 0) alignX_ = 1;
-  if (iPosX == 0) alignY_ = 1;
-  if (iPosX / 10 == 1) alignX_ = 1;
-  if (iPosX / 10 == 2) alignX_ = 2;
-  if (iPosX / 10 == 3) alignX_ = 3;
-  if (iPosX == 0) relPosX = 0.14;
+  if (iPosX / 10 == 0)
+    alignX_ = 1;
+  if (iPosX == 0)
+    alignX_ = 1;
+  if (iPosX == 0)
+    alignY_ = 1;
+  if (iPosX / 10 == 1)
+    alignX_ = 1;
+  if (iPosX / 10 == 2)
+    alignX_ = 2;
+  if (iPosX / 10 == 3)
+    alignX_ = 3;
+  if (iPosX == 0)
+    relPosX = 0.14;
   int align_ = 10 * alignX_ + alignY_;
 
   float l = pad->GetLeftMargin();
@@ -789,10 +780,10 @@ void DrawCMSLogo(TPad* pad, TString cmsText, TString extraText, int iPosX,
   latex.SetTextColor(kBlack);
 
   float extraTextSize = extraOverCmsTextSize * cmsTextSize;
-  float pad_ratio = (static_cast<float>(pad->GetWh()) * pad->GetAbsHNDC()) /
-                    (static_cast<float>(pad->GetWw()) * pad->GetAbsWNDC());
-  if (pad_ratio < 1.) pad_ratio = 1.;
-
+  float pad_ratio =
+      (static_cast<float>(pad->GetWh()) * pad->GetAbsHNDC()) / (static_cast<float>(pad->GetWw()) * pad->GetAbsWNDC());
+  if (pad_ratio < 1.)
+    pad_ratio = 1.;
 
   if (outOfFrame) {
     latex.SetTextFont(cmsTextFont);
@@ -842,17 +833,17 @@ void DrawCMSLogo(TPad* pad, TString cmsText, TString extraText, int iPosX) {
 // Axis adjustment and overlap checks
 //----------------------------------------------------------------------------
 double GetPadYMax(TPad* pad, double x_min, double x_max) {
-  TList *pad_obs = pad->GetListOfPrimitives();
-  if (!pad_obs) return 0.;
+  TList* pad_obs = pad->GetListOfPrimitives();
+  if (!pad_obs)
+    return 0.;
   TIter next(pad_obs);
   double h_max = -99999;
-  TObject *obj;
+  TObject* obj;
   while ((obj = next())) {
     if (obj->InheritsFrom(TH1::Class())) {
-      TH1 *hobj = reinterpret_cast<TH1*>(obj);
+      TH1* hobj = reinterpret_cast<TH1*>(obj);
       for (int j = 1; j < hobj->GetNbinsX(); ++j) {
-        if (hobj->GetBinLowEdge(j) + hobj->GetBinWidth(j) < x_min ||
-            hobj->GetBinLowEdge(j) > x_max)
+        if (hobj->GetBinLowEdge(j) + hobj->GetBinWidth(j) < x_min || hobj->GetBinLowEdge(j) > x_max)
           continue;
         if (hobj->GetBinContent(j) + hobj->GetBinError(j) > h_max) {
           h_max = hobj->GetBinContent(j) + hobj->GetBinError(j);
@@ -860,14 +851,16 @@ double GetPadYMax(TPad* pad, double x_min, double x_max) {
       }
     }
     if (obj->InheritsFrom(TGraph::Class())) {
-      TGraph *gobj = reinterpret_cast<TGraph*>(obj);
+      TGraph* gobj = reinterpret_cast<TGraph*>(obj);
       unsigned n = gobj->GetN();
       double x = 0;
       double y = 0;
       for (unsigned k = 0; k < n; ++k) {
         gobj->GetPoint(k, x, y);
-        if (x < x_min || x > x_max) continue;
-        if (y > h_max) h_max = y;
+        if (x < x_min || x > x_max)
+          continue;
+        if (y > h_max)
+          h_max = y;
       }
     }
   }
@@ -875,31 +868,30 @@ double GetPadYMax(TPad* pad, double x_min, double x_max) {
 }
 
 double GetPadYMax(TPad* pad) {
-  TList *pad_obs = pad->GetListOfPrimitives();
-  if (!pad_obs) return 0.;
+  TList* pad_obs = pad->GetListOfPrimitives();
+  if (!pad_obs)
+    return 0.;
   double xmin = GetAxisHist(pad)->GetXaxis()->GetXmin();
   double xmax = GetAxisHist(pad)->GetXaxis()->GetXmax();
   return GetPadYMax(pad, xmin, xmax);
 }
 
-void FixTopRange(TPad *pad, double fix_y, double fraction) {
+void FixTopRange(TPad* pad, double fix_y, double fraction) {
   TH1* hobj = GetAxisHist(pad);
   double ymin = hobj->GetMinimum();
   hobj->SetMaximum((fix_y - fraction * ymin) / (1. - fraction));
   if (gPad->GetLogy()) {
     if (ymin == 0.) {
-      std::cout
-          << "Can't adjust log-scale y-axis range if the minimum is zero!\n";
+      std::cout << "Can't adjust log-scale y-axis range if the minimum is zero!\n";
       return;
     }
-    double max =
-        (std::log10(fix_y) - fraction * std::log10(ymin)) / (1 - fraction);
+    double max = (std::log10(fix_y) - fraction * std::log10(ymin)) / (1 - fraction);
     max = std::pow(10, max);
     hobj->SetMaximum(max);
   }
 }
 
-void FixBoxPadding(TPad *pad, TBox *box, double frac) {
+void FixBoxPadding(TPad* pad, TBox* box, double frac) {
   // Get the bounds of the box - these are in the normalised
   // Pad co-ordinates.
   double p_x1 = box->GetX1();
@@ -908,18 +900,15 @@ void FixBoxPadding(TPad *pad, TBox *box, double frac) {
   // double p_y2 = box->GetY2();
 
   // Convert to normalised co-ordinates in the frame
-  double f_x1 = (p_x1 - pad->GetLeftMargin()) /
-                (1. - pad->GetLeftMargin() - pad->GetRightMargin());
-  double f_x2 = (p_x2 - pad->GetLeftMargin()) /
-                (1. - pad->GetLeftMargin() - pad->GetRightMargin());
-  double f_y1 = (p_y1 - pad->GetBottomMargin()) /
-                (1. - pad->GetTopMargin() - pad->GetBottomMargin());
+  double f_x1 = (p_x1 - pad->GetLeftMargin()) / (1. - pad->GetLeftMargin() - pad->GetRightMargin());
+  double f_x2 = (p_x2 - pad->GetLeftMargin()) / (1. - pad->GetLeftMargin() - pad->GetRightMargin());
+  double f_y1 = (p_y1 - pad->GetBottomMargin()) / (1. - pad->GetTopMargin() - pad->GetBottomMargin());
 
   // Extract histogram providing the frame and axes
-  TH1 *hobj = GetAxisHist(pad);
+  TH1* hobj = GetAxisHist(pad);
 
   double xmin = hobj->GetBinLowEdge(hobj->GetXaxis()->GetFirst());
-  double xmax = hobj->GetBinLowEdge(hobj->GetXaxis()->GetLast()+1);
+  double xmax = hobj->GetBinLowEdge(hobj->GetXaxis()->GetLast() + 1);
   double ymin = hobj->GetMinimum();
   double ymax = hobj->GetMaximum();
 
@@ -942,6 +931,9 @@ void FixBoxPadding(TPad *pad, TBox *box, double frac) {
   }
 }
 
-void FixOverlay() { gPad->GetFrame()->Draw(); gPad->RedrawAxis(); }
+void FixOverlay() {
+  gPad->GetFrame()->Draw();
+  gPad->RedrawAxis();
+}
 
 #endif

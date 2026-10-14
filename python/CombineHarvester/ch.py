@@ -9,7 +9,7 @@ import itertools
 from os import environ
 
 # Prevent cppyy's check for the PCH
-environ['CLING_STANDARD_PCH'] = 'none'
+environ["CLING_STANDARD_PCH"] = "none"
 import cppyy
 
 cppyy.load_reflection_info("libHiggsAnalysisCombinedLimit")
@@ -22,10 +22,6 @@ CheckNormEff = cppyy.gbl.ch.CheckNormEff
 CheckSizeOfShapeEffect = cppyy.gbl.ch.CheckSizeOfShapeEffect
 CheckSmallSignals = cppyy.gbl.ch.CheckSmallSignals
 CheckBinErrors = cppyy.gbl.ch.CheckBinErrors
-CloneObs = cppyy.gbl.ch.CloneObs
-CloneProcs = cppyy.gbl.ch.CloneProcs
-CloneProcsAndSysts = cppyy.gbl.ch.CloneProcsAndSysts
-CloneSysts = cppyy.gbl.ch.CloneSysts
 CombineHarvester = cppyy.gbl.ch.CombineHarvester
 MassesFromRange = cppyy.gbl.ch.MassesFromRange
 Object = cppyy.gbl.ch.Object
@@ -62,17 +58,18 @@ def ParseDatacard(self, card, analysis="", era="", channel="", bin_id=0, mass=""
 
 
 @patch(CombineHarvester)
-def AddObservations(self, mass=[''], analysis=[''], era=[''], channel=[''], bin=[(0, '')]):
+def AddObservations(self, mass=[""], analysis=[""], era=[""], channel=[""], bin=[(0, "")]):
     return self.__AddObservations__(mass, analysis, era, channel, bin)
 
 
 @patch(CombineHarvester)
-def AddProcesses(self, mass=[''], analysis=[''], era=[''], channel=[''], procs=[], bin=[(0, '')], signal=False):
+def AddProcesses(self, mass=[""], analysis=[""], era=[""], channel=[""], procs=[], bin=[(0, "")], signal=False):
     return self.__AddProcesses__(mass, analysis, era, channel, procs, bin, signal)
 
 
 # the following wrappers use cppyy.bind_object to work around a bug
 # https://github.com/root-project/root/issues/10680
+
 
 @patch(CombineHarvester)
 def FilterAll(self, func):
@@ -208,6 +205,7 @@ def SetFromSysts(self, func):
 
 # These used to produce lists in the boost::python binding
 
+
 @patch(CombineHarvester)
 def bin_set(self):
     return list(self.__bin_set__())
@@ -279,7 +277,7 @@ class SystMap:
         return self.GetTuple(process) in self.tmap
 
     def GetVal(self, process):
-        return self.tmap.get(self.GetTuple(process), 0.)
+        return self.tmap.get(self.GetTuple(process), 0.0)
 
     def GetTupleSet(self):
         return set(self.tmap.keys())
@@ -293,7 +291,7 @@ def AddSyst(self, target, name, type, valmap):
     tuples = valmap.GetTupleSet()
     self.ForEachProc(lambda x: procs.append(x))
     if self.Verbosity() >= 1:
-        print(name + ':' + type)
+        print(name + ":" + type)
     for proc in procs:
         if not valmap.Contains(proc):
             not_added_procs.append(proc)
@@ -301,10 +299,10 @@ def AddSyst(self, target, name, type, valmap):
         tuples.discard(valmap.GetTuple(proc))
         added_procs.append(proc)
         val = valmap.GetVal(proc)
-        val_d = 0.
-        val_u = 0.
-        formula = ''
-        args = ''
+        val_d = 0.0
+        val_u = 0.0
+        formula = ""
+        args = ""
         is_asymm = False
         if isinstance(val, float):
             val_u = val
@@ -316,18 +314,17 @@ def AddSyst(self, target, name, type, valmap):
             formula = val[0]
             args = val[1]
         else:
-            raise RuntimeError('Systematic value not recognised')
+            raise RuntimeError("Systematic value not recognised")
 
-        target.AddSystFromProc(
-            proc, name, type, is_asymm, val_u, val_d, formula, args)
+        target.AddSystFromProc(proc, name, type, is_asymm, val_u, val_d, formula, args)
     if len(tuples) > 0 and self.Verbosity() >= 1:
-        print('>> Map keys that were not used to create a Systematic:')
+        print(">> Map keys that were not used to create a Systematic:")
         for tup in tuples:
             print(tup)
     if self.Verbosity() >= 2:
-        print('>> Process entries that did not get a Systematic:')
+        print(">> Process entries that did not get a Systematic:")
         for proc in not_added_procs:
             print(proc)
-        print('>> Process entries that did get a Systematic:')
+        print(">> Process entries that did get a Systematic:")
         for proc in added_procs:
             print(proc)

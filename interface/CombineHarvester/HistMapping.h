@@ -25,11 +25,10 @@ namespace ch {
     std::string SystWorkspaceObj() const;
 
     HistMapping();
-    HistMapping(std::string const& p, std::string const& c,
-                std::string const& pat, std::string const& s_pat);
+    HistMapping(std::string const& p, std::string const& c, std::string const& pat, std::string const& s_pat);
 
-    friend std::ostream& operator<< (std::ostream &out, HistMapping const& val);
+    friend std::ostream& operator<<(std::ostream& out, HistMapping const& val);
   };
-}
+}  // namespace ch
 
 #endif

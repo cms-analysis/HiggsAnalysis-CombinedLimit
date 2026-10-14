@@ -36,8 +36,7 @@ struct Vals {
   int rank_impact_pre;
 };
 
-
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   string input_file = "";
   unsigned max = 99999;
   bool do_latex = false;
@@ -47,41 +46,39 @@ int main(int argc, char* argv[]) {
   po::variables_map vm;
   po::notify(vm);
   po::options_description config("configuration");
-  config.add_options()
-    ("input,i", po::value<string>(&input_file)->required())
-    ("max,m", po::value<unsigned>(&max)->default_value(max))
-    ("latex,l", po::value<bool>(&do_latex)->implicit_value(true))
-    ("text,t", po::value<bool>(&do_text)->implicit_value(true))
-    ("filter", po::value<vector<string>>(&filters)->multitoken());
-  po::store(po::command_line_parser(argc, argv)
-    .options(config).allow_unregistered().run(), vm);
+  config.add_options()("input,i", po::value<string>(&input_file)->required())(
+      "max,m", po::value<unsigned>(&max)->default_value(max))("latex,l",
+                                                              po::value<bool>(&do_latex)->implicit_value(true))(
+      "text,t", po::value<bool>(&do_text)->implicit_value(true))("filter",
+                                                                 po::value<vector<string>>(&filters)->multitoken());
+  po::store(po::command_line_parser(argc, argv).options(config).allow_unregistered().run(), vm);
   po::notify(vm);
 
   std::vector<boost::regex> rgx;
-  for (auto const& ele : filters) rgx.emplace_back(ele);
-
+  for (auto const &ele : filters)
+    rgx.emplace_back(ele);
 
   TFile f(input_file.c_str());
-  TTree *t = (TTree*)f.Get("impact");
+  TTree *t = (TTree *)f.Get("impact");
 
   Vals reader;
   TString *param_str = nullptr;
-  t->SetBranchAddress("parameter",        &param_str);
-  t->SetBranchAddress("par_best",         &reader.par_best);
-  t->SetBranchAddress("par_lo",           &reader.par_lo);
-  t->SetBranchAddress("par_hi",           &reader.par_hi);
-  t->SetBranchAddress("par_best_post",    &reader.par_best_post);
-  t->SetBranchAddress("par_lo_post",      &reader.par_lo_post);
-  t->SetBranchAddress("par_hi_post",      &reader.par_hi_post);
-  t->SetBranchAddress("par_best_pre",     &reader.par_best_pre);
-  t->SetBranchAddress("par_lo_pre",       &reader.par_lo_pre);
-  t->SetBranchAddress("par_hi_pre",       &reader.par_hi_pre);
-  t->SetBranchAddress("impact",           &reader.impact);
-  t->SetBranchAddress("impact_post",      &reader.impact_post);
-  t->SetBranchAddress("impact_pre",       &reader.impact_pre);
-  t->SetBranchAddress("rank_impact",      &reader.rank_impact);
+  t->SetBranchAddress("parameter", &param_str);
+  t->SetBranchAddress("par_best", &reader.par_best);
+  t->SetBranchAddress("par_lo", &reader.par_lo);
+  t->SetBranchAddress("par_hi", &reader.par_hi);
+  t->SetBranchAddress("par_best_post", &reader.par_best_post);
+  t->SetBranchAddress("par_lo_post", &reader.par_lo_post);
+  t->SetBranchAddress("par_hi_post", &reader.par_hi_post);
+  t->SetBranchAddress("par_best_pre", &reader.par_best_pre);
+  t->SetBranchAddress("par_lo_pre", &reader.par_lo_pre);
+  t->SetBranchAddress("par_hi_pre", &reader.par_hi_pre);
+  t->SetBranchAddress("impact", &reader.impact);
+  t->SetBranchAddress("impact_post", &reader.impact_post);
+  t->SetBranchAddress("impact_pre", &reader.impact_pre);
+  t->SetBranchAddress("rank_impact", &reader.rank_impact);
   t->SetBranchAddress("rank_impact_post", &reader.rank_impact_post);
-  t->SetBranchAddress("rank_impact_pre",  &reader.rank_impact_pre);
+  t->SetBranchAddress("rank_impact_pre", &reader.rank_impact_pre);
   std::vector<Vals> val_vec;
   for (unsigned i = 0; i < t->GetEntries(); ++i) {
     t->GetEntry(i);
@@ -94,7 +91,8 @@ int main(int argc, char* argv[]) {
         break;
       }
     }
-    if (rgx.size() && !matches) continue;
+    if (rgx.size() && !matches)
+      continue;
     val_vec.push_back(reader);
   }
 
@@ -114,32 +112,22 @@ int main(int argc, char* argv[]) {
   string fmt = "& %-5.2f & %-5.2f";
 
   if (do_text) {
-    cout << format("%-70s %-15s | %-15s | %-15s | %-13s | "
-          "%-13s | %-13s\n")
-      % "Parameter"
-      % "Best (obs)"
-      % "Best (post)"
-      % "Best (pre)"
-      % "Impact (obs)"
-      % "Impact (post)"
-      % "Impact (pre)";
+    cout << format(
+                "%-70s %-15s | %-15s | %-15s | %-13s | "
+                "%-13s | %-13s\n") %
+                "Parameter" % "Best (obs)" % "Best (post)" % "Best (pre)" % "Impact (obs)" % "Impact (post)" %
+                "Impact (pre)";
 
     for (unsigned i = 0; i < max && i < val_vec.size(); ++i) {
       Vals &val = val_vec[i];
 
       cout << format(
-          "%-70s %7.2f %7.2f | %7.2f %7.2f | %7.2f %7.2f | %7.3f %5i | "
-          "%7.3f %5i | %7.3f %5i\n")
-        % val.parameter
-        % val.par_best
-        % ((val.par_hi - val.par_lo)/2.)
-        % val.par_best_post
-        % ((val.par_hi_post - val.par_lo_post)/2.)
-        % val.par_best_pre
-        % ((val.par_hi_pre - val.par_lo_pre)/2.)
-        % val.impact % val.rank_impact
-        % val.impact_post % val.rank_impact_post
-        % val.impact_pre % val.rank_impact_pre;
+                  "%-70s %7.2f %7.2f | %7.2f %7.2f | %7.2f %7.2f | %7.3f %5i | "
+                  "%7.3f %5i | %7.3f %5i\n") %
+                  val.parameter % val.par_best % ((val.par_hi - val.par_lo) / 2.) % val.par_best_post %
+                  ((val.par_hi_post - val.par_lo_post) / 2.) % val.par_best_pre %
+                  ((val.par_hi_pre - val.par_lo_pre) / 2.) % val.impact % val.rank_impact % val.impact_post %
+                  val.rank_impact_post % val.impact_pre % val.rank_impact_pre;
     }
   }
 
@@ -152,32 +140,35 @@ int main(int argc, char* argv[]) {
     cout << R"(r@{$ \,\,\pm\,\, $}l)";
     cout << R"(r@{$ \,\,\pm\,\, $}l)";
     cout << R"(rrrr)";
-    cout << R"(})" << "\n";
-
+    cout << R"(})"
+         << "\n";
 
     cout << format("%-60s") % "Nuisance Parameter"
          << R"(& \multicolumn{2}{c}{$\hat{\theta}$ (obs)})"
          << R"(& \multicolumn{2}{c}{$\hat{\theta}$ (asimov)})"
          << R"(& $\Delta\hat{\mu}$ (obs) & Rank)"
          << R"(& $\Delta\hat{\mu}$ (asimov) & Rank)"
-         << R"(\\)" << "\n" << R"(\hline)" << "\n";
-
+         << R"(\\)"
+         << "\n"
+         << R"(\hline)"
+         << "\n";
 
     for (unsigned i = 0; i < max && i < val_vec.size(); ++i) {
-      Vals & val = val_vec[i];
+      Vals &val = val_vec[i];
 
       boost::replace_all(val.parameter, "_", "\\_");
 
-      cout << format("%-60s") % val.parameter
-           << format(fmt) % val.par_best % ((val.par_hi - val.par_lo)/2.)
-           << format(fmt) % val.par_best_post % ((val.par_hi_post - val.par_lo_post)/2.)
+      cout << format("%-60s") % val.parameter << format(fmt) % val.par_best % ((val.par_hi - val.par_lo) / 2.)
+           << format(fmt) % val.par_best_post % ((val.par_hi_post - val.par_lo_post) / 2.)
            << format("& %-5.3f & %-4i") % val.impact % val.rank_impact
-           << format("& %-5.3f & %-4i") % val.impact_post % val.rank_impact_post
-           << R"(\\)" << "\n";
+           << format("& %-5.3f & %-4i") % val.impact_post % val.rank_impact_post << R"(\\)"
+           << "\n";
     }
 
-    cout << R"(\hline)" << "\n";
-    cout << R"(\end{tabular})" << "\n";
+    cout << R"(\hline)"
+         << "\n";
+    cout << R"(\end{tabular})"
+         << "\n";
   }
   std::cout << "Total impact obs:  " << tot_obs << "\n";
   std::cout << "Total impact post: " << tot_post << "\n";

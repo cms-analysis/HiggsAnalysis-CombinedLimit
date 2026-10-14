@@ -11,27 +11,27 @@
 
 namespace ch {
 
-std::unique_ptr<TH1> GetClonedTH1(TFile* file, std::string const& path);
+  std::unique_ptr<TH1> GetClonedTH1(TFile* file, std::string const& path);
 
-template <class T>
-void WriteToTFile(T * ptr, TFile* file, std::string const& path);
+  template <class T>
+  void WriteToTFile(T* ptr, TFile* file, std::string const& path);
 
-// Extracts objects from the form:
-// "path/to/a/file.root:path/to/object"
-template <class T>
-T OpenFromTFile(std::string const& fullpath);
+  // Extracts objects from the form:
+  // "path/to/a/file.root:path/to/object"
+  template <class T>
+  T OpenFromTFile(std::string const& fullpath);
 
-template <class T>
-T OpenFromTFile(TFile* file, std::string const& path);
-}
+  template <class T>
+  T OpenFromTFile(TFile* file, std::string const& path);
+}  // namespace ch
 
 // Template function implementation
 // ------------------------------------------------------------------
 template <class T>
-void ch::WriteToTFile(T * ptr, TFile* file, std::string const& path) {
-  #ifdef TIME_FUNCTIONS
-    LAUNCH_FUNCTION_TIMER(__timer__, __token__)
-  #endif
+void ch::WriteToTFile(T* ptr, TFile* file, std::string const& path) {
+#ifdef TIME_FUNCTIONS
+  LAUNCH_FUNCTION_TIMER(__timer__, __token__)
+#endif
   file->cd();
   std::vector<std::string> as_vec;
   boost::split(as_vec, path, boost::is_any_of("/"));
@@ -56,8 +56,7 @@ T ch::OpenFromTFile(std::string const& fullpath) {
   std::string filepath = "";
   std::string objectpath = "";
   if (pos == std::string::npos || pos == 0 || pos == (fullpath.size() - 1)) {
-    throw std::runtime_error(
-        FNERROR("Input path must of the format file.root:object"));
+    throw std::runtime_error(FNERROR("Input path must of the format file.root:object"));
   } else {
     filepath = fullpath.substr(0, pos);
     objectpath = fullpath.substr(pos + 1);
@@ -69,8 +68,7 @@ T ch::OpenFromTFile(std::string const& fullpath) {
   file.cd();
   T* obj_ptr = dynamic_cast<T*>(gDirectory->Get(objectpath.c_str()));
   if (!obj_ptr) {
-    throw std::runtime_error(
-        FNERROR("Object " + objectpath + " is missing or of wrong type"));
+    throw std::runtime_error(FNERROR("Object " + objectpath + " is missing or of wrong type"));
   }
   return *obj_ptr;
 }
@@ -83,8 +81,7 @@ T ch::OpenFromTFile(TFile* file, std::string const& path) {
   file->cd();
   T* obj_ptr = dynamic_cast<T*>(gDirectory->Get(path.c_str()));
   if (!obj_ptr) {
-    throw std::runtime_error(
-        FNERROR("Object " + path + " is missing or of wrong type"));
+    throw std::runtime_error(FNERROR("Object " + path + " is missing or of wrong type"));
   }
   return *obj_ptr;
 }

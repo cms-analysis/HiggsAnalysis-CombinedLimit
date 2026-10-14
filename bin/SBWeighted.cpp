@@ -16,10 +16,10 @@ namespace po = boost::program_options;
 
 using namespace std;
 
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[]) {
   TH1::AddDirectory(0);
   ModTDRStyle();
-  string cfg;                                   // The configuration file
+  string cfg;  // The configuration file
 
   bool do_ratio = false;
   bool do_logy = true;
@@ -28,36 +28,22 @@ int main(int argc, char* argv[]){
   string fitresult_file = "";
   string parse_rule = "";
 
-  string output           = "";
-  string text1            = "";
-  string text2            = "";
-  bool postfit            = true;
+  string output = "";
+  string text1 = "";
+  string text2 = "";
+  bool postfit = true;
 
   po::variables_map vm;
   po::options_description config("configuration");
-  config.add_options()
-    ("help,h",  "print the help message")
-    ("datacards,d",
-      po::value<vector<string>> (&datacards)->multitoken()->required())
-    ("fitresult,f",
-      po::value<string> (&fitresult_file))
-    ("parse_rule,p",
-      po::value<string> (&parse_rule)
-      ->default_value("$MASS/$ANALYSIS_$CHANNEL_$BINID_$ERA.txt"))
-    ("output",
-      po::value<string>(&output)->required(),
-      "[REQUIRED] output name (no extension)")
-    ("text1",
-      po::value<string>(&text1)->default_value(""),
-      "[REQUIRED] output name (no extension)")
-    ("text2",
-      po::value<string>(&text2)->default_value(""),
-      "[REQUIRED] output name (no extension)")
-    ("postfit",
-      po::value<bool>(&postfit)->required(),
-      "[REQUIRED] use the pulls file to make a post-fit plot");
-  po::store(po::command_line_parser(argc, argv)
-    .options(config).allow_unregistered().run(), vm);
+  config.add_options()("help,h", "print the help message")(
+      "datacards,d", po::value<vector<string>>(&datacards)->multitoken()->required())(
+      "fitresult,f", po::value<string>(&fitresult_file))(
+      "parse_rule,p", po::value<string>(&parse_rule)->default_value("$MASS/$ANALYSIS_$CHANNEL_$BINID_$ERA.txt"))(
+      "output", po::value<string>(&output)->required(), "[REQUIRED] output name (no extension)")(
+      "text1", po::value<string>(&text1)->default_value(""), "[REQUIRED] output name (no extension)")(
+      "text2", po::value<string>(&text2)->default_value(""), "[REQUIRED] output name (no extension)")(
+      "postfit", po::value<bool>(&postfit)->required(), "[REQUIRED] use the pulls file to make a post-fit plot");
+  po::store(po::command_line_parser(argc, argv).options(config).allow_unregistered().run(), vm);
   po::notify(vm);
 
   ch::CombineHarvester cmb;
@@ -69,15 +55,12 @@ int main(int argc, char* argv[]){
 
   RooFitResult* fitresult = nullptr;
   if (fitresult_file.length() && postfit) {
-    fitresult =
-        new RooFitResult(ch::OpenFromTFile<RooFitResult>(fitresult_file));
+    fitresult = new RooFitResult(ch::OpenFromTFile<RooFitResult>(fitresult_file));
     auto fitparams = ch::ExtractFitParameters(*fitresult);
     cmb.UpdateParameters(fitparams);
   }
 
   auto bins = cmb.bin_set();
-
-
 
   TH1F proto("proto", "proto", 17, -3, 0.4);
 
@@ -105,74 +88,79 @@ int main(int argc, char* argv[]){
       }
       bin_mapping[b] = bin_result;
     }
-    cmb_bin.ForEachObs([&](ch::Observation *e) {
+    cmb_bin.ForEachObs([&](ch::Observation* e) {
       TH1 const* old_h = e->shape();
       std::unique_ptr<TH1> new_h = ch::make_unique<TH1F>(TH1F(proto));
       for (int b = 1; b <= old_h->GetNbinsX(); ++b) {
         int new_bin = (bin_mapping.find(b))->second;
-        new_h->SetBinContent(
-            new_bin,
-            new_h->GetBinContent(new_bin) + old_h->GetBinContent(b));
+        new_h->SetBinContent(new_bin, new_h->GetBinContent(new_bin) + old_h->GetBinContent(b));
       }
       e->set_shape(std::move(new_h), false);
     });
 
-    cmb_bin.ForEachProc([&](ch::Process *e) {
+    cmb_bin.ForEachProc([&](ch::Process* e) {
       TH1 const* old_h = e->shape();
       std::unique_ptr<TH1> new_h = ch::make_unique<TH1F>(TH1F(proto));
       for (int b = 1; b <= old_h->GetNbinsX(); ++b) {
         int new_bin = (bin_mapping.find(b))->second;
-        new_h->SetBinContent(
-            new_bin,
-            new_h->GetBinContent(new_bin) + old_h->GetBinContent(b));
+        new_h->SetBinContent(new_bin, new_h->GetBinContent(new_bin) + old_h->GetBinContent(b));
       }
       e->set_shape(std::move(new_h), false);
     });
-    cmb_bin.ForEachSyst([&](ch::Systematic *e) {
-      if (e->type() != "shape") return;
+    cmb_bin.ForEachSyst([&](ch::Systematic* e) {
+      if (e->type() != "shape")
+        return;
       TH1 const* old_hd = e->shape_d();
       TH1 const* old_hu = e->shape_u();
       std::unique_ptr<TH1> new_hd = ch::make_unique<TH1F>(TH1F(proto));
       std::unique_ptr<TH1> new_hu = ch::make_unique<TH1F>(TH1F(proto));
       for (int b = 1; b <= old_hd->GetNbinsX(); ++b) {
         int new_bin = (bin_mapping.find(b))->second;
-        new_hd->SetBinContent(
-            new_bin,
-            new_hd->GetBinContent(new_bin) + old_hd->GetBinContent(b));
-        new_hu->SetBinContent(
-            new_bin,
-            new_hu->GetBinContent(new_bin) + old_hu->GetBinContent(b));
+        new_hd->SetBinContent(new_bin, new_hd->GetBinContent(new_bin) + old_hd->GetBinContent(b));
+        new_hu->SetBinContent(new_bin, new_hu->GetBinContent(new_bin) + old_hu->GetBinContent(b));
       }
       e->set_shapes(std::move(new_hu), std::move(new_hd), nullptr);
     });
   }
 
-  std::vector<TH1F *> by_chn;
+  std::vector<TH1F*> by_chn;
 
   auto channels = cmb.channel_set();
 
   THStack stack_bkg;
 
   for (auto chn : channels) {
-    by_chn.push_back(
-        new TH1F(cmb.cp().channel({chn}).backgrounds().GetShape()));
-    if (chn == "et") by_chn.back()->SetFillColor(TColor::GetColor(84, 166, 226));
-    if (chn == "mt") by_chn.back()->SetFillColor(TColor::GetColor(212, 66,  88));
-    if (chn == "em") by_chn.back()->SetFillColor(TColor::GetColor(201, 198, 116));
-    if (chn == "tt") by_chn.back()->SetFillColor(TColor::GetColor(245, 197, 85));
-    if (chn == "ee") by_chn.back()->SetFillColor(TColor::GetColor(247, 186, 254));
-    if (chn == "mm") by_chn.back()->SetFillColor(TColor::GetColor(112, 142, 122));
-    if (chn == "vhtt") by_chn.back()->SetFillColor(TColor::GetColor(137, 132, 192));
-    if (chn == "et") by_chn.back()->SetTitle("e_{}#tau_{h}");
-    if (chn == "mt") by_chn.back()->SetTitle("#mu_{}#tau_{h}");
-    if (chn == "em") by_chn.back()->SetTitle("e#mu");
-    if (chn == "ee") by_chn.back()->SetTitle("ee");
-    if (chn == "mm") by_chn.back()->SetTitle("#mu#mu");
-    if (chn == "tt") by_chn.back()->SetTitle("#tau_{h}#tau_{h}");
-    if (chn == "vhtt") by_chn.back()->SetTitle("VH");
+    by_chn.push_back(new TH1F(cmb.cp().channel({chn}).backgrounds().GetShape()));
+    if (chn == "et")
+      by_chn.back()->SetFillColor(TColor::GetColor(84, 166, 226));
+    if (chn == "mt")
+      by_chn.back()->SetFillColor(TColor::GetColor(212, 66, 88));
+    if (chn == "em")
+      by_chn.back()->SetFillColor(TColor::GetColor(201, 198, 116));
+    if (chn == "tt")
+      by_chn.back()->SetFillColor(TColor::GetColor(245, 197, 85));
+    if (chn == "ee")
+      by_chn.back()->SetFillColor(TColor::GetColor(247, 186, 254));
+    if (chn == "mm")
+      by_chn.back()->SetFillColor(TColor::GetColor(112, 142, 122));
+    if (chn == "vhtt")
+      by_chn.back()->SetFillColor(TColor::GetColor(137, 132, 192));
+    if (chn == "et")
+      by_chn.back()->SetTitle("e_{}#tau_{h}");
+    if (chn == "mt")
+      by_chn.back()->SetTitle("#mu_{}#tau_{h}");
+    if (chn == "em")
+      by_chn.back()->SetTitle("e#mu");
+    if (chn == "ee")
+      by_chn.back()->SetTitle("ee");
+    if (chn == "mm")
+      by_chn.back()->SetTitle("#mu#mu");
+    if (chn == "tt")
+      by_chn.back()->SetTitle("#tau_{h}#tau_{h}");
+    if (chn == "vhtt")
+      by_chn.back()->SetTitle("VH");
     by_chn.back()->SetBinContent(17, 0.);
     stack_bkg.Add(by_chn.back());
-
   }
 
   TH1F sb_sig = cmb.cp().signals().GetShape();
@@ -193,16 +181,14 @@ int main(int argc, char* argv[]){
   sb_err.SetFillColor(new_idx);
   sb_err.SetMarkerSize(0);
 
-  THStack *stack = new THStack("stack", "stack");
+  THStack* stack = new THStack("stack", "stack");
   stack->Add((TH1F*)sb_bkg.Clone(), "hist");
   stack->Add((TH1F*)sb_sig.Clone(), "hist");
-
 
   TCanvas* canv = new TCanvas(output.c_str(), output.c_str());
   canv->cd();
 
-  std::vector<TPad*> pads =
-      do_ratio ? TwoPadSplit(0.29, 0.005, 0.005) : OnePad();
+  std::vector<TPad*> pads = do_ratio ? TwoPadSplit(0.29, 0.005, 0.005) : OnePad();
 
   pads[0]->SetLogy(do_logy);
   std::vector<TH1*> h = CreateAxisHists(2, &sb_obs);
@@ -217,7 +203,8 @@ int main(int argc, char* argv[]){
 
   h[0]->Draw("");
 
-  if (pads[0]->GetLogy()) h[0]->SetMinimum(0.1);
+  if (pads[0]->GetLogy())
+    h[0]->SetMinimum(0.1);
 
   stack->Draw("histsame");
   stack_bkg.Draw("histsame");
@@ -227,10 +214,10 @@ int main(int argc, char* argv[]){
 
   FixTopRange(pads[0], GetPadYMax(pads[0]), 0.15);
 
-  TLegend *legend = PositionedLegend(0.30, 0.30, 3, 0.03);
+  TLegend* legend = PositionedLegend(0.30, 0.30, 3, 0.03);
   legend->AddEntry(&sb_obs, "Observed", "pe");
   // legend->AddEntry(&sb_bkg, "Background", "f");
-  for (auto chn: by_chn) {
+  for (auto chn : by_chn) {
     legend->AddEntry(chn, chn->GetTitle(), "f");
   }
   legend->AddEntry(&sb_sig, "Signal", "f");
@@ -244,11 +231,7 @@ int main(int argc, char* argv[]){
 
   DrawTitle(pads[0], "CombineHarvester", 1);
 
-
-
   canv->Print(".pdf");
-
-
 
   // TFile outfile((output+".root").c_str(), "RECREATE");
   // outfile.cd();
@@ -257,8 +240,5 @@ int main(int argc, char* argv[]){
   // ch::WriteToTFile(&sb_obs, &outfile, "TotalObs");
   // outfile.Close();
 
-
-
   return 0;
 }
-

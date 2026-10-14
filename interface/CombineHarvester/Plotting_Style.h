@@ -179,8 +179,7 @@ void SetTDRStyle() {
   gStyle->SetHatchesSpacing(0.05);
 }
 
-void ModTDRStyle(int width, int height, double t, double b, double l,
-                 double r) {
+void ModTDRStyle(int width, int height, double t, double b, double l, double r) {
   SetTDRStyle();
 
   // Set the default canvas width and height in pixels
@@ -199,20 +198,19 @@ void ModTDRStyle(int width, int height, double t, double b, double l,
 
   double def_min = def_h < def_w ? def_h : def_w;
 
-  gStyle->SetPadTopMargin(t * scale_h);      // default 0.05
-  gStyle->SetPadBottomMargin(b * scale_h);   // default 0.13
-  gStyle->SetPadLeftMargin(l * scale_w);     // default 0.16
-  gStyle->SetPadRightMargin(r * scale_w);    // default 0.02
+  gStyle->SetPadTopMargin(t * scale_h);     // default 0.05
+  gStyle->SetPadBottomMargin(b * scale_h);  // default 0.13
+  gStyle->SetPadLeftMargin(l * scale_w);    // default 0.16
+  gStyle->SetPadRightMargin(r * scale_w);   // default 0.02
   // But note the new CMS style sets these:
   // 0.08, 0.12, 0.12, 0.04
 
   // Set number of axis tick divisions
-  gStyle->SetNdivisions(506, "XYZ");            // default 510
+  gStyle->SetNdivisions(506, "XYZ");  // default 510
 
   // Some marker properties not set in the default tdr style
   gStyle->SetMarkerColor(kBlack);
   gStyle->SetMarkerSize(1.0);
-
 
   gStyle->SetLabelOffset(0.007, "YZ");
   // This is an adhoc adjustment to scale the x-axis label
@@ -231,12 +229,8 @@ void ModTDRStyle(int width, int height, double t, double b, double l,
   gStyle->SetTitleSize(title_size, "XYZ");
   gStyle->SetLabelSize(label_size, "XYZ");
 
-  gStyle->SetTitleXOffset(0.5 * scale_h *
-                          (1.2 * (def_h * b * scale_h - 0.6 * title_px)) /
-                          title_px);
-  gStyle->SetTitleYOffset(0.5 * scale_w *
-                          (1.2 * (def_w * l * scale_w - 0.6 * title_px)) /
-                          title_px);
+  gStyle->SetTitleXOffset(0.5 * scale_h * (1.2 * (def_h * b * scale_h - 0.6 * title_px)) / title_px);
+  gStyle->SetTitleYOffset(0.5 * scale_w * (1.2 * (def_w * l * scale_w - 0.6 * title_px)) / title_px);
 
   // Only draw ticks where we have an axis
   gStyle->SetPadTickX(0);

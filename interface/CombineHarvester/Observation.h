@@ -10,43 +10,43 @@
 
 namespace ch {
 
-class Observation : public Object {
- public:
-  Observation();
-  ~Observation();
-  Observation(Observation const& other);
-  Observation(Observation&& other);
-  Observation& operator=(Observation other);
+  class Observation : public Object {
+  public:
+    Observation();
+    ~Observation();
+    Observation(Observation const& other);
+    Observation(Observation&& other);
+    Observation& operator=(Observation other);
 
-  void set_rate(double const& rate) { rate_ = rate; }
-  double rate() const { return rate_; }
+    void set_rate(double const& rate) { rate_ = rate; }
+    double rate() const { return rate_; }
 
-  void set_shape(std::unique_ptr<TH1> shape, bool set_rate);
+    void set_shape(std::unique_ptr<TH1> shape, bool set_rate);
 
-  void set_shape(TH1 const& shape, bool set_rate);
-  
-  TH1 const* shape() const { return shape_.get(); }
+    void set_shape(TH1 const& shape, bool set_rate);
 
-  std::unique_ptr<TH1> ClonedShape() const;
-  std::unique_ptr<TH1> ClonedScaledShape() const;
+    TH1 const* shape() const { return shape_.get(); }
 
-  TH1F ShapeAsTH1F() const;
-  TH2F ShapeAsTH2F() const;
+    std::unique_ptr<TH1> ClonedShape() const;
+    std::unique_ptr<TH1> ClonedScaledShape() const;
 
-  void set_data(RooAbsData* data) { data_ = data; }
-  RooAbsData const* data() const { return data_; }
+    TH1F ShapeAsTH1F() const;
+    TH2F ShapeAsTH2F() const;
 
-  std::string to_string() const;
-  friend std::ostream& operator<< (std::ostream &out, Observation const& val);
-  static std::ostream& PrintHeader(std::ostream &out);
+    void set_data(RooAbsData* data) { data_ = data; }
+    RooAbsData const* data() const { return data_; }
 
- private:
-  double rate_;
-  std::unique_ptr<TH1> shape_;
-  RooAbsData* data_;
+    std::string to_string() const;
+    friend std::ostream& operator<<(std::ostream& out, Observation const& val);
+    static std::ostream& PrintHeader(std::ostream& out);
 
-  friend void swap(Observation& first, Observation& second);
-};
-}
+  private:
+    double rate_;
+    std::unique_ptr<TH1> shape_;
+    RooAbsData* data_;
+
+    friend void swap(Observation& first, Observation& second);
+  };
+}  // namespace ch
 
 #endif

@@ -1,3 +1,4 @@
+// clang-format off
 /// Json-cpp amalgated source (http://jsoncpp.sourceforge.net/).
 /// It is intented to be used with #include "dist/jsoncpp.cpp"
 

@@ -4,7 +4,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
 
 namespace ch {
-/**
+  /**
  * Merges bin uncertainties and creates bin-by-bin statistical uncertainties
  *
  * Typical usage:
@@ -18,11 +18,11 @@ namespace ch {
  * 
  * See below for details on each class method.
  */
-class BinByBinFactory {
- public:
-  BinByBinFactory();
+  class BinByBinFactory {
+  public:
+    BinByBinFactory();
 
-  /**
+    /**
    * Merges histogram bin errors between processes
    *
    * The method will loop through each analysis category and apply the merging
@@ -49,9 +49,9 @@ class BinByBinFactory {
    * @note For a valid result all analysis event categories must have a unique
    * `bin()` value.
    */
-  void MergeBinErrors(CombineHarvester &cb);
+    void MergeBinErrors(CombineHarvester& cb);
 
-  /**
+    /**
    * Create bin-by-bin shape uncertainties for every process in **src**, and
    * add these to **dest**
    *
@@ -75,103 +75,103 @@ class BinByBinFactory {
    *     changed with \ref SetPattern. Note that the special term `$#`
    *     should always be included as this is replaced with the bin index.
    */
-  void AddBinByBin(CombineHarvester &src, CombineHarvester &dest);
+    void AddBinByBin(CombineHarvester& src, CombineHarvester& dest);
 
-  /**
+    /**
    * A convenience function which calls \ref MergeBinErrors and \ref
    * AddBinByBin in turn
    */
-  void MergeAndAdd(CombineHarvester &src, CombineHarvester &dest);
+    void MergeAndAdd(CombineHarvester& src, CombineHarvester& dest);
 
-  /**
+    /**
    * By default this class only produces output on the screen when an error
    * occurs, set to a value greater than zero for more verbose output
    */
-  inline BinByBinFactory& SetVerbosity(unsigned verbosity) {
-    v_ = verbosity;
-    return *this;
-  }
+    inline BinByBinFactory& SetVerbosity(unsigned verbosity) {
+      v_ = verbosity;
+      return *this;
+    }
 
-  /**
+    /**
    * Set the fractional bin error threshold for bin-by-bin creation and
    * for participation in the merging algorithm
    */
-  inline BinByBinFactory& SetAddThreshold(double val) {
-    bbb_threshold_ = val;
-    return *this;
-  }
+    inline BinByBinFactory& SetAddThreshold(double val) {
+      bbb_threshold_ = val;
+      return *this;
+    }
 
-  /**
+    /**
    * The threshold for the merging algorithm
    */
-  inline BinByBinFactory& SetMergeThreshold(double val) {
-    merge_threshold_ = val;
-    return *this;
-  }
+    inline BinByBinFactory& SetMergeThreshold(double val) {
+      merge_threshold_ = val;
+      return *this;
+    }
 
-  /**
+    /**
    * The pattern-string for the systematic naming convention
    */
-  inline BinByBinFactory& SetPattern(std::string const& pattern) {
-    pattern_ = pattern;
-    return *this;
-  }
+    inline BinByBinFactory& SetPattern(std::string const& pattern) {
+      pattern_ = pattern;
+      return *this;
+    }
 
-  /**
+    /**
    * Whether or not the bin-by-bin systematics are allowed to vary the process
    * normalisation
    */
-  inline BinByBinFactory& SetFixNorm(bool fix) {
-    fix_norm_ = fix;
-    return *this;
-  }
+    inline BinByBinFactory& SetFixNorm(bool fix) {
+      fix_norm_ = fix;
+      return *this;
+    }
 
-  /**
+    /**
    * Construct approximate Poisson uncertainties instead of default Gaussian
    */
-  inline BinByBinFactory& SetPoissonErrors(bool poisson_errors) {
-    poisson_errors_ = poisson_errors;
-    return *this;
-  }
+    inline BinByBinFactory& SetPoissonErrors(bool poisson_errors) {
+      poisson_errors_ = poisson_errors;
+      return *this;
+    }
 
-  /**
+    /**
    * Set whether bins with zero content can participate in the merging procedure
    */
-  inline BinByBinFactory& SetMergeZeroBins(bool merge) {
-    merge_zero_bins_ = merge;
-    return *this;
-  }
+    inline BinByBinFactory& SetMergeZeroBins(bool merge) {
+      merge_zero_bins_ = merge;
+      return *this;
+    }
 
-  /**
+    /**
    * Set whether bins with error >= content participate in the merging procedure
    */
-  inline BinByBinFactory& SetMergeSaturatedBins(bool merge) {
-    merge_saturated_bins_ = merge;
-    return *this;
-  }
+    inline BinByBinFactory& SetMergeSaturatedBins(bool merge) {
+      merge_saturated_bins_ = merge;
+      return *this;
+    }
 
-  /**
+    /**
    * Getter functions for class attributes
    */
-  inline unsigned GetVerbosity() {return v_;}
-  inline double GetAddThreshold() {return bbb_threshold_;}
-  inline double GetMergeThreshold() {return merge_threshold_;}
-  inline std::string GetPattern() {return pattern_;}
-  inline bool GetFixNorm() {return fix_norm_;}
-  inline bool GetPoissonErrors() {return poisson_errors_;}
-  inline bool GetMergeZeroBins() {return merge_zero_bins_;}
-  inline bool GetMergeSaturatedBins() {return merge_saturated_bins_;}
+    inline unsigned GetVerbosity() { return v_; }
+    inline double GetAddThreshold() { return bbb_threshold_; }
+    inline double GetMergeThreshold() { return merge_threshold_; }
+    inline std::string GetPattern() { return pattern_; }
+    inline bool GetFixNorm() { return fix_norm_; }
+    inline bool GetPoissonErrors() { return poisson_errors_; }
+    inline bool GetMergeZeroBins() { return merge_zero_bins_; }
+    inline bool GetMergeSaturatedBins() { return merge_saturated_bins_; }
 
- private:
-  std::string pattern_;
-  unsigned v_;
-  double bbb_threshold_;
-  double merge_threshold_;
-  bool fix_norm_;
-  bool poisson_errors_;
-  bool merge_zero_bins_;
-  bool merge_saturated_bins_;
-};
-}
+  private:
+    std::string pattern_;
+    unsigned v_;
+    double bbb_threshold_;
+    double merge_threshold_;
+    bool fix_norm_;
+    bool poisson_errors_;
+    bool merge_zero_bins_;
+    bool merge_saturated_bins_;
+  };
+}  // namespace ch
 
 #endif

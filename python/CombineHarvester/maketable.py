@@ -3,18 +3,19 @@ import ROOT as R
 from array import array
 import json
 
+
 def Tablefrom1DGraph(rootfile, filename):
     graph = [R.TGraph() for i in range(6)]
 
     # Get and sort graphs
-    fin = R.TFile(rootfile, 'r')
+    fin = R.TFile(rootfile, "r")
     names = ["mass", "minus2sigma", "minus1sigma", "expected", "plus1sigma", "plus2sigma", "observed"]
     for k in range(6):
-        graph[k] = plot.SortGraph(fin.Get(names[k+1]))
+        graph[k] = plot.SortGraph(fin.Get(names[k + 1]))
     fin.Close()
 
     # Prepare writing values into table
-    f = open(filename, 'w')
+    f = open(filename, "w")
     for name in names:
         f.write("%-20s" % name)
     f.write("\n")
@@ -23,11 +24,11 @@ def Tablefrom1DGraph(rootfile, filename):
     f.write("\n")
 
     # Get values and write them
-    value=array('d', [0]*7)
-    for i in range(graph[1].GetN()) :
+    value = array("d", [0] * 7)
+    for i in range(graph[1].GetN()):
         value[0] = graph[1].GetX()[i]
         for k in range(6):
-            value[k+1]=graph[k].GetY()[i]
+            value[k + 1] = graph[k].GetY()[i]
         for k in range(7):
             f.write("%-20s" % str(value[k]))
         f.write("\n")
@@ -45,28 +46,28 @@ def TablefromJson(jsonfile, filename):
     maxpoints = 0
     for key in js:
         x.append(float(key))
-        maxpoints+=1
+        maxpoints += 1
 
     # Sort list of masses (Bubblesort-Algorithm. Not very fast when there are many points to be sorted.)
-    i=0
-    while (i < maxpoints-1):
-        if (x[i+1]<x[i]):
-            savex=float(x[i+1])
-            x[i+1]=float(x[i])
-            x[i]=float(savex)
-            if (i>0):
-                i-=2
-        i+=1
+    i = 0
+    while i < maxpoints - 1:
+        if x[i + 1] < x[i]:
+            savex = float(x[i + 1])
+            x[i + 1] = float(x[i])
+            x[i] = float(savex)
+            if i > 0:
+                i -= 2
+        i += 1
 
     # Get values for the masses
     y = [[0.0 for i in range(6)] for j in range(maxpoints)]
     for i in range(maxpoints):
         for k in range(6):
             if jsonnames[k] in js[str(x[i])]:
-                y[i][k]=js[str(x[i])][jsonnames[k]]
+                y[i][k] = js[str(x[i])][jsonnames[k]]
 
     # Prepare writing values into table
-    f = open(filename, 'w')
+    f = open(filename, "w")
     for name in names:
         f.write("%-20s" % name)
     f.write("\n")
@@ -75,12 +76,12 @@ def TablefromJson(jsonfile, filename):
     f.write("\n")
 
     # Write table
-    i=0
-    for mass in x :
+    i = 0
+    for mass in x:
         for k in range(6):
-            if k==0:
+            if k == 0:
                 f.write("%-20s" % str(mass))
             f.write("%-20s" % str(y[i][k]))
         f.write("\n")
-        i+=1
+        i += 1
     f.close()

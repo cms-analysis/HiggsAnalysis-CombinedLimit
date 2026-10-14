@@ -4,7 +4,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
 
 namespace ch {
-/**
+  /**
  * Tests for any bins below a certain threshold and if they exist merges them
  * with neighborouring bins
  *
@@ -16,11 +16,11 @@ namespace ch {
  * 
  * See below for details on each class method.
  */
-class AutoRebin {
- public:
-  AutoRebin();
+  class AutoRebin {
+  public:
+    AutoRebin();
 
-  /**
+    /**
    * Work out optimal binning using the total background histogram built from 
    * **src**, and apply the binning to **dest**
    * 
@@ -31,8 +31,8 @@ class AutoRebin {
    *   the total background histogram, and the condition for what we consider to
    *   be an empty bin
    */
-  void Rebin(CombineHarvester &src, CombineHarvester &dest);
-  /**
+    void Rebin(CombineHarvester& src, CombineHarvester& dest);
+    /**
    * Pass through the total background histogram to find bins failing the
    * required condition ("empty" bins). For RebinMode==0:
    * 
@@ -55,64 +55,63 @@ class AutoRebin {
    *
    *   * Repeats with new lowest bin until all bins pass threshold
    */
-  void FindNewBinning(TH1F &total_bkg, std::vector<double> &new_bins, 
-     double bin_condition, double bin_uncert_fraction, int mode);
+    void FindNewBinning(
+        TH1F& total_bkg, std::vector<double>& new_bins, double bin_condition, double bin_uncert_fraction, int mode);
 
-  /**
+    /**
    * Return bin with maximum value of fractional error
    */
-  int GetMaximumFracUncertBin(TH1F &total_bkg);
-  
-  /**
+    int GetMaximumFracUncertBin(TH1F& total_bkg);
+
+    /**
    * Set to a value greater than zero for more verbose output
    */
-  inline AutoRebin& SetVerbosity(unsigned verbosity) {
-    v_ = verbosity;
-    return *this;
-  }
+    inline AutoRebin& SetVerbosity(unsigned verbosity) {
+      v_ = verbosity;
+      return *this;
+    }
 
-  /**
+    /**
    * The threshold for which we consider merging bins containing less than this
    * value
    */
-  inline AutoRebin& SetBinThreshold(double val) {
-    bin_threshold_ = val;
-    return *this;
-  }
-  
-  /**
+    inline AutoRebin& SetBinThreshold(double val) {
+      bin_threshold_ = val;
+      return *this;
+    }
+
+    /**
    * The threshold on the bin uncertainty fraction for which we consider merging
    * bins containing less than this value
    */
-  inline AutoRebin& SetBinUncertFraction(double val) {
-    bin_uncert_fraction_ = val;
-    return *this;
-  }
-  
-  /**
+    inline AutoRebin& SetBinUncertFraction(double val) {
+      bin_uncert_fraction_ = val;
+      return *this;
+    }
+
+    /**
    * Flag to perform different versions of rebinning algorithm
    */
-  inline AutoRebin& SetRebinMode(int val) {
-    rebin_mode_ = val;
-    return *this;
-  }
-  
-  /**
+    inline AutoRebin& SetRebinMode(int val) {
+      rebin_mode_ = val;
+      return *this;
+    }
+
+    /**
    * Whether to actually perform the rebinning or just print it out
    */
-  inline AutoRebin& SetPerformRebin(bool val) {
-    perform_rebin_ = val;
-    return *this;
-  }
+    inline AutoRebin& SetPerformRebin(bool val) {
+      perform_rebin_ = val;
+      return *this;
+    }
 
-
- private:
-  unsigned v_;
-  int rebin_mode_;
-  bool perform_rebin_;
-  double bin_threshold_;
-  double bin_uncert_fraction_;
-};
-}
+  private:
+    unsigned v_;
+    int rebin_mode_;
+    bool perform_rebin_;
+    double bin_threshold_;
+    double bin_uncert_fraction_;
+  };
+}  // namespace ch
 
 #endif

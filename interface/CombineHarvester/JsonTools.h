@@ -6,22 +6,22 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/json.h"
 
 namespace ch {
-/**
+  /**
  * Extracts a Json::Value from the specified input file
  *
  * @param file The full path to the input json file
  */
-Json::Value ExtractJsonFromFile(std::string const& file);
+  Json::Value ExtractJsonFromFile(std::string const& file);
 
-/**
+  /**
  * Extracts a Json::Value from the given input string
  *
  * @param str Must be a valid JSON object, including the enclosing curly
  * braces, e.g: `{ key : "value" }`.
  */
-Json::Value ExtractJsonFromString(std::string const& str);
+  Json::Value ExtractJsonFromString(std::string const& str);
 
-/**
+  /**
  * Updates the values in one json from the values in another
  *
  * All the values in *b* are entered into *a*, overwritting any already
@@ -30,9 +30,9 @@ Json::Value ExtractJsonFromString(std::string const& str);
  * @param a The Json::Value to be updated \param b The Json::Value containing
  * the updates
  */
-void UpdateJson(Json::Value& a, Json::Value const& b);
+  void UpdateJson(Json::Value& a, Json::Value const& b);
 
-/**
+  /**
  * Create a single merged Json::Value from a mixture of json files and
  * json-formatted strings
  *
@@ -47,9 +47,9 @@ void UpdateJson(Json::Value& a, Json::Value const& b);
  * @param argc Number of arguments contained in argv
  * @param argv An array of strings
  */
-Json::Value MergedJson(int argc, char* argv[]);
+  Json::Value MergedJson(int argc, char* argv[]);
 
-/**
+  /**
  * Create a single merged Json::Value from a mixture of json files and
  * json-formatted strings
  *
@@ -59,6 +59,6 @@ Json::Value MergedJson(int argc, char* argv[]);
  *
  * @param vec Vector of input strings
  */
-Json::Value MergedJson(std::vector<std::string> const& vec);
-}
+  Json::Value MergedJson(std::vector<std::string> const& vec);
+}  // namespace ch
 #endif

@@ -9,7 +9,7 @@
 
 namespace ch {
 
-/**
+  /**
  * Automates the writing of datacards into directory structures
  *
  * A CardWriter is constructed with two strings which give patterns for where
@@ -47,34 +47,32 @@ namespace ch {
  * alter or remove this behaviour by supplying a new list of wildcard values
  * with the \ref SetWildcardMasses method.
  */
-class CardWriter {
- public:
-  /// Must be constructed with text and ROOT file patterns
-  CardWriter(std::string const& text_pattern, std::string const& root_pattern);
-  /// Write datacards according to patterns, substituting `$TAG` for `tag`
-  std::map<std::string, CombineHarvester> WriteCards(std::string const& tag, ch::CombineHarvester& cmb) const;
-  /// Set >= 1 for verbose output, otherwise silent
-  CardWriter& SetVerbosity(unsigned v);
-  /// Control whether directories can be created if missing
-  CardWriter& CreateDirectories(bool flag);
-  /// Redefine the mass values that should be treated as wildcards
-  CardWriter& SetWildcardMasses(std::vector<std::string> const& masses);
+  class CardWriter {
+  public:
+    /// Must be constructed with text and ROOT file patterns
+    CardWriter(std::string const& text_pattern, std::string const& root_pattern);
+    /// Write datacards according to patterns, substituting `$TAG` for `tag`
+    std::map<std::string, CombineHarvester> WriteCards(std::string const& tag, ch::CombineHarvester& cmb) const;
+    /// Set >= 1 for verbose output, otherwise silent
+    CardWriter& SetVerbosity(unsigned v);
+    /// Control whether directories can be created if missing
+    CardWriter& CreateDirectories(bool flag);
+    /// Redefine the mass values that should be treated as wildcards
+    CardWriter& SetWildcardMasses(std::vector<std::string> const& masses);
 
- private:
-  typedef std::map<std::string, std::set<std::string>> PatternMap;
-  std::string text_pattern_;
-  std::string root_pattern_;
-  mutable std::string tag_;
-  std::vector<std::string> wildcard_masses_;
-  unsigned v_;
-  bool create_dirs_;
+  private:
+    typedef std::map<std::string, std::set<std::string>> PatternMap;
+    std::string text_pattern_;
+    std::string root_pattern_;
+    mutable std::string tag_;
+    std::vector<std::string> wildcard_masses_;
+    unsigned v_;
+    bool create_dirs_;
 
-  std::string Compile(std::string pattern, ch::Object const* obj,
-                      bool skip_mass = false) const;
-  PatternMap BuildMap(std::string const& pattern,
-                      ch::CombineHarvester& cmb) const;
-  void MakeDirs(PatternMap const& map) const;
-};
-}
+    std::string Compile(std::string pattern, ch::Object const* obj, bool skip_mass = false) const;
+    PatternMap BuildMap(std::string const& pattern, ch::CombineHarvester& cmb) const;
+    void MakeDirs(PatternMap const& map) const;
+  };
+}  // namespace ch
 
 #endif

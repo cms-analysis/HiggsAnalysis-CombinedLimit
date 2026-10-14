@@ -17,148 +17,135 @@
 
 namespace ch {
 
-/*
+  /*
 TODO:
 2) Morphing options
 3) Remove morphing proc errors
 */
 
-CMSHistFuncFactory::CMSHistFuncFactory() : v_(1), hist_mode_(0), rebin_(false) {}
+  CMSHistFuncFactory::CMSHistFuncFactory() : v_(1), hist_mode_(0), rebin_(false) {}
 
-void CMSHistFuncFactory::Run(ch::CombineHarvester &cb, RooWorkspace &ws, std::map<std::string, std::string> process_vs_norm_postfix_map) {
-  for (auto const& bin : cb.bin_set()) {
-    for (auto const& proc : cb.cp().bin({bin}).process_set()) {
-      if (v_) {
-        std::cout << ">> Processing " << bin << "," << proc << "\n";
+  void CMSHistFuncFactory::Run(ch::CombineHarvester &cb,
+                               RooWorkspace &ws,
+                               std::map<std::string, std::string> process_vs_norm_postfix_map) {
+    for (auto const &bin : cb.bin_set()) {
+      for (auto const &proc : cb.cp().bin({bin}).process_set()) {
+        if (v_) {
+          std::cout << ">> Processing " << bin << "," << proc << "\n";
+        }
+        if (process_vs_norm_postfix_map.find(proc) == process_vs_norm_postfix_map.end()) {
+          norm_postfix_ = "norm";
+        } else {
+          norm_postfix_ = process_vs_norm_postfix_map[proc];
+        }
+        RunSingleProc(cb, ws, bin, proc);
       }
-      if (process_vs_norm_postfix_map.find(proc) == process_vs_norm_postfix_map.end())
-      {
-        norm_postfix_ = "norm";
-      }
-      else
-      {
-        norm_postfix_ = process_vs_norm_postfix_map[proc];
-      }
-      RunSingleProc(cb, ws, bin, proc);
-    }
-    TH1F data_hist = cb.cp().bin({bin}).GetObservedShape();
-    if (rebin_) data_hist = RebinHist(data_hist);
-    // data_hist.Print("range");
+      TH1F data_hist = cb.cp().bin({bin}).GetObservedShape();
+      if (rebin_)
+        data_hist = RebinHist(data_hist);
+      // data_hist.Print("range");
 
-    RooRealVar *xvar = ws.var(TString::Format("CMS_x_%s", bin.c_str()));
-    RooDataHist rdh_dat(TString::Format("%s_data_obs", bin.c_str()), "",
-                        RooArgList(*xvar), &data_hist);
+      RooRealVar *xvar = ws.var(TString::Format("CMS_x_%s", bin.c_str()));
+      RooDataHist rdh_dat(TString::Format("%s_data_obs", bin.c_str()), "", RooArgList(*xvar), &data_hist);
 
-    ws.import(rdh_dat);
+      ws.import(rdh_dat);
 
-    cb.cp().bin({bin}).ForEachObs([&](ch::Observation * p) {
-      p->set_shape(nullptr, false);
-      p->set_rate(1.0);
-    });
-  }
-}
-
-void CMSHistFuncFactory::Run(ch::CombineHarvester &cb, RooWorkspace &ws) {
-  CMSHistFuncFactory::Run(cb, ws,  {});
-}
-
-void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
-                                       std::string bin, std::string process) {
-  using std::vector;
-  using std::set;
-  using std::string;
-  using boost::lexical_cast;
-  using boost::multi_array;
-  using boost::extents;
-
-  TString key = bin + "_" + process;
-
-
-  CombineHarvester cbp = cb.cp().bin({bin}).process({process});
-  vector<string> m_str_vec = Set2Vec(cbp.SetFromProcs(
-      std::mem_fn(&ch::Process::mass)));
-  unsigned m = m_str_vec.size();
-  vector<double> m_vec;
-  if (m_str_vec.size() == 1) {
-  } else {
-    std::sort(m_str_vec.begin(), m_str_vec.end(),
-              [](string const& s1, string const& s2) {
-                return lexical_cast<double>(s1) < lexical_cast<double>(s2);
-              });
-    for (auto const& s : m_str_vec) {
-      if (v_) std::cout << ">>>> Mass point: " << s << "\n";
-      m_vec.push_back(lexical_cast<double>(s));
+      cb.cp().bin({bin}).ForEachObs([&](ch::Observation *p) {
+        p->set_shape(nullptr, false);
+        p->set_rate(1.0);
+      });
     }
   }
 
-  // ss = "shape systematic"
-  // Make a list of the names of shape systematics affecting this process
-  vector<string> ss_vec =
-      Set2Vec(cbp.cp().syst_type({"shape", "shapeU"}).syst_name_set());
-  // Now check if all shape systematics are present for all mass points
-  for (auto const& s : m_str_vec) {
-    if (cbp.cp().syst_type({"shape", "shapeU"}).mass({s}).syst_name_set().size() !=
-        ss_vec.size()) {
-      throw std::runtime_error(FNERROR(
-          "Some mass points do not have the full set of shape systematics, "
-          "this is currently unsupported"));
+  void CMSHistFuncFactory::Run(ch::CombineHarvester &cb, RooWorkspace &ws) { CMSHistFuncFactory::Run(cb, ws, {}); }
+
+  void CMSHistFuncFactory::RunSingleProc(CombineHarvester &cb, RooWorkspace &ws, std::string bin, std::string process) {
+    using boost::extents;
+    using boost::lexical_cast;
+    using boost::multi_array;
+    using std::set;
+    using std::string;
+    using std::vector;
+
+    TString key = bin + "_" + process;
+
+    CombineHarvester cbp = cb.cp().bin({bin}).process({process});
+    vector<string> m_str_vec = Set2Vec(cbp.SetFromProcs(std::mem_fn(&ch::Process::mass)));
+    unsigned m = m_str_vec.size();
+    vector<double> m_vec;
+    if (m_str_vec.size() == 1) {
+    } else {
+      std::sort(m_str_vec.begin(), m_str_vec.end(), [](string const &s1, string const &s2) {
+        return lexical_cast<double>(s1) < lexical_cast<double>(s2);
+      });
+      for (auto const &s : m_str_vec) {
+        if (v_)
+          std::cout << ">>>> Mass point: " << s << "\n";
+        m_vec.push_back(lexical_cast<double>(s));
+      }
     }
-  }
-  unsigned ss = ss_vec.size();  // number of shape systematics
 
-  vector<string> ls_vec =
-      Set2Vec(cbp.cp().syst_type({"lnN"}).syst_name_set());
-  unsigned ls = ls_vec.size();  // number of lnN systematics
+    // ss = "shape systematic"
+    // Make a list of the names of shape systematics affecting this process
+    vector<string> ss_vec = Set2Vec(cbp.cp().syst_type({"shape", "shapeU"}).syst_name_set());
+    // Now check if all shape systematics are present for all mass points
+    for (auto const &s : m_str_vec) {
+      if (cbp.cp().syst_type({"shape", "shapeU"}).mass({s}).syst_name_set().size() != ss_vec.size()) {
+        throw std::runtime_error(
+            FNERROR("Some mass points do not have the full set of shape systematics, "
+                    "this is currently unsupported"));
+      }
+    }
+    unsigned ss = ss_vec.size();  // number of shape systematics
 
-  // Store pointers to each ch::Process (one per mass point) in the CH instance
-  multi_array<ch::Process *,  1> pr_arr(extents[m]);
-  // Store pointers pointers to each ch::Systematic for each mass point (hence
-  // an ss * m 2D array)
-  multi_array<ch::Systematic *, 2> ss_arr(extents[ss][m]);
-  // With shape systematics we have to support cases where the value in the
-  // datacard is != 1.0, i.e. we are scaling the parameter that goes into the
-  // Gaussian constraint PDF - we have to pass this factor on when we build the
-  // normal vertical-interpolation PDF for each mass point. We will store these
-  // scale factors in this array, one per shape systematic.
-  multi_array<double, 1> ss_scale_arr(extents[ss]);
-  // Really just for book-keeping, we'll set this flag to true when the shape
-  // systematic scale factor != 1
-  multi_array<bool, 1> ss_must_scale_arr(extents[ss]);
-  // Similar to the ss_arr above, store the lnN ch::Systematic objects. Note
-  // implicit in all this is the assumption that the processes at each mass
-  // point have exactly the same list of systematic uncertainties.
-  multi_array<ch::Systematic *, 2> ls_arr(extents[ls][m]);
+    vector<string> ls_vec = Set2Vec(cbp.cp().syst_type({"lnN"}).syst_name_set());
+    unsigned ls = ls_vec.size();  // number of lnN systematics
 
-  // This array holds pointers to the RooRealVar objects that will become our
-  // shape nuisance parameters, e.g. "CMS_scale_t_mutau_8TeV"
-  multi_array<std::shared_ptr<RooRealVar>, 1> ss_scale_var_arr(extents[ss]);
-  // And this array holds the constant scale factors that we'll build from
-  // ss_scale_arr above
-  multi_array<std::shared_ptr<RooConstVar>, 1> ss_scale_fac_arr(extents[ss]);
-  // Finally this array will contain the scale_var * scale_fac product where we
-  // need to provide a scaled value of the nuisance parameter instead of the
-  // parameter itself in building the vertical-interp. PDF
-  multi_array<std::shared_ptr<RooProduct>, 1> ss_scale_prod_arr(extents[ss]);
+    // Store pointers to each ch::Process (one per mass point) in the CH instance
+    multi_array<ch::Process *, 1> pr_arr(extents[m]);
+    // Store pointers pointers to each ch::Systematic for each mass point (hence
+    // an ss * m 2D array)
+    multi_array<ch::Systematic *, 2> ss_arr(extents[ss][m]);
+    // With shape systematics we have to support cases where the value in the
+    // datacard is != 1.0, i.e. we are scaling the parameter that goes into the
+    // Gaussian constraint PDF - we have to pass this factor on when we build the
+    // normal vertical-interpolation PDF for each mass point. We will store these
+    // scale factors in this array, one per shape systematic.
+    multi_array<double, 1> ss_scale_arr(extents[ss]);
+    // Really just for book-keeping, we'll set this flag to true when the shape
+    // systematic scale factor != 1
+    multi_array<bool, 1> ss_must_scale_arr(extents[ss]);
+    // Similar to the ss_arr above, store the lnN ch::Systematic objects. Note
+    // implicit in all this is the assumption that the processes at each mass
+    // point have exactly the same list of systematic uncertainties.
+    multi_array<ch::Systematic *, 2> ls_arr(extents[ls][m]);
+
+    // This array holds pointers to the RooRealVar objects that will become our
+    // shape nuisance parameters, e.g. "CMS_scale_t_mutau_8TeV"
+    multi_array<std::shared_ptr<RooRealVar>, 1> ss_scale_var_arr(extents[ss]);
+    // And this array holds the constant scale factors that we'll build from
+    // ss_scale_arr above
+    multi_array<std::shared_ptr<RooConstVar>, 1> ss_scale_fac_arr(extents[ss]);
+    // Finally this array will contain the scale_var * scale_fac product where we
+    // need to provide a scaled value of the nuisance parameter instead of the
+    // parameter itself in building the vertical-interp. PDF
+    multi_array<std::shared_ptr<RooProduct>, 1> ss_scale_prod_arr(extents[ss]);
 
     // Now let's fill some of these arrays...
     for (unsigned mi = 0; mi < m; ++mi) {
       // The ch::Process pointers
-      cbp.cp().mass({m_str_vec[mi]}).ForEachProc([&](ch::Process *p) {
-        pr_arr[mi] = p;
-      });
+      cbp.cp().mass({m_str_vec[mi]}).ForEachProc([&](ch::Process *p) { pr_arr[mi] = p; });
       for (unsigned ssi = 0; ssi < ss; ++ssi) {
         // The ch::Systematic pointers for shape systematics
-        cbp.cp().mass({m_str_vec[mi]}).syst_name({ss_vec[ssi]})
-          .ForEachSyst([&](ch::Systematic *n) {
-              ss_arr[ssi][mi] = n;
-          });
+        cbp.cp().mass({m_str_vec[mi]}).syst_name({ss_vec[ssi]}).ForEachSyst([&](ch::Systematic *n) {
+          ss_arr[ssi][mi] = n;
+        });
       }
       for (unsigned lsi = 0; lsi < ls; ++lsi) {
         // The ch::Systematic pointers for lnN systematics
-        cbp.cp().mass({m_str_vec[mi]}).syst_name({ls_vec[lsi]})
-          .ForEachSyst([&](ch::Systematic *n) {
-              ls_arr[lsi][mi] = n;
-          });
+        cbp.cp().mass({m_str_vec[mi]}).syst_name({ls_vec[lsi]}).ForEachSyst([&](ch::Systematic *n) {
+          ls_arr[lsi][mi] = n;
+        });
       }
     }
 
@@ -171,8 +158,7 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
       // Make the nuisance parameter var. We use shared_ptrs here as a convenience
       // because they will take care of automatically cleaning up the memory at
       // the end
-      ss_scale_var_arr[ssi] =
-          std::make_shared<RooRealVar>(ss_vec[ssi].c_str(), "", 0);
+      ss_scale_var_arr[ssi] = std::make_shared<RooRealVar>(ss_vec[ssi].c_str(), "", 0);
       // We'll make a quick check that the scale factor for this systematic is the
       // same for all mass points. We could do a separate scaling at each mass
       // point but this would create a lot of complications
@@ -184,8 +170,7 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
       }
       if (scales.size() > 1) {
         // Don't let the user proceed, we can't build the model they want
-        std::runtime_error(FNERROR(
-            "Shape morphing parameters that vary with mass are not allowed"));
+        std::runtime_error(FNERROR("Shape morphing parameters that vary with mass are not allowed"));
       } else {
         // Everything ok, set the scale value in its array
         ss_scale_arr[ssi] = *(scales.begin());
@@ -193,14 +178,12 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
         if (std::fabs(ss_scale_arr[ssi] - 1.0) > 1E-6) {
           ss_must_scale_arr[ssi] = true;
           // Build the RooConstVar with the value of the scale factor
-          ss_scale_fac_arr[ssi] = std::make_shared<RooConstVar>(
-              TString::Format("%g", ss_scale_arr[ssi]), "",
-              ss_scale_arr[ssi]);
+          ss_scale_fac_arr[ssi] =
+              std::make_shared<RooConstVar>(TString::Format("%g", ss_scale_arr[ssi]), "", ss_scale_arr[ssi]);
           // Create the product of the floating nuisance parameter and the
           // constant scale factor
           ss_scale_prod_arr[ssi] = std::make_shared<RooProduct>(
-              ss_vec[ssi] + "_scaled_" + key, "",
-              RooArgList(*(ss_scale_var_arr[ssi]), *(ss_scale_fac_arr[ssi])));
+              ss_vec[ssi] + "_scaled_" + key, "", RooArgList(*(ss_scale_var_arr[ssi]), *(ss_scale_fac_arr[ssi])));
           // Add this to the list
           ss_list.add(*(ss_scale_prod_arr[ssi]));
         } else {
@@ -211,14 +194,13 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
       }
     }
     //! [part3]
-  // Summarise the info on the shape systematics and scale factors
-  if (v_) {
-    std::cout << ">> Shape systematics: " << ss << "\n";
-    for (unsigned ssi = 0; ssi < ss; ++ssi) {
-      std::cout << boost::format("%-50s %-5i %-8.3g\n")
-        % ss_vec[ssi] % ss_must_scale_arr[ssi] % ss_scale_arr[ssi];
+    // Summarise the info on the shape systematics and scale factors
+    if (v_) {
+      std::cout << ">> Shape systematics: " << ss << "\n";
+      for (unsigned ssi = 0; ssi < ss; ++ssi) {
+        std::cout << boost::format("%-50s %-5i %-8.3g\n") % ss_vec[ssi] % ss_must_scale_arr[ssi] % ss_scale_arr[ssi];
+      }
     }
-  }
 
     // lms = "lnN morphing systematic"
     // Now we have some work to do with the lnN systematics. We can consider two cases:
@@ -232,7 +214,7 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
     vector<string> lms_vec;  // vec of systematic names
     set<string> lms_set;     // set of systematic names
     // index positions in our full ls_arr array for the lms systematics
-    vector<unsigned > lms_vec_idx;
+    vector<unsigned> lms_vec_idx;
     for (unsigned lsi = 0; lsi < ls; ++lsi) {
       // Extra complication is that the user might have been evil and mixed
       // symmetric and asymmetric lnN values, we'll try and detect changes in
@@ -267,8 +249,7 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
     // We will need to create the nuisance parameters for these now
     multi_array<std::shared_ptr<RooRealVar>, 1> lms_var_arr(extents[lms]);
     for (unsigned lmsi = 0; lmsi < lms; ++lmsi) {
-      lms_var_arr[lmsi] =
-          std::make_shared<RooRealVar>(lms_vec[lmsi].c_str(), "", 0);
+      lms_var_arr[lmsi] = std::make_shared<RooRealVar>(lms_vec[lmsi].c_str(), "", 0);
     }
 
     // Give a summary of the lms systematics to the user
@@ -281,7 +262,7 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
 
     // 2D array of all input histograms, size is (mass points * (nominal +
     // 2*shape-systs)). The factor of 2 needed for the Up and Down shapes
-    multi_array<std::shared_ptr<TH1F>, 2> hist_arr(extents[m][1+ss*2]);
+    multi_array<std::shared_ptr<TH1F>, 2> hist_arr(extents[m][1 + ss * 2]);
     // We also need the array of process yields vs mass, because this will have to
     // be interpolated too
     multi_array<double, 1> rate_arr(extents[m]);
@@ -316,9 +297,9 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
       // histogram to a uniform integer binning, because this is what
       // text2workspace will do for all the non-morphed processes in our datacard,
       // and we need the binning of these to be in sync.
-      hist_arr[mi][0] =
-          std::make_shared<TH1F>(AsTH1F(pr_arr[mi]->ClonedScaledShape().get()));
-      if (rebin_) *hist_arr[mi][0] = RebinHist(*hist_arr[mi][0]);
+      hist_arr[mi][0] = std::make_shared<TH1F>(AsTH1F(pr_arr[mi]->ClonedScaledShape().get()));
+      if (rebin_)
+        *hist_arr[mi][0] = RebinHist(*hist_arr[mi][0]);
       if (m > 1) {
         for (int b = 1; b < hist_arr[mi][0]->GetNbinsX() + 1; ++b) {
           hist_arr[mi][0]->SetBinError(b, 0.);
@@ -335,14 +316,14 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
       // proc_hist->IntegralAndError(1, proc_hist->GetNbinsX(), rate_unc_arr[mi]);
       // Do the same for the Up and Down shapes
       for (unsigned ssi = 0; ssi < ss; ++ssi) {
-        hist_arr[mi][1 + 2 * ssi] =
-            std::make_shared<TH1F>(AsTH1F(ss_arr[ssi][mi]->shape_u()));
-        hist_arr[mi][2 + 2 * ssi] =
-            std::make_shared<TH1F>(AsTH1F(ss_arr[ssi][mi]->shape_d()));
-        if (rebin_) *hist_arr[mi][1 + 2 * ssi] = RebinHist(*hist_arr[mi][1 + 2 * ssi]);
-        if (rebin_) *hist_arr[mi][2 + 2 * ssi] = RebinHist(*hist_arr[mi][2 + 2 * ssi]);
-        TH1F* h_hi = hist_arr[mi][1 + 2 * ssi].get();
-        TH1F* h_lo = hist_arr[mi][2 + 2 * ssi].get();
+        hist_arr[mi][1 + 2 * ssi] = std::make_shared<TH1F>(AsTH1F(ss_arr[ssi][mi]->shape_u()));
+        hist_arr[mi][2 + 2 * ssi] = std::make_shared<TH1F>(AsTH1F(ss_arr[ssi][mi]->shape_d()));
+        if (rebin_)
+          *hist_arr[mi][1 + 2 * ssi] = RebinHist(*hist_arr[mi][1 + 2 * ssi]);
+        if (rebin_)
+          *hist_arr[mi][2 + 2 * ssi] = RebinHist(*hist_arr[mi][2 + 2 * ssi]);
+        TH1F *h_hi = hist_arr[mi][1 + 2 * ssi].get();
+        TH1F *h_lo = hist_arr[mi][2 + 2 * ssi].get();
         if (h_hi->Integral() > 0.) {
           h_hi->Scale(hist_arr[mi][0]->Integral() / h_hi->Integral());
         }
@@ -380,7 +361,6 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
       }
     }
     // Now we'll fill these objects..
-
 
     // Now we've made all our histograms, we'll put them in the TList format
     // of [nominal, syst_1_Up, syst_1_Down, ... , syst_N_Up, syst_N_Down]
@@ -432,25 +412,26 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
     // simple LINEAR interpolation for now
     TString interp = "LINEAR";
 
-    // Here when the force_template_limit option is requested 
-    // we have to add some extra terms to the vector of masses to ensure that 
+    // Here when the force_template_limit option is requested
+    // we have to add some extra terms to the vector of masses to ensure that
     // the signal pdf goes to 0 outside of the MC template range.
 
     vector<double> new_m_vec(m_vec);
     // Insert an entry at either end of the vector for a mass just slightly
     // outside of the range
     if (m > 1) {
-      new_m_vec.insert(new_m_vec.begin(),m_vec[0]-1E-6);
-      new_m_vec.push_back(m_vec[m-1]+1E-6);
+      new_m_vec.insert(new_m_vec.begin(), m_vec[0] - 1E-6);
+      new_m_vec.push_back(m_vec[m - 1] + 1E-6);
     }
     // Create a corresponding rate array with 0 entries for these new masses
-    multi_array<double, 1> new_rate_arr(extents[m+2]);
+    multi_array<double, 1> new_rate_arr(extents[m + 2]);
     new_rate_arr[0] = 0.0;
     // for(unsigned i = 0; i < m; ++i) new_rate_arr[i+1] = rate_arr[i] ;
 
     // With CMSHistFunc the normalisation is handled internally
-    for(unsigned i = 0; i < m; ++i) new_rate_arr[i+1] = 1.0;
-    new_rate_arr[m+1] = 0.0;
+    for (unsigned i = 0; i < m; ++i)
+      new_rate_arr[i + 1] = 1.0;
+    new_rate_arr[m + 1] = 0.0;
 
     bool force_template_limit = false;
 
@@ -468,11 +449,14 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
     // Create the 1D spline directly from the rate array
     //! [part4]
     std::shared_ptr<RooSpline1D> rate_spline;
-    if (m > 1) rate_spline = std::make_shared<RooSpline1D>("interp_rate_"+key, "", *mass_var[process],
-                          force_template_limit ? m+2 : m,
-                          force_template_limit ? new_m_vec.data() : m_vec.data(),
-                          force_template_limit ? new_rate_arr.data() : rate_arr.data(),
-                          interp);
+    if (m > 1)
+      rate_spline = std::make_shared<RooSpline1D>("interp_rate_" + key,
+                                                  "",
+                                                  *mass_var[process],
+                                                  force_template_limit ? m + 2 : m,
+                                                  force_template_limit ? new_m_vec.data() : m_vec.data(),
+                                                  force_template_limit ? new_rate_arr.data() : rate_arr.data(),
+                                                  interp);
     // if (file) {
     //   TGraphErrors tmp(m, m_vec.data(), rate_arr.data(), nullptr, rate_unc_arr.data());
     //   file->WriteTObject(&tmp, "interp_rate_"+key);
@@ -486,20 +470,31 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
     // For each shape systematic build a 1D spline for kappa_hi and kappa_lo
     for (unsigned ssi = 0; ssi < ss; ++ssi) {
       if (m > 1) {
-        ss_spl_hi_arr[ssi] = std::make_shared<RooSpline1D>("spline_hi_" +
-            key + "_" + ss_vec[ssi], "", *mass_var[process], m, m_vec.data(),
-            ss_k_hi_arr[ssi].origin(), interp);
-        ss_spl_lo_arr[ssi] = std::make_shared<RooSpline1D>("spline_lo_" +
-            key + "_" + ss_vec[ssi], "", *mass_var[process], m, m_vec.data(),
-            ss_k_lo_arr[ssi].origin(), interp);
+        ss_spl_hi_arr[ssi] = std::make_shared<RooSpline1D>("spline_hi_" + key + "_" + ss_vec[ssi],
+                                                           "",
+                                                           *mass_var[process],
+                                                           m,
+                                                           m_vec.data(),
+                                                           ss_k_hi_arr[ssi].origin(),
+                                                           interp);
+        ss_spl_lo_arr[ssi] = std::make_shared<RooSpline1D>("spline_lo_" + key + "_" + ss_vec[ssi],
+                                                           "",
+                                                           *mass_var[process],
+                                                           m,
+                                                           m_vec.data(),
+                                                           ss_k_lo_arr[ssi].origin(),
+                                                           interp);
       } else {
-        ss_spl_hi_arr[ssi] = std::make_shared<RooConstVar>(TString::Format("%g", ss_k_hi_arr[ssi][0]), "", ss_k_hi_arr[ssi][0]);
-        ss_spl_lo_arr[ssi] = std::make_shared<RooConstVar>(TString::Format("%g", ss_k_lo_arr[ssi][0]), "", ss_k_lo_arr[ssi][0]);
+        ss_spl_hi_arr[ssi] =
+            std::make_shared<RooConstVar>(TString::Format("%g", ss_k_hi_arr[ssi][0]), "", ss_k_hi_arr[ssi][0]);
+        ss_spl_lo_arr[ssi] =
+            std::make_shared<RooConstVar>(TString::Format("%g", ss_k_lo_arr[ssi][0]), "", ss_k_lo_arr[ssi][0]);
       }
-      ss_asy_arr[ssi] = std::make_shared<AsymPow>("systeff_" +
-          key + "_" + ss_vec[ssi], "",
-          *(ss_spl_lo_arr[ssi]), *(ss_spl_hi_arr[ssi]),
-           *(ss_scale_var_arr[ssi]));
+      ss_asy_arr[ssi] = std::make_shared<AsymPow>("systeff_" + key + "_" + ss_vec[ssi],
+                                                  "",
+                                                  *(ss_spl_lo_arr[ssi]),
+                                                  *(ss_spl_hi_arr[ssi]),
+                                                  *(ss_scale_var_arr[ssi]));
       // if (file) {
       //   TGraph tmp_hi(m, m_vec.data(), ss_k_hi_arr[ssi].origin());
       //   file->WriteTObject(&tmp_hi, "spline_hi_" + key + "_" + ss_vec[ssi]);
@@ -513,15 +508,25 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
     // Same procedure for the lms normalisation systematics: build the splines
     // then the AsymPows and add to the rate_prod list
     for (unsigned lmsi = 0; lmsi < lms; ++lmsi) {
-      lms_spl_hi_arr[lmsi] = std::make_shared<RooSpline1D>("spline_hi_" +
-          key + "_" + lms_vec[lmsi], "", *mass_var[process], m, m_vec.data(),
-          lms_k_hi_arr[lmsi].origin(), interp);
-      lms_spl_lo_arr[lmsi] = std::make_shared<RooSpline1D>("spline_lo_" +
-          key + "_" + lms_vec[lmsi], "", *mass_var[process], m, m_vec.data(),
-          lms_k_lo_arr[lmsi].origin(), interp);
-      lms_asy_arr[lmsi] = std::make_shared<AsymPow>("systeff_" +
-          key + "_" + lms_vec[lmsi], "", *(lms_spl_lo_arr[lmsi]),
-          *(lms_spl_hi_arr[lmsi]), *(lms_var_arr[lmsi]));
+      lms_spl_hi_arr[lmsi] = std::make_shared<RooSpline1D>("spline_hi_" + key + "_" + lms_vec[lmsi],
+                                                           "",
+                                                           *mass_var[process],
+                                                           m,
+                                                           m_vec.data(),
+                                                           lms_k_hi_arr[lmsi].origin(),
+                                                           interp);
+      lms_spl_lo_arr[lmsi] = std::make_shared<RooSpline1D>("spline_lo_" + key + "_" + lms_vec[lmsi],
+                                                           "",
+                                                           *mass_var[process],
+                                                           m,
+                                                           m_vec.data(),
+                                                           lms_k_lo_arr[lmsi].origin(),
+                                                           interp);
+      lms_asy_arr[lmsi] = std::make_shared<AsymPow>("systeff_" + key + "_" + lms_vec[lmsi],
+                                                    "",
+                                                    *(lms_spl_lo_arr[lmsi]),
+                                                    *(lms_spl_hi_arr[lmsi]),
+                                                    *(lms_var_arr[lmsi]));
       rate_prod.add(*(lms_asy_arr[lmsi]));
     }
     // We'll come back to this rate_prod a bit later.
@@ -561,9 +566,9 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
     // to the minimum of all of the shape scales
     double qrange = 1.;
     for (unsigned ssi = 0; ssi < ss; ++ssi) {
-      if (ss_scale_arr[ssi] < qrange) qrange = ss_scale_arr[ssi];
+      if (ss_scale_arr[ssi] < qrange)
+        qrange = ss_scale_arr[ssi];
     }
-
 
     TString morph_name = key + "_morph";
     // At long last, we can build our pdf, giving it:
@@ -597,8 +602,7 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
     // to add even more terms to this total normalisation, so we give them the option
     // of using some other suffix.
     //! [part6]
-    RooProduct morph_rate(morph_name + "_" + TString(norm_postfix_), "",
-                          rate_prod);
+    RooProduct morph_rate(morph_name + "_" + TString(norm_postfix_), "", rate_prod);
     //! [part6]
 
     // Dump even more plots
@@ -613,7 +617,7 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
     }
 
     // if (!verbose) RooMsgService::instance().setGlobalKillBelow(backup_msg_level);
-// 
+    //
     // Now we can clean up the CH instance a bit
     // We only need one entry for each Process or Systematic now, not one per mass point
     // We'll modify the first mass point to house our new pdf and norm, and drop
@@ -621,22 +625,20 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
     std::string mass_min = m_str_vec.at(0);
 
     // Dump Process entries for other mass points
-    cb.FilterProcs([&](ch::Process const* p) {
-      return p->bin() == bin && p->process() == process && p->mass() != mass_min;
-    });
+    cb.FilterProcs(
+        [&](ch::Process const *p) { return p->bin() == bin && p->process() == process && p->mass() != mass_min; });
     // Dump Systematic entries for other mass points, but only if the type is shape
     // or a lnN that we found varied as a function of the mass. We've already built
     // these uncertainties into our normalisation term. Constant lnN systematics can
     // remain in the datacard and be added by text2workspace
-    cb.FilterSysts([&](ch::Systematic const* n) {
+    cb.FilterSysts([&](ch::Systematic const *n) {
       return (n->bin() == bin && n->process() == process) &&
-             ((n->mass() != mass_min) || (n->type() == "shape" || n->type() == "shapeU") ||
-              (lms_set.count(n->name())));
+             ((n->mass() != mass_min) || (n->type() == "shape" || n->type() == "shapeU") || (lms_set.count(n->name())));
     });
     // With the remaining Process entry (should only be one if we did this right),
     // Make the mass generic ("*"), drop the TH1 and set the rate to 1.0, as this
     // will now be read from our norm object
-    cb.ForEachProc([&](ch::Process * p) {
+    cb.ForEachProc([&](ch::Process *p) {
       if (p->bin() == bin && p->process() == process) {
         if (m > 1) {
           p->set_mass("*");
@@ -647,7 +649,7 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
     });
     // Just declare the mass to be generic for the remaining systematics
     if (m > 1) {
-      cb.ForEachSyst([&](ch::Systematic * n) {
+      cb.ForEachSyst([&](ch::Systematic *n) {
         if (n->bin() == bin && n->process() == process) {
           n->set_mass("*");
         }
@@ -663,70 +665,70 @@ void CMSHistFuncFactory::RunSingleProc(CombineHarvester& cb, RooWorkspace& ws,
     //
     // They can populate the Process entries, e.g. if all signals were replaced
     // with Morphing PDFs:
-    // 
+    //
     //   cb.cp().signals().ExtractPdfs(cb, "htt", "$BIN_$PROCESS_morph");
     //! [part4]
-}
+  }
 
-// }
+  // }
 
-// void MakeMorphDebugPlots(RooMorphingPdf* pdf, RooAbsReal* mass,
-//                          std::vector<double> const& masses, TFile* f, TH1 *ref_bins) {
-//   RooRealVar *rrv = dynamic_cast<RooRealVar*>(mass);
-//   if (!rrv) return;
-//   f->cd();
-//   f->mkdir(pdf->GetName());
-//   gDirectory->cd(pdf->GetName());
-//   for (unsigned i = 0; i < masses.size(); ++i) {
-//     rrv->setVal(masses[i]);
-//     TH1 * h = pdf->createHistogram("CMS_th1x");
-//     h->AddDirectory(false);
-//     TH1 * h2 = nullptr;
-//     if (ref_bins) { 
-//       h2 = (TH1*)ref_bins->Clone();
-//       h2->Reset();
-//       for (int x = 1; x <= h2->GetNbinsX(); ++x) {
-//         h2->SetBinContent(x, h->GetBinContent(x));
-//       }
-//     } else {
-//       h2 = h;
-//       h = nullptr;
-//     }
-//     h2->AddDirectory(false);
-//     h2->SetName(TString::Format("actual_point_%g", masses[i]));
-//     gDirectory->WriteTObject(h2);
-//     if (h) delete h;
-//     if (h2) delete h2;
-//   }
-//   double m = masses.front();
-//   double step = 1;
-//   if (((masses.back() - masses.front()) / step) > 100.) step = step * 10.;
-//   if (((masses.back() - masses.front()) / step) > 100.) step = step * 10.;
-//   if (((masses.back() - masses.front()) / step) < 10.) step = step/10.;
-//   while (m <= masses.back()) {
-//     rrv->setVal(m);
-//     TH1* hm = pdf->createHistogram("CMS_th1x");
-//     hm->AddDirectory(false);
-//     TH1 * hm2 = nullptr;
-//     if (ref_bins) { 
-//       hm2 = (TH1*)ref_bins->Clone();
-//       hm2->Reset();
-//       for (int x = 1; x <= hm2->GetNbinsX(); ++x) {
-//         hm2->SetBinContent(x, hm->GetBinContent(x));
-//       }
-//     } else {
-//       hm2 = hm;
-//       hm = nullptr;
-//     }
-//     hm2->AddDirectory(false);
-//     hm2->SetName(TString::Format("morph_point_%g", m));
-//     //It struggles with m=0, instead adds really small number close to 0
-//     if(fabs(m) < 1E-5) hm2->SetName(TString::Format("morph_point_0"));
-//     gDirectory->WriteTObject(hm2);
-//     if (hm) delete hm;
-//     if (hm2) delete hm2;
-//     m += step;
-//   }
-//   f->cd();
-// }
-}
+  // void MakeMorphDebugPlots(RooMorphingPdf* pdf, RooAbsReal* mass,
+  //                          std::vector<double> const& masses, TFile* f, TH1 *ref_bins) {
+  //   RooRealVar *rrv = dynamic_cast<RooRealVar*>(mass);
+  //   if (!rrv) return;
+  //   f->cd();
+  //   f->mkdir(pdf->GetName());
+  //   gDirectory->cd(pdf->GetName());
+  //   for (unsigned i = 0; i < masses.size(); ++i) {
+  //     rrv->setVal(masses[i]);
+  //     TH1 * h = pdf->createHistogram("CMS_th1x");
+  //     h->AddDirectory(false);
+  //     TH1 * h2 = nullptr;
+  //     if (ref_bins) {
+  //       h2 = (TH1*)ref_bins->Clone();
+  //       h2->Reset();
+  //       for (int x = 1; x <= h2->GetNbinsX(); ++x) {
+  //         h2->SetBinContent(x, h->GetBinContent(x));
+  //       }
+  //     } else {
+  //       h2 = h;
+  //       h = nullptr;
+  //     }
+  //     h2->AddDirectory(false);
+  //     h2->SetName(TString::Format("actual_point_%g", masses[i]));
+  //     gDirectory->WriteTObject(h2);
+  //     if (h) delete h;
+  //     if (h2) delete h2;
+  //   }
+  //   double m = masses.front();
+  //   double step = 1;
+  //   if (((masses.back() - masses.front()) / step) > 100.) step = step * 10.;
+  //   if (((masses.back() - masses.front()) / step) > 100.) step = step * 10.;
+  //   if (((masses.back() - masses.front()) / step) < 10.) step = step/10.;
+  //   while (m <= masses.back()) {
+  //     rrv->setVal(m);
+  //     TH1* hm = pdf->createHistogram("CMS_th1x");
+  //     hm->AddDirectory(false);
+  //     TH1 * hm2 = nullptr;
+  //     if (ref_bins) {
+  //       hm2 = (TH1*)ref_bins->Clone();
+  //       hm2->Reset();
+  //       for (int x = 1; x <= hm2->GetNbinsX(); ++x) {
+  //         hm2->SetBinContent(x, hm->GetBinContent(x));
+  //       }
+  //     } else {
+  //       hm2 = hm;
+  //       hm = nullptr;
+  //     }
+  //     hm2->AddDirectory(false);
+  //     hm2->SetName(TString::Format("morph_point_%g", m));
+  //     //It struggles with m=0, instead adds really small number close to 0
+  //     if(fabs(m) < 1E-5) hm2->SetName(TString::Format("morph_point_0"));
+  //     gDirectory->WriteTObject(hm2);
+  //     if (hm) delete hm;
+  //     if (hm2) delete hm2;
+  //     m += step;
+  //   }
+  //   f->cd();
+  // }
+}  // namespace ch
