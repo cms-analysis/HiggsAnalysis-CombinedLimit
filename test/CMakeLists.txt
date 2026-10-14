@@ -314,6 +314,41 @@ if(BUILD_TESTS AND NOT DEFINED standalone_tests)
     )
 endif()
 
+# Test NLL consistency between backends
+if(NOT DEFINED standalone_tests)
+    set(nll_consistency_backends combine)
+    if(ROOT_VERSION VERSION_GREATER_EQUAL "6.30.00")
+        list(APPEND nll_consistency_backends cpu codegen)
+    endif()
+    # Check that the NLLs computed with different backends are consistent for various cases
+    foreach(backend IN LISTS nll_consistency_backends)
+        set(nll_consistency_cases extra_constraints multipdf_penalty
+            ignore_constraint_poi_selection ignore_constraint_selected_nuisance ignored_extra_constraint)
+        # The generic constraint-only regression uses an empty-channel model;
+        # the Combine backend requires at least one channel.
+        if(NOT backend STREQUAL "combine")
+            list(APPEND nll_consistency_cases constraint_only_prefit)
+        endif()
+        foreach(case IN LISTS nll_consistency_cases)
+            COMBINE_ADD_TEST(nll_consistency_${case}_${backend}
+                COMMAND python3 ${REPO}/test/test_nll_backend_consistency.py
+                    --case ${case} --backend ${backend} --combine $<TARGET_FILE:combine>
+                LABELS NLLConsistency
+                TIMEOUT 120
+            )
+        endforeach()
+    endforeach()
+    # Check special cases for FitDiagnostics and ChannelCompatibilityCheck
+    foreach(case fitdiagnostics_prefit channel_compatibility_constraints)
+        COMBINE_ADD_TEST(nll_consistency_${case}_combine
+            COMMAND python3 ${REPO}/test/test_nll_backend_consistency.py
+                --case ${case} --backend combine --combine $<TARGET_FILE:combine>
+            LABELS NLLConsistency
+            TIMEOUT 240
+        )
+    endforeach()
+endif()
+
 # ModelTools.py
 COMBINE_ADD_TEST(test_model_tools_py
     COMMAND python3 ${REPO}/test/test_model_tools.py
