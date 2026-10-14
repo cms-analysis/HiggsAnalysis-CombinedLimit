@@ -209,17 +209,12 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
       simNuisancePdf.addExtraConstraints(((RooProdPdf*)(nuisancePdf.get()))->pdfList());
       std::unique_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", RooArgSet(dummyCat)));
 
-      // For some reason, Combine overrides here the likelihood creation path
-      // of the RooSimultaneousOpt and uses the default RooFit likelihood
-      // backend.
+      // The extra constraints of the RooSimultaneousOpt are only known to the
+      // likelihood class of Combine (CachingSimNLL), not to the RooFit
+      // backends, so this likelihood is always created with the "combine"
+      // backend, regardless of the backend configured for the main fits.
       std::string prevBackend = Combine::nllBackend();
-#if ROOT_VERSION_CODE < ROOT_VERSION(6, 30, 0)
-      // setting the NLL backend to anything other than "combine" will skip the
-      // RooSimultaneousOpt code path:
-      Combine::nllBackend() = "not_combine";
-#else
-      Combine::nllBackend() = RooFit::EvalBackend(RooFit::EvalBackend::defaultValue()).name();
-#endif
+      Combine::nllBackend() = "combine";
       auto nuisanceNLL =
           combineCreateNLL(simNuisancePdf, *globalData, nuis, /*offset=*/true, /*warnAboutDifferentBackend=*/false);
       Combine::nllBackend() = prevBackend;
