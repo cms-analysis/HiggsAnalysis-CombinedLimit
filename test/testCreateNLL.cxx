@@ -379,8 +379,9 @@ INSTANTIATE_TEST_SUITE_P(
     BarlowBeestonMatrix,
 #endif
     CreateNLLTest,
+    // The codegen translation of the autoMCStats histograms needs ROOT 6.41.01.
     ::testing::Values(TestConfig{BackendComparison::Cpu, true, false},
-                      TestConfig{BackendComparison::Codegen, true, true},
+                      TestConfig{BackendComparison::Codegen, true, ROOT_VERSION_CODE < ROOT_VERSION(6, 41, 1)},
                       TestConfig{BackendComparison::Cpu, false, false},
-                      TestConfig{BackendComparison::Codegen, false, true}),
+                      TestConfig{BackendComparison::Codegen, false, ROOT_VERSION_CODE < ROOT_VERSION(6, 41, 1)}),
     AnalyticParamName);

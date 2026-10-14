@@ -1,4 +1,5 @@
 #include "../interface/CMSHistErrorPropagator.h"
+#include "../interface/CMSHistHelpers.h"
 #include "../interface/CMSHistFuncWrapper.h"
 #include <stdexcept>
 #include <vector>
@@ -211,6 +212,12 @@ void CMSHistErrorPropagator::runBarlowBeeston() const {
   for (unsigned j = 0; j < n; ++j) {
     if (toterr_[bb_.use[j]] > 0.) bb_.push_res[j]->setVal(bb_.res[j]);
   }
+}
+
+void CMSHistErrorPropagator::barlowBeestonGradientTerms(std::vector<double>& slopes,
+                                                        std::vector<double>& ratios) const {
+  updateCache(/*eval=*/1);
+  cmsHistBarlowBeestonGradientTerms(bintypes_, valsum_, toterr_, bb_, slopes, ratios);
 }
 
 void CMSHistErrorPropagator::setAnalyticBarlowBeeston(bool flag) const {

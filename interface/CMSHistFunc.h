@@ -145,6 +145,20 @@ class CMSHistFunc : public RooAbsReal {
 
   RooAbsReal const& getXVar() const;
 
+  // Read access to the persistent template data, for the code generation of
+  // the "codegen" evaluation backend.
+  RooArgList const& vmorphList() const { return vmorphs_; }
+  RooArgList const& hmorphList() const { return hmorphs_; }
+  RooArgList const& externalMorphList() const { return external_morph_; }
+  std::vector<FastTemplate> const& storage() const { return storage_; }
+  bool isRebinned() const { return rebin_; }
+  VerticalSetting verticalType() const { return vtype_; }
+  double verticalSmoothRegion() const { return vsmooth_par_; }
+  /// Index in storage() of the template of the given horizontal and vertical
+  /// morphing point (0 is the nominal one).
+  unsigned getIdx(unsigned hindex, unsigned hpoint, unsigned vindex,
+                  unsigned vpoint) const;
+
   static void EnableFastVertical();
   friend class CMSHistV<CMSHistFunc>;
   friend class CMSHistSum;
@@ -200,9 +214,6 @@ class CMSHistFunc : public RooAbsReal {
   void setGlobalCache() const;
 
   void resetCaches();
-
-  unsigned getIdx(unsigned hindex, unsigned hpoint, unsigned vindex,
-                  unsigned vpoint) const;
 
   inline double smoothStepFunc(double x) const;
 

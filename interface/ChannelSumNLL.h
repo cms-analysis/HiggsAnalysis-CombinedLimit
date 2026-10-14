@@ -24,6 +24,7 @@
 #include <RooSetProxy.h>
 #include <RooSimultaneous.h>
 
+class CMSHistBarlowBeestonGradientTerm;
 class RooMultiPdf;
 
 #include <cstddef>
@@ -128,6 +129,10 @@ namespace cacheutils {
     RooAbsPdf &channelPdfForNLL(RooAbsPdf &pdf, std::vector<CategorySync> &syncs);
     void syncCategories() const;
     void replaceClonesByOriginals(RooArgSet &params) const;
+    /// For the "codegen" backend: the channel pdf with a gradient term per
+    /// histogram node, see CMSHistBarlowBeestonGradientTerm. Returns the input
+    /// pdf if there is no histogram node.
+    RooAbsPdf &addBarlowBeestonGradientTerms(RooAbsPdf &pdf, std::vector<RooAbsReal const *> const &hists);
     void updateGradientMaps() const;
     /// Masked by the discrete profiling scan (setMaskNonDiscreteChannels()) or
     /// by the channel mask of the RooSimultaneousOpt.
@@ -172,6 +177,11 @@ namespace cacheutils {
     // original channel pdfs, for the analytic Barlow-Beeston minimization.
     std::vector<std::vector<RooAbsReal const *>> m_channelHists;
     bool m_analyticBarlowBeeston = false;
+    // With an analytic gradient, every histogram node gets a gradient term
+    // (see CMSHistBarlowBeestonGradientTerm) inside the channel pdf, fed from
+    // the original node before each gradient call.
+    std::vector<std::vector<CMSHistBarlowBeestonGradientTerm *>> m_channelGradientTerms;  // owned by their pdfs
+    RooArgSet m_gradientTermVars;  // their inputs, hidden from getParameters()
     std::vector<double> m_zeroPoints;
 
     // All terms as servers, for dirty-state propagation and graph traversal.
