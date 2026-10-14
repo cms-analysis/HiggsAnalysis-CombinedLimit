@@ -38,6 +38,14 @@ namespace cacheutils {
     /// value continuous, so masked and unmasked values compare. `mask = false`
     /// restores all channels.
     virtual void setMaskNonDiscreteChannels(bool mask) = 0;
+
+    /// Profile the Barlow-Beeston bin-by-bin parameters of the CMSHistSum and
+    /// CMSHistErrorPropagator terms analytically. With `flag = true`, the
+    /// floating ones are set constant, so that the minimizer doesn't see them,
+    /// and their best-fit values are computed in closed form and pushed into
+    /// the parameters before every evaluation. With `flag = false`, they are
+    /// floating again.
+    virtual void setAnalyticBarlowBeeston(bool flag) = 0;
   };
 
 }  // namespace cacheutils

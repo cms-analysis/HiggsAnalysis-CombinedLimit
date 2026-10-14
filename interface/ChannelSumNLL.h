@@ -53,6 +53,12 @@ namespace cacheutils {
   /// synchronized with the originals before every evaluation; getParameters()
   /// reports the originals. The per-channel datasets from splitting the input
   /// are owned here, because the terms keep their data by pointer.
+  ///
+  /// setAnalyticBarlowBeeston() works like in CachingSimNLL: the bin-by-bin
+  /// parameters of the histogram nodes of the original channel pdfs are set
+  /// constant and their closed-form best fit is pushed into them before every
+  /// evaluation, which the RooFit likelihoods see like any parameter change,
+  /// because they share the parameters with the originals.
   class ChannelSumNLL : public SimNLLBase {
   public:
     /// \param simPdf     The simultaneous pdf, usually a RooSimultaneousOpt
@@ -100,6 +106,7 @@ namespace cacheutils {
     /// There is no constant zero point in this class, nothing to do.
     void clearConstantZeroPoint() override {}
     void setMaskNonDiscreteChannels(bool mask) override;
+    void setAnalyticBarlowBeeston(bool flag) override;
 
   protected:
     double evaluate() const override;
@@ -121,6 +128,11 @@ namespace cacheutils {
     bool isMasked(std::size_t i) const {
       return i < m_nChannels && !m_internalMasks.empty() && !m_internalMasks[i];
     }
+    /// Hand the observed counts of a channel to its histogram nodes, which the
+    /// analytic Barlow-Beeston minimization needs.
+    void setHistogramData(std::size_t iChannel, RooAbsData const &channelData) const;
+    /// The Barlow-Beeston step before an evaluation, for the active channels.
+    void runAnalyticBarlowBeeston() const;
 
     RooSimultaneous *m_simPdf = nullptr;  // not owned
     RooAbsData *m_data = nullptr;         // not owned, kept for cloning
@@ -148,6 +160,10 @@ namespace cacheutils {
     std::size_t m_nChannels = 0;
     std::vector<RooArgSet> m_channelParams;                            // all parameters of each channel likelihood
     std::vector<std::vector<RooMultiPdf const *>> m_channelMultiPdfs;  // for the penalty terms
+    // The histogram nodes (CMSHistSum or CMSHistErrorPropagator) of the
+    // original channel pdfs, for the analytic Barlow-Beeston minimization.
+    std::vector<std::vector<RooAbsReal const *>> m_channelHists;
+    bool m_analyticBarlowBeeston = false;
     std::vector<double> m_zeroPoints;
 
     // All terms as servers, for dirty-state propagation and graph traversal.

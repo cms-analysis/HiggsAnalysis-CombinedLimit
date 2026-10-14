@@ -341,6 +341,23 @@ COMBINE_ADD_TEST(cmshistsum_vs_cmshistfunc_fitdiagnostics
     COMMAND bash -c "combine -M FitDiagnostics fitdiag_cmshistfunc.root -m 200 -n cmshistfunc --saveShapes --saveWithUncertainties --numToysForShapes 20 && combine -M FitDiagnostics fitdiag_cmshistsum.root -m 200 -n cmshistsum --saveShapes --saveWithUncertainties --numToysForShapes 20 && python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticscmshistfunc.root > shapes_cmshistfunc.txt && python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticscmshistsum.root > shapes_cmshistsum.txt && python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 1e-5 shapes_cmshistfunc.txt shapes_cmshistsum.txt"
     FIXTURES_REQUIRED cmshistsum_vs_cmshistfunc_fitdiagnostics
 )
+# Template analysis with autoMCStats on the RooFit likelihood backends: the
+# analytic minimization of the Barlow-Beeston parameters must give the same
+# result as with the combine backend, also when Hesse floats them again.
+if(ROOT_VERSION VERSION_GREATER_EQUAL 6.30)
+  set(_autoMCStats_fit "combine -M MultiDimFit cmshistsum_autoMCStats.root --algo singles --setParameterRanges r=-5,5")
+  set(_autoMCStats_fitdiag "combine -M FitDiagnostics cmshistsum_autoMCStats.root --rMin -5 --rMax 5")
+  ADD_COMBINE_TEST(cmshistsum_autoMCStats_backends
+    T2W_COMMAND
+      text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o cmshistsum_autoMCStats.root --for-fits --no-wrappers --use-histsum
+    COMBINE_COMMANDS
+      "${_autoMCStats_fit} --nllbackend combine"
+      "${_autoMCStats_fit} --nllbackend cpu"
+      "${_autoMCStats_fitdiag} --nllbackend combine"
+      "${_autoMCStats_fitdiag} --nllbackend cpu"
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+  )
+endif()
 
 # Template-analysis datacard -> text2workspace
 COMBINE_ADD_TEST(template_analysis-text2workspace

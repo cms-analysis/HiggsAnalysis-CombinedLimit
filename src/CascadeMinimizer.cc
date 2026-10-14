@@ -1,6 +1,5 @@
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
-#include "../interface/CachingNLL.h"
 #include "../interface/SimNLLBase.h"
 #include "../interface/Significance.h"
 #include "../interface/CloseCoutSentry.h"
@@ -172,11 +171,11 @@ void CascadeMinimizer::setAutoMax(const RooArgSet *pois)
 
 bool CascadeMinimizer::improve(int verbose, bool cascade, bool forceResetMinimizer) 
 {
-    cacheutils::CachingSimNLL *simnllbb = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
-    if (simnllbb && !runtimedef::get(std::string("MINIMIZER_no_analytic"))) {
-      simnllbb->setAnalyticBarlowBeeston(true);
-      forceResetMinimizer = true;
-    }
+  auto *simnllbb = dynamic_cast<cacheutils::SimNLLBase *>(&nll_);
+  if (simnllbb && !runtimedef::get(std::string("MINIMIZER_no_analytic"))) {
+    simnllbb->setAnalyticBarlowBeeston(/*flag=*/true);
+    forceResetMinimizer = true;
+  }
     if (forceResetMinimizer || !minimizer_.get()) remakeMinimizer();
     minimizer_->setPrintLevel(verbose-1);
    
@@ -333,7 +332,7 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
   RooArgSet frozenSet = freezeDiscParams();
   bool needRemake = !frozenSet.empty();
 
-  auto *simnllbb = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
+  auto *simnllbb = dynamic_cast<cacheutils::SimNLLBase *>(&nll_);
   if (simnllbb && !runtimedef::get(std::string("MINIMIZER_no_analytic"))) {
     // if one of the barlow-beeston params is in "params", we don't actually
     // want to freeze it here. Trick is to set all floating ones constant now,
@@ -385,16 +384,15 @@ bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
 }
 
 bool CascadeMinimizer::hesse(int verbose ) {
-   
-   cacheutils::CachingSimNLL *simnllbb = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
-   if (simnllbb && !runtimedef::get(std::string("MINIMIZER_no_analytic"))) {
-      // Have to reset and minimize again first to get all parameters in
-      remakeMinimizer();
-      float       nominalTol(ROOT::Math::MinimizerOptions::DefaultTolerance());
-      minimizer_->setEps(nominalTol);
-      minimizer_->setStrategy(strategy_);
-      improveOnce(verbose - 1);
-   }
+  auto *simnllbb = dynamic_cast<cacheutils::SimNLLBase *>(&nll_);
+  if (simnllbb && !runtimedef::get(std::string("MINIMIZER_no_analytic"))) {
+    // Have to reset and minimize again first to get all parameters in
+    remakeMinimizer();
+    auto nominalTol = static_cast<float>(ROOT::Math::MinimizerOptions::DefaultTolerance());
+    minimizer_->setEps(nominalTol);
+    minimizer_->setStrategy(strategy_);
+    improveOnce(verbose - 1);
+  }
    if (!minimizer_.get()) remakeMinimizer();
    minimizer_->setPrintLevel(verbose-1); // for debugging
    std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
