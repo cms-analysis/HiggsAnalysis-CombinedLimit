@@ -326,11 +326,14 @@ COMBINE_ADD_TEST(roo_bernstein_fast_schema_evolution
 COMBINE_ADD_TEST(test_interference_py
     COMMAND python3 test_interference.py
     COPY_TO_BUILDDIR ${REPO}/test/test_interference.py
-    # The test output is not deterministic yet, so unfortunately we can't do
-    # the comparison with the reference file for now.
-    # CHECKOUT OUTPUT test_interference_py.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/test_interference_py.out
+    CHECKOUT OUTPUT test_interference_py.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/test_interference_py.out
+    # The output contains the best-fit values of fits to toys, so compare
+    # floating point numbers with a relative tolerance of 1 %.
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
 )
-set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS "python test_interference.py >> references/test_interference_py.out")
+set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
+    "python3 ${REPO}/test/test_interference.py > references/test_interference_py.out"
+)
 
 
 COMBINE_ADD_TEST(simple-counting-experiment-text2workspace
