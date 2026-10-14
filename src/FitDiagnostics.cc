@@ -633,14 +633,13 @@ void FitDiagnostics::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std
       RooArgList plist(sum->funcList());
       if (plist.getSize() == 1) {
          CMSHistErrorPropagator *err = dynamic_cast<CMSHistErrorPropagator*>(plist.at(0));
+         auto *hsum = dynamic_cast<CMSHistSum *>(plist.at(/*idx=*/0));
          if (err) {
            clist.removeAll();
            plist.removeAll();
            clist.add(err->coefList());
            plist.add(err->wrapperList());
-         }
-         CMSHistSum *hsum = dynamic_cast<CMSHistSum*>(plist.at(0));
-         if (hsum) {
+         } else if (hsum) {
            clist.removeAll();
            plist.removeAll();
            clist.add(hsum->coefList());

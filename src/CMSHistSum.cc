@@ -5,6 +5,7 @@
 #include <vector>
 #include <ostream>
 #include <memory>
+#include <string>
 #include "Math/ProbFuncMathCore.h"
 #include "Math/QuantFuncMathCore.h"
 #include "RooRealProxy.h"
@@ -170,8 +171,7 @@ CMSHistSum::CMSHistSum(const char* name,
   // exit(0);
 }
 
-CMSHistSum::CMSHistSum(
-    CMSHistSum const& other, const char* name)
+CMSHistSum::CMSHistSum(CMSHistSum const& other, const char* name)
     : RooAbsReal(other, name),
       x_("x", this, other.x_),
       morphpars_("morphpars", this, other.morphpars_),
@@ -188,14 +188,14 @@ CMSHistSum::CMSHistSum(
       bintypes_(other.bintypes_),
       staging_(other.staging_),
       cache_(other.cache_),
-      sentry_(name ? TString(name) + "_sentry" : TString(other.GetName())+"_sentry", ""),
-      binsentry_(name ? TString(name) + "_binsentry" : TString(other.GetName())+"_binsentry", ""),
+      sentry_(name ? TString(name) + "_sentry" : TString(other.GetName()) + "_sentry", /*title=*/""),
+      binsentry_(name ? TString(name) + "_binsentry" : TString(other.GetName()) + "_binsentry", /*title=*/""),
       initialized_(false),
+      analytic_bb_(false),
       fast_mode_(0),
       external_morphs_("external_morphs", this, other.external_morphs_),
-      external_morph_indices_(other.external_morph_indices_)
-{
-      initialize();
+      external_morph_indices_(other.external_morph_indices_) {
+  initialize();
 }
 
 void CMSHistSum::initialize() const {
@@ -683,9 +683,7 @@ void CMSHistSum::fillProcessShape(unsigned idx, FastHisto& result) const {
 
   // bintypes might have size == 0 if we never ran setupBinPars()
   for (unsigned j = 0; j < bintypes_.size(); ++j) {
-    if (bintypes_[j][0] == 0) {
-      continue;
-    } else if (bintypes_[j][0] == 1) {
+    if (bintypes_[j][0] == 1) {
       // Single Barlow-Beeston parameter: share the total shift between the
       // processes in proportion to their contribution to the squared error
       if (err2sum_[j] > 0. && coeffvals_[idx] > 0.) {
@@ -693,7 +691,8 @@ void CMSHistSum::fillProcessShape(unsigned idx, FastHisto& result) const {
         double e = binerrors_[idx][j];
         result[j] += x * (toterr_[j] * e * e * coeffvals_[idx]) / err2sum_[j];
       }
-    } else if (idx < bintypes_[j].size() && (bintypes_[j][idx] == 2 || bintypes_[j][idx] == 3)) {
+    } else if (bintypes_[j][0] != 0 && idx < bintypes_[j].size() &&
+               (bintypes_[j][idx] == 2 || bintypes_[j][idx] == 3)) {
       result[j] += scaledbinmods_[idx][j];
     }
   }
@@ -703,27 +702,31 @@ RooArgList CMSHistSum::wrapperList() const {
   // Wrappers that already exist, either imported into the workspace by
   // text2workspace or created by a previous call, are clients of this object
   std::vector<RooAbsArg*> wrappers(coeffpars_.getSize(), nullptr);
-  for (RooAbsArg *arg : valueClients()) {
-    CMSHistSumWrapper const* wrapper = dynamic_cast<CMSHistSumWrapper const*>(arg);
+  for (RooAbsArg* arg : valueClients()) {
+    auto const* wrapper = dynamic_cast<CMSHistSumWrapper const*>(arg);
     if (wrapper && wrapper->idx() < wrappers.size() && !wrappers[wrapper->idx()]) {
       wrappers[wrapper->idx()] = arg;
     }
   }
 
+  // The new wrappers are owned by this object, which is why it is modified here
+  auto* self = const_cast<CMSHistSum*>(this);   // NOLINT(cppcoreguidelines-pro-type-const-cast)
+  auto& x = const_cast<RooAbsReal&>(x_.arg());  // NOLINT(cppcoreguidelines-pro-type-const-cast)
   RooArgList result;
-  CMSHistSum* self = const_cast<CMSHistSum*>(this);
   for (int i = 0; i < coeffpars_.getSize(); ++i) {
     RooAbsArg* wrapper = wrappers[i];
     if (!wrapper) {
       RooAbsArg const* coeff = coeffpars_.at(i);
       // Use the index for the name, coefficients are not necessarily unique
       // (e.g. the signals in the background-only model all use "ZERO")
-      TString name = TString::Format("%s_proc%d_wrapper", GetName(), i);
-      wrapper = new CMSHistSumWrapper(name, "", const_cast<RooAbsReal&>(x_.arg()), *self, i);
+      std::string name = std::string(GetName()) + "_proc" + std::to_string(i) + "_wrapper";
+      auto owned = std::make_unique<CMSHistSumWrapper>(name.c_str(), /*title=*/"", x, *self, i);
       for (const char* attr : {"combine.process", "combine.channel"}) {
-        if (coeff->getStringAttribute(attr)) wrapper->setStringAttribute(attr, coeff->getStringAttribute(attr));
+        if (coeff->getStringAttribute(attr))
+          owned->setStringAttribute(attr, coeff->getStringAttribute(attr));
       }
-      self->addOwnedComponents(*wrapper);
+      wrapper = owned.get();
+      self->addOwnedComponents(*owned.release());
     }
     result.add(*wrapper);
   }
