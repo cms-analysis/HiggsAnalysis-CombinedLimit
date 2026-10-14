@@ -473,6 +473,10 @@ file(APPEND "${_outfile}" "PATH=${CMAKE_BINARY_DIR}/bin:$PATH\n")
 file(APPEND "${_outfile}" "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/lib:$LD_LIBRARY_PATH\n")
 file(APPEND "${_outfile}" "PYTHONPATH=${CMAKE_BINARY_DIR}/python:$PYTHONPATH\n\n")
 foreach(cmd IN LISTS all_combine_commands)
+    # Apply the same output filter as COMBINE_ADD_TEST does before comparing
+    # the test output to the reference file.
+    string(REGEX REPLACE " (>>?) (references/[^ ]+)$"
+           " | sh ${CMAKE_CURRENT_SOURCE_DIR}/filter_test_output.sh \\1 \\2" cmd "${cmd}")
     file(APPEND "${_outfile}" "${cmd}\n")
 endforeach()
 message(STATUS "Wrote script to produce test reference files ${_outfile}")
