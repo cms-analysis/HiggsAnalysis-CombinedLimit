@@ -9,6 +9,7 @@
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6, 30, 0)
 
+#include "../interface/CMSHistBarlowBeestonGradientTerm.h"
 #include "../interface/CMSHistHelpers.h"
 #include "../interface/CombineLogger.h"
 #include "../interface/RooMultiPdfCombine.h"
@@ -18,7 +19,9 @@
 
 #include <RooAbsCategoryLValue.h>
 #include <RooCmdArg.h>
+#include <RooConstVar.h>
 #include <RooGlobalFunc.h>
+#include <RooRealSumPdf.h>
 #include <RooUniform.h>
 
 #include <Math/Util.h>
@@ -102,6 +105,7 @@ void cacheutils::ChannelSumNLL::setup(RooAbsData &data) {
     m_datasets = splitData(data);
 
   RooFit::EvalBackend backendArg(m_evalBackend);
+  const bool codegen = backendArg.value() == RooFit::EvalBackend::Value::Codegen;
 
   // The channel masks of a RooSimultaneousOpt are aligned with the bins of
   // the index category, i.e. with the states in insertion order like
@@ -128,17 +132,6 @@ void cacheutils::ChannelSumNLL::setup(RooAbsData &data) {
     if (!channelData) {
       throw std::logic_error("ChannelSumNLL: no data for channel " + label);
     }
-    std::vector<CategorySync> syncs;
-    RooAbsPdf &nllPdf = channelPdfForNLL(*pdf, syncs);
-    std::unique_ptr<RooAbsReal> nll{nllPdf.createNLL(*channelData, backendArg)};
-    if (!nll) {
-      throw std::runtime_error("ChannelSumNLL: failed to create the likelihood of channel " + label);
-    }
-    nll->SetName(subName(*this, label.c_str()).c_str());
-    m_channelNames.push_back(label);
-    m_channelMaskVars.push_back(maskVars ? dynamic_cast<RooAbsReal const *>(maskVars->at(static_cast<int>(iBin)))
-                                         : nullptr);
-    m_categorySyncs.push_back(syncs);
     // The RooMultiPdfs of the original pdf, for the penalty of the original
     // index, and its histogram nodes: they share their parameters with the
     // copies inside the RooFit likelihood, so the Barlow-Beeston step can run
@@ -152,12 +145,28 @@ void cacheutils::ChannelSumNLL::setup(RooAbsData &data) {
       if (isCMSHist(*component))
         hists.push_back(dynamic_cast<RooAbsReal const *>(component));
     }
+    std::vector<CategorySync> syncs;
+    RooAbsPdf *nllPdf = &channelPdfForNLL(*pdf, syncs);
+    m_channelGradientTerms.emplace_back();
+    if (codegen) {
+      nllPdf = &addBarlowBeestonGradientTerms(*nllPdf, hists);
+    }
+    std::unique_ptr<RooAbsReal> nll{nllPdf->createNLL(*channelData, backendArg)};
+    if (!nll) {
+      throw std::runtime_error("ChannelSumNLL: failed to create the likelihood of channel " + label);
+    }
+    nll->SetName(subName(*this, label.c_str()).c_str());
+    m_channelNames.push_back(label);
+    m_channelMaskVars.push_back(maskVars ? dynamic_cast<RooAbsReal const *>(maskVars->at(static_cast<int>(iBin)))
+                                         : nullptr);
+    m_categorySyncs.push_back(syncs);
     m_channelMultiPdfs.push_back(multiPdfs);
     m_channelHists.push_back(hists);
     setHistogramData(m_channelHists.size() - 1, *channelData);
     RooArgSet params;
     nll->getParameters(/*observables=*/nullptr, params, /*stripDisconnected=*/false);
     replaceClonesByOriginals(params);
+    params.remove(m_gradientTermVars, /*silent=*/true);
     m_channelParams.push_back(params);
     m_components.add(*nll);
     m_terms.push_back(std::move(nll));
@@ -231,6 +240,47 @@ RooAbsPdf &cacheutils::ChannelSumNLL::channelPdfForNLL(RooAbsPdf &pdf, std::vect
   clonedPdf->recursiveRedirectServers(*allParams);
   clonedPdf->recursiveRedirectServers(privateCategories);
   return *clonedPdf;
+}
+
+RooAbsPdf &cacheutils::ChannelSumNLL::addBarlowBeestonGradientTerms(RooAbsPdf &pdf,
+                                                                    std::vector<RooAbsReal const *> const &hists) {
+  if (hists.empty())
+    return pdf;
+  // Combine puts the histogram node of a channel directly under an extended
+  // RooRealSumPdf with a unit coefficient. The sum gets a gradient term per
+  // histogram node, with a unit coefficient as well: it adds nothing to the
+  // value and the correction to the normalization integral. The term is fed
+  // from the original node, which has the same name and parameters as the
+  // copy inside the pdf given to RooFit (see channelPdfForNLL()).
+  auto *sumPdf = dynamic_cast<RooRealSumPdf *>(&pdf);
+  if (!sumPdf || sumPdf->funcList().size() != sumPdf->coefList().size()) {
+    throw std::runtime_error(std::string("ChannelSumNLL: the channel pdf ") + pdf.GetName() +
+                             " has histogram nodes with bin-by-bin parameters, but it is not an extended "
+                             "RooRealSumPdf, which the analytic gradient of the Barlow-Beeston minimization needs");
+  }
+  RooArgList funcs(sumPdf->funcList());
+  RooArgList coefs(sumPdf->coefList());
+  std::vector<std::unique_ptr<CMSHistBarlowBeestonGradientTerm>> terms;
+  for (RooAbsReal const *hist : hists) {
+    RooAbsReal const &x = cmsHistVisit(*hist, [](auto const &h) -> RooAbsReal const & { return h.getXVar(); });
+    terms.push_back(std::make_unique<CMSHistBarlowBeestonGradientTerm>(
+        subName(*this, (std::string(hist->GetName()) + "_bbGradient").c_str()).c_str(),
+        "",
+        const_cast<RooAbsReal &>(x),  // NOLINT(cppcoreguidelines-pro-type-const-cast)
+        *hist));
+    m_gradientTermVars.add(terms.back()->slopes());
+    m_gradientTermVars.add(terms.back()->ratios());
+    funcs.add(*terms.back());
+    coefs.add(RooFit::RooConst(1.));
+  }
+  auto newPdf = std::make_unique<RooRealSumPdf>(
+      subName(*this, (std::string(pdf.GetName()) + "_bbGradient").c_str()).c_str(), "", funcs, coefs, /*extended=*/true);
+  for (auto &term : terms) {
+    m_channelGradientTerms.back().push_back(term.get());
+    newPdf->addOwnedComponents(std::move(term));
+  }
+  m_privateChannelPdfs.push_back(std::move(newPdf));
+  return *m_privateChannelPdfs.back();
 }
 
 void cacheutils::ChannelSumNLL::syncCategories() const {
@@ -364,6 +414,7 @@ bool cacheutils::ChannelSumNLL::getParameters(const RooArgSet *observables,
       outputSet.remove(*observables, /*silent=*/true, /*matchByNameOnly=*/true);
     }
   }
+  outputSet.remove(m_gradientTermVars, /*silent=*/true);
   // Same ordering convention as RooAbsArg::getParameters().
   outputSet.sort();
   return false;
@@ -411,8 +462,19 @@ void cacheutils::ChannelSumNLL::gradient(double *out) const {
   syncCategories();
   // The Barlow-Beeston parameters are constant at their conditional minimum,
   // where the derivative of the likelihood with respect to them vanishes, so
-  // the gradient with respect to the other parameters is the full one.
+  // the gradient with respect to the other parameters is the full one. Where
+  // the minimum is not a stationary point but a kink, the gradient terms of
+  // the channel pdfs add the missing piece (CMSHistBarlowBeestonGradientTerm).
   runAnalyticBarlowBeeston();
+  if (m_analyticBarlowBeeston) {
+    for (std::size_t i = 0; i < m_nChannels; ++i) {
+      if (isMasked(i))
+        continue;
+      for (CMSHistBarlowBeestonGradientTerm *term : m_channelGradientTerms[i]) {
+        term->setFromHistogram();
+      }
+    }
+  }
   std::fill_n(out, m_nGradientParams, 0.0);
 
   for (std::size_t i = 0; i < m_terms.size(); ++i) {
@@ -424,6 +486,12 @@ void cacheutils::ChannelSumNLL::gradient(double *out) const {
     for (std::size_t j = 0; j < map.size(); ++j) {
       if (map[j] >= 0)
         out[map[j]] += m_gradientBuffer[j];  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    }
+  }
+  // Outside of gradient calls the terms must not contribute.
+  for (auto const &channelTerms : m_channelGradientTerms) {
+    for (CMSHistBarlowBeestonGradientTerm *term : channelTerms) {
+      term->clearSlopes();
     }
   }
 }

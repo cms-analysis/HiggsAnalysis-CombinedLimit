@@ -61,6 +61,9 @@ public:
 
   void setAnalyticBarlowBeeston(bool flag) const;
 
+  /// See cmsHistBarlowBeestonGradientTerms() in CMSHistHelpers.h.
+  void barlowBeestonGradientTerms(std::vector<double>& slopes, std::vector<double>& ratios) const;
+
   inline FastHisto const& cache() const { return cache_; }
 
   RooArgList const& coefList() const { return coeffpars_; }
@@ -76,6 +79,21 @@ public:
   void fillProcessShape(unsigned idx, FastHisto& result) const;
 
   RooAbsReal const& getXVar() const { return x_.arg(); }
+
+  // Read access to the persistent template data, for the code generation of
+  // the "codegen" evaluation backend.
+  int numProcesses() const { return n_procs_; }
+  int numMorphs() const { return n_morphs_; }
+  RooArgList const& morphList() const { return morphpars_; }
+  RooArgList const& binParList() const { return binpars_; }
+  RooArgList const& externalMorphList() const { return external_morphs_; }
+  std::vector<FastTemplate> const& storage() const { return storage_; }
+  std::vector<int> const& processFields() const { return process_fields_; }
+  std::vector<int> const& vmorphFields() const { return vmorph_fields_; }
+  std::vector<FastTemplate> const& binErrors() const { return binerrors_; }
+  std::vector<CMSHistFunc::VerticalSetting> const& verticalTypes() const { return vtype_; }
+  std::vector<double> const& verticalSmoothRegions() const { return vsmooth_par_; }
+  std::vector<std::vector<unsigned>> const& binTypes() const { return bintypes_; }
 
   static void EnableFastVertical();
   friend class CMSHistV<CMSHistSum>;

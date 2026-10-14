@@ -60,11 +60,17 @@ public:
 
   void setAnalyticBarlowBeeston(bool flag) const;
 
+  /// See cmsHistBarlowBeestonGradientTerms() in CMSHistHelpers.h.
+  void barlowBeestonGradientTerms(std::vector<double>& slopes, std::vector<double>& ratios) const;
+
   inline FastHisto const& cache() const { return cache_; }
 
   RooArgList wrapperList() const;
   RooArgList const& coefList() const { return coeffs_; }
   RooArgList const& funcList() const { return funcs_; }
+  RooArgList const& binParList() const { return binpars_; }
+  std::vector<std::vector<unsigned>> const& binTypes() const { return bintypes_; }
+  RooAbsReal const& getXVar() const { return x_.arg(); }
   
   std::map<std::string, Double_t> getProcessNorms() const;
 

@@ -1,4 +1,5 @@
 #include "../interface/CMSHistSum.h"
+#include "../interface/CMSHistHelpers.h"
 #include "../interface/CMSHistFuncWrapper.h"
 #include "../interface/CMSHistSumWrapper.h"
 #include "../interface/CombineMathFuncs.h"
@@ -436,6 +437,11 @@ void CMSHistSum::runBarlowBeeston() const {
   for (unsigned j = 0; j < n; ++j) {
     if (toterr_[bb_.use[j]] > 0.) bb_.push_res[j]->setVal(bb_.res[j]);
   }
+}
+
+void CMSHistSum::barlowBeestonGradientTerms(std::vector<double>& slopes, std::vector<double>& ratios) const {
+  updateCache();
+  cmsHistBarlowBeestonGradientTerms(bintypes_, valsum_, toterr_, bb_, slopes, ratios);
 }
 
 void CMSHistSum::setAnalyticBarlowBeeston(bool flag) const {
