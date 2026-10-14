@@ -7,24 +7,144 @@ on:
       - completed
 
 permissions:
+  actions: read
   checks: write
   pull-requests: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.workflow_run.pull_requests[0].number || github.event.workflow_run.id }}
-  cancel-in-progress: true
+  # Prevent runs from interfering
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
 
 jobs:
   build:
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
 
     steps:
+      - name: Download review metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: clang-tidy-review
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Identify pull request
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+        run: |
+          PR=$(jq -er '.pr_number | select(. > 0 and . == floor)' \
+            clang-tidy-review-metadata.json)
+
+          # Verify that the artifact belongs to this workflow run's PR.
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" |
+            jq -e \
+              --arg sha "$HEAD_SHA" \
+              --arg branch "$HEAD_BRANCH" \
+              --arg repo "$HEAD_REPO" \
+              '.head.sha == $sha and
+               .head.ref == $branch and
+               .head.repo.full_name == $repo and
+               .state == "open"' > /dev/null
+
+          echo "number=$PR" >> "$GITHUB_OUTPUT"
+
+      - name: Remove previous clang-tidy comments
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ steps.pr.outputs.number }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+
+          # Check that the PR has not changed before cleanup.
+          if ! gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" |
+            jq -e --arg sha "$HEAD_SHA" \
+              '.head.sha == $sha and .state == "open"' > /dev/null; then
+            echo "PR head has changed; skipping cleanup."
+            exit 0
+          fi
+
+          # Find reviews created by clang-tidy-review.
+          reviews=$(
+            gh api --paginate \
+              "repos/$GITHUB_REPOSITORY/pulls/$PR/reviews?per_page=100" |
+              jq -s '[
+                .[][] |
+                select(
+                  .user.login == "github-actions[bot]" and
+                  ((.body // "") | startswith("clang-tidy made some suggestions"))
+                ) |
+                .id
+              ]'
+          )
+
+          # Identify bot comments belonging to those reviews.
+          # Preserve comments that have replies.
+          comments=$(
+            gh api --paginate \
+              "repos/$GITHUB_REPOSITORY/pulls/$PR/comments?per_page=100" |
+              jq -sr --argjson reviews "$reviews" '
+                [.[][] | .in_reply_to_id // empty] as $replied |
+                .[][] |
+                select(.user.login == "github-actions[bot]") |
+                select(
+                  .pull_request_review_id as $rid |
+                  $reviews | index($rid) != null
+                ) |
+                select(
+                  .id as $cid |
+                  $replied | index($cid) == null
+                ) |
+                .id
+              '
+          )
+
+          while IFS= read -r comment; do
+            [[ -n "$comment" ]] || continue
+
+            # Stop deleting if a new commit has arrived.
+            if ! gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" |
+              jq -e --arg sha "$HEAD_SHA" \
+                '.head.sha == $sha and .state == "open"' > /dev/null; then
+              echo "PR head has changed; stopping cleanup."
+              exit 0
+            fi
+
+            echo "Deleting old clang-tidy comment $comment"
+            gh api --method DELETE --silent \
+              "repos/$GITHUB_REPOSITORY/pulls/comments/$comment"
+          done <<< "$comments"
+
+      - name: Recheck pull request head
+        id: head-check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ steps.pr.outputs.number }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          if gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" |
+            jq -e --arg sha "$HEAD_SHA" \
+              '.head.sha == $sha and .state == "open"' > /dev/null; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "current=false" >> "$GITHUB_OUTPUT"
+            echo "PR head has changed; skipping stale review."
+          fi
+
       - name: Post review comments
+        if: steps.head-check.outputs.current == 'true'
         id: post-review
         uses: ZedThree/clang-tidy-review/post@v0.23.1
         with:
-          max_comments: 10
+          max_comments: 25
 
-       # If there are any comments, fail the check
+      # If there are any comments, fail the check.
       - if: steps.post-review.outputs.total_comments > 0
         run: exit 1
