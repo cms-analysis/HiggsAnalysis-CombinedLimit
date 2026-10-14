@@ -58,6 +58,33 @@ void CascadeMinimizer::remakeMinimizer() {
 
   minimizer_.reset();  // avoid two copies in memory
   minimizer_ = std::make_unique<RooMinimizer>(nll_);
+
+  minimizerConstParams_.removeAll();
+  std::unique_ptr<RooArgSet> params{utils::getAllParameters(nll_)};
+  for (RooAbsArg *arg : *params) {
+    if (arg->isConstant() && dynamic_cast<RooRealVar *>(arg))
+      minimizerConstParams_.add(*arg);
+  }
+}
+
+RooFitResult *CascadeMinimizer::save() {
+  // Parameters that were constant when the RooMinimizer was created but are
+  // floating now are not part of the fit. This happens for the Barlow-Beeston
+  // parameters, which improve() keeps constant during the analytic
+  // minimization and releases afterwards. Since ROOT 6.34, RooMinimizer::save()
+  // would put them in the final but not in the initial parameter list of the
+  // RooFitResult, which pairs the two lists by index (and RooFitResult::Print()
+  // crashes). Keep them constant while saving, so that both lists contain the
+  // parameters of the fit and match its covariance matrix.
+  RooArgSet released;
+  for (RooAbsArg *arg : minimizerConstParams_) {
+    if (!arg->isConstant())
+      released.add(*arg);
+  }
+  utils::setAllConstant(released, /*constant=*/true);
+  RooFitResult *res = minimizer().save();
+  utils::setAllConstant(released, /*constant=*/false);
+  return res;
 }
 
 /// Set constant all floating RooRealVar parameters of the given RooMultiPdfs
