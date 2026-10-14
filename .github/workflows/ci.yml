@@ -36,13 +36,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.10"]
-        root: ["6.26.4"]
+        python: ["3.14"]
+        root: ["6.40.04"]
+        boost: ["libboost-devel"]
         include:
-          - python: "3.10"
+          # ROOT 6.26 only solves with the deprecated boost-cpp package
+          - python: "3.11"
+            root: "6.26.10"
+            boost: "boost-cpp"
+          - python: "3.12"
             root: "6.32.2"
+            boost: "libboost-devel"
           - python: "3.12"
             root: "6.34.4"
+            boost: "libboost-devel"
 
     runs-on: ubuntu-latest
     name: Compile (py${{ matrix.python }}, root${{ matrix.root }})
@@ -59,8 +66,11 @@ jobs:
     - name: Install build environment
       shell: bash -l {0}
       run: |
-        # Install dependencies (synchronize with cms-combine-feedstock recipe.yaml)
-        mamba install -c conda-forge cmake python==${{ matrix.python }} pandas gsl root==${{ matrix.root }} boost-cpp eigen
+        # Install dependencies (synchronize with cms-combine-feedstock recipe.yaml).
+        # The cxx-compiler package is needed explicitly: ROOT >= 6.40 no longer
+        # depends on the conda compilers, and the system compiler would not
+        # set an RPATH to $CONDA_PREFIX/lib for the installed combine binary.
+        mamba install -c conda-forge cmake cxx-compiler python==${{ matrix.python }} pandas gsl root==${{ matrix.root }} ${{ matrix.boost }} eigen
     - name: Build
       shell: bash -l {0}
       run: |
