@@ -241,7 +241,6 @@ void CMSHistSum::initialize() const {
   staging_.Clear();
   err2sum_.resize(nb, 0.);
   toterr_.resize(nb, 0.);
-  binmods_.resize(n_procs_, std::vector<double>(nb, 0.));
   scaledbinmods_.resize(n_procs_, std::vector<double>(nb, 0.));
   coeffvals_.resize(n_procs_, 0.);
 
