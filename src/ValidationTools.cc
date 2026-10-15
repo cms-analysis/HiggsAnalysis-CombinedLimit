@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/ValidationTools.h"
+#include <iomanip>
 #include <iostream>
 #include <vector>
 #include <set>
