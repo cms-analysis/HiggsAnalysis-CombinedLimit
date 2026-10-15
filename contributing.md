@@ -109,6 +109,23 @@ Note that this will only affect your *local* copy of the gh-pages documentation.
 Please ensure you use relative paths. Currently, this is the only known feature where the behaviour differs between local mkdocs and public page deployment.
 If you'd like to test the deployment directly, the suggested method is to set up a docs page using your personal github account; this should mimic the exact settings of the official page.
 
+## Using AI Tools
+
+You are welcome to use AI tools, such as large language models (LLMs), when contributing.
+You remain responsible for everything you submit: make sure you understand the changes, and test them as you would test your own code.
+
+If an LLM was used to write or modify a commit, say so at the end of the commit message, with either an `Assisted-by` or a `Co-authored-by` line naming the tool and model, for example:
+
+```
+Assisted-by: Claude Opus 5.5
+```
+
+or
+
+```
+Co-authored-by: Claude Opus 5.5 <noreply@anthropic.com>
+```
+
 ## Github Actions
 
 There are several automated processes defined in the [`.github/workflows`](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/tree/main/.github/workflows) folder which are triggered for every pull request or when a new commit is pushed into the `main` branch.
