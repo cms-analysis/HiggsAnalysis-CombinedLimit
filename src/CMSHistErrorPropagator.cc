@@ -1,6 +1,14 @@
 #include "../interface/CMSHistErrorPropagator.h"
-#include "../interface/CMSHistHelpers.h"
 #include "../interface/CMSHistFuncWrapper.h"
+#include "../interface/CMSHistHelpers.h"
+#if __has_include(<ROOT/RVersion.hxx>)
+#include <ROOT/RVersion.hxx>
+#else
+#include <RVersion.h>
+#endif
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 0)
+#include "RooFit/EvalContext.h"
+#endif
 #include <stdexcept>
 #include <vector>
 #include <ostream>
@@ -464,6 +472,12 @@ Double_t CMSHistErrorPropagator::evaluate() const {
   return cache().GetAt(x_);
 }
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 0)
+void CMSHistErrorPropagator::doEval(RooFit::EvalContext& ctx) const {
+  updateCache(/*eval=*/1);
+  cmsHistFillBatch(ctx, x_, cache());
+}
+#endif
 
 void CMSHistErrorPropagator::printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
                     TString indent) const {

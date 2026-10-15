@@ -1,4 +1,13 @@
 #include "../interface/CMSHistFuncWrapper.h"
+#include "../interface/CMSHistHelpers.h"
+#if __has_include(<ROOT/RVersion.hxx>)
+#include <ROOT/RVersion.hxx>
+#else
+#include <RVersion.h>
+#endif
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 0)
+#include "RooFit/EvalContext.h"
+#endif
 #include <vector>
 #include <ostream>
 #include "RooRealProxy.h"
@@ -76,6 +85,13 @@ Double_t CMSHistFuncWrapper::evaluate() const {
   return cache_.GetAt(x_);
 
 }
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 0)
+void CMSHistFuncWrapper::doEval(RooFit::EvalContext& ctx) const {
+  updateCache();
+  cmsHistFillBatch(ctx, x_, cache_);
+}
+#endif
 
 void CMSHistFuncWrapper::printMultiline(std::ostream& os, Int_t contents,
                                  Bool_t verbose, TString indent) const {

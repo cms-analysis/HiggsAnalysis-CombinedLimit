@@ -3,9 +3,24 @@
 
 #include "CMSHistErrorPropagator.h"
 #include "CMSHistSum.h"
+#include "FastTemplate_Old.h"
 
+#if __has_include(<ROOT/RVersion.hxx>)
+#include <ROOT/RVersion.hxx>
+#else
+#include <RVersion.h>
+#endif
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 0)
+#include "RooFit/EvalContext.h"
+#endif
+#include "RooAbsArg.h"
+#include "RooAbsReal.h"
+#include "RooRealProxy.h"
+
+#include <cstddef>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 /// Whether a node is the histogram node of a template channel: a CMSHistSum or
@@ -63,5 +78,23 @@ void cmsHistBarlowBeestonGradientTerms(std::vector<std::vector<unsigned>> const 
     slopes.push_back(slope);
   }
 }
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 0)
+/// Fills the output of a batched RooFit evaluation (RooAbsReal::doEval) of one
+/// of the CMSHist classes from its histogram cache: for each entry, the content
+/// of the bin that the observable falls into. The observable is a scalar when
+/// it is not read from a dataset, e.g. when the function is evaluated by a
+/// numeric integral. The doEval() overrides serve the RooFit Evaluator ("cpu"
+/// backend and the value of the "codegen" backend before ROOT 6.40); the
+/// fallback RooAbsReal::doEval() would loop over all servers and all bins and
+/// call evaluate() per bin, which costs more than the update of the cache.
+inline void cmsHistFillBatch(RooFit::EvalContext &ctx, RooRealProxy const &x, FastHisto const &hist) {
+  auto xVals = ctx.at(x);
+  auto output = ctx.output();
+  for (std::size_t i = 0; i < output.size(); ++i) {
+    output[i] = hist.GetAt(xVals.size() == 1 ? xVals[0] : xVals[i]);
+  }
+}
+#endif
 
 #endif
