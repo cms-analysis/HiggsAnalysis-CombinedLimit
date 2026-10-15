@@ -328,6 +328,10 @@ COMBINE_ADD_TEST(test_combineharvester_shapes_py
     COMMAND python3 ${REPO}/test/test_combineharvester_shapes.py ${REPO}/data/ci/template-analysis_shapeInterp.txt
     PASSREGEX "All checks passed"
 )
+COMBINE_ADD_TEST(test_combineharvester_gmn_py
+    COMMAND python3 ${REPO}/test/test_combineharvester_gmn.py ${REPO}/data/ci/counting_gmN.txt
+    PASSREGEX "All checks passed"
+)
 COMBINE_ADD_TEST(combineharvester-validate-datacards
     COMMAND ValidateDatacards.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt --jsonFile validation.json
     PASSREGEX "Validation results"

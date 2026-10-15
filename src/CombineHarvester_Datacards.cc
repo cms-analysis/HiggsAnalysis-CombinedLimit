@@ -475,25 +475,31 @@ namespace ch {
         }
       }
 
-      if (start_nuisance_scan && words[i].size() - 1 == words[r].size() &&
+      // Systematic lines have the name, the type and one value per process;
+      // gmN lines also carry the number of control region events after the type
+      bool is_gmN = words[i].size() > 1 && words[i][1] == "gmN";
+      unsigned n_lead = is_gmN ? 3 : 2;
+      if (start_nuisance_scan && words[i].size() == words[r].size() - 1 + n_lead &&
           !boost::iequals(words[i][1], "autoMCStats")) {
-        for (unsigned p = 2; p < words[i].size(); ++p) {
+        int n_events = is_gmN ? boost::lexical_cast<int>(words[i][2]) : 0;
+        for (unsigned p = n_lead; p < words[i].size(); ++p) {
           if (words[i][p] == "-")
             continue;
+          unsigned col = p - n_lead + 1;  // column in the bin, process and rate lines
           auto sys = std::make_shared<Systematic>();
-          sys->set_bin(words[r - 3][p - 1]);
+          sys->set_bin(words[r - 3][col]);
           try {
-            int process_id = boost::lexical_cast<int>(words[r - 2][p - 1]);
+            int process_id = boost::lexical_cast<int>(words[r - 2][col]);
             sys->set_signal(process_id <= 0);
-            sys->set_process(words[r - 1][p - 1]);
+            sys->set_process(words[r - 1][col]);
           } catch (boost::bad_lexical_cast&) {
-            int process_id = boost::lexical_cast<int>(words[r - 1][p - 1]);
+            int process_id = boost::lexical_cast<int>(words[r - 1][col]);
             sys->set_signal(process_id <= 0);
-            sys->set_process(words[r - 2][p - 1]);
+            sys->set_process(words[r - 2][col]);
           }
           sys->set_name(words[i][0]);
           std::string type = words[i][1];
-          if (!contains(std::vector<std::string>{"shape", "shape?", "shapeN", "shapeN2", "shapeU", "lnN", "lnU"},
+          if (!contains(std::vector<std::string>{"shape", "shape?", "shapeN", "shapeN2", "shapeU", "lnN", "lnU", "gmN"},
                         type)) {
             throw std::runtime_error(FNERROR("Systematic type " + type + " not supported"));
           }
@@ -538,10 +544,24 @@ namespace ch {
           if (sys->type() == "shape" || sys->type() == "shapeN" || sys->type() == "shapeN2" || sys->type() == "shapeU")
             sys->set_asymm(true);
 
+          if (sys->type() == "gmN") {
+            if (sys->asymm()) {
+              throw std::runtime_error(FNERROR("Asymmetric values are not allowed for gmN systematics"));
+            }
+            sys->set_n_events(n_events);
+          }
+
           CombineHarvester::CreateParameterIfEmpty(sys->name());
           if (sys->type() == "lnU" || sys->type() == "shapeU") {
             params_.at(sys->name())->set_err_d(0.);
             params_.at(sys->name())->set_err_u(0.);
+          }
+          if (sys->type() == "gmN") {
+            // The parameter is the expected number of control region events,
+            // with its Poisson uncertainty
+            params_.at(sys->name())->set_val(n_events);
+            params_.at(sys->name())->set_err_d(-std::sqrt(n_events));
+            params_.at(sys->name())->set_err_u(std::sqrt(n_events));
           }
           systs_.push_back(sys);
         }
@@ -1055,6 +1075,8 @@ namespace ch {
       bool seen_shapeN = false;
       bool seen_shapeN2 = false;
       bool seen_shapeU = false;
+      bool seen_gmN = false;
+      int gmN_events = 0;
       if (param_set.count(sys))
         continue;
       for (unsigned p = 0; p < procs_.size(); ++p) {
@@ -1072,6 +1094,16 @@ namespace ch {
               seen_lnU = true;
             line[p + 2] = ptr->asymm() ? (format("%g/%g") % ptr->value_d() % ptr->value_u()).str()
                                        : (format("%g") % ptr->value_u()).str();
+            break;
+          }
+          if (tp == "gmN") {
+            if (seen_gmN && ptr->n_events() != gmN_events) {
+              throw std::runtime_error(
+                  FNERROR("Systematic " + sys + " has gmN entries with different numbers of control region events"));
+            }
+            seen_gmN = true;
+            gmN_events = ptr->n_events();
+            line[p + 2] = (format("%g") % ptr->value_u()).str();
             break;
           }
           if (tp == "shape" || tp == "shapeN" || tp == "shapeN2" || tp == "shapeU") {
@@ -1108,7 +1140,12 @@ namespace ch {
           }
         }
       }
-      if (seen_shapeN2) {
+      if (seen_gmN) {
+        if (seen_lnN || seen_lnU || seen_shape || seen_shapeN || seen_shapeN2 || seen_shapeU) {
+          throw std::runtime_error(FNERROR("Systematic " + sys + " mixes gmN with other systematic types"));
+        }
+        line[1] = (format("gmN %i") % gmN_events).str();
+      } else if (seen_shapeN2) {
         line[1] = "shapeN2";
       } else if (seen_shapeN) {
         line[1] = "shapeN";

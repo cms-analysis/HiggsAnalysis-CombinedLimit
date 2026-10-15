@@ -36,6 +36,10 @@ namespace ch {
     void set_asymm(bool const& asymm) { asymm_ = asymm; }
     bool asymm() const { return asymm_; }
 
+    // Number of events observed in the control region of a gmN systematic
+    void set_n_events(int const& n_events) { n_events_ = n_events; }
+    int n_events() const { return n_events_; }
+
     TH1 const* shape_u() const { return shape_u_.get(); }
 
     std::unique_ptr<TH1> ClonedShapeU() const;
@@ -78,6 +82,7 @@ namespace ch {
     double value_d_;
     double scale_;
     bool asymm_;
+    int n_events_;
     std::unique_ptr<TH1> shape_u_;
     std::unique_ptr<TH1> shape_d_;
     RooAbsReal* pdf_u_;

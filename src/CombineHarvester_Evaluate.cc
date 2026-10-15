@@ -27,6 +27,13 @@
 // #include "Utilities/interface/FnPredicates.h"
 // #include "Math/QuantFuncMathCore.h"
 
+namespace {
+  // Rate factor of a gmN systematic: the datacard rate alpha*N scales with the
+  // parameter x, the expected number of control region events. For N = 0 the
+  // rate is left as given in the datacard.
+  double gmNFactor(ch::Systematic const& sys, double x) { return sys.n_events() > 0 ? x / sys.n_events() : 1.0; }
+}  // namespace
+
 namespace ch {
 
   CombineHarvester::ProcSystMap CombineHarvester::GenerateProcSystMap() {
@@ -389,6 +396,8 @@ namespace ch {
         double x = params_[sys_it->name()]->val();
         if (sys_it->asymm()) {
           p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(), sys_it->value_u());
+        } else if (sys_it->type() == "gmN") {
+          p_rate *= gmNFactor(*sys_it, x);
         } else {
           p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
         }
@@ -442,6 +451,8 @@ namespace ch {
                 }
               }
             }
+          } else if (sys_it->type() == "gmN") {
+            p_rate *= gmNFactor(*sys_it, x);
           } else {
             p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
           }
@@ -488,6 +499,8 @@ namespace ch {
           double x = params_[sys_it->name()]->val();
           if (sys_it->asymm()) {
             p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(), sys_it->value_u());
+          } else if (sys_it->type() == "gmN") {
+            p_rate *= gmNFactor(*sys_it, x);
           } else {
             p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
           }
@@ -552,6 +565,8 @@ namespace ch {
                 }
               }
             }
+          } else if (sys_it->type() == "gmN") {
+            p_rate *= gmNFactor(*sys_it, x);
           } else {
             p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
           }
@@ -636,6 +651,8 @@ namespace ch {
           double x = params_[sys_it->name()]->val();
           if (sys_it->asymm()) {
             p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(), sys_it->value_u());
+          } else if (sys_it->type() == "gmN") {
+            p_rate *= gmNFactor(*sys_it, x);
           } else {
             p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
           }

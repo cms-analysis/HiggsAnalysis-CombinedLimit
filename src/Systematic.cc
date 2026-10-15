@@ -9,6 +9,8 @@ namespace {
     std::string value_fmt;
     if (val.asymm()) {
       value_fmt = (boost::format("%.4g/%.4g") % val.value_d() % val.value_u()).str();
+    } else if (val.type() == "gmN") {
+      value_fmt = (boost::format("%i %.4g") % val.n_events() % val.value_u()).str();
     } else {
       value_fmt = (boost::format("%.4g") % val.value_u()).str();
     }
@@ -32,6 +34,7 @@ namespace ch {
         value_d_(0.0),
         scale_(1.0),
         asymm_(false),
+        n_events_(0),
         shape_u_(),
         shape_d_(),
         pdf_u_(nullptr),
@@ -63,6 +66,7 @@ namespace ch {
     swap(first.value_d_, second.value_d_);
     swap(first.scale_, second.scale_);
     swap(first.asymm_, second.asymm_);
+    swap(first.n_events_, second.n_events_);
     swap(first.shape_u_, second.shape_u_);
     swap(first.shape_d_, second.shape_d_);
     swap(first.pdf_u_, second.pdf_u_);
@@ -79,6 +83,7 @@ namespace ch {
         value_d_(other.value_d_),
         scale_(other.scale_),
         asymm_(other.asymm_),
+        n_events_(other.n_events_),
         pdf_u_(other.pdf_u_),
         pdf_d_(other.pdf_d_),
         data_u_(other.data_u_),
@@ -105,6 +110,7 @@ namespace ch {
         value_d_(0.0),
         scale_(1.0),
         asymm_(false),
+        n_events_(0),
         shape_u_(),
         shape_d_(),
         pdf_u_(nullptr),
