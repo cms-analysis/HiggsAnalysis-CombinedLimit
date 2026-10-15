@@ -18,7 +18,7 @@ Set Default Value of Parameter mask_ch2 To : 1
 >>> 1 out of 2 channels masked
 
 Doing initial fit: 
-Created nll_model_s_data_obs with 2 channels and 37 constraint terms, RooFit backend "cpu", analytic gradient: no
+Created nll_model_s_data_obs with 2 channels and 37 constraint terms (37 in closed form), RooFit backend "cpu", analytic gradient: no
 
  --- MultiDimFit ---
 best fit parameter values and profile-likelihood uncertainties: 

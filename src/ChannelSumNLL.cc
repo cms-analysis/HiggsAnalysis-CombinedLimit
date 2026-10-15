@@ -15,12 +15,15 @@
 #include "../interface/RooMultiPdfCombine.h"
 #include "../interface/RooSimultaneousOpt.h"
 #include "../interface/SimNLLBase.h"
+#include "../interface/SimpleGaussianConstraint.h"
+#include "../interface/SimplePoissonConstraint.h"
 #include "../interface/utils.h"
 
 #include <RooAbsCategoryLValue.h>
 #include <RooCmdArg.h>
 #include <RooConstVar.h>
 #include <RooGlobalFunc.h>
+#include <RooPoisson.h>
 #include <RooRealSumPdf.h>
 #include <RooUniform.h>
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6, 40, 0)
@@ -28,16 +31,21 @@
 #endif
 
 #include <Math/Util.h>
+#include <TMath.h>
 #if ROOT_VERSION_CODE < ROOT_VERSION(6, 37, 0)
 #include <TList.h>
 #include <TObject.h>
 #endif
 
 #include <algorithm>
+#include <array>
+#include <cmath>
 #include <cstddef>
+#include <limits>
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <typeinfo>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -195,10 +203,17 @@ void cacheutils::ChannelSumNLL::setup(RooAbsData &data) {
   }
   m_nChannels = m_terms.size();
 
-  // The constraint terms get a likelihood of their own, see the class comment.
-  // Passing the constraint pdfs explicitly also covers constraints on parameters
-  // outside of the "constrain" set (e.g. the "constr" directive).
-  if (!m_constraints.empty()) {
+  // The simple constraint terms are summed in closed form, the others get a
+  // likelihood of their own, see the class comment. Passing the constraint
+  // pdfs explicitly also covers constraints on parameters outside of the
+  // "constrain" set (e.g. the "constr" directive).
+  RooArgSet rooFitConstraints;
+  for (RooAbsArg const *arg : m_constraints) {
+    auto const &pdf = dynamic_cast<RooAbsPdf const &>(*arg);
+    if (!addFastConstraint(pdf))
+      rooFitConstraints.add(pdf);
+  }
+  if (!rooFitConstraints.empty()) {
     m_constraintDummyObs =
         std::make_unique<RooRealVar>(subName(*this, /*suffix=*/"constraintDummyObs").c_str(), "", 0.5, 0., 1.);
     m_constraintPdf =
@@ -208,7 +223,7 @@ void cacheutils::ChannelSumNLL::setup(RooAbsData &data) {
     m_constraintData->add(RooArgSet(*m_constraintDummyObs));
     RooCmdArg constrainArg = m_hasConstrain ? RooFit::Constrain(m_constrain) : RooCmdArg::none();
     std::unique_ptr<RooAbsReal> nll{m_constraintPdf->createNLL(
-        *m_constraintData, backendArg, RooFit::ExternalConstraints(RooArgSet(m_constraints)), constrainArg)};
+        *m_constraintData, backendArg, RooFit::ExternalConstraints(rooFitConstraints), constrainArg)};
     if (!nll) {
       throw std::runtime_error("ChannelSumNLL: failed to create the likelihood of the constraint terms");
     }
@@ -227,8 +242,9 @@ void cacheutils::ChannelSumNLL::setup(RooAbsData &data) {
   CombineLogger::instance().log("ChannelSumNLL.cc",
                                 __LINE__,
                                 "Created " + std::string(GetName()) + " with " + std::to_string(m_nChannels) +
-                                    " channels and " + std::to_string(m_constraints.size()) +
-                                    " constraint terms, RooFit backend \"" + m_evalBackend +
+                                    " channels and " + std::to_string(m_constraints.size()) + " constraint terms (" +
+                                    std::to_string(m_fastConstraintPdfs.size()) +
+                                    " in closed form), RooFit backend \"" + m_evalBackend +
                                     "\", analytic gradient: " + (m_hasGradient ? "yes" : "no"),
                                 __func__);
 
@@ -415,6 +431,7 @@ double cacheutils::ChannelSumNLL::evaluate() const {
       }
     }
   }
+  sum += fastConstraintsValue() - m_fastConstraintZeroPoint;
   sum += m_maskingOffset - m_maskingOffsetZero;
   return sum.Sum();
 }
@@ -430,6 +447,11 @@ bool cacheutils::ChannelSumNLL::getParameters(const RooArgSet *observables,
       term->getParameters(observables, termParams, stripDisconnected);
       replaceClonesByOriginals(termParams);
       outputSet.add(termParams, /*silent=*/true);
+    }
+    for (RooAbsPdf const *pdf : m_fastConstraintPdfs) {
+      RooArgSet pdfParams;
+      pdf->getParameters(observables, pdfParams, stripDisconnected);
+      outputSet.add(pdfParams, /*silent=*/true);
     }
   } else {
     // Only the parameters of active channels: those of masked channels and of the
@@ -475,7 +497,129 @@ void cacheutils::ChannelSumNLL::updateGradientMaps() const {
     }
     m_gradientMaps.push_back(std::move(map));
   }
+  auto indexOf = [&indexByName](RooAbsArg const *arg) -> int {
+    if (!arg)
+      return -1;
+    auto found = indexByName.find(arg->GetName());
+    return found == indexByName.end() ? -1 : found->second;
+  };
+  m_gaussianGradientIndices.clear();
+  for (GaussianConstraint const &c : m_gaussianConstraints) {
+    m_gaussianGradientIndices.push_back(
+        {indexOf(c.x), indexOf(c.mean), indexOf(dynamic_cast<RooRealVar const *>(c.sigma))});
+  }
+  m_poissonGradientIndices.clear();
+  for (PoissonConstraint const &c : m_poissonConstraints) {
+    m_poissonGradientIndices.push_back(indexOf(c.mean));
+  }
   m_gradientMapsDirty = false;
+}
+
+bool cacheutils::ChannelSumNLL::addFastConstraint(RooAbsPdf const &pdf) {
+  if (typeid(pdf) == typeid(SimpleGaussianConstraint)) {
+    // Self-normalized, so RooFit doesn't normalize it either.
+    auto const &gauss = dynamic_cast<SimpleGaussianConstraint const &>(pdf);
+    auto const *x = dynamic_cast<RooRealVar const *>(&gauss.getX());
+    auto const *mean = dynamic_cast<RooRealVar const *>(&gauss.getMean());
+    if (!x || !mean)
+      return false;
+    m_gaussianConstraints.push_back({x, mean, &gauss.getSigma()});
+  } else if (typeid(pdf) == typeid(RooPoisson) || typeid(pdf) == typeid(SimplePoissonConstraint)) {
+    auto const &pois = dynamic_cast<RooPoisson const &>(pdf);
+    auto const *mean = dynamic_cast<RooRealVar const *>(&pois.getMean());
+    RooAbsReal const &count = pois.getX();
+    bool const countIsVar = dynamic_cast<RooRealVar const *>(&count) || dynamic_cast<RooConstVar const *>(&count);
+    if (!mean || !countIsVar || !count.isConstant())
+      return false;
+    // RooFit normalizes a constraint over the constrained parameters among its
+    // variables. A count in that set would mean a numeric normalization: leave
+    // that to RooFit.
+    if (m_hasConstrain && m_constrain.find(count))
+      return false;
+    bool const normalized = m_hasConstrain && m_constrain.find(*mean);
+    m_poissonConstraints.push_back({&pois, &count, mean, normalized});
+  } else {
+    return false;
+  }
+  m_fastConstraintPdfs.push_back(&pdf);
+  m_components.add(pdf);
+  return true;
+}
+
+double cacheutils::ChannelSumNLL::fastConstraintsValue() const {
+  ROOT::Math::KahanSum<double> sum;
+  for (GaussianConstraint const &c : m_gaussianConstraints) {
+    double const pull = (c.x->getVal() - c.mean->getVal()) / c.sigma->getVal();
+    sum += 0.5 * pull * pull;
+  }
+  for (PoissonConstraint const &c : m_poissonConstraints) {
+    sum += poissonConstraintValue(c);
+  }
+  return sum.Sum();
+}
+
+/// Minus the logarithm of the RooPoisson value, computed like RooFit does but
+/// without the exp/log round trip.
+double cacheutils::ChannelSumNLL::poissonConstraintValue(PoissonConstraint const &c) {
+  RooPoisson const &pois = *c.pdf;
+  double const k = pois.getNoRounding() ? c.count->getVal() : std::floor(c.count->getVal());
+  double const mu = c.mean->getVal();
+  double value = 0.;
+  if (mu < 0.) {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 36, 0)
+    bool const protectNegative = pois.getProtectNegativeMean();
+#else
+    bool const protectNegative = true;  // the RooPoisson default, the getter only exists since ROOT 6.36
+#endif
+    value = protectNegative ? -std::log(1e-3) : std::numeric_limits<double>::quiet_NaN();
+  } else if (k < 0.) {
+    value = std::numeric_limits<double>::infinity();
+  } else if (k == 0.) {
+    value = mu;
+  } else {
+    value = mu + TMath::LnGamma(k + 1.) - (k * std::log(mu));
+  }
+  if (c.normalized) {
+    if (mu < 0.) {
+      // Depends on the mean in this case (RooFit's protection against negative means).
+      return value + std::log(pois.analyticalIntegral(/*code=*/2));
+    }
+    if (!c.normValid || c.normCount != k || c.normMin != c.mean->getMin() || c.normMax != c.mean->getMax()) {
+      c.normCount = k;
+      c.normMin = c.mean->getMin();
+      c.normMax = c.mean->getMax();
+      c.logNorm = std::log(pois.analyticalIntegral(/*code=*/2));
+      c.normValid = true;
+    }
+    value += c.logNorm;
+  }
+  return value;
+}
+
+void cacheutils::ChannelSumNLL::fastConstraintsGradient(double *out) const {
+  // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+  for (std::size_t i = 0; i < m_gaussianConstraints.size(); ++i) {
+    GaussianConstraint const &c = m_gaussianConstraints[i];
+    std::array<int, 3> const &idx = m_gaussianGradientIndices[i];
+    double const sigma = c.sigma->getVal();
+    double const pull = (c.x->getVal() - c.mean->getVal()) / sigma;
+    if (idx[0] >= 0)
+      out[idx[0]] += pull / sigma;
+    if (idx[1] >= 0)
+      out[idx[1]] -= pull / sigma;
+    if (idx[2] >= 0)
+      out[idx[2]] -= pull * pull / sigma;
+  }
+  for (std::size_t i = 0; i < m_poissonConstraints.size(); ++i) {
+    int const idx = m_poissonGradientIndices[i];
+    PoissonConstraint const &c = m_poissonConstraints[i];
+    double const mu = c.mean->getVal();
+    if (idx < 0 || mu <= 0.)
+      continue;
+    double const k = c.pdf->getNoRounding() ? c.count->getVal() : std::floor(c.count->getVal());
+    out[idx] += 1. - (k / mu);
+  }
+  // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 }
 
 void cacheutils::ChannelSumNLL::gradient(double *out) const {
@@ -513,6 +657,7 @@ void cacheutils::ChannelSumNLL::gradient(double *out) const {
         out[map[j]] += m_gradientBuffer[j];  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
   }
+  fastConstraintsGradient(out);
   // Outside of gradient calls the terms must not contribute.
   for (auto const &channelTerms : m_channelGradientTerms) {
     for (CMSHistBarlowBeestonGradientTerm *term : channelTerms) {
@@ -527,12 +672,14 @@ void cacheutils::ChannelSumNLL::setZeroPoint() {
   for (std::size_t i = 0; i < m_terms.size(); ++i) {
     m_zeroPoints[i] = m_terms[i]->getVal();
   }
+  m_fastConstraintZeroPoint = fastConstraintsValue();
   m_maskingOffsetZero = m_maskingOffset;
   setValueDirty();
 }
 
 void cacheutils::ChannelSumNLL::clearZeroPoint() {
   m_zeroPoints.assign(m_zeroPoints.size(), 0.0);
+  m_fastConstraintZeroPoint = 0;
   m_maskingOffsetZero = 0;
   setValueDirty();
 }
