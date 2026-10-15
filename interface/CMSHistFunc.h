@@ -3,6 +3,11 @@
 #include <ostream>
 #include <vector>
 #include <memory>
+#if __has_include(<ROOT/RVersion.hxx>)
+#include <ROOT/RVersion.hxx>
+#else
+#include <RVersion.h>
+#endif
 #include "RooAbsReal.h"
 #include "RooArgSet.h"
 #include "RooListProxy.h"
@@ -16,6 +21,10 @@
 #include "FastTemplate_Old.h"
 #include "SimpleCacheSentry.h"
 #include "CMSExternalMorph.h"
+
+namespace RooFit {
+class EvalContext;
+}
 
 class CMSHistFuncWrapper;
 
@@ -100,6 +109,9 @@ class CMSHistFunc : public RooAbsReal {
                 unsigned vpoint, TH1 const& hist);
 
   Double_t evaluate() const override;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 0)
+  void doEval(RooFit::EvalContext &ctx) const override;
+#endif
 
   void updateCache() const;
 
