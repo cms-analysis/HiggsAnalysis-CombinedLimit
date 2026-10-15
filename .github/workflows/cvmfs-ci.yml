@@ -42,6 +42,8 @@ jobs:
             LCG_ARCH: "x86_64-ubuntu2404-gcc13-opt"
             ROOT: "6.36.02"
             coverage: true
+            # Regular expression for tests that are not run with this release
+            CTEST_EXCLUDE: "cmshistsum_vs_cmshistfunc_fitdiagnostics"
           - LCG_RELEASE: "LCG_110"
             LCG_ARCH: "x86_64-ubuntu2404-gcc13-opt"
             ROOT: "6.40.02"
@@ -149,10 +151,11 @@ jobs:
         env:
           LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
           LCG_ARCH: ${{ matrix.LCG_ARCH }}
+          CTEST_EXCLUDE: ${{ matrix.CTEST_EXCLUDE }}
         run: >-
           source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
           ulimit -s unlimited;
-          ctest --test-dir build/test --output-on-failure -j$(nproc);
+          ctest --test-dir build/test --output-on-failure -j$(nproc) ${CTEST_EXCLUDE:+-E "$CTEST_EXCLUDE"};
 
       # AlmaLinux 9 job
       - uses: ./.github/actions/run-in-cvmfs
