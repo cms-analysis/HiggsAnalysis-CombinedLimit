@@ -23,6 +23,9 @@
 #include <RooGlobalFunc.h>
 #include <RooRealSumPdf.h>
 #include <RooUniform.h>
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 40, 0)
+#include <RooEvaluatorWrapper.h>
+#endif
 
 #include <Math/Util.h>
 #if ROOT_VERSION_CODE < ROOT_VERSION(6, 37, 0)
@@ -41,6 +44,22 @@
 
 static std::string subName(RooAbsArg const &owner, const char *suffix) {
   return std::string(owner.GetName()) + "_" + suffix;
+}
+
+// The "codegen" backend of RooFit evaluates the likelihood value with the
+// Evaluator like the "cpu" backend and uses the generated code only for the
+// gradient. The generated function is much cheaper to call, in particular in
+// the phases where the minimizer evaluates the function many times with a
+// single parameter changed (numerical seed, line searches), so the value is
+// taken from the generated code as well where RooFit allows it.
+static void useGeneratedFunctionCode(RooAbsReal &nll) {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 40, 0)
+  if (auto *wrapper = dynamic_cast<RooFit::Experimental::RooEvaluatorWrapper *>(&nll)) {
+    wrapper->setUseGeneratedFunctionCode(true);
+  }
+#else
+  (void)nll;
+#endif
 }
 
 /// The dataset named like the channel, or nullptr if there is none.
@@ -156,6 +175,9 @@ void cacheutils::ChannelSumNLL::setup(RooAbsData &data) {
       throw std::runtime_error("ChannelSumNLL: failed to create the likelihood of channel " + label);
     }
     nll->SetName(subName(*this, label.c_str()).c_str());
+    if (codegen) {
+      useGeneratedFunctionCode(*nll);
+    }
     m_channelNames.push_back(label);
     m_channelMaskVars.push_back(maskVars ? dynamic_cast<RooAbsReal const *>(maskVars->at(static_cast<int>(iBin)))
                                          : nullptr);
@@ -191,6 +213,9 @@ void cacheutils::ChannelSumNLL::setup(RooAbsData &data) {
       throw std::runtime_error("ChannelSumNLL: failed to create the likelihood of the constraint terms");
     }
     nll->SetName(subName(*this, /*suffix=*/"constraints").c_str());
+    if (codegen) {
+      useGeneratedFunctionCode(*nll);
+    }
     m_components.add(*nll);
     m_terms.push_back(std::move(nll));
   }
