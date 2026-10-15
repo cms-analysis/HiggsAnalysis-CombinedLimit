@@ -36,6 +36,7 @@ message (STATUS "Python module installed to   : " ${CMAKE_INSTALL_PYTHONDIR})
 
 find_package(ROOT REQUIRED COMPONENTS MathMore RooFitCore RooFit RooStats HistFactory)
 find_package(Eigen3 REQUIRED)
+find_package(nlohmann_json REQUIRED)
 if(USE_VDT)
   find_package(Vdt REQUIRED)
 endif()
@@ -85,7 +86,7 @@ ROOT_GENERATE_DICTIONARY(G__${LIBNAME} HiggsAnalysis/CombinedLimit/src/classes.h
 
 add_library(${LIBNAME} SHARED ${SOURCES} G__${LIBNAME}.cxx)
 set_target_properties(${LIBNAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
-target_link_libraries (${LIBNAME} Eigen3::Eigen ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries (${LIBNAME} Eigen3::Eigen nlohmann_json::nlohmann_json ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
 
 
 if(NOT USE_VDT)

@@ -6,6 +6,7 @@
 <use name="libxml2"/>
 <use name="vdt"/>
 <use name="eigen"/>
+<use name="json"/>
 <lib name="Smatrix"/>
 <use   name="boost_program_options"/>
 <use   name="boost_filesystem"/>

@@ -17,7 +17,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Systematic.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Process.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Logging.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/json.hpp"
+#include <nlohmann/json.hpp>
 
 namespace ch {
   class CombineHarvester;
