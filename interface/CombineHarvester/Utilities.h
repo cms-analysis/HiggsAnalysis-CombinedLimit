@@ -26,7 +26,7 @@ namespace ch {
   RooArgSet ParametersByName(RooAbsReal const* pdf, RooArgSet const* dat_vars);
 
   // ---------------------------------------------------------------------------
-  // Paramter extraction/manipulation
+  // Parameter extraction/manipulation
   // ---------------------------------------------------------------------------
   std::vector<ch::Parameter> ExtractFitParameters(RooFitResult const& res);
   std::vector<ch::Parameter> ExtractSampledFitParameters(RooFitResult const& res);
@@ -117,14 +117,14 @@ namespace ch {
  *     m1-m2:r1,m3,m4,m5-m6:r2,...
  *
  * where mi and ri must both be positive. A term like mi-mj:r (where mi must
- * be < mj) genrates masses starting at mi and increasing by an interval r up
+ * be < mj) generates masses starting at mi and increasing by an interval r up
  * to mj.
  *
  * This function returns a vector of ordered mass values converted to strings.
  *
  * \note Use the function ch::ValsFromRange if you need to include negative
  * numbers - this uses a different syntax for the ranges so doesn't suffer
- * from the amiguity of the `-` sign
+ * from the ambiguity of the `-` sign
  *
  * @param input The input string to decode
  * @param fmt The format specifier for converting floating-point mass values
@@ -141,7 +141,7 @@ namespace ch {
  *     m1:m2|r1,m3,m4,m5:m6|r2,...
  *
  * where mi and ri can be positive or negative. A term like mi-mj:r (where mi
- * must be < mj) genrates values starting at mi and increasing by an interval
+ * must be < mj) generates values starting at mi and increasing by an interval
  * r up to mj.
  *
  * This function returns a vector of ordered values converted to strings.

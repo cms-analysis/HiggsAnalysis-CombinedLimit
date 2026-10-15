@@ -7,7 +7,7 @@
 /**
  * Sets the semi-official CMS plotting global style
  *
- * This is copied verbatim from the latest guidlines
+ * This is copied verbatim from the latest guidelines
  * [here](https://ghm.web.cern.ch/ghm/plots/). You should call this function
  * at the start of your macro/program. But note, the function ModTDRStyle()
  * might be more useful - this will call SetTDRStyle() first then adjust a few

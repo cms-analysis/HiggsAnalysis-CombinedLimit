@@ -473,7 +473,7 @@ namespace ch {
       }
 
       // Post-condition #4
-      // Import any paramters of the RooAbsPdf and the RooRealVar
+      // Import any parameters of the RooAbsPdf and the RooRealVar
       RooAbsData const* data_obj = FindMatchingData(entry);
       bool twoD_flag = false;
       if (data_obj) {
@@ -647,7 +647,7 @@ namespace ch {
     }
     // If we get this far then we didn't find a valid mapping
     FNLOG(log()) << "Searching for mapping for (" << bin << "," << process << ")\n";
-    FNLOG(log()) << "Avaiable mappings:\n";
+    FNLOG(log()) << "Available mappings:\n";
     for (auto const& m : mappings) {
       FNLOG(log()) << m << "\n";
     }
@@ -810,7 +810,7 @@ namespace ch {
     } else {
       param = params_.at(name).get();
     }
-    // If the RooRealVar in the workpsace isn't in the list, add it
+    // If the RooRealVar in the workspace isn't in the list, add it
     bool var_in_par = false;
     for (auto const& ptr : param->vars()) {
       if (ptr == var) {

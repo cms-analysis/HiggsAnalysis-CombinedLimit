@@ -37,7 +37,7 @@ namespace ch {
   }
 
   // ---------------------------------------------------------------------------
-  // Paramter extraction/manipulation
+  // Parameter extraction/manipulation
   // ---------------------------------------------------------------------------
   std::vector<ch::Parameter> ExtractFitParameters(RooFitResult const& res) {
     std::vector<ch::Parameter> params;

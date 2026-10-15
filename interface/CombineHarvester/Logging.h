@@ -31,7 +31,7 @@ namespace ch {
 
   /**
  * \brief Generates an error message which includes the name of the calling
- * function and the filename and line number where the error occured
+ * function and the filename and line number where the error occurred
  * \details Should be used via the macro FNERROR which calls this function and
  * inserts the file, line and fn arguments automatically.
  */
@@ -72,7 +72,7 @@ namespace ch {
  * Determine the total amount of time spent in a function
  *
  * An FnTimer instance should typically be declared as a static variable at
- * the beginning of a function, follwed by a call to the Inc() method, which
+ * the beginning of a function, followed by a call to the Inc() method, which
  * will increment the counter. The Inc() method also returns an FnTimer::Token
  * object that records the time at which it is constructed and then destroyed,
  * the latter occurring automatically at the end of the function. At the end

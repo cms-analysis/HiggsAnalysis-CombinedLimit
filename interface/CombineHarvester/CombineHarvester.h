@@ -33,7 +33,7 @@ namespace ch {
    * \name Constructors, destructors and copying
    *
    * \details Distinct shallow and deep copying methods are provided. A deep
-   * copy creates a completely independent CombineHarvester instace: all
+   * copy creates a completely independent CombineHarvester instance: all
    * Observation, Process, Systematic and Parameter objects are cloned, as
    * well as any histogram objects they may contain and any attached
    * RooWorkspaces. In a shallow copy these objects are shared with the
@@ -74,7 +74,7 @@ namespace ch {
     CombineHarvester cp();
 
     /**
-   * Creates and retunrs a deep copy of the CombineHarvester instance
+   * Creates and returns a deep copy of the CombineHarvester instance
    *
    * Unlike the shallow copy, a deep copy will duplicate every internal
    * object, including any attached RooWorkspaces. This makes it completely
@@ -380,7 +380,7 @@ namespace ch {
    *    Observation and ch::Process entries. The rate entries will default to
    *    zero at this stage, and are determined automatically in step 3.
    * 2. The AddSyst method will iterate through each Process and add a
-   *    matching Systematic entry, with the name, type and value specfied in
+   *    matching Systematic entry, with the name, type and value specified in
    *    the method arguments. This method can be used at the end of a chain of
    *    filters to only create Systematic objects for a subset of processes.
    * 3. The method CombineHarvester::ExtractShapes opens a specified ROOT file

@@ -158,7 +158,7 @@ TH2 *treeToHist2D(TTree *t,
       if (z == TMath::Infinity())
         z = 999;
       if (z != z)
-        z = (name.Contains("bayes") ? 0 : 999);  // protect agains NANs
+        z = (name.Contains("bayes") ? 0 : 999);  // protect against NANs
       h2d->SetBinContent(ix, iy, z);
     }
   }

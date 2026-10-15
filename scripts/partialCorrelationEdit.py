@@ -12,7 +12,7 @@ import math
 #
 # Notes:
 #  - The assumption is that the "jes_1" and "jes_2" are the names used in some other card
-#    that we want to be partially correlated with the coresponding uncertainties in this card.
+#    that we want to be partially correlated with the corresponding uncertainties in this card.
 #    In other words: we start from the fully correlated configuration.
 #  - Should only be used with lnN/shape uncertainties and non-parametric models
 #  - Currently only supports positive correlations and simple decorrelation of two parameters
@@ -20,7 +20,7 @@ import math
 #      * that without supplying any --process option an identical card is produced yielding
 #        the same fit result (sanity check that the CH processing was ok)
 #      * after the splitting, fitting the same card should yield ~roughly the same fit result.
-#        it will not be perfect because we treat all effects as if they are Guassian, which they
+#        it will not be perfect because we treat all effects as if they are Gaussian, which they
 #        are not.
 
 

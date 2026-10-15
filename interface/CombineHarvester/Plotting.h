@@ -321,7 +321,7 @@ TLine* DrawHorizontalLine(TPad* pad, TLine* line, double yval);
  *
  *    1. Left aligned with left side of frame
  *    2. Centre aligned along top of frame
- *    3. Right aligned with right side of fram
+ *    3. Right aligned with right side of frame
  *
  * Note also that the text size will be set automatically to fill the top
  * margin areas.
@@ -346,7 +346,7 @@ void DrawTitle(TPad* pad, TString text, int align);
  *
  * mode generally :
  *
- *     iPos = 10*(alignement 1/2/3) + position (1/2/3 = left/center/right)
+ *     iPos = 10*(alignment 1/2/3) + position (1/2/3 = left/center/right)
  *
  * @param pad The target TPad
  * @param cmsText Usually just "CMS"
@@ -383,7 +383,7 @@ void DrawCMSLogo(TPad* pad, TString cmsText, TString extraText, int iPosX);
  *
  * @param pad TPad to examine
  * @param x_min Minimum x-axis value to start the scan
- * @param x_max Maximum x-axis alue to conclude the scan
+ * @param x_max Maximum x-axis value to conclude the scan
  *
  * @return Value on y-axis where the maximum is found
  */
@@ -893,13 +893,13 @@ void FixTopRange(TPad* pad, double fix_y, double fraction) {
 
 void FixBoxPadding(TPad* pad, TBox* box, double frac) {
   // Get the bounds of the box - these are in the normalised
-  // Pad co-ordinates.
+  // Pad coordinates.
   double p_x1 = box->GetX1();
   double p_x2 = box->GetX2();
   double p_y1 = box->GetY1();
   // double p_y2 = box->GetY2();
 
-  // Convert to normalised co-ordinates in the frame
+  // Convert to normalised coordinates in the frame
   double f_x1 = (p_x1 - pad->GetLeftMargin()) / (1. - pad->GetLeftMargin() - pad->GetRightMargin());
   double f_x2 = (p_x2 - pad->GetLeftMargin()) / (1. - pad->GetLeftMargin() - pad->GetRightMargin());
   double f_y1 = (p_y1 - pad->GetBottomMargin()) / (1. - pad->GetTopMargin() - pad->GetBottomMargin());

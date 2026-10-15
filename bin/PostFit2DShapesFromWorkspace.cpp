@@ -219,7 +219,7 @@ int main(int argc, char* argv[]) {
     }
     for (auto bin : bins) {
       ch::CombineHarvester cmb_bin = cmb.cp().bin({bin});
-      // This next line is a temporary fix for models with parameteric RooFit pdfs
+      // This next line is a temporary fix for models with parametric RooFit pdfs
       // - we try and set the number of bins to evaluate the pdf to be the same as
       // the number of bins in data
       // cmb_bin.SetPdfBins(cmb_bin.GetObservedShape().GetNbinsX());

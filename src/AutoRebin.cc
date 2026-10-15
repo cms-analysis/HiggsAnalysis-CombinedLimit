@@ -300,7 +300,7 @@ namespace ch {
     TH1F *total_bkg_new;
     total_bkg_new = (TH1F *)total_bkg.Rebin(new_bins.size() - 1, "total_bkg_new", &new_bins[0]);
 
-    //Flag checks if all bins now satify the condition after pass through
+    //Flag checks if all bins now satisfy the condition after pass through
     int nbins_new = total_bkg_new->GetNbinsX();
     if (nbins_new != nbins) {
       if (v_ > 0)

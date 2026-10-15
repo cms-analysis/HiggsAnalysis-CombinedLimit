@@ -24,7 +24,7 @@ namespace ch {
   /**
  * Updates the values in one json from the values in another
  *
- * All the values in *b* are entered into *a*, overwritting any already
+ * All the values in *b* are entered into *a*, overwriting any already
  * defined in *a*.
  *
  * @param a The Json::Value to be updated \param b The Json::Value containing
