@@ -23,7 +23,7 @@
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/RooSimultaneousOpt.h"
 #include "../interface/utils.h"
-#include "../interface/CachingNLL.h"
+#include "../interface/SimNLLBase.h"
 
 #include <ROOT/RConfig.hxx> // for ROOT_VERSION
 
@@ -198,8 +198,8 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
   // This test is a special case where we are comparing the likelihoods of two
   // different models and so we can't re-zero the NLL with respect to the
   // initial parameters.
-  if (dynamic_cast<cacheutils::CachingSimNLL*>(nominal_nll.get())) {
-    static_cast<cacheutils::CachingSimNLL*>(nominal_nll.get())->clearConstantZeroPoint();
+  if (auto *simnll = dynamic_cast<cacheutils::SimNLLBase *>(nominal_nll.get())) {
+    simnll->clearConstantZeroPoint();
   }
 
   if (setParametersForEval_ != "") {
@@ -213,8 +213,8 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
   CascadeMinimizer minims(*saturated_nll, CascadeMinimizer::Unconstrained);
   //minims.setStrategy(minimizerStrategy_);
   minims.minimize(verbose-2);
-  if (dynamic_cast<cacheutils::CachingSimNLL*>(saturated_nll.get())) {
-    static_cast<cacheutils::CachingSimNLL*>(saturated_nll.get())->clearConstantZeroPoint();
+  if (auto *simnll = dynamic_cast<cacheutils::SimNLLBase *>(saturated_nll.get())) {
+    simnll->clearConstantZeroPoint();
   }
 
   if (setParametersForEval_ != "") {

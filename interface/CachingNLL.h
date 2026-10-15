@@ -18,6 +18,7 @@
 #include "SimpleGaussianConstraint.h"
 #include "SimplePoissonConstraint.h"
 #include "SimpleConstraintGroup.h"
+#include "SimNLLBase.h"
 
 class RooMultiPdf;
 class CMSHistSum;
@@ -158,11 +159,14 @@ class CachingAddNLL : public RooAbsReal {
         double constantZeroPoint_ = 0; // this is arbitrary and kept constant for all the lifetime of the PDF
 };
 
-class CachingSimNLL  : public RooAbsReal {
+class CachingSimNLL  : public SimNLLBase {
     public:
         CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, const RooArgSet *nuis=0) ;
         CachingSimNLL(const CachingSimNLL &other, const char *name = 0) ;
         ~CachingSimNLL() override ;
+        CachingSimNLL &operator=(const CachingSimNLL &) = delete;
+        CachingSimNLL(CachingSimNLL &&) = delete;
+        CachingSimNLL &operator=(CachingSimNLL &&) = delete;
         CachingSimNLL *clone(const char *name = 0) const override ;
         Double_t evaluate() const override ;
         Bool_t isDerived() const override { return kTRUE; }
@@ -175,14 +179,13 @@ class CachingSimNLL  : public RooAbsReal {
 #endif
         void splitWithWeights(const RooAbsData &data, const RooAbsCategory& splitCat, Bool_t createEmptyDataSets) ;
         static void setNoDeepLogEvalError(bool noDeep) { noDeepLEE_ = noDeep; }
-        void setZeroPoint() ; 
-        void clearZeroPoint() ;
-        void clearConstantZeroPoint() ;
-        void updateZeroPoint() { clearZeroPoint(); setZeroPoint(); }
+        void setZeroPoint() override;
+        void clearZeroPoint() override;
+        void clearConstantZeroPoint() override;
         static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
         void setChannelMasks(RooArgList const& args);
         void setAnalyticBarlowBeeston(bool flag);
-        void setMaskNonDiscreteChannels(bool mask) ;
+        void setMaskNonDiscreteChannels(bool mask) override;
         friend class CachingAddNLL;
         // trap this call, since we don't care about propagating it to the sub-components
 #if ROOT_VERSION_CODE<ROOT_VERSION(6,41,0)
