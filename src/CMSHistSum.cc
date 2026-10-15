@@ -211,11 +211,14 @@ void CMSHistSum::initialize() const {
   vmorphpars_.resize(n_morphs_);
   vcoeffpars_.resize(n_procs_);
   compcache_.resize(n_procs_);
+  finalcache_.resize(n_procs_);
 
   for (int ip = 0; ip < n_procs_; ++ip) {
     vcoeffpars_[ip] = dynamic_cast<RooAbsReal const*>(coeffpars_.at(ip));
     compcache_[ip] = cache_;
     compcache_[ip].Clear();
+    finalcache_[ip] = cache_;
+    finalcache_[ip].Clear();
   }
   for (int iv = 0; iv < n_morphs_; ++iv) {
     vmorphpars_[iv] = dynamic_cast<RooAbsReal const*>(morphpars_.at(iv));
@@ -360,13 +363,14 @@ void CMSHistSum::updateCache() const {
     valsum_.Clear();
     std::fill(err2sum_.begin(), err2sum_.end(), 0.);
     for (unsigned i = 0; i < vcoeffpars_.size(); ++i) {
-      staging_ = compcache_[i];
+      FastHisto& shape = finalcache_[i];
+      shape = compcache_[i];
       if (vtype_[i] == CMSHistFunc::VerticalSetting::LogQuadLinear) {
-        staging_.Exp();
-        staging_.Scale(storage_[process_fields_[i]].Integral() / staging_.Integral());
+        shape.Exp();
+        shape.Scale(storage_[process_fields_[i]].Integral() / shape.Integral());
       }
-      staging_.CropUnderflows();
-      vectorized::mul_add(valsum_.size(), coeffvals_[i], &(staging_[0]), &valsum_[0]);
+      shape.CropUnderflows();
+      vectorized::mul_add(valsum_.size(), coeffvals_[i], &(shape[0]), &valsum_[0]);
       vectorized::mul_add_sqr(valsum_.size(), coeffvals_[i], &(binerrors_[i][0]), &err2sum_[0]);
     }
     vectorized::sqrt(valsum_.size(), &err2sum_[0], &toterr_[0]);
@@ -395,8 +399,7 @@ void CMSHistSum::updateCache() const {
         for (unsigned i = 0; i < bintypes_[j].size(); ++i) {
           if (bintypes_[j][i] == 2) {
             // Poisson: this is a multiplier on the process yield
-            scaledbinmods_[i][j] = ((vbinpars_[j][i]->getVal() - 1.) *
-                 compcache_[i][j]);
+            scaledbinmods_[i][j] = ((vbinpars_[j][i]->getVal() - 1.) * finalcache_[i][j]);
             cache_[j] += (scaledbinmods_[i][j] * coeffvals_[i]);
           } else if (bintypes_[j][i] == 3) {
             // Gaussian This is the addition of the scaled error
