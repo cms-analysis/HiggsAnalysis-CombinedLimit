@@ -49,7 +49,8 @@ namespace ch {
                   << " in workspace " << name << std::endl;
         if (useRooRealVar) {
           RooRealVar rrv = RooRealVar(cvar->GetName(), cvar->GetTitle(), cvar->getVal());
-          rrv.removeRange();  // the line above may already do it
+          rrv.removeMin();
+          rrv.removeMax();
           rrv.setConstant();
           wout->import(rrv, RooFit::RecycleConflictNodes());
         } else {
