@@ -10,4 +10,4 @@ Created nll_model_s_data_obs with 2 channels and 37 constraint terms, RooFit bac
 
  --- MultiDimFit ---
 best fit parameter values and profile-likelihood uncertainties: 
-   r :    -3.012   -1.988/+2.084 (68%)
+   r :    -3.012   -1.988/+2.083 (68%)
