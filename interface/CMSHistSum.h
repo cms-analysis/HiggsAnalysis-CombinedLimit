@@ -144,7 +144,6 @@ protected:
 
   void initialize() const;
   void updateCache() const;
-  inline double smoothStepFunc(double x, int const& ip) const;
 
   void updateMorphs() const;
 

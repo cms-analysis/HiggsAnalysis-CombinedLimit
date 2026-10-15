@@ -1,6 +1,7 @@
 #include "../interface/CMSHistSum.h"
 #include "../interface/CMSHistFuncWrapper.h"
 #include "../interface/CMSHistSumWrapper.h"
+#include "../interface/CombineMathFuncs.h"
 #include <stdexcept>
 #include <vector>
 #include <ostream>
@@ -261,6 +262,8 @@ void CMSHistSum::initialize() const {
 }
 
 void CMSHistSum::updateMorphs() const {
+  using RooFit::Detail::MathFuncs::smoothStepFunc;
+
   // set up pointers ahead of time for quick loop
   std::vector<CMSExternalMorph*> process_morphs(compcache_.size(), nullptr);
   // if any external morphs are dirty, disable fast_mode_
@@ -319,22 +322,20 @@ void CMSHistSum::updateMorphs() const {
       if (code == -1) continue;
       if (fast_mode_ == 1) {
         double xold = vertical_prev_vals_[iv];
-        compcache_[ip].DiffMeld(storage_[code + 1], storage_[code + 0], 0.5*x, smoothStepFunc(x, ip), 0.5*xold, smoothStepFunc(xold, ip));
+        compcache_[ip].DiffMeld(storage_[code + 1],
+                                storage_[code + 0],
+                                0.5 * x,
+                                smoothStepFunc(x, vsmooth_par_[ip]),
+                                0.5 * xold,
+                                smoothStepFunc(xold, vsmooth_par_[ip]));
       } else {
-        compcache_[ip].Meld(storage_[code + 1], storage_[code + 0], 0.5*x, smoothStepFunc(x, ip));
+        compcache_[ip].Meld(storage_[code + 1], storage_[code + 0], 0.5 * x, smoothStepFunc(x, vsmooth_par_[ip]));
       }
     }
     vertical_prev_vals_[iv] = x;
   }
 
   if (enable_fast_vertical_) fast_mode_ = 1;
-}
-
-inline double CMSHistSum::smoothStepFunc(double x, int const& ip) const {
-  if (fabs(x) >= vsmooth_par_[ip]) return x > 0 ? +1 : -1;
-  double xnorm = x / vsmooth_par_[ip];
-  double xnorm2 = xnorm * xnorm;
-  return 0.125 * xnorm * (xnorm2 * (3. * xnorm2 - 10.) + 15);
 }
 
 void CMSHistSum::updateCache() const {
