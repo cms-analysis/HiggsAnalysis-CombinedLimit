@@ -112,6 +112,8 @@ protected:
   mutable std::vector<double> coeffvals_; //!
 
   mutable std::vector<FastHisto> compcache_; //!
+  // Final template of each process (exp'd and rescaled for LogQuadLinear, cropped)
+  mutable std::vector<FastHisto> finalcache_;  //!
   mutable FastHisto staging_; //!
   mutable FastHisto valsum_; //!
   mutable FastHisto cache_;
