@@ -309,7 +309,8 @@ if __name__ == "__main__":
     if ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit") < 0:
         raise RuntimeError("Cannot load the Combine library")
     ROOT.gInterpreter.AddIncludePath(str(Path(ARGS.combine).resolve().parents[1]))
-    ROOT.gInterpreter.Declare("#include <HiggsAnalysis/CombinedLimit/interface/Combine.h>")
+    if not ROOT.gInterpreter.Declare("#include <HiggsAnalysis/CombinedLimit/interface/Combine.h>"):
+        raise RuntimeError("Cannot declare the Combine interface")
     ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.WARNING)
     if not hasattr(LikelihoodBoundaryTest, ARGS.case) or ARGS.case.startswith("_"):
         parser.error(f"unknown case: {ARGS.case}")

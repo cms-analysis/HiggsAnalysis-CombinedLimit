@@ -2,7 +2,10 @@
 #define HiggsAnalysis_CombinedLimit_Combine_h
 #include <TString.h>
 #include <TFile.h>
-#include <boost/program_options.hpp>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 #include "RooArgSet.h"
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
@@ -15,6 +18,10 @@ class LimitAlgo;
 class RooWorkspace;
 class RooAbsData;
 namespace RooStats { class ModelConfig; }
+namespace boost::program_options {
+class options_description;
+class variables_map;
+}  // namespace boost::program_options
 
 extern Float_t t_cpu_, t_real_, g_quantileExpected_;
 extern bool g_fillTree_;
@@ -44,9 +51,9 @@ class Combine {
 public:
   Combine() ;
   
-  boost::program_options::options_description & statOptions() { return statOptions_; }    
-  boost::program_options::options_description & ioOptions() { return ioOptions_; }    
-  boost::program_options::options_description & miscOptions() { return miscOptions_; }    
+  boost::program_options::options_description & statOptions();
+  boost::program_options::options_description & ioOptions();
+  boost::program_options::options_description & miscOptions();
   void applyOptions(const boost::program_options::variables_map &vm) ;
   
   void run(TString hlfFile, const std::string &dataset, double &limit, double &limitErr, int &iToy, TTree *tree, int nToys);
@@ -78,7 +85,16 @@ private:
   template <class Var>
   void addBranches(const std::string&, RooWorkspace*, std::vector<std::pair<Var*,float>>&, const std::string&);
 
-  boost::program_options::options_description statOptions_, ioOptions_, miscOptions_;
+  // Define destruction and copying out of line so this header needs no Boost definitions.
+  struct Options {
+    Options();
+    ~Options();
+    Options(const Options &other);
+    Options &operator=(const Options &) = delete;
+    Options(Options &&other) noexcept(false);
+    Options &operator=(Options &&) = delete;
+    std::unique_ptr<boost::program_options::options_description> stat, io, misc;
+  } m_options;
 
   // statistics-related variables
   bool unbinned_, generateBinnedWorkaround_, newGen_, guessGenMode_; 
