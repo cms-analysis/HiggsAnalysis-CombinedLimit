@@ -145,6 +145,18 @@ include(CombineTestMacros.cmake)
 # environment inside the source directory.
 set(t2w ${CMAKE_BINARY_DIR}/bin/text2workspace.py)
 
+# Asymptotic limits
+ADD_COMBINE_TEST(asymptotic_limits
+  T2W_COMMAND
+    text2workspace.py ${REPO}/data/tutorials/counting/realistic-counting-experiment.txt -o asymptotic_limits.root -m 125
+  COMBINE_COMMANDS
+    "combine -M AsymptoticLimits asymptotic_limits.root -m 125 -n AsymptoticLimitsRegression"
+  DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.001
+)
+set_tests_properties(asymptotic_limits-text2workspace asymptotic_limits
+    PROPERTIES LABELS AsymptoticLimits TIMEOUT 120
+)
+
 # Counting datacard
 ADD_COMBINE_TEST(counting_datacard
   T2W_COMMAND
