@@ -117,8 +117,7 @@ protected:
   mutable FastHisto cache_;
 
   mutable std::vector<double> err2sum_; //!
-  mutable std::vector<double> toterr_; //!
-  mutable std::vector<std::vector<double>> binmods_; //!
+  mutable std::vector<double> toterr_;  //!
   mutable std::vector<std::vector<double>> scaledbinmods_; //!
 
   mutable SimpleCacheSentry sentry_; //!
