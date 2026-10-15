@@ -29,6 +29,7 @@
 #include <TTree.h>
 #include <TInterpreter.h>
 
+#include <RooAbsCategory.h>
 #include <RooAbsData.h>
 #include <RooAbsPdf.h>
 #include <RooArgSet.h>
@@ -40,6 +41,7 @@
 #include <RooPlot.h>
 #include <RooRandom.h>
 #include <RooRealVar.h>
+#include <RooSimultaneous.h>
 #include <RooUniform.h>
 #include <RooGaussian.h>
 #include <RooWorkspace.h>
@@ -62,6 +64,8 @@
 #include "../interface/AsimovUtils.h"
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/ProfilingTools.h"
+#include "../interface/ChannelSumNLL.h"
+#include "../interface/CombineUtils.h"
 #include "../interface/RooMultiPdfCombine.h"
 #include "../interface/CMSHistFunc.h"
 #include "../interface/CMSHistSum.h"
@@ -1348,6 +1352,26 @@ std::unique_ptr<RooAbsReal> combineCreateNLL(
               << std::endl;
   }
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 38, 0)
+  // Before ROOT 6.38, the RooFit::Evaluator does not follow changes of category
+  // parameters and codegen rejects them, so a RooMultiPdf index would stay
+  // frozen and the discrete profiling would be silently wrong.
+  if (evalBackend != "legacy") {
+    auto const *simPdf = dynamic_cast<RooSimultaneous const *>(&pdf);
+    std::unique_ptr<RooArgSet> params{pdf.getParameters(data)};
+    for (RooAbsArg const *param : *params) {
+      // The index category of a simultaneous pdf is fixed by the data.
+      if (simPdf && param == &simPdf->indexCat())
+        continue;
+      if (dynamic_cast<RooAbsCategory const *>(param)) {
+        throw std::runtime_error("The \"" + evalBackend + "\" likelihood backend supports discrete parameters like \"" +
+                                 param->GetName() +
+                                 "\" only with ROOT 6.38 or later. Please use the \"combine\" backend.");
+      }
+    }
+  }
+#endif
+
   RooCmdArg evalBackendCmdArg = RooFit::EvalBackend(evalBackend);
   cmdList.Add(&evalBackendCmdArg);
 
@@ -1359,9 +1383,16 @@ std::unique_ptr<RooAbsReal> combineCreateNLL(
     declaredMathFuncs = true;
   }
 
-  // If we don't use the "combine" backend, use the base class implementation
-  // (and not the one of the RooSimultaneousOpt).
   if (isSimultaneousOpt) {
+    // One RooFit likelihood per channel, summed by Combine, keeps the channel
+    // masking of the discrete profiling. The runtime define restores the
+    // monolithic RooFit likelihood.
+    if (!runtimedef::get(std::string("SIMNLL_ROOFIT_MONOLITHIC"))) {
+      std::string name = std::string("nll_") + pdf.GetName() + "_" + data.GetName();
+      return std::make_unique<cacheutils::ChannelSumNLL>(
+          name.c_str(), name.c_str(), dynamic_cast<RooSimultaneous &>(pdf), data, constrain, evalBackend);
+    }
+    // Use the base class implementation (and not the one of the RooSimultaneousOpt).
     return static_cast<RooSimultaneousOpt &>(pdf).createNLLPassthrough(data, cmdList);
   } else {
     return std::unique_ptr<RooAbsReal>{pdf.createNLL(data, cmdList)};

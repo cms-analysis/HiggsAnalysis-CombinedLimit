@@ -177,6 +177,13 @@ class LikelihoodBoundaryTest(unittest.TestCase):
         Test if that penalty is correctly included in the NLL
         """
         model = Model(layout="none", multipdf=True)
+        if ARGS.backend not in ("combine", "legacy") and ROOT.gROOT.GetVersionInt() < 63800:
+            # Before ROOT 6.38, the RooFit evaluator does not follow changes of
+            # category parameters, so Combine refuses to build the likelihood.
+            with self.assertRaises(Exception) as context:
+                model._nll(ARGS.backend)
+            self.assertIn("ROOT 6.38", str(context.exception), "the refusal must name the required ROOT version")
+            return
         nll = model._nll(ARGS.backend)
         model.index.setIndex(0)
         baseline = float(nll.getVal())

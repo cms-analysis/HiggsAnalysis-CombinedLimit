@@ -1062,19 +1062,25 @@ bool utils::anyParameterAtBoundaries( const RooArgSet &params, int verbosity ){
     bool isAnyBad = false;
 
     for (RooAbsArg *aAbsArg : params) {
-        RooRealVar *a = static_cast<RooRealVar*>(aAbsArg);
+      // Only real-valued parameters have boundaries (a RooCategory can end up here).
+      auto *a = dynamic_cast<RooRealVar *>(aAbsArg);
+      if (!a)
+        continue;
 
-        bool isBad = isParameterAtBoundary(*a);
+      bool isBad = isParameterAtBoundary(*a);
 
-        if(isBad){
-            std::string varName((*a).GetName());
-	    
-            if( verbosity > 0 ){
-            	CombineLogger::instance().log("utils.cc",__LINE__,std::string(Form("[WARNING] Found parameter %s at boundary (within ~1sigma): %g+/-%g",(*a).GetName(),(*a).getVal(),(*a).getError())),__func__);
-	    }
+      if (isBad) {
+        std::string varName((*a).GetName());
 
-            timesFoundAtBoundary[varName]++;
+        if (verbosity > 0) {
+          std::ostringstream msg;
+          msg << "[WARNING] Found parameter " << a->GetName() << " at boundary (within ~1sigma): " << a->getVal()
+              << "+/-" << a->getError();
+          CombineLogger::instance().log("utils.cc", __LINE__, msg.str(), __func__);
         }
+
+        timesFoundAtBoundary[varName]++;
+      }
 
         isAnyBad |= isBad;
     }

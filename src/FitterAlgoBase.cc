@@ -229,7 +229,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar
 RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse, int ndim, bool reuseNLL, bool saveFitResult) {
     RooFitResult *ret = 0;
     if (reuseNLL && nll.get() != 0 && !forceRecreateNLL_) {
-        ((cacheutils::CachingSimNLL&)(*nll)).setData(data); // reuse nll but swap out the data
+      nll->setData(data, /*cloneData=*/false);  // reuse nll but swap out the data
     } else {
         nll.reset(); // first delete the old one, to avoid using more memory, even if temporarily
         nll = combineCreateNLL(pdf, data, constrain.getSet(0), /*offset=*/true); // make a new nll
