@@ -12,7 +12,7 @@ best fit parameter values and profile-likelihood uncertainties:
 >>> Method used is MultiDimFit
 Set Range of Parameter r To : (-5,5)
 Doing initial fit: 
-Created nll_model_s_data_obs with 1 channels and 19 constraint terms, RooFit backend "cpu", analytic gradient: no
+Created nll_model_s_data_obs with 1 channels and 19 constraint terms (19 in closed form), RooFit backend "cpu", analytic gradient: no
 
  --- MultiDimFit ---
 best fit parameter values and profile-likelihood uncertainties: 
@@ -20,15 +20,15 @@ best fit parameter values and profile-likelihood uncertainties:
  <<< Combine >>> 
 >>> Random number generator seed is 123456
 >>> Method used is FitDiagnostics
-Created nll_simNuisancePdf_globalData with 0 channels and 19 constraint terms, RooFit backend "cpu", analytic gradient: no
+Created nll_simNuisancePdf_globalData with 0 channels and 19 constraint terms (19 in closed form), RooFit backend "cpu", analytic gradient: no
 
  --- FitDiagnostics ---
 Best fit r: -3.01736  -1.98264/+2.0887  (68% CL)
  <<< Combine >>> 
 >>> Random number generator seed is 123456
 >>> Method used is FitDiagnostics
-Created nll_simNuisancePdf_globalData with 0 channels and 19 constraint terms, RooFit backend "cpu", analytic gradient: no
-Created nll_model_s_data_obs with 1 channels and 19 constraint terms, RooFit backend "cpu", analytic gradient: no
+Created nll_simNuisancePdf_globalData with 0 channels and 19 constraint terms (19 in closed form), RooFit backend "cpu", analytic gradient: no
+Created nll_model_s_data_obs with 1 channels and 19 constraint terms (19 in closed form), RooFit backend "cpu", analytic gradient: no
 
  --- FitDiagnostics ---
 Best fit r: -3.01736  -1.98264/+2.0887  (68% CL)

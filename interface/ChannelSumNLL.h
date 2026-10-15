@@ -26,7 +26,9 @@
 
 class CMSHistBarlowBeestonGradientTerm;
 class RooMultiPdf;
+class RooPoisson;
 
+#include <array>
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -40,9 +42,11 @@ namespace cacheutils {
   /// Each term comes from RooAbsPdf::createNLL() with the requested RooFit
   /// backend and owns its evaluator, so a masked channel can be left out of the
   /// sum, of getParameters() and of the evaluation, which a single evaluator
-  /// can't do. The constraint terms are factorized out of the channels and
-  /// evaluated by a never-masked likelihood: a RooUniform of a dummy observable
-  /// with a one-entry dataset (exactly zero) and the constraint pdfs as external
+  /// can't do. The constraint terms are factorized out of the channels. The
+  /// simple Gaussian and Poisson ones (what text2workspace.py writes) are summed
+  /// here in closed form, see addFastConstraint(); the others are evaluated by
+  /// a never-masked likelihood: a RooUniform of a dummy observable with a
+  /// one-entry dataset (exactly zero) and the constraint pdfs as external
   /// constraints. Like CachingSimNLL, the RooMultiPdf penalty is added per
   /// channel, since createNLL() only applies the correction of the top-level
   /// pdf. With "codegen" the analytic gradients of the terms are summed;
@@ -121,6 +125,25 @@ namespace cacheutils {
       RooCategory *original = nullptr;
       RooCategory *clone = nullptr;
     };
+    // Constraint terms evaluated in closed form, see addFastConstraint().
+    struct GaussianConstraint {
+      RooRealVar const *x = nullptr;
+      RooRealVar const *mean = nullptr;
+      RooAbsReal const *sigma = nullptr;
+    };
+    struct PoissonConstraint {
+      RooPoisson const *pdf = nullptr;
+      RooAbsReal const *count = nullptr;
+      RooRealVar const *mean = nullptr;
+      bool normalized = false;  // RooFit would normalize it over the mean
+      // The normalization integral only depends on the count and on the range
+      // of the mean, cached here.
+      mutable bool normValid = false;
+      mutable double normCount = 0.;
+      mutable double normMin = 0.;
+      mutable double normMax = 0.;
+      mutable double logNorm = 0.;
+    };
 
     void setup(RooAbsData &data);
     std::vector<std::unique_ptr<RooAbsData>> splitData(RooAbsData &data) const;
@@ -134,6 +157,14 @@ namespace cacheutils {
     /// pdf if there is no histogram node.
     RooAbsPdf &addBarlowBeestonGradientTerms(RooAbsPdf &pdf, std::vector<RooAbsReal const *> const &hists);
     void updateGradientMaps() const;
+    /// Take over a constraint pdf that is evaluated in closed form, with the
+    /// same value as its RooFit likelihood would have: a SimpleGaussianConstraint
+    /// of a parameter with a variable as mean, or a RooPoisson of a constant
+    /// count with a parameter as mean. Returns false for anything else.
+    bool addFastConstraint(RooAbsPdf const &pdf);
+    double fastConstraintsValue() const;
+    static double poissonConstraintValue(PoissonConstraint const &c);
+    void fastConstraintsGradient(double *out) const;
     /// Masked by the discrete profiling scan (setMaskNonDiscreteChannels()) or
     /// by the channel mask of the RooSimultaneousOpt.
     bool isMasked(std::size_t i) const {
@@ -184,6 +215,12 @@ namespace cacheutils {
     RooArgSet m_gradientTermVars;  // their inputs, hidden from getParameters()
     std::vector<double> m_zeroPoints;
 
+    // The constraint terms evaluated in closed form and their zero point.
+    std::vector<RooAbsPdf const *> m_fastConstraintPdfs;
+    std::vector<GaussianConstraint> m_gaussianConstraints;
+    std::vector<PoissonConstraint> m_poissonConstraints;
+    double m_fastConstraintZeroPoint = 0;
+
     // All terms as servers, for dirty-state propagation and graph traversal.
     RooListProxy m_components;
 
@@ -201,6 +238,10 @@ namespace cacheutils {
     mutable bool m_gradientMapsDirty = true;
     mutable std::size_t m_nGradientParams = 0;
     mutable std::vector<std::vector<int>> m_gradientMaps;
+    // Positions of the closed-form constraint variables in our parameter list,
+    // -1 if absent: x, mean and sigma of each Gaussian, the mean of each Poisson.
+    mutable std::vector<std::array<int, 3>> m_gaussianGradientIndices;
+    mutable std::vector<int> m_poissonGradientIndices;
     mutable std::vector<double> m_gradientBuffer;
   };
 
