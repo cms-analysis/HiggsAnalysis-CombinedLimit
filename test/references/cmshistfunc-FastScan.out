@@ -444,5 +444,5 @@ rate_TT : (90/91)
 
 rate_ZMM_ZTT_btag : (91/91)
 [ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
-[ReZeroTGraph] Better minimum was (0.801000, -9.265044)
+[ReZeroTGraph] Better minimum was (0.755000, -9.584861)
 )
