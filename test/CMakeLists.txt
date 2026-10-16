@@ -405,6 +405,18 @@ if(NOT DEFINED standalone_tests)
     endforeach()
 endif()
 
+# Pre-fit nuisance parameter values and uncertainties from FitDiagnostics, for
+# a model with a flat (lnU) constraint (issue #600)
+ADD_COMBINE_TEST(fitdiagnostics_prefit_nuisances
+  T2W_COMMAND
+    text2workspace.py ${REPO}/data/ci/counting_lnU.txt -o ws_counting_lnU.root
+  COMBINE_COMMANDS
+    "combine -M FitDiagnostics ws_counting_lnU.root -n _counting_lnU"
+    "python3 ${REPO}/test/checkPrefitNuisances.py fitDiagnostics_counting_lnU.root lumi=1 bkg2N=4 bkgU=0"
+  # The last digits of the fitted values differ between platforms.
+  DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+)
+
 # ModelTools.py
 COMBINE_ADD_TEST(test_model_tools_py
     COMMAND python3 ${REPO}/test/test_model_tools.py
