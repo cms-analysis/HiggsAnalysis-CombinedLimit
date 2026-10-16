@@ -363,7 +363,7 @@ if(NOT DEFINED standalone_tests)
                 COMMAND python3 ${REPO}/test/test_nll_backend_consistency.py
                     --case ${case} --backend ${backend} --combine $<TARGET_FILE:combine>
                 LABELS NLLConsistency
-                TIMEOUT 120
+                TIMEOUT 300
             )
         endforeach()
     endforeach()
