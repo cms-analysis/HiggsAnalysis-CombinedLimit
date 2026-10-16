@@ -71,7 +71,9 @@ void CMSHistSumWrapper::printMultiline(std::ostream& os, Int_t contents,
 
 Int_t CMSHistSumWrapper::getAnalyticalIntegral(RooArgSet& allVars,
                                          RooArgSet& analVars,
-                                         const char* /*rangeName*/) const {
+                                         const char* rangeName) const {
+  // analyticalIntegral only knows the full-range integral
+  if (rangeName && (x_.min(rangeName) != x_.min() || x_.max(rangeName) != x_.max())) return 0;
   if (matchArgs(allVars, analVars, x_)) return 1;
   return 0;
 }
