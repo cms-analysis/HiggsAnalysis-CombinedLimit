@@ -315,10 +315,12 @@ COMBINE_ADD_TEST(cmshistsum_vs_cmshistfunc_fitdiagnostics
     FIXTURES_REQUIRED cmshistsum_vs_cmshistfunc_fitdiagnostics
 )
 
-# Same comparison for a shapeN datacard with autoMCStats 10, so that the
-# low-statistics bins also get per-process Poisson and Gaussian parameters.
+# Same comparison with autoMCStats 10, so that the low-statistics bins also get
+# per-process Poisson and Gaussian parameters. The shape systematics are
+# interpreted as shapeN (--default-morphing shapeN), i.e. the processes use
+# LogQuadLinear vertical morphing.
 COMBINE_ADD_TEST(cmshistsum_vs_cmshistfunc_fitdiagnostics_autoMCStats10-text2workspace
-    COMMAND bash -c "text2workspace.py ${REPO}/data/ci/template-analysis_shapeNInterp_autoMCStats10.txt -o fitdiag_autoMCStats10_cmshistfunc.root --mass 200 && text2workspace.py ${REPO}/data/ci/template-analysis_shapeNInterp_autoMCStats10.txt -o fitdiag_autoMCStats10_cmshistsum.root --mass 200 --use-histsum"
+    COMMAND bash -c "text2workspace.py ${REPO}/data/ci/template-analysis_shapeInterp_autoMCStats10.txt -o fitdiag_autoMCStats10_cmshistfunc.root --mass 200 --default-morphing shapeN && text2workspace.py ${REPO}/data/ci/template-analysis_shapeInterp_autoMCStats10.txt -o fitdiag_autoMCStats10_cmshistsum.root --mass 200 --default-morphing shapeN --use-histsum"
     FIXTURES_SETUP cmshistsum_vs_cmshistfunc_fitdiagnostics_autoMCStats10
 )
 COMBINE_ADD_TEST(cmshistsum_vs_cmshistfunc_fitdiagnostics_autoMCStats10
