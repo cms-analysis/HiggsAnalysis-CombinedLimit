@@ -236,6 +236,17 @@ void cacheutils::ChannelSumNLL::setup(RooAbsData &data) {
   }
   m_zeroPoints.assign(m_terms.size(), 0.);
 
+  m_termCaches.clear();
+  for (std::size_t i = 0; i < m_terms.size(); ++i) {
+    RooArgSet variables;
+    if (i < m_nChannels) {
+      variables.add(m_channelParams[i]);
+    } else {
+      m_terms[i]->getParameters(/*observables=*/nullptr, variables, /*stripDisconnected=*/false);
+    }
+    m_termCaches.push_back(makeTermCache(variables));
+  }
+
   m_hasGradient = m_nChannels > 0 &&
                   std::all_of(m_terms.begin(), m_terms.end(), [](auto const &term) { return term->hasGradient(); });
 
@@ -377,6 +388,7 @@ bool cacheutils::ChannelSumNLL::setData(RooAbsData &data, bool /*cloneData*/) {
     // The channel likelihoods keep a pointer to the data, we own it.
     m_terms[i]->setData(*channelData, /*cloneData=*/false);
     setHistogramData(i, *channelData);
+    m_termCaches[i].valid = false;
   }
   // Only release the old datasets after all terms point to the new ones.
   m_datasets = std::move(newDatasets);
@@ -424,7 +436,7 @@ double cacheutils::ChannelSumNLL::evaluate() const {
   for (std::size_t i = 0; i < m_terms.size(); ++i) {
     if (isMasked(i))
       continue;
-    sum += m_terms[i]->getVal() - m_zeroPoints[i];
+    sum += termValue(i) - m_zeroPoints[i];
     if (i < m_nChannels) {
       for (RooMultiPdf const *multiPdf : m_channelMultiPdfs[i]) {
         sum += multiPdf->getCorrection();
@@ -470,6 +482,7 @@ bool cacheutils::ChannelSumNLL::getParameters(const RooArgSet *observables,
 void cacheutils::ChannelSumNLL::applyWeightSquared(bool flag) {
   for (std::size_t i = 0; i < m_nChannels; ++i) {
     m_terms[i]->applyWeightSquared(flag);
+    m_termCaches[i].valid = false;
   }
 }
 
@@ -505,14 +518,53 @@ void cacheutils::ChannelSumNLL::updateGradientMaps() const {
   };
   m_gaussianGradientIndices.clear();
   for (GaussianConstraint const &c : m_gaussianConstraints) {
-    m_gaussianGradientIndices.push_back(
-        {indexOf(c.x), indexOf(c.mean), indexOf(dynamic_cast<RooRealVar const *>(c.sigma))});
+    m_gaussianGradientIndices.push_back({indexOf(c.x), indexOf(c.mean), indexOf(c.sigmaVar)});
   }
   m_poissonGradientIndices.clear();
   for (PoissonConstraint const &c : m_poissonConstraints) {
     m_poissonGradientIndices.push_back(indexOf(c.mean));
   }
   m_gradientMapsDirty = false;
+}
+
+cacheutils::ChannelSumNLL::TermCache cacheutils::ChannelSumNLL::makeTermCache(RooArgSet const &variables) {
+  TermCache cache;
+  for (RooAbsArg const *arg : variables) {
+    if (auto const *real = dynamic_cast<RooRealVar const *>(arg)) {
+      cache.reals.push_back(real);
+    } else if (auto const *category = dynamic_cast<RooAbsCategory const *>(arg)) {
+      cache.categories.push_back(category);
+    } else {
+      cache.cacheable = false;
+    }
+  }
+  cache.counters.assign(cache.reals.size(), 0);
+  cache.indices.assign(cache.categories.size(), 0);
+  return cache;
+}
+
+double cacheutils::ChannelSumNLL::termValue(std::size_t i) const {
+  TermCache &cache = m_termCaches[i];
+  bool changed = !cache.valid || !cache.cacheable;
+  for (std::size_t k = 0; k < cache.reals.size(); ++k) {
+    std::size_t const counter = cache.reals[k]->valueResetCounter();
+    if (counter != cache.counters[k]) {
+      cache.counters[k] = counter;
+      changed = true;
+    }
+  }
+  for (std::size_t k = 0; k < cache.categories.size(); ++k) {
+    int const index = cache.categories[k]->getCurrentIndex();
+    if (index != cache.indices[k]) {
+      cache.indices[k] = index;
+      changed = true;
+    }
+  }
+  if (changed) {
+    cache.value = m_terms[i]->getVal();
+    cache.valid = true;
+  }
+  return cache.value;
 }
 
 bool cacheutils::ChannelSumNLL::addFastConstraint(RooAbsPdf const &pdf) {
@@ -523,7 +575,7 @@ bool cacheutils::ChannelSumNLL::addFastConstraint(RooAbsPdf const &pdf) {
     auto const *mean = dynamic_cast<RooRealVar const *>(&gauss.getMean());
     if (!x || !mean)
       return false;
-    m_gaussianConstraints.push_back({x, mean, &gauss.getSigma()});
+    m_gaussianConstraints.push_back({x, mean, &gauss.getSigma(), dynamic_cast<RooRealVar const *>(&gauss.getSigma())});
   } else if (typeid(pdf) == typeid(RooPoisson) || typeid(pdf) == typeid(SimplePoissonConstraint)) {
     auto const &pois = dynamic_cast<RooPoisson const &>(pdf);
     auto const *mean = dynamic_cast<RooRealVar const *>(&pois.getMean());
@@ -549,8 +601,15 @@ bool cacheutils::ChannelSumNLL::addFastConstraint(RooAbsPdf const &pdf) {
 double cacheutils::ChannelSumNLL::fastConstraintsValue() const {
   ROOT::Math::KahanSum<double> sum;
   for (GaussianConstraint const &c : m_gaussianConstraints) {
-    double const pull = (c.x->getVal() - c.mean->getVal()) / c.sigma->getVal();
-    sum += 0.5 * pull * pull;
+    std::array<std::size_t, 3> const counters{
+        c.x->valueResetCounter(), c.mean->valueResetCounter(), c.sigmaVar ? c.sigmaVar->valueResetCounter() : 0};
+    if (!c.valid || counters != c.counters) {
+      double const pull = (c.x->getVal() - c.mean->getVal()) / c.sigma->getVal();
+      c.value = 0.5 * pull * pull;
+      c.counters = counters;
+      c.valid = true;
+    }
+    sum += c.value;
   }
   for (PoissonConstraint const &c : m_poissonConstraints) {
     sum += poissonConstraintValue(c);
@@ -670,7 +729,7 @@ void cacheutils::ChannelSumNLL::setZeroPoint() {
   syncCategories();
   runAnalyticBarlowBeeston();
   for (std::size_t i = 0; i < m_terms.size(); ++i) {
-    m_zeroPoints[i] = m_terms[i]->getVal();
+    m_zeroPoints[i] = termValue(i);
   }
   m_fastConstraintZeroPoint = fastConstraintsValue();
   m_maskingOffsetZero = m_maskingOffset;
