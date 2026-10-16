@@ -1,0 +1,19 @@
+# Counting experiment with a Gaussian (lnN), a flat (lnU) and a Poisson (gmN)
+# constraint, used to test the pre-fit nuisance parameter information written
+# by FitDiagnostics (see issue #600).
+imax 1
+jmax 2
+kmax 3
+shapes * * FAKE
+------------
+bin          b1
+observation  20
+------------
+bin          b1    b1    b1
+process      sig   bkg   bkg2
+process      0     1     2
+rate         3     10    4
+------------
+lumi    lnN     1.05  1.05  -
+bkgU    lnU     -     1.5   -
+bkg2N   gmN 16  -     -     0.25
