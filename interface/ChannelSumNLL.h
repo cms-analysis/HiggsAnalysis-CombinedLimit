@@ -13,6 +13,7 @@
 
 #include "SimNLLBase.h"
 
+#include <RooAbsCategory.h>
 #include <RooAbsData.h>
 #include <RooAbsPdf.h>
 #include <RooArgList.h>
@@ -50,7 +51,10 @@ namespace cacheutils {
   /// constraints. Like CachingSimNLL, the RooMultiPdf penalty is added per
   /// channel, since createNLL() only applies the correction of the top-level
   /// pdf. With "codegen" the analytic gradients of the terms are summed;
-  /// hasGradient() requires all terms to have one.
+  /// hasGradient() requires all terms to have one. A term is only re-evaluated
+  /// if one of its variables changed since its last evaluation, see
+  /// termValue(): a RooFit likelihood always runs its evaluator when asked for
+  /// its value, which costs a pass over its whole computation graph.
   ///
   /// A RooFit::Evaluator stores a data token in every non-RooRealVar node, so a
   /// RooCategory shared by several channels (a RooMultiPdf index) can't be in
@@ -125,11 +129,27 @@ namespace cacheutils {
       RooCategory *original = nullptr;
       RooCategory *clone = nullptr;
     };
+    // The cached value of a term and the state of its variables at the time,
+    // see termValue().
+    struct TermCache {
+      std::vector<RooRealVar const *> reals;
+      std::vector<RooAbsCategory const *> categories;
+      std::vector<std::size_t> counters;  // RooRealVar::valueResetCounter() of the reals
+      std::vector<int> indices;           // indices of the categories
+      double value = 0;
+      bool valid = false;
+      bool cacheable = true;  // false if the term has a variable of another kind
+    };
     // Constraint terms evaluated in closed form, see addFastConstraint().
     struct GaussianConstraint {
       RooRealVar const *x = nullptr;
       RooRealVar const *mean = nullptr;
       RooAbsReal const *sigma = nullptr;
+      RooRealVar const *sigmaVar = nullptr;  // sigma if it is a variable
+      // The last value and the variable counters at the time, like TermCache.
+      mutable std::array<std::size_t, 3> counters{};
+      mutable double value = 0;
+      mutable bool valid = false;
     };
     struct PoissonConstraint {
       RooPoisson const *pdf = nullptr;
@@ -157,6 +177,11 @@ namespace cacheutils {
     /// pdf if there is no histogram node.
     RooAbsPdf &addBarlowBeestonGradientTerms(RooAbsPdf &pdf, std::vector<RooAbsReal const *> const &hists);
     void updateGradientMaps() const;
+    /// The value of term i, re-evaluated only if the term was invalidated or
+    /// one of its variables changed (RooRealVar::valueResetCounter() like in
+    /// RooFit::Evaluator, category index).
+    double termValue(std::size_t i) const;
+    static TermCache makeTermCache(RooArgSet const &variables);
     /// Take over a constraint pdf that is evaluated in closed form, with the
     /// same value as its RooFit likelihood would have: a SimpleGaussianConstraint
     /// of a parameter with a variable as mean, or a RooPoisson of a constant
@@ -214,6 +239,7 @@ namespace cacheutils {
     std::vector<std::vector<CMSHistBarlowBeestonGradientTerm *>> m_channelGradientTerms;  // owned by their pdfs
     RooArgSet m_gradientTermVars;  // their inputs, hidden from getParameters()
     std::vector<double> m_zeroPoints;
+    mutable std::vector<TermCache> m_termCaches;  // one per term
 
     // The constraint terms evaluated in closed form and their zero point.
     std::vector<RooAbsPdf const *> m_fastConstraintPdfs;
