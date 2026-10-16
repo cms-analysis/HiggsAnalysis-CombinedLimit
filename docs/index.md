@@ -303,22 +303,29 @@ You will now be able to browse your fork of the repository from [https://github.
 We strongly encourage you to contribute any developments you make back to the main repository.
 See [contributing.md](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/contributing.md) for details about contributing.
 
-## CombineHarvester/CombineTools
+## CombineHarvester
 
-CombineHarvester/CombineTools is a package for the creation of datacards/workspaces used with <span style="font-variant:small-caps;">Combine v10</span> for a number of analyses in CMS. See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation pages for more details on using this tool and additional features available in the full package.
+CombineHarvester is a C++ and python framework for the creation of datacards/workspaces used with <span style="font-variant:small-caps;">Combine</span> for a number of analyses in CMS. Its core library, the `CombinePdfs` morphing helpers and the generic command-line tools are now part of the <span style="font-variant:small-caps;">Combine</span> package, so no separate checkout is needed. The following are built and installed together with `combine`:
 
-This package also comes with useful features for <span style="font-variant:small-caps;">Combine</span> such as the automated datacard validation (see [instructions](docs/part3/validation)). The repository can be checked out and compiled using,
+* the `ch::CombineHarvester` C++ library, with headers in `HiggsAnalysis/CombinedLimit/interface/CombineHarvester/`,
+* the python interface, `import HiggsAnalysis.CombinedLimit.CombineHarvester.ch as ch`, and the morphing helpers in `HiggsAnalysis.CombinedLimit.CombineHarvester.morphing`,
+* the tools `PostFitShapesFromWorkspace`, `PostFit2DShapesFromWorkspace`, `ValidateDatacards.py` (see [instructions](docs/part3/validation)), `PrintPulls`, `NuisanceSummary`, `ImpactsTable`, `RoundTrip`, `SBWeighted`, `YieldTable` and `partialCorrelationEdit.py`.
 
-```sh
-git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
-scram b -j$(nproc --ignore=2)
-```
+See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation pages for more details on using the framework.
 
-See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation for full instructions and recommended versions.
+If you are migrating existing code from the standalone `CombineHarvester` repository, update the include and import paths as follows:
 
-!!! info
-    Starting with <span style="font-variant:small-caps;">Combine v10</span>, specific ombineTool functionalities for job submission and parallelization (`combineTool.py`) as well as many plotting functions have been integrated into the <span style="font-variant:small-caps;">Combine</span> package. For these tasks you no longer have to follow the instructions above.
+| Old | New |
+|-----|-----|
+| `#include "CombineHarvester/CombineTools/interface/X.h"` | `#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/X.h"` |
+| `#include "CombineHarvester/CombinePdfs/interface/X.h"` | `#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/X.h"` |
+| `<use name="CombineHarvester/CombineTools"/>` | `<use name="HiggsAnalysis/CombinedLimit"/>` |
+| `import CombineHarvester.CombineTools.ch as ch` | `import HiggsAnalysis.CombinedLimit.CombineHarvester.ch as ch` |
+| `import CombineHarvester.CombinePdfs.morphing` | `import HiggsAnalysis.CombinedLimit.CombineHarvester.morphing` |
+| `import CombineHarvester.CombineTools.plotting` | `import HiggsAnalysis.CombinedLimit.util.plotting` |
+| `CombineHarvester.CombineTools.combine.*` | `HiggsAnalysis.CombinedLimit.tool_base.*` |
 
+The standalone `CombineHarvester` repository still provides forwarding headers and python aliases for the old paths, together with the legacy analysis-specific code, so existing code keeps working while it is migrated.
 
 ## Citation
 

@@ -1,0 +1,19 @@
+# Counting experiment with a gmN systematic: the qqWW background is estimated
+# from 4 events in a sideband times an extrapolation factor of 0.16
+imax 1  number of channels
+jmax 3  number of backgrounds
+kmax 5  number of nuisance parameters
+------------
+bin bin1
+observation 0
+------------
+bin             bin1 bin1  bin1  bin1
+process         ggH  qqWW  ggWW  others
+process          0     1     2     3
+rate           1.47  0.64  0.06  0.22
+------------
+lumi      lnN    1.11    -   1.11    -
+xs_ggH    lnN    1.16    -     -     -
+WW_norm   gmN 4    -   0.16    -     -
+xs_ggWW   lnN      -     -   1.50    -
+bg_others lnN      -     -     -   1.30
