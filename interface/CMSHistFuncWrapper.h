@@ -34,6 +34,12 @@ class CMSHistFuncWrapper : public RooAbsReal {
   void printMultiline(std::ostream& os, Int_t contents, Bool_t verbose,
                       TString indent) const override;
 
+  // x_ is also reached via func_ and err_, which would otherwise make
+  // RooRealIntegral fall back to numeric integration over x
+  Bool_t forceAnalyticalInt(const RooAbsArg& dep) const override {
+    return dep.namePtr() == x_.arg().namePtr();
+  }
+
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
                               const char* rangeName = 0) const override;
 
