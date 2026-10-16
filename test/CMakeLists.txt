@@ -235,6 +235,33 @@ ADD_COMBINE_TEST(cmshistfunc
     "combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5"
 )
 
+# FastScan on the template-analysis workspace (combineTool.py)
+#
+# The output mixes Python prints with RooFit messages written from C++. When
+# stdout is not a terminal, both sides are block-buffered independently, so
+# the lines would come out in an arbitrary order (a RooFit message can even
+# be spliced into the middle of a Python line). Force line buffering on both
+# sides to get the lines in program order: PYTHONUNBUFFERED for Python and
+# stdbuf for the C stdio buffer used by RooFit.
+set(_fastscan_command "PYTHONUNBUFFERED=1 stdbuf -oL combineTool.py -M FastScan -w ws_template-analysis.root:w")
+COMBINE_ADD_TEST(cmshistfunc-FastScan
+    COMMAND bash -c "${_fastscan_command}"
+    FIXTURES_REQUIRED cmshistfunc
+    CHECKOUT OUTPUT cmshistfunc-FastScan.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistfunc-FastScan.out
+    # Compare floating point numbers with a relative tolerance of 1 % plus an
+    # absolute tolerance of 0.1. The absolute tolerance is needed because the
+    # "Better minimum" lines contain NLL differences at the level of numerical
+    # noise, and for nearly flat parameters the best scan point can move by
+    # one step (0.07 for the parameters with a -7..7 range) between ROOT
+    # versions. The lines that are not reproducible (the RooFit timing message
+    # for the NLL creation, the printout of the NLL object and the RooFit
+    # numerical derivator error) are removed by filter_test_output.sh.
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01 --atol 0.1
+)
+set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
+    "${_fastscan_command} > references/cmshistfunc-FastScan.out"
+)
+
 # Template analysis CMSHistFunc with channel masks
 ADD_COMBINE_TEST(cmshistfunc_channel_masks
   T2W_COMMAND
@@ -509,6 +536,45 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
     "combine ${REPO}/data/tutorials/CAT23001/datacard-5-multi-signal.txt -M ChannelCompatibilityCheck --mass 125 > references/multi-signal-ChannelCompatibilityCheck.out"
 )
 
+
+# AsymptoticLimits directly on a text datacard. This is deliberately close to
+# the asymptotic_limits test above: the point is to exercise the path where
+# combine itself converts the text datacard to a workspace on the fly, which
+# is the command that motivated the pandas dependency in pixi.toml. The -n is
+# only there to give the output file a unique name in the shared build
+# directory; it does not change the printed output.
+COMBINE_ADD_TEST(realistic-counting-experiment-AsymptoticLimits
+    COMMAND combine -M AsymptoticLimits -d ${REPO}/data/tutorials/counting/realistic-counting-experiment.txt -n RealisticCountingExperiment
+    CHECKOUT OUTPUT realistic-counting-experiment-AsymptoticLimits.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/realistic-counting-experiment-AsymptoticLimits.out
+    # The last digits of the limits can differ between ROOT versions, so
+    # compare floating point numbers with a relative tolerance of 1 %.
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+)
+set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
+    "combine -M AsymptoticLimits -d ${REPO}/data/tutorials/counting/realistic-counting-experiment.txt -n RealisticCountingExperiment > references/realistic-counting-experiment-AsymptoticLimits.out"
+)
+
+# Check that the combine executable and the executable scripts can at least
+# be loaded (i.e. all their imports work) and print their help.
+foreach(executable
+    combine
+    combineCards.py
+    combineTool.py
+    commentUncerts.py
+    plot1DScan.py
+    plotBSMxsBRLimit.py
+    plotGof.py
+    plotImpacts.py
+    plotLimitGrid.py
+    plotLimits.py
+    pruneUncerts.py
+    text2workspace.py
+)
+    COMBINE_ADD_TEST(help-${executable}
+        COMMAND ${executable} --help
+        PASSREGEX "[Uu]sage:"
+    )
+endforeach()
 
 # Write the script to produce the reference files. After building combine, you
 # can produce the reference files as follows:

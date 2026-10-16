@@ -52,11 +52,7 @@ jobs:
           pixi install --locked
           # CI-only task: same build as `install` but with -DBUILD_TESTS=ON.
           pixi run install-tests
-          # Smoke-check the executables and the exact command that motivated the
-          # pandas dependency.
-          pixi run combine --help > /dev/null
-          pixi run text2workspace.py --help > /dev/null
-          pixi run combine -M AsymptoticLimits -d data/tutorials/counting/realistic-counting-experiment.txt
-          # Full unit-test battery.
+          # Full unit-test battery (includes the executables' --help checks and
+          # an AsymptoticLimits run on a text datacard, which needs pandas).
           ulimit -s unlimited
           pixi run ctest --test-dir ../build_combine/test --output-on-failure

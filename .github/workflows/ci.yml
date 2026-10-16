@@ -79,9 +79,6 @@ jobs:
         cmake --install build  # Install to conda prefix (unsafe but ok for CI)
     - name: Run tests
       shell: bash -l {0}
-      # Check if executables and Python module works, and then run the test battery
       run: |
-        combine --help > /dev/null
-        text2workspace.py --help > /dev/null
         ulimit -s unlimited;
         ctest --test-dir build/test --output-on-failure

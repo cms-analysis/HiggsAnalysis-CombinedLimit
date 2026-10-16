@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
-import CombineHarvester.CombineTools.maketable as maketable
 import ROOT
 import math
 import argparse
@@ -42,6 +41,9 @@ if ".root" in args.file:
     graph_exp = plot.SortGraph(file.Get("expected"))
     graph_plus1sigma = plot.SortGraph(file.Get("plus1sigma"))
     graph_plus2sigma = plot.SortGraph(file.Get("plus2sigma"))
+    # Imported here and not at the top so that --help works without CombineHarvester
+    import CombineHarvester.CombineTools.maketable as maketable
+
     maketable.Tablefrom1DGraph(args.file, "mssm_limit_table.txt")
 else:
     data = {}
@@ -54,6 +56,8 @@ else:
     graph_exp = plot.LimitTGraphFromJSON(data, "expected")
     graph_plus1sigma = plot.LimitTGraphFromJSON(data, "+1")
     graph_plus2sigma = plot.LimitTGraphFromJSON(data, "+2")
+    import CombineHarvester.CombineTools.maketable as maketable
+
     maketable.TablefromJson(args.file, "mssm_limit_table.txt")
 
 process_label = args.process
