@@ -342,6 +342,19 @@ COMBINE_ADD_TEST(cmshistsum_vs_cmshistfunc_fitdiagnostics
     FIXTURES_REQUIRED cmshistsum_vs_cmshistfunc_fitdiagnostics
 )
 
+# Same comparison with autoMCStats 10, so that the low-statistics bins also get
+# per-process Poisson and Gaussian parameters. The shape systematics are
+# interpreted as shapeN (--default-morphing shapeN), i.e. the processes use
+# LogQuadLinear vertical morphing.
+COMBINE_ADD_TEST(cmshistsum_vs_cmshistfunc_fitdiagnostics_autoMCStats10-text2workspace
+    COMMAND bash -c "text2workspace.py ${REPO}/data/ci/template-analysis_shapeInterp_autoMCStats10.txt -o fitdiag_autoMCStats10_cmshistfunc.root --mass 200 --default-morphing shapeN && text2workspace.py ${REPO}/data/ci/template-analysis_shapeInterp_autoMCStats10.txt -o fitdiag_autoMCStats10_cmshistsum.root --mass 200 --default-morphing shapeN --use-histsum"
+    FIXTURES_SETUP cmshistsum_vs_cmshistfunc_fitdiagnostics_autoMCStats10
+)
+COMBINE_ADD_TEST(cmshistsum_vs_cmshistfunc_fitdiagnostics_autoMCStats10
+    COMMAND bash -c "combine -M FitDiagnostics fitdiag_autoMCStats10_cmshistfunc.root -m 200 -n autoMCStats10_cmshistfunc --saveShapes --saveWithUncertainties --numToysForShapes 20 && combine -M FitDiagnostics fitdiag_autoMCStats10_cmshistsum.root -m 200 -n autoMCStats10_cmshistsum --saveShapes --saveWithUncertainties --numToysForShapes 20 && python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticsautoMCStats10_cmshistfunc.root > shapes_autoMCStats10_cmshistfunc.txt && python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticsautoMCStats10_cmshistsum.root > shapes_autoMCStats10_cmshistsum.txt && python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 1e-5 shapes_autoMCStats10_cmshistfunc.txt shapes_autoMCStats10_cmshistsum.txt"
+    FIXTURES_REQUIRED cmshistsum_vs_cmshistfunc_fitdiagnostics_autoMCStats10
+)
+
 # Template-analysis datacard -> text2workspace
 COMBINE_ADD_TEST(template_analysis-text2workspace
     COMMAND text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o template-analysis_shape_autoMCStats.root
