@@ -112,6 +112,10 @@ namespace utils {
     void setModelParameters( const std::string & setPhysicsModelParameterExpression, const RooArgSet & params);
     // Set range of physics model parameters
     void setModelParameterRanges( const std::string & setPhysicsModelParameterRangeExpression, const RooArgSet & params);
+    /// If `spec` has the form `<prefix>{<content>}`, e.g. "rgx{CMS_.*}", store the content and return true
+    bool extractBracedSpec(const std::string &spec, const char *prefix, std::string &content);
+    /// Members of `coll` whose names match the ECMAScript regular expression `pattern`
+    std::vector<RooAbsArg *> selectByRegex(const RooAbsCollection &coll, const std::string &pattern);
     void check_inf_parameters(const RooArgSet & params, int verbosity);
     bool isParameterAtBoundary( const RooRealVar &);
     bool anyParameterAtBoundaries( const RooArgSet &, int verbosity);
