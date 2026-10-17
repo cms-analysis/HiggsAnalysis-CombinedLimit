@@ -3,6 +3,11 @@
 #include <ostream>
 #include <vector>
 #include <memory>
+#if __has_include(<ROOT/RVersion.hxx>)
+#include <ROOT/RVersion.hxx>
+#else
+#include <RVersion.h>
+#endif
 #include "RooAbsReal.h"
 #include "RooArgSet.h"
 #include "RooListProxy.h"
@@ -13,6 +18,10 @@
 #include "SimpleCacheSentry.h"
 #include "CMSHistFunc.h"
 #include "CMSHistV.h"
+
+namespace RooFit {
+class EvalContext;
+}
 
 class CMSHistErrorPropagator : public RooAbsReal {
 private:
@@ -43,6 +52,9 @@ public:
   void applyErrorShifts(unsigned idx, FastHisto const& nominal, FastHisto & result);
 
   Double_t evaluate() const override;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 0)
+  void doEval(RooFit::EvalContext &ctx) const override;
+#endif
 
   RooArgList * setupBinPars(double poissonThreshold);
 
@@ -60,11 +72,17 @@ public:
 
   void setAnalyticBarlowBeeston(bool flag) const;
 
+  /// See cmsHistBarlowBeestonGradientTerms() in CMSHistHelpers.h.
+  void barlowBeestonGradientTerms(std::vector<double>& slopes, std::vector<double>& ratios) const;
+
   inline FastHisto const& cache() const { return cache_; }
 
   RooArgList wrapperList() const;
   RooArgList const& coefList() const { return coeffs_; }
   RooArgList const& funcList() const { return funcs_; }
+  RooArgList const& binParList() const { return binpars_; }
+  std::vector<std::vector<unsigned>> const& binTypes() const { return bintypes_; }
+  RooAbsReal const& getXVar() const { return x_.arg(); }
   
   std::map<std::string, Double_t> getProcessNorms() const;
 

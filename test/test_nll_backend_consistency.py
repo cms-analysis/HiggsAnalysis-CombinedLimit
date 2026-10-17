@@ -202,6 +202,27 @@ class LikelihoodBoundaryTest(unittest.TestCase):
         with self.subTest(component="shape and penalty"):
             self.assert_close(float(nll.getVal()) - baseline, math.log(1.5) + penalty)
 
+    def masked_channel(self):
+        """
+        Test that a channel whose mask variable (text2workspace.py --channel-masks) is
+        non-zero is left out of the likelihood, and that the mask is read at evaluation time.
+        """
+        model = Model(observations=(0, 2))
+        nll = model._nll(ARGS.backend)
+        # Moving theta from 0 to 1: channel a contributes 0.5, channel b -1.5, the constraint 0.5
+        with self.subTest(mask="none"):
+            self.assert_close(model._delta(nll), -0.5)
+        model.mask_a.setVal(1)
+        with self.subTest(mask="a"):
+            self.assert_close(model._delta(nll), -1.0, "masked channel must not enter the likelihood")
+        model.mask_a.setVal(0)
+        model.mask_b.setVal(1)
+        with self.subTest(mask="b"):
+            self.assert_close(model._delta(nll), 1.0, "masked channel must not enter the likelihood")
+        model.mask_b.setVal(0)
+        with self.subTest(mask="none again"):
+            self.assert_close(model._delta(nll), -0.5, "unmasking must restore the channel")
+
     def ignore_constraint_poi_selection(self):
         """
         Check that the ignoreConstraint attribute is honored a nuisance is redefined as a POI

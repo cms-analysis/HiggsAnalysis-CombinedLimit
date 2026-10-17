@@ -184,7 +184,7 @@ class CachingSimNLL  : public SimNLLBase {
         void clearConstantZeroPoint() override;
         static void forceUnoptimizedConstraints() { optimizeContraints_ = false; }
         void setChannelMasks(RooArgList const& args);
-        void setAnalyticBarlowBeeston(bool flag);
+        void setAnalyticBarlowBeeston(bool flag) override;
         void setMaskNonDiscreteChannels(bool mask) override;
         friend class CachingAddNLL;
         // trap this call, since we don't care about propagating it to the sub-components

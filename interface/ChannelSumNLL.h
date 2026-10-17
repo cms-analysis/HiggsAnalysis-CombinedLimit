@@ -13,6 +13,7 @@
 
 #include "SimNLLBase.h"
 
+#include <RooAbsCategory.h>
 #include <RooAbsData.h>
 #include <RooAbsPdf.h>
 #include <RooArgList.h>
@@ -24,8 +25,11 @@
 #include <RooSetProxy.h>
 #include <RooSimultaneous.h>
 
+class CMSHistBarlowBeestonGradientTerm;
 class RooMultiPdf;
+class RooPoisson;
 
+#include <array>
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -39,13 +43,18 @@ namespace cacheutils {
   /// Each term comes from RooAbsPdf::createNLL() with the requested RooFit
   /// backend and owns its evaluator, so a masked channel can be left out of the
   /// sum, of getParameters() and of the evaluation, which a single evaluator
-  /// can't do. The constraint terms are factorized out of the channels and
-  /// evaluated by a never-masked likelihood: a RooUniform of a dummy observable
-  /// with a one-entry dataset (exactly zero) and the constraint pdfs as external
+  /// can't do. The constraint terms are factorized out of the channels. The
+  /// simple Gaussian and Poisson ones (what text2workspace.py writes) are summed
+  /// here in closed form, see addFastConstraint(); the others are evaluated by
+  /// a never-masked likelihood: a RooUniform of a dummy observable with a
+  /// one-entry dataset (exactly zero) and the constraint pdfs as external
   /// constraints. Like CachingSimNLL, the RooMultiPdf penalty is added per
   /// channel, since createNLL() only applies the correction of the top-level
   /// pdf. With "codegen" the analytic gradients of the terms are summed;
-  /// hasGradient() requires all terms to have one.
+  /// hasGradient() requires all terms to have one. A term is only re-evaluated
+  /// if one of its variables changed since its last evaluation, see
+  /// termValue(): a RooFit likelihood always runs its evaluator when asked for
+  /// its value, which costs a pass over its whole computation graph.
   ///
   /// A RooFit::Evaluator stores a data token in every non-RooRealVar node, so a
   /// RooCategory shared by several channels (a RooMultiPdf index) can't be in
@@ -53,6 +62,16 @@ namespace cacheutils {
   /// synchronized with the originals before every evaluation; getParameters()
   /// reports the originals. The per-channel datasets from splitting the input
   /// are owned here, because the terms keep their data by pointer.
+  ///
+  /// The channel masks of a RooSimultaneousOpt (text2workspace.py
+  /// --channel-masks) are honored like in CachingSimNLL: a channel whose mask
+  /// is non-zero is left out of the sum, but not of getParameters().
+  ///
+  /// setAnalyticBarlowBeeston() works like in CachingSimNLL: the bin-by-bin
+  /// parameters of the histogram nodes of the original channel pdfs are set
+  /// constant and their closed-form best fit is pushed into them before every
+  /// evaluation, which the RooFit likelihoods see like any parameter change,
+  /// because they share the parameters with the originals.
   class ChannelSumNLL : public SimNLLBase {
   public:
     /// \param simPdf     The simultaneous pdf, usually a RooSimultaneousOpt
@@ -100,6 +119,7 @@ namespace cacheutils {
     /// There is no constant zero point in this class, nothing to do.
     void clearConstantZeroPoint() override {}
     void setMaskNonDiscreteChannels(bool mask) override;
+    void setAnalyticBarlowBeeston(bool flag) override;
 
   protected:
     double evaluate() const override;
@@ -109,6 +129,41 @@ namespace cacheutils {
       RooCategory *original = nullptr;
       RooCategory *clone = nullptr;
     };
+    // The cached value of a term and the state of its variables at the time,
+    // see termValue().
+    struct TermCache {
+      std::vector<RooRealVar const *> reals;
+      std::vector<RooAbsCategory const *> categories;
+      std::vector<std::size_t> counters;  // RooRealVar::valueResetCounter() of the reals
+      std::vector<int> indices;           // indices of the categories
+      double value = 0;
+      bool valid = false;
+      bool cacheable = true;  // false if the term has a variable of another kind
+    };
+    // Constraint terms evaluated in closed form, see addFastConstraint().
+    struct GaussianConstraint {
+      RooRealVar const *x = nullptr;
+      RooRealVar const *mean = nullptr;
+      RooAbsReal const *sigma = nullptr;
+      RooRealVar const *sigmaVar = nullptr;  // sigma if it is a variable
+      // The last value and the variable counters at the time, like TermCache.
+      mutable std::array<std::size_t, 3> counters{};
+      mutable double value = 0;
+      mutable bool valid = false;
+    };
+    struct PoissonConstraint {
+      RooPoisson const *pdf = nullptr;
+      RooAbsReal const *count = nullptr;
+      RooRealVar const *mean = nullptr;
+      bool normalized = false;  // RooFit would normalize it over the mean
+      // The normalization integral only depends on the count and on the range
+      // of the mean, cached here.
+      mutable bool normValid = false;
+      mutable double normCount = 0.;
+      mutable double normMin = 0.;
+      mutable double normMax = 0.;
+      mutable double logNorm = 0.;
+    };
 
     void setup(RooAbsData &data);
     std::vector<std::unique_ptr<RooAbsData>> splitData(RooAbsData &data) const;
@@ -117,10 +172,35 @@ namespace cacheutils {
     RooAbsPdf &channelPdfForNLL(RooAbsPdf &pdf, std::vector<CategorySync> &syncs);
     void syncCategories() const;
     void replaceClonesByOriginals(RooArgSet &params) const;
+    /// For the "codegen" backend: the channel pdf with a gradient term per
+    /// histogram node, see CMSHistBarlowBeestonGradientTerm. Returns the input
+    /// pdf if there is no histogram node.
+    RooAbsPdf &addBarlowBeestonGradientTerms(RooAbsPdf &pdf, std::vector<RooAbsReal const *> const &hists);
     void updateGradientMaps() const;
+    /// The value of term i, re-evaluated only if the term was invalidated or
+    /// one of its variables changed (RooRealVar::valueResetCounter() like in
+    /// RooFit::Evaluator, category index).
+    double termValue(std::size_t i) const;
+    static TermCache makeTermCache(RooArgSet const &variables);
+    /// Take over a constraint pdf that is evaluated in closed form, with the
+    /// same value as its RooFit likelihood would have: a SimpleGaussianConstraint
+    /// of a parameter with a variable as mean, or a RooPoisson of a constant
+    /// count with a parameter as mean. Returns false for anything else.
+    bool addFastConstraint(RooAbsPdf const &pdf);
+    double fastConstraintsValue() const;
+    static double poissonConstraintValue(PoissonConstraint const &c);
+    void fastConstraintsGradient(double *out) const;
+    /// Masked by the discrete profiling scan (setMaskNonDiscreteChannels()) or
+    /// by the channel mask of the RooSimultaneousOpt.
     bool isMasked(std::size_t i) const {
-      return i < m_nChannels && !m_internalMasks.empty() && !m_internalMasks[i];
+      return i < m_nChannels && ((!m_internalMasks.empty() && !m_internalMasks[i]) ||
+                                 (m_channelMaskVars[i] != nullptr && m_channelMaskVars[i]->getVal() != 0.));
     }
+    /// Hand the observed counts of a channel to its histogram nodes, which the
+    /// analytic Barlow-Beeston minimization needs.
+    void setHistogramData(std::size_t iChannel, RooAbsData const &channelData) const;
+    /// The Barlow-Beeston step before an evaluation, for the active channels.
+    void runAnalyticBarlowBeeston() const;
 
     RooSimultaneous *m_simPdf = nullptr;  // not owned
     RooAbsData *m_data = nullptr;         // not owned, kept for cloning
@@ -133,6 +213,7 @@ namespace cacheutils {
     RooArgList m_constraints;
 
     std::vector<std::string> m_channelNames;
+    std::vector<RooAbsReal const *> m_channelMaskVars;  // the channel masks of a RooSimultaneousOpt, or nullptr
     std::vector<std::unique_ptr<RooAbsPdf>> m_privateChannelPdfs;
     std::vector<std::unique_ptr<RooCategory>> m_categoryClones;
     std::vector<std::vector<CategorySync>> m_categorySyncs;
@@ -148,7 +229,23 @@ namespace cacheutils {
     std::size_t m_nChannels = 0;
     std::vector<RooArgSet> m_channelParams;                            // all parameters of each channel likelihood
     std::vector<std::vector<RooMultiPdf const *>> m_channelMultiPdfs;  // for the penalty terms
+    // The histogram nodes (CMSHistSum or CMSHistErrorPropagator) of the
+    // original channel pdfs, for the analytic Barlow-Beeston minimization.
+    std::vector<std::vector<RooAbsReal const *>> m_channelHists;
+    bool m_analyticBarlowBeeston = false;
+    // With an analytic gradient, every histogram node gets a gradient term
+    // (see CMSHistBarlowBeestonGradientTerm) inside the channel pdf, fed from
+    // the original node before each gradient call.
+    std::vector<std::vector<CMSHistBarlowBeestonGradientTerm *>> m_channelGradientTerms;  // owned by their pdfs
+    RooArgSet m_gradientTermVars;  // their inputs, hidden from getParameters()
     std::vector<double> m_zeroPoints;
+    mutable std::vector<TermCache> m_termCaches;  // one per term
+
+    // The constraint terms evaluated in closed form and their zero point.
+    std::vector<RooAbsPdf const *> m_fastConstraintPdfs;
+    std::vector<GaussianConstraint> m_gaussianConstraints;
+    std::vector<PoissonConstraint> m_poissonConstraints;
+    double m_fastConstraintZeroPoint = 0;
 
     // All terms as servers, for dirty-state propagation and graph traversal.
     RooListProxy m_components;
@@ -167,6 +264,10 @@ namespace cacheutils {
     mutable bool m_gradientMapsDirty = true;
     mutable std::size_t m_nGradientParams = 0;
     mutable std::vector<std::vector<int>> m_gradientMaps;
+    // Positions of the closed-form constraint variables in our parameter list,
+    // -1 if absent: x, mean and sigma of each Gaussian, the mean of each Poisson.
+    mutable std::vector<std::array<int, 3>> m_gaussianGradientIndices;
+    mutable std::vector<int> m_poissonGradientIndices;
     mutable std::vector<double> m_gradientBuffer;
   };
 
