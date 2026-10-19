@@ -3,6 +3,8 @@
 #include "../interface/CascadeMinimizer.h"
 
 #include <cstdio>
+#include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <cmath>
@@ -712,213 +714,161 @@ void utils::CheapValueSnapshot::Print(const char *fmt) const {
     }
 }
 
-void utils::setModelParameters( const std::string & setPhysicsModelParameterExpression, const RooArgSet & params) {
+bool utils::extractBracedSpec(const std::string &spec, const char *prefix, std::string &content) {
+  const std::string tag = std::string(prefix) + "{";
+  if (!Utils::starts_with(spec, tag) || spec.back() != '}')
+    return false;
+  content = spec.substr(tag.size(), spec.size() - tag.size() - 1);
+  return true;
+}
 
-  vector<string> SetParameterExpressionList = Utils::split(setPhysicsModelParameterExpression, ",");
-  for (UInt_t p = 0; p < SetParameterExpressionList.size(); ++p) {
-    vector<string> SetParameterExpression = Utils::split(SetParameterExpressionList[p], "=");
-      
-    // check for file syntax: file{file.txt}                                                                                                                                   
-    if (Utils::starts_with(SetParameterExpression[0], "file{") && SetParameterExpression[0].back() == '}') {
-        std::string fname = SetParameterExpression[0].substr(5, SetParameterExpression[0].size()-6);
-        std::cout<<"Opening parameter file:"<<fname<<std::endl;
-        ifstream file(fname.c_str());
-        if (not file.is_open()){ std::cout<< "ERROR Unable to open/read file:"<<fname<<std::endl;}
-        string line;
-        while ( std::getline( file, line) )
-        {
-            if (Utils::starts_with(line,"RooRealVar::") ) // directly from the print of the ws
-            { 
-               if (line.find(" C ") != string::npos) continue; // don't deal with constants
-               line=line.substr(string("RooRealVar::").size()) ;//Remove RooRealVar::
-               string tosearch=" = ",replace="=";
-               line.replace(line.find(tosearch), tosearch.size(), replace);
-               line=line.substr(0,line.find('+'));
-               line=line.substr(0,line.find(" C "));
+std::vector<RooAbsArg *> utils::selectByRegex(const RooAbsCollection &coll, const std::string &pattern) {
+  std::regex rgx(pattern, std::regex::ECMAScript);
+  std::vector<RooAbsArg *> out;
+  for (RooAbsArg *a : coll) {
+    if (std::regex_match(a->GetName(), rgx))
+      out.push_back(a);
+  }
+  return out;
+}
 
-            }
-            if (line == "") continue;
-            std::cout<<"Adding term to setParamers:"<<line<<std::endl; // DEBUG
-            SetParameterExpressionList.push_back(line);
-        }
-    }
-    else if (SetParameterExpression.size() != 2 ) {
-      std::cout << "Error parsing physics model parameter expression : " << SetParameterExpressionList[p] << endl;
-    } 
-    // check for regex syntax: rgx{regex}                                                                                                                                     
-    else if (Utils::starts_with(SetParameterExpression[0], "rgx{") && SetParameterExpression[0].back() == '}') {
-
-        std::string reg_esp = SetParameterExpression[0].substr(4, SetParameterExpression[0].size()-5);
-        std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
-        std::regex rgx( reg_esp, std::regex::ECMAScript);
-
-        for (RooAbsArg *tmp : params) {
-
-            bool isrvar = tmp->IsA()->InheritsFrom(RooRealVar::Class());  // check its type    
-
-            if (isrvar) {
-                RooRealVar *tmpParameter = dynamic_cast<RooRealVar *>(tmp);
-                const std::string &target = tmpParameter->GetName();
-                std::smatch match;
-                if (std::regex_match(target, match, rgx)) {
-                    double PhysicsParameterValue = atof(SetParameterExpression[1].c_str());
-                    if (PhysicsParameterValue < tmpParameter->getMin() ||
-                        PhysicsParameterValue > tmpParameter->getMax()) {
-                      throw std::runtime_error(
-                          Form("Parameter %s value %g is outside its range [%g, %g]. "
-                               "Use --rMin/--rMax or --setParameterRanges to adjust the range.",
-                               target.c_str(),
-                               PhysicsParameterValue,
-                               tmpParameter->getMin(),
-                               tmpParameter->getMax()));
-                    }
-                    cout << "Set Default Value of Parameter " << target
-                     << " To : " << PhysicsParameterValue << "\n";
-                    tmpParameter->setVal(PhysicsParameterValue);
-                }
-            } else {
-                RooCategory *tmpCategory  = dynamic_cast<RooCategory*>(tmp);
-                const std::string &target = tmpCategory->GetName();
-                std::smatch match;
-                if (std::regex_match(target, match, rgx)) {
-                    int PhysicsParameterValue = atoi(SetParameterExpression[1].c_str());
-                    cout << "Set Default Index of Parameter " << target
-                         << " To : " << PhysicsParameterValue 
-                         << " (was: " << tmpCategory->getIndex() << " )\n";
-                    tmpCategory->setIndex(PhysicsParameterValue);
-                }
-            }
-        }
-
-    }
-    else {
-      
-      RooAbsArg  *tmp = (RooAbsArg*)params.find(SetParameterExpression[0].c_str());     
-      if (tmp){
-
-        bool isrvar = tmp->IsA()->InheritsFrom(RooRealVar::Class());  // check its type
-
-        if (isrvar) {
-          RooRealVar *tmpParameter = dynamic_cast<RooRealVar*>(tmp);
-          double PhysicsParameterValue = atof(SetParameterExpression[1].c_str());
-          if (PhysicsParameterValue < tmpParameter->getMin() || PhysicsParameterValue > tmpParameter->getMax()) {
-            throw std::runtime_error(
-                Form("Parameter %s value %g is outside its range [%g, %g]. "
-                     "Use --rMin/--rMax or --setParameterRanges to adjust the range.",
-                     SetParameterExpression[0].c_str(),
-                     PhysicsParameterValue,
-                     tmpParameter->getMin(),
-                     tmpParameter->getMax()));
-          }
-          cout << "Set Default Value of Parameter " << SetParameterExpression[0] << " To : " << PhysicsParameterValue
-               << "\n";
-          tmpParameter->setVal(PhysicsParameterValue);
-        } else {
-          RooCategory *tmpCategory  = dynamic_cast<RooCategory*>(tmp);
-          int PhysicsParameterValue = atoi(SetParameterExpression[1].c_str());
-          cout << "Set Default Index of Parameter " << SetParameterExpression[0] 
-               << " To : " << PhysicsParameterValue 
-               << " (was: " << tmpCategory->getIndex() << " )\n";
-          tmpCategory->setIndex(PhysicsParameterValue);
-	}
+// Append the expressions listed in a file to `expressions`. Lines in the format of a RooRealVar
+// printout ("RooRealVar::name = value +/- error  L(min - max)") are converted with `fromPrintout`,
+// skipping constant variables.
+template <typename F>
+static void readExpressionsFromFile(const std::string &fname,
+                                    std::vector<std::string> &expressions,
+                                    const char *context,
+                                    F fromPrintout) {
+  std::cout << "Opening parameter file:" << fname << '\n';
+  std::ifstream file(fname);
+  if (!file.is_open())
+    std::cout << "ERROR Unable to open/read file:" << fname << '\n';
+  std::string line;
+  while (std::getline(file, line)) {
+    if (Utils::starts_with(line, "RooRealVar::")) {
+      if (line.find(" C ") != std::string::npos)
+        continue;  // don't deal with constants
+      const std::string printout = line.substr(std::string("RooRealVar::").size());
+      line = fromPrintout(printout);
+      if (line.empty()) {
+        std::cout << "Error parsing " << context << " line: " << printout << '\n';
+        continue;
       }
-        else {
-        std::cout << "Warning: Did not find a parameter with name " << SetParameterExpression[0] << endl;
+    }
+    if (line.empty())
+      continue;
+    std::cout << "Adding term to " << context << ":" << line << '\n';  // DEBUG
+    expressions.push_back(line);
+  }
+}
+
+// The parameters in `params` that `spec` refers to: either the matches of a regular expression
+// "rgx{...}", or a single parameter by name (with a warning if there is none).
+static std::vector<RooAbsArg *> resolveParameterSpec(const RooArgSet &params, const std::string &spec, bool &isRegex) {
+  std::string pattern;
+  isRegex = utils::extractBracedSpec(spec, /*prefix=*/"rgx", pattern);
+  if (isRegex) {
+    std::cout << "interpreting " << pattern << " as regex\n";
+    return utils::selectByRegex(params, pattern);
+  }
+  RooAbsArg *arg = params.find(spec.c_str());
+  if (!arg)
+    std::cout << "Warning: Did not find a parameter with name " << spec << '\n';
+  return arg ? std::vector<RooAbsArg *>{arg} : std::vector<RooAbsArg *>{};
+}
+
+void utils::setModelParameters(const std::string &setPhysicsModelParameterExpression, const RooArgSet &params) {
+  std::vector<std::string> expressions = Utils::split(setPhysicsModelParameterExpression, /*delim=*/",");
+  for (std::size_t p = 0; p < expressions.size(); ++p) {
+    std::vector<std::string> nameAndValue = Utils::split(expressions[p], /*delim=*/"=");
+    std::string fname;
+    if (extractBracedSpec(nameAndValue[0], /*prefix=*/"file", fname)) {
+      // "name = value +/- error ..." -> "name=value"
+      readExpressionsFromFile(fname, expressions, /*context=*/"setParameters", [](std::string line) {
+        const std::size_t eq = line.find(" = ");
+        if (eq == std::string::npos)
+          return std::string{};
+        line.replace(eq, 3, "=");
+        return line.substr(0, line.find('+'));
+      });
+      continue;
+    }
+    if (nameAndValue.size() != 2) {
+      std::cout << "Error parsing physics model parameter expression : " << expressions[p] << '\n';
+      continue;
+    }
+    bool isRegex = false;
+    for (RooAbsArg *arg : resolveParameterSpec(params, nameAndValue[0], isRegex)) {
+      if (auto *var = dynamic_cast<RooRealVar *>(arg)) {
+        double value = std::atof(nameAndValue[1].c_str());
+        if (value < var->getMin() || value > var->getMax()) {
+          std::stringstream msg;
+          msg << "Parameter " << var->GetName() << " value " << value << " is outside its range [" << var->getMin()
+              << ", " << var->getMax() << "]. Use --rMin/--rMax or --setParameterRanges to adjust the range.";
+          throw std::runtime_error(msg.str());
+        }
+        std::cout << "Set Default Value of Parameter " << var->GetName() << " To : " << value << "\n";
+        var->setVal(value);
+      } else if (auto *cat = dynamic_cast<RooCategory *>(arg)) {
+        int index = std::atoi(nameAndValue[1].c_str());
+        std::cout << "Set Default Index of Parameter " << cat->GetName() << " To : " << index
+                  << " (was: " << cat->getIndex() << " )\n";
+        cat->setIndex(index);
       }
     }
   }
-
 }
 
-void utils::setModelParameterRanges( const std::string & setPhysicsModelParameterRangeExpression, const RooArgSet & params) {
-
-  vector<string> SetParameterRangeExpressionList = Utils::split(setPhysicsModelParameterRangeExpression, ":");
-  for (UInt_t p = 0; p < SetParameterRangeExpressionList.size(); ++p) {
-    vector<string> SetParameterRangeExpression = Utils::split(SetParameterRangeExpressionList[p], "=,");
-      
-    if (Utils::starts_with(SetParameterRangeExpression[0], "file{") && SetParameterRangeExpression[0].back() == '}') {
-        std::string fname = SetParameterRangeExpression[0].substr(5, SetParameterRangeExpression[0].size()-6);
-        std::cout<<"Opening parameter file:"<<fname<<std::endl;
-        ifstream file(fname.c_str());
-        if (not file.is_open()){ std::cout<< "ERROR Unable to open/read file:"<<fname<<std::endl;}
-        string line;
-        while ( std::getline( file, line) )
-        {
-            if (Utils::starts_with(line,"RooRealVar::") ) // directly from the print of the ws
-            { 
-               if (line.find(" C ") != string::npos) continue; // don't deal with constants
-               //RooRealVar::cms_ps = -0.013155 +/- 0.995142  L(-INF - +INF) 
-               line=line.substr(string("RooRealVar::").size()) ;//Remove RooRealVar::
-               string newline=line.substr(0,line.find(" = "));
-               size_t pos1=line.find('=')+1, pos2=line.find(" +/- ");
-               float value=std::atof(line.substr(pos1, pos2-pos1).c_str());
-               std::cout<<"->Obtaining value from:"<<pos1<<","<<pos2<<":"<<line.substr(pos1, pos2-pos1).c_str()<<std::endl;
-               size_t pos3=line.find(' ',pos2+5);
-               float err = std::atof(line.substr(pos2+5,pos3-(pos2+5)).c_str());
-               float mult=7; // arbitrary number
-               std::cout<<"Range manipulation result: "<<newline<<"="<< value<<"+/-"<<err<<"Mult factor"<<mult<<std::endl;
-               newline += Form("=%f,%f",value-mult*err,value+mult*err);
-               line=newline;
-            }
-            if (line == "") continue;
-            std::cout<<"Adding term to setParameterRanges:"<<line<<std::endl; // DEBUG
-            SetParameterRangeExpressionList.push_back(line);
-        }
+void utils::setModelParameterRanges(const std::string &setPhysicsModelParameterRangeExpression,
+                                    const RooArgSet &params) {
+  std::vector<std::string> expressions = Utils::split(setPhysicsModelParameterRangeExpression, /*delim=*/":");
+  for (std::size_t p = 0; p < expressions.size(); ++p) {
+    std::vector<std::string> nameAndRange = Utils::split(expressions[p], /*delim=*/"=,");
+    std::string fname;
+    if (extractBracedSpec(nameAndRange[0], /*prefix=*/"file", fname)) {
+      // "name = value +/- error ..." -> "name=value-7*error,value+7*error"
+      readExpressionsFromFile(fname, expressions, /*context=*/"setParameterRanges", [](const std::string &line) {
+        const std::size_t eq = line.find(" = ");
+        const std::size_t pos2 = line.find(" +/- ");
+        if (eq == std::string::npos || pos2 == std::string::npos)
+          return std::string{};
+        std::string name = line.substr(0, eq);
+        std::size_t pos1 = eq + 3;
+        double value = std::atof(line.substr(pos1, pos2 - pos1).c_str());
+        std::cout << "->Obtaining value from:" << pos1 << "," << pos2 << ":" << line.substr(pos1, pos2 - pos1) << '\n';
+        std::size_t pos3 = line.find(' ', pos2 + 5);
+        double err = std::atof(line.substr(pos2 + 5, pos3 - (pos2 + 5)).c_str());
+        double mult = 7;  // arbitrary number
+        std::cout << "Range manipulation result: " << name << "=" << value << "+/-" << err << "Mult factor" << mult
+                  << '\n';
+        return name + "=" + std::to_string(value - (mult * err)) + "," + std::to_string(value + (mult * err));
+      });
+      continue;
     }
-    else if (SetParameterRangeExpression.size() != 3) {
-      std::cout << "Error parsing physics model parameter expression : " << SetParameterRangeExpressionList[p] << endl;
-    } else if (SetParameterRangeExpression[1] == "-inf" && (
-                    SetParameterRangeExpression[2] == "inf" || 
-                    SetParameterRangeExpression[2] == "+inf") ) {
-      RooRealVar *tmpParameter = (RooRealVar*)params.find(SetParameterRangeExpression[0].c_str());            
-      if (tmpParameter) {
-        cout << "Leave Parameter " << SetParameterRangeExpression[0] 
-             << " freely floating, with no range\n";
-        tmpParameter->removeMin();
-        tmpParameter->removeMax();
+    if (nameAndRange.size() != 3) {
+      std::cout << "Error parsing physics model parameter expression : " << expressions[p] << '\n';
+      continue;
+    }
+    bool unbounded = nameAndRange[1] == "-inf" && (nameAndRange[2] == "inf" || nameAndRange[2] == "+inf");
+    double lo = std::atof(nameAndRange[1].c_str());
+    double hi = std::atof(nameAndRange[2].c_str());
+    bool isRegex = false;
+    for (RooAbsArg *arg : resolveParameterSpec(params, nameAndRange[0], isRegex)) {
+      auto *var = dynamic_cast<RooRealVar *>(arg);
+      if (!var || (isRegex && var->isConstant()))
+        continue;
+      if (unbounded) {
+        std::cout << "Leave Parameter " << var->GetName() << " freely floating, with no range\n";
+        var->removeMin();
+        var->removeMax();
       } else {
-        std::cout << "Warning: Did not find a parameter with name " << SetParameterRangeExpression[0] << endl;
-      }
- 
-    } else {
-      double PhysicsParameterRangeLow = atof(SetParameterRangeExpression[1].c_str());
-      double PhysicsParameterRangeHigh = atof(SetParameterRangeExpression[2].c_str());
-
-      // check for regex syntax: rgx{regex}
-      if (Utils::starts_with(SetParameterRangeExpression[0], "rgx{") && SetParameterRangeExpression[0].back() == '}') {
-          
-          std::string reg_esp = SetParameterRangeExpression[0].substr(4, SetParameterRangeExpression[0].size()-5);
-          std::cout<<"interpreting "<<reg_esp<<" as regex "<<std::endl;
-          std::regex rgx( reg_esp, std::regex::ECMAScript);
-
-          for (RooAbsArg *a : params) {
-              RooRealVar *tmpParameter = dynamic_cast<RooRealVar *>(a);
-              const std::string &target = tmpParameter->GetName();
-              std::smatch match;
-              if (std::regex_match(target, match, rgx)) {
-                  if (tmpParameter->isConstant()) continue;
-                  cout << "Set Range of Parameter " << target
-                       << " To : (" << PhysicsParameterRangeLow << "," << PhysicsParameterRangeHigh << ")\n";
-                  tmpParameter->setRange(PhysicsParameterRangeLow,PhysicsParameterRangeHigh);
-              }
-          }
-
-      }         
-      else {
-          RooRealVar *tmpParameter = (RooRealVar*)params.find(SetParameterRangeExpression[0].c_str());            
-          if (tmpParameter) {
-              cout << "Set Range of Parameter " << SetParameterRangeExpression[0] 
-                   << " To : (" << PhysicsParameterRangeLow << "," << PhysicsParameterRangeHigh << ")\n";
-              tmpParameter->setRange(PhysicsParameterRangeLow,PhysicsParameterRangeHigh);
-          } else {
-              std::cout << "Warning: Did not find a parameter with name " << SetParameterRangeExpression[0] << endl;
-          }
+        std::cout << "Set Range of Parameter " << var->GetName() << " To : (" << lo << "," << hi << ")\n";
+        var->setRange(lo, hi);
       }
     }
-
   }
 }
-
 
 void utils::check_inf_parameters(const RooArgSet & params, int verbosity) {
 
