@@ -19,6 +19,7 @@ Checks: >
   -misc-non-private-member-variables-in-classes,
   -misc-no-recursion,
   -misc-use-anonymous-namespace,
+  -modernize-use-ranges,
   -modernize-return-braced-init-list,
   -modernize-use-trailing-return-type,
   -readability-braces-around-statements,

@@ -286,12 +286,16 @@ double AsymptoticLimits::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected
   if (!strictBounds_) r.setMax(1.1 * rVal);
   r.setConstant(true);
 
+  // Restore the previous fit without r, which is assigned to the new scan point below.
+  RooArgSet fitStartParams{*params_};
+  fitStartParams.remove(r, /*silent=*/true);
+
   CloseCoutSentry sentry(verbose < 3);
 
   CascadeMinimizer minimD(*nllD_, CascadeMinimizer::Constrained, &r);
-  //minimD.setStrategy(minimizerStrategy_);  
+  //minimD.setStrategy(minimizerStrategy_);
 
-  (!fitFixD_.empty() ? fitFixD_ : fitFreeD_).writeTo(*params_);
+  (!fitFixD_.empty() ? fitFixD_ : fitFreeD_).writeTo(fitStartParams);
   *params_ = snapGlobalObsData;
   r.setVal(rVal);
   r.setConstant(true);
@@ -314,9 +318,9 @@ double AsymptoticLimits::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected
 
 
   CascadeMinimizer minimA(*nllA_, CascadeMinimizer::Constrained, &r);
-  //minimA.setStrategy(minimizerStrategy_); 
+  //minimA.setStrategy(minimizerStrategy_);
 
-  (!fitFixA_.empty() ? fitFixA_ : fitFreeA_).writeTo(*params_);
+  (!fitFixA_.empty() ? fitFixA_ : fitFreeA_).writeTo(fitStartParams);
   *params_ = snapGlobalObsAsimov;
   r.setVal(rVal);
   r.setConstant(true);

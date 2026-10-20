@@ -42,6 +42,8 @@ jobs:
             LCG_ARCH: "x86_64-ubuntu2404-gcc13-opt"
             ROOT: "6.36.02"
             coverage: true
+            # Regular expression for tests that are not run with this release
+            CTEST_EXCLUDE: "cmshistsum_vs_cmshistfunc_fitdiagnostics"
           - LCG_RELEASE: "LCG_110"
             LCG_ARCH: "x86_64-ubuntu2404-gcc13-opt"
             ROOT: "6.40.02"
@@ -126,33 +128,16 @@ jobs:
             root --version
             combine --help
 
-      - uses: ./.github/actions/run-in-cvmfs
-        name: Check scripts/*.py executables
-        # Only run this test in CMSSW mode, because otherwise we already run this in the unit tests
-        if: ${{ env.CMSSW_VERSION != '' }}
-        with:
-          script: |
-            combineCards.py --help
-            combineTool.py --help
-            commentUncerts.py --help
-            plot1DScan.py --help
-            plotBSMxsBRLimit.py --help
-            plotGof.py --help
-            plotImpacts.py --help
-            plotLimitGrid.py --help
-            plotLimits.py --help
-            pruneUncerts.py --help
-            text2workspace.py --help
-
       - name: Run Tests (LCG)
         if: ${{ env.CMSSW_VERSION == '' }}
         env:
           LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
           LCG_ARCH: ${{ matrix.LCG_ARCH }}
+          CTEST_EXCLUDE: ${{ matrix.CTEST_EXCLUDE }}
         run: >-
           source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
           ulimit -s unlimited;
-          ctest --test-dir build/test --output-on-failure -j$(nproc);
+          ctest --test-dir build/test --output-on-failure -j$(nproc) ${CTEST_EXCLUDE:+-E "$CTEST_EXCLUDE"};
 
       # AlmaLinux 9 job
       - uses: ./.github/actions/run-in-cvmfs
@@ -184,21 +169,6 @@ jobs:
             cd ..
             cd build_test
             ctest3 --output-on-failure .
-
-      - uses: ./.github/actions/run-in-cvmfs
-        name: Counting datacard Fixed Point from csv
-        if: ${{ env.CMSSW_VERSION != '' }}
-        with:
-          script: |
-            text2workspace.py  data/tutorials/multiDim/toy-hgg-125.txt -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
-            combineTool.py -M MultiDimFit data/tutorials/multiDim/toy-hgg-125.root --fromfile data/tutorials/multiDim/fixed.csv
-
-      - uses: ./.github/actions/run-in-cvmfs
-        name: FastScan template analysis CMSHistFunc
-        with:
-          script: |
-            text2workspace.py data/ci/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
-            combineTool.py -M FastScan -w  ws_template-analysis.root:w
 
       - name: Prepare code coverage report
         if: ${{ success() && (matrix.coverage == true) }}

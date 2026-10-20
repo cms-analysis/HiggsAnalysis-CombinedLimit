@@ -1,5 +1,7 @@
 #include "../interface/CMSHistSum.h"
 #include "../interface/CMSHistFuncWrapper.h"
+#include "../interface/CMSHistSumWrapper.h"
+#include "../interface/CombineMathFuncs.h"
 #include <stdexcept>
 #include <vector>
 #include <ostream>
@@ -185,6 +187,7 @@ CMSHistSum::CMSHistSum(
       vtype_(other.vtype_),
       vsmooth_par_(other.vsmooth_par_),
       bintypes_(other.bintypes_),
+      staging_(other.staging_),
       cache_(other.cache_),
       sentry_(name ? TString(name) + "_sentry" : TString(other.GetName())+"_sentry", ""),
       binsentry_(name ? TString(name) + "_binsentry" : TString(other.GetName())+"_binsentry", ""),
@@ -239,7 +242,6 @@ void CMSHistSum::initialize() const {
   staging_.Clear();
   err2sum_.resize(nb, 0.);
   toterr_.resize(nb, 0.);
-  binmods_.resize(n_procs_, std::vector<double>(nb, 0.));
   scaledbinmods_.resize(n_procs_, std::vector<double>(nb, 0.));
   coeffvals_.resize(n_procs_, 0.);
 
@@ -260,6 +262,8 @@ void CMSHistSum::initialize() const {
 }
 
 void CMSHistSum::updateMorphs() const {
+  using RooFit::Detail::MathFuncs::smoothStepFunc;
+
   // set up pointers ahead of time for quick loop
   std::vector<CMSExternalMorph*> process_morphs(compcache_.size(), nullptr);
   // if any external morphs are dirty, disable fast_mode_
@@ -318,22 +322,20 @@ void CMSHistSum::updateMorphs() const {
       if (code == -1) continue;
       if (fast_mode_ == 1) {
         double xold = vertical_prev_vals_[iv];
-        compcache_[ip].DiffMeld(storage_[code + 1], storage_[code + 0], 0.5*x, smoothStepFunc(x, ip), 0.5*xold, smoothStepFunc(xold, ip));
+        compcache_[ip].DiffMeld(storage_[code + 1],
+                                storage_[code + 0],
+                                0.5 * x,
+                                smoothStepFunc(x, vsmooth_par_[ip]),
+                                0.5 * xold,
+                                smoothStepFunc(xold, vsmooth_par_[ip]));
       } else {
-        compcache_[ip].Meld(storage_[code + 1], storage_[code + 0], 0.5*x, smoothStepFunc(x, ip));
+        compcache_[ip].Meld(storage_[code + 1], storage_[code + 0], 0.5 * x, smoothStepFunc(x, vsmooth_par_[ip]));
       }
     }
     vertical_prev_vals_[iv] = x;
   }
 
   if (enable_fast_vertical_) fast_mode_ = 1;
-}
-
-inline double CMSHistSum::smoothStepFunc(double x, int const& ip) const {
-  if (fabs(x) >= vsmooth_par_[ip]) return x > 0 ? +1 : -1;
-  double xnorm = x / vsmooth_par_[ip];
-  double xnorm2 = xnorm * xnorm;
-  return 0.125 * xnorm * (xnorm2 * (3. * xnorm2 - 10.) + 15);
 }
 
 void CMSHistSum::updateCache() const {
@@ -543,7 +545,7 @@ RooArgList * CMSHistSum::setupBinPars(double poissonThreshold) {
     }
 
     // Now check if we are below the poisson threshold
-    double n = int(0.5 + ((sub_sum * sub_sum) / (sub_err * sub_err)));
+    double n = std::floor(0.5 + ((sub_sum * sub_sum) / (sub_err * sub_err)));
     double alpha = valsum_[j] / n;
     std::cout << TString::Format(
         "%-10i %-15f %-15f %-30s\n", j, n, std::sqrt(n),
@@ -575,7 +577,7 @@ RooArgList * CMSHistSum::setupBinPars(double poissonThreshold) {
           std::cout << TString::Format("      %-30s\n", "=> Cannot handle negative content, ignore");
           bintypes_[j][i] = 4;
         } else if (v_p > 0. && e_p > 0. && v_p >= (e_p*0.999)) {
-          double n_p_r = int(0.5 + ((v_p * v_p) / (e_p * e_p)));
+          double n_p_r = std::floor(0.5 + ((v_p * v_p) / (e_p * e_p)));
           double alpha_p_r = v_p / n_p_r;
           std::cout << TString::Format(
               "    %-20s %-15f %-15f %-30s\n", "", n_p_r, std::sqrt(n_p_r),
@@ -667,6 +669,65 @@ std::unique_ptr<RooArgSet> CMSHistSum::getSentryArgs() const {
 Double_t CMSHistSum::evaluate() const {
   updateCache();
   return cache().GetAt(x_);
+}
+
+void CMSHistSum::fillProcessShape(unsigned idx, FastHisto& result) const {
+  updateCache();
+
+  result = compcache_[idx];
+  if (vtype_[idx] == CMSHistFunc::VerticalSetting::LogQuadLinear) {
+    result.Exp();
+    result.Scale(storage_[process_fields_[idx]].Integral() / result.Integral());
+  }
+  result.CropUnderflows();
+
+  // bintypes might have size == 0 if we never ran setupBinPars()
+  for (unsigned j = 0; j < bintypes_.size(); ++j) {
+    if (bintypes_[j][0] == 0) {
+      continue;
+    } else if (bintypes_[j][0] == 1) {
+      // Single Barlow-Beeston parameter: share the total shift between the
+      // processes in proportion to their contribution to the squared error
+      if (err2sum_[j] > 0. && coeffvals_[idx] > 0.) {
+        double x = vbinpars_[j][0]->getVal();
+        double e = binerrors_[idx][j];
+        result[j] += x * (toterr_[j] * e * e * coeffvals_[idx]) / err2sum_[j];
+      }
+    } else if (idx < bintypes_[j].size() && (bintypes_[j][idx] == 2 || bintypes_[j][idx] == 3)) {
+      result[j] += scaledbinmods_[idx][j];
+    }
+  }
+}
+
+RooArgList CMSHistSum::wrapperList() const {
+  // Wrappers that already exist, either imported into the workspace by
+  // text2workspace or created by a previous call, are clients of this object
+  std::vector<RooAbsArg*> wrappers(coeffpars_.getSize(), nullptr);
+  for (RooAbsArg *arg : valueClients()) {
+    CMSHistSumWrapper const* wrapper = dynamic_cast<CMSHistSumWrapper const*>(arg);
+    if (wrapper && wrapper->idx() < wrappers.size() && !wrappers[wrapper->idx()]) {
+      wrappers[wrapper->idx()] = arg;
+    }
+  }
+
+  RooArgList result;
+  CMSHistSum* self = const_cast<CMSHistSum*>(this);
+  for (int i = 0; i < coeffpars_.getSize(); ++i) {
+    RooAbsArg* wrapper = wrappers[i];
+    if (!wrapper) {
+      RooAbsArg const* coeff = coeffpars_.at(i);
+      // Use the index for the name, coefficients are not necessarily unique
+      // (e.g. the signals in the background-only model all use "ZERO")
+      TString name = TString::Format("%s_proc%d_wrapper", GetName(), i);
+      wrapper = new CMSHistSumWrapper(name, "", const_cast<RooAbsReal&>(x_.arg()), *self, i);
+      for (const char* attr : {"combine.process", "combine.channel"}) {
+        if (coeff->getStringAttribute(attr)) wrapper->setStringAttribute(attr, coeff->getStringAttribute(attr));
+      }
+      self->addOwnedComponents(*wrapper);
+    }
+    result.add(*wrapper);
+  }
+  return result;
 }
 
 std::map<std::string, Double_t> CMSHistSum::getProcessNorms() const {

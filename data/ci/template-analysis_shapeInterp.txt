@@ -86,5 +86,5 @@ norm_ff_tt_tt_syst                    shape   -               -               - 
 norm_ff_w_frac_tt_syst                shape   -               -               -               -               1               -               -               
 norm_ff_w_tt_syst                     shape   -               -               -               -               1               -               -               
 rate_TT                               rateParam  *          TTT        1 [0,5]
-rate_ZMM_ZTT_btag                     rateParam  *          ZTT        1.02 [0.8,1.2]
+rate_ZMM_ZTT_btag                     rateParam  *          ZTT        1.02 [0,2]
 * autoMCStats 0

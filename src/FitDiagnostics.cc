@@ -23,6 +23,7 @@
 #include "TFile.h"
 #include <RooStats/ModelConfig.h>
 #include "../interface/CMSHistErrorPropagator.h"
+#include "../interface/CMSHistSum.h"
 #include "../interface/Combine.h"
 #include "../interface/Significance.h"
 #include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
@@ -637,6 +638,13 @@ void FitDiagnostics::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std
            plist.removeAll();
            clist.add(err->coefList());
            plist.add(err->wrapperList());
+         }
+         CMSHistSum *hsum = dynamic_cast<CMSHistSum*>(plist.at(0));
+         if (hsum) {
+           clist.removeAll();
+           plist.removeAll();
+           clist.add(hsum->coefList());
+           plist.add(hsum->wrapperList());
          }
       }
       for (int i = 0, n = clist.getSize(); i < n; ++i) {

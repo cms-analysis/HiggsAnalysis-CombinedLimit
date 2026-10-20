@@ -13,8 +13,7 @@
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/RooSimultaneousOpt.h"
 #include "../interface/utils.h"
-#include "../interface/CachingNLL.h"
-
+#include "../interface/SimNLLBase.h"
 
 #include <Math/MinimizerOptions.h>
 
@@ -89,17 +88,23 @@ bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConf
       newsim->addPdf((RooAbsPdf&)*customizer.build(), cat->getLabel());
       if (runMinos_ && !minosVars.find(riName)) minosVars.add(*w->var(riName));
   }
+  // A RooSimultaneousOpt keeps extra constraints and channel masks outside of the channel pdfs.
+  if (auto const *simOpt = dynamic_cast<RooSimultaneousOpt const *>(sim)) {
+    auto *newsimOpt = dynamic_cast<RooSimultaneousOpt *>(newsim.get());
+    newsimOpt->addExtraConstraints(simOpt->extraConstraints());
+    newsimOpt->addChannelMasks(simOpt->channelMasks());
+  }
 
   CloseCoutSentry sentry(verbose < 2);
   const RooCmdArg &constCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooFit::NumCPU(1); // use something dummy 
   std::unique_ptr<RooFitResult> result_nominal (doFit(   *sim, data, minosOneVar, constCmdArg, runMinos_)); // let's run Hesse if we want to run Minos
-  if (dynamic_cast<cacheutils::CachingSimNLL*>(nll.get())) {
-    static_cast<cacheutils::CachingSimNLL*>(nll.get())->clearConstantZeroPoint();
+  if (auto *simnll = dynamic_cast<cacheutils::SimNLLBase *>(nll.get())) {
+    simnll->clearConstantZeroPoint();
   }
   double nll_nominal   = nll->getVal();
   std::unique_ptr<RooFitResult> result_freeform(doFit(*newsim, data, minosVars,   constCmdArg, runMinos_));
-  if (dynamic_cast<cacheutils::CachingSimNLL*>(nll.get())) {
-    static_cast<cacheutils::CachingSimNLL*>(nll.get())->clearConstantZeroPoint();
+  if (auto *simnll = dynamic_cast<cacheutils::SimNLLBase *>(nll.get())) {
+    simnll->clearConstantZeroPoint();
   }
   double nll_freeform   = nll->getVal();
   sentry.clear();

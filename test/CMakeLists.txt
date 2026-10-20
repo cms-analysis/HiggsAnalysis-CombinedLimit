@@ -145,6 +145,18 @@ include(CombineTestMacros.cmake)
 # environment inside the source directory.
 set(t2w ${CMAKE_BINARY_DIR}/bin/text2workspace.py)
 
+# Asymptotic limits
+ADD_COMBINE_TEST(asymptotic_limits
+  T2W_COMMAND
+    text2workspace.py ${REPO}/data/tutorials/counting/realistic-counting-experiment.txt -o asymptotic_limits.root -m 125
+  COMBINE_COMMANDS
+    "combine -M AsymptoticLimits asymptotic_limits.root -m 125 -n AsymptoticLimitsRegression"
+  DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.001
+)
+set_tests_properties(asymptotic_limits-text2workspace asymptotic_limits
+    PROPERTIES LABELS AsymptoticLimits TIMEOUT 120
+)
+
 # Counting datacard
 ADD_COMBINE_TEST(counting_datacard
   T2W_COMMAND
@@ -223,6 +235,33 @@ ADD_COMBINE_TEST(cmshistfunc
     "combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5"
 )
 
+# FastScan on the template-analysis workspace (combineTool.py)
+#
+# The output mixes Python prints with RooFit messages written from C++. When
+# stdout is not a terminal, both sides are block-buffered independently, so
+# the lines would come out in an arbitrary order (a RooFit message can even
+# be spliced into the middle of a Python line). Force line buffering on both
+# sides to get the lines in program order: PYTHONUNBUFFERED for Python and
+# stdbuf for the C stdio buffer used by RooFit.
+set(_fastscan_command "PYTHONUNBUFFERED=1 stdbuf -oL combineTool.py -M FastScan -w ws_template-analysis.root:w")
+COMBINE_ADD_TEST(cmshistfunc-FastScan
+    COMMAND bash -c "${_fastscan_command}"
+    FIXTURES_REQUIRED cmshistfunc
+    CHECKOUT OUTPUT cmshistfunc-FastScan.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistfunc-FastScan.out
+    # Compare floating point numbers with a relative tolerance of 1 % plus an
+    # absolute tolerance of 0.1. The absolute tolerance is needed because the
+    # "Better minimum" lines contain NLL differences at the level of numerical
+    # noise, and for nearly flat parameters the best scan point can move by
+    # one step (0.07 for the parameters with a -7..7 range) between ROOT
+    # versions. The lines that are not reproducible (the RooFit timing message
+    # for the NLL creation, the printout of the NLL object and the RooFit
+    # numerical derivator error) are removed by filter_test_output.sh.
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01 --atol 0.1
+)
+set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
+    "${_fastscan_command} > references/cmshistfunc-FastScan.out"
+)
+
 # Template analysis CMSHistFunc with channel masks
 ADD_COMBINE_TEST(cmshistfunc_channel_masks
   T2W_COMMAND
@@ -291,6 +330,18 @@ ADD_COMBINE_TEST(cmshistsum_channel_masks
     "combine -M MultiDimFit ws_template-analysis-channel_masks.root --algo singles  --setParameterRanges r=-5,5 --setParameters mask_htt_tt_2_8TeV=1 --X-rtd FAST_VERTICAL_MORPH"
 )
 
+# FitDiagnostics shapes from a CMSHistErrorPropagator and a CMSHistSum workspace
+# of the same datacard must agree: the content and uncertainty of every bin of
+# every process, pre-fit and after the background-only and s+b fits.
+COMBINE_ADD_TEST(cmshistsum_vs_cmshistfunc_fitdiagnostics-text2workspace
+    COMMAND bash -c "text2workspace.py ${REPO}/data/ci/template-analysis_shapeInterp.txt -o fitdiag_cmshistfunc.root --mass 200 && text2workspace.py ${REPO}/data/ci/template-analysis_shapeInterp.txt -o fitdiag_cmshistsum.root --mass 200 --use-histsum"
+    FIXTURES_SETUP cmshistsum_vs_cmshistfunc_fitdiagnostics
+)
+COMBINE_ADD_TEST(cmshistsum_vs_cmshistfunc_fitdiagnostics
+    COMMAND bash -c "combine -M FitDiagnostics fitdiag_cmshistfunc.root -m 200 -n cmshistfunc --saveShapes --saveWithUncertainties --numToysForShapes 20 && combine -M FitDiagnostics fitdiag_cmshistsum.root -m 200 -n cmshistsum --saveShapes --saveWithUncertainties --numToysForShapes 20 && python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticscmshistfunc.root > shapes_cmshistfunc.txt && python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticscmshistsum.root > shapes_cmshistsum.txt && python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 1e-5 shapes_cmshistfunc.txt shapes_cmshistsum.txt"
+    FIXTURES_REQUIRED cmshistsum_vs_cmshistfunc_fitdiagnostics
+)
+
 # Template-analysis datacard -> text2workspace
 COMBINE_ADD_TEST(template_analysis-text2workspace
     COMMAND text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o template-analysis_shape_autoMCStats.root
@@ -299,6 +350,11 @@ COMBINE_ADD_TEST(template_analysis-text2workspace
 
 
 if(BUILD_TESTS AND NOT DEFINED standalone_tests)
+    COMBINE_ADD_GTEST(hzz4l-readfile
+        testHZZ4LReadFile.cxx
+        LIBRARIES HiggsAnalysisCombinedLimit
+        LABELS HZZ4L
+    )
     COMBINE_ADD_GTEST(roopower
         testRooPower.cxx
         LIBRARIES HiggsAnalysisCombinedLimit
@@ -312,6 +368,41 @@ if(BUILD_TESTS AND NOT DEFINED standalone_tests)
     set_property(TEST gtest-template-analysis-testCreateNLL
         PROPERTY FIXTURES_REQUIRED template_analysis_workspace
     )
+endif()
+
+# Test NLL consistency between backends
+if(NOT DEFINED standalone_tests)
+    set(nll_consistency_backends combine)
+    if(ROOT_VERSION VERSION_GREATER_EQUAL "6.30.00")
+        list(APPEND nll_consistency_backends cpu codegen)
+    endif()
+    # Check that the NLLs computed with different backends are consistent for various cases
+    foreach(backend IN LISTS nll_consistency_backends)
+        set(nll_consistency_cases extra_constraints multipdf_penalty
+            ignore_constraint_poi_selection ignore_constraint_selected_nuisance ignored_extra_constraint)
+        # The generic constraint-only regression uses an empty-channel model;
+        # the Combine backend requires at least one channel.
+        if(NOT backend STREQUAL "combine")
+            list(APPEND nll_consistency_cases constraint_only_prefit)
+        endif()
+        foreach(case IN LISTS nll_consistency_cases)
+            COMBINE_ADD_TEST(nll_consistency_${case}_${backend}
+                COMMAND python3 ${REPO}/test/test_nll_backend_consistency.py
+                    --case ${case} --backend ${backend} --combine $<TARGET_FILE:combine>
+                LABELS NLLConsistency
+                TIMEOUT 300
+            )
+        endforeach()
+    endforeach()
+    # Check special cases for FitDiagnostics and ChannelCompatibilityCheck
+    foreach(case fitdiagnostics_prefit channel_compatibility_constraints)
+        COMBINE_ADD_TEST(nll_consistency_${case}_combine
+            COMMAND python3 ${REPO}/test/test_nll_backend_consistency.py
+                --case ${case} --backend combine --combine $<TARGET_FILE:combine>
+            LABELS NLLConsistency
+            TIMEOUT 240
+        )
+    endforeach()
 endif()
 
 # ModelTools.py
@@ -463,6 +554,45 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
     "combine ${REPO}/data/tutorials/CAT23001/datacard-5-multi-signal.txt -M ChannelCompatibilityCheck --mass 125 > references/multi-signal-ChannelCompatibilityCheck.out"
 )
 
+
+# AsymptoticLimits directly on a text datacard. This is deliberately close to
+# the asymptotic_limits test above: the point is to exercise the path where
+# combine itself converts the text datacard to a workspace on the fly, which
+# is the command that motivated the pandas dependency in pixi.toml. The -n is
+# only there to give the output file a unique name in the shared build
+# directory; it does not change the printed output.
+COMBINE_ADD_TEST(realistic-counting-experiment-AsymptoticLimits
+    COMMAND combine -M AsymptoticLimits -d ${REPO}/data/tutorials/counting/realistic-counting-experiment.txt -n RealisticCountingExperiment
+    CHECKOUT OUTPUT realistic-counting-experiment-AsymptoticLimits.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/realistic-counting-experiment-AsymptoticLimits.out
+    # The last digits of the limits can differ between ROOT versions, so
+    # compare floating point numbers with a relative tolerance of 1 %.
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+)
+set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
+    "combine -M AsymptoticLimits -d ${REPO}/data/tutorials/counting/realistic-counting-experiment.txt -n RealisticCountingExperiment > references/realistic-counting-experiment-AsymptoticLimits.out"
+)
+
+# Check that the combine executable and the executable scripts can at least
+# be loaded (i.e. all their imports work) and print their help.
+foreach(executable
+    combine
+    combineCards.py
+    combineTool.py
+    commentUncerts.py
+    plot1DScan.py
+    plotBSMxsBRLimit.py
+    plotGof.py
+    plotImpacts.py
+    plotLimitGrid.py
+    plotLimits.py
+    pruneUncerts.py
+    text2workspace.py
+)
+    COMBINE_ADD_TEST(help-${executable}
+        COMMAND ${executable} --help
+        PASSREGEX "[Uu]sage:"
+    )
+endforeach()
 
 # Write the script to produce the reference files. After building combine, you
 # can produce the reference files as follows:

@@ -1,0 +1,448 @@
+RooArgSet::parameters = (CMS_eff_b_13TeV,CMS_eff_b_13TeV_In,CMS_eff_m,CMS_eff_m_In,CMS_eff_t_13TeV,CMS_eff_t_13TeV_In,CMS_eff_t_mssmHigh_tt_13TeV,CMS_eff_t_mssmHigh_tt_13TeV_In,CMS_eff_t_tt_13TeV,CMS_eff_t_tt_13TeV_In,CMS_fake_b_13TeV,CMS_fake_b_13TeV_In,CMS_htt_dyShape_scale_m_13TeV,CMS_htt_dyShape_scale_m_13TeV_In,CMS_htt_dyShape_stat_m400pt0_13TeV,CMS_htt_dyShape_stat_m400pt0_13TeV_In,CMS_htt_dyShape_stat_m400pt40_13TeV,CMS_htt_dyShape_stat_m400pt40_13TeV_In,CMS_htt_dyShape_stat_m400pt80_13TeV,CMS_htt_dyShape_stat_m400pt80_13TeV_In,CMS_htt_dyShape_tjXsec_13TeV,CMS_htt_dyShape_tjXsec_13TeV_In,CMS_htt_eFakeTau_loose_13TeV,CMS_htt_eFakeTau_loose_13TeV_In,CMS_htt_mFakeTau_loose_13TeV,CMS_htt_mFakeTau_loose_13TeV_In,CMS_htt_tt_btag_13TeV_TTT_bin_10,CMS_htt_tt_btag_13TeV_TTT_bin_10_In,CMS_htt_tt_btag_13TeV_TTT_bin_11,CMS_htt_tt_btag_13TeV_TTT_bin_11_In,CMS_htt_tt_btag_13TeV_TTT_bin_12,CMS_htt_tt_btag_13TeV_TTT_bin_12_In,CMS_htt_tt_btag_13TeV_TTT_bin_13,CMS_htt_tt_btag_13TeV_TTT_bin_13_In,CMS_htt_tt_btag_13TeV_TTT_bin_14,CMS_htt_tt_btag_13TeV_TTT_bin_14_In,CMS_htt_tt_btag_13TeV_TTT_bin_15,CMS_htt_tt_btag_13TeV_TTT_bin_15_In,CMS_htt_tt_btag_13TeV_TTT_bin_16,CMS_htt_tt_btag_13TeV_TTT_bin_16_In,CMS_htt_tt_btag_13TeV_TTT_bin_8,CMS_htt_tt_btag_13TeV_TTT_bin_8_In,CMS_htt_tt_btag_13TeV_TTT_bin_9,CMS_htt_tt_btag_13TeV_TTT_bin_9_In,CMS_htt_tt_btag_13TeV_VVT_bin_17,CMS_htt_tt_btag_13TeV_VVT_bin_17_In,CMS_htt_tt_btag_13TeV_VVT_bin_18,CMS_htt_tt_btag_13TeV_VVT_bin_18_In,CMS_htt_tt_btag_13TeV_ZTT_bin_1,CMS_htt_tt_btag_13TeV_ZTT_bin_15,CMS_htt_tt_btag_13TeV_ZTT_bin_15_In,CMS_htt_tt_btag_13TeV_ZTT_bin_17,CMS_htt_tt_btag_13TeV_ZTT_bin_17_In,CMS_htt_tt_btag_13TeV_ZTT_bin_18,CMS_htt_tt_btag_13TeV_ZTT_bin_18_In,CMS_htt_tt_btag_13TeV_ZTT_bin_1_In,CMS_htt_tt_btag_13TeV_ZTT_bin_2,CMS_htt_tt_btag_13TeV_ZTT_bin_2_In,CMS_htt_tt_btag_13TeV_ZTT_bin_3,CMS_htt_tt_btag_13TeV_ZTT_bin_3_In,CMS_htt_tt_btag_13TeV_ZTT_bin_4,CMS_htt_tt_btag_13TeV_ZTT_bin_4_In,CMS_htt_tt_btag_13TeV_ZTT_bin_5,CMS_htt_tt_btag_13TeV_ZTT_bin_5_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_1,CMS_htt_tt_btag_13TeV_jetFakes_bin_10,CMS_htt_tt_btag_13TeV_jetFakes_bin_10_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_11,CMS_htt_tt_btag_13TeV_jetFakes_bin_11_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_12,CMS_htt_tt_btag_13TeV_jetFakes_bin_12_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_13,CMS_htt_tt_btag_13TeV_jetFakes_bin_13_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_14,CMS_htt_tt_btag_13TeV_jetFakes_bin_14_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_16,CMS_htt_tt_btag_13TeV_jetFakes_bin_16_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_17,CMS_htt_tt_btag_13TeV_jetFakes_bin_17_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_1_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_2,CMS_htt_tt_btag_13TeV_jetFakes_bin_2_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_3,CMS_htt_tt_btag_13TeV_jetFakes_bin_3_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_5,CMS_htt_tt_btag_13TeV_jetFakes_bin_5_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_6,CMS_htt_tt_btag_13TeV_jetFakes_bin_6_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_7,CMS_htt_tt_btag_13TeV_jetFakes_bin_7_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_8,CMS_htt_tt_btag_13TeV_jetFakes_bin_8_In,CMS_htt_tt_btag_13TeV_jetFakes_bin_9,CMS_htt_tt_btag_13TeV_jetFakes_bin_9_In,CMS_htt_ttbarAccept_tt_btag_13TeV,CMS_htt_ttbarAccept_tt_btag_13TeV_In,CMS_htt_vvXsec_13TeV,CMS_htt_vvXsec_13TeV_In,CMS_htt_zjXsec_13TeV,CMS_htt_zjXsec_13TeV_In,CMS_htt_zttAccept_tt_btag_13TeV,CMS_htt_zttAccept_tt_btag_13TeV_In,CMS_scale_j_13TeV,CMS_scale_j_13TeV_In,CMS_scale_t_1prong0pi0_13TeV,CMS_scale_t_1prong0pi0_13TeV_In,CMS_scale_t_1prong1pi0_13TeV,CMS_scale_t_1prong1pi0_13TeV_In,CMS_scale_t_3prong0pi0_13TeV,CMS_scale_t_3prong0pi0_13TeV_In,ONE,QCDScale_QshScale_bbH,QCDScale_QshScale_bbH_In,ff_norm_stat_tt_tt_btag,ff_norm_stat_tt_tt_btag_In,ff_norm_syst_tt,ff_norm_syst_tt_In,ff_sub_syst_tt_tt_btag,ff_sub_syst_tt_tt_btag_In,lumi_13TeV,lumi_13TeV_In,norm_ff_dy_frac_tt_syst,norm_ff_dy_frac_tt_syst_In,norm_ff_qcd_dm0_njet0_tt_stat,norm_ff_qcd_dm0_njet0_tt_stat_In,norm_ff_qcd_dm0_njet1_tt_stat,norm_ff_qcd_dm0_njet1_tt_stat_In,norm_ff_qcd_dm1_njet0_tt_stat,norm_ff_qcd_dm1_njet0_tt_stat_In,norm_ff_qcd_dm1_njet1_tt_stat,norm_ff_qcd_dm1_njet1_tt_stat_In,norm_ff_qcd_tt_syst,norm_ff_qcd_tt_syst_In,norm_ff_tt_frac_tt_syst,norm_ff_tt_frac_tt_syst_In,norm_ff_tt_tt_syst,norm_ff_tt_tt_syst_In,norm_ff_w_frac_tt_syst,norm_ff_w_frac_tt_syst_In,norm_ff_w_tt_syst,norm_ff_w_tt_syst_In,prop_binhtt_tt_9_13TeV_bin0,prop_binhtt_tt_9_13TeV_bin0_In,prop_binhtt_tt_9_13TeV_bin1,prop_binhtt_tt_9_13TeV_bin10,prop_binhtt_tt_9_13TeV_bin10_In,prop_binhtt_tt_9_13TeV_bin11,prop_binhtt_tt_9_13TeV_bin11_In,prop_binhtt_tt_9_13TeV_bin12,prop_binhtt_tt_9_13TeV_bin12_In,prop_binhtt_tt_9_13TeV_bin13,prop_binhtt_tt_9_13TeV_bin13_In,prop_binhtt_tt_9_13TeV_bin14,prop_binhtt_tt_9_13TeV_bin14_In,prop_binhtt_tt_9_13TeV_bin15,prop_binhtt_tt_9_13TeV_bin15_In,prop_binhtt_tt_9_13TeV_bin16,prop_binhtt_tt_9_13TeV_bin16_In,prop_binhtt_tt_9_13TeV_bin17,prop_binhtt_tt_9_13TeV_bin17_In,prop_binhtt_tt_9_13TeV_bin1_In,prop_binhtt_tt_9_13TeV_bin2,prop_binhtt_tt_9_13TeV_bin2_In,prop_binhtt_tt_9_13TeV_bin3,prop_binhtt_tt_9_13TeV_bin3_In,prop_binhtt_tt_9_13TeV_bin4,prop_binhtt_tt_9_13TeV_bin4_In,prop_binhtt_tt_9_13TeV_bin5,prop_binhtt_tt_9_13TeV_bin5_In,prop_binhtt_tt_9_13TeV_bin6,prop_binhtt_tt_9_13TeV_bin6_In,prop_binhtt_tt_9_13TeV_bin7,prop_binhtt_tt_9_13TeV_bin7_In,prop_binhtt_tt_9_13TeV_bin8,prop_binhtt_tt_9_13TeV_bin8_In,prop_binhtt_tt_9_13TeV_bin9,prop_binhtt_tt_9_13TeV_bin9_In,r,rate_TT,rate_ZMM_ZTT_btag)
+RooRealVar::CMS_eff_b_13TeV = 0 +/- 1  L(-7 - 7) 
+RooRealVar::CMS_eff_m = 0 +/- 1  L(-7 - 7) 
+RooRealVar::CMS_eff_t_13TeV = 0 +/- 1  L(-7 - 7) 
+RooRealVar::CMS_eff_t_mssmHigh_tt_13TeV = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_eff_t_tt_13TeV = 0 +/- 1  L(-7 - 7) 
+RooRealVar::CMS_fake_b_13TeV = 0 +/- 1  L(-7 - 7) 
+RooRealVar::CMS_htt_dyShape_scale_m_13TeV = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_dyShape_stat_m400pt0_13TeV = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_dyShape_stat_m400pt40_13TeV = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_dyShape_stat_m400pt80_13TeV = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_dyShape_tjXsec_13TeV = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_eFakeTau_loose_13TeV = 0 +/- 1  L(-7 - 7) 
+RooRealVar::CMS_htt_mFakeTau_loose_13TeV = 0 +/- 1  L(-7 - 7) 
+RooRealVar::CMS_htt_tt_btag_13TeV_TTT_bin_10 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_TTT_bin_11 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_TTT_bin_12 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_TTT_bin_13 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_TTT_bin_14 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_TTT_bin_15 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_TTT_bin_16 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_TTT_bin_8 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_TTT_bin_9 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_VVT_bin_17 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_VVT_bin_18 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_ZTT_bin_1 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_ZTT_bin_15 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_ZTT_bin_17 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_ZTT_bin_18 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_ZTT_bin_2 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_ZTT_bin_3 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_ZTT_bin_4 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_ZTT_bin_5 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_1 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_10 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_11 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_12 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_13 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_14 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_16 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_17 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_2 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_3 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_5 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_6 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_7 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_8 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_tt_btag_13TeV_jetFakes_bin_9 = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_htt_ttbarAccept_tt_btag_13TeV = 0 +/- 1  L(-7 - 7) 
+RooRealVar::CMS_htt_vvXsec_13TeV = 0 +/- 1  L(-7 - 7) 
+RooRealVar::CMS_htt_zjXsec_13TeV = 0 +/- 1  L(-7 - 7) 
+RooRealVar::CMS_htt_zttAccept_tt_btag_13TeV = 0 +/- 1  L(-7 - 7) 
+RooRealVar::CMS_scale_j_13TeV = 0 +/- 1  L(-7 - 7) 
+RooRealVar::CMS_scale_t_1prong0pi0_13TeV = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_scale_t_1prong1pi0_13TeV = 0 +/- 1  L(-4 - 4) 
+RooRealVar::CMS_scale_t_3prong0pi0_13TeV = 0 +/- 1  L(-4 - 4) 
+RooRealVar::QCDScale_QshScale_bbH = 0 +/- 1  L(-7 - 7) 
+RooRealVar::ff_norm_stat_tt_tt_btag = 0 +/- 1  L(-7 - 7) 
+RooRealVar::ff_norm_syst_tt = 0 +/- 1  L(-7 - 7) 
+RooRealVar::ff_sub_syst_tt_tt_btag = 0 +/- 1  L(-7 - 7) 
+RooRealVar::lumi_13TeV = 0 +/- 1  L(-7 - 7) 
+RooRealVar::norm_ff_dy_frac_tt_syst = 0 +/- 1  L(-4 - 4) 
+RooRealVar::norm_ff_qcd_dm0_njet0_tt_stat = 0 +/- 1  L(-4 - 4) 
+RooRealVar::norm_ff_qcd_dm0_njet1_tt_stat = 0 +/- 1  L(-4 - 4) 
+RooRealVar::norm_ff_qcd_dm1_njet0_tt_stat = 0 +/- 1  L(-4 - 4) 
+RooRealVar::norm_ff_qcd_dm1_njet1_tt_stat = 0 +/- 1  L(-4 - 4) 
+RooRealVar::norm_ff_qcd_tt_syst = 0 +/- 1  L(-4 - 4) 
+RooRealVar::norm_ff_tt_frac_tt_syst = 0 +/- 1  L(-4 - 4) 
+RooRealVar::norm_ff_tt_tt_syst = 0 +/- 1  L(-4 - 4) 
+RooRealVar::norm_ff_w_frac_tt_syst = 0 +/- 1  L(-4 - 4) 
+RooRealVar::norm_ff_w_tt_syst = 0 +/- 1  L(-4 - 4) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin0 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin1 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin10 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin11 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin12 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin13 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin14 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin15 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin16 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin17 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin2 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin3 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin4 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin5 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin6 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin7 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin8 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::prop_binhtt_tt_9_13TeV_bin9 = 0 +/- 1  L(-7 - 7) 
+RooRealVar::r = 1  L(0 - 20) 
+RooRealVar::rate_TT = 1  L(0 - 5) 
+RooRealVar::rate_ZMM_ZTT_btag = 1.02  L(0 - 2) 
+CMS_eff_b_13TeV : (1/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-2.485000, -3.865987)
+(
+CMS_eff_m : (2/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (1.925000, -2.782417)
+
+CMS_eff_t_13TeV : (3/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-2.625000, -19.385046)
+
+CMS_eff_t_mssmHigh_tt_13TeV : (4/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-3.220000, -15.377443)
+
+CMS_eff_t_tt_13TeV : (5/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-2.415000, -20.249362)
+
+CMS_fake_b_13TeV : (6/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-1.855000, -2.193788)
+
+CMS_htt_dyShape_scale_m_13TeV : (7/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (1.020000, -0.556121)
+
+CMS_htt_dyShape_stat_m400pt0_13TeV : (8/91)
+
+CMS_htt_dyShape_stat_m400pt40_13TeV : (9/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.060000, -0.000657)
+
+CMS_htt_dyShape_stat_m400pt80_13TeV : (10/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.020000, -0.000470)
+
+CMS_htt_dyShape_tjXsec_13TeV : (11/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.540000, -0.148744)
+
+CMS_htt_eFakeTau_loose_13TeV : (12/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.105000, -0.006628)
+
+CMS_htt_mFakeTau_loose_13TeV : (13/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.175000, -0.017987)
+
+CMS_htt_tt_btag_13TeV_TTT_bin_10 : (14/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.180000, -0.016331)
+
+CMS_htt_tt_btag_13TeV_TTT_bin_11 : (15/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.420000, -0.105861)
+
+CMS_htt_tt_btag_13TeV_TTT_bin_12 : (16/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.820000, -0.379599)
+
+CMS_htt_tt_btag_13TeV_TTT_bin_13 : (17/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.060000, -0.001526)
+
+CMS_htt_tt_btag_13TeV_TTT_bin_14 : (18/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.300000, -0.064229)
+
+CMS_htt_tt_btag_13TeV_TTT_bin_15 : (19/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.140000, -0.013833)
+
+CMS_htt_tt_btag_13TeV_TTT_bin_16 : (20/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.220000, -0.021828)
+
+CMS_htt_tt_btag_13TeV_TTT_bin_8 : (21/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.060000, -0.002000)
+
+CMS_htt_tt_btag_13TeV_TTT_bin_9 : (22/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.340000, -0.058182)
+
+CMS_htt_tt_btag_13TeV_VVT_bin_17 : (23/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.180000, -0.014242)
+
+CMS_htt_tt_btag_13TeV_VVT_bin_18 : (24/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.180000, -0.018968)
+
+CMS_htt_tt_btag_13TeV_ZTT_bin_1 : (25/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.540000, -0.184080)
+
+CMS_htt_tt_btag_13TeV_ZTT_bin_15 : (26/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.100000, -0.008741)
+
+CMS_htt_tt_btag_13TeV_ZTT_bin_17 : (27/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.540000, -0.138717)
+
+CMS_htt_tt_btag_13TeV_ZTT_bin_18 : (28/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.820000, -0.320255)
+
+CMS_htt_tt_btag_13TeV_ZTT_bin_2 : (29/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.100000, -0.004041)
+
+CMS_htt_tt_btag_13TeV_ZTT_bin_3 : (30/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.860000, -0.453031)
+
+CMS_htt_tt_btag_13TeV_ZTT_bin_4 : (31/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (1.540000, -1.635744)
+
+CMS_htt_tt_btag_13TeV_ZTT_bin_5 : (32/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.380000, -0.080825)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_1 : (33/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.380000, -0.078401)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_10 : (34/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.300000, -0.058893)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_11 : (35/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.220000, -0.031925)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_12 : (36/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.700000, -0.259985)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_13 : (37/91)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_14 : (38/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.220000, -0.030198)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_16 : (39/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.220000, -0.024040)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_17 : (40/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.180000, -0.018553)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_2 : (41/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.100000, -0.007845)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_3 : (42/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.660000, -0.248938)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_5 : (43/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.220000, -0.028517)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_6 : (44/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.100000, -0.008360)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_7 : (45/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.500000, -0.150260)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_8 : (46/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.180000, -0.016237)
+
+CMS_htt_tt_btag_13TeV_jetFakes_bin_9 : (47/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.540000, -0.180729)
+
+CMS_htt_ttbarAccept_tt_btag_13TeV : (48/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.385000, -0.064723)
+
+CMS_htt_vvXsec_13TeV : (49/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.525000, -0.157170)
+
+CMS_htt_zjXsec_13TeV : (50/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.175000, -0.011480)
+
+CMS_htt_zttAccept_tt_btag_13TeV : (51/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-2.065000, -3.501926)
+
+CMS_scale_j_13TeV : (52/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-1.225000, -0.758949)
+
+CMS_scale_t_1prong0pi0_13TeV : (53/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-1.700000, -1.749545)
+
+CMS_scale_t_1prong1pi0_13TeV : (54/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-1.380000, -2.004658)
+
+CMS_scale_t_3prong0pi0_13TeV : (55/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-1.100000, -0.844829)
+
+QCDScale_QshScale_bbH : (56/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (1.925000, -2.463670)
+
+ff_norm_stat_tt_tt_btag : (57/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-3.255000, -9.732999)
+
+ff_norm_syst_tt : (58/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-1.925000, -19.524887)
+
+ff_sub_syst_tt_tt_btag : (59/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-3.255000, -10.444374)
+
+lumi_13TeV : (60/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-1.015000, -0.552924)
+
+norm_ff_dy_frac_tt_syst : (61/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.180000, -0.013479)
+
+norm_ff_qcd_dm0_njet0_tt_stat : (62/91)
+
+norm_ff_qcd_dm0_njet1_tt_stat : (63/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.140000, -0.008021)
+
+norm_ff_qcd_dm1_njet0_tt_stat : (64/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.020000, -0.000401)
+
+norm_ff_qcd_dm1_njet1_tt_stat : (65/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.060000, -0.000912)
+
+norm_ff_qcd_tt_syst : (66/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.340000, -0.070219)
+
+norm_ff_tt_frac_tt_syst : (67/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.260000, -0.033335)
+
+norm_ff_tt_tt_syst : (68/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.780000, -0.415123)
+
+norm_ff_w_frac_tt_syst : (69/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.140000, -0.008764)
+
+norm_ff_w_tt_syst : (70/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.180000, -0.015405)
+
+prop_binhtt_tt_9_13TeV_bin0 : (71/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.805000, -0.494786)
+
+prop_binhtt_tt_9_13TeV_bin1 : (72/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.315000, -0.059193)
+
+prop_binhtt_tt_9_13TeV_bin10 : (73/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.595000, -0.231215)
+
+prop_binhtt_tt_9_13TeV_bin11 : (74/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-1.575000, -1.622128)
+
+prop_binhtt_tt_9_13TeV_bin12 : (75/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.315000, -0.067877)
+
+prop_binhtt_tt_9_13TeV_bin13 : (76/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.105000, -0.012919)
+
+prop_binhtt_tt_9_13TeV_bin14 : (77/91)
+
+prop_binhtt_tt_9_13TeV_bin15 : (78/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.385000, -0.075118)
+
+prop_binhtt_tt_9_13TeV_bin16 : (79/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.665000, -0.232045)
+
+prop_binhtt_tt_9_13TeV_bin17 : (80/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.945000, -0.413794)
+
+prop_binhtt_tt_9_13TeV_bin2 : (81/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-1.505000, -1.600989)
+
+prop_binhtt_tt_9_13TeV_bin3 : (82/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.665000, -0.372811)
+
+prop_binhtt_tt_9_13TeV_bin4 : (83/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-1.365000, -1.329954)
+
+prop_binhtt_tt_9_13TeV_bin5 : (84/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-1.225000, -1.001450)
+
+prop_binhtt_tt_9_13TeV_bin6 : (85/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-0.805000, -0.499369)
+
+prop_binhtt_tt_9_13TeV_bin7 : (86/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-1.365000, -1.360435)
+
+prop_binhtt_tt_9_13TeV_bin8 : (87/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-1.715000, -2.003719)
+
+prop_binhtt_tt_9_13TeV_bin9 : (88/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (-1.225000, -1.095248)
+
+r : (89/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.050000, -17.729686)
+
+rate_TT : (90/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.562500, -20.471560)
+
+rate_ZMM_ZTT_btag : (91/91)
+[ReZeroTGraph] Fit minimum was (0.000000, 0.000000)
+[ReZeroTGraph] Better minimum was (0.755000, -9.584861)
+)

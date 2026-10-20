@@ -348,14 +348,23 @@ class ShapeBuilder(ModelBuilder):
                     stderr.flush()
             if channelBinParFlag and not self.options.noHistFuncWrappers:
                 for idx in range(pdfs.getSize()):
-                    wrapper = ROOT.CMSHistFuncWrapper(
-                        pdfs[idx].GetName() + "_wrapper",
-                        "",
-                        pdfs.at(idx).getXVar(),
-                        pdfs.at(idx),
-                        prop,
-                        idx,
-                    )
+                    if self.options.useCMSHistSum:
+                        wrapper = ROOT.CMSHistSumWrapper(
+                            pdfs[idx].GetName() + "_wrapper",
+                            "",
+                            pdfs.at(idx).getXVar(),
+                            prop,
+                            idx,
+                        )
+                    else:
+                        wrapper = ROOT.CMSHistFuncWrapper(
+                            pdfs[idx].GetName() + "_wrapper",
+                            "",
+                            pdfs.at(idx).getXVar(),
+                            pdfs.at(idx),
+                            prop,
+                            idx,
+                        )
                     wrapper.setStringAttribute(
                         "combine.process",
                         pdfs.at(idx).getStringAttribute("combine.process"),

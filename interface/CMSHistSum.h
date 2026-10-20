@@ -66,6 +66,15 @@ public:
   RooArgList const& coefList() const { return coeffpars_; }
   // RooArgList const& funcList() const { return funcs_; }
 
+  // Per-process views (CMSHistSumWrapper), in the same order as coefList().
+  // Uses the wrappers stored in the workspace if there are any, otherwise
+  // they are created on first call and owned by this object.
+  RooArgList wrapperList() const;
+
+  // Fill result with the current shape of process idx, including its share
+  // of the bin-wise shifts
+  void fillProcessShape(unsigned idx, FastHisto& result) const;
+
   RooAbsReal const& getXVar() const { return x_.arg(); }
 
   static void EnableFastVertical();
@@ -108,8 +117,7 @@ protected:
   mutable FastHisto cache_;
 
   mutable std::vector<double> err2sum_; //!
-  mutable std::vector<double> toterr_; //!
-  mutable std::vector<std::vector<double>> binmods_; //!
+  mutable std::vector<double> toterr_;  //!
   mutable std::vector<std::vector<double>> scaledbinmods_; //!
 
   mutable SimpleCacheSentry sentry_; //!
@@ -136,7 +144,6 @@ protected:
 
   void initialize() const;
   void updateCache() const;
-  inline double smoothStepFunc(double x, int const& ip) const;
 
   void updateMorphs() const;
 

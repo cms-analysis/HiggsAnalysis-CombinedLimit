@@ -1,6 +1,7 @@
 #include "../interface/CachingNLL.h"
-#include "../interface/utils.h"
 #include "../interface/FnTimer.h"
+#include "../interface/SimNLLBase.h"
+#include "../interface/utils.h"
 #include <memory>
 #include <stdexcept>
 #include <RooCategory.h>
@@ -833,18 +834,17 @@ cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data,
     setup_();
 }
 
-cacheutils::CachingSimNLL::CachingSimNLL(const CachingSimNLL &other, const char *name) :
-    RooAbsReal{other, name},
-    pdfOriginal_(other.pdfOriginal_),
-    dataOriginal_(other.dataOriginal_),
-    nuis_(other.nuis_),
-    params_("params","parameters",this),
-    catParams_("catParams","Category parameters",this),
-    internalMasks_(other.internalMasks_),
-    maskingOffset_(other.maskingOffset_),
-    maskingOffsetZero_(other.maskingOffsetZero_)
-{
-    setup_();
+cacheutils::CachingSimNLL::CachingSimNLL(const CachingSimNLL &other, const char *name)
+    : SimNLLBase{other, name},
+      pdfOriginal_(other.pdfOriginal_),
+      dataOriginal_(other.dataOriginal_),
+      nuis_(other.nuis_),
+      params_(/*inName=*/"params", "parameters", this),
+      catParams_(/*inName=*/"catParams", "Category parameters", this),
+      internalMasks_(other.internalMasks_),
+      maskingOffset_(other.maskingOffset_),
+      maskingOffsetZero_(other.maskingOffsetZero_) {
+  setup_();
 }
 
 cacheutils::CachingSimNLL *
