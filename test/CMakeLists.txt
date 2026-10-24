@@ -341,6 +341,95 @@ COMBINE_ADD_TEST(cmshistsum_vs_cmshistfunc_fitdiagnostics
     COMMAND bash -c "combine -M FitDiagnostics fitdiag_cmshistfunc.root -m 200 -n cmshistfunc --saveShapes --saveWithUncertainties --numToysForShapes 20 && combine -M FitDiagnostics fitdiag_cmshistsum.root -m 200 -n cmshistsum --saveShapes --saveWithUncertainties --numToysForShapes 20 && python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticscmshistfunc.root > shapes_cmshistfunc.txt && python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticscmshistsum.root > shapes_cmshistsum.txt && python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 1e-5 shapes_cmshistfunc.txt shapes_cmshistsum.txt"
     FIXTURES_REQUIRED cmshistsum_vs_cmshistfunc_fitdiagnostics
 )
+# Template analysis with autoMCStats on the RooFit likelihood backends: the
+# analytic minimization of the Barlow-Beeston parameters must give the same
+# result as with the combine backend, also when Hesse floats them again.
+if(ROOT_VERSION VERSION_GREATER_EQUAL 6.30)
+  set(_autoMCStats_fit "combine -M MultiDimFit cmshistsum_autoMCStats.root --algo singles --setParameterRanges r=-5,5")
+  set(_autoMCStats_fitdiag "combine -M FitDiagnostics cmshistsum_autoMCStats.root --rMin -5 --rMax 5")
+  ADD_COMBINE_TEST(cmshistsum_autoMCStats_backends
+    T2W_COMMAND
+      text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o cmshistsum_autoMCStats.root --for-fits --no-wrappers --use-histsum
+    COMBINE_COMMANDS
+      "${_autoMCStats_fit} --nllbackend combine"
+      "${_autoMCStats_fit} --nllbackend cpu"
+      "${_autoMCStats_fitdiag} --nllbackend combine"
+      "${_autoMCStats_fitdiag} --nllbackend cpu"
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+  )
+  # The same with two channels and a channel mask: the masked channel is left
+  # out of the likelihood and its Barlow-Beeston parameters are not minimized.
+  set(_autoMCStats_masks_fit "combine -M MultiDimFit cmshistsum_autoMCStats_channel_masks.root --algo singles --setParameterRanges r=-5,5 --setParameters mask_ch2=1")
+  ADD_COMBINE_TEST(cmshistsum_autoMCStats_channel_masks
+    T2W_COMMAND
+      bash -c "combineCards.py ch1=${REPO}/data/ci/template-analysis_shape_autoMCStats.txt ch2=${REPO}/data/ci/template-analysis_shape_autoMCStats.txt > cmshistsum_autoMCStats_channel_masks.txt && text2workspace.py cmshistsum_autoMCStats_channel_masks.txt -o cmshistsum_autoMCStats_channel_masks.root --channel-masks --for-fits --no-wrappers --use-histsum"
+    COMBINE_COMMANDS
+      "${_autoMCStats_masks_fit} --nllbackend combine"
+      "${_autoMCStats_masks_fit} --nllbackend cpu"
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+  )
+endif()
+
+# The same on the "codegen" backend (analytic gradient from clad), which needs
+# the RooRealSumPdf integral fix of ROOT 6.41.01 (see CombineCodegenImpl.cxx).
+# Each fit compiles the likelihood anew, so only this backend runs here.
+if(ROOT_VERSION VERSION_GREATER_EQUAL 6.41.01)
+  set(_autoMCStats_codegen_fit "combine -M MultiDimFit cmshistsum_autoMCStats_codegen.root --algo singles --setParameterRanges r=-5,5 --nllbackend codegen")
+  ADD_COMBINE_TEST(cmshistsum_autoMCStats_codegen
+    T2W_COMMAND
+      text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o cmshistsum_autoMCStats_codegen.root --for-fits --no-wrappers --use-histsum
+    COMBINE_COMMANDS
+      "${_autoMCStats_codegen_fit}"
+      "${_autoMCStats_codegen_fit} --X-rtd MINIMIZER_no_analytic"
+      "combine -M FitDiagnostics cmshistsum_autoMCStats_codegen.root --rMin -5 --rMax 5 --nllbackend codegen"
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+  )
+  ADD_COMBINE_TEST(cmshistsum_autoMCStats_channel_masks_codegen
+    T2W_COMMAND
+      bash -c "combineCards.py ch1=${REPO}/data/ci/template-analysis_shape_autoMCStats.txt ch2=${REPO}/data/ci/template-analysis_shape_autoMCStats.txt > cmshistsum_autoMCStats_channel_masks_codegen.txt && text2workspace.py cmshistsum_autoMCStats_channel_masks_codegen.txt -o cmshistsum_autoMCStats_channel_masks_codegen.root --channel-masks --for-fits --no-wrappers --use-histsum"
+    COMBINE_COMMANDS
+      "combine -M MultiDimFit cmshistsum_autoMCStats_channel_masks_codegen.root --algo singles --setParameterRanges r=-5,5 --setParameters mask_ch2=1 --nllbackend codegen"
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+  )
+  # Shape systematics and an autoMCStats threshold that gives bins with one
+  # Poisson or Gaussian parameter per process, with both histogram classes.
+  # combineCards.py makes the shape paths absolute, so that the modified card
+  # can live in the build directory.
+  set(_poisson_bins_fit "combine -M MultiDimFit --algo singles --setParameterRanges r=-5,5")
+  ADD_COMBINE_TEST(cmshist_poisson_bins
+    T2W_COMMAND
+      bash -c "combineCards.py ${REPO}/data/ci/template-analysis_shapeInterp.txt | sed 's/autoMCStats 0/autoMCStats 10/' > cmshist_poisson_bins.txt && text2workspace.py cmshist_poisson_bins.txt -o cmshist_poisson_bins_histsum.root --mass 200 --for-fits --no-wrappers --use-histsum && text2workspace.py cmshist_poisson_bins.txt -o cmshist_poisson_bins_errprop.root --mass 200 --for-fits --no-wrappers"
+    COMBINE_COMMANDS
+      "${_poisson_bins_fit} cmshist_poisson_bins_histsum.root --nllbackend cpu"
+      "${_poisson_bins_fit} cmshist_poisson_bins_histsum.root --nllbackend codegen"
+      "${_poisson_bins_fit} cmshist_poisson_bins_errprop.root --nllbackend cpu"
+      "${_poisson_bins_fit} cmshist_poisson_bins_errprop.root --nllbackend codegen"
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+  )
+  # The same with the logarithmic vertical morphing of "shapeN", with the
+  # CMSHistErrorPropagator only: CMSHistSum applies the Poisson bin parameters
+  # to the templates before the exponentiation, which doesn't fit well on any
+  # backend.
+  ADD_COMBINE_TEST(cmshist_shapeN_poisson_bins
+    T2W_COMMAND
+      bash -c "combineCards.py ${REPO}/data/ci/template-analysis_shapeNInterp.txt | sed 's/autoMCStats 0/autoMCStats 10/' > cmshist_shapeN_poisson_bins.txt && text2workspace.py cmshist_shapeN_poisson_bins.txt -o cmshist_shapeN_poisson_bins.root --mass 200 --for-fits --no-wrappers"
+    COMBINE_COMMANDS
+      "${_poisson_bins_fit} cmshist_shapeN_poisson_bins.root --nllbackend cpu"
+      "${_poisson_bins_fit} cmshist_shapeN_poisson_bins.root --nllbackend codegen"
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+  )
+  if(BUILD_TESTS AND NOT DEFINED standalone_tests)
+    # Values and gradients of the codegen backend on these workspaces, with
+    # and without the analytic Barlow-Beeston minimization.
+    COMBINE_ADD_GTEST(cmshist-codegen
+        testCMSHistCodegen.cxx
+        LIBRARIES HiggsAnalysisCombinedLimit
+    )
+    set_property(TEST gtest-cmshist-codegen
+        PROPERTY FIXTURES_REQUIRED "cmshistsum;cmshistfunc;cmshist_poisson_bins"
+    )
+  endif()
+endif()
 
 # Template-analysis datacard -> text2workspace
 COMBINE_ADD_TEST(template_analysis-text2workspace
@@ -379,7 +468,7 @@ if(NOT DEFINED standalone_tests)
     # Check that the NLLs computed with different backends are consistent for various cases
     foreach(backend IN LISTS nll_consistency_backends)
         set(nll_consistency_cases extra_constraints multipdf_penalty
-            ignore_constraint_poi_selection ignore_constraint_selected_nuisance ignored_extra_constraint)
+            ignore_constraint_poi_selection ignore_constraint_selected_nuisance ignored_extra_constraint masked_channel)
         # The generic constraint-only regression uses an empty-channel model;
         # the Combine backend requires at least one channel.
         if(NOT backend STREQUAL "combine")

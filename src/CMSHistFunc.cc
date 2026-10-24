@@ -1,6 +1,15 @@
 #include "../interface/CMSHistFunc.h"
 #include "../interface/CMSHistFuncWrapper.h"
+#include "../interface/CMSHistHelpers.h"
 #include "../interface/Accumulators.h"
+#if __has_include(<ROOT/RVersion.hxx>)
+#include <ROOT/RVersion.hxx>
+#else
+#include <RVersion.h>
+#endif
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 0)
+#include "RooFit/EvalContext.h"
+#endif
 #include <vector>
 #include <ostream>
 #include <memory>
@@ -640,6 +649,13 @@ Double_t CMSHistFunc::evaluate() const {
   updateCache();
   return cache().GetAt(x_);
 }
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 0)
+void CMSHistFunc::doEval(RooFit::EvalContext& ctx) const {
+  updateCache();
+  cmsHistFillBatch(ctx, x_, cache());
+}
+#endif
 
 unsigned CMSHistFunc::getIdx(unsigned hindex, unsigned hpoint, unsigned vindex,
                              unsigned vpoint) const {

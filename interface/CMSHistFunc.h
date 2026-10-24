@@ -3,6 +3,11 @@
 #include <ostream>
 #include <vector>
 #include <memory>
+#if __has_include(<ROOT/RVersion.hxx>)
+#include <ROOT/RVersion.hxx>
+#else
+#include <RVersion.h>
+#endif
 #include "RooAbsReal.h"
 #include "RooArgSet.h"
 #include "RooListProxy.h"
@@ -16,6 +21,10 @@
 #include "FastTemplate_Old.h"
 #include "SimpleCacheSentry.h"
 #include "CMSExternalMorph.h"
+
+namespace RooFit {
+class EvalContext;
+}
 
 class CMSHistFuncWrapper;
 
@@ -100,6 +109,9 @@ class CMSHistFunc : public RooAbsReal {
                 unsigned vpoint, TH1 const& hist);
 
   Double_t evaluate() const override;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 0)
+  void doEval(RooFit::EvalContext &ctx) const override;
+#endif
 
   void updateCache() const;
 
@@ -144,6 +156,20 @@ class CMSHistFunc : public RooAbsReal {
   CMSHistFuncWrapper const* wrapper() const;
 
   RooAbsReal const& getXVar() const;
+
+  // Read access to the persistent template data, for the code generation of
+  // the "codegen" evaluation backend.
+  RooArgList const& vmorphList() const { return vmorphs_; }
+  RooArgList const& hmorphList() const { return hmorphs_; }
+  RooArgList const& externalMorphList() const { return external_morph_; }
+  std::vector<FastTemplate> const& storage() const { return storage_; }
+  bool isRebinned() const { return rebin_; }
+  VerticalSetting verticalType() const { return vtype_; }
+  double verticalSmoothRegion() const { return vsmooth_par_; }
+  /// Index in storage() of the template of the given horizontal and vertical
+  /// morphing point (0 is the nominal one).
+  unsigned getIdx(unsigned hindex, unsigned hpoint, unsigned vindex,
+                  unsigned vpoint) const;
 
   static void EnableFastVertical();
   friend class CMSHistV<CMSHistFunc>;
@@ -200,9 +226,6 @@ class CMSHistFunc : public RooAbsReal {
   void setGlobalCache() const;
 
   void resetCaches();
-
-  unsigned getIdx(unsigned hindex, unsigned hpoint, unsigned vindex,
-                  unsigned vpoint) const;
 
   inline double smoothStepFunc(double x) const;
 

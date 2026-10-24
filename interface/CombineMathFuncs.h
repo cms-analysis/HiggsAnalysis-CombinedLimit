@@ -97,6 +97,131 @@ inline void fastVerticalInterpHistPdf2D2(int nBinsX, int nBinsY, int nCoefs, dou
    }
 }
 
+/// Bin contents of a CMSHistSum or CMSHistErrorPropagator: the vertically
+/// morphed templates of the processes, summed with their coefficients and
+/// shifted by the bin-by-bin (autoMCStats) parameters. Fills `out` with the
+/// `nBins` bin densities and returns their width-weighted integral.
+///
+/// Integers in the constant tables are stored as doubles, so that all of them
+/// can live in the auxiliary constants array of the generated code:
+///  - `templates` holds slots of `nBins` values. `nominalSlot[ip]` is the slot
+///    of the nominal template of process `ip`. `morphSlot[(ip * nMorphs) + iv]`
+///    is the slot of the "sum" template of that process and morphing
+///    parameter, followed by the "diff" template in the next slot, or -1 if the
+///    process is not affected by the parameter.
+///  - `binErrors[(ip * nBins) + j]` is the statistical error of process `ip` in
+///    bin `j`.
+///  - `vertType[ip]` selects the vertical morphing (0: quadratic-linear, 1:
+///    logarithmic quadratic-linear) with the smooth region `smoothRegion[ip]`.
+///  - `binType[j]` is 0 for a bin without parameters, 1 for a bin with one
+///    Gaussian parameter for the total, `binPars[binParIndex[j * nProcs]]`, and
+///    2 for a bin with one parameter per process, `binPars[binParIndex[j *
+///    nProcs + ip]]`, where `procBinType[(j * nProcs) + ip]` is 2 for a Poisson
+///    multiplier, 3 for a Gaussian shift and 4 for no parameter.
+///  - `poissonUsesCropped` selects the per-process value that multiplies the
+///    Poisson parameter: the final one as in CMSHistErrorPropagator, or the
+///    one before the exponentiation and the cropping as in CMSHistSum.
+///  - `scratch` is working memory of `3 * nBins` doubles.
+///  - `valsum` and `toterr` receive the summed yields and total errors before
+///    the bin parameters are applied, `nBins` doubles each.
+// NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+inline double cmsHistSum(int nBins, int nProcs, int nMorphs, double const *coeffs, double const *morphs,
+                         double const *binPars, double const *templates, double const *nominalSlot,
+                         double const *morphSlot, double const *binErrors, double const *binWidths,
+                         double const *vertType, double const *smoothRegion, double const *binType,
+                         double const *procBinType, double const *binParIndex, int poissonUsesCropped,
+                         double *scratch, double *valsum, double *toterr, double *out)
+{
+   double *comp = scratch;             // the template of the current process
+   double *shift = scratch + nBins;    // sum of the per-process bin-parameter shifts
+   double *err2 = scratch + (2 * nBins); // sum of the squared scaled bin errors
+
+   for (int j = 0; j < nBins; ++j) {
+      valsum[j] = 0.0;
+      err2[j] = 0.0;
+      shift[j] = 0.0;
+   }
+
+   for (int ip = 0; ip < nProcs; ++ip) {
+      const bool isLog = vertType[ip] > 0.5;
+      const double coef = coeffs[ip];
+      double const *nominal = templates + (nBins * static_cast<int>(nominalSlot[ip]));
+
+      for (int j = 0; j < nBins; ++j) {
+         comp[j] = nominal[j];
+         if (isLog) {
+            comp[j] = nominal[j] > 0 ? std::log(nominal[j]) : -999.;
+         }
+      }
+      for (int iv = 0; iv < nMorphs; ++iv) {
+         const int slot = static_cast<int>(morphSlot[(ip * nMorphs) + iv]);
+         if (slot < 0)
+            continue;
+         double const *sum = templates + (nBins * slot);
+         double const *diff = templates + (nBins * (slot + 1));
+         const double x = morphs[iv];
+         const double a = 0.5 * x;
+         const double b = smoothStepFunc(x, smoothRegion[ip]);
+         for (int j = 0; j < nBins; ++j) {
+            comp[j] += a * (diff[j] + b * sum[j]);
+         }
+      }
+      if (!poissonUsesCropped) {
+         for (int j = 0; j < nBins; ++j) {
+            if (binType[j] > 1.5 && procBinType[(j * nProcs) + ip] == 2) {
+               shift[j] += (binPars[static_cast<int>(binParIndex[(j * nProcs) + ip])] - 1.) * comp[j] * coef;
+            }
+         }
+      }
+      if (isLog) {
+         double nominalSum = 0.0;
+         double compSum = 0.0;
+         for (int j = 0; j < nBins; ++j) {
+            comp[j] = std::exp(comp[j]);
+            nominalSum += nominal[j];
+            compSum += comp[j];
+         }
+         const double scale = nominalSum / compSum;
+         for (int j = 0; j < nBins; ++j) {
+            comp[j] *= scale;
+         }
+      }
+      for (int j = 0; j < nBins; ++j) {
+         comp[j] = std::max(1e-9, comp[j]);
+      }
+      if (poissonUsesCropped) {
+         for (int j = 0; j < nBins; ++j) {
+            if (binType[j] > 1.5 && procBinType[(j * nProcs) + ip] == 2) {
+               shift[j] += (binPars[static_cast<int>(binParIndex[(j * nProcs) + ip])] - 1.) * comp[j] * coef;
+            }
+         }
+      }
+      for (int j = 0; j < nBins; ++j) {
+         const double err = coef * binErrors[(ip * nBins) + j];
+         valsum[j] += coef * comp[j];
+         err2[j] += err * err;
+         if (binType[j] > 1.5 && procBinType[(j * nProcs) + ip] == 3) {
+            shift[j] += binPars[static_cast<int>(binParIndex[(j * nProcs) + ip])] * binErrors[(ip * nBins) + j] * coef;
+         }
+      }
+   }
+
+   double integral = 0.0;
+   for (int j = 0; j < nBins; ++j) {
+      toterr[j] = std::sqrt(err2[j]);
+      out[j] = valsum[j];
+      if (binType[j] > 0.5 && binType[j] < 1.5) {
+         out[j] += toterr[j] * binPars[static_cast<int>(binParIndex[j * nProcs])];
+      } else if (binType[j] > 1.5) {
+         out[j] += shift[j];
+      }
+      out[j] = std::max(1e-9, out[j]);
+      integral += out[j] * binWidths[j];
+   }
+   return integral;
+}
+// NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+
 inline double logKappaForX(double theta, double logKappaLow, double logKappaHigh)
 {
    double logKappa = 0.0;
