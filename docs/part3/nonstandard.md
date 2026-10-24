@@ -16,7 +16,8 @@ The program will print out the result of _two fits_. The first one is performed 
 
 | Object                 | Description                                                                                                                           |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| **`nuisances_prefit`** | `RooArgSet` containing the pre-fit values of the nuisance parameters, and their uncertainties from the external constraint terms only |
+| **`nuisances_prefit`** | `RooArgSet` containing the pre-fit values of the nuisance parameters, and their uncertainties from the external constraint terms only. Parameters with a flat constraint (**`lnU`**, **`shapeU`**, **`unif`**) have no pre-fit uncertainty |
+| **`nuisances_prefit_res`** | `RooFitResult` object containing the outcome of the fit of the external constraint terms alone, which determines the pre-fit values and uncertainties above |
 | **`fit_b`**            | `RooFitResult` object containing the outcome of the fit of the data with signal strength set to zero                                  |
 | **`fit_s`**            | `RooFitResult` object containing the outcome of the fit of the data with floating signal strength                                     |
 | **`tree_prefit`**      | `TTree` of pre-fit nuisance parameter values and constraint terms (\_In)                                                              |

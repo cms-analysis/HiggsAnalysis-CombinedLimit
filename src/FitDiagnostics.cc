@@ -12,6 +12,7 @@
 #include "RooAddPdf.h"
 #include "RooRealSumPdf.h"
 #include "RooProdPdf.h"
+#include "RooUniform.h"
 #include "RooProduct.h"
 #include "RooConstVar.h"
 #include "RooPlot.h"
@@ -38,6 +39,8 @@
 #include <Math/MinimizerOptions.h>
 
 #include <iomanip>
+#include <typeinfo>
+#include <vector>
 using namespace RooStats;
 
 std::string FitDiagnostics::name_ = "";
@@ -204,37 +207,72 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
       }
       w->loadSnapshot("clean");
       r->setVal(preFitValue_);
+
+      // The pre-fit values and uncertainties of the nuisance parameters are
+      // obtained by fitting the product of the constraint terms. Flat
+      // constraint terms (lnU, shapeU, unif) carry no information: a
+      // parameter that is only constrained by a flat term makes the Hessian
+      // singular, Hesse fails, and all pre-fit uncertainties come out as zero
+      // (see issue #600). So the flat terms are left out of the fit and the
+      // parameters that are not constrained by any remaining term are kept
+      // fixed during the fit.
+      RooArgList prefitConstraints;
+      RooArgSet constrainedNuis;
+      for (RooAbsArg *a : dynamic_cast<RooProdPdf &>(*nuisancePdf).pdfList()) {
+        auto *cterm = dynamic_cast<RooAbsPdf *>(a);
+        if (!cterm || typeid(*cterm) == typeid(RooUniform))
+          continue;
+        prefitConstraints.add(*cterm);
+        std::unique_ptr<RooArgSet> cnuis(cterm->getObservables(nuis));
+        constrainedNuis.add(*cnuis);
+      }
+      std::vector<RooAbsArg *> nuisFrozenForPrefit;
+      for (RooAbsArg *a : *nuis) {
+        if (!a->isConstant() && !constrainedNuis.find(*a)) {
+          a->setAttribute("Constant", true);
+          nuisFrozenForPrefit.push_back(a);
+        }
+      }
+
       RooCategory dummyCat("dummyCat", "");
       RooSimultaneousOpt simNuisancePdf("simNuisancePdf", "", dummyCat);
-      simNuisancePdf.addExtraConstraints(((RooProdPdf*)(nuisancePdf.get()))->pdfList());
+      simNuisancePdf.addExtraConstraints(prefitConstraints);
       std::unique_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", RooArgSet(dummyCat)));
 
-      // For some reason, Combine overrides here the likelihood creation path
-      // of the RooSimultaneousOpt and uses the default RooFit likelihood
-      // backend.
-      std::string prevBackend = Combine::nllBackend();
-#if ROOT_VERSION_CODE < ROOT_VERSION(6, 30, 0)
-      // setting the NLL backend to anything other than "combine" will skip the
-      // RooSimultaneousOpt code path:
-      Combine::nllBackend() = "not_combine";
-#else
-      Combine::nllBackend() = RooFit::EvalBackend(RooFit::EvalBackend::defaultValue()).name();
-#endif
-      auto nuisanceNLL =
-          combineCreateNLL(simNuisancePdf, *globalData, nuis, /*offset=*/true, /*warnAboutDifferentBackend=*/false);
-      Combine::nllBackend() = prevBackend;
+      RooFitResult *res_prefit = nullptr;
+      // Fit to nuisance pdf to get fitRes for sampling. If all constraint
+      // terms are flat, there is nothing to fit: the likelihood would have no
+      // floating parameters and the minimizer would not produce a fit result.
+      // (A model from text2workspace without non-flat constraints has no
+      // global observables, so it doesn't even get here.)
+      if (prefitConstraints.empty()) {
+        CombineLogger::instance().log("FitDiagnostics.cc",
+                                      __LINE__,
+                                      "No non-flat constraint terms, skipping the pre-fit nuisance parameter fit",
+                                      __func__);
+      } else {
+        // The extra constraints of the RooSimultaneousOpt are only known to the
+        // likelihood class of Combine (CachingSimNLL), not to the RooFit
+        // backends, so this likelihood is always created with the "combine"
+        // backend, regardless of the backend configured for the main fits.
+        std::string prevBackend = Combine::nllBackend();
+        Combine::nllBackend() = "combine";
+        auto nuisanceNLL =
+            combineCreateNLL(simNuisancePdf, *globalData, nuis, /*offset=*/true, /*warnAboutDifferentBackend=*/false);
+        Combine::nllBackend() = prevBackend;
 
-      RooFitResult *res_prefit = 0;
-       // Fit to nuisance pdf to get fitRes for sampling
-      {
-            CloseCoutSentry sentry(verbose < 2);
-            CascadeMinimizer minim(*nuisanceNLL, CascadeMinimizer::Constrained);
-            minim.minimize();
-            minim.hesse();
-            if (minos_ == "all") minim.minos(*nuis);
-            res_prefit = minim.save();
+        CloseCoutSentry sentry(verbose < 2);
+        CascadeMinimizer minim(*nuisanceNLL, CascadeMinimizer::Constrained);
+        minim.minimize();
+        minim.hesse();
+        if (minos_ == "all")
+          minim.minos(constrainedNuis);
+        res_prefit = minim.save();
       }
-      if (fitOut.get() && currentToy_ < 1) fitOut->WriteTObject(res_prefit, "nuisances_prefit_res");
+      for (RooAbsArg *a : nuisFrozenForPrefit)
+        a->setAttribute("Constant", false);
+      if (fitOut.get() && currentToy_ < 1 && res_prefit)
+        fitOut->WriteTObject(res_prefit, "nuisances_prefit_res");
       if (fitOut.get() && currentToy_ < 1) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
 
       nuisancePdf.reset();
