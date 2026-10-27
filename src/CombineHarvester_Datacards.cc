@@ -104,9 +104,14 @@ namespace ch {
     // Loop through lines, trimming whitespace at the beginning or end
     // then splitting each line into a vector of words (using any amount
     // of whitespace as the separator).  We skip any line of zero length
-    // or which starts with a "#" or "-" character.
+    // or which starts with a "#" or "-" character. The lines after the rate
+    // line may also end with a comment.
     std::vector<std::vector<std::string>> words;
+    bool after_rate = false;
     for (unsigned i = 0; i < lines.size(); ++i) {
+      if (after_rate) {
+        lines[i] = lines[i].substr(0, lines[i].find('#'));
+      }
       boost::trim(lines[i]);
       if (lines[i].size() == 0)
         continue;
@@ -114,6 +119,8 @@ namespace ch {
         continue;
       words.push_back(std::vector<std::string>());
       boost::split(words.back(), lines[i], boost::is_any_of("\t "), boost::token_compress_on);
+      if (words.back()[0] == "rate")
+        after_rate = true;
     }
 
     std::vector<HistMapping> hist_mapping;
@@ -323,50 +330,66 @@ namespace ch {
           start_nuisance_scan = true;
         }
       }
-      if (start_nuisance_scan && words[i].size() >= 4) {
-        if (boost::iequals(words[i][1], "param")) {
-          std::string param_name = words[i][0];
-          Parameter* param = SetupRateParamVar(param_name, boost::lexical_cast<double>(words[i][2]));
-          param->set_val(boost::lexical_cast<double>(words[i][2]));
-          std::size_t slash_pos = words[i][3].find("/");
-          if (slash_pos != words[i][3].npos) {
-            param->set_err_d(boost::lexical_cast<double>(words[i][3].substr(0, slash_pos)));
-            param->set_err_u(boost::lexical_cast<double>(words[i][3].substr(slash_pos + 1)));
-          } else {
-            param->set_err_u(+1.0 * boost::lexical_cast<double>(words[i][3]));
-            param->set_err_d(-1.0 * boost::lexical_cast<double>(words[i][3]));
-          }
-          if (words[i].size() >= 5) {
-            // We have a range
-            std::vector<std::string> tokens;
-            boost::split(tokens, words[i][4], boost::is_any_of("[],"));
-            if (tokens.size() == 4) {
-              param->set_range_d(boost::lexical_cast<double>(tokens[1]));
-              param->set_range_u(boost::lexical_cast<double>(tokens[2]));
-            }
-          }
-          auto sys = std::make_shared<Systematic>();
-          sys->set_name(param_name);
-          sys->set_type("param");
-          sys->set_analysis(analysis);
-          sys->set_era(era);
-          sys->set_channel(channel);
-          sys->set_bin_id(bin_id);
-          sys->set_mass(mass);
-          // Add string extension for edge case where param and rateParam have the same name
-          std::string syst_str_ext =
-              (boost::format("%g %g") % param->val() % ((param->err_u() - param->err_d()) / 2.0)).str();
-          if (param->range_d() != std::numeric_limits<double>::lowest() &&
-              param->range_u() != std::numeric_limits<double>::max()) {
-            syst_str_ext += (boost::format(" [%.4g,%.4g]") % param->range_d() % param->range_u()).str();
-          }
-          sys->set_param_str_ext(syst_str_ext);
-          systs_.push_back(sys);
-          continue;  // skip the rest of this now
+
+      // Every line after the rate line describes a nuisance parameter or is a
+      // directive. Lines that CombineHarvester can't represent are rejected
+      // rather than dropped.
+      if (!start_nuisance_scan || i == r)
+        continue;
+      std::string const& type = words[i][1];
+      auto malformed = [&](std::string const& why) {
+        return std::runtime_error(
+            FNERROR("Malformed line in datacard " + filename + ": " + boost::join(words[i], " ") + "\n" + why));
+      };
+
+      if (boost::iequals(type, "param")) {
+        if (words[i].size() < 4) {
+          throw malformed("param lines need a mean and a sigma");
         }
+        std::string param_name = words[i][0];
+        Parameter* param = SetupRateParamVar(param_name, boost::lexical_cast<double>(words[i][2]));
+        param->set_val(boost::lexical_cast<double>(words[i][2]));
+        std::size_t slash_pos = words[i][3].find("/");
+        if (slash_pos != words[i][3].npos) {
+          param->set_err_d(boost::lexical_cast<double>(words[i][3].substr(0, slash_pos)));
+          param->set_err_u(boost::lexical_cast<double>(words[i][3].substr(slash_pos + 1)));
+        } else {
+          param->set_err_u(+1.0 * boost::lexical_cast<double>(words[i][3]));
+          param->set_err_d(-1.0 * boost::lexical_cast<double>(words[i][3]));
+        }
+        if (words[i].size() >= 5) {
+          // We have a range
+          std::vector<std::string> tokens;
+          boost::split(tokens, words[i][4], boost::is_any_of("[],"));
+          if (tokens.size() == 4) {
+            param->set_range_d(boost::lexical_cast<double>(tokens[1]));
+            param->set_range_u(boost::lexical_cast<double>(tokens[2]));
+          }
+        }
+        auto sys = std::make_shared<Systematic>();
+        sys->set_name(param_name);
+        sys->set_type("param");
+        sys->set_analysis(analysis);
+        sys->set_era(era);
+        sys->set_channel(channel);
+        sys->set_bin_id(bin_id);
+        sys->set_mass(mass);
+        // Add string extension for edge case where param and rateParam have the same name
+        std::string syst_str_ext =
+            (boost::format("%g %g") % param->val() % ((param->err_u() - param->err_d()) / 2.0)).str();
+        if (param->range_d() != std::numeric_limits<double>::lowest() &&
+            param->range_u() != std::numeric_limits<double>::max()) {
+          syst_str_ext += (boost::format(" [%.4g,%.4g]") % param->range_d() % param->range_u()).str();
+        }
+        sys->set_param_str_ext(syst_str_ext);
+        systs_.push_back(sys);
+        continue;  // skip the rest of this now
       }
 
-      if (start_nuisance_scan && words[i].size() >= 5 && boost::iequals(words[i][1], "rateParam")) {
+      if (boost::iequals(type, "rateParam")) {
+        if (words[i].size() < 5) {
+          throw malformed("rateParam lines need a bin, a process and a value");
+        }
         if (verbosity_ > 1) {
           FNLOG(log()) << "Processing rateParam line:\n";
           for (auto const& str : words[i]) {
@@ -445,7 +468,14 @@ namespace ch {
         continue;
       }
 
-      if (start_nuisance_scan && words[i].size() >= 4 && boost::iequals(words[i][1], "group")) {
+      // extArg lines were handled in the first pass
+      if (boost::iequals(type, "extArg"))
+        continue;
+
+      if (boost::iequals(type, "group")) {
+        if (words[i].size() < 4) {
+          throw malformed("group lines need '=' or '+=' followed by the nuisance parameters");
+        }
         if (!groups.count(words[i][0])) {
           groups[words[i][0]] = std::set<std::string>();
         }
@@ -455,12 +485,21 @@ namespace ch {
         continue;
       }
 
-      if (start_nuisance_scan && words[i].size() >= 3 && boost::iequals(words[i][1], "autoMCStats")) {
+      if (boost::iequals(type, "autoMCStats")) {
+        if (words[i].size() < 3 || words[i].size() > 5) {
+          throw malformed("the syntax is: channel autoMCStats threshold [include-signal = 0] [hist-mode = 1]");
+        }
+        // A bin name containing '*' is a pattern
         std::vector<std::string> for_bins;
-        if (words[i][0] == "*") {
-          for_bins = Set2Vec(bin_names);
-        } else {
+        if (words[i][0].find('*') != std::string::npos) {
+          for (auto const& bin : bin_names) {
+            if (fnmatch(words[i][0].c_str(), bin.c_str(), 0) == 0)
+              for_bins.push_back(bin);
+          }
+        } else if (bin_names.count(words[i][0])) {
           for_bins.push_back(words[i][0]);
+        } else {
+          throw malformed("no bin named " + words[i][0]);
         }
         for (auto const& bin : for_bins) {
           double thresh = boost::lexical_cast<double>(words[i][2]);
@@ -473,98 +512,126 @@ namespace ch {
                 thresh, boost::lexical_cast<int>(words[i][3]), boost::lexical_cast<int>(words[i][4]));
           }
         }
+        continue;
+      }
+
+      if (type == "discrete") {
+        discrete_pars_.insert(words[i][0]);
+        continue;
+      }
+
+      if (type == "flatParam") {
+        flat_params_.insert(words[i][0]);
+        continue;
+      }
+
+      // "nuisance edit" lines are kept as they are and written back at the end
+      // of the datacard
+      if (type == "edit") {
+        std::string line = boost::join(words[i], " ");
+        if (!contains(post_lines_, line)) {
+          post_lines_.push_back(line);
+        }
+        continue;
+      }
+
+      if (contains(std::vector<std::string>{"unif", "dFD", "dFD2", "trG", "gmM", "constr"}, type)) {
+        throw malformed("systematics of type " + type + " are not supported by CombineHarvester");
+      }
+      if (!contains(std::vector<std::string>{"shape", "shape?", "shapeN", "shapeN2", "shapeU", "lnN", "lnU", "gmN"},
+                    type)) {
+        throw malformed("unknown systematic type " + type);
       }
 
       // Systematic lines have the name, the type and one value per process;
-      // gmN lines also carry the number of control region events after the type
-      bool is_gmN = words[i].size() > 1 && words[i][1] == "gmN";
+      // gmN lines also carry the number of control region events after the
+      // type. Any values beyond the number of processes are ignored.
+      bool is_gmN = type == "gmN";
       unsigned n_lead = is_gmN ? 3 : 2;
-      if (start_nuisance_scan && words[i].size() == words[r].size() - 1 + n_lead &&
-          !boost::iequals(words[i][1], "autoMCStats")) {
-        int n_events = is_gmN ? boost::lexical_cast<int>(words[i][2]) : 0;
-        for (unsigned p = n_lead; p < words[i].size(); ++p) {
-          if (words[i][p] == "-")
-            continue;
-          unsigned col = p - n_lead + 1;  // column in the bin, process and rate lines
-          auto sys = std::make_shared<Systematic>();
-          sys->set_bin(words[r - 3][col]);
-          try {
-            int process_id = boost::lexical_cast<int>(words[r - 2][col]);
-            sys->set_signal(process_id <= 0);
-            sys->set_process(words[r - 1][col]);
-          } catch (boost::bad_lexical_cast&) {
-            int process_id = boost::lexical_cast<int>(words[r - 1][col]);
-            sys->set_signal(process_id <= 0);
-            sys->set_process(words[r - 2][col]);
-          }
-          sys->set_name(words[i][0]);
-          std::string type = words[i][1];
-          if (!contains(std::vector<std::string>{"shape", "shape?", "shapeN", "shapeN2", "shapeU", "lnN", "lnU", "gmN"},
-                        type)) {
-            throw std::runtime_error(FNERROR("Systematic type " + type + " not supported"));
-          }
-          sys->set_type(words[i][1]);
-          sys->set_analysis(analysis);
-          sys->set_era(era);
-          sys->set_channel(channel);
-          sys->set_bin_id(bin_id);
-          sys->set_mass(mass);
-          sys->set_scale(1.0);
-          std::size_t slash_pos = words[i][p].find("/");
-          if (slash_pos != words[i][p].npos) {
-            // Assume asymmetric of form kDown/kUp
-            sys->set_value_d(boost::lexical_cast<double>(words[i][p].substr(0, slash_pos)));
-            sys->set_value_u(boost::lexical_cast<double>(words[i][p].substr(slash_pos + 1)));
-            sys->set_asymm(true);
-          } else {
-            sys->set_value_u(boost::lexical_cast<double>(words[i][p]));
-            sys->set_asymm(false);
-          }
-          if (sys->type() == "shape" || sys->type() == "shapeN" || sys->type() == "shapeN2" ||
-              sys->type() == "shapeU") {
-            sys->set_scale(boost::lexical_cast<double>(words[i][p]));
-            LoadShapes(sys.get(), hist_mapping);
-          } else if (sys->type() == "shape?") {
-            // This might fail, so we have to "try"
-            try {
-              LoadShapes(sys.get(), hist_mapping);
-            } catch (std::exception& e) {
-              if (verbosity_ > 0) {
-                LOGLINE(log(), "Systematic with shape? did not resolve to a shape");
-                log() << e.what();
-              }
-            }
-            if (!sys->shape_u() || !sys->shape_d()) {
-              sys->set_type("lnN");
-            } else {
-              sys->set_type("shape");
-              sys->set_scale(boost::lexical_cast<double>(words[i][p]));
-            }
-          }
-          if (sys->type() == "shape" || sys->type() == "shapeN" || sys->type() == "shapeN2" || sys->type() == "shapeU")
-            sys->set_asymm(true);
-
-          if (sys->type() == "gmN") {
-            if (sys->asymm()) {
-              throw std::runtime_error(FNERROR("Asymmetric values are not allowed for gmN systematics"));
-            }
-            sys->set_n_events(n_events);
-          }
-
-          CombineHarvester::CreateParameterIfEmpty(sys->name());
-          if (sys->type() == "lnU" || sys->type() == "shapeU") {
-            params_.at(sys->name())->set_err_d(0.);
-            params_.at(sys->name())->set_err_u(0.);
-          }
-          if (sys->type() == "gmN") {
-            // The parameter is the expected number of control region events,
-            // with its Poisson uncertainty
-            params_.at(sys->name())->set_val(n_events);
-            params_.at(sys->name())->set_err_d(-std::sqrt(n_events));
-            params_.at(sys->name())->set_err_u(std::sqrt(n_events));
-          }
-          systs_.push_back(sys);
+      unsigned n_procs = words[r].size() - 1;
+      if (words[i].size() < n_lead + n_procs) {
+        throw malformed((boost::format("expected %i values, one per process, found %i") % n_procs %
+                         (std::max(int(words[i].size()) - int(n_lead), 0)))
+                            .str());
+      }
+      int n_events = is_gmN ? boost::lexical_cast<int>(words[i][2]) : 0;
+      for (unsigned p = n_lead; p < n_lead + n_procs; ++p) {
+        // An entry of only dashes means no effect on this process
+        if (words[i][p].find_first_not_of('-') == std::string::npos)
+          continue;
+        unsigned col = p - n_lead + 1;  // column in the bin, process and rate lines
+        auto sys = std::make_shared<Systematic>();
+        sys->set_bin(words[r - 3][col]);
+        try {
+          int process_id = boost::lexical_cast<int>(words[r - 2][col]);
+          sys->set_signal(process_id <= 0);
+          sys->set_process(words[r - 1][col]);
+        } catch (boost::bad_lexical_cast&) {
+          int process_id = boost::lexical_cast<int>(words[r - 1][col]);
+          sys->set_signal(process_id <= 0);
+          sys->set_process(words[r - 2][col]);
         }
+        sys->set_name(words[i][0]);
+        sys->set_type(type);
+        sys->set_analysis(analysis);
+        sys->set_era(era);
+        sys->set_channel(channel);
+        sys->set_bin_id(bin_id);
+        sys->set_mass(mass);
+        sys->set_scale(1.0);
+        std::size_t slash_pos = words[i][p].find("/");
+        if (slash_pos != words[i][p].npos) {
+          // Assume asymmetric of form kDown/kUp
+          sys->set_value_d(boost::lexical_cast<double>(words[i][p].substr(0, slash_pos)));
+          sys->set_value_u(boost::lexical_cast<double>(words[i][p].substr(slash_pos + 1)));
+          sys->set_asymm(true);
+        } else {
+          sys->set_value_u(boost::lexical_cast<double>(words[i][p]));
+          sys->set_asymm(false);
+        }
+        if (sys->type() == "shape" || sys->type() == "shapeN" || sys->type() == "shapeN2" || sys->type() == "shapeU") {
+          sys->set_scale(boost::lexical_cast<double>(words[i][p]));
+          LoadShapes(sys.get(), hist_mapping);
+        } else if (sys->type() == "shape?") {
+          // This might fail, so we have to "try"
+          try {
+            LoadShapes(sys.get(), hist_mapping);
+          } catch (std::exception& e) {
+            if (verbosity_ > 0) {
+              LOGLINE(log(), "Systematic with shape? did not resolve to a shape");
+              log() << e.what();
+            }
+          }
+          if (!sys->shape_u() || !sys->shape_d()) {
+            sys->set_type("lnN");
+          } else {
+            sys->set_type("shape");
+            sys->set_scale(boost::lexical_cast<double>(words[i][p]));
+          }
+        }
+        if (sys->type() == "shape" || sys->type() == "shapeN" || sys->type() == "shapeN2" || sys->type() == "shapeU")
+          sys->set_asymm(true);
+
+        if (sys->type() == "gmN") {
+          if (sys->asymm()) {
+            throw std::runtime_error(FNERROR("Asymmetric values are not allowed for gmN systematics"));
+          }
+          sys->set_n_events(n_events);
+        }
+
+        CombineHarvester::CreateParameterIfEmpty(sys->name());
+        if (sys->type() == "lnU" || sys->type() == "shapeU") {
+          params_.at(sys->name())->set_err_d(0.);
+          params_.at(sys->name())->set_err_u(0.);
+        }
+        if (sys->type() == "gmN") {
+          // The parameter is the expected number of control region events,
+          // with its Poisson uncertainty
+          params_.at(sys->name())->set_val(n_events);
+          params_.at(sys->name())->set_err_d(-std::sqrt(n_events));
+          params_.at(sys->name())->set_err_u(std::sqrt(n_events));
+        }
+        systs_.push_back(sys);
       }
     }
     if (single_obs) {
@@ -829,6 +896,8 @@ namespace ch {
 
     std::set<std::string> all_dependents_pars;
     std::set<std::string> multipdf_cats;
+    std::set<std::string> all_dependents_cats;
+    std::set<std::string> norm_names;
     for (auto proc : procs_) {
       if (!proc->pdf())
         continue;
@@ -865,8 +934,12 @@ namespace ch {
         if (dynamic_cast<RooCategory*>(par_list_var) && proc->pdf()->InheritsFrom("RooMultiPdf")) {
           multipdf_cats.insert(par_list_var->GetName());
         }
+        if (dynamic_cast<RooCategory*>(par_list_var)) {
+          all_dependents_cats.insert(par_list_var->GetName());
+        }
       }
       if (proc->norm()) {
+        norm_names.insert(proc->norm()->GetName());
         for (RooAbsArg* nm_list_var : norm_par_list) {
           if (dynamic_cast<RooRealVar*>(nm_list_var)) {
             all_dependents_pars.insert(nm_list_var->GetName());
@@ -1327,8 +1400,23 @@ namespace ch {
       }
     }
 
+    // Keep the discrete lines of the parsed datacards for the categories that
+    // the pdfs in this card depend on, e.g. the index of a RooMultiPdf inside
+    // another pdf, which the check above doesn't find
+    for (auto const& par : discrete_pars_) {
+      if (all_dependents_cats.count(par))
+        multipdf_cats.insert(par);
+    }
+
     for (auto par : multipdf_cats) {
       txt_file << format((format("%%-%is discrete\n") % sys_str_len).str()) % par;
+    }
+
+    // Same for flatParam lines: the parameter must appear in this card
+    for (auto const& par : flat_params_) {
+      if (all_dependents_pars.count(par) || norm_names.count(par) || rateparam_set.count(par) ||
+          all_fn_param_args.count(par))
+        txt_file << format((format("%%-%is flatParam\n") % sys_str_len).str()) % par;
     }
 
     for (auto stat_settings : auto_stats_settings_) {

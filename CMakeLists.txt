@@ -42,6 +42,7 @@ if(USE_VDT)
 endif()
 find_package(LCG QUIET) # only used for FindBoost in StatAnalysis
 find_package(Boost CONFIG REQUIRED COMPONENTS program_options filesystem regex)
+find_package(ZLIB REQUIRED)
 
 message(STATUS "Using ROOT From: ${ROOT_INCLUDE_DIRS}")
 include(${ROOT_USE_FILE})
@@ -86,7 +87,7 @@ ROOT_GENERATE_DICTIONARY(G__${LIBNAME} HiggsAnalysis/CombinedLimit/src/classes.h
 
 add_library(${LIBNAME} SHARED ${SOURCES} G__${LIBNAME}.cxx)
 set_target_properties(${LIBNAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
-target_link_libraries (${LIBNAME} Eigen3::Eigen nlohmann_json::nlohmann_json ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries (${LIBNAME} Eigen3::Eigen nlohmann_json::nlohmann_json ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ZLIB::ZLIB)
 
 
 if(NOT USE_VDT)

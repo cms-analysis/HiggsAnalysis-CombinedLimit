@@ -47,6 +47,8 @@ namespace ch {
     swap(first.post_lines_, second.post_lines_);
     swap(first.log_, second.log_);
     swap(first.auto_stats_settings_, second.auto_stats_settings_);
+    swap(first.discrete_pars_, second.discrete_pars_);
+    swap(first.flat_params_, second.flat_params_);
   }
 
   CombineHarvester::CombineHarvester(CombineHarvester const& other)
@@ -58,6 +60,8 @@ namespace ch {
         flags_(other.flags_),
         auto_stats_settings_(other.auto_stats_settings_),
         post_lines_(other.post_lines_),
+        discrete_pars_(other.discrete_pars_),
+        flat_params_(other.flat_params_),
         verbosity_(other.verbosity_),
         log_(other.log_) {
     // std::cout << "[CombineHarvester] Copy-constructor called " << &other
@@ -94,7 +98,10 @@ namespace ch {
     cpy.systs_.resize(systs_.size());
     cpy.flags_ = flags_;
     cpy.verbosity_ = verbosity_;
+    cpy.auto_stats_settings_ = auto_stats_settings_;
     cpy.post_lines_ = post_lines_;
+    cpy.discrete_pars_ = discrete_pars_;
+    cpy.flat_params_ = flat_params_;
     cpy.log_ = log_;
 
     // Build a map of workspace object pointers

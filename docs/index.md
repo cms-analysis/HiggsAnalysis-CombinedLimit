@@ -313,6 +313,8 @@ CombineHarvester is a C++ and python framework for the creation of datacards/wor
 
 See the [`CombineHarvester`](http://cms-analysis.github.io/CombineHarvester/) documentation pages for more details on using the framework.
 
+In `ch::CombineHarvester::ParseDatacard`, comments at the end of the nuisance lines are ignored, and `autoMCStats` lines accept bin patterns such as `ch_* autoMCStats 10`. The `discrete` and `flatParam` lines are written back by `WriteDatacard` for the parameters of the pdfs in the card, and `nuisance edit` lines are kept as they are and written at the end of the datacard, without being applied to the systematics that `CombineHarvester` sees. Lines that `CombineHarvester` can't represent, such as `unif`, `dFD`, `trG` or `constr` systematics, an unknown systematic type or a line with fewer values than processes, are rejected with an error instead of being skipped.
+
 If you are migrating existing code from the standalone `CombineHarvester` repository, update the include and import paths as follows:
 
 | Old | New |

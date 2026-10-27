@@ -7,6 +7,7 @@
 <use name="vdt"/>
 <use name="eigen"/>
 <use name="json"/>
+<use name="zlib"/>
 <lib name="Smatrix"/>
 <use   name="boost_program_options"/>
 <use   name="boost_filesystem"/>

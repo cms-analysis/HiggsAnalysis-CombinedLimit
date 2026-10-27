@@ -9,6 +9,7 @@
 #include <list>
 #include <cmath>
 #include <set>
+#include <type_traits>
 #include <functional>
 #include "boost/range/algorithm_ext/erase.hpp"
 #include "TFile.h"
@@ -194,10 +195,10 @@ namespace ch {
    * @tparam T A function (or other callable) that must have a single
    * `ch::Object const*` argument.
    * @tparam R The return type of the function, which is deduced by using
-   * `std::result_of`, then `std::decay`. The latter is needed to handle
+   * `std::invoke_result`, then `std::decay`. The latter is needed to handle
    * functions that return by reference, i.e. turning a type R& into a type R.
    */
-    template <typename T, typename R = typename std::decay<typename std::result_of<T(Object const*)>::type>::type>
+    template <typename T, typename R = std::decay_t<std::invoke_result_t<T, Object const*>>>
     std::set<R> SetFromAll(T func);
 
     /**
@@ -205,7 +206,7 @@ namespace ch {
    *
    * \sa SetFromAll
    */
-    template <typename T, typename R = typename std::decay<typename std::result_of<T(Observation const*)>::type>::type>
+    template <typename T, typename R = std::decay_t<std::invoke_result_t<T, Observation const*>>>
     std::set<R> SetFromObs(T func);
 
     /**
@@ -213,7 +214,7 @@ namespace ch {
    *
    * \sa SetFromAll
    */
-    template <typename T, typename R = typename std::decay<typename std::result_of<T(Process const*)>::type>::type>
+    template <typename T, typename R = std::decay_t<std::invoke_result_t<T, Process const*>>>
     std::set<R> SetFromProcs(T func);
 
     /**
@@ -221,7 +222,7 @@ namespace ch {
    *
    * \sa SetFromAll
    */
-    template <typename T, typename R = typename std::decay<typename std::result_of<T(Systematic const*)>::type>::type>
+    template <typename T, typename R = std::decay_t<std::invoke_result_t<T, Systematic const*>>>
     std::set<R> SetFromSysts(T func);
     /**@}*/
 
@@ -505,6 +506,9 @@ namespace ch {
   private:
     std::map<std::string, AutoMCStatsSettings> auto_stats_settings_;
     std::vector<std::string> post_lines_;
+    // Names declared with "discrete" and "flatParam" lines in parsed datacards
+    std::set<std::string> discrete_pars_;
+    std::set<std::string> flat_params_;
 
     // ---------------------------------------------------------------
     // typedefs

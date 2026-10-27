@@ -13,7 +13,6 @@ to configure its behaviour without modifying the code directly.
 */
 
 using namespace std;
-using boost::format;
 namespace po = boost::program_options;
 
 // Struct holds info on each column in the table
@@ -112,7 +111,7 @@ int main(int argc, char *argv[]) {
   string fmt = "& %-5.2f & %-5.2f";
 
   if (do_text) {
-    cout << format(
+    cout << boost::format(
                 "%-70s %-15s | %-15s | %-15s | %-13s | "
                 "%-13s | %-13s\n") %
                 "Parameter" % "Best (obs)" % "Best (post)" % "Best (pre)" % "Impact (obs)" % "Impact (post)" %
@@ -121,7 +120,7 @@ int main(int argc, char *argv[]) {
     for (unsigned i = 0; i < max && i < val_vec.size(); ++i) {
       Vals &val = val_vec[i];
 
-      cout << format(
+      cout << boost::format(
                   "%-70s %7.2f %7.2f | %7.2f %7.2f | %7.2f %7.2f | %7.3f %5i | "
                   "%7.3f %5i | %7.3f %5i\n") %
                   val.parameter % val.par_best % ((val.par_hi - val.par_lo) / 2.) % val.par_best_post %
@@ -143,8 +142,7 @@ int main(int argc, char *argv[]) {
     cout << R"(})"
          << "\n";
 
-    cout << format("%-60s") % "Nuisance Parameter"
-         << R"(& \multicolumn{2}{c}{$\hat{\theta}$ (obs)})"
+    cout << boost::format("%-60s") % "Nuisance Parameter" << R"(& \multicolumn{2}{c}{$\hat{\theta}$ (obs)})"
          << R"(& \multicolumn{2}{c}{$\hat{\theta}$ (asimov)})"
          << R"(& $\Delta\hat{\mu}$ (obs) & Rank)"
          << R"(& $\Delta\hat{\mu}$ (asimov) & Rank)"
@@ -158,10 +156,11 @@ int main(int argc, char *argv[]) {
 
       boost::replace_all(val.parameter, "_", "\\_");
 
-      cout << format("%-60s") % val.parameter << format(fmt) % val.par_best % ((val.par_hi - val.par_lo) / 2.)
-           << format(fmt) % val.par_best_post % ((val.par_hi_post - val.par_lo_post) / 2.)
-           << format("& %-5.3f & %-4i") % val.impact % val.rank_impact
-           << format("& %-5.3f & %-4i") % val.impact_post % val.rank_impact_post << R"(\\)"
+      cout << boost::format("%-60s") % val.parameter
+           << boost::format(fmt) % val.par_best % ((val.par_hi - val.par_lo) / 2.)
+           << boost::format(fmt) % val.par_best_post % ((val.par_hi_post - val.par_lo_post) / 2.)
+           << boost::format("& %-5.3f & %-4i") % val.impact % val.rank_impact
+           << boost::format("& %-5.3f & %-4i") % val.impact_post % val.rank_impact_post << R"(\\)"
            << "\n";
     }
 

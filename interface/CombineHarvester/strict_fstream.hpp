@@ -17,6 +17,19 @@
 namespace strict_fstream
 {
 
+/// Turn the result of strerror_r() into a message. The XSI version returns an
+/// int and fills the buffer, the GNU version returns the message, so overload
+/// on the return type instead of guessing which one the platform provides.
+inline std::string strerror_result(int rc, const char* buff)
+{
+    return rc == 0 ? std::string(buff) : std::string("Unknown error");
+}
+
+inline std::string strerror_result(const char* msg, const char*)
+{
+    return std::string(msg);
+}
+
 /// Overload of error-reporting function, to enable use with VS.
 /// Ref: http://stackoverflow.com/a/901316/717706
 static std::string strerror()
@@ -27,20 +40,11 @@ static std::string strerror()
     {
         buff = "Unknown error";
     }
-#elif (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && ! _GNU_SOURCE
-// XSI-compliant strerror_r()
-    if (strerror_r(errno, &buff[0], buff.size()) != 0)
-    {
-        buff = "Unknown error";
-    }
-#else
-// GNU-specific strerror_r()
-    auto p = strerror_r(errno, &buff[0], buff.size());
-    std::string tmp(p, std::strlen(p));
-    std::swap(buff, tmp);
-#endif
     buff.resize(buff.find('\0'));
     return buff;
+#else
+    return strerror_result(strerror_r(errno, &buff[0], buff.size()), buff.c_str());
+#endif
 }
 
 /// Exception class thrown by failed operations.
