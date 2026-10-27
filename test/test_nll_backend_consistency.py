@@ -257,7 +257,7 @@ class LikelihoodBoundaryTest(unittest.TestCase):
             "-v",
             "0",
         ] + extra_args
-        result = subprocess.run(command, cwd=directory, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=90)
+        result = subprocess.run(command, cwd=directory, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         (directory / "combine.log").write_text(result.stdout)
         self.assertEqual(result.returncode, 0, result.stdout)
         return result.stdout

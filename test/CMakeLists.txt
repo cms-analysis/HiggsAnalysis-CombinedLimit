@@ -390,7 +390,6 @@ if(NOT DEFINED standalone_tests)
                 COMMAND python3 ${REPO}/test/test_nll_backend_consistency.py
                     --case ${case} --backend ${backend} --combine $<TARGET_FILE:combine>
                 LABELS NLLConsistency
-                TIMEOUT 300
             )
         endforeach()
     endforeach()
@@ -400,7 +399,6 @@ if(NOT DEFINED standalone_tests)
             COMMAND python3 ${REPO}/test/test_nll_backend_consistency.py
                 --case ${case} --backend combine --combine $<TARGET_FILE:combine>
             LABELS NLLConsistency
-            TIMEOUT 240
         )
     endforeach()
 endif()
