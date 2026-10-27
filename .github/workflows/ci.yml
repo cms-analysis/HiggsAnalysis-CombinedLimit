@@ -81,4 +81,5 @@ jobs:
       shell: bash -l {0}
       run: |
         ulimit -s unlimited;
-        ctest --test-dir build/test --output-on-failure
+        # NLL consistency tests run in nll-consistency-ci.yml (PR label testNLL)
+        ctest --test-dir build/test --output-on-failure -LE NLLConsistency

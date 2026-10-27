@@ -128,6 +128,7 @@ jobs:
             root --version
             combine --help
 
+      # NLL consistency tests run in nll-consistency-ci.yml (PR label testNLL)
       - name: Run Tests (LCG)
         if: ${{ env.CMSSW_VERSION == '' }}
         env:
@@ -137,7 +138,7 @@ jobs:
         run: >-
           source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
           ulimit -s unlimited;
-          ctest --test-dir build/test --output-on-failure -j$(nproc) ${CTEST_EXCLUDE:+-E "$CTEST_EXCLUDE"};
+          ctest --test-dir build/test --output-on-failure -j$(nproc) -LE NLLConsistency ${CTEST_EXCLUDE:+-E "$CTEST_EXCLUDE"};
 
       # AlmaLinux 9 job
       - uses: ./.github/actions/run-in-cvmfs

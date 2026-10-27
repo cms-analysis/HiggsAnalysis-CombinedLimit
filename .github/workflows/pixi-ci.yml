@@ -55,4 +55,5 @@ jobs:
           # Full unit-test battery (includes the executables' --help checks and
           # an AsymptoticLimits run on a text datacard, which needs pandas).
           ulimit -s unlimited
-          pixi run ctest --test-dir ../build_combine/test --output-on-failure
+          # NLL consistency tests run in nll-consistency-ci.yml (PR label testNLL)
+          pixi run ctest --test-dir ../build_combine/test --output-on-failure -LE NLLConsistency

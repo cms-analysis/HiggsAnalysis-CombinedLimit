@@ -1,0 +1,63 @@
+name: NLL consistency tests
+
+# The NLL consistency tests (ctest label NLLConsistency) are slow, so they are
+# excluded from the regular CI and only run for PRs with the testNLL label.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    # 'labeled' so that adding the testNLL label starts the tests
+    types: [opened, synchronize, reopened, labeled]
+
+jobs:
+  nll_consistency:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (contains(github.event.pull_request.labels.*.name, 'testNLL') &&
+       (github.event.action != 'labeled' || github.event.label.name == 'testNLL'))
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.14"]
+        root: ["6.40.04"]
+        boost: ["libboost-devel"]
+        include:
+          # ROOT 6.26 only solves with the deprecated boost-cpp package
+          - python: "3.11"
+            root: "6.26.10"
+            boost: "boost-cpp"
+          - python: "3.12"
+            root: "6.32.2"
+            boost: "libboost-devel"
+          - python: "3.12"
+            root: "6.34.4"
+            boost: "libboost-devel"
+
+    runs-on: ubuntu-latest
+    name: NLL consistency (py${{ matrix.python }}, root${{ matrix.root }})
+
+    steps:
+    - uses: actions/checkout@master
+      with:
+        path: HiggsAnalysis/CombinedLimit # Required to match compile instructions
+    - name: Set up Conda
+      uses: conda-incubator/setup-miniconda@v4
+      with:
+        python-version: ${{ matrix.python }}
+        miniforge-version: latest
+    - name: Install build environment
+      shell: bash -l {0}
+      run: |
+        # Same environment as the build job in ci.yml
+        mamba install -c conda-forge cmake cxx-compiler python==${{ matrix.python }} pandas gsl root==${{ matrix.root }} ${{ matrix.boost }} eigen
+    - name: Build
+      shell: bash -l {0}
+      run: |
+        cmake -S HiggsAnalysis/CombinedLimit -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_INSTALL_PYTHONDIR=lib/python${{ matrix.python }}/site-packages -DUSE_VDT=OFF -DBUILD_TESTS=ON
+        cmake --build build --clean-first --parallel "$(nproc)"
+        cmake --install build  # Install to conda prefix (unsafe but ok for CI)
+    - name: Run NLL consistency tests
+      shell: bash -l {0}
+      run: |
+        ulimit -s unlimited;
+        ctest --test-dir build/test --output-on-failure -L NLLConsistency
