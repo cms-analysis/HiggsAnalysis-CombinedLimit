@@ -4,17 +4,16 @@ name: NLL consistency tests
 # excluded from the regular CI and only run for PRs with the testNLL label.
 
 on:
-  workflow_dispatch:
   pull_request:
-    # 'labeled' so that adding the testNLL label starts the tests
-    types: [opened, synchronize, reopened, labeled]
+    # 'labeled' so that adding the testNLL label starts the tests. No 'opened':
+    # a PR created with the label also gets a 'labeled' event, so it would run twice.
+    types: [synchronize, reopened, labeled]
 
 jobs:
   nll_consistency:
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (contains(github.event.pull_request.labels.*.name, 'testNLL') &&
-       (github.event.action != 'labeled' || github.event.label.name == 'testNLL'))
+      contains(github.event.pull_request.labels.*.name, 'testNLL') &&
+      (github.event.action != 'labeled' || github.event.label.name == 'testNLL')
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
