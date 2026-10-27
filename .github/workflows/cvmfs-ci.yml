@@ -59,9 +59,36 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Reuse the CVMFS cache of previous runs. With an empty cache, the first
+      # processes that search the whole LCG view (Python's sys.path, cling's
+      # library lookup) fetch hundreds of nested catalogs one after another,
+      # which makes the first tests slow and prone to timeouts.
+      # The cache lives outside /home/runner, which the cvmfs user cannot enter.
+      - name: Create CVMFS cache directory (LCG)
+        if: ${{ env.CMSSW_VERSION == '' }}
+        run: |
+          sudo mkdir -p /mnt/cvmfs-cache
+          sudo chown $(id -u):$(id -g) /mnt/cvmfs-cache
+
+      - name: Restore CVMFS cache (LCG)
+        if: ${{ env.CMSSW_VERSION == '' }}
+        uses: actions/cache/restore@v6
+        with:
+          path: /mnt/cvmfs-cache
+          key: cvmfs-cache-v2-${{ matrix.LCG_RELEASE }}-${{ matrix.LCG_ARCH }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: cvmfs-cache-v2-${{ matrix.LCG_RELEASE }}-${{ matrix.LCG_ARCH }}-
+
       - uses: cvmfs-contrib/github-action-cvmfs@v5
         with:
           cvmfs_repositories: ${{ (env.CMSSW_VERSION != '') && 'cms.cern.ch' || 'sft.cern.ch' }}
+          cvmfs_cache_base: ${{ (env.CMSSW_VERSION == '') && '/mnt/cvmfs-cache' || '' }}
+
+      - name: Hand CVMFS cache to the cvmfs user (LCG)
+        if: ${{ env.CMSSW_VERSION == '' }}
+        run: |
+          sudo chown -R cvmfs:cvmfs /mnt/cvmfs-cache
+          sudo du -sh /mnt/cvmfs-cache
+          cvmfs_config probe sft.cern.ch
 
       - name: Setup compiler
         run: |
@@ -197,3 +224,18 @@ jobs:
           fail_ci_if_error: true
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Prepare CVMFS cache for saving (LCG)
+        if: ${{ always() && env.CMSSW_VERSION == '' }}
+        run: |
+          cvmfs_config stat sft.cern.ch sft-nightlies.cern.ch || true
+          sudo cvmfs_config umount || echo "::warning::cvmfs_config umount failed, saving the cache anyway"
+          sudo chown -R $(id -u):$(id -g) /mnt/cvmfs-cache
+          du -sh /mnt/cvmfs-cache
+
+      - name: Save CVMFS cache (LCG)
+        if: ${{ always() && env.CMSSW_VERSION == '' }}
+        uses: actions/cache/save@v6
+        with:
+          path: /mnt/cvmfs-cache
+          key: cvmfs-cache-v2-${{ matrix.LCG_RELEASE }}-${{ matrix.LCG_ARCH }}-${{ github.run_id }}-${{ github.run_attempt }}
