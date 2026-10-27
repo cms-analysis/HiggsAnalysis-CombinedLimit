@@ -15,49 +15,58 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       (contains(github.event.pull_request.labels.*.name, 'testNLL') &&
        (github.event.action != 'labeled' || github.event.label.name == 'testNLL'))
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.14"]
-        root: ["6.40.04"]
-        boost: ["libboost-devel"]
+        # Same LCG builds as in cvmfs-ci.yml. The CMSSW builds there only build
+        # the standalone tests, which don't include the NLL consistency tests.
         include:
-          # ROOT 6.26 only solves with the deprecated boost-cpp package
-          - python: "3.11"
-            root: "6.26.10"
-            boost: "boost-cpp"
-          - python: "3.12"
-            root: "6.32.2"
-            boost: "libboost-devel"
-          - python: "3.12"
-            root: "6.34.4"
-            boost: "libboost-devel"
-
-    runs-on: ubuntu-latest
-    name: NLL consistency (py${{ matrix.python }}, root${{ matrix.root }})
-
+          - LCG_RELEASE: "LCG_108"
+            LCG_ARCH: "x86_64-ubuntu2404-gcc13-opt"
+            ROOT: "6.36.02"
+          - LCG_RELEASE: "LCG_110"
+            LCG_ARCH: "x86_64-ubuntu2404-gcc13-opt"
+            ROOT: "6.40.02"
+          - LCG_RELEASE: "dev3/latest"
+            LCG_ARCH: "x86_64-ubuntu2404-gcc13-opt"
+            ROOT: "LCG master"
+    name: NLL consistency ${{ matrix.LCG_RELEASE }} - ROOT ${{ matrix.ROOT }}
+    env:
+      LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
+      LCG_ARCH: ${{ matrix.LCG_ARCH }}
     steps:
-    - uses: actions/checkout@master
-      with:
-        path: HiggsAnalysis/CombinedLimit # Required to match compile instructions
-    - name: Set up Conda
-      uses: conda-incubator/setup-miniconda@v4
-      with:
-        python-version: ${{ matrix.python }}
-        miniforge-version: latest
-    - name: Install build environment
-      shell: bash -l {0}
-      run: |
-        # Same environment as the build job in ci.yml
-        mamba install -c conda-forge cmake cxx-compiler python==${{ matrix.python }} pandas gsl root==${{ matrix.root }} ${{ matrix.boost }} eigen
-    - name: Build
-      shell: bash -l {0}
-      run: |
-        cmake -S HiggsAnalysis/CombinedLimit -B build -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_INSTALL_PYTHONDIR=lib/python${{ matrix.python }}/site-packages -DUSE_VDT=OFF -DBUILD_TESTS=ON
-        cmake --build build --clean-first --parallel "$(nproc)"
-        cmake --install build  # Install to conda prefix (unsafe but ok for CI)
-    - name: Run NLL consistency tests
-      shell: bash -l {0}
-      run: |
-        ulimit -s unlimited;
-        ctest --test-dir build/test --output-on-failure -L NLLConsistency
+      - uses: actions/checkout@v7
+
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
+        with:
+          cvmfs_repositories: 'sft.cern.ch'
+
+      - name: Setup compiler
+        run: |
+          echo "CC=$(which gcc)" >> $GITHUB_ENV
+          echo "CXX=$(which g++)" >> $GITHUB_ENV
+
+      - name: Build Combine (LCG)
+        env:
+          # VDT doesn't seem to be available in dev3/latest.
+          USE_VDT: ${{ matrix.LCG_RELEASE != 'dev3/latest' && 'TRUE' || 'FALSE' }}
+        run: >-
+          source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
+          root --version;
+          mkdir build;
+          cd build;
+          cmake -DCMAKE_INSTALL_PREFIX=../install \
+                -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+                -DUSE_VDT=${USE_VDT} \
+                -DBUILD_TESTS=TRUE \
+                ..;
+          make install -j$(nproc);
+          echo "RooFit.Banner: 0" > .rootrc;
+          echo "RooFit.Banner: 0" > test/.rootrc;
+
+      - name: Run NLL consistency tests
+        run: >-
+          source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
+          ulimit -s unlimited;
+          ctest --test-dir build/test --output-on-failure -j$(nproc) -L NLLConsistency;
