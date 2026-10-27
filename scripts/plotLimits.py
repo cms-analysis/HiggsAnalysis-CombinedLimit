@@ -3,7 +3,7 @@ import ROOT
 import HiggsAnalysis.CombinedLimit.util.plotting as plot
 import argparse
 
-# import CombineHarvester.CombineTools.maketable as maketable
+# import HiggsAnalysis.CombinedLimit.CombineHarvester.maketable as maketable
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input", nargs="+", help="""Input json files""")

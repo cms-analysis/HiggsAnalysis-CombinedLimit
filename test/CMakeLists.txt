@@ -410,6 +410,24 @@ COMBINE_ADD_TEST(test_model_tools_py
     COMMAND python3 ${REPO}/test/test_model_tools.py
 )
 
+# CombineHarvester python interface and datacard validation
+COMBINE_ADD_TEST(test_combineharvester_py
+    COMMAND python3 ${REPO}/test/test_combineharvester.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt
+    PASSREGEX "All checks passed"
+)
+COMBINE_ADD_TEST(test_combineharvester_shapes_py
+    COMMAND python3 ${REPO}/test/test_combineharvester_shapes.py ${REPO}/data/ci/template-analysis_shapeInterp.txt
+    PASSREGEX "All checks passed"
+)
+COMBINE_ADD_TEST(test_combineharvester_gmn_py
+    COMMAND python3 ${REPO}/test/test_combineharvester_gmn.py ${REPO}/data/ci/counting_gmN.txt
+    PASSREGEX "All checks passed"
+)
+COMBINE_ADD_TEST(combineharvester-validate-datacards
+    COMMAND ValidateDatacards.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt --jsonFile validation.json
+    PASSREGEX "Validation results"
+)
+
 # RooBernsteinFast v1 -> v2 schema evolution
 COMBINE_ADD_TEST(roo_bernstein_fast_schema_evolution
     COMMAND python3 test_roo_bernstein_fast_schema_evolution.py

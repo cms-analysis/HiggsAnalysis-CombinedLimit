@@ -70,7 +70,7 @@ jobs:
         # The cxx-compiler package is needed explicitly: ROOT >= 6.40 no longer
         # depends on the conda compilers, and the system compiler would not
         # set an RPATH to $CONDA_PREFIX/lib for the installed combine binary.
-        mamba install -c conda-forge cmake cxx-compiler python==${{ matrix.python }} pandas gsl root==${{ matrix.root }} ${{ matrix.boost }} eigen
+        mamba install -c conda-forge cmake cxx-compiler python==${{ matrix.python }} pandas gsl root==${{ matrix.root }} ${{ matrix.boost }} eigen nlohmann_json
     - name: Build
       shell: bash -l {0}
       run: |
