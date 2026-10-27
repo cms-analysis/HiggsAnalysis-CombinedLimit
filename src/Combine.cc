@@ -1380,6 +1380,12 @@ std::unique_ptr<RooAbsReal> combineCreateNLL(
   static bool declaredMathFuncs = false;
   if ((evalBackend == "codegen" || evalBackend == "codegen_no_grad") && !declaredMathFuncs) {
     gInterpreter->Declare("#include <HiggsAnalysis/CombinedLimit/interface/CombineMathFuncs.h>");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 36, 0)
+    // The generated code calls into libRooFitCodegen. If it is not loaded,
+    // cling resolves the symbols by scanning every library on
+    // LD_LIBRARY_PATH, which is very slow on a cold CVMFS cache.
+    gSystem->Load("libRooFitCodegen");
+#endif
     declaredMathFuncs = true;
   }
 
