@@ -4,6 +4,7 @@
 /** Vertical interpolation between multiple histograms (or binned non-parametric pdfs, which eventually means histograms...)
     Does integration internally */
 
+#include "RooAbsCollection.h"
 #include "RooAbsPdf.h"
 #include "RooRealProxy.h"
 #include "RooListProxy.h"
