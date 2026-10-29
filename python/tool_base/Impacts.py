@@ -81,6 +81,12 @@ class Impacts(CombineToolBase):
             help="""write output json to a
             file""",
         )
+        group.add_argument(
+            "--globalImpacts",
+            "-g",
+            action="store_true",
+            help="""Run the global impacts calculation""",
+        )
         group.add_argument("--approx", default=None, choices=["hesse", "robust"], help="""Calculate impacts using the covariance matrix instead""")
         group.add_argument("--noInitialFit", action="store_true", default=False, help="""Do not look for results from the initial Fit""")
 
@@ -118,7 +124,7 @@ class Impacts(CombineToolBase):
             sys.exit(0)
         elif self.args.approx == "robust" and self.args.doFits:
             self.job_queue.append(
-                "combine -M MultiDimFit -n _approxFit_%(name)s --algo none --redefineSignalPOIs %(poistr)s --floatOtherPOIs 1 --saveInactivePOI 1 --robustHesse 1 %(pass_str)s"
+                "combine -M MultiDimFit -n _approxFit_%(name)s --algo none --redefineSignalPOIs %(poistr)s --floatOtherPOIs 1 --saveInactivePOI 1 --robustHesse 1 --saveFitResult %(pass_str)s"
                 % {"name": name, "poistr": poistr, "pass_str": pass_str}
             )
             self.flush_queue()
@@ -134,16 +140,18 @@ class Impacts(CombineToolBase):
             if self.args.splitInitial:
                 for poi in poiList:
                     self.job_queue.append(
-                        "combine -M MultiDimFit -n _initialFit_%(name)s_POI_%(poi)s --algo singles --redefineSignalPOIs %(poistr)s --floatOtherPOIs 1 --saveInactivePOI 1 -P %(poi)s %(pass_str)s"
+                        "combine -M MultiDimFit -n _initialFit_%(name)s_POI_%(poi)s --algo singles --redefineSignalPOIs %(poistr)s --floatOtherPOIs 1 --saveInactivePOI 1 -P %(poi)s %(pass_str)s --saveFitResult"
                         % {"name": name, "poi": poi, "poistr": poistr, "pass_str": pass_str}
                     )
             else:
                 self.job_queue.append(
-                    "combine -M MultiDimFit -n _initialFit_%(name)s --algo singles --redefineSignalPOIs %(poistr)s %(pass_str)s"
+                    "combine -M MultiDimFit -n _initialFit_%(name)s --algo singles --redefineSignalPOIs %(poistr)s %(pass_str)s --saveFitResult"
                     % {"name": name, "poistr": poistr, "pass_str": pass_str}
                 )
             self.flush_queue()
             sys.exit(0)
+
+        constVarValues = {} # The values of constant vars (i.e. global obs) in the fit
 
         # Read the initial fit results
         if not self.args.noInitialFit:
@@ -154,6 +162,8 @@ class Impacts(CombineToolBase):
                     rfr = fResult.Get("fit_mdf")
                     fResult.Close()
                     initialRes = utils.get_roofitresult(rfr, poiList, poiList)
+                    constVarValues = utils.get_rfr_constvars(f"multidimfit_approxFit_{name}.root", "fit_mdf")
+
                 elif self.args.approx == "robust":
                     fResult = ROOT.TFile(f"robustHesse_approxFit_{name}.root")
                     floatParams = fResult.Get("floatParsFinal")
@@ -161,13 +171,18 @@ class Impacts(CombineToolBase):
                     rfr.SetDirectory(0)
                     fResult.Close()
                     initialRes = utils.get_robusthesse(floatParams, rfr, poiList, poiList)
+                    constVarValues = utils.get_rfr_constvars(f"multidimfit_approxFit_{name}.root", "fit_mdf")
+
             elif self.args.splitInitial:
-                for poi in poiList:
+                for idx, poi in enumerate(poiList):
                     initialRes.update(
                         utils.get_singles_results("higgsCombine_initialFit_%(name)s_POI_%(poi)s.MultiDimFit.mH%(mh)s.root" % vars(), [poi], poiList)
                     )
+                    if idx == 0: # We only need to get this once, it will be the same in each file
+                        constVarValues = utils.get_rfr_constvars(f"multidimfit_initialFit_{name}_POI_{poi}.root", "fit_mdf")
             else:
                 initialRes = utils.get_singles_results("higgsCombine_initialFit_%(name)s.MultiDimFit.mH%(mh)s.root" % vars(), poiList, poiList)
+                constVarValues = utils.get_rfr_constvars(f"multidimfit_initialFit_{name}.root", "fit_mdf")
 
         ################################################
         # Build the parameter list
@@ -216,7 +231,10 @@ class Impacts(CombineToolBase):
                     set_parameters_str += setParam + ","
             self.args.setParameters = set_parameters_str.rstrip(",")
 
-        prefit = utils.prefit_from_workspace(ws, "w", paramList, self.args.setParameters)
+        # TODO: Now that we extract the const values from the actual fit result, we probably don't need
+        # to parse --setParameters here - the only ones of interest are those which correspond to global
+        # observables ("X_In") and these should always be in constVarValues
+        prefit = utils.prefit_from_workspace(ws, "w", paramList, self.args.setParameters, constVarValues)
         res = {}
         if not self.args.noInitialFit:
             res["POIs"] = []
@@ -235,6 +253,13 @@ class Impacts(CombineToolBase):
                     "combine -M MultiDimFit -n _paramFit_%(name)s_%(param)s --algo impact --redefineSignalPOIs %(poistr)s -P %(param)s --floatOtherPOIs 1 --saveInactivePOI 1 %(pass_str)s"
                     % vars()
                 )
+                if self.args.globalImpacts and "prefit" in pres and pres["type"] != "Unconstrained":
+                    gobsHi = pres["prefit"][2]
+                    gobsLo = pres["prefit"][0]
+                    self.job_queue.append(
+                        f"combine -M MultiDimFit -n _globalFit_{name}_{param}_hi --algo fixed --redefineSignalPOIs {poistr} -P {param}_In --floatOtherPOIs 1 --saveInactivePOI 1 {pass_str} --fixedPointPOIs {param}_In={gobsHi}")
+                    self.job_queue.append(
+                        f"combine -M MultiDimFit -n _globalFit_{name}_{param}_lo --algo fixed --redefineSignalPOIs {poistr} -P {param}_In --floatOtherPOIs 1 --saveInactivePOI 1 {pass_str} --fixedPointPOIs {param}_In={gobsLo}")
             else:
                 if self.args.approx == "hesse":
                     paramScanRes = utils.get_roofitresult(rfr, [param], poiList + [param])
@@ -247,6 +272,11 @@ class Impacts(CombineToolBase):
                     paramScanRes = utils.get_singles_results(
                         "higgsCombine_paramFit_%(name)s_%(param)s.MultiDimFit.mH%(mh)s.root" % vars(), [param], poiList + [param]
                     )
+                    if self.args.globalImpacts and pres["type"] != "Unconstrained":
+                        globalFitHiRes = utils.get_fixed_results(
+                            f"higgsCombine_globalFit_{name}_{param}_hi.MultiDimFit.mH{mh}.root", poiList)
+                        globalFitLoRes = utils.get_fixed_results(
+                            f"higgsCombine_globalFit_{name}_{param}_lo.MultiDimFit.mH{mh}.root", poiList)
                 if paramScanRes is None:
                     missing.append(param)
                     continue
@@ -258,6 +288,18 @@ class Impacts(CombineToolBase):
                             "impact_" + p: max(list(map(abs, (x - paramScanRes[param][p][1] for x in (paramScanRes[param][p][2], paramScanRes[param][p][0]))))),
                         }
                     )
+                    if self.args.globalImpacts and pres["type"] != "Unconstrained":
+                        if self.args.approx is not None:
+                            # print(param)
+                            # print(prefit)
+                            symm_prefit = (prefit[param]["prefit"][2] - prefit[param]["prefit"][0]) / 2.
+                            symm_postfit = (pres["fit"][2] - pres["fit"][0]) / 2.
+                            red_factor = symm_postfit / symm_prefit
+                            imp_hi = ((paramScanRes[param][p][2] - paramScanRes[param][p][1]) * red_factor) + paramScanRes[param][p][1]
+                            imp_lo = ((paramScanRes[param][p][0] - paramScanRes[param][p][1]) * red_factor) + paramScanRes[param][p][1]
+                            pres.update({f"global_{p}": [imp_lo, paramScanRes[param][p][1], imp_hi]})
+                        else:
+                            pres.update({f"global_{p}": [globalFitLoRes["fixedpoint"][p], paramScanRes[param][p][1], globalFitHiRes["fixedpoint"][p]]})
             res["params"].append(pres)
         self.flush_queue()
 
