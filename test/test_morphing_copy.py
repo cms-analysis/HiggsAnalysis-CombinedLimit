@@ -7,6 +7,7 @@ morphing coefficient is either theta itself or a scaled nuisance 0.5*theta, as
 text2workspace builds for a shape systematic with a size other than 1.
 """
 
+import math
 import os
 import sys
 import tempfile
@@ -108,7 +109,7 @@ with tempfile.TemporaryDirectory() as tmp:
                 for how, owner, (x, theta, pdf) in copies(w, name):
                     pdf.getVal()  # evaluate the copy at theta = 0 first
                     got = scan(pdf, x, theta)
-                    if any(abs(a - b) > 1e-9 * abs(b) for a, b in zip(got, ref)):
+                    if not all(math.isfinite(a) and math.isfinite(b) and math.isclose(a, b, rel_tol=1e-9) for a, b in zip(got, ref)):
                         failures.append(f"{name}, {coef}, {how}, {'warm' if warm else 'cold'}: got {got}, expected {ref}")
                 f.Close()
 
