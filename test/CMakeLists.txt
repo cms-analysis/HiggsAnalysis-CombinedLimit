@@ -410,6 +410,11 @@ COMBINE_ADD_TEST(test_model_tools_py
     COMMAND python3 ${REPO}/test/test_model_tools.py
 )
 
+# Copies of the vertical-morphing pdfs must follow their own nuisance parameter
+COMBINE_ADD_TEST(test_morphing_copy_py
+    COMMAND python3 ${REPO}/test/test_morphing_copy.py
+)
+
 # RooBernsteinFast v1 -> v2 schema evolution
 COMBINE_ADD_TEST(roo_bernstein_fast_schema_evolution
     COMMAND python3 test_roo_bernstein_fast_schema_evolution.py
