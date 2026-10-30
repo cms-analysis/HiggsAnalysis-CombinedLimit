@@ -633,7 +633,6 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
     static int maskChannels = freezeDisassParams ? runtimedef::get(std::string("MINIMIZER_multiMin_maskChannels")) : 0;
     auto *simnll = dynamic_cast<cacheutils::SimNLLBase *>(&nll_);
 
-    //RooTrace::active(true);
     /* Different modes for minimization 
      Mode 0 -- Generate all combinations but only scan per-index 
      Mode 1 -- Generate only combinations which are orthogonal from the best fit after mode 0
