@@ -2929,7 +2929,7 @@ combine<span class="w"> </span>-M<span class="w"> </span>AsymptoticLimits<span c
 </code></pre></div>
 <h2 id="expected-limits-assuming-non-zero-signal-strengths">Expected limits assuming non-zero signal strengths</h2>
 <p>The median expected limit and quantiles can be calculated under Hypotheses other than at <span class="arithmatex">\(\mu=0\)</span>. The Asymptotic expected limits can be calculated by setting the value <code>--signalStrengthForExpected mu0</code>. The Asimov dataset produced for the calculation will be generated for <span class="arithmatex">\(\mu=\)</span><code>mu0</code> instead of the usual <span class="arithmatex">\(\mu=0\)</span>. Note that setting <code>--signalStrengthForExpected 0</code> will give the same results as not setting the option, but will be slower as this forces a recreation of the Asimov dataset.</p>
-<p>Be aware that while expected values are derived from the Asimov created at the specified signal strength, setting this option <em>does not</em> alter the definition of <span class="arithmatex">\(CL_s\)</span> in that the denominator is still defined with respect to the no signal (<span class="arithmatex">\(\mu=0\)</span>) hypothesis. </p>
+<p>Be aware that while expected values are derived from the Asimov created at the specified signal strength, setting this option <em>does not</em> alter the definition of <span class="arithmatex">\(CL_s\)</span> in that the denominator is still defined with respect to the no signal (<span class="arithmatex">\(\mu=0\)</span>) hypothesis.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>Currently <span style="font-variant:small-caps;">Combine</span> does <em>not</em> support calculating expected limits assuming non-zero signal strengths using toy-based calculations. If you are interested in adding this feature, please contact the developers.</p>
@@ -3016,8 +3016,8 @@ for k in fi_MCMC.Get("toys").GetListOfKeys():
 
 </code></pre>
 </details>
-<p>Alternatively, you can use the script provided <code>debugChains.py</code> to produce the posterior distribution and some examples of trace plots of the chains. 
-Running the following command on the output file produced for the same datacard (including the <code>--saveChain</code> option) </p>
+<p>Alternatively, you can use the script provided <code>debugChains.py</code> to produce the posterior distribution and some examples of trace plots of the chains.
+Running the following command on the output file produced for the same datacard (including the <code>--saveChain</code> option)</p>
 <p><div class="highlight"><pre><span></span><code>debugChains.py higgsCombineTest.MarkovChainMC.mH120.root --burnInFraction 0.2 -p r  --range 0 20 --mode upperlim
 </code></pre></div>
 will produce the following output,</p>
@@ -3026,7 +3026,7 @@ Number of chains: 100
 Burn-in fraction: 0.20 (average burn-in length: 156.5 entries)
 95.0% CL interval: r &lt; 2.173
 </code></pre></div>
-<p>along with a plot of the plot shown below. This is roughly the same as the output from <span style="font-variant:small-caps;">Combine</span>, but the script can also be used to find lower limits, or credible intervals by setting the option <code>--mode</code>. </p>
+<p>along with a plot of the plot shown below. This is roughly the same as the output from <span style="font-variant:small-caps;">Combine</span>, but the script can also be used to find lower limits, or credible intervals by setting the option <code>--mode</code>.</p>
 <p><img alt="" src="../images/bayes1D.png" /></p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -3039,7 +3039,7 @@ Burn-in fraction: 0.20 (average burn-in length: 156.5 entries)
 <ul>
 <li>the number of <strong>tries</strong> (option <code>--tries</code>): the algorithm will run multiple times with different random seeds. The truncated mean and RMS of the different results are reported. The default value is 10, which should be sufficient for a quick computation. For a more accurate result you might want to increase this number up to even ~200.</li>
 <li>the number of <strong>iterations</strong> (option <code>-i</code>) determines how many points are proposed to fill a single Markov Chain. The default value is 10k, and a plausible range is between 5k (for quick checks) and 20-30k for lengthy calculations. Beyond 30k, the time vs accuracy can be balanced better by increasing the number of chains (option <code>--tries</code>).</li>
-<li>the number of <strong>burn-in steps</strong> (option <code>-b</code>) is the number of points that are removed from the beginning of the chain before using it to compute the limit. The default is 200. If the chain is very long, we recommend to increase this value a bit (e.g. to several hundreds). Using a number of burn-in steps below 50 is likely to result in a bias towards earlier stages of the chain before a reasonable convergence. Instead of a fixed number, the option <code>--burnInFraction=x</code> can be set to a value between 0 and 1 to ignore a fraction <code>x</code> of the start of each chain. The larger of the option <code>b</code> and <code>x*length_of_chain</code> will be used as the burn-in. </li>
+<li>the number of <strong>burn-in steps</strong> (option <code>-b</code>) is the number of points that are removed from the beginning of the chain before using it to compute the limit. The default is 200. If the chain is very long, we recommend to increase this value a bit (e.g. to several hundreds). Using a number of burn-in steps below 50 is likely to result in a bias towards earlier stages of the chain before a reasonable convergence. Instead of a fixed number, the option <code>--burnInFraction=x</code> can be set to a value between 0 and 1 to ignore a fraction <code>x</code> of the start of each chain. The larger of the option <code>b</code> and <code>x*length_of_chain</code> will be used as the burn-in.</li>
 </ul>
 <h4 id="proposals">Proposals</h4>
 <p>The option <code>--proposal</code> controls the way new points are proposed to fill in the MC chain.</p>
@@ -3299,7 +3299,7 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
 <h4 id="accuracy">Accuracy</h4>
 <p>The search for the limit is performed using an adaptive algorithm, terminating when the estimate of the limit value is below some limit or when the precision cannot be improved further with the specified options. The options controlling this behaviour are:</p>
 <ul>
-<li><code>rAbsAcc</code>, <code>rRelAcc</code>: define the accuracy on the limit at which the search stops. The default values are 0.1 and 0.05 respectively, meaning that the search is stopped when Δr &lt; 0.1 or Δr/r &lt; 0.05.</li>
+<li><code>rAbsAcc</code>, <code>rRelAcc</code>: define the accuracy on the limit at which the search stops. The search stops only when both requirements are met, i.e. when Δr &lt; <code>rAbsAcc</code> and Δr/r &lt; <code>rRelAcc</code>. Setting one of them to 0 switches that requirement off; they cannot both be 0, and negative values are not allowed. The default values are 0 (switched off) and 0.05 respectively, meaning that the search is stopped when the limit is known to 5%. For an absolute requirement only, use e.g. <code>--rRelAcc 0 --rAbsAcc 0.1</code>. <strong>Note</strong>: up to v11.1.0 the default <code>rAbsAcc</code> was 0.1 and the search stopped when <em>either</em> requirement was met, which made limits well below 1 much less precise than requested.</li>
 <li><code>clsAcc</code>: this determines the absolute accuracy up to which the CLs values are computed when searching for the limit. The default is 0.5%. Raising the accuracy above this value will significantly increase the time needed to run the algorithm, as you need N<sup>2</sup> more toys to improve the accuracy by a factor N. You can consider increasing this value if you are computing limits with a larger CL (e.g. 90% or 68%). Note that if you are using the <code>CLsplusb</code> rule, this parameter will control the uncertainty on <span class="arithmatex">\(p_{\mu}\)</span> rather than CL<sub>s</sub>.</li>
 <li><code>T</code> or <code>toysH</code>: controls the minimum number of toys that are generated for each point. The default value of 500 should be sufficient when computing the limit at 90-95% CL. You can decrease this number if you are computing limits at 68% CL, or increase it if you are using 99% CL.</li>
 </ul>
@@ -3320,7 +3320,7 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
 <p>and similarly, the median expected and quantiles can be determined using</p>
 <div class="highlight"><pre><span></span><code>combine<span class="w"> </span>datacard.txt<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-limits<span class="w"> </span>--readHybridResults<span class="w"> </span>--grid<span class="o">=</span>merged.root<span class="w"> </span>--expectedFromGrid<span class="w"> </span>&lt;quantile&gt;
 </code></pre></div>
-<p>substituting <code>&lt;quantile&gt;</code> with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, and 0.025 for the -ve side of the 95% band. </p>
+<p>substituting <code>&lt;quantile&gt;</code> with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, and 0.025 for the -ve side of the 95% band.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Make sure that if you specified a particular mass value (<code>-m</code> or <code>--mass</code>) in the commands for calculating the toys, you also specify the same mass when reading in the grid of distributions.</p>
@@ -3328,7 +3328,7 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
 <p>You should note that  <span style="font-variant:small-caps;">Combine</span> will update the grid to improve the accuracy on the extracted limit by default. If you want to avoid this, you can use the option <code>--noUpdateGrid</code>. This will mean only the toys/points you produced in the grid will be used to compute the limit.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>This option should not be used with <code>--expectedFromGrid</code> if you did not create the grid with the same option. The reason is that the value of the test-statistic that is used to calculate the limit will not be properly calculated if <code>--noUpdateGrid</code> is included. In future versions of the tool, this option will be ignored if using <code>--expectedFromGrid</code>. </p>
+<p>This option should not be used with <code>--expectedFromGrid</code> if you did not create the grid with the same option. The reason is that the value of the test-statistic that is used to calculate the limit will not be properly calculated if <code>--noUpdateGrid</code> is included. In future versions of the tool, this option will be ignored if using <code>--expectedFromGrid</code>.</p>
 </div>
 <p>The splitting of the jobs can be left to the user's preference. However, users may wish to use <code>combineTool.py</code> for automating this, as described in the section on <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">combineTool for job submission</a></p>
 <h4 id="plotting">Plotting</h4>
@@ -3644,7 +3644,7 @@ void plot2D_LHScan(){
 <p>In <span style="font-variant:small-caps;">Combine</span>, you can perform this test on each individual point (<strong>param1, param2,...</strong>) = (<strong>value1,value2,...</strong>) by doing,</p>
 <div class="highlight"><pre><span></span><code>combine<span class="w"> </span>workspace.root<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-feldman-cousins<span class="w"> </span>--clsAcc<span class="w"> </span><span class="m">0</span><span class="w"> </span>--singlePoint<span class="w">  </span><span class="nv">param1</span><span class="o">=</span>value1,param2<span class="o">=</span>value2,param3<span class="o">=</span>value3,...<span class="w"> </span>--saveHybridResult<span class="w"> </span><span class="o">[</span>Other<span class="w"> </span>options<span class="w"> </span><span class="k">for</span><span class="w"> </span>toys,<span class="w"> </span>iterations<span class="w"> </span>etc<span class="w"> </span>as<span class="w"> </span>with<span class="w"> </span>limits<span class="o">]</span>
 </code></pre></div>
-<p>Note that you can also split this calculating into several separate runs (remembering to set a random seed <code>-s -1</code> each time the above command is run) and <code>hadd</code> the resulting <code>.root</code> output files into a single file <code>toys.root</code>. This can then be read in and used to calculate <span class="arithmatex">\(p_{\vec{\mu}}\)</span> by using the same command as above but replacing the option <code>--saveHybridResult</code> with <code>--readHybridResult --toysFile toys.root</code>.  </p>
+<p>Note that you can also split this calculating into several separate runs (remembering to set a random seed <code>-s -1</code> each time the above command is run) and <code>hadd</code> the resulting <code>.root</code> output files into a single file <code>toys.root</code>. This can then be read in and used to calculate <span class="arithmatex">\(p_{\vec{\mu}}\)</span> by using the same command as above but replacing the option <code>--saveHybridResult</code> with <code>--readHybridResult --toysFile toys.root</code>.</p>
 <p>The point belongs to your confidence region if <span class="arithmatex">\(p_{\vec{\mu}}\)</span> is larger than <span class="arithmatex">\(\alpha\)</span> (e.g. 0.3173 for a 1σ region, <span class="arithmatex">\(1-\alpha=0.6827\)</span>).</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -3673,24 +3673,24 @@ void plot2D_LHScan(){
 </code></pre></div>
 <p>The output tree will contain the values of the POI that crosses the critical value (<span class="arithmatex">\(\alpha\)</span>) - i.e, the boundaries of the confidence intervals.</p>
 <p>You can produce a plot of the value of <span class="arithmatex">\(p_{\vec{\mu}}\)</span> vs the parameter of interest <span class="arithmatex">\(\vec{\mu}\)</span> by adding the option <code>--plot &lt;plotname&gt;</code>.</p>
-<p>As an example, we will use the<code>data/tutorials/multiDim/toy-hgg-125.txt</code> datacard and find the 1D FC 68% interval for the <span class="arithmatex">\(r_{qqH}\)</span> parameter. First, we construct the model as, </p>
+<p>As an example, we will use the<code>data/tutorials/multiDim/toy-hgg-125.txt</code> datacard and find the 1D FC 68% interval for the <span class="arithmatex">\(r_{qqH}\)</span> parameter. First, we construct the model as,</p>
 <div class="highlight"><pre><span></span><code>text2workspace.py<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span><span class="w"> </span>-P<span class="w"> </span>HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs<span class="w"> </span>--PO<span class="w"> </span><span class="nv">modes</span><span class="o">=</span>ggH,qqH<span class="w"> </span>toy-hgg-125.txt<span class="w"> </span>-o<span class="w"> </span>toy-hgg-125.root
 </code></pre></div>
-<p>Now we generate the grid of test statistics in a suitable range. You could use the <code>combineTool.py</code> as below but for 1D, we can just generate the points in a for loop. </p>
+<p>Now we generate the grid of test statistics in a suitable range. You could use the <code>combineTool.py</code> as below but for 1D, we can just generate the points in a for loop.</p>
 <div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span>range<span class="w"> </span><span class="m">0</span>.1<span class="w"> </span><span class="m">1</span>.1<span class="w"> </span><span class="m">2</span>.1<span class="w"> </span><span class="m">3</span>.1<span class="w"> </span><span class="m">4</span>.1<span class="w"> </span><span class="m">5</span>.1<span class="w"> </span><span class="m">6</span>.1<span class="w"> </span><span class="m">7</span>.1<span class="w"> </span><span class="m">8</span>.1<span class="w"> </span><span class="m">9</span>.1<span class="w"> </span><span class="m">10</span>.1<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>combine<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>--redefineSignalPOI<span class="w"> </span>r_qqH<span class="w">   </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-feldman-cousins<span class="w"> </span>--clsAcc<span class="w"> </span><span class="m">0</span><span class="w"> </span>--singlePoint<span class="w"> </span><span class="nv">r_qqH</span><span class="o">=</span><span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="w"> </span>--saveToys<span class="w"> </span>--saveHybridResult<span class="w"> </span>-n<span class="w"> </span><span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
 
 hadd<span class="w"> </span>-f<span class="w"> </span>FeldmanCousins1D.root<span class="w"> </span>higgsCombine*.1.HybridNew.mH120.123456.root
 </code></pre></div>
-<p>Next, we get combine to calculate the interval from this grid. 
+<p>Next, we get combine to calculate the interval from this grid.
 <div class="highlight"><pre><span></span><code>combine<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>-M<span class="w"> </span>HybridNew<span class="w"> </span>--LHCmode<span class="w"> </span>LHC-feldman-cousins<span class="w"> </span>--readHybridResults<span class="w"> </span>--grid<span class="o">=</span>FeldmanCousins1D.root<span class="w"> </span>--cl<span class="w"> </span><span class="m">0</span>.68<span class="w"> </span>--redefineSignalPOI<span class="w"> </span>r_qqH
 </code></pre></div>
-and we should see the below as the output, </p>
+and we should see the below as the output,</p>
 <div class="highlight"><pre><span></span><code> -- HybridNew --
 found 68 % confidence regions
   2.19388 (+/- 0.295316) &lt; r_qqH &lt; 8.01798 (+/- 0.0778685)
 Done in 0.00 min (cpu), 0.00 min (real)
 </code></pre></div>
-<p>Since we included the <code>--plot</code> option, we will also get a plot like the one below, </p>
+<p>Since we included the <code>--plot</code> option, we will also get a plot like the one below,</p>
 <p><img alt="1DFC" src="../images/FC1D.png" /></p>
 <h4 id="extracting-2d-contours-general-intervals">Extracting 2D contours / general intervals</h4>
 <p>For <em>two-dimensional</em> models, or if the parameter does not behave like a cross section, you will need to extract the contours from the output of <code>HybridNew</code> and plot them yourself. We will use the <code>data/tutorials/multiDim/toy-hgg-125.txt</code> datacard in the example below to demonstrate how this can be done. Let's build the model again as we did in the MultiDimFit section.</p>
