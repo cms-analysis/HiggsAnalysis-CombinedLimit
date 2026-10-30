@@ -94,7 +94,7 @@ combine -M AsymptoticLimits realistic-counting-experiment.txt --getLimitFromGrid
 
 The median expected limit and quantiles can be calculated under Hypotheses other than at $\mu=0$. The Asymptotic expected limits can be calculated by setting the value `--signalStrengthForExpected mu0`. The Asimov dataset produced for the calculation will be generated for $\mu=$`mu0` instead of the usual $\mu=0$. Note that setting ` --signalStrengthForExpected 0` will give the same results as not setting the option, but will be slower as this forces a recreation of the Asimov dataset.
 
-Be aware that while expected values are derived from the Asimov created at the specified signal strength, setting this option *does not* alter the definition of $CL_s$ in that the denominator is still defined with respect to the no signal ($\mu=0$) hypothesis. 
+Be aware that while expected values are derived from the Asimov created at the specified signal strength, setting this option *does not* alter the definition of $CL_s$ in that the denominator is still defined with respect to the no signal ($\mu=0$) hypothesis.
 
 !!! info
     Currently <span style="font-variant:small-caps;">Combine</span> does *not* support calculating expected limits assuming non-zero signal strengths using toy-based calculations. If you are interested in adding this feature, please contact the developers.
@@ -210,14 +210,14 @@ for k in fi_MCMC.Get("toys").GetListOfKeys():
 		mychain.get(i)
   		param_vals.append(mychain.get(i).getRealValue(param))
 		param_weights.append(mychain.weight())
-	   
+
 </code></pre>
 ///
 
-Alternatively, you can use the script provided `debugChains.py` to produce the posterior distribution and some examples of trace plots of the chains. 
-Running the following command on the output file produced for the same datacard (including the `--saveChain` option) 
+Alternatively, you can use the script provided `debugChains.py` to produce the posterior distribution and some examples of trace plots of the chains.
+Running the following command on the output file produced for the same datacard (including the `--saveChain` option)
 
-```nohighlight 
+```nohighlight
 debugChains.py higgsCombineTest.MarkovChainMC.mH120.root --burnInFraction 0.2 -p r  --range 0 20 --mode upperlim
 ```
 will produce the following output,
@@ -229,7 +229,7 @@ Burn-in fraction: 0.20 (average burn-in length: 156.5 entries)
 95.0% CL interval: r < 2.173
 ```
 
-along with a plot of the plot shown below. This is roughly the same as the output from <span style="font-variant:small-caps;">Combine</span>, but the script can also be used to find lower limits, or credible intervals by setting the option `--mode`. 
+along with a plot of the plot shown below. This is roughly the same as the output from <span style="font-variant:small-caps;">Combine</span>, but the script can also be used to find lower limits, or credible intervals by setting the option `--mode`.
 
 ![](images/bayes1D.png)
 
@@ -246,7 +246,7 @@ Three parameters control how the MCMC integration is performed:
 
 -   the number of **tries** (option `--tries`): the algorithm will run multiple times with different random seeds. The truncated mean and RMS of the different results are reported. The default value is 10, which should be sufficient for a quick computation. For a more accurate result you might want to increase this number up to even ~200.
 -   the number of **iterations** (option `-i`) determines how many points are proposed to fill a single Markov Chain. The default value is 10k, and a plausible range is between 5k (for quick checks) and 20-30k for lengthy calculations. Beyond 30k, the time vs accuracy can be balanced better by increasing the number of chains (option `--tries`).
--   the number of **burn-in steps** (option `-b`) is the number of points that are removed from the beginning of the chain before using it to compute the limit. The default is 200. If the chain is very long, we recommend to increase this value a bit (e.g. to several hundreds). Using a number of burn-in steps below 50 is likely to result in a bias towards earlier stages of the chain before a reasonable convergence. Instead of a fixed number, the option `--burnInFraction=x` can be set to a value between 0 and 1 to ignore a fraction `x` of the start of each chain. The larger of the option `b` and `x*length_of_chain` will be used as the burn-in. 
+-   the number of **burn-in steps** (option `-b`) is the number of points that are removed from the beginning of the chain before using it to compute the limit. The default is 200. If the chain is very long, we recommend to increase this value a bit (e.g. to several hundreds). Using a number of burn-in steps below 50 is likely to result in a bias towards earlier stages of the chain before a reasonable convergence. Instead of a fixed number, the option `--burnInFraction=x` can be set to a value between 0 and 1 to ignore a fraction `x` of the start of each chain. The larger of the option `b` and `x*length_of_chain` will be used as the burn-in.
 
 #### Proposals
 
@@ -523,7 +523,7 @@ The output file will contain the value of the quantile in the branch **quantileE
 
 The search for the limit is performed using an adaptive algorithm, terminating when the estimate of the limit value is below some limit or when the precision cannot be improved further with the specified options. The options controlling this behaviour are:
 
--   `rAbsAcc`, `rRelAcc`: define the accuracy on the limit at which the search stops. The default values are 0.1 and 0.05 respectively, meaning that the search is stopped when Δr < 0.1 or Δr/r < 0.05.
+-   `rAbsAcc`, `rRelAcc`: define the accuracy on the limit at which the search stops. The search stops only when both requirements are met, i.e. when Δr < `rAbsAcc` and Δr/r < `rRelAcc`. Setting one of them to 0 switches that requirement off; they cannot both be 0, and negative values are not allowed. The default values are 0 (switched off) and 0.05 respectively, meaning that the search is stopped when the limit is known to 5%. For an absolute requirement only, use e.g. `--rRelAcc 0 --rAbsAcc 0.1`. **Note**: up to v11.1.0 the default `rAbsAcc` was 0.1 and the search stopped when *either* requirement was met, which made limits well below 1 much less precise than requested.
 -   `clsAcc`: this determines the absolute accuracy up to which the CLs values are computed when searching for the limit. The default is 0.5%. Raising the accuracy above this value will significantly increase the time needed to run the algorithm, as you need N<sup>2</sup> more toys to improve the accuracy by a factor N. You can consider increasing this value if you are computing limits with a larger CL (e.g. 90% or 68%). Note that if you are using the `CLsplusb` rule, this parameter will control the uncertainty on $p_{\mu}$ rather than CL<sub>s</sub>.
 -   `T` or `toysH`: controls the minimum number of toys that are generated for each point. The default value of 500 should be sufficient when computing the limit at 90-95% CL. You can decrease this number if you are computing limits at 68% CL, or increase it if you are using 99% CL.
 
@@ -556,7 +556,7 @@ and similarly, the median expected and quantiles can be determined using
 combine datacard.txt -M HybridNew --LHCmode LHC-limits --readHybridResults --grid=merged.root --expectedFromGrid <quantile>
 ```
 
-substituting `<quantile>` with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, and 0.025 for the -ve side of the 95% band. 
+substituting `<quantile>` with 0.5 for the median, 0.84 for the +ve side of the 68% band, 0.16 for the -ve side of the 68% band, 0.975 for the +ve side of the 95% band, and 0.025 for the -ve side of the 95% band.
 
 !!! warning
     Make sure that if you specified a particular mass value (`-m` or `--mass`) in the commands for calculating the toys, you also specify the same mass when reading in the grid of distributions.
@@ -564,7 +564,7 @@ substituting `<quantile>` with 0.5 for the median, 0.84 for the +ve side of the 
 You should note that  <span style="font-variant:small-caps;">Combine</span> will update the grid to improve the accuracy on the extracted limit by default. If you want to avoid this, you can use the option `--noUpdateGrid`. This will mean only the toys/points you produced in the grid will be used to compute the limit.
 
 !!! warning
-    This option should not be used with `--expectedFromGrid` if you did not create the grid with the same option. The reason is that the value of the test-statistic that is used to calculate the limit will not be properly calculated if `--noUpdateGrid` is included. In future versions of the tool, this option will be ignored if using `--expectedFromGrid`. 
+    This option should not be used with `--expectedFromGrid` if you did not create the grid with the same option. The reason is that the value of the test-statistic that is used to calculate the limit will not be properly calculated if `--noUpdateGrid` is included. In future versions of the tool, this option will be ignored if using `--expectedFromGrid`.
 
 The splitting of the jobs can be left to the user's preference. However, users may wish to use `combineTool.py` for automating this, as described in the section on [combineTool for job submission](http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission)
 
@@ -993,7 +993,7 @@ In <span style="font-variant:small-caps;">Combine</span>, you can perform this t
 combine workspace.root -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint  param1=value1,param2=value2,param3=value3,... --saveHybridResult [Other options for toys, iterations etc as with limits]
 ```
 
-Note that you can also split this calculating into several separate runs (remembering to set a random seed `-s -1` each time the above command is run) and `hadd` the resulting `.root` output files into a single file `toys.root`. This can then be read in and used to calculate $p_{\vec{\mu}}$ by using the same command as above but replacing the option `--saveHybridResult` with `--readHybridResult --toysFile toys.root`.  
+Note that you can also split this calculating into several separate runs (remembering to set a random seed `-s -1` each time the above command is run) and `hadd` the resulting `.root` output files into a single file `toys.root`. This can then be read in and used to calculate $p_{\vec{\mu}}$ by using the same command as above but replacing the option `--saveHybridResult` with `--readHybridResult --toysFile toys.root`.
 
 The point belongs to your confidence region if $p_{\vec{\mu}}$ is larger than $\alpha$ (e.g. 0.3173 for a 1σ region, $1-\alpha=0.6827$).
 
@@ -1042,13 +1042,13 @@ The output tree will contain the values of the POI that crosses the critical val
 
 You can produce a plot of the value of $p_{\vec{\mu}}$ vs the parameter of interest $\vec{\mu}$ by adding the option `--plot <plotname>`.
 
-As an example, we will use the`data/tutorials/multiDim/toy-hgg-125.txt` datacard and find the 1D FC 68% interval for the $r_{qqH}$ parameter. First, we construct the model as, 
+As an example, we will use the`data/tutorials/multiDim/toy-hgg-125.txt` datacard and find the 1D FC 68% interval for the $r_{qqH}$ parameter. First, we construct the model as,
 
 ```sh
 text2workspace.py -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH toy-hgg-125.txt -o toy-hgg-125.root
 ```
 
-Now we generate the grid of test statistics in a suitable range. You could use the `combineTool.py` as below but for 1D, we can just generate the points in a for loop. 
+Now we generate the grid of test statistics in a suitable range. You could use the `combineTool.py` as below but for 1D, we can just generate the points in a for loop.
 
 ```sh
 for i in range 0.1 1.1 2.1 3.1 4.1 5.1 6.1 7.1 8.1 9.1 10.1 ; do combine toy-hgg-125.root --redefineSignalPOI r_qqH   -M HybridNew --LHCmode LHC-feldman-cousins --clsAcc 0 --singlePoint r_qqH=${i} --saveToys --saveHybridResult -n ${i} ; done
@@ -1056,11 +1056,11 @@ for i in range 0.1 1.1 2.1 3.1 4.1 5.1 6.1 7.1 8.1 9.1 10.1 ; do combine toy-hgg
 hadd -f FeldmanCousins1D.root higgsCombine*.1.HybridNew.mH120.123456.root
 ```
 
-Next, we get combine to calculate the interval from this grid. 
+Next, we get combine to calculate the interval from this grid.
 ```sh
 combine toy-hgg-125.root -M HybridNew --LHCmode LHC-feldman-cousins --readHybridResults --grid=FeldmanCousins1D.root --cl 0.68 --redefineSignalPOI r_qqH
 ```
-and we should see the below as the output, 
+and we should see the below as the output,
 
 ```
  -- HybridNew --
@@ -1069,7 +1069,7 @@ found 68 % confidence regions
 Done in 0.00 min (cpu), 0.00 min (real)
 ```
 
-Since we included the `--plot` option, we will also get a plot like the one below, 
+Since we included the `--plot` option, we will also get a plot like the one below,
 
 ![1DFC](images/FC1D.png)
 
