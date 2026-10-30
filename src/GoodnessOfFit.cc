@@ -27,6 +27,7 @@
 
 #include <ROOT/RConfig.hxx> // for ROOT_VERSION
 
+#include <algorithm>
 #include <numeric>
 #include <memory>
 
@@ -283,6 +284,7 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
     for (int i = 0; i < datasetsList->GetSize(); ++i) {
        datasets.emplace_back(dynamic_cast<RooAbsData*>(datasetsList->At(i)));
     }
+    datasetsList.reset();
 #endif
 
     // Number of categories should always equal the number of datasets
@@ -292,7 +294,14 @@ bool GoodnessOfFit::runKSandAD(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
     }
 
     for (unsigned i = 0; i < binNames_.size(); i++) {
-      RooAbsData *cat_data = datasets[i].get();
+      // data.split() does not return the categories in the order of binNames_,
+      // so look the dataset up by name to keep qVals_[i] in the binNames_[i] branch
+      auto found =
+          std::find_if(datasets.begin(), datasets.end(), [&](auto const &d) { return binNames_[i] == d->GetName(); });
+      if (found == datasets.end()) {
+        throw std::runtime_error("No dataset found for category " + binNames_[i]);
+      }
+      RooAbsData *cat_data = found->get();
       RooAbsPdf *cat_pdf = sim->getPdf(binNames_[i].c_str());
       std::unique_ptr<RooArgSet> observables(cat_pdf->getObservables(cat_data));
       if (observables->getSize() > 1) {
@@ -402,9 +411,11 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
             }
         }else{
             bin_prob = current_cdf_val-last_cdf_val;
-            distance = s_data*pow((empirical_df-current_cdf_val), 2)/current_cdf_val/(1.-current_cdf_val)*bin_prob;
-            if (current_cdf_val >= 1.0) {
+            if (current_cdf_val >= 1.0 || current_cdf_val <= 0.0) {
               distance = 0.;
+            } else {
+              distance = s_data * pow((empirical_df - current_cdf_val), 2) / current_cdf_val / (1. - current_cdf_val) *
+                         bin_prob;
             }
             if (verbose >= 3) {
               std::cout << "Observable: " << observableval << "\tdata: " << d->second << "\tedf: " << empirical_df << "\tcdf: " << current_cdf_val << "\tdistance: " << distance << "\n";
