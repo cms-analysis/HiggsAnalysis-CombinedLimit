@@ -28,6 +28,7 @@
 #include <ROOT/RConfig.hxx> // for ROOT_VERSION
 
 #include <algorithm>
+#include <limits>
 #include <numeric>
 #include <memory>
 
@@ -357,6 +358,7 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
     double observableval = 0.;
     double bin_prob = 0.;
     double distance = 0.;
+    bool data_outside_support = false;
 
     // CDF of the PDF
     // If RooFit needs to use the scanning technique then increase the number
@@ -411,6 +413,10 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
             }
         }else{
             bin_prob = current_cdf_val-last_cdf_val;
+            if (current_cdf_val <= 0.0 && empirical_df > 0.) {
+              // data where the model predicts no events, the AD distance is infinite
+              data_outside_support = true;
+            }
             if (current_cdf_val >= 1.0 || current_cdf_val <= 0.0) {
               distance = 0.;
             } else {
@@ -443,6 +449,11 @@ Double_t GoodnessOfFit::EvaluateADDistance(RooAbsPdf& pdf, RooAbsData& data, Roo
       delete hCdf;
       delete hEdf;
       delete hDiff;
+    }
+
+    if (data_outside_support) {
+      std::cout << "Warning, data observed where the model predicts no events. Setting AD test statistic to infinity\n";
+      test_stat = std::numeric_limits<double>::infinity();
     }
 
     // if (kolmo){
