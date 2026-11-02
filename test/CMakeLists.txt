@@ -431,6 +431,13 @@ COMBINE_ADD_TEST(hybridnew_accuracy
     PASSREGEX "All checks passed"
 )
 
+# KS and AD goodness of fit must match each category's data, model and output branch
+COMBINE_ADD_TEST(gof_ks_ad_categories
+    COMMAND python3 test_gof_ks_ad_categories.py
+    COPY_TO_BUILDDIR ${REPO}/test/test_gof_ks_ad_categories.py
+    PASSREGEX "All checks passed"
+)
+
 # test_interference.py
 COMBINE_ADD_TEST(test_interference_py
     COMMAND python3 test_interference.py
