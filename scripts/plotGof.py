@@ -90,7 +90,7 @@ def DrawText(stat, ntoys, pval, arrowrange, underflow, overflow, obs):
         warningtext2.SetTextSize(0.04)
         warningtext2.SetTextColor(2)
         warningtext2.SetTextFont(62)
-        warningtext2.AddText(f"observed value not in range, at {obs:.2f}")
+        warningtext2.AddText(f"observed value not in range, at {obs:.3g}")
         output.append(warningtext2)
     else:
         if (underflow != 0) or (overflow != 0):
@@ -101,7 +101,7 @@ def DrawText(stat, ntoys, pval, arrowrange, underflow, overflow, obs):
                 warningstrings.append("%d overflow" % overflow)
             warningtext1.AddText(", ".join(warningstrings))
         elif arrowrange:
-            warningtext1.AddText(f"observed value not in range, at {obs:.2f}")
+            warningtext1.AddText(f"observed value not in range, at {obs:.3g}")
         output.append(warningtext1)
     return output
 
