@@ -2419,7 +2419,11 @@
 <tbody>
 <tr>
 <td><strong><code>nuisances_prefit</code></strong></td>
-<td><code>RooArgSet</code> containing the pre-fit values of the nuisance parameters, and their uncertainties from the external constraint terms only</td>
+<td><code>RooArgSet</code> containing the pre-fit values of the nuisance parameters, and their uncertainties from the external constraint terms only. Parameters with a flat constraint (<strong><code>lnU</code></strong>, <strong><code>shapeU</code></strong>, <strong><code>unif</code></strong>) have no pre-fit uncertainty</td>
+</tr>
+<tr>
+<td><strong><code>nuisances_prefit_res</code></strong></td>
+<td><code>RooFitResult</code> object containing the outcome of the fit of the external constraint terms alone, which determines the pre-fit values and uncertainties above</td>
 </tr>
 <tr>
 <td><strong><code>fit_b</code></strong></td>
