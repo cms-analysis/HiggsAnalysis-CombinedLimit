@@ -1117,10 +1117,12 @@ namespace ch {
       }
     }
 
-    // Write parameters here that feature in param set but not in the syst set
+    // Write parameters here that feature in param set but not in the syst set.
+    // The constraints on rateParams are written below.
     for (auto par : params_) {
       Parameter const* p = par.second.get();
-      if (p->err_d() != 0.0 && p->err_u() != 0.0 && param_set.count(p->name()) && !sys_set.count(p->name())) {
+      if (p->err_d() != 0.0 && p->err_u() != 0.0 && param_set.count(p->name()) && !sys_set.count(p->name()) &&
+          !rateparam_set.count(p->name())) {
         txt_file << format((format("%%-%is param %%g %%g") % sys_str_len).str()) % p->name() % p->val() %
                         ((p->err_u() - p->err_d()) / 2.0);
         if (p->range_d() != std::numeric_limits<double>::lowest() &&
