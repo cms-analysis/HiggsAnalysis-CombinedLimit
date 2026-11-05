@@ -509,6 +509,8 @@ namespace ch {
     // Names declared with "discrete" and "flatParam" lines in parsed datacards
     std::set<std::string> discrete_pars_;
     std::set<std::string> flat_params_;
+    // Bins of parsed datacards that have no shapes lines
+    std::set<std::string> counting_bins_;
 
     // ---------------------------------------------------------------
     // typedefs
