@@ -646,6 +646,12 @@ namespace ch {
       }
     }
 
+    // Remember the bins of a datacard without shapes lines, so that they are
+    // written back without "shapes * * FAKE" lines
+    if (hist_mapping.empty()) {
+      counting_bins_.insert(bin_names.begin(), bin_names.end());
+    }
+
     // Finally populate the groups
     for (auto const& grp : groups) {
       this->SetGroup(grp.first, ch::Set2Vec(grp.second));
@@ -963,6 +969,11 @@ namespace ch {
     // output file
     std::set<std::string> used_wsps;
 
+    // combine builds a shape model for a card with "shapes * * FAKE" lines, so
+    // these are left out when every bin comes from a datacard without them
+    bool write_fake =
+        !std::all_of(mappings.begin(), mappings.end(), [](HistMapping const& m) { return m.is_fake; }) ||
+        !std::all_of(bin_set.begin(), bin_set.end(), [&](std::string const& bin) { return counting_bins_.count(bin); });
     for (auto const& mapping : mappings) {
       if (!mapping.is_fake) {
         txt_file << format("shapes %s %s %s %s %s\n") % mapping.process % mapping.category % file_name %
@@ -973,7 +984,7 @@ namespace ch {
             used_wsps.insert(mapping.SystWorkspaceName());
           }
         }
-      } else {
+      } else if (write_fake) {
         txt_file << format("shapes %s %s %s\n") % mapping.process % mapping.category % "FAKE";
       }
     }
