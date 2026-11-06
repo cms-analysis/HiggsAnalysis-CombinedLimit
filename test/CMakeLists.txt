@@ -442,6 +442,8 @@ COMBINE_ADD_TEST(test_combineharvester_directives_py
 COMBINE_ADD_TEST(combineharvester-validate-datacards
     COMMAND ValidateDatacards.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt --jsonFile validation.json
     PASSREGEX "Validation results"
+)
+
 # Copies of the vertical-morphing pdfs must follow their own nuisance parameter
 COMBINE_ADD_TEST(test_morphing_copy_py
     COMMAND python3 ${REPO}/test/test_morphing_copy.py
