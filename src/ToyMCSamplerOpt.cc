@@ -202,7 +202,9 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
     RooCmdArg az = (z ? RooFit::ZVar(*z) : RooCmdArg::none());
 
     if (histoSpec_ == 0) {
-        histoSpec_ = pdf_->createHistogram("htemp", *x, ay, az); 
+        // The code below multiplies by the bin volume itself, so ask for densities: since ROOT 6.36 the default
+        // Scaling(true) also multiplies each bin by its volume, which double counts it on non-uniform binning.
+        histoSpec_ = pdf_->createHistogram("htemp", *x, ay, az, RooFit::Scaling(false)); 
         histoSpec_->SetDirectory(0);
     }
 

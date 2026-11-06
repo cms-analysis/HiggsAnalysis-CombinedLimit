@@ -200,6 +200,18 @@ if(NOT CMSSW_VERSION STREQUAL "CMSSW_11_3_4")
   )
 endif()
 
+# RooHistPdf on variable-width bins: the pre-fit Asimov must reproduce the
+# templates (createHistogram must return densities, not bin-volume scaled yields)
+COMBINE_ADD_TEST(histpdf_variable_binning-text2workspace
+  COMMAND bash -c "python3 ${CMAKE_CURRENT_SOURCE_DIR}/histpdf_variable_binning.py make && text2workspace.py datacard_RooHistPdf_variable_binning.txt -o ws_RooHistPdf_variable_binning.root --X-allow-no-background"
+  COPY_TO_BUILDDIR ${REPO}/data/ci/datacard_RooHistPdf_variable_binning.txt
+  FIXTURES_SETUP histpdf_variable_binning
+)
+COMBINE_ADD_TEST(histpdf_variable_binning
+  COMMAND bash -c "combine -M GenerateOnly ws_RooHistPdf_variable_binning.root -t -1 --saveToys --expectSignal 1 -n VariableBinning && python3 ${CMAKE_CURRENT_SOURCE_DIR}/histpdf_variable_binning.py check higgsCombineVariableBinning.GenerateOnly.mH120.123456.root"
+  FIXTURES_REQUIRED histpdf_variable_binning
+)
+
 # RooMultiPdf
 if(NOT CMSSW_VERSION MATCHES "^CMSSW_11")
   # This test does not work with the ROOT 6.22 of CMSSW_11; the condition is

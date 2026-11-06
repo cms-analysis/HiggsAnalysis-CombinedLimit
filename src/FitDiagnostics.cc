@@ -770,7 +770,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 		if (fOut != 0 && saveShapes_ && pair->second.obs.getSize() == 1)
 		{
 			RooRealVar *x = (RooRealVar *)pair->second.obs.at(0);
-			TH1 *hist = pair->second.pdf->createHistogram("", *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
+			TH1 *hist = pair->second.pdf->createHistogram("", *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none(), RooFit::Scaling(false));
 			for (int binN = 1; binN <= hist->GetNbinsX(); ++binN)
 			{
 				hist->SetBinError(binN, 0);
@@ -957,7 +957,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 					// and also deviations in the shapes
 					RooRealVar *x = (RooRealVar *)pair->second.obs.at(0);
 					std::unique_ptr<TH1> hist(pair->second.pdf->createHistogram(pair->second.pdf->GetName(), *x,
-																				pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none()));
+																				pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none(), RooFit::Scaling(false)));
 					hist->Scale(pair->second.norm->getVal() / hist->Integral("width"));
 					for (int b = 1; b <= bins[i]; ++b)
 					{
@@ -1282,7 +1282,7 @@ void FitDiagnostics::setShapesFitResultTrees(std::map<std::string,ShapeAndNorm> 
     for (pair = bg, i = 0; pair != ed; ++pair, ++i) {  
         if (pair->second.obs.getSize() == 1) {
             RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
-            TH1* hist = pair->second.pdf->createHistogram(Form("%d",iBinOverall), *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
+            TH1* hist = pair->second.pdf->createHistogram(Form("%d",iBinOverall), *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none(), RooFit::Scaling(false));
             hist->Scale(pair->second.norm->getVal() / hist->Integral("width"));
 	    for (int iBin = 1; iBin <= hist->GetNbinsX(); iBin++){
 		vals[iBinOverall-1] = hist->GetBinContent(iBin);
@@ -1374,7 +1374,7 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
              norms->addOwned(*val);
              RooRealVar *x = (RooRealVar*)pair->second.obs.at(0);
              if (pair->second.obs.getSize() == 1) {
-                TH1* hist = pair->second.pdf->createHistogram(Form("%d",totalBins), *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
+                TH1* hist = pair->second.pdf->createHistogram(Form("%d",totalBins), *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none(), RooFit::Scaling(false));
 	        totalBins += hist->GetNbinsX();
                 delete hist;
              }
@@ -1437,7 +1437,7 @@ void FitDiagnostics::createFitResultTrees(const RooStats::ModelConfig &mc, bool 
            for (npair = itb, j = 0; npair != ite; ++npair, ++j) {
              if (npair->second.obs.getSize() == 1) {
                RooRealVar *x = (RooRealVar*)npair->second.obs.at(0);
-               TH1* hist = npair->second.pdf->createHistogram(Form("%d",count), *x, npair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none());
+               TH1* hist = npair->second.pdf->createHistogram(Form("%d",count), *x, npair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none(), RooFit::Scaling(false));
                int bins = hist->GetNbinsX();
                 for (int iBin = 1; iBin <= bins; iBin++){
                      processNormalizationsShapes_[count] = -999;
