@@ -6,3 +6,37 @@
   <use name="HiggsAnalysis/CombinedLimit"/>
   <use   name="boost_program_options"/>
 </bin>
+
+<!-- CombineHarvester tools -->
+<bin file="PostFitShapesFromWorkspace.cpp" name="PostFitShapesFromWorkspace">
+  <use name="HiggsAnalysis/CombinedLimit"/>
+  <use   name="boost_program_options"/>
+</bin>
+<bin file="PostFit2DShapesFromWorkspace.cpp" name="PostFit2DShapesFromWorkspace">
+  <use name="HiggsAnalysis/CombinedLimit"/>
+  <use   name="boost_program_options"/>
+</bin>
+<bin file="PrintPulls.cpp" name="PrintPulls">
+  <use name="HiggsAnalysis/CombinedLimit"/>
+  <use   name="boost_program_options"/>
+</bin>
+<bin file="NuisanceSummary.cpp" name="NuisanceSummary">
+  <use name="HiggsAnalysis/CombinedLimit"/>
+  <use   name="boost_program_options"/>
+</bin>
+<bin file="ImpactsTable.cpp" name="ImpactsTable">
+  <use name="HiggsAnalysis/CombinedLimit"/>
+  <use   name="boost_program_options"/>
+</bin>
+<bin file="RoundTrip.cpp" name="RoundTrip">
+  <use name="HiggsAnalysis/CombinedLimit"/>
+  <use   name="boost_program_options"/>
+</bin>
+<bin file="SBWeighted.cpp" name="SBWeighted">
+  <use name="HiggsAnalysis/CombinedLimit"/>
+  <use   name="boost_program_options"/>
+</bin>
+<bin file="YieldTable.cpp" name="YieldTable">
+  <use name="HiggsAnalysis/CombinedLimit"/>
+  <use   name="boost_program_options"/>
+</bin>

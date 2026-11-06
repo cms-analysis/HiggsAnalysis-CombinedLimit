@@ -243,4 +243,36 @@
 #endif
         ]]>
   </read>
+  <!-- CombineHarvester -->
+  <class name="ch::AutoRebin" transient="true" />
+  <class name="ch::BinByBinFactory" transient="true" />
+  <class name="ch::CardWriter" transient="true" />
+  <function name="ch::CheckEmptyBins" />
+  <function name="ch::CheckBinErrors" />
+  <function name="ch::CheckEmptyShapes" />
+  <function name="ch::CheckNormEff" />
+  <function name="ch::CheckSizeOfShapeEffect" />
+  <function name="ch::CheckSmallSignals" />
+  <function name="ch::CloneObs" />
+  <function name="ch::CloneProcs" />
+  <function name="ch::CloneProcsAndSysts" />
+  <function name="ch::CloneSysts" />
+  <class name="ch::CombineHarvester" transient="true" />
+  <function name="ch::MassesFromRange" />
+  <class name="ch::Object" transient="true" />
+  <class name="ch::Observation" transient="true" />
+  <class name="ch::Parameter" transient="true" />
+  <function name="ch::ParseCombineWorkspace" />
+  <function name="ch::PrintSystematic" />
+  <class name="ch::Process" transient="true" />
+  <function name="ch::SetStandardBinNames" />
+  <function name="ch::SplitSyst" />
+  <class name="ch::Systematic" transient="true" />
+  <function name="ch::TGraphFromTable" />
+  <function name="ch::ValidateCards" />
+  <function name="ch::ValidateShapeTemplates" />
+  <function name="ch::ValidateShapeUncertaintyDirection" />
+  <function name="ch::ValsFromRange" />
+  <class name="ch::CMSHistFuncFactory" transient="true" />
+  <function name="ch::BuildRooMorphing" />
 </lcgdict>
