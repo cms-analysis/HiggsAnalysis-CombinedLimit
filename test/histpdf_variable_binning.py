@@ -2,12 +2,13 @@
 
 make:  write shapes_RooHistPdf_variable_binning.root, with nominal bin contents 10, 20, 30, 40, 50
        on the bin edges 0, 1, 2, 4, 6, 10, shape-systematic templates, and data_obs equal to the nominal.
-check: verify that the Asimov dataset saved by combine at the given value of the shape nuisance
+check: generate the Asimov dataset with combine at shape = 0, +1 and -1 and verify that it
        reproduces the corresponding template (normalised to the datacard rate) in every bin.
 """
 
 import array
 import math
+import subprocess
 import sys
 
 import ROOT
@@ -58,8 +59,15 @@ def check(toy_file, shape):
         sys.exit("Asimov dataset does not reproduce the RooHistPdf bin contents")
 
 
+def run(workspace):
+    for shape in (0, 1, -1):
+        cmd = "combine -M GenerateOnly %s -t -1 --saveToys --expectSignal 1 --setParameters shape=%d -n VariableBinning%d" % (workspace, shape, shape)
+        subprocess.check_call(cmd.split())
+        check("higgsCombineVariableBinning%d.GenerateOnly.mH120.123456.root" % shape, shape)
+
+
 if __name__ == "__main__":
     if sys.argv[1] == "make":
         make()
     else:
-        check(sys.argv[2], int(sys.argv[3]))
+        run(sys.argv[2])
