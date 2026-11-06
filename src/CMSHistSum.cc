@@ -1,7 +1,16 @@
 #include "../interface/CMSHistSum.h"
 #include "../interface/CMSHistFuncWrapper.h"
+#include "../interface/CMSHistHelpers.h"
 #include "../interface/CMSHistSumWrapper.h"
 #include "../interface/CombineMathFuncs.h"
+#if __has_include(<ROOT/RVersion.hxx>)
+#include <ROOT/RVersion.hxx>
+#else
+#include <RVersion.h>
+#endif
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 0)
+#include "RooFit/EvalContext.h"
+#endif
 #include <stdexcept>
 #include <vector>
 #include <ostream>
@@ -438,6 +447,11 @@ void CMSHistSum::runBarlowBeeston() const {
   }
 }
 
+void CMSHistSum::barlowBeestonGradientTerms(std::vector<double>& slopes, std::vector<double>& ratios) const {
+  updateCache();
+  cmsHistBarlowBeestonGradientTerms(bintypes_, valsum_, toterr_, bb_, slopes, ratios);
+}
+
 void CMSHistSum::setAnalyticBarlowBeeston(bool flag) const {
   // Clear it if it's already initialised
   if (bb_.init && flag) return;
@@ -729,6 +743,13 @@ RooArgList CMSHistSum::wrapperList() const {
   }
   return result;
 }
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 0)
+void CMSHistSum::doEval(RooFit::EvalContext& ctx) const {
+  updateCache();
+  cmsHistFillBatch(ctx, x_, cache());
+}
+#endif
 
 std::map<std::string, Double_t> CMSHistSum::getProcessNorms() const {
   std::map<std::string, Double_t> vals_;
