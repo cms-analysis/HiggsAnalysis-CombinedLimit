@@ -251,8 +251,11 @@ class ShapeBuilder(ModelBuilder):
                                 "Poisson",
                                 "%s_In[%d,%f,%f], %s, 1" % (n, nom, minObs, maxObs, n),
                             )
-                            if n.endswith("_prod"):
-                                parname = n[:-5]
+
+                            # In the past, parameters may came as RooProduct wrappers.
+                            # It shouldn't happen anymore, so the code to handle them is removed
+                            # but we put an assert to be sure they don't come back
+                            assert not isinstance(arg, ROOT.RooProduct), "parname %s is unexpectedly a %s" % (parname, arg.ClassName())
                         binconstraints.add(self.out.pdf("%s_Pdf" % n))
                         self.out.var("%s_In" % n).setConstant(True)
                         self.extraNuisances.append(self.out.var("%s" % parname))
