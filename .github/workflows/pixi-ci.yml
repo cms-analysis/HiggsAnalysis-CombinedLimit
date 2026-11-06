@@ -20,6 +20,8 @@ on:
   push:
     branches:
       - main
+  schedule:
+    - cron: '0 6 * * *'
 
 jobs:
   pixi-build:

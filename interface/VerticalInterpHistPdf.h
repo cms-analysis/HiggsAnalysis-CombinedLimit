@@ -4,6 +4,7 @@
 /** Vertical interpolation between multiple histograms (or binned non-parametric pdfs, which eventually means histograms...)
     Does integration internally */
 
+#include "RooAbsCollection.h"
 #include "RooAbsPdf.h"
 #include "RooRealProxy.h"
 #include "RooListProxy.h"
@@ -108,6 +109,12 @@ protected:
   // For multiplicative morphing, log(fUp/f0)+log(fDown/f0),  log(fUp/f0)-log(fDown/f0)
   mutable std::vector<Morph> _morphs;  //! not to be serialized
   mutable std::vector<RooAbsReal *> _morphParams; //! not to be serialized
+
+  // RooFit calls this whenever this pdf's servers are changed, e.g. when the RooWorkspace owning it is copied.
+  // Without it, _sentry and _morphParams keep pointing at the old coefficient
+  // objects and the pdf silently stops responding to its own parameters.
+  bool redirectServersHook(const RooAbsCollection &newServerList, bool mustReplaceAll,
+                           bool nameChange, bool isRecursiveStep) override;
 
   // Prepare morphing data for a triplet of templates
   void syncMorph(Morph &out, const FastTemplate &nominal, FastTemplate &lo, FastTemplate &hi) const;
@@ -280,6 +287,12 @@ protected:
   // For multiplicative morphing, log(fUp/f0)+log(fDown/f0),  log(fUp/f0)-log(fDown/f0)
   // NOTE: it's the responsibility of the daughter to make sure these are initialized!!!
   std::vector<Morph> _morphs;  
+
+  // RooFit calls this whenever this pdf's servers are changed, e.g. when the RooWorkspace owning it is copied.
+  // Without it, _sentry and _morphParams keep pointing at the old coefficient
+  // objects and the pdf silently stops responding to its own parameters.
+  bool redirectServersHook(const RooAbsCollection &newServerList, bool mustReplaceAll,
+                           bool nameChange, bool isRecursiveStep) override;
 
   // Coefficients of the list in _coefList, already dynamic_cast'ed and in a vector
   mutable std::vector<const RooAbsReal *> _morphParams; //! not to be serialized

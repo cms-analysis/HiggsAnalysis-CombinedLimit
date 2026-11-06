@@ -317,6 +317,26 @@ FastVerticalInterpHistPdfBase::FastVerticalInterpHistPdfBase(const FastVerticalI
   _sentry.setValueDirty(); 
 }
 
+//_____________________________________________________________________________
+bool FastVerticalInterpHistPdfBase::redirectServersHook(const RooAbsCollection &newServerList,
+                                                        bool mustReplaceAll,
+                                                        bool nameChange,
+                                                        bool isRecursiveStep) {
+  // _coefList has already been re-pointed at the new servers,
+  // but _morphParams and _sentry still refer to the old coefficient objects.
+  // Re-point _morphParams. The sentry can't be rebuilt yet: it tracks the parameters
+  // below each coefficient, and a coefficient that is a function (e.g. a scaled nuisance)
+  // may not have been redirected yet. Empty it and mark the cache dirty;
+  // syncTotal() rebuilds it once the whole graph has been redirected.
+  _morphParams.resize(_coefList.getSize());
+  int i = 0;
+  for (RooAbsArg *a : _coefList)
+    _morphParams[i++] = dynamic_cast<RooAbsReal *>(a);
+  _sentry.deps().removeAll();
+  _sentry.setValueDirty();
+  _init = false;
+  return RooAbsPdf::redirectServersHook(newServerList, mustReplaceAll, nameChange, isRecursiveStep);
+}
 
 //_____________________________________________________________________________
 FastVerticalInterpHistPdfBase::~FastVerticalInterpHistPdfBase() = default;
@@ -500,6 +520,10 @@ void FastVerticalInterpHistPdfBase::syncTotal(FastTemplate &cache, const FastTem
      * we already have computed the histogram for diff=(dhi-dlo) and sum=(dhi+dlo)
      * so we just do template += (0.5 * x) * (diff + smoothStepFunc(x) * sum)
      * ========================================== */
+
+    // emptied by redirectServersHook()
+    if (_sentry.empty())
+      _sentry.addVars(_coefList);
 
     // start from nominal
     cache.CopyValues(_smoothAlgo < 0 ? cacheNominalLog : cacheNominal);
@@ -765,6 +789,24 @@ Bool_t FastVerticalInterpHistPdf2Base::importWorkspaceHook(RooWorkspace& ws) {
   return kFALSE;
 }
 
+bool FastVerticalInterpHistPdf2Base::redirectServersHook(const RooAbsCollection &newServerList,
+                                                         bool mustReplaceAll,
+                                                         bool nameChange,
+                                                         bool isRecursiveStep) {
+  // _coefList has already been re-pointed at the new servers,
+  // but _morphParams and _sentry still refer to the old coefficient objects.
+  // Re-point _morphParams. The sentry can't be rebuilt yet: it tracks the parameters
+  // below each coefficient, and a coefficient that is a function (e.g. a scaled nuisance)
+  // may not have been redirected yet. Empty it and mark the cache dirty;
+  // syncTotal() rebuilds it once the whole graph has been redirected.
+  _morphParams.resize(_coefList.getSize());
+  int i = 0;
+  for (RooAbsArg *a : _coefList)
+    _morphParams[i++] = dynamic_cast<RooAbsReal *>(a);
+  _sentry.deps().removeAll();
+  _sentry.setValueDirty();
+  return RooAbsPdf::redirectServersHook(newServerList, mustReplaceAll, nameChange, isRecursiveStep);
+}
 
 //_____________________________________________________________________________
 FastVerticalInterpHistPdf2Base::~FastVerticalInterpHistPdf2Base()
@@ -777,6 +819,7 @@ FastVerticalInterpHistPdf2Base::initBase() const
 {
     if (_initBase) return;
 
+    _morphParams.clear();
     for (RooAbsArg *coef : _coefList) {
         const RooAbsReal *rrv = dynamic_cast<RooAbsReal*>(coef);
         if (!rrv) {
@@ -1025,6 +1068,10 @@ void FastVerticalInterpHistPdf2Base::syncTotal(FastTemplate &cache, const FastTe
      * we already have computed the histogram for diff=(dhi-dlo) and sum=(dhi+dlo)
      * so we just do template += (0.5 * x) * (diff + smoothStepFunc(x) * sum)
      * ========================================== */
+
+    // emptied by redirectServersHook()
+    if (_sentry.empty())
+      _sentry.addVars(_coefList);
 
     // start from nominal
     cache.CopyValues(_smoothAlgo < 0 ? cacheNominalLog : cacheNominal);

@@ -405,6 +405,18 @@ if(NOT DEFINED standalone_tests)
     endforeach()
 endif()
 
+# Pre-fit nuisance parameter values and uncertainties from FitDiagnostics, for
+# a model with a flat (lnU) constraint (issue #600)
+ADD_COMBINE_TEST(fitdiagnostics_prefit_nuisances
+  T2W_COMMAND
+    text2workspace.py ${REPO}/data/ci/counting_lnU.txt -o ws_counting_lnU.root
+  COMBINE_COMMANDS
+    "combine -M FitDiagnostics ws_counting_lnU.root -n _counting_lnU"
+    "python3 ${REPO}/test/checkPrefitNuisances.py fitDiagnostics_counting_lnU.root lumi=1 bkg2N=4 bkgU=0"
+  # The last digits of the fitted values differ between platforms.
+  DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+)
+
 # ModelTools.py
 COMBINE_ADD_TEST(test_model_tools_py
     COMMAND python3 ${REPO}/test/test_model_tools.py
@@ -430,6 +442,9 @@ COMBINE_ADD_TEST(test_combineharvester_directives_py
 COMBINE_ADD_TEST(combineharvester-validate-datacards
     COMMAND ValidateDatacards.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt --jsonFile validation.json
     PASSREGEX "Validation results"
+# Copies of the vertical-morphing pdfs must follow their own nuisance parameter
+COMBINE_ADD_TEST(test_morphing_copy_py
+    COMMAND python3 ${REPO}/test/test_morphing_copy.py
 )
 
 # RooBernsteinFast v1 -> v2 schema evolution
@@ -437,6 +452,21 @@ COMBINE_ADD_TEST(roo_bernstein_fast_schema_evolution
     COMMAND python3 test_roo_bernstein_fast_schema_evolution.py
     COPY_TO_BUILDDIR ${REPO}/test/test_roo_bernstein_fast_schema_evolution.py
                     ${REPO}/data/ci/test_bernstein_fast_v1.root
+    PASSREGEX "All checks passed"
+)
+
+# HybridNew must reach the relative accuracy (issue #1232)
+COMBINE_ADD_TEST(hybridnew_accuracy
+    COMMAND python3 test_hybridnew_accuracy.py
+    COPY_TO_BUILDDIR ${REPO}/test/test_hybridnew_accuracy.py
+                    ${REPO}/data/ci/hybridnew_small_limit_counting.txt
+    PASSREGEX "All checks passed"
+)
+
+# KS and AD goodness of fit must match each category's data, model and output branch
+COMBINE_ADD_TEST(gof_ks_ad_categories
+    COMMAND python3 test_gof_ks_ad_categories.py
+    COPY_TO_BUILDDIR ${REPO}/test/test_gof_ks_ad_categories.py
     PASSREGEX "All checks passed"
 )
 
