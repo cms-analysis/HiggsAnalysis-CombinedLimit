@@ -7,6 +7,7 @@
 #include "RooDataHist.h"
 #include "RooFitResult.h"
 #include "RooFit.h"
+#include "RooGlobalFunc.h"
 #include "RooSimultaneous.h"
 #include "RooCategory.h"
 #include "RooAddPdf.h"
