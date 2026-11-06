@@ -15,7 +15,7 @@
       
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
       
 
@@ -1919,7 +1919,7 @@
 The most basic of these is the <code>RooRealVar</code>. We will create one that will represent the mass of some hypothetical particle, we name it and give it an initial starting value and range.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">ROOT</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="n">MH</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">&quot;MH&quot;</span><span class="p">,</span><span class="s2">&quot;mass of the Hypothetical Boson (H-boson) in GeV&quot;</span><span class="p">,</span><span class="mi">125</span><span class="p">,</span><span class="mi">120</span><span class="p">,</span><span class="mi">130</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">MH</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">"MH"</span><span class="p">,</span><span class="s2">"mass of the Hypothetical Boson (H-boson) in GeV"</span><span class="p">,</span><span class="mi">125</span><span class="p">,</span><span class="mi">120</span><span class="p">,</span><span class="mi">130</span><span class="p">)</span>
 <span class="n">MH</span><span class="o">.</span><span class="n">Print</span><span class="p">()</span>
 </code></pre></div>
 <pre><code>RooRealVar::MH = 125  L(120 - 130)
@@ -1931,14 +1931,14 @@ The most basic of these is the <code>RooRealVar</code>. We will create one that 
 <pre><code>130.0
 </code></pre>
 <p>In particle detectors we typically do not observe this particle mass, but usually define some observable which is sensitive to this mass. We will assume we can detect and reconstruct the decay products of the H-boson and measure the invariant mass of those particles. We need to make another variable that represents that invariant mass.</p>
-<div class="highlight"><pre><span></span><code><span class="n">mass</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">,</span><span class="s2">&quot;m (GeV)&quot;</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">80</span><span class="p">,</span><span class="mi">200</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">mass</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">"m"</span><span class="p">,</span><span class="s2">"m (GeV)"</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">80</span><span class="p">,</span><span class="mi">200</span><span class="p">)</span>
 </code></pre></div>
 <p>In the perfect world we would perfectly measure the exact mass of the particle in every single event. However, our detectors are usually far from perfect so there will be some resolution effect. We will assume the resolution of our measurement of the invariant mass is 10 GeV and call it "sigma"</p>
-<div class="highlight"><pre><span></span><code><span class="n">sigma</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">&quot;resolution&quot;</span><span class="p">,</span><span class="s2">&quot;#sigma&quot;</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">sigma</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">"resolution"</span><span class="p">,</span><span class="s2">"#sigma"</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
 </code></pre></div>
 <p>More exotic variables can be constructed out of these <code>RooRealVars</code> using <code>RooFormulaVars</code>. For example, suppose we wanted to make a function out of the variables that represented the relative resolution as a function of the hypothetical mass MH.</p>
-<div class="highlight"><pre><span></span><code><span class="n">func</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFormulaVar</span><span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span><span class="s2">&quot;@0/@1&quot;</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span><span class="n">mass</span><span class="p">))</span>
-<span class="n">func</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">func</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFormulaVar</span><span class="p">(</span><span class="s2">"R"</span><span class="p">,</span><span class="s2">"@0/@1"</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span><span class="n">mass</span><span class="p">))</span>
+<span class="n">func</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">"v"</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>--- RooAbsArg ---
   Value State: DIRTY
@@ -2031,8 +2031,8 @@ if (typeof requirejs !== 'undefined') {
 f(m|M_{H},\sigma)
 \]</div>
 <p>as a simple Gaussian shape for example or a <code>RooGaussian</code> in <code>RooFit</code> language (think McDonald's logic, everything is a <code>RooSomethingOrOther</code>)</p>
-<div class="highlight"><pre><span></span><code><span class="n">gauss</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooGaussian</span><span class="p">(</span><span class="s2">&quot;gauss&quot;</span><span class="p">,</span> <span class="s2">&quot;f(m|M_</span><span class="si">{H}</span><span class="s2">,#sigma)&quot;</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">MH</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
-<span class="n">gauss</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">&quot;V&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">gauss</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooGaussian</span><span class="p">(</span><span class="s2">"gauss"</span><span class="p">,</span> <span class="s2">"f(m|M_</span><span class="si">{H}</span><span class="s2">,#sigma)"</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">MH</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+<span class="n">gauss</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">"V"</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>[#0] WARNING:InputArguments -- The parameter 'resolution' with range [0, 20] of the RooGaussian 'gauss' exceeds the safe range of (0, inf). Advise to limit its range.
 --- RooAbsArg ---
@@ -2206,7 +2206,7 @@ if (typeof requirejs !== 'undefined') {
 <p>both of these use the same basic structure as below</p>
 <p><img alt="Alt Text" src="https://raw.githubusercontent.com/cms-analysis/HiggsAnalysis-CombinedLimit/main/docs/part5/images/datastructure.png" /></p>
 <p>We will create an empty dataset where the only observable is the mass. Points can be added to the dataset one by one...</p>
-<div class="highlight"><pre><span></span><code><span class="n">mydata</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooDataSet</span><span class="p">(</span><span class="s2">&quot;dummy&quot;</span><span class="p">,</span><span class="s2">&quot;My dummy dataset&quot;</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooArgSet</span><span class="p">(</span><span class="n">mass</span><span class="p">))</span> <span class="c1"># We&#39;ve made a dataset with one observable (mass)</span>
+<div class="highlight"><pre><span></span><code><span class="n">mydata</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooDataSet</span><span class="p">(</span><span class="s2">"dummy"</span><span class="p">,</span><span class="s2">"My dummy dataset"</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooArgSet</span><span class="p">(</span><span class="n">mass</span><span class="p">))</span> <span class="c1"># We've made a dataset with one observable (mass)</span>
 
 <span class="n">mass</span><span class="o">.</span><span class="n">setVal</span><span class="p">(</span><span class="mf">123.4</span><span class="p">)</span>
 <span class="n">mydata</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">RooArgSet</span><span class="p">(</span><span class="n">mass</span><span class="p">))</span>
@@ -2223,7 +2223,7 @@ if (typeof requirejs !== 'undefined') {
 <img alt="Alt Text" src="https://raw.githubusercontent.com/cms-analysis/HiggsAnalysis-CombinedLimit/main/docs/part5/images/datasets_manip.png" /></p>
 <p>Luckily there are also Constructors for a <code>RooDataSet</code> from a <code>TTree</code> and for a <code>RooDataHist</code> from a <code>TH1</code> so its simple to convert from your usual ROOT objects.</p>
 <p>We will take an example dataset put together already. The file <code>tutorial.root</code> can be downloaded <a href="https://github.com/amarini/Prefit2020/blob/master/Session%201/tutorial.root">here</a> and is also available in <code>./</code>.</p>
-<div class="highlight"><pre><span></span><code><span class="n">file</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TFile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="s2">&quot;tutorial.root&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">file</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TFile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="s2">"tutorial.root"</span><span class="p">)</span>
 <span class="n">file</span><span class="o">.</span><span class="n">ls</span><span class="p">()</span>
 </code></pre></div>
 <pre><code>TFile**     tutorial.root   
@@ -2233,8 +2233,8 @@ if (typeof requirejs !== 'undefined') {
 </code></pre>
 <p>Inside the file, there is something called a <code>RooWorkspace</code>. This is just the <code>RooFit</code> way of keeping a persistent link between the objects for a model. It is a very useful way to share data and PDFs/functions etc among CMS collaborators.</p>
 <p>We will now take a look at it. It contains a <code>RooDataSet</code> and one variable. This time we called our variable (or observable) <code>CMS_hgg_mass</code>, we will assume that this is the invariant mass of photon pairs where we assume our H-boson decays to photons.</p>
-<div class="highlight"><pre><span></span><code><span class="n">wspace</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s2">&quot;workspace&quot;</span><span class="p">)</span>
-<span class="n">wspace</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">wspace</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s2">"workspace"</span><span class="p">)</span>
+<span class="n">wspace</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">"v"</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>RooWorkspace(workspace) Tutorial Workspace contents
 
@@ -2248,8 +2248,8 @@ RooDataSet::dataset(CMS_hgg_mass)
 </code></pre>
 <p>Now we will have a look at the data. The <code>RooWorkspace</code> has several accessor functions, we will use the <code>RooWorkspace::data</code> one. 
 There are also <code>RooWorkspace::var</code>, <code>RooWorkspace::function</code> and <code>RooWorkspace::pdf</code> with (hopefully) obvious purposes.</p>
-<div class="highlight"><pre><span></span><code><span class="n">hgg_data</span> <span class="o">=</span> <span class="n">wspace</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
-<span class="n">hgg_mass</span> <span class="o">=</span> <span class="n">wspace</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="s2">&quot;CMS_hgg_mass&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">hgg_data</span> <span class="o">=</span> <span class="n">wspace</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s2">"dataset"</span><span class="p">)</span>
+<span class="n">hgg_mass</span> <span class="o">=</span> <span class="n">wspace</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="s2">"CMS_hgg_mass"</span><span class="p">)</span>
 
 <span class="n">plot</span> <span class="o">=</span> <span class="n">hgg_mass</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
 
@@ -2322,8 +2322,8 @@ if (typeof requirejs !== 'undefined') {
 <p>You can find several available <code>RooFit</code> functions here: <a href="https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html">https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html</a></p>
 <p>There is also support for a generic PDF in the form of a <code>RooGenericPdf</code>, check this link: <a href="https://root.cern.ch/doc/v608/classRooGenericPdf.html">https://root.cern.ch/doc/v608/classRooGenericPdf.html</a></p>
 <p>Now we will create an exponential PDF for our background,</p>
-<div class="highlight"><pre><span></span><code><span class="n">alpha</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">&quot;alpha&quot;</span><span class="p">,</span> <span class="s2">&quot;#alpha&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.05</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-<span class="n">expo</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooExponential</span><span class="p">(</span><span class="s2">&quot;exp&quot;</span><span class="p">,</span><span class="s2">&quot;exponential function&quot;</span><span class="p">,</span> <span class="n">hgg_mass</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">alpha</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">"alpha"</span><span class="p">,</span> <span class="s2">"#alpha"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.05</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+<span class="n">expo</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooExponential</span><span class="p">(</span><span class="s2">"exp"</span><span class="p">,</span><span class="s2">"exponential function"</span><span class="p">,</span> <span class="n">hgg_mass</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
 </code></pre></div>
 <p>We can use <code>RooFit</code> to tell us to estimate the value of <span class="arithmatex">\(\alpha\)</span> using this dataset. You will learn more about parameter estimation, but for now we will just assume you know about maximizing likelihoods. This <em>maximum likelihood estimator</em> is common in HEP and is known to give unbiased estimates for things like distribution means etc. </p>
 <p>This also introduces the other main use of PDFs in <code>RooFit</code>. They can be used to construct <em>likelihoods</em> easily.</p>
@@ -2347,7 +2347,7 @@ RooAbsReal::RooEvaluatorWrapper[ topNode=nll_exp_over_exp_Int[CMS_hgg_mass]_data
 <p>Notice that the NLL object knows which RooRealVar is the parameter because it doesn't find that one in the dataset. This is how <code>RooFit</code> distiguishes between <em>observables</em> and <em>parameters</em>.</p>
 <p><code>RooFit</code> has an interface to Minuit via the <code>RooMinimizer</code> class which takes the NLL as an argument. To minimize, we just call the <code>RooMinimizer::minimize()</code> function. <strong><code>Minuit2</code></strong> is the program and <strong><code>migrad</code></strong> is the minimization routine which uses gradient descent.</p>
 <div class="highlight"><pre><span></span><code><span class="n">minim</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooMinimizer</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
-<span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">&quot;Minuit2&quot;</span><span class="p">,</span> <span class="s2">&quot;migrad&quot;</span><span class="p">)</span>
+<span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">"Minuit2"</span><span class="p">,</span> <span class="s2">"migrad"</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>0
 
@@ -2379,7 +2379,7 @@ Info in &lt;Minuit2&gt;: VariableMetricBuilder After Hessian
 Info in &lt;Minuit2&gt;: VariableMetricBuilder    3 - FCN =       3584.682732 Edm =   7.224520535e-09 NCalls =     19
 </code></pre>
 <p><code>RooFit</code> has found the best fit value of alpha for this dataset. It also estimates an uncertainty on alpha using the Hessian matrix from the fit.</p>
-<div class="highlight"><pre><span></span><code><span class="n">alpha</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">alpha</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">"v"</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>--- RooAbsArg ---
   Value State: clean
@@ -2474,20 +2474,20 @@ if (typeof requirejs !== 'undefined') {
 <span class="n">MH</span><span class="o">.</span><span class="n">setVal</span><span class="p">(</span><span class="mi">125</span><span class="p">)</span>
 <span class="n">MH</span><span class="o">.</span><span class="n">setConstant</span><span class="p">()</span>
 
-<span class="n">hgg_signal</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooGaussian</span><span class="p">(</span><span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;Gaussian PDF&quot;</span><span class="p">,</span> <span class="n">hgg_mass</span><span class="p">,</span> <span class="n">MH</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+<span class="n">hgg_signal</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooGaussian</span><span class="p">(</span><span class="s2">"signal"</span><span class="p">,</span> <span class="s2">"Gaussian PDF"</span><span class="p">,</span> <span class="n">hgg_mass</span><span class="p">,</span> <span class="n">MH</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>[#0] WARNING:InputArguments -- The parameter 'resolution' with range [0, 20] of the RooGaussian 'signal' exceeds the safe range of (0, inf). Advise to limit its range.
 </code></pre>
 <p>By setting these parameters constant, <code>RooFit</code> knows (either when creating the NLL by hand or when using <code>fitTo</code>) that there is not need to fit for these parameters. </p>
 <p>We need to add this to our exponential model and fit a "Sigmal+Background model" by creating a <code>RooAddPdf</code>. In <code>RooFit</code> there are two ways to add PDFs, recursively where the fraction of yields for the signal and background is a parameter or absolutely where each PDF has its own normalization. We're going to use the second one.</p>
-<div class="highlight"><pre><span></span><code><span class="n">norm_s</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">&quot;norm_s&quot;</span><span class="p">,</span><span class="s2">&quot;N_</span><span class="si">{s}</span><span class="s2">&quot;</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
-<span class="n">norm_b</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">&quot;norm_b&quot;</span><span class="p">,</span><span class="s2">&quot;N_</span><span class="si">{b}</span><span class="s2">&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">norm_s</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">"norm_s"</span><span class="p">,</span><span class="s2">"N_</span><span class="si">{s}</span><span class="s2">"</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">norm_b</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">"norm_b"</span><span class="p">,</span><span class="s2">"N_</span><span class="si">{b}</span><span class="s2">"</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
 
 <span class="n">components</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">hgg_signal</span><span class="p">,</span><span class="n">expo</span><span class="p">)</span>
 <span class="n">coeffs</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">norm_s</span><span class="p">,</span><span class="n">norm_b</span><span class="p">)</span>
 
-<span class="n">model</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooAddPdf</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">,</span><span class="s2">&quot;f_{s+b}&quot;</span><span class="p">,</span><span class="n">components</span><span class="p">,</span><span class="n">coeffs</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooAddPdf</span><span class="p">(</span><span class="s2">"model"</span><span class="p">,</span><span class="s2">"f_{s+b}"</span><span class="p">,</span><span class="n">components</span><span class="p">,</span><span class="n">coeffs</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">"v"</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>--- RooAbsArg ---
   Value State: DIRTY
@@ -2525,7 +2525,7 @@ Cached value = 0
 
 <span class="n">model</span><span class="o">.</span><span class="n">fitTo</span><span class="p">(</span><span class="n">hgg_data</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFit</span><span class="o">.</span><span class="n">Extended</span><span class="p">())</span>
 
-<span class="n">model</span><span class="o">.</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFit</span><span class="o">.</span><span class="n">Components</span><span class="p">(</span><span class="s2">&quot;exp&quot;</span><span class="p">),</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFit</span><span class="o">.</span><span class="n">LineColor</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">kGreen</span><span class="p">));</span>
+<span class="n">model</span><span class="o">.</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFit</span><span class="o">.</span><span class="n">Components</span><span class="p">(</span><span class="s2">"exp"</span><span class="p">),</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFit</span><span class="o">.</span><span class="n">LineColor</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">kGreen</span><span class="p">));</span>
 <span class="n">model</span><span class="o">.</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFit</span><span class="o">.</span><span class="n">LineColor</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">kRed</span><span class="p">));</span>
 <span class="n">model</span><span class="o">.</span><span class="n">paramOn</span><span class="p">(</span><span class="n">plot</span><span class="p">);</span>
 
@@ -2726,10 +2726,10 @@ Info in &lt;Minuit2&gt;: Minuit2Minimizer::Hesse Hesse is valid - matrix is accu
    3 |   -0.02623     0.00544     -0.2769           1
 </code></pre>
 <p>A nice feature of <code>RooFit</code> is that once we have a PDF, data and results like this, we can import this new model into our <code>RooWorkspace</code> and show off our new discovery to our LHC friends (if we weren't already too late!). We can also save the "state" of our parameters for later, by creating a snapshot of the current values. </p>
-<div class="highlight"><pre><span></span><code><span class="nb">getattr</span><span class="p">(</span><span class="n">wspace</span><span class="p">,</span> <span class="s2">&quot;import&quot;</span><span class="p">)(</span><span class="n">model</span><span class="p">)</span>  
+<div class="highlight"><pre><span></span><code><span class="nb">getattr</span><span class="p">(</span><span class="n">wspace</span><span class="p">,</span> <span class="s2">"import"</span><span class="p">)(</span><span class="n">model</span><span class="p">)</span>  
 <span class="n">params</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">getParameters</span><span class="p">(</span><span class="n">hgg_data</span><span class="p">)</span>
-<span class="n">wspace</span><span class="o">.</span><span class="n">saveSnapshot</span><span class="p">(</span><span class="s2">&quot;nominal_values&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-<span class="n">wspace</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">&quot;V&quot;</span><span class="p">)</span>
+<span class="n">wspace</span><span class="o">.</span><span class="n">saveSnapshot</span><span class="p">(</span><span class="s2">"nominal_values"</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+<span class="n">wspace</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">"V"</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>[#1] INFO:ObjectHandling -- RooWorkspace::import(workspace) importing RooAddPdf::model
 [#1] INFO:ObjectHandling -- RooWorkspace::import(workspace) importing RooGaussian::signal
@@ -2773,28 +2773,28 @@ for this:</p>
 The data is the number of observed events <span class="arithmatex">\(N\)</span>, and the probability is just a Poisson probability <span class="arithmatex">\(p(N|\lambda) = \frac{\lambda^N e^{-\lambda}}{N!}\)</span>, where <span class="arithmatex">\(\lambda\)</span> is the number of events expected in our signal+background model: <span class="arithmatex">\(\lambda = \mu\cdot s(\vec{\nu}) + b(\vec{\nu})\)</span>. </p>
 <p>In the expression, s and b are the numbers of expected signal and background events, which both depend on the nuisance parameters. We will start by building a simple likelihood function with one signal process and one background process. We will assume there are no nuisance parameters for now. The number of observed events in data is 15, the expected number of signal events is 5 and the expected number of background events 8.1.</p>
 <p>It is easiest to use the <code>RooFit</code> workspace factory to build our model (<a href="https://root.cern/doc/master/rf511__wsfactory__basic_8py.html">this tutorial</a> has more information on the factory syntax).</p>
-<div class="highlight"><pre><span></span><code><span class="n">w</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooWorkspace</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooWorkspace</span><span class="p">(</span><span class="s2">"w"</span><span class="p">)</span>
 </code></pre></div>
 <p>We need to create an expression for the number of events in our model, <span class="arithmatex">\(\mu s +b\)</span>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;expr::n(&quot;mu*s +b&quot;, mu[1.0,0,4], s[5], b[8.1])&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'expr::n("mu*s +b", mu[1.0,0,4], s[5], b[8.1])'</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>&lt;cppyy.gbl.RooFormulaVar object at 0x120cc19a0&gt;
 </code></pre>
 <p>Now we can build the likelihood, which is just our Poisson PDF:</p>
-<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Poisson::poisN(N[15],n)&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Poisson::poisN(N[15],n)'</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>&lt;cppyy.gbl.RooPoisson object at 0x121e95c00&gt;
 </code></pre>
 <p>To find the best fit value for our parameter of interest <span class="arithmatex">\(\mu\)</span> we need to maximize the likelihood. In practice it is actually easier to minimize the <strong>N</strong>egative <strong>l</strong>og of the <strong>l</strong>ikelihood, or NLL:</p>
-<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;expr::NLL(&quot;-log(@0)&quot;,poisN)&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'expr::NLL("-log(@0)",poisN)'</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>&lt;cppyy.gbl.RooFormulaVar object at 0x120ccaba0&gt;
 </code></pre>
 <p>We can now use the <code>RooMinimizer</code> to find the minimum of the NLL</p>
-<div class="highlight"><pre><span></span><code><span class="n">nll</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;NLL&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">nll</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">"NLL"</span><span class="p">)</span>
 <span class="n">minim</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooMinimizer</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
 <span class="n">minim</span><span class="o">.</span><span class="n">setErrorLevel</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">&quot;Minuit2&quot;</span><span class="p">,</span><span class="s2">&quot;migrad&quot;</span><span class="p">)</span>
+<span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">"Minuit2"</span><span class="p">,</span><span class="s2">"migrad"</span><span class="p">)</span>
 <span class="n">bestfitnll</span> <span class="o">=</span> <span class="n">nll</span><span class="o">.</span><span class="n">getVal</span><span class="p">()</span>
 </code></pre></div>
 <pre><code>[#1] INFO:Minimization -- RooFormulaVar::defaultErrorLevel(NLL) WARNING: Formula contains neither RooNLLVar nor RooChi2Var server, using default level of 1.0
@@ -2823,25 +2823,25 @@ Info in &lt;Minuit2&gt;: VariableMetricBuilder    2 - FCN =       2.278667148 Ed
 </code></pre>
 <p>Notice that we need to set the error level to 0.5 to get the uncertainties (relying on Wilks' theorem!) - note that there is a more reliable way of extracting the confidence interval (explicitly rather than relying on migrad). We will discuss this a bit later in this section.</p>
 <p>Now we will add a nuisance parameter, <em>lumi</em>, which represents the luminosity uncertainty. It has a 2.5% effect on both the signal and the background. The parameter will be log-normally distributed: when it's 0, the normalization of the signal and background are not modified; at <span class="arithmatex">\(+1\sigma\)</span> the signal and background normalizations will be multiplied by 1.025 and at <span class="arithmatex">\(-1\sigma\)</span> they will be divided by 1.025.  We should modify the expression for the number of events in our model:</p>
-<div class="highlight"><pre><span></span><code><span class="n">w</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooWorkspace</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;expr::n(&quot;mu*s*pow(1.025,lumi)+b*pow(1.025,lumi)&quot;, mu[1.0,0,4], s[5], b[8.1], lumi[0,-4,4])&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Poisson::poisN(N[15],n)&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooWorkspace</span><span class="p">(</span><span class="s2">"w"</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'expr::n("mu*s*pow(1.025,lumi)+b*pow(1.025,lumi)", mu[1.0,0,4], s[5], b[8.1], lumi[0,-4,4])'</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Poisson::poisN(N[15],n)'</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>&lt;cppyy.gbl.RooPoisson object at 0x121e7c400&gt;
 </code></pre>
 <p><strong>Important</strong>: RooFit does not allow to redefine functions with the same name in the workspace, that's why we defined a new workspace and the poisson function that depended on  n.</p>
 <p>And we add a unit gaussian constraint </p>
-<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Gaussian::lumiconstr(lumi,0,1)&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Gaussian::lumiconstr(lumi,0,1)'</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>&lt;cppyy.gbl.RooGaussian object at 0x121eabe00&gt;
 </code></pre>
 <p>Our full likelihood will now be</p>
-<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;PROD::likelihood(poisN,lumiconstr)&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'PROD::likelihood(poisN,lumiconstr)'</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>&lt;cppyy.gbl.RooProdPdf object at 0x121ebf000&gt;
 </code></pre>
 <p>and the NLL</p>
-<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;expr::NLL(&quot;-log(@0)&quot;,likelihood)&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'expr::NLL("-log(@0)",likelihood)'</span><span class="p">)</span>
 </code></pre></div>
 <pre><code>&lt;cppyy.gbl.RooFormulaVar object at 0x120cdcb50&gt;
 </code></pre>
@@ -2854,10 +2854,10 @@ Info in &lt;Minuit2&gt;: VariableMetricBuilder    2 - FCN =       2.278667148 Ed
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
-<span class="n">w</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooWorkspace</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooWorkspace</span><span class="p">(</span><span class="s2">"w"</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'''</span>
 <span class="s1">    expr::n(</span>
-<span class="s1">    &quot;mu*s*pow(1.025,lumi)*pow(1.05,sigth)+ztt*pow(1.025,lumi)*pow(1.05,zttxs)+tt*pow(1.025,lumi)*pow(1.06,ttxs)&quot;, </span>
+<span class="s1">    "mu*s*pow(1.025,lumi)*pow(1.05,sigth)+ztt*pow(1.025,lumi)*pow(1.05,zttxs)+tt*pow(1.025,lumi)*pow(1.06,ttxs)", </span>
 <span class="s1">    mu[1.0,0,4], </span>
 <span class="s1">    s[5], </span>
 <span class="s1">    ztt[3.7],</span>
@@ -2867,21 +2867,21 @@ Info in &lt;Minuit2&gt;: VariableMetricBuilder    2 - FCN =       2.278667148 Ed
 <span class="s1">    zttxs[0,-4,4],</span>
 <span class="s1">    ttxs[0,-4,4]</span>
 <span class="s1">    )</span>
-<span class="s1">    &#39;&#39;&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Poisson::poisN(N[15],n)&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Gaussian::lumiconstr(lumi,0,1)&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Gaussian::sigthconstr(sigth,0,1)&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Gaussian::zttxsconstr(zttxs,0,1)&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Gaussian::ttxsconstr(ttxs,0,1)&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;PROD::likelihood(poisN,lumiconstr,sigthconstr,zttxsconstr,ttxsconstr)&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;expr::NLL(&quot;-log(@0)&quot;,likelihood)&#39;</span><span class="p">)</span>
+<span class="s1">    '''</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Poisson::poisN(N[15],n)'</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Gaussian::lumiconstr(lumi,0,1)'</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Gaussian::sigthconstr(sigth,0,1)'</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Gaussian::zttxsconstr(zttxs,0,1)'</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Gaussian::ttxsconstr(ttxs,0,1)'</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'PROD::likelihood(poisN,lumiconstr,sigthconstr,zttxsconstr,ttxsconstr)'</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'expr::NLL("-log(@0)",likelihood)'</span><span class="p">)</span>
 
-<span class="n">nll</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;NLL&quot;</span><span class="p">)</span>
+<span class="n">nll</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">"NLL"</span><span class="p">)</span>
 <span class="n">minim</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooMinimizer</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
 <span class="n">minim</span><span class="o">.</span><span class="n">setErrorLevel</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="n">minim</span><span class="o">.</span><span class="n">setPrintLevel</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">minim</span><span class="o">.</span><span class="n">setVerbose</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">&quot;Minuit2&quot;</span><span class="p">,</span><span class="s2">&quot;migrad&quot;</span><span class="p">)</span>
+<span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">"Minuit2"</span><span class="p">,</span><span class="s2">"migrad"</span><span class="p">)</span>
 <span class="n">bestfitnll</span> <span class="o">=</span> <span class="n">nll</span><span class="o">.</span><span class="n">getVal</span><span class="p">()</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">profile_lr</span><span class="p">(</span><span class="n">profiled_nll</span><span class="p">,</span> <span class="n">best_nll</span><span class="p">):</span>
@@ -2890,17 +2890,17 @@ Info in &lt;Minuit2&gt;: VariableMetricBuilder    2 - FCN =       2.278667148 Ed
 <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
 <span class="n">ys</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xs</span><span class="p">:</span>
-    <span class="n">mu</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="s2">&quot;mu&quot;</span><span class="p">)</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="s2">"mu"</span><span class="p">)</span>
     <span class="n">mu</span><span class="o">.</span><span class="n">setVal</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="n">mu</span><span class="o">.</span><span class="n">setConstant</span><span class="p">()</span>
-    <span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">&quot;Minuit2&quot;</span><span class="p">,</span><span class="s2">&quot;migrad&quot;</span><span class="p">)</span>
+    <span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">"Minuit2"</span><span class="p">,</span><span class="s2">"migrad"</span><span class="p">)</span>
     <span class="n">profiled_nll</span> <span class="o">=</span> <span class="n">nll</span><span class="o">.</span><span class="n">getVal</span><span class="p">()</span>
     <span class="n">ys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_lr</span><span class="p">(</span><span class="n">profiled_nll</span><span class="p">,</span> <span class="n">bestfitnll</span><span class="p">))</span>
 
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NLL scan&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">0.98</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">3.84</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"NLL scan"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">0.98</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"k"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">3.84</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"k"</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
 </code></pre></div>
@@ -2964,10 +2964,10 @@ Info in &lt;Minuit2&gt;: VariableMetricBuilder    2 - FCN =       2.278667148 Ed
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

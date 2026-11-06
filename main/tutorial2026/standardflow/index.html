@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
       
 
@@ -2599,7 +2599,7 @@ Note that the Asimov dataset generated this way uses the nominal values of all m
 <p>The results of the scan are written into the output file, if opened interactively should see:</p>
 <details>
 <summary><b>Show output</b></summary>
-<div class="highlight"><pre><span></span><code>root<span class="w"> </span><span class="o">[</span><span class="m">1</span><span class="o">]</span><span class="w"> </span>limit-&gt;Scan<span class="o">(</span><span class="s2">&quot;r:deltaNLL&quot;</span><span class="o">)</span>
+<div class="highlight"><pre><span></span><code>root<span class="w"> </span><span class="o">[</span><span class="m">1</span><span class="o">]</span><span class="w"> </span>limit-&gt;Scan<span class="o">(</span><span class="s2">"r:deltaNLL"</span><span class="o">)</span>
 ************************************
 *<span class="w">    </span>Row<span class="w">   </span>*<span class="w">         </span>r<span class="w"> </span>*<span class="w">  </span>deltaNLL<span class="w"> </span>*
 ************************************
@@ -2646,7 +2646,7 @@ This script will also perform a spline interpolation of the points to give accur
 The statistical component is usually defined as the uncertainty we would have if all the systematic uncertainties went to zero. We can emulate this effect by freezing all the nuisance parameters when we do the scan in <code>r</code>,
 such that they do not vary in the fit. This is achieved by adding the <code>--freezeParameters allConstrainedNuisances</code> option. It would also work if the parameters are specified explicitly, e.g. <code>--freezeParameters CMS_eff_t,lumi_13TeV,...,</code> but the <code>allConstrainedNuisances</code> option is more concise. Run the scan again with the systematics frozen, and use the plotting script to overlay this curve with the previous one:</p>
 <div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>workspace_part3.root<span class="w"> </span>-n<span class="w"> </span>.part3E.freezeAll<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">2</span><span class="w"> </span>--algo<span class="w"> </span>grid<span class="w"> </span>--points<span class="w"> </span><span class="m">30</span><span class="w"> </span>--freezeParameters<span class="w"> </span>allConstrainedNuisances
-python<span class="w"> </span>plot1DScan.py<span class="w"> </span>higgsCombine.part3E.MultiDimFit.mH200.root<span class="w"> </span>--others<span class="w"> </span><span class="s1">&#39;higgsCombine.part3E.freezeAll.MultiDimFit.mH200.root:FreezeAll:2&#39;</span><span class="w"> </span>-o<span class="w"> </span>freeze_first_attempt
+python<span class="w"> </span>plot1DScan.py<span class="w"> </span>higgsCombine.part3E.MultiDimFit.mH200.root<span class="w"> </span>--others<span class="w"> </span><span class="s1">'higgsCombine.part3E.freezeAll.MultiDimFit.mH200.root:FreezeAll:2'</span><span class="w"> </span>-o<span class="w"> </span>freeze_first_attempt
 </code></pre></div>
 <p><img alt="" src="../../part5/images/freeze_first_attempt.png" /></p>
 <p>This doesn't look quite right - the best-fit has been shifted because unfortunately the <code>--freezeParameters</code> option acts before the initial fit, whereas we only want to add it for the scan after this fit. To remedy this we can use a feature of <span style="font-variant:small-caps;">Combine</span> that lets us save a "snapshot" of the best-fit parameter values, and reuse this snapshot in subsequent fits. First we perform a single fit, adding the <code>--saveWorkspace</code> option:</p>
@@ -2654,7 +2654,7 @@ python<span class="w"> </span>plot1DScan.py<span class="w"> </span>higgsCombine.
 </code></pre></div>
 The output file will now contain a copy of our workspace from the input, and this copy will contain a snapshot of the best-fit parameter values. We can now run the frozen scan again, but instead using this copy of the workspace as input, and restoring the snapshot that was saved:</p>
 <div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>higgsCombine.part3E.snapshot.MultiDimFit.mH200.root<span class="w"> </span>-n<span class="w"> </span>.part3E.freezeAll<span class="w"> </span>-m<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rMin<span class="w"> </span>-1<span class="w"> </span>--rMax<span class="w"> </span><span class="m">2</span><span class="w"> </span>--algo<span class="w"> </span>grid<span class="w"> </span>--points<span class="w"> </span><span class="m">30</span><span class="w"> </span>--freezeParameters<span class="w"> </span>allConstrainedNuisances<span class="w"> </span>--snapshotName<span class="w"> </span>MultiDimFit
-python<span class="w"> </span>plot1DScan.py<span class="w"> </span>higgsCombine.part3E.MultiDimFit.mH200.root<span class="w"> </span>--others<span class="w"> </span><span class="s1">&#39;higgsCombine.part3E.freezeAll.MultiDimFit.mH200.root:FreezeAll:2&#39;</span><span class="w"> </span>-o<span class="w"> </span>freeze_second_attempt<span class="w"> </span>--breakdown<span class="w"> </span>Syst,Stat
+python<span class="w"> </span>plot1DScan.py<span class="w"> </span>higgsCombine.part3E.MultiDimFit.mH200.root<span class="w"> </span>--others<span class="w"> </span><span class="s1">'higgsCombine.part3E.freezeAll.MultiDimFit.mH200.root:FreezeAll:2'</span><span class="w"> </span>-o<span class="w"> </span>freeze_second_attempt<span class="w"> </span>--breakdown<span class="w"> </span>Syst,Stat
 </code></pre></div>
 <p>Now the plot should look correct:</p>
 <p><img alt="" src="../../part5/images/freeze_second_attempt.png" /></p>
@@ -2791,10 +2791,10 @@ In contrast to <code>AsymptoticLimits</code> this will only determine the observ
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

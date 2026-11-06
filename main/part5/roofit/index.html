@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
       
 
@@ -1976,13 +1976,13 @@ The most basic of these is the <code>RooRealVar</code>. We will create one that 
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">C++</label><label for="__tabbed_1_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">RooRealVar</span><span class="w"> </span><span class="n">MH</span><span class="p">(</span><span class="s">&quot;MH&quot;</span><span class="p">,</span><span class="s">&quot;mass of the Hypothetical Boson (H-boson) in GeV&quot;</span><span class="p">,</span><span class="mi">125</span><span class="p">,</span><span class="mi">120</span><span class="p">,</span><span class="mi">130</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="n">RooRealVar</span><span class="w"> </span><span class="n">MH</span><span class="p">(</span><span class="s">"MH"</span><span class="p">,</span><span class="s">"mass of the Hypothetical Boson (H-boson) in GeV"</span><span class="p">,</span><span class="mi">125</span><span class="p">,</span><span class="mi">120</span><span class="p">,</span><span class="mi">130</span><span class="p">);</span>
 <span class="n">MH</span><span class="p">.</span><span class="n">Print</span><span class="p">();</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">ROOT</span>
-<span class="n">MH</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">&quot;MH&quot;</span><span class="p">,</span><span class="s2">&quot;mass of the Hypothetical Boson (H-boson) in GeV&quot;</span><span class="p">,</span><span class="mi">125</span><span class="p">,</span><span class="mi">120</span><span class="p">,</span><span class="mi">130</span><span class="p">)</span>
+<span class="n">MH</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">"MH"</span><span class="p">,</span><span class="s2">"mass of the Hypothetical Boson (H-boson) in GeV"</span><span class="p">,</span><span class="mi">125</span><span class="p">,</span><span class="mi">120</span><span class="p">,</span><span class="mi">130</span><span class="p">)</span>
 <span class="n">MH</span><span class="o">.</span><span class="n">Print</span><span class="p">()</span>
 </code></pre></div>
 </div>
@@ -2010,11 +2010,11 @@ The most basic of these is the <code>RooRealVar</code>. We will create one that 
 <div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">C++</label><label for="__tabbed_3_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">RooRealVar</span><span class="w"> </span><span class="n">mass</span><span class="p">(</span><span class="s">&quot;m&quot;</span><span class="p">,</span><span class="s">&quot;m (GeV)&quot;</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">80</span><span class="p">,</span><span class="mi">200</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="n">RooRealVar</span><span class="w"> </span><span class="n">mass</span><span class="p">(</span><span class="s">"m"</span><span class="p">,</span><span class="s">"m (GeV)"</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">80</span><span class="p">,</span><span class="mi">200</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">mass</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">,</span><span class="s2">&quot;m (GeV)&quot;</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">80</span><span class="p">,</span><span class="mi">200</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">mass</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">"m"</span><span class="p">,</span><span class="s2">"m (GeV)"</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">80</span><span class="p">,</span><span class="mi">200</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -2023,11 +2023,11 @@ The most basic of these is the <code>RooRealVar</code>. We will create one that 
 <div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">C++</label><label for="__tabbed_4_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">RooRealVar</span><span class="w"> </span><span class="n">sigma</span><span class="p">(</span><span class="s">&quot;resolution&quot;</span><span class="p">,</span><span class="s">&quot;#sigma&quot;</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="n">RooRealVar</span><span class="w"> </span><span class="n">sigma</span><span class="p">(</span><span class="s">"resolution"</span><span class="p">,</span><span class="s">"#sigma"</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">sigma</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">&quot;resolution&quot;</span><span class="p">,</span><span class="s2">&quot;#sigma&quot;</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">sigma</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">"resolution"</span><span class="p">,</span><span class="s2">"#sigma"</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -2036,13 +2036,13 @@ The most basic of these is the <code>RooRealVar</code>. We will create one that 
 <div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">C++</label><label for="__tabbed_5_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">RooFormulaVar</span><span class="w"> </span><span class="n">func</span><span class="p">(</span><span class="s">&quot;R&quot;</span><span class="p">,</span><span class="s">&quot;@0/@1&quot;</span><span class="p">,</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span><span class="n">mass</span><span class="p">));</span>
-<span class="n">func</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="n">RooFormulaVar</span><span class="w"> </span><span class="n">func</span><span class="p">(</span><span class="s">"R"</span><span class="p">,</span><span class="s">"@0/@1"</span><span class="p">,</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span><span class="n">mass</span><span class="p">));</span>
+<span class="n">func</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="s">"v"</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">func</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFormulaVar</span><span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span><span class="s2">&quot;@0/@1&quot;</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span><span class="n">mass</span><span class="p">))</span>
-<span class="n">func</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">func</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFormulaVar</span><span class="p">(</span><span class="s2">"R"</span><span class="p">,</span><span class="s2">"@0/@1"</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span><span class="n">mass</span><span class="p">))</span>
+<span class="n">func</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">"v"</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -2057,17 +2057,17 @@ The most basic of these is the <code>RooRealVar</code>. We will create one that 
 <span class="w">  </span>Address:<span class="w"> </span>0x10e878068
 <span class="w">  </span>Clients:
 <span class="w">  </span>Servers:
-<span class="w">    </span><span class="o">(</span>0x10dcd47b0,V-<span class="o">)</span><span class="w"> </span>RooRealVar::resolution<span class="w"> </span><span class="s2">&quot;#sigma&quot;</span>
-<span class="w">    </span><span class="o">(</span>0x10dcd4278,V-<span class="o">)</span><span class="w"> </span>RooRealVar::m<span class="w"> </span><span class="s2">&quot;m (GeV)&quot;</span>
+<span class="w">    </span><span class="o">(</span>0x10dcd47b0,V-<span class="o">)</span><span class="w"> </span>RooRealVar::resolution<span class="w"> </span><span class="s2">"#sigma"</span>
+<span class="w">    </span><span class="o">(</span>0x10dcd4278,V-<span class="o">)</span><span class="w"> </span>RooRealVar::m<span class="w"> </span><span class="s2">"m (GeV)"</span>
 <span class="w">  </span>Proxies:
 <span class="w">    </span>actualVars<span class="w"> </span>-&gt;
 <span class="w">      </span><span class="m">1</span><span class="o">)</span><span class="w">  </span>resolution
 <span class="w">      </span><span class="m">2</span><span class="o">)</span><span class="w">           </span>m
 ---<span class="w"> </span>RooAbsReal<span class="w"> </span>---
 
-<span class="w">  </span>Plot<span class="w"> </span>label<span class="w"> </span>is<span class="w"> </span><span class="s2">&quot;R&quot;</span>
+<span class="w">  </span>Plot<span class="w"> </span>label<span class="w"> </span>is<span class="w"> </span><span class="s2">"R"</span>
 <span class="w">    </span>---<span class="w"> </span>RooFormula<span class="w"> </span>---
-<span class="w">    </span>Formula:<span class="w"> </span><span class="s2">&quot;@0/@1&quot;</span>
+<span class="w">    </span>Formula:<span class="w"> </span><span class="s2">"@0/@1"</span>
 <span class="w">    </span><span class="o">(</span>resolution,m<span class="o">)</span>
 </code></pre></div>
 </details>
@@ -2080,7 +2080,7 @@ The most basic of these is the <code>RooRealVar</code>. We will create one that 
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="n">TCanvas</span><span class="w"> </span><span class="o">*</span><span class="n">can</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TCanvas</span><span class="p">();</span>
 
-<span class="c1">//make the x-axis the &quot;mass&quot;</span>
+<span class="c1">//make the x-axis the "mass"</span>
 <span class="n">RooPlot</span><span class="w"> </span><span class="o">*</span><span class="n">plot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mass</span><span class="p">.</span><span class="n">frame</span><span class="p">();</span>
 <span class="n">func</span><span class="p">.</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">);</span>
 
@@ -2161,13 +2161,13 @@ f(m|M_{H},\sigma)
 <div class="tabbed-set tabbed-alternate" data-tabs="7:2"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">C++</label><label for="__tabbed_7_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">RooGaussian</span><span class="w"> </span><span class="n">gauss</span><span class="p">(</span><span class="s">&quot;gauss&quot;</span><span class="p">,</span><span class="s">&quot;f(m|M_{H},#sigma)&quot;</span><span class="p">,</span><span class="n">mass</span><span class="p">,</span><span class="n">MH</span><span class="p">,</span><span class="n">sigma</span><span class="p">);</span>
-<span class="n">gauss</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;V&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="n">RooGaussian</span><span class="w"> </span><span class="n">gauss</span><span class="p">(</span><span class="s">"gauss"</span><span class="p">,</span><span class="s">"f(m|M_{H},#sigma)"</span><span class="p">,</span><span class="n">mass</span><span class="p">,</span><span class="n">MH</span><span class="p">,</span><span class="n">sigma</span><span class="p">);</span>
+<span class="n">gauss</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="s">"V"</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">gauss</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooGaussian</span><span class="p">(</span><span class="s2">&quot;gauss&quot;</span><span class="p">,</span> <span class="s2">&quot;f(m|M_</span><span class="si">{H}</span><span class="s2">,#sigma)&quot;</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">MH</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
-<span class="n">gauss</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">&quot;V&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">gauss</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooGaussian</span><span class="p">(</span><span class="s2">"gauss"</span><span class="p">,</span> <span class="s2">"f(m|M_</span><span class="si">{H}</span><span class="s2">,#sigma)"</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">MH</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+<span class="n">gauss</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">"V"</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -2182,16 +2182,16 @@ f(m|M_{H},\sigma)
 <span class="w">  </span>Address:<span class="w"> </span>0x10ecf4188
 <span class="w">  </span>Clients:
 <span class="w">  </span>Servers:
-<span class="w">    </span><span class="o">(</span>0x10dcd4278,V-<span class="o">)</span><span class="w"> </span>RooRealVar::m<span class="w"> </span><span class="s2">&quot;m (GeV)&quot;</span>
-<span class="w">    </span><span class="o">(</span>0x10a08a9d8,V-<span class="o">)</span><span class="w"> </span>RooRealVar::MH<span class="w"> </span><span class="s2">&quot;mass of the Hypothetical Boson (H-boson) in GeV&quot;</span>
-<span class="w">    </span><span class="o">(</span>0x10dcd47b0,V-<span class="o">)</span><span class="w"> </span>RooRealVar::resolution<span class="w"> </span><span class="s2">&quot;#sigma&quot;</span>
+<span class="w">    </span><span class="o">(</span>0x10dcd4278,V-<span class="o">)</span><span class="w"> </span>RooRealVar::m<span class="w"> </span><span class="s2">"m (GeV)"</span>
+<span class="w">    </span><span class="o">(</span>0x10a08a9d8,V-<span class="o">)</span><span class="w"> </span>RooRealVar::MH<span class="w"> </span><span class="s2">"mass of the Hypothetical Boson (H-boson) in GeV"</span>
+<span class="w">    </span><span class="o">(</span>0x10dcd47b0,V-<span class="o">)</span><span class="w"> </span>RooRealVar::resolution<span class="w"> </span><span class="s2">"#sigma"</span>
 <span class="w">  </span>Proxies:
 <span class="w">    </span>x<span class="w"> </span>-&gt;<span class="w"> </span>m
 <span class="w">    </span>mean<span class="w"> </span>-&gt;<span class="w"> </span>MH
 <span class="w">    </span>sigma<span class="w"> </span>-&gt;<span class="w"> </span>resolution
 ---<span class="w"> </span>RooAbsReal<span class="w"> </span>---
 
-<span class="w">  </span>Plot<span class="w"> </span>label<span class="w"> </span>is<span class="w"> </span><span class="s2">&quot;gauss&quot;</span>
+<span class="w">  </span>Plot<span class="w"> </span>label<span class="w"> </span>is<span class="w"> </span><span class="s2">"gauss"</span>
 ---<span class="w"> </span>RooAbsPdf<span class="w"> </span>---
 Cached<span class="w"> </span><span class="nv">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
 </code></pre></div>
@@ -2405,8 +2405,8 @@ if (typeof requirejs !== 'undefined') {
 <div class="tabbed-set tabbed-alternate" data-tabs="11:2"><input checked="checked" id="__tabbed_11_1" name="__tabbed_11" type="radio" /><input id="__tabbed_11_2" name="__tabbed_11" type="radio" /><div class="tabbed-labels"><label for="__tabbed_11_1">C++</label><label for="__tabbed_11_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">RooDataSet</span><span class="w"> </span><span class="n">mydata</span><span class="p">(</span><span class="s">&quot;dummy&quot;</span><span class="p">,</span><span class="s">&quot;My dummy dataset&quot;</span><span class="p">,</span><span class="n">RooArgSet</span><span class="p">(</span><span class="n">mass</span><span class="p">));</span>
-<span class="c1">// We&#39;ve made a dataset with one observable (mass)</span>
+<div class="highlight"><pre><span></span><code><span class="n">RooDataSet</span><span class="w"> </span><span class="n">mydata</span><span class="p">(</span><span class="s">"dummy"</span><span class="p">,</span><span class="s">"My dummy dataset"</span><span class="p">,</span><span class="n">RooArgSet</span><span class="p">(</span><span class="n">mass</span><span class="p">));</span>
+<span class="c1">// We've made a dataset with one observable (mass)</span>
 
 <span class="n">mass</span><span class="p">.</span><span class="n">setVal</span><span class="p">(</span><span class="mf">123.4</span><span class="p">);</span>
 <span class="n">mydata</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">RooArgSet</span><span class="p">(</span><span class="n">mass</span><span class="p">));</span>
@@ -2419,7 +2419,7 @@ if (typeof requirejs !== 'undefined') {
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">mydata</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooDataSet</span><span class="p">(</span><span class="s2">&quot;dummy&quot;</span><span class="p">,</span><span class="s2">&quot;My dummy dataset&quot;</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooArgSet</span><span class="p">(</span><span class="n">mass</span><span class="p">))</span> <span class="c1"># We&#39;ve made a dataset with one observable (mass)</span>
+<div class="highlight"><pre><span></span><code><span class="n">mydata</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooDataSet</span><span class="p">(</span><span class="s2">"dummy"</span><span class="p">,</span><span class="s2">"My dummy dataset"</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooArgSet</span><span class="p">(</span><span class="n">mass</span><span class="p">))</span> <span class="c1"># We've made a dataset with one observable (mass)</span>
 
 <span class="n">mass</span><span class="o">.</span><span class="n">setVal</span><span class="p">(</span><span class="mf">123.4</span><span class="p">)</span>
 <span class="n">mydata</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">RooArgSet</span><span class="p">(</span><span class="n">mass</span><span class="p">))</span>
@@ -2443,12 +2443,12 @@ if (typeof requirejs !== 'undefined') {
 <div class="tabbed-set tabbed-alternate" data-tabs="12:2"><input checked="checked" id="__tabbed_12_1" name="__tabbed_12" type="radio" /><input id="__tabbed_12_2" name="__tabbed_12" type="radio" /><div class="tabbed-labels"><label for="__tabbed_12_1">C++</label><label for="__tabbed_12_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">TFile</span><span class="w"> </span><span class="o">*</span><span class="n">file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TFile</span><span class="o">::</span><span class="n">Open</span><span class="p">(</span><span class="s">&quot;tutorial.root&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="n">TFile</span><span class="w"> </span><span class="o">*</span><span class="n">file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TFile</span><span class="o">::</span><span class="n">Open</span><span class="p">(</span><span class="s">"tutorial.root"</span><span class="p">);</span>
 <span class="n">file</span><span class="o">-&gt;</span><span class="n">ls</span><span class="p">();</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">file</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TFile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="s2">&quot;tutorial.root&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">file</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TFile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="s2">"tutorial.root"</span><span class="p">)</span>
 <span class="n">file</span><span class="o">.</span><span class="n">ls</span><span class="p">()</span>
 </code></pre></div>
 </div>
@@ -2468,13 +2468,13 @@ if (typeof requirejs !== 'undefined') {
 <div class="tabbed-set tabbed-alternate" data-tabs="13:2"><input checked="checked" id="__tabbed_13_1" name="__tabbed_13" type="radio" /><input id="__tabbed_13_2" name="__tabbed_13" type="radio" /><div class="tabbed-labels"><label for="__tabbed_13_1">C++</label><label for="__tabbed_13_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">RooWorkspace</span><span class="w"> </span><span class="o">*</span><span class="n">wspace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">RooWorkspace</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">file</span><span class="o">-&gt;</span><span class="n">Get</span><span class="p">(</span><span class="s">&quot;workspace&quot;</span><span class="p">);</span>
-<span class="n">wspace</span><span class="o">-&gt;</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="n">RooWorkspace</span><span class="w"> </span><span class="o">*</span><span class="n">wspace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">RooWorkspace</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">file</span><span class="o">-&gt;</span><span class="n">Get</span><span class="p">(</span><span class="s">"workspace"</span><span class="p">);</span>
+<span class="n">wspace</span><span class="o">-&gt;</span><span class="n">Print</span><span class="p">(</span><span class="s">"v"</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">wspace</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s2">&quot;workspace&quot;</span><span class="p">)</span>
-<span class="n">wspace</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">wspace</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s2">"workspace"</span><span class="p">)</span>
+<span class="n">wspace</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">"v"</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -2499,13 +2499,13 @@ There are also <code>RooWorkspace::var</code>, <code>RooWorkspace::function</cod
 <div class="tabbed-set tabbed-alternate" data-tabs="14:2"><input checked="checked" id="__tabbed_14_1" name="__tabbed_14" type="radio" /><input id="__tabbed_14_2" name="__tabbed_14" type="radio" /><div class="tabbed-labels"><label for="__tabbed_14_1">C++</label><label for="__tabbed_14_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">RooDataSet</span><span class="w"> </span><span class="o">*</span><span class="n">hgg_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">RooDataSet</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">wspace</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">(</span><span class="s">&quot;dataset&quot;</span><span class="p">);</span>
-<span class="n">RooRealVar</span><span class="w"> </span><span class="o">*</span><span class="n">hgg_mass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">RooRealVar</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">wspace</span><span class="o">-&gt;</span><span class="n">var</span><span class="p">(</span><span class="s">&quot;CMS_hgg_mass&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="n">RooDataSet</span><span class="w"> </span><span class="o">*</span><span class="n">hgg_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">RooDataSet</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">wspace</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">(</span><span class="s">"dataset"</span><span class="p">);</span>
+<span class="n">RooRealVar</span><span class="w"> </span><span class="o">*</span><span class="n">hgg_mass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">RooRealVar</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">wspace</span><span class="o">-&gt;</span><span class="n">var</span><span class="p">(</span><span class="s">"CMS_hgg_mass"</span><span class="p">);</span>
 
 <span class="n">plot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hgg_mass</span><span class="o">-&gt;</span><span class="n">frame</span><span class="p">();</span>
 
 <span class="n">hgg_data</span><span class="o">-&gt;</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span><span class="n">RooFit</span><span class="o">::</span><span class="n">Binning</span><span class="p">(</span><span class="mi">160</span><span class="p">));</span>
-<span class="c1">// Here we&#39;ve picked a certain number of bins just for plotting purposes</span>
+<span class="c1">// Here we've picked a certain number of bins just for plotting purposes</span>
 
 <span class="n">TCanvas</span><span class="w"> </span><span class="o">*</span><span class="n">hggcan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TCanvas</span><span class="p">();</span>
 <span class="n">plot</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">();</span>
@@ -2514,8 +2514,8 @@ There are also <code>RooWorkspace::var</code>, <code>RooWorkspace::function</cod
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">hgg_data</span> <span class="o">=</span> <span class="n">wspace</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
-<span class="n">hgg_mass</span> <span class="o">=</span> <span class="n">wspace</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="s2">&quot;CMS_hgg_mass&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">hgg_data</span> <span class="o">=</span> <span class="n">wspace</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s2">"dataset"</span><span class="p">)</span>
+<span class="n">hgg_mass</span> <span class="o">=</span> <span class="n">wspace</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="s2">"CMS_hgg_mass"</span><span class="p">)</span>
 
 <span class="n">plot</span> <span class="o">=</span> <span class="n">hgg_mass</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
 
@@ -2594,13 +2594,13 @@ if (typeof requirejs !== 'undefined') {
 <div class="tabbed-set tabbed-alternate" data-tabs="15:2"><input checked="checked" id="__tabbed_15_1" name="__tabbed_15" type="radio" /><input id="__tabbed_15_2" name="__tabbed_15" type="radio" /><div class="tabbed-labels"><label for="__tabbed_15_1">C++</label><label for="__tabbed_15_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">RooRealVar</span><span class="w"> </span><span class="n">alpha</span><span class="p">(</span><span class="s">&quot;alpha&quot;</span><span class="p">,</span><span class="s">&quot;#alpha&quot;</span><span class="p">,</span><span class="mf">-0.05</span><span class="p">,</span><span class="mf">-0.2</span><span class="p">,</span><span class="mf">0.01</span><span class="p">);</span>
-<span class="n">RooExponential</span><span class="w"> </span><span class="n">expo</span><span class="p">(</span><span class="s">&quot;exp&quot;</span><span class="p">,</span><span class="s">&quot;exponential function&quot;</span><span class="p">,</span><span class="o">*</span><span class="n">hgg_mass</span><span class="p">,</span><span class="n">alpha</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="n">RooRealVar</span><span class="w"> </span><span class="n">alpha</span><span class="p">(</span><span class="s">"alpha"</span><span class="p">,</span><span class="s">"#alpha"</span><span class="p">,</span><span class="mf">-0.05</span><span class="p">,</span><span class="mf">-0.2</span><span class="p">,</span><span class="mf">0.01</span><span class="p">);</span>
+<span class="n">RooExponential</span><span class="w"> </span><span class="n">expo</span><span class="p">(</span><span class="s">"exp"</span><span class="p">,</span><span class="s">"exponential function"</span><span class="p">,</span><span class="o">*</span><span class="n">hgg_mass</span><span class="p">,</span><span class="n">alpha</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">alpha</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">&quot;alpha&quot;</span><span class="p">,</span> <span class="s2">&quot;#alpha&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.05</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-<span class="n">expo</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooExponential</span><span class="p">(</span><span class="s2">&quot;exp&quot;</span><span class="p">,</span><span class="s2">&quot;exponential function&quot;</span><span class="p">,</span> <span class="n">hgg_mass</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">alpha</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">"alpha"</span><span class="p">,</span> <span class="s2">"#alpha"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.05</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+<span class="n">expo</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooExponential</span><span class="p">(</span><span class="s2">"exp"</span><span class="p">,</span><span class="s2">"exponential function"</span><span class="p">,</span> <span class="n">hgg_mass</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -2621,7 +2621,7 @@ if (typeof requirejs !== 'undefined') {
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="n">RooNLLVar</span><span class="w"> </span><span class="o">*</span><span class="n">nll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">RooNLLVar</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">expo</span><span class="p">.</span><span class="n">createNLL</span><span class="p">(</span><span class="o">*</span><span class="n">hgg_data</span><span class="p">);</span>
-<span class="n">nll</span><span class="o">-&gt;</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">);</span>
+<span class="n">nll</span><span class="o">-&gt;</span><span class="n">Print</span><span class="p">(</span><span class="s">"v"</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
@@ -2641,13 +2641,13 @@ if (typeof requirejs !== 'undefined') {
 <span class="w">  </span>Address:<span class="w"> </span>0x7fdddbe46200
 <span class="w">  </span>Clients:
 <span class="w">  </span>Servers:
-<span class="w">    </span><span class="o">(</span>0x11eab5638,V-<span class="o">)</span><span class="w"> </span>RooRealVar::alpha<span class="w"> </span><span class="s2">&quot;#alpha&quot;</span>
+<span class="w">    </span><span class="o">(</span>0x11eab5638,V-<span class="o">)</span><span class="w"> </span>RooRealVar::alpha<span class="w"> </span><span class="s2">"#alpha"</span>
 <span class="w">  </span>Proxies:
 <span class="w">    </span>paramSet<span class="w"> </span>-&gt;
 <span class="w">      </span><span class="m">1</span><span class="o">)</span><span class="w">  </span>alpha
 ---<span class="w"> </span>RooAbsReal<span class="w"> </span>---
 
-<span class="w">  </span>Plot<span class="w"> </span>label<span class="w"> </span>is<span class="w"> </span><span class="s2">&quot;nll_exp_dataset&quot;</span>
+<span class="w">  </span>Plot<span class="w"> </span>label<span class="w"> </span>is<span class="w"> </span><span class="s2">"nll_exp_dataset"</span>
 </code></pre></div>
 </details>
 
@@ -2657,12 +2657,12 @@ if (typeof requirejs !== 'undefined') {
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="n">RooMinimizer</span><span class="w"> </span><span class="nf">minim</span><span class="p">(</span><span class="o">*</span><span class="n">nll</span><span class="p">);</span>
-<span class="n">minim</span><span class="p">.</span><span class="n">minimize</span><span class="p">(</span><span class="s">&quot;Minuit2&quot;</span><span class="p">,</span><span class="s">&quot;migrad&quot;</span><span class="p">);</span>
+<span class="n">minim</span><span class="p">.</span><span class="n">minimize</span><span class="p">(</span><span class="s">"Minuit2"</span><span class="p">,</span><span class="s">"migrad"</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="n">minim</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooMinimizer</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
-<span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">&quot;Minuit2&quot;</span><span class="p">,</span> <span class="s2">&quot;migrad&quot;</span><span class="p">)</span>
+<span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">"Minuit2"</span><span class="p">,</span> <span class="s2">"migrad"</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -2718,11 +2718,11 @@ if (typeof requirejs !== 'undefined') {
 <div class="tabbed-set tabbed-alternate" data-tabs="18:2"><input checked="checked" id="__tabbed_18_1" name="__tabbed_18" type="radio" /><input id="__tabbed_18_2" name="__tabbed_18" type="radio" /><div class="tabbed-labels"><label for="__tabbed_18_1">C++</label><label for="__tabbed_18_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">alpha</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="n">alpha</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="s">"v"</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">alpha</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">alpha</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">"v"</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -2734,15 +2734,15 @@ if (typeof requirejs !== 'undefined') {
 <span class="w">  </span>Attributes:
 <span class="w">  </span>Address:<span class="w"> </span>0x11eab5638
 <span class="w">  </span>Clients:
-<span class="w">    </span><span class="o">(</span>0x11eab5978,V-<span class="o">)</span><span class="w"> </span>RooExponential::exp<span class="w"> </span><span class="s2">&quot;exponential function&quot;</span>
-<span class="w">    </span><span class="o">(</span>0x7fdddbe46200,V-<span class="o">)</span><span class="w"> </span>RooNLLVar::nll_exp_dataset<span class="w"> </span><span class="s2">&quot;-log(likelihood)&quot;</span>
-<span class="w">    </span><span class="o">(</span>0x7fdddbe95600,V-<span class="o">)</span><span class="w"> </span>RooExponential::exp<span class="w"> </span><span class="s2">&quot;exponential function&quot;</span>
-<span class="w">    </span><span class="o">(</span>0x7fdddbe5a400,V-<span class="o">)</span><span class="w"> </span>RooRealIntegral::exp_Int<span class="o">[</span>CMS_hgg_mass<span class="o">]</span><span class="w"> </span><span class="s2">&quot;Integral of exponential function&quot;</span>
+<span class="w">    </span><span class="o">(</span>0x11eab5978,V-<span class="o">)</span><span class="w"> </span>RooExponential::exp<span class="w"> </span><span class="s2">"exponential function"</span>
+<span class="w">    </span><span class="o">(</span>0x7fdddbe46200,V-<span class="o">)</span><span class="w"> </span>RooNLLVar::nll_exp_dataset<span class="w"> </span><span class="s2">"-log(likelihood)"</span>
+<span class="w">    </span><span class="o">(</span>0x7fdddbe95600,V-<span class="o">)</span><span class="w"> </span>RooExponential::exp<span class="w"> </span><span class="s2">"exponential function"</span>
+<span class="w">    </span><span class="o">(</span>0x7fdddbe5a400,V-<span class="o">)</span><span class="w"> </span>RooRealIntegral::exp_Int<span class="o">[</span>CMS_hgg_mass<span class="o">]</span><span class="w"> </span><span class="s2">"Integral of exponential function"</span>
 <span class="w">  </span>Servers:
 <span class="w">  </span>Proxies:
 ---<span class="w"> </span>RooAbsReal<span class="w"> </span>---
 
-<span class="w">  </span>Plot<span class="w"> </span>label<span class="w"> </span>is<span class="w"> </span><span class="s2">&quot;alpha&quot;</span>
+<span class="w">  </span>Plot<span class="w"> </span>label<span class="w"> </span>is<span class="w"> </span><span class="s2">"alpha"</span>
 ---<span class="w"> </span>RooAbsRealLValue<span class="w"> </span>---
 <span class="w">  </span>Fit<span class="w"> </span>range<span class="w"> </span>is<span class="w"> </span><span class="o">[</span><span class="w"> </span>-0.2<span class="w"> </span>,<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="o">]</span>
 ---<span class="w"> </span>RooRealVar<span class="w"> </span>---
@@ -2838,7 +2838,7 @@ if (typeof requirejs !== 'undefined') {
 <span class="n">MH</span><span class="p">.</span><span class="n">setVal</span><span class="p">(</span><span class="mi">125</span><span class="p">);</span>
 <span class="n">MH</span><span class="p">.</span><span class="n">setConstant</span><span class="p">();</span>
 
-<span class="n">RooGaussian</span><span class="w"> </span><span class="n">hgg_signal</span><span class="p">(</span><span class="s">&quot;signal&quot;</span><span class="p">,</span><span class="s">&quot;Gaussian PDF&quot;</span><span class="p">,</span><span class="o">*</span><span class="n">hgg_mass</span><span class="p">,</span><span class="n">MH</span><span class="p">,</span><span class="n">sigma</span><span class="p">);</span>
+<span class="n">RooGaussian</span><span class="w"> </span><span class="n">hgg_signal</span><span class="p">(</span><span class="s">"signal"</span><span class="p">,</span><span class="s">"Gaussian PDF"</span><span class="p">,</span><span class="o">*</span><span class="n">hgg_mass</span><span class="p">,</span><span class="n">MH</span><span class="p">,</span><span class="n">sigma</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
@@ -2848,7 +2848,7 @@ if (typeof requirejs !== 'undefined') {
 <span class="n">MH</span><span class="o">.</span><span class="n">setVal</span><span class="p">(</span><span class="mi">125</span><span class="p">)</span>
 <span class="n">MH</span><span class="o">.</span><span class="n">setConstant</span><span class="p">()</span>
 
-<span class="n">hgg_signal</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooGaussian</span><span class="p">(</span><span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;Gaussian PDF&quot;</span><span class="p">,</span> <span class="n">hgg_mass</span><span class="p">,</span> <span class="n">MH</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+<span class="n">hgg_signal</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooGaussian</span><span class="p">(</span><span class="s2">"signal"</span><span class="p">,</span> <span class="s2">"Gaussian PDF"</span><span class="p">,</span> <span class="n">hgg_mass</span><span class="p">,</span> <span class="n">MH</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -2858,25 +2858,25 @@ if (typeof requirejs !== 'undefined') {
 <div class="tabbed-set tabbed-alternate" data-tabs="21:2"><input checked="checked" id="__tabbed_21_1" name="__tabbed_21" type="radio" /><input id="__tabbed_21_2" name="__tabbed_21" type="radio" /><div class="tabbed-labels"><label for="__tabbed_21_1">C++</label><label for="__tabbed_21_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">RooRealVar</span><span class="w"> </span><span class="n">norm_s</span><span class="p">(</span><span class="s">&quot;norm_s&quot;</span><span class="p">,</span><span class="s">&quot;N_{s}&quot;</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">100</span><span class="p">);</span>
-<span class="n">RooRealVar</span><span class="w"> </span><span class="n">norm_b</span><span class="p">(</span><span class="s">&quot;norm_b&quot;</span><span class="p">,</span><span class="s">&quot;N_{b}&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="n">RooRealVar</span><span class="w"> </span><span class="n">norm_s</span><span class="p">(</span><span class="s">"norm_s"</span><span class="p">,</span><span class="s">"N_{s}"</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">100</span><span class="p">);</span>
+<span class="n">RooRealVar</span><span class="w"> </span><span class="n">norm_b</span><span class="p">(</span><span class="s">"norm_b"</span><span class="p">,</span><span class="s">"N_{b}"</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">);</span>
 
 <span class="k">const</span><span class="w"> </span><span class="n">RooArgList</span><span class="w"> </span><span class="nf">components</span><span class="p">(</span><span class="n">hgg_signal</span><span class="p">,</span><span class="n">expo</span><span class="p">);</span>
 <span class="k">const</span><span class="w"> </span><span class="n">RooArgList</span><span class="w"> </span><span class="nf">coeffs</span><span class="p">(</span><span class="n">norm_s</span><span class="p">,</span><span class="n">norm_b</span><span class="p">);</span>
 
-<span class="n">RooAddPdf</span><span class="w"> </span><span class="n">model</span><span class="p">(</span><span class="s">&quot;model&quot;</span><span class="p">,</span><span class="s">&quot;f_{s+b}&quot;</span><span class="p">,</span><span class="n">components</span><span class="p">,</span><span class="n">coeffs</span><span class="p">);</span>
-<span class="n">model</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">);</span>
+<span class="n">RooAddPdf</span><span class="w"> </span><span class="n">model</span><span class="p">(</span><span class="s">"model"</span><span class="p">,</span><span class="s">"f_{s+b}"</span><span class="p">,</span><span class="n">components</span><span class="p">,</span><span class="n">coeffs</span><span class="p">);</span>
+<span class="n">model</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="s">"v"</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">norm_s</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">&quot;norm_s&quot;</span><span class="p">,</span><span class="s2">&quot;N_</span><span class="si">{s}</span><span class="s2">&quot;</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
-<span class="n">norm_b</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">&quot;norm_b&quot;</span><span class="p">,</span><span class="s2">&quot;N_</span><span class="si">{b}</span><span class="s2">&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">norm_s</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">"norm_s"</span><span class="p">,</span><span class="s2">"N_</span><span class="si">{s}</span><span class="s2">"</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">norm_b</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooRealVar</span><span class="p">(</span><span class="s2">"norm_b"</span><span class="p">,</span><span class="s2">"N_</span><span class="si">{b}</span><span class="s2">"</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
 
 <span class="n">components</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">hgg_signal</span><span class="p">,</span><span class="n">expo</span><span class="p">)</span>
 <span class="n">coeffs</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooArgList</span><span class="p">(</span><span class="n">norm_s</span><span class="p">,</span><span class="n">norm_b</span><span class="p">)</span>
 
-<span class="n">model</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooAddPdf</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">,</span><span class="s2">&quot;f_{s+b}&quot;</span><span class="p">,</span><span class="n">components</span><span class="p">,</span><span class="n">coeffs</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooAddPdf</span><span class="p">(</span><span class="s2">"model"</span><span class="p">,</span><span class="s2">"f_{s+b}"</span><span class="p">,</span><span class="n">components</span><span class="p">,</span><span class="n">coeffs</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">"v"</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -2890,10 +2890,10 @@ if (typeof requirejs !== 'undefined') {
 <span class="w">  </span>Address:<span class="w"> </span>0x11ed5d7a8
 <span class="w">  </span>Clients:
 <span class="w">  </span>Servers:
-<span class="w">    </span><span class="o">(</span>0x11ed5a0f0,V-<span class="o">)</span><span class="w"> </span>RooGaussian::signal<span class="w"> </span><span class="s2">&quot;Gaussian PDF&quot;</span>
-<span class="w">    </span><span class="o">(</span>0x11ed5d058,V-<span class="o">)</span><span class="w"> </span>RooRealVar::norm_s<span class="w"> </span><span class="s2">&quot;N_{s}&quot;</span>
-<span class="w">    </span><span class="o">(</span>0x11eab5978,V-<span class="o">)</span><span class="w"> </span>RooExponential::exp<span class="w"> </span><span class="s2">&quot;exponential function&quot;</span>
-<span class="w">    </span><span class="o">(</span>0x11ed5d398,V-<span class="o">)</span><span class="w"> </span>RooRealVar::norm_b<span class="w"> </span><span class="s2">&quot;N_{b}&quot;</span>
+<span class="w">    </span><span class="o">(</span>0x11ed5a0f0,V-<span class="o">)</span><span class="w"> </span>RooGaussian::signal<span class="w"> </span><span class="s2">"Gaussian PDF"</span>
+<span class="w">    </span><span class="o">(</span>0x11ed5d058,V-<span class="o">)</span><span class="w"> </span>RooRealVar::norm_s<span class="w"> </span><span class="s2">"N_{s}"</span>
+<span class="w">    </span><span class="o">(</span>0x11eab5978,V-<span class="o">)</span><span class="w"> </span>RooExponential::exp<span class="w"> </span><span class="s2">"exponential function"</span>
+<span class="w">    </span><span class="o">(</span>0x11ed5d398,V-<span class="o">)</span><span class="w"> </span>RooRealVar::norm_b<span class="w"> </span><span class="s2">"N_{b}"</span>
 <span class="w">  </span>Proxies:
 <span class="w">    </span>!refCoefNorm<span class="w"> </span>-&gt;
 <span class="w">    </span>!pdfs<span class="w"> </span>-&gt;
@@ -2904,7 +2904,7 @@ if (typeof requirejs !== 'undefined') {
 <span class="w">      </span><span class="m">2</span><span class="o">)</span><span class="w">  </span>norm_b
 ---<span class="w"> </span>RooAbsReal<span class="w"> </span>---
 
-<span class="w">  </span>Plot<span class="w"> </span>label<span class="w"> </span>is<span class="w"> </span><span class="s2">&quot;model&quot;</span>
+<span class="w">  </span>Plot<span class="w"> </span>label<span class="w"> </span>is<span class="w"> </span><span class="s2">"model"</span>
 ---<span class="w"> </span>RooAbsPdf<span class="w"> </span>---
 Cached<span class="w"> </span><span class="nv">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
 </code></pre></div>
@@ -2919,7 +2919,7 @@ Cached<span class="w"> </span><span class="nv">value</span><span class="w"> </sp
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="n">model</span><span class="p">.</span><span class="n">fitTo</span><span class="p">(</span><span class="o">*</span><span class="n">hgg_data</span><span class="p">,</span><span class="n">RooFit</span><span class="o">::</span><span class="n">Extended</span><span class="p">());</span>
 
-<span class="n">model</span><span class="p">.</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span><span class="n">RooFit</span><span class="o">::</span><span class="n">Components</span><span class="p">(</span><span class="s">&quot;exp&quot;</span><span class="p">),</span><span class="n">RooFit</span><span class="o">::</span><span class="n">LineColor</span><span class="p">(</span><span class="n">kGreen</span><span class="p">));</span>
+<span class="n">model</span><span class="p">.</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span><span class="n">RooFit</span><span class="o">::</span><span class="n">Components</span><span class="p">(</span><span class="s">"exp"</span><span class="p">),</span><span class="n">RooFit</span><span class="o">::</span><span class="n">LineColor</span><span class="p">(</span><span class="n">kGreen</span><span class="p">));</span>
 <span class="n">model</span><span class="p">.</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span><span class="n">RooFit</span><span class="o">::</span><span class="n">LineColor</span><span class="p">(</span><span class="n">kRed</span><span class="p">));</span>
 <span class="n">model</span><span class="p">.</span><span class="n">paramOn</span><span class="p">(</span><span class="n">plot</span><span class="p">);</span>
 
@@ -2937,7 +2937,7 @@ Cached<span class="w"> </span><span class="nv">value</span><span class="w"> </sp
 
 <span class="n">model</span><span class="o">.</span><span class="n">fitTo</span><span class="p">(</span><span class="n">hgg_data</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFit</span><span class="o">.</span><span class="n">Extended</span><span class="p">())</span>
 
-<span class="n">model</span><span class="o">.</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFit</span><span class="o">.</span><span class="n">Components</span><span class="p">(</span><span class="s2">&quot;exp&quot;</span><span class="p">),</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFit</span><span class="o">.</span><span class="n">LineColor</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">kGreen</span><span class="p">));</span>
+<span class="n">model</span><span class="o">.</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFit</span><span class="o">.</span><span class="n">Components</span><span class="p">(</span><span class="s2">"exp"</span><span class="p">),</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFit</span><span class="o">.</span><span class="n">LineColor</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">kGreen</span><span class="p">));</span>
 <span class="n">model</span><span class="o">.</span><span class="n">plotOn</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooFit</span><span class="o">.</span><span class="n">LineColor</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">kRed</span><span class="p">));</span>
 <span class="n">model</span><span class="o">.</span><span class="n">paramOn</span><span class="p">(</span><span class="n">plot</span><span class="p">);</span>
 
@@ -3161,16 +3161,16 @@ We can get more information about the fit, via the <code>RooFitResult</code>, us
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="n">wspace</span><span class="o">-&gt;</span><span class="k">import</span><span class="p">(</span><span class="n">model</span><span class="p">);</span>
 <span class="n">RooArgSet</span><span class="w"> </span><span class="o">*</span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span><span class="p">.</span><span class="n">getParameters</span><span class="p">(</span><span class="o">*</span><span class="n">hgg_data</span><span class="p">);</span>
-<span class="n">wspace</span><span class="o">-&gt;</span><span class="n">saveSnapshot</span><span class="p">(</span><span class="s">&quot;nominal_values&quot;</span><span class="p">,</span><span class="o">*</span><span class="n">params</span><span class="p">);</span>
+<span class="n">wspace</span><span class="o">-&gt;</span><span class="n">saveSnapshot</span><span class="p">(</span><span class="s">"nominal_values"</span><span class="p">,</span><span class="o">*</span><span class="n">params</span><span class="p">);</span>
 
-<span class="n">wspace</span><span class="o">-&gt;</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;V&quot;</span><span class="p">);</span>
+<span class="n">wspace</span><span class="o">-&gt;</span><span class="n">Print</span><span class="p">(</span><span class="s">"V"</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="nb">getattr</span><span class="p">(</span><span class="n">wspace</span><span class="p">,</span> <span class="s2">&quot;import&quot;</span><span class="p">)(</span><span class="n">model</span><span class="p">)</span>  
+<div class="highlight"><pre><span></span><code><span class="nb">getattr</span><span class="p">(</span><span class="n">wspace</span><span class="p">,</span> <span class="s2">"import"</span><span class="p">)(</span><span class="n">model</span><span class="p">)</span>  
 <span class="n">params</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">getParameters</span><span class="p">(</span><span class="n">hgg_data</span><span class="p">)</span>
-<span class="n">wspace</span><span class="o">.</span><span class="n">saveSnapshot</span><span class="p">(</span><span class="s2">&quot;nominal_values&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-<span class="n">wspace</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">&quot;V&quot;</span><span class="p">)</span>
+<span class="n">wspace</span><span class="o">.</span><span class="n">saveSnapshot</span><span class="p">(</span><span class="s2">"nominal_values"</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+<span class="n">wspace</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s2">"V"</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -3215,41 +3215,41 @@ The data is the number of observed events <span class="arithmatex">\(N\)</span>,
 <div class="tabbed-set tabbed-alternate" data-tabs="27:2"><input checked="checked" id="__tabbed_27_1" name="__tabbed_27" type="radio" /><input id="__tabbed_27_2" name="__tabbed_27" type="radio" /><div class="tabbed-labels"><label for="__tabbed_27_1">C++</label><label for="__tabbed_27_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">RooWorkspace</span><span class="w"> </span><span class="n">w</span><span class="p">(</span><span class="s">&quot;w&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="n">RooWorkspace</span><span class="w"> </span><span class="n">w</span><span class="p">(</span><span class="s">"w"</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">w</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooWorkspace</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooWorkspace</span><span class="p">(</span><span class="s2">"w"</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
 </div>
 <p>We need to create an expression for the number of events in our model, <span class="arithmatex">\(\mu s +b\)</span>:
 Note that these <code>factory</code> calls look the same in <code>C++</code> or <code>PyROOT</code>. </p>
-<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;expr::n(&quot;mu*s +b&quot;, mu[1.0,0,4], s[5], b[8.1])&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'expr::n("mu*s +b", mu[1.0,0,4], s[5], b[8.1])'</span><span class="p">)</span>
 </code></pre></div>
 <p>Now we can build the likelihood, which is just our Poisson PDF:</p>
-<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Poisson::poisN(N[15],n)&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Poisson::poisN(N[15],n)'</span><span class="p">)</span>
 </code></pre></div>
 <p>To find the best fit value for our parameter of interest <span class="arithmatex">\(\mu\)</span> we need to maximize the likelihood. In practice it is actually easier to minimize the <strong>N</strong>egative <strong>l</strong>og of the <strong>l</strong>ikelihood, or NLL:</p>
-<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;expr::NLL(&quot;-log(@0)&quot;,poisN)&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'expr::NLL("-log(@0)",poisN)'</span><span class="p">)</span>
 </code></pre></div>
 <p>We can now use the <code>RooMinimizer</code> to find the minimum of the NLL.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="28:2"><input checked="checked" id="__tabbed_28_1" name="__tabbed_28" type="radio" /><input id="__tabbed_28_2" name="__tabbed_28" type="radio" /><div class="tabbed-labels"><label for="__tabbed_28_1">C++</label><label for="__tabbed_28_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">RooNLLVar</span><span class="w"> </span><span class="o">*</span><span class="n">nll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="p">.</span><span class="n">function</span><span class="p">(</span><span class="s">&quot;NLL&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="n">RooNLLVar</span><span class="w"> </span><span class="o">*</span><span class="n">nll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="p">.</span><span class="n">function</span><span class="p">(</span><span class="s">"NLL"</span><span class="p">);</span>
 <span class="n">RooMinimizer</span><span class="w"> </span><span class="nf">minim</span><span class="p">(</span><span class="o">*</span><span class="n">nll</span><span class="p">);</span>
 <span class="n">minim</span><span class="p">.</span><span class="n">setErrorLevel</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="n">minim</span><span class="p">.</span><span class="n">minimize</span><span class="p">(</span><span class="s">&quot;Minuit2&quot;</span><span class="p">,</span><span class="s">&quot;migrad&quot;</span><span class="p">)</span>
+<span class="n">minim</span><span class="p">.</span><span class="n">minimize</span><span class="p">(</span><span class="s">"Minuit2"</span><span class="p">,</span><span class="s">"migrad"</span><span class="p">)</span>
 <span class="n">bestfitnll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nll</span><span class="o">-&gt;</span><span class="n">getVal</span><span class="p">()</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">nll</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;NLL&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">nll</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">"NLL"</span><span class="p">)</span>
 <span class="n">minim</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooMinimizer</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
 <span class="n">minim</span><span class="o">.</span><span class="n">setErrorLevel</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">&quot;Minuit2&quot;</span><span class="p">,</span><span class="s2">&quot;migrad&quot;</span><span class="p">)</span>
+<span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">"Minuit2"</span><span class="p">,</span><span class="s2">"migrad"</span><span class="p">)</span>
 <span class="n">bestfitnll</span> <span class="o">=</span> <span class="n">nll</span><span class="o">.</span><span class="n">getVal</span><span class="p">()</span>
 </code></pre></div>
 </div>
@@ -3260,15 +3260,15 @@ Note that these <code>factory</code> calls look the same in <code>C++</code> or 
 <div class="tabbed-set tabbed-alternate" data-tabs="29:2"><input checked="checked" id="__tabbed_29_1" name="__tabbed_29" type="radio" /><input id="__tabbed_29_2" name="__tabbed_29" type="radio" /><div class="tabbed-labels"><label for="__tabbed_29_1">C++</label><label for="__tabbed_29_2">PyROOT</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">RooWorkspace</span><span class="w"> </span><span class="n">w</span><span class="p">(</span><span class="s">&quot;w&quot;</span><span class="p">);</span>
-<span class="n">w</span><span class="p">.</span><span class="n">factory</span><span class="p">(</span><span class="err">&#39;</span><span class="n">expr</span><span class="o">::</span><span class="n">n</span><span class="p">(</span><span class="s">&quot;mu*s*pow(1.025,lumi)+b*pow(1.025,lumi)&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">mu</span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="n">s</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="mf">8.1</span><span class="p">],</span><span class="w"> </span><span class="n">lumi</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">-4</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span><span class="err">&#39;</span><span class="p">);</span>
-<span class="n">w</span><span class="p">.</span><span class="n">factory</span><span class="p">(</span><span class="err">&#39;</span><span class="n">Poisson</span><span class="o">::</span><span class="n">poisN</span><span class="p">(</span><span class="n">N</span><span class="p">[</span><span class="mi">15</span><span class="p">],</span><span class="n">n</span><span class="p">)</span><span class="err">&#39;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="n">RooWorkspace</span><span class="w"> </span><span class="n">w</span><span class="p">(</span><span class="s">"w"</span><span class="p">);</span>
+<span class="n">w</span><span class="p">.</span><span class="n">factory</span><span class="p">(</span><span class="err">'</span><span class="n">expr</span><span class="o">::</span><span class="n">n</span><span class="p">(</span><span class="s">"mu*s*pow(1.025,lumi)+b*pow(1.025,lumi)"</span><span class="p">,</span><span class="w"> </span><span class="n">mu</span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="n">s</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="mf">8.1</span><span class="p">],</span><span class="w"> </span><span class="n">lumi</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">-4</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span><span class="err">'</span><span class="p">);</span>
+<span class="n">w</span><span class="p">.</span><span class="n">factory</span><span class="p">(</span><span class="err">'</span><span class="n">Poisson</span><span class="o">::</span><span class="n">poisN</span><span class="p">(</span><span class="n">N</span><span class="p">[</span><span class="mi">15</span><span class="p">],</span><span class="n">n</span><span class="p">)</span><span class="err">'</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">w</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooWorkspace</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;expr::n(&quot;mu*s*pow(1.025,lumi)+b*pow(1.025,lumi)&quot;, mu[1.0,0,4], s[5], b[8.1], lumi[0,-4,4])&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Poisson::poisN(N[15],n)&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooWorkspace</span><span class="p">(</span><span class="s2">"w"</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'expr::n("mu*s*pow(1.025,lumi)+b*pow(1.025,lumi)", mu[1.0,0,4], s[5], b[8.1], lumi[0,-4,4])'</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Poisson::poisN(N[15],n)'</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -3278,13 +3278,13 @@ Note that these <code>factory</code> calls look the same in <code>C++</code> or 
 </div>
 <p><code>RooFit</code> does not allow one to redefine functions with the same name in the workspace, that's why we defined a new workspace and the poisson function that depended on n.</p>
 <p>And we add a unit gaussian constraint </p>
-<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Gaussian::lumiconstr(lumi,0,1)&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Gaussian::lumiconstr(lumi,0,1)'</span><span class="p">)</span>
 </code></pre></div>
 <p>Our full likelihood will now be obtained with, </p>
-<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;PROD::likelihood(poisN,lumiconstr)&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'PROD::likelihood(poisN,lumiconstr)'</span><span class="p">)</span>
 </code></pre></div>
 <p>and the NLL</p>
-<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;expr::NLL(&quot;-log(@0)&quot;,likelihood)&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'expr::NLL("-log(@0)",likelihood)'</span><span class="p">)</span>
 </code></pre></div>
 <p>Now we will extend our model a bit. </p>
 <ul>
@@ -3296,10 +3296,10 @@ Note that these <code>factory</code> calls look the same in <code>C++</code> or 
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
-<span class="n">w</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooWorkspace</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooWorkspace</span><span class="p">(</span><span class="s2">"w"</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'''</span>
 <span class="s1">    expr::n(</span>
-<span class="s1">    &quot;mu*s*pow(1.025,lumi)*pow(1.05,sigth)+ztt*pow(1.025,lumi)*pow(1.05,zttxs)+tt*pow(1.025,lumi)*pow(1.06,ttxs)&quot;, </span>
+<span class="s1">    "mu*s*pow(1.025,lumi)*pow(1.05,sigth)+ztt*pow(1.025,lumi)*pow(1.05,zttxs)+tt*pow(1.025,lumi)*pow(1.06,ttxs)", </span>
 <span class="s1">    mu[1.0,0,4], </span>
 <span class="s1">    s[5], </span>
 <span class="s1">    ztt[3.7],</span>
@@ -3309,21 +3309,21 @@ Note that these <code>factory</code> calls look the same in <code>C++</code> or 
 <span class="s1">    zttxs[0,-4,4],</span>
 <span class="s1">    ttxs[0,-4,4]</span>
 <span class="s1">    )</span>
-<span class="s1">    &#39;&#39;&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Poisson::poisN(N[15],n)&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Gaussian::lumiconstr(lumi,0,1)&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Gaussian::sigthconstr(sigth,0,1)&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Gaussian::zttxsconstr(zttxs,0,1)&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;Gaussian::ttxsconstr(ttxs,0,1)&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;PROD::likelihood(poisN,lumiconstr,sigthconstr,zttxsconstr,ttxsconstr)&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">&#39;expr::NLL(&quot;-log(@0)&quot;,likelihood)&#39;</span><span class="p">)</span>
+<span class="s1">    '''</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Poisson::poisN(N[15],n)'</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Gaussian::lumiconstr(lumi,0,1)'</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Gaussian::sigthconstr(sigth,0,1)'</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Gaussian::zttxsconstr(zttxs,0,1)'</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'Gaussian::ttxsconstr(ttxs,0,1)'</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'PROD::likelihood(poisN,lumiconstr,sigthconstr,zttxsconstr,ttxsconstr)'</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s1">'expr::NLL("-log(@0)",likelihood)'</span><span class="p">)</span>
 
-<span class="n">nll</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;NLL&quot;</span><span class="p">)</span>
+<span class="n">nll</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s2">"NLL"</span><span class="p">)</span>
 <span class="n">minim</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">RooMinimizer</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
 <span class="n">minim</span><span class="o">.</span><span class="n">setErrorLevel</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="n">minim</span><span class="o">.</span><span class="n">setPrintLevel</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">minim</span><span class="o">.</span><span class="n">setVerbose</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">&quot;Minuit2&quot;</span><span class="p">,</span><span class="s2">&quot;migrad&quot;</span><span class="p">)</span>
+<span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">"Minuit2"</span><span class="p">,</span><span class="s2">"migrad"</span><span class="p">)</span>
 <span class="n">bestfitnll</span> <span class="o">=</span> <span class="n">nll</span><span class="o">.</span><span class="n">getVal</span><span class="p">()</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">profile_lr</span><span class="p">(</span><span class="n">profiled_nll</span><span class="p">,</span> <span class="n">best_nll</span><span class="p">):</span>
@@ -3332,17 +3332,17 @@ Note that these <code>factory</code> calls look the same in <code>C++</code> or 
 <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
 <span class="n">ys</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xs</span><span class="p">:</span>
-    <span class="n">mu</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="s2">&quot;mu&quot;</span><span class="p">)</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="s2">"mu"</span><span class="p">)</span>
     <span class="n">mu</span><span class="o">.</span><span class="n">setVal</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="n">mu</span><span class="o">.</span><span class="n">setConstant</span><span class="p">()</span>
-    <span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">&quot;Minuit2&quot;</span><span class="p">,</span><span class="s2">&quot;migrad&quot;</span><span class="p">)</span>
+    <span class="n">minim</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="s2">"Minuit2"</span><span class="p">,</span><span class="s2">"migrad"</span><span class="p">)</span>
     <span class="n">profiled_nll</span> <span class="o">=</span> <span class="n">nll</span><span class="o">.</span><span class="n">getVal</span><span class="p">()</span>
     <span class="n">ys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_lr</span><span class="p">(</span><span class="n">profiled_nll</span><span class="p">,</span> <span class="n">bestfitnll</span><span class="p">))</span>
 
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NLL scan&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">0.98</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">3.84</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"NLL scan"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">0.98</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"k"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">3.84</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"k"</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
 </code></pre></div>
@@ -3443,10 +3443,10 @@ Note that these <code>factory</code> calls look the same in <code>C++</code> or 
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
       
 
@@ -2281,7 +2281,7 @@ Where "Name" can be specified by you.</p>
 <div class="highlight"><pre><span></span><code><span class="ch">#! /usr/bin/env python</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">simplike</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sl</span>
 
-<span class="n">exec</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s2">&quot;mymodel.py&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+<span class="n">exec</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s2">"mymodel.py"</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 <span class="n">slp1</span> <span class="o">=</span> <span class="n">sl</span><span class="o">.</span><span class="n">SLParams</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">covariance</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">sig</span><span class="o">=</span><span class="n">signal</span><span class="p">)</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -2361,13 +2361,13 @@ cd SLtools
 <p><div class="highlight"><pre><span></span><code><span class="ch">#! /usr/bin/env python</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">simplike</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sl</span>
 
-<span class="n">exec</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s2">&quot;mymodel.py&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+<span class="n">exec</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s2">"mymodel.py"</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
 <span class="n">slp1</span> <span class="o">=</span> <span class="n">sl</span><span class="o">.</span><span class="n">SLParams</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">covariance</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">sig</span><span class="o">=</span><span class="n">signal</span><span class="p">)</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">ROOT</span> 
-<span class="n">fi</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TFile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="s2">&quot;higgsCombineSimpleTH1.MultiDimFit.mH200.root&quot;</span><span class="p">)</span>
-<span class="n">tr</span> <span class="o">=</span> <span class="n">fi</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s2">&quot;limit&quot;</span><span class="p">)</span>
+<span class="n">fi</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TFile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="s2">"higgsCombineSimpleTH1.MultiDimFit.mH200.root"</span><span class="p">)</span>
+<span class="n">tr</span> <span class="o">=</span> <span class="n">fi</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s2">"limit"</span><span class="p">)</span>
 
 <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">()):</span>
@@ -2384,13 +2384,13 @@ cd SLtools
 <span class="n">tmus1</span> <span class="o">=</span> <span class="p">[</span><span class="n">slp1</span><span class="o">.</span><span class="n">tmu</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="n">mus1</span><span class="p">]</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mus1</span><span class="p">,</span><span class="n">tmus1</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;simplified likelihood&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mus2</span><span class="p">,</span><span class="n">tmus2</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;full likelihood&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mus1</span><span class="p">,</span><span class="n">tmus1</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">'simplified likelihood'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mus2</span><span class="p">,</span><span class="n">tmus2</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">'full likelihood'</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;$\mu$&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;$-2\Delta \ln L$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"$\mu$"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"$-2\Delta \ln L$"</span><span class="p">)</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;compareLH.pdf&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">"compareLH.pdf"</span><span class="p">)</span>
 </code></pre></div>
 This will produce a figure like the one below. </p>
 <p><img alt="" src="../SLexample.jpg" /></p>
@@ -2490,10 +2490,10 @@ This will produce a figure like the one below. </p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

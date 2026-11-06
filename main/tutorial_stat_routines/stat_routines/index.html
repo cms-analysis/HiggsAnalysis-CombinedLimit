@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
       
 
@@ -2360,7 +2360,7 @@ For the <code>fixed</code> algorithm, there are two entries stored in the tree f
 In order to select only the values we are interest in we can pass the requirement <code>quantileExpected &gt;= 0</code> to our TTree selection, because combine uses the value <code>-1</code> for <code>quantileExpected</code> to indicate best fit points.</p>
 <p>You can draw the <span class="arithmatex">\(t_{\mu}\)</span> distribution with:</p>
 <div class="highlight"><pre><span></span><code>root -l higgsCombineTest.MultiDimFit.mH120.123456.root
-root [1] &gt; limit-&gt;Draw(&quot;2*deltaNLL&quot;,&quot;quantileExpected &gt;= 0&quot;)
+root [1] &gt; limit-&gt;Draw("2*deltaNLL","quantileExpected &gt;= 0")
 </code></pre></div>
 <p>To test whether or not this point should be rejected, we first define the confidence level of our rejection, say <span class="arithmatex">\(1\sigma\)</span> (approximately 68%), then we use the empirical distribution of the test statistic to estimate the cut-off value of the test statistic.
 This is done for you in the script <code>get_quantile.py</code>, which you can run:</p>
@@ -2599,10 +2599,10 @@ In such cases, some of the quantiles of the expected limits may be very compress
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

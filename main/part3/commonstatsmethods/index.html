@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
       
 
@@ -2897,7 +2897,7 @@ Done in 0.01 min (cpu), 0.01 min (real)
 </div>
 <p>The program will also create a ROOT file <code>higgsCombineTest.AsymptoticLimits.mH120.root</code> containing a ROOT tree <code>limit</code> that contains the limit values and other bookkeeping information. The important columns are <code>limit</code> (the limit value) and <code>quantileExpected</code> (-1 for observed limit, 0.5 for median expected limit, 0.16/0.84 for the edges of the 65% interval band of expected limits, 0.025/0.975 for 95%).</p>
 <div class="highlight"><pre><span></span><code>$ root -l higgsCombineTest.AsymptoticLimits.mH120.root
-root [0] limit-&gt;Scan(&quot;*&quot;)
+root [0] limit-&gt;Scan("*")
 ************************************************************************************************************************************
 *    Row   *     limit *  limitErr *        mh *      syst *      iToy *     iSeed *  iChannel *     t_cpu *    t_real * quantileE *
 ************************************************************************************************************************************
@@ -2980,7 +2980,7 @@ Done in 0.00 min (cpu), 0.01 min (real)
 Limit: r &lt; 0.672292 @ 95% CL
 Done in 0.04 min (cpu), 0.05 min (real)
 </code></pre></div>
-<p>The output tree will contain a single entry corresponding to the observed 95% confidence level upper limit. The confidence level can be modified to <strong>100*X%</strong> using <code>--cl X</code>.</p>
+<p>The output tree will contain a single entry corresponding to the observed 95% confidence level upper limit. The confidence level can be modified to *<em>100<em>X%</em></em> using <code>--cl X</code>.</p>
 <h3 id="computing-the-observed-bayesian-limit-for-arbitrary-models">Computing the observed bayesian limit (for arbitrary models)</h3>
 <p>The <code>MarkovChainMC</code> method computes a Bayesian limit performing a Monte Carlo integration. From the statistical point of view it is identical to the <code>BayesianSimple</code> method, only the technical implementation is different. The method is slower, but can also handle complex models. For this method you can increase the accuracy of the result by increasing the number of Markov Chains, at the expense of a longer running time (option <code>--tries</code>, default is 10). Let's use the realistic counting experiment datacard to test the method.</p>
 <p>To use the MarkovChainMC method, users need to specify this method in the command line, together with the options they want to use. For instance, to set the number of times the algorithm will run with different random seeds, use option <code>--tries</code>:</p>
@@ -3068,7 +3068,7 @@ Burn-in fraction: 0.20 (average burn-in length: 156.5 entries)
 <p>Below is an example of the output of the macro,</p>
 <div class="highlight"><pre><span></span><code><span class="n">$</span><span class="w"> </span><span class="n">root</span><span class="w"> </span><span class="o">-</span><span class="n">l</span><span class="w"> </span><span class="n">higgsCombineTest</span><span class="p">.</span><span class="n">MarkovChainMC</span><span class="p">....</span>
 <span class="p">.</span><span class="n">L</span><span class="w"> </span><span class="n">bayesPosterior2D</span><span class="p">.</span><span class="n">cxx</span>
-<span class="n">bayesPosterior2D</span><span class="p">(</span><span class="s">&quot;bayes2D&quot;</span><span class="p">,</span><span class="s">&quot;Posterior PDF&quot;</span><span class="p">)</span>
+<span class="n">bayesPosterior2D</span><span class="p">(</span><span class="s">"bayes2D"</span><span class="p">,</span><span class="s">"Posterior PDF"</span><span class="p">)</span>
 </code></pre></div>
 <p><img alt="" src="../images/bayes2D.png" /></p>
 <h2 id="computing-limits-with-toys">Computing Limits with toys</h2>
@@ -3311,7 +3311,7 @@ Failed to delete temporary file roostats-Sprxsw.root: No such file or directory
 <p><strong>N.B. The maximum signal strength is set to 20 by default. Hence, if X is greater than 20, the option <code>--rMax X1</code> (where X1 is any value greater than or equal to X) needs to be added to the above command.</strong></p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>We have specified the accuracy here by including <code>--clsAcc=0</code>, which turns off adaptive sampling, and specifying the number of toys to be 500 with the <code>-T N</code> option. For complex models, it may be necessary to internally split the toys over a number of instances of <code>HybridNew</code> using the option <code>--iterations I</code>. The <strong>total</strong> number of toys will be the product <strong>I*N</strong>.</p>
+<p>We have specified the accuracy here by including <code>--clsAcc=0</code>, which turns off adaptive sampling, and specifying the number of toys to be 500 with the <code>-T N</code> option. For complex models, it may be necessary to internally split the toys over a number of instances of <code>HybridNew</code> using the option <code>--iterations I</code>. The <strong>total</strong> number of toys will be the product **I<em>N</em>*.</p>
 </div>
 <p>The above can be repeated several times, in parallel, to build the distribution of the test statistic (passing the random seed option <code>-s -1</code>). Once all of the distributions have been calculated, the resulting output files can be merged into one using <strong>hadd</strong>, and read back to calculate the limit, specifying the merged file with <code>--grid=merged.root</code>.</p>
 <p>The observed limit can be obtained with</p>
@@ -3448,7 +3448,7 @@ combine<span class="w"> </span>-M<span class="w"> </span>FitDiagnostics<span cla
 <h3 id="making-a-plot-of-the-gof-test-statistic-distribution">Making a plot of the GoF test statistic distribution</h3>
 <p>You can use the <code>combineTool.py</code> script to run batch jobs or on the grid (see <a href="http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/runningthetool/#combinetool-for-job-submission">here</a>) and produce a plot of the results. Once the jobs have completed, you can hadd them together and run (e.g for the saturated model),</p>
 <div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>CollectGoodnessOfFit<span class="w"> </span>--input<span class="w"> </span>data_run.root<span class="w"> </span>toys_run.root<span class="w"> </span>-m<span class="w"> </span><span class="m">125</span>.0<span class="w"> </span>-o<span class="w"> </span>gof.json
-plotGof.py<span class="w"> </span>gof.json<span class="w"> </span>--statistic<span class="w"> </span>saturated<span class="w"> </span>--mass<span class="w"> </span><span class="m">125</span>.0<span class="w"> </span>-o<span class="w"> </span>gof_plot<span class="w"> </span>--title-right<span class="o">=</span><span class="s2">&quot;my label&quot;</span>
+plotGof.py<span class="w"> </span>gof.json<span class="w"> </span>--statistic<span class="w"> </span>saturated<span class="w"> </span>--mass<span class="w"> </span><span class="m">125</span>.0<span class="w"> </span>-o<span class="w"> </span>gof_plot<span class="w"> </span>--title-right<span class="o">=</span><span class="s2">"my label"</span>
 </code></pre></div>
 <h2 id="channel-compatibility">Channel Compatibility</h2>
 <p>The <code>ChannelCompatibilityCheck</code> method can be used to evaluate how compatible the measurements of the signal strength from the separate channels of a combination are with each other.</p>
@@ -3480,9 +3480,9 @@ Done in 0.08 min (cpu), 0.08 min (real)
 <p>The output tree will contain the value of the compatibility (chi-square variable) in the <strong>limit</strong> branch. If the option <code>--saveFitResult</code> is specified, the output ROOT file also contains two <a href="http://root.cern.ch/root/htmldoc/RooFitResult.html">RooFitResult</a> objects <strong>fit_nominal</strong> and <strong>fit_alternate</strong> with the results of the two fits.</p>
 <p>This can be read and used to extract the best fit value for each channel, and the overall best fit value, using</p>
 <div class="highlight"><pre><span></span><code><span class="n">$</span><span class="w"> </span><span class="n">root</span><span class="w"> </span><span class="o">-</span><span class="n">l</span>
-<span class="n">TFile</span><span class="o">*</span><span class="w"> </span><span class="n">_file0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TFile</span><span class="o">::</span><span class="n">Open</span><span class="p">(</span><span class="s">&quot;higgsCombineTest.ChannelCompatibilityCheck.mH120.root&quot;</span><span class="p">);</span>
-<span class="n">fit_alternate</span><span class="o">-&gt;</span><span class="n">floatParsFinal</span><span class="p">().</span><span class="n">selectByName</span><span class="p">(</span><span class="s">&quot;*ChannelCompatibilityCheck*&quot;</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">);</span>
-<span class="n">fit_nominal</span><span class="o">-&gt;</span><span class="n">floatParsFinal</span><span class="p">().</span><span class="n">selectByName</span><span class="p">(</span><span class="s">&quot;r&quot;</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">);</span>
+<span class="n">TFile</span><span class="o">*</span><span class="w"> </span><span class="n">_file0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TFile</span><span class="o">::</span><span class="n">Open</span><span class="p">(</span><span class="s">"higgsCombineTest.ChannelCompatibilityCheck.mH120.root"</span><span class="p">);</span>
+<span class="n">fit_alternate</span><span class="o">-&gt;</span><span class="n">floatParsFinal</span><span class="p">().</span><span class="n">selectByName</span><span class="p">(</span><span class="s">"*ChannelCompatibilityCheck*"</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Print</span><span class="p">(</span><span class="s">"v"</span><span class="p">);</span>
+<span class="n">fit_nominal</span><span class="o">-&gt;</span><span class="n">floatParsFinal</span><span class="p">().</span><span class="n">selectByName</span><span class="p">(</span><span class="s">"r"</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Print</span><span class="p">(</span><span class="s">"v"</span><span class="p">);</span>
 </code></pre></div>
 <p>The macro <a href="https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/main/test/plotting/cccPlot.cxx">cccPlot.cxx</a> can be used to produce a comparison plot of the best fit signal strengths from all channels.</p>
 <h2 id="likelihood-fits-and-scans">Likelihood Fits and Scans</h2>
@@ -3627,7 +3627,7 @@ void plot2D_LHScan(){
 <div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-m<span class="w"> </span><span class="m">123</span><span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>--saveWorkspace<span class="w"> </span>-n<span class="w"> </span>teststep1<span class="w"> </span>testmass.root<span class="w">  </span>--verbose<span class="w"> </span><span class="m">9</span>
 </code></pre></div>
 <p>Now we can load the best fit <span class="arithmatex">\(\hat{r},\hat{m}_{H}\)</span> and fit for <span class="arithmatex">\(r\)</span> freezing <span class="arithmatex">\(m_{H}\)</span> and <strong>lumi_8TeV</strong> to their best-fit values,</p>
-<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-m<span class="w"> </span><span class="m">123</span><span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>-d<span class="w"> </span>higgsCombineteststep1.MultiDimFit.mH123.root<span class="w"> </span>-w<span class="w"> </span>w<span class="w"> </span>--snapshotName<span class="w"> </span><span class="s2">&quot;MultiDimFit&quot;</span><span class="w"> </span>-n<span class="w"> </span>teststep2<span class="w">  </span>--verbose<span class="w"> </span><span class="m">9</span><span class="w"> </span>--freezeParameters<span class="w"> </span>MH,lumi_8TeV
+<div class="highlight"><pre><span></span><code>combine<span class="w"> </span>-m<span class="w"> </span><span class="m">123</span><span class="w"> </span>-M<span class="w"> </span>MultiDimFit<span class="w"> </span>-d<span class="w"> </span>higgsCombineteststep1.MultiDimFit.mH123.root<span class="w"> </span>-w<span class="w"> </span>w<span class="w"> </span>--snapshotName<span class="w"> </span><span class="s2">"MultiDimFit"</span><span class="w"> </span>-n<span class="w"> </span>teststep2<span class="w">  </span>--verbose<span class="w"> </span><span class="m">9</span><span class="w"> </span>--freezeParameters<span class="w"> </span>MH,lumi_8TeV
 </code></pre></div>
 <h2 id="feldman-cousins">Feldman-Cousins</h2>
 <p>The Feldman-Cousins (FC) procedure for computing confidence intervals for a generic model is,</p>
@@ -3699,31 +3699,31 @@ Done in 0.00 min (cpu), 0.00 min (real)
 <p>First, we use <code>combineTool.py</code> to create jobs for each point in our parameter scan. We want to impose the boundaries that <span class="arithmatex">\(r_{ggH}&gt;0\)</span>, <span class="arithmatex">\(r_{qqH}&gt;0\)</span>.
 In the example below, we will run in interactive mode so this can take a little while. You can instead run using a batch cluster (eg <code>condor</code>) or the grid (<code>grid</code>) to submit sepaerate jobs for each point / set of points. We configure the tool by specifying the grid of points in <code>poi_grid_configuration.json</code> as below. Here we want 5000 toys for each point, and we choose a grid of <span class="arithmatex">\(r_{ggH}\in [0,4]\)</span> in steps of 0.2, and <span class="arithmatex">\(r_{qqH}\in[0,10]\)</span> in steps of 0.5.</p>
 <div class="highlight"><pre><span></span><code>{
-  &quot;verbose&quot; : true,
-  &quot;opts&quot; : &quot; --LHCmode LHC-feldman-cousins --saveHybridResult --clsAcc 0 &quot;,
-  &quot;POIs&quot; : [&quot;r_ggH&quot;, &quot;r_qqH&quot;],
-  &quot;grids&quot; : [
-    [&quot;0:4|.2&quot;,&quot;0:10|.5&quot;,&quot;&quot;]
+  "verbose" : true,
+  "opts" : " --LHCmode LHC-feldman-cousins --saveHybridResult --clsAcc 0 ",
+  "POIs" : ["r_ggH", "r_qqH"],
+  "grids" : [
+    ["0:4|.2","0:10|.5",""]
   ],
-  &quot;toys_per_cycle&quot;  : 5000,
-  &quot;FC&quot; : true,
-  &quot;min_toys&quot;: 5000,
-  &quot;max_toys&quot;: 50000,
-  &quot;output_incomplete&quot; : true,
-  &quot;make_plots&quot;: false,
-  &quot;contours&quot;:[&quot;obs&quot;],
-  &quot;CL&quot;: 0.68,
-  &quot;output&quot;: &quot;FeldmanCousins.root&quot;,
-  &quot;zipfile&quot;         : &quot;collected.zip&quot;,
-  &quot;statusfile&quot;      : &quot;status.json&quot;
+  "toys_per_cycle"  : 5000,
+  "FC" : true,
+  "min_toys": 5000,
+  "max_toys": 50000,
+  "output_incomplete" : true,
+  "make_plots": false,
+  "contours":["obs"],
+  "CL": 0.68,
+  "output": "FeldmanCousins.root",
+  "zipfile"         : "collected.zip",
+  "statusfile"      : "status.json"
  }
 </code></pre></div>
 <p>The command will look like,</p>
-<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>HybridNewGrid<span class="w">  </span>./poi_grid_configuration.json<span class="w"> </span>-d<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>--task-name<span class="w"> </span>fc2d<span class="w"> </span>--job-mode<span class="w"> </span><span class="s1">&#39;interactive&#39;</span><span class="w"> </span>--cycles<span class="w"> </span><span class="m">1</span>
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>HybridNewGrid<span class="w">  </span>./poi_grid_configuration.json<span class="w"> </span>-d<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>--task-name<span class="w"> </span>fc2d<span class="w"> </span>--job-mode<span class="w"> </span><span class="s1">'interactive'</span><span class="w"> </span>--cycles<span class="w"> </span><span class="m">1</span>
 </code></pre></div>
 <p>As mentioned, this will take a while to run so you should consider going to make a cup of coffee at this point and reading through the <a href="http://cms-analysis.github.io/CombineHarvester/md_docs__hybrid_new_grid.html">HybridNewGrid documentation</a> to learn more about this tool.
 Once this is done, we extract the values of <span class="arithmatex">\(p_{\vec{\mu}}\)</span> for each point in our parameter space using the same command, but this time setting <code>--cycles 0</code> and adding the option <code>--output</code>,</p>
-<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>HybridNewGrid<span class="w">  </span>./poi_grid_configuration.json<span class="w"> </span>-d<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>--task-name<span class="w"> </span>fc2d<span class="w"> </span>--job-mode<span class="w"> </span><span class="s1">&#39;interactive&#39;</span><span class="w"> </span>--cycles<span class="w"> </span><span class="m">0</span><span class="w"> </span>--output
+<div class="highlight"><pre><span></span><code>combineTool.py<span class="w"> </span>-M<span class="w"> </span>HybridNewGrid<span class="w">  </span>./poi_grid_configuration.json<span class="w"> </span>-d<span class="w"> </span>toy-hgg-125.root<span class="w"> </span>--task-name<span class="w"> </span>fc2d<span class="w"> </span>--job-mode<span class="w"> </span><span class="s1">'interactive'</span><span class="w"> </span>--cycles<span class="w"> </span><span class="m">0</span><span class="w"> </span>--output
 </code></pre></div>
 <p>which will produce a file <code>FeldmanCousins.root</code> (as defined in the <code>"output"</code> field of <code>poi_grid_configuration.json</code>) that contains a <code>TGraph2D</code> which stores the calculated value of <span class="arithmatex">\(p_{\vec{\mu}}\)</span> for each point in the grid. Using something like the macro below, these values can be plotted along with a contour corresponding to 68% CL (<span class="arithmatex">\(\alpha=0.32\)</span>).</p>
 <details>
@@ -3856,10 +3856,10 @@ void plot_2DFC(){
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
       
 
@@ -2109,10 +2109,10 @@
 Moreover, we will need to relate the bins of our signal region A <span class="arithmatex">\(N_{A}^{bin,i}\)</span> to the bins of the control regions <span class="arithmatex">\(N_{B/C/D}^{bin,i}\)</span> via the ABCD method formula <span class="arithmatex">\(N_{A}^{bin,i} = N_{B}^{bin,i} \cdot TF^{bin,i}\)</span>, where the transfer factor is <span class="arithmatex">\(TF^{bin,i} = N_{C}^{bin,i}/N_{D}^{bin,i}\)</span>. To achieve our goal, we can use the <code>RooParametricHist</code> object implemented in <span style="font-variant:small-caps;">Combine</span> (for further documentation look <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/part3/nonstandard/?h=rooparametrichist#rooparametrichist-gamman-for-shapes">here</a>). </p>
 <p>The <code>RooParametricHist</code> is a custom implementation within the ROOT framework, specifically designed for handling parametric histograms in a way that integrates with RooFit. The idea is that <code>RooParametricHist</code> allows to define histograms as PDFs where each bin can be either a <code>RooRealVar</code> or a <code>RooFormulaVar</code>. This will allow us to relate each bin of our signal region histogram A with the corresponding one of the control regions via the ABCD method formula.</p>
 <p>A <code>RooParamtricHist</code> object can be initialized as follows:</p>
-<p><div class="highlight"><pre><span></span><code>RooParametricHist parametric_hist(&quot;paramtric_hist&quot;, &quot;Parametric Hist&quot;,variable,roo_arg_list_bins,data_th1)
+<p><div class="highlight"><pre><span></span><code>RooParametricHist parametric_hist("paramtric_hist", "Parametric Hist",variable,roo_arg_list_bins,data_th1)
 </code></pre></div>
 where <code>variable</code> is a <code>RooRealVar</code> defining the observable which is being binned, <code>roo_arg_list_bins</code> is a <code>RooArgList</code> containing bins defined as <code>RooRealVar</code> or <code>RooFormulaVar</code> and <code>data_th1</code> is a <code>TH1</code> used to initialize the <code>RooParametricHist</code> bin boundaries. It is also possible to define a normalization parameter for the parametric histogram as follows,</p>
-<div class="highlight"><pre><span></span><code>RooAddition parametric_hist_norm(&quot;paramtric_hist_norm&quot;,&quot;Total Number of events for Parametric Hist&quot;,roo_arg_list_bins)
+<div class="highlight"><pre><span></span><code>RooAddition parametric_hist_norm("paramtric_hist_norm","Total Number of events for Parametric Hist",roo_arg_list_bins)
 </code></pre></div>
 <p>This normalization parameter is relevant for our ABCD method since we would like to know also the total predicted background yield in our Signal Region.</p>
 <p>In the following we describe how to build parametric histograms for our ABCD method regions and how to construct the <code>RooWorskpace</code> which can be referred to in the <span style="font-variant:small-caps;">Combine</span> datacard.</p>
@@ -2225,40 +2225,40 @@ First, we create a <code>RooWorkspace</code> object then, using the function <co
 
 <div class="highlight"><pre><span></span><code>#Output file and workspace
 #Here we create a TFile where to store the workspace
-output_file_ws =  ROOT.TFile(card_output_directory+&quot;param_ws.root&quot;,&quot;RECREATE&quot;)
-ws = RooWorkspace(&quot;wspace&quot;,&quot;wspace&quot;)
+output_file_ws =  ROOT.TFile(card_output_directory+"param_ws.root","RECREATE")
+ws = RooWorkspace("wspace","wspace")
 
 #Define a RooRealVar for the observable z to fit
-variable_z = RooRealVar( &quot;z&quot;, &quot;z&quot;, 200, 14000, &quot;GeV&quot;)
+variable_z = RooRealVar( "z", "z", 200, 14000, "GeV")
 
 #Getting histograms for observed data saved in input ROOT file as TH1F for all the regions
-histA_obs , histB_obs, histC_obs, histD_obs =  __get_histograms_regions(&quot;bkg&quot;, input_file_bkg)
+histA_obs , histB_obs, histC_obs, histD_obs =  __get_histograms_regions("bkg", input_file_bkg)
 
 #Save TH1F histograms for data in RooDataHist for all the regions.
 #RooDataHist can be initialized using a RooArgList with the observable to use, the TH1F for a given region and weight=1
-histData_A = RooDataHist(&quot;data_obs_A&quot;, &quot;Obs Data region A&quot;,  RooArgList(variable_z), histA_obs, 1.)
-histData_B = RooDataHist(&quot;data_obs_B&quot;, &quot;Obs Data region B&quot;,  RooArgList(variable_z), histB_obs, 1.)
-histData_C = RooDataHist(&quot;data_obs_C&quot;, &quot;Obs Data region C&quot;,  RooArgList(variable_z), histC_obs, 1.)
-histData_D = RooDataHist(&quot;data_obs_D&quot;, &quot;Obs Data region D&quot;,  RooArgList(variable_z), histD_obs, 1.)
+histData_A = RooDataHist("data_obs_A", "Obs Data region A",  RooArgList(variable_z), histA_obs, 1.)
+histData_B = RooDataHist("data_obs_B", "Obs Data region B",  RooArgList(variable_z), histB_obs, 1.)
+histData_C = RooDataHist("data_obs_C", "Obs Data region C",  RooArgList(variable_z), histC_obs, 1.)
+histData_D = RooDataHist("data_obs_D", "Obs Data region D",  RooArgList(variable_z), histD_obs, 1.)
 
 #Import data in workspace
-getattr(ws, &quot;import&quot;)(histData_A, RooFit.Rename(&quot;data_obs_A&quot;))
-getattr(ws, &quot;import&quot;)(histData_B, RooFit.Rename(&quot;data_obs_B&quot;))
-getattr(ws, &quot;import&quot;)(histData_C, RooFit.Rename(&quot;data_obs_C&quot;))
-getattr(ws, &quot;import&quot;)(histData_D, RooFit.Rename(&quot;data_obs_D&quot;))
+getattr(ws, "import")(histData_A, RooFit.Rename("data_obs_A"))
+getattr(ws, "import")(histData_B, RooFit.Rename("data_obs_B"))
+getattr(ws, "import")(histData_C, RooFit.Rename("data_obs_C"))
+getattr(ws, "import")(histData_D, RooFit.Rename("data_obs_D"))
 
 #Save the signals in RooDataHist
-histA_sgn , histB_sgn, histC_sgn, histD_sgn =  __get_histograms_regions(&quot;sgn&quot;, input_file_sgn)
-histSgn_A = RooDataHist(signal+&quot;_A&quot;, &quot;Sgn Data region A&quot;,  RooArgList(variable_z), histA_sgn, 1.)
-histSgn_B = RooDataHist(signal+&quot;_B&quot;, &quot;Sgn Data region B&quot;,  RooArgList(variable_z), histB_sgn, 1.)
-histSgn_C = RooDataHist(signal+&quot;_C&quot;, &quot;Sgn Data region C&quot;,  RooArgList(variable_z), histC_sgn, 1.)
-histSgn_D = RooDataHist(signal+&quot;_D&quot;, &quot;Sgn Data region D&quot;,  RooArgList(variable_z), histD_sgn, 1.)
+histA_sgn , histB_sgn, histC_sgn, histD_sgn =  __get_histograms_regions("sgn", input_file_sgn)
+histSgn_A = RooDataHist(signal+"_A", "Sgn Data region A",  RooArgList(variable_z), histA_sgn, 1.)
+histSgn_B = RooDataHist(signal+"_B", "Sgn Data region B",  RooArgList(variable_z), histB_sgn, 1.)
+histSgn_C = RooDataHist(signal+"_C", "Sgn Data region C",  RooArgList(variable_z), histC_sgn, 1.)
+histSgn_D = RooDataHist(signal+"_D", "Sgn Data region D",  RooArgList(variable_z), histD_sgn, 1.)
 
 #Import signals in workspace
-getattr(ws, &quot;import&quot;)(histSgn_A, RooFit.Rename(signal+&quot;_A&quot;))
-getattr(ws, &quot;import&quot;)(histSgn_B, RooFit.Rename(signal+&quot;_B&quot;))
-getattr(ws, &quot;import&quot;)(histSgn_C, RooFit.Rename(signal+&quot;_C&quot;))
-getattr(ws, &quot;import&quot;)(histSgn_D, RooFit.Rename(signal+&quot;_D&quot;))
+getattr(ws, "import")(histSgn_A, RooFit.Rename(signal+"_A"))
+getattr(ws, "import")(histSgn_B, RooFit.Rename(signal+"_B"))
+getattr(ws, "import")(histSgn_C, RooFit.Rename(signal+"_C"))
+getattr(ws, "import")(histSgn_D, RooFit.Rename(signal+"_D"))
 </code></pre></div>
 </details>
 
@@ -2266,9 +2266,9 @@ getattr(ws, &quot;import&quot;)(histSgn_D, RooFit.Rename(signal+&quot;_D&quot;))
 <details>
 <summary> Create RooParametricHist for control regions background templates  </summary>
 
-<div class="highlight"><pre><span></span><code>#Here we define the background histograms from &quot;data&quot; (which in our case is equal to the background)
+<div class="highlight"><pre><span></span><code>#Here we define the background histograms from "data" (which in our case is equal to the background)
 #They will be used to build the parametric histograms we use for modelling the background
-histA_pr , histB_pr, histC_pr, histD_pr =  __get_histograms_regions(&quot;bkg&quot;, input_file_bkg)        
+histA_pr , histB_pr, histC_pr, histD_pr =  __get_histograms_regions("bkg", input_file_bkg)        
 
 #Save in RooArgList the content of the bins of histB_pr to define the RooParametricHist for the B region
 process_B_region_bins = RooArgList()
@@ -2285,7 +2285,7 @@ process_D_region_bins_list = []
 #Add yields for each bin for the RooParametricHist in the B Region
 #each bin is defined as a RooRealVar initialized at the nominal bin content, and with a range between 0 and 2 times the nominal rate
 for i in range(1,histB_obs.GetNbinsX()+1):
-    bin_B_i = RooRealVar(&quot;Bkg_B_region_bin_&quot;+str(i),&quot;Background yield in control region B bin &quot; + str(i),histB_obs.GetBinContent(i),0.,2.0*histB_obs.GetBinContent(i))
+    bin_B_i = RooRealVar("Bkg_B_region_bin_"+str(i),"Background yield in control region B bin " + str(i),histB_obs.GetBinContent(i),0.,2.0*histB_obs.GetBinContent(i))
     process_B_region_bins_list.append(bin_B_i)
     process_B_region_bins.add(process_B_region_bins_list[i-1])
 
@@ -2293,7 +2293,7 @@ for i in range(1,histB_obs.GetNbinsX()+1):
 #Add yields for each bin for the RooParametricHist in the C Region
 #each bin is defined as a RooRealVar initialized at the nominal bin content, and with a range between 0 and 2 times the nominal rate
 for i in range(1,histC_obs.GetNbinsX()+1):
-    bin_C_i = RooRealVar(&quot;Bkg_C_region_bin_&quot;+str(i),&quot;Background yield in control region C bin &quot; + str(i),histC_obs.GetBinContent(i),0.,2.0*histC_obs.GetBinContent(i))
+    bin_C_i = RooRealVar("Bkg_C_region_bin_"+str(i),"Background yield in control region C bin " + str(i),histC_obs.GetBinContent(i),0.,2.0*histC_obs.GetBinContent(i))
     process_C_region_bins_list.append(bin_C_i)
     process_C_region_bins.add(process_C_region_bins_list[i-1])
 
@@ -2301,7 +2301,7 @@ for i in range(1,histC_obs.GetNbinsX()+1):
 #Add yields for each bin for the RooParametricHist in the D Region
 #each bin is defined as a RooRealVar initialized at the nominal bin content, and with a range between 0 and 2 times the nominal rate
 for i in range(1,histD_obs.GetNbinsX()+1):
-    bin_D_i = RooRealVar(&quot;Bkg_D_region_bin_&quot;+str(i),&quot;Background yield in control region D bin &quot; + str(i),histD_obs.GetBinContent(i),0.,2.0*histD_obs.GetBinContent(i))
+    bin_D_i = RooRealVar("Bkg_D_region_bin_"+str(i),"Background yield in control region D bin " + str(i),histD_obs.GetBinContent(i),0.,2.0*histD_obs.GetBinContent(i))
     process_D_region_bins_list.append(bin_D_i)
     process_D_region_bins.add(process_D_region_bins_list[i-1])
 
@@ -2309,35 +2309,35 @@ for i in range(1,histD_obs.GetNbinsX()+1):
 #Define the parametric histogram for control region B.
 #Here we consider the B region to be the transferring region, so the region for which each bin content will be multiplied by a transfer factor (determined by C, D yields)
 #The RooParametricHist is initialized giving as input the observable, the RooArgList of the bins previously built and a template TH1F. 
-param_hist_B_region = RooParametricHist(&quot;bkg_B&quot;, &quot;Background PDF in B region&quot;,variable_z,process_B_region_bins,histB_pr)
+param_hist_B_region = RooParametricHist("bkg_B", "Background PDF in B region",variable_z,process_B_region_bins,histB_pr)
 
 #Here we define the total normalization for the RooparametricHist in the B region
-param_Bkg_B_norm = RooAddition(&quot;bkg_B&quot;+&quot;_norm&quot;,&quot;Total Number of events from background in control region B&quot;,process_B_region_bins)
+param_Bkg_B_norm = RooAddition("bkg_B"+"_norm","Total Number of events from background in control region B",process_B_region_bins)
 
 #Here we import the the parametric histogram and the normalization in our workspace
-getattr(ws, &quot;import&quot;)(param_hist_B_region, RooFit.Rename(&quot;bkg_B&quot;))
-getattr(ws, &quot;import&quot;)(param_Bkg_B_norm, RooFit.Rename(&quot;bkg_B&quot;+&quot;_norm&quot;),RooFit.RecycleConflictNodes())
+getattr(ws, "import")(param_hist_B_region, RooFit.Rename("bkg_B"))
+getattr(ws, "import")(param_Bkg_B_norm, RooFit.Rename("bkg_B"+"_norm"),RooFit.RecycleConflictNodes())
 
 #Define the parametric histogram for control region C.
 #The RooParametricHist is initialized giving as input the observable, the RooArgList of the bins previously built and a template TH1F. 
-param_hist_C_region = RooParametricHist(&quot;bkg_C&quot;, &quot;Background PDF in C region&quot;,variable_z,process_C_region_bins,histC_pr)
+param_hist_C_region = RooParametricHist("bkg_C", "Background PDF in C region",variable_z,process_C_region_bins,histC_pr)
 
 #Here we define the total normalization for the RooparametricHist in the C region
-param_Bkg_C_norm = RooAddition(&quot;bkg_C&quot;+&quot;_norm&quot;,&quot;Total Number of events from background in control region C&quot;,process_C_region_bins)
+param_Bkg_C_norm = RooAddition("bkg_C"+"_norm","Total Number of events from background in control region C",process_C_region_bins)
 
 #Here we import the the parametric histogram and the normalization in our workspace
-getattr(ws, &quot;import&quot;)(param_hist_C_region, RooFit.Rename(&quot;bkg_C&quot;))
-getattr(ws, &quot;import&quot;)(param_Bkg_C_norm, RooFit.Rename(&quot;bkg_C&quot;+&quot;_norm&quot;),RooFit.RecycleConflictNodes())
+getattr(ws, "import")(param_hist_C_region, RooFit.Rename("bkg_C"))
+getattr(ws, "import")(param_Bkg_C_norm, RooFit.Rename("bkg_C"+"_norm"),RooFit.RecycleConflictNodes())
 
 #Define the parametric histogram for control region D.
-param_hist_D_region = RooParametricHist(&quot;bkg_D&quot;, &quot;Background PDF in D region&quot;,variable_z,process_D_region_bins,histD_pr)
+param_hist_D_region = RooParametricHist("bkg_D", "Background PDF in D region",variable_z,process_D_region_bins,histD_pr)
 
 #Here we define the total normalization for the RooparametricHist in the D region
-param_Bkg_D_norm = RooAddition(&quot;bkg_D&quot;+&quot;_norm&quot;,&quot;Total Number of events from background in control region D&quot;,process_D_region_bins)
+param_Bkg_D_norm = RooAddition("bkg_D"+"_norm","Total Number of events from background in control region D",process_D_region_bins)
 
 #Here we import the the parametric histogram and the normalization in our workspace
-getattr(ws, &quot;import&quot;)(param_hist_D_region, RooFit.Rename(&quot;bkg_D&quot;))
-getattr(ws, &quot;import&quot;)(param_Bkg_D_norm, RooFit.Rename(&quot;bkg_D&quot;+&quot;_norm&quot;),RooFit.RecycleConflictNodes())
+getattr(ws, "import")(param_hist_D_region, RooFit.Rename("bkg_D"))
+getattr(ws, "import")(param_Bkg_D_norm, RooFit.Rename("bkg_D"+"_norm"),RooFit.RecycleConflictNodes())
 </code></pre></div>
 </details>
 
@@ -2357,22 +2357,22 @@ process_AB_region_bins_list = []
 #Loop over the bins of the transferring region B, and compute the transfer factors as C/D
 for i in range(1,histB_pr.GetNbinsX()+1):
     #Define transfer factor as a RooFormulaVar. Use the method .obj for RooWorkSpace to retrieve the yield for a given bin and region
-    TF_i = RooFormulaVar(&quot;TF&quot;+str(i),&quot;Transfer factor C/D bin &quot; + str(i),&quot;(@0/@1)&quot;,RooArgList(ws.obj(&quot;Bkg_C_region_bin_&quot;+str(i)) , ws.obj(&quot;Bkg_D_region_bin_&quot;+str(i)) ))
+    TF_i = RooFormulaVar("TF"+str(i),"Transfer factor C/D bin " + str(i),"(@0/@1)",RooArgList(ws.obj("Bkg_C_region_bin_"+str(i)) , ws.obj("Bkg_D_region_bin_"+str(i)) ))
     TF_list.append(TF_i)
     #Compute the expected yield in the signal region as A = B * TF. This will be used to initialise the RooParametricHist in the Signal Region
-    bin_AB_i = RooFormulaVar(&quot;Bkg_AB_region_bin_&quot;+str(i),&quot;Background yield in SR A region bin &quot; + str(i), &quot;@0*@1&quot;, RooArgList(TF_i, ws.obj(&quot;Bkg_B_region_bin_&quot;+str(i)) ))
+    bin_AB_i = RooFormulaVar("Bkg_AB_region_bin_"+str(i),"Background yield in SR A region bin " + str(i), "@0*@1", RooArgList(TF_i, ws.obj("Bkg_B_region_bin_"+str(i)) ))
     process_AB_region_bins_list.append(bin_AB_i)
     process_AB_region_bins.add(process_AB_region_bins_list[i-1])
 
 #Create parametric histogram for signal region (A) using bin contents saved in process_AB_region_bins
-param_hist_A_region = RooParametricHist(&quot;bkg_A&quot;, &quot;Background PDF in A region&quot;,variable_z,process_AB_region_bins,histB_pr)
+param_hist_A_region = RooParametricHist("bkg_A", "Background PDF in A region",variable_z,process_AB_region_bins,histB_pr)
 
 #Define total normalization parameter
-param_bkg_A_norm = RooAddition(&quot;bkg_A&quot;+&quot;_norm&quot;,&quot;Total Number of events from background in A region&quot;,process_AB_region_bins)
+param_bkg_A_norm = RooAddition("bkg_A"+"_norm","Total Number of events from background in A region",process_AB_region_bins)
 
 #Store in Workspace
-getattr(ws, &quot;import&quot;)(param_hist_A_region, RooFit.Rename(&quot;bkg_A&quot;))
-getattr(ws, &quot;import&quot;)(param_bkg_A_norm, RooFit.Rename(&quot;bkg_A&quot;+&quot;_norm&quot;),RooFit.RecycleConflictNodes())
+getattr(ws, "import")(param_hist_A_region, RooFit.Rename("bkg_A"))
+getattr(ws, "import")(param_bkg_A_norm, RooFit.Rename("bkg_A"+"_norm"),RooFit.RecycleConflictNodes())
 </code></pre></div>
 </details>
 
@@ -2590,10 +2590,10 @@ Expected 97.5%: r &lt; 1.1325
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
       
 
@@ -2383,7 +2383,7 @@ RooSpline1D::ZH_13TeV[ xvar=MH ] = 0.8824
 RooSpline1D::bbH_13TeV[ xvar=MH ] = 0.4863
 RooSpline1D::ggH_13TeV[ xvar=MH ] = 48.52
 RooSpline1D::ggZH_13TeV[ xvar=MH ] = 0.1227
-RooFormulaVar::qqZH_13TeV[ actualVars=(ZH_13TeV,ggZH_13TeV) formula=&quot;@0-@1&quot; ] = 0.7597
+RooFormulaVar::qqZH_13TeV[ actualVars=(ZH_13TeV,ggZH_13TeV) formula="@0-@1" ] = 0.7597
 RooSpline1D::tHW_13TeV[ xvar=MH ] = 0.01517
 RooSpline1D::tHq_13TeV[ xvar=MH ] = 0.07714
 RooSpline1D::ttH_13TeV[ xvar=MH ] = 0.5065
@@ -2417,11 +2417,11 @@ vbfH_8to13TeV    rateParam  *   qqH    @0/@1         vbfH_13TeV,vbfH_8TeV
 <div class="highlight"><pre><span></span><code>class PhysicsModelBase(six.with_metaclass(ABCMeta, object)):
 ...
     def doParametersOfInterest(self):
-        &quot;&quot;&quot;Create POI and other parameters, and define the POI set.&quot;&quot;&quot;
+        """Create POI and other parameters, and define the POI set."""
 
     def getYieldScale(self, bin, process):
-        &quot;Return the name of a RooAbsReal to scale this yield by or the two special values 1 and 0 (don&#39;t scale, and set to zero)&quot;
-        return &quot;r&quot; if self.DC.isSignal[process] else 1
+        "Return the name of a RooAbsReal to scale this yield by or the two special values 1 and 0 (don't scale, and set to zero)"
+        return "r" if self.DC.isSignal[process] else 1
 ...
 </code></pre></div>
 <p>There are many models available to use for different physics cases, follow the <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/part2/physicsmodels/">link</a> for more information. In the following sections we will discuss how one can construct custom models. </p>
@@ -2436,24 +2436,24 @@ M_{cp}(\mu) = \begin{cases}
     1    &amp;\mathrm{otherwise} \end{cases}
 \]</div>
 <div class="highlight"><pre><span></span><code>class PhysicsModel(PhysicsModelBase):
-    &quot;&quot;&quot;Example class with signal strength as only POI&quot;&quot;&quot;
+    """Example class with signal strength as only POI"""
 
     def doParametersOfInterest(self):
-        &quot;&quot;&quot;Create POI and other parameters, and define the POI set.&quot;&quot;&quot;
-        self.modelBuilder.doVar(&quot;r[1,0,20]&quot;)
-        self.modelBuilder.doSet(&quot;POI&quot;, &quot;r&quot;)
+        """Create POI and other parameters, and define the POI set."""
+        self.modelBuilder.doVar("r[1,0,20]")
+        self.modelBuilder.doSet("POI", "r")
         # --- Higgs Mass as other parameter ----
         if self.options.mass != 0:
-            if self.modelBuilder.out.var(&quot;MH&quot;):
-                self.modelBuilder.out.var(&quot;MH&quot;).removeMin()
-                self.modelBuilder.out.var(&quot;MH&quot;).removeMax()
-                self.modelBuilder.out.var(&quot;MH&quot;).setVal(self.options.mass)
+            if self.modelBuilder.out.var("MH"):
+                self.modelBuilder.out.var("MH").removeMin()
+                self.modelBuilder.out.var("MH").removeMax()
+                self.modelBuilder.out.var("MH").setVal(self.options.mass)
             else:
-                self.modelBuilder.doVar(&quot;MH[%g]&quot; % self.options.mass)
+                self.modelBuilder.doVar("MH[%g]" % self.options.mass)
 </code></pre></div>
 <h3 id="multi-signal-model">Multi Signal model</h3>
 <p>Combine already contains a model <a href="https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/part2/physicsmodels/#multisignalmodel-ready-made-model-for-multiple-signal-processes"><code>HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel</code></a> that can be used to assign different signal strengths to multiple processes in a datacard, configurable from the command line using the mapping <code>--PO 'map=&lt;bin&gt;/&lt;process&gt;:&lt;parameter_name&gt;'</code>. The wildcard <code>*</code> are allowed for <code>&lt;bin&gt;</code> and <code>&lt;process&gt;</code> entries. The following command assigns <code>r_ggH</code> signal strength to scale <code>ggH</code> processes in all regions (<code>bin</code>s). </p>
-<div class="highlight"><pre><span></span><code>text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose  --PO  &#39;map=.*/ggH:r_ggH[1,-5,5]&#39; --PO &#39;map=.*/qqH:r_qqH[1,-5,5]&#39; PhysicsModel/htt_tt_125_8TeV.txt  -o ws_multiSignal.root -m 125
+<div class="highlight"><pre><span></span><code>text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose  --PO  'map=.*/ggH:r_ggH[1,-5,5]' --PO 'map=.*/qqH:r_qqH[1,-5,5]' PhysicsModel/htt_tt_125_8TeV.txt  -o ws_multiSignal.root -m 125
 combine -M MultiDimFit --algo singles -d  ws_multiSignal.root -n .multiSignal.
 </code></pre></div>
 <h3 id="custom-models">Custom models</h3>
@@ -2463,22 +2463,22 @@ N_{qqH}(r, f) = r f N_{qqH};\,N_{ggH}(r, f) = r (1 - f) N_{ggH}
 \]</div>
 <p>As discussed above first we have to define the parameters of the model
 <div class="highlight"><pre><span></span><code>    def doParametersOfInterest(self):
-        &quot;&quot;&quot;Create POI and other parameters, and define the POI set.&quot;&quot;&quot;
-        self.modelBuilder.doVar(&quot;f[0,0,4]&quot;) 
-        self.modelBuilder.doVar(&quot;r[1,0,10]&quot;)
+        """Create POI and other parameters, and define the POI set."""
+        self.modelBuilder.doVar("f[0,0,4]") 
+        self.modelBuilder.doVar("r[1,0,10]")
 </code></pre></div>
 then we can use the in the scaling functions for ggH and qqH processes
-<div class="highlight"><pre><span></span><code>        self.modelBuilder.factory_( &quot;expr::scale_qqH(\&quot;(1-@0)*@1\&quot;, f,r)&quot;)
-        self.modelBuilder.factory_( &quot;expr::scale_ggH(\&quot;@0*@1\&quot;, f,r)&quot;)
+<div class="highlight"><pre><span></span><code>        self.modelBuilder.factory_( "expr::scale_qqH(\"(1-@0)*@1\", f,r)")
+        self.modelBuilder.factory_( "expr::scale_ggH(\"@0*@1\", f,r)")
 </code></pre></div>
 add the parameters to the set of POIs
-<div class="highlight"><pre><span></span><code>        self.modelBuilder.doSet(&quot;POI&quot;, &quot;,&quot;.join([&quot;f&quot;]))
-        self.modelBuilder.doSet(&quot;POI&quot;, &quot;,&quot;.join([&quot;r&quot;]))
+<div class="highlight"><pre><span></span><code>        self.modelBuilder.doSet("POI", ",".join(["f"]))
+        self.modelBuilder.doSet("POI", ",".join(["r"]))
 </code></pre></div>
 The <code>getYieldScale(self, bin, process)</code> method will scale <code>qqH</code> process with the <code>scale_qqH</code> object and <code>ggH</code> with <code>scale_ggH</code>. 
 <div class="highlight"><pre><span></span><code>    def getYieldScale(self, bin, process):
-        if process == &quot;qqH&quot;: return &quot;scale_qqH&quot;
-        elif process == &quot;ggH&quot;: return &quot;scale_ggH&quot;
+        if process == "qqH": return "scale_qqH"
+        elif process == "ggH": return "scale_ggH"
         else: return 1
 </code></pre></div></p>
 <p>To use this model we should add the directory where the corresponding file is located to the <code>PYTHON3PATH</code>:
@@ -2492,8 +2492,8 @@ And now we can finally create the workspace using this model:
 root [1] w-&gt;Print()
 </code></pre></div>
 <p>The created workspace is quite large, but it should have two new <code>RooFormulaVar</code> objects </p>
-<p><div class="highlight"><pre><span></span><code>RooFormulaVar::scale_ggH[ actualVars=(f,r) formula=&quot;x[0]*x[1]&quot; ] = 0
-RooFormulaVar::scale_qqH[ actualVars=(f,r) formula=&quot;(1-x[0])*x[1]&quot; ] = 1
+<p><div class="highlight"><pre><span></span><code>RooFormulaVar::scale_ggH[ actualVars=(f,r) formula="x[0]*x[1]" ] = 0
+RooFormulaVar::scale_qqH[ actualVars=(f,r) formula="(1-x[0])*x[1]" ] = 1
 </code></pre></div>
 which modify the normalisation of the ggH and qqH processes</p>
 <div class="highlight"><pre><span></span><code>ProcessNormalization::n_exp_binhtt_tt_1_8TeV_proc_ggH[ thetaList=(CMS_eff_t_tt_8TeV,CMS_htt_scale_met_8TeV,QCDscale_ggH1in,UEPS,lumi_8TeV,pdf_gg) asymmThetaList=() otherFactorList=(scale_ggH) ] = 0
@@ -2504,17 +2504,17 @@ ProcessNormalization::n_exp_binhtt_tt_1_8TeV_proc_qqH[ thetaList=(CMS_eff_t_tt_8
 <p><span class="arithmatex">\(\sigma(c_{g}) = \sigma_{SM} (1 + A c_{g} + B c^{2}_{g})\)</span>, where A and B coefficients are numbers that can be estimated from simulation.</p>
 <div class="highlight"><pre><span></span><code>class SMEFT_chg(PhysicsModel):
     def doParametersOfInterest(self):
-        &quot;&quot;&quot;Create POI and other parameters, and define the POI set.&quot;&quot;&quot;
-        self.modelBuilder.doVar(&quot;A[39.54]&quot;)
-        self.modelBuilder.doVar(&quot;B[245.32]&quot;)
-    self.modelBuilder.out.var(&quot;A&quot;).setConstant(True) 
-    self.modelBuilder.out.var(&quot;B&quot;).setConstant(True)
-        self.modelBuilder.doVar(&quot;chg[0,-1,1]&quot;)
-        self.modelBuilder.factory_( &quot;expr::ggH_scaling_chg(\&quot;1+@1*@0+@2*@0*@0\&quot;, chg, A, B)&quot;)
-    self.modelBuilder.doSet(&quot;POI&quot;, &quot;,&quot;.join([&quot;chg&quot;]))
+        """Create POI and other parameters, and define the POI set."""
+        self.modelBuilder.doVar("A[39.54]")
+        self.modelBuilder.doVar("B[245.32]")
+    self.modelBuilder.out.var("A").setConstant(True) 
+    self.modelBuilder.out.var("B").setConstant(True)
+        self.modelBuilder.doVar("chg[0,-1,1]")
+        self.modelBuilder.factory_( "expr::ggH_scaling_chg(\"1+@1*@0+@2*@0*@0\", chg, A, B)")
+    self.modelBuilder.doSet("POI", ",".join(["chg"]))
 
     def getYieldScale(self, bin, process):
-        if process == &quot;ggH&quot;: return &quot;ggH_scaling_chg&quot;
+        if process == "ggH": return "ggH_scaling_chg"
         else: return 1
 
 smeft_chg_tutorial = SMEFT_chg()
@@ -2622,10 +2622,10 @@ plot1DScan.py higgsCombineTest.MultiDimFit.mH120.root --POI chg
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

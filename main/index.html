@@ -17,7 +17,7 @@
       
       
       <link rel="icon" href="logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.57a0d79d.min.css">
       
       
 
@@ -2565,7 +2565,7 @@ pixi run install
 <p>The <code>configure</code>/<code>build</code>/<code>install</code> tasks in <code>pixi.toml</code> wrap the same CMake invocation as the conda recipe above (including <code>-DUSE_VDT=OFF</code>). Advanced users who need to pass extra CMake options can still run the CMake steps by hand from inside <code>pixi shell</code>.</p>
 <h4 id="pre-compiled-image-with-cvmfs-dependency">Pre-compiled image with CVMFS dependency</h4>
 <p>Pre-compiled versions of the tool are available as container images from the <a href="http://gitlab-registry.cern.ch/cms-analysis/general/combine-container">GitLab CMS-analysis repository</a>. This container is built together with the <a href="http://cms-analysis.github.io/CombineHarvester/"><code>CombineHarvester</code></a> package and is <strong>recommended for users with CVMFS access</strong>. </p>
-<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">APPTAINER_CACHEDIR</span><span class="o">=</span><span class="s2">&quot;/tmp/</span><span class="k">$(</span>whoami<span class="k">)</span><span class="s2">/apptainer_cache&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">APPTAINER_CACHEDIR</span><span class="o">=</span><span class="s2">"/tmp/</span><span class="k">$(</span>whoami<span class="k">)</span><span class="s2">/apptainer_cache"</span>
 apptainer<span class="w"> </span>shell<span class="w"> </span>-B<span class="w"> </span>/cvmfs<span class="w"> </span>-B<span class="w"> </span>/eos<span class="w"> </span>-B<span class="w"> </span>/afs<span class="w"> </span>/cvmfs/unpacked.cern.ch/gitlab-registry.cern.ch/cms-analysis/general/combine-container:latest<span class="w"> </span>/bin/bash
 </code></pre></div>
 <p>Then in the Apptainer shell:</p>
@@ -2643,18 +2643,18 @@ scram<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span
 <summary><b>Show BibTex Entry</b></summary>
 <div class="highlight"><pre><span></span><code>@article{
     CMS:2024onh,
-    author = &quot;Hayrapetyan, Aram and others&quot;,
-    collaboration = &quot;CMS&quot;,
-    title = &quot;The {CMS} statistical analysis and combination tool: {\textsc{Combine}}&quot;,
-    eprint = &quot;2404.06614&quot;,
-    archivePrefix = &quot;arXiv&quot;,
-    primaryClass = &quot;physics.data-an&quot;,
-    reportNumber = &quot;CMS-CAT-23-001, CERN-EP-2024-078&quot;,
-    year = &quot;2024&quot;,
-    journal = &quot;Comput. Softw. Big Sci.&quot;,
-    doi = &quot;10.1007/s41781-024-00121-4&quot;,
-    volume = &quot;8&quot;,
-    pages = &quot;19&quot;
+    author = "Hayrapetyan, Aram and others",
+    collaboration = "CMS",
+    title = "The {CMS} statistical analysis and combination tool: {\textsc{Combine}}",
+    eprint = "2404.06614",
+    archivePrefix = "arXiv",
+    primaryClass = "physics.data-an",
+    reportNumber = "CMS-CAT-23-001, CERN-EP-2024-078",
+    year = "2024",
+    journal = "Comput. Softw. Big Sci.",
+    doi = "10.1007/s41781-024-00121-4",
+    volume = "8",
+    pages = "19"
 }
 </code></pre></div>
 </details>
@@ -2744,10 +2744,10 @@ scram<span class="w"> </span>b<span class="w"> </span>-j<span class="k">$(</span
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.code.copy", "navigation.footer", "navigation.indexes", "navigation.expand", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="assets/javascripts/bundle.c21346df.min.js"></script>
       
         <script src="javascripts/mathjax.js"></script>
       
