@@ -13,7 +13,8 @@ namespace ch {
         err_d_(-1.0),
         range_u_(std::numeric_limits<double>::max()),
         range_d_(std::numeric_limits<double>::lowest()),
-        frozen_(false) {}
+        frozen_(false),
+        err_from_ws_(false) {}
 
   Parameter::~Parameter() {}
 
@@ -26,6 +27,7 @@ namespace ch {
     swap(first.range_u_, second.range_u_);
     swap(first.range_d_, second.range_d_);
     swap(first.frozen_, second.frozen_);
+    swap(first.err_from_ws_, second.err_from_ws_);
     swap(first.vars_, second.vars_);
     swap(first.groups_, second.groups_);
   }
@@ -38,6 +40,7 @@ namespace ch {
         range_u_(other.range_u_),
         range_d_(other.range_d_),
         frozen_(other.frozen_),
+        err_from_ws_(other.err_from_ws_),
         vars_(other.vars_),
         groups_(other.groups_) {}
 
@@ -48,7 +51,8 @@ namespace ch {
         err_d_(-1.0),
         range_u_(std::numeric_limits<double>::max()),
         range_d_(std::numeric_limits<double>::lowest()),
-        frozen_(false) {
+        frozen_(false),
+        err_from_ws_(false) {
     swap(*this, other);
   }
 

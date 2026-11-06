@@ -68,7 +68,10 @@ namespace ch {
 
   std::ostream& operator<<(std::ostream& out, HistMapping const& val) {
     out << boost::format("%-7s %-7s %-20s %-20s %-20s") % val.process % val.category %
-               (val.file.get() ? val.file->GetName() : "0") % val.pattern % val.syst_pattern;
+               (val.file.get()         ? val.file->GetName()
+                : val.file_name.size() ? val.file_name.c_str()
+                                       : "0") %
+               val.pattern % val.syst_pattern;
     return out;
   }
 }  // namespace ch

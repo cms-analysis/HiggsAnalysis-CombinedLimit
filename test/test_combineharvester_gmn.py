@@ -75,6 +75,8 @@ with tempfile.TemporaryDirectory() as tmp:
     with open(out_card) as f:
         card_text = f.read()
     assert re.search(r"^WW_norm\s+gmN 4\s+-\s+0\.16\s+-\s+-\s*$", card_text, re.M), card_text
+    # The card has no shapes lines, so the written card doesn't have them either
+    assert "shapes" not in card_text, card_text
 
     cb2 = parse(out_card)
     assert syst_info(cb2) == systs

@@ -534,6 +534,11 @@ namespace ch {
     void LoadShapes(Process* entry, std::vector<HistMapping> const& mappings);
     void LoadShapes(Systematic* entry, std::vector<HistMapping> const& mappings);
 
+    // Opens the file of mapping, with $CHANNEL, $BIN, $PROCESS and $MASS in
+    // its name replaced by those of entry, and loads the workspaces of a pdf
+    // mapping from it. Without entry the name is used as it is.
+    void OpenMappingFile(HistMapping& mapping, Object const* entry = nullptr);
+
     HistMapping const& ResolveMapping(std::string const& process,
                                       std::string const& bin,
                                       std::vector<HistMapping> const& mappings);

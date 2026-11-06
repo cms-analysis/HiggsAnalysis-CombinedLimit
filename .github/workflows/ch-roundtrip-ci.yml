@@ -1,0 +1,53 @@
+name: CombineHarvester round trip
+
+# Runs the tests with the CHRoundTrip label: the combine tests repeated on the
+# datacards after CombineHarvester has parsed and written them (see the
+# "CombineHarvester round trip" section of test/CMakeLists.txt), with the
+# CMSSW and LCG builds of cvmfs-ci.yml. The other workflows leave these tests
+# out, and this one only runs when the CombineHarvester code or the round trip
+# itself changes.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths: &ch_paths
+      - 'interface/CombineHarvester/**'
+      - 'python/CombineHarvester/**'
+      - 'src/AutoRebin.cc'
+      - 'src/BinByBin.cc'
+      - 'src/CMSHistFuncFactory.cc'
+      - 'src/CardWriter.cc'
+      - 'src/CombineHarvester*.cc'
+      - 'src/CopyTools.cc'
+      - 'src/HistMapping.cc'
+      - 'src/JsonTools.cc'
+      - 'src/Logging.cc'
+      - 'src/MorphFunctions.cc'
+      - 'src/Object.cc'
+      - 'src/Observation.cc'
+      - 'src/Parameter.cc'
+      - 'src/ParseCombineWorkspace.cc'
+      - 'src/Process.cc'
+      - 'src/SOverBTools.cc'
+      - 'src/Systematic.cc'
+      - 'src/TFileIO.cc'
+      - 'src/Utilities.cc'
+      - 'src/ValidationTools.cc'
+      - 'src/json.cc'
+      - 'test/ch_roundtrip.py'
+      - '.github/workflows/ch-roundtrip-ci.yml'
+      - '.github/workflows/cvmfs-ci.yml'
+  push:
+    branches:
+      - main
+    paths: *ch_paths
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cvmfs:
+    uses: ./.github/workflows/cvmfs-ci.yml
+    with:
+      ch_roundtrip: true

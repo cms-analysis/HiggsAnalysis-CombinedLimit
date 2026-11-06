@@ -31,11 +31,24 @@ namespace ch {
 
     double val() const { return val_; }
 
-    void set_err_u(double const& err_u) { err_u_ = err_u; }
+    void set_err_u(double const& err_u) {
+      err_u_ = err_u;
+      err_from_ws_ = false;
+    }
     double err_u() const { return err_u_; }
 
-    void set_err_d(double const& err_d) { err_d_ = err_d; }
+    void set_err_d(double const& err_d) {
+      err_d_ = err_d;
+      err_from_ws_ = false;
+    }
     double err_d() const { return err_d_; }
+
+    // True when the errors are those of the RooRealVar the parameter was
+    // imported from, and haven't been set since. Such errors are used to
+    // evaluate uncertainties, but WriteDatacard doesn't turn them into param
+    // constraints, which the parsed datacards didn't have either.
+    void set_err_from_ws(bool const& err_from_ws) { err_from_ws_ = err_from_ws; }
+    bool err_from_ws() const { return err_from_ws_; }
 
     void set_range_u(double const& range_u) { range_u_ = range_u; }
     double range_u() const { return range_u_; }
@@ -65,6 +78,7 @@ namespace ch {
     double range_u_;
     double range_d_;
     bool frozen_;
+    bool err_from_ws_;
     std::vector<RooRealVar*> vars_;
     std::set<std::string> groups_;
     friend void swap(Parameter& first, Parameter& second);

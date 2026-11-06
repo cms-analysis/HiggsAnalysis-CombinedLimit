@@ -125,7 +125,7 @@ namespace ch {
 
     std::vector<HistMapping> hist_mapping;
     // std::map<std::string, RooAbsData*> data_map;
-    std::map<std::string, std::shared_ptr<TFile>> file_store;
+    auto file_store = std::make_shared<std::map<std::string, std::shared_ptr<TFile>>>();
 
     bool start_nuisance_scan = false;
     unsigned r = 0;
@@ -162,38 +162,15 @@ namespace ch {
         } else {
           dc_path = words[i][3];
         }
-        if (!file_store.count(dc_path))
-          file_store[dc_path] = std::make_shared<TFile>(dc_path.c_str());
-        mapping.file = file_store.at(dc_path);
+        mapping.file_name = dc_path;
+        mapping.file_store = file_store;
         mapping.pattern = words[i][4];
         if (words[i].size() > 5)
           mapping.syst_pattern = words[i][5];
-
-        if (mapping.IsPdf()) {
-          std::string store_key = mapping.file->GetName() + mapping.WorkspaceName();
-          if (!ws_store.count(store_key)) {
-            mapping.file->cd();
-            std::shared_ptr<RooWorkspace> ptr(
-                fixRooConstVar(dynamic_cast<RooWorkspace*>(gDirectory->Get(mapping.WorkspaceName().c_str()))));
-            if (!ptr) {
-              throw std::runtime_error(FNERROR("Workspace not found in file"));
-            }
-            ws_store[store_key] = ptr;
-          }
-          mapping.ws = SetupWorkspace(*(ws_store[store_key]), true);
-        }
-        if (mapping.IsPdf() && mapping.syst_pattern != "") {
-          std::string store_key = mapping.file->GetName() + mapping.SystWorkspaceName();
-          if (!ws_store.count(store_key)) {
-            mapping.file->cd();
-            std::shared_ptr<RooWorkspace> ptr(
-                fixRooConstVar(dynamic_cast<RooWorkspace*>(gDirectory->Get(mapping.SystWorkspaceName().c_str()))));
-            if (!ptr) {
-              throw std::runtime_error(FNERROR("Workspace not found in file"));
-            }
-            ws_store[store_key] = ptr;
-          }
-          mapping.sys_ws = SetupWorkspace(*(ws_store[store_key]), true);
+        // A file name with $CHANNEL etc. is only known for a given object, so
+        // it is opened by LoadShapes
+        if (dc_path.find('$') == dc_path.npos) {
+          OpenMappingFile(mapping);
         }
       }
 
@@ -558,6 +535,10 @@ namespace ch {
       for (unsigned p = n_lead; p < n_lead + n_procs; ++p) {
         // An entry of only dashes means no effect on this process
         if (words[i][p].find_first_not_of('-') == std::string::npos)
+          continue;
+        // As in combine, so does an entry of 0, and no shapes are looked for
+        double value;
+        if (boost::conversion::try_lexical_convert(words[i][p], value) && value == 0.)
           continue;
         unsigned col = p - n_lead + 1;  // column in the bin, process and rate lines
         auto sys = std::make_shared<Systematic>();
@@ -1399,10 +1380,12 @@ namespace ch {
     //  - it appears in the first list
     //  - it doesn't appear in the second list
     //  - it doesn't appear in the third list
+    //  - its errors weren't just imported from a workspace: combine doesn't
+    //    constrain such a parameter, so neither does the written datacard
     for (auto par : params_) {
       Parameter const* p = par.second.get();
-      if (p->err_d() != 0.0 && p->err_u() != 0.0 && all_dependents_pars.count(p->name()) && !sys_set.count(p->name()) &&
-          !param_set.count(p->name())) {
+      if (p->err_d() != 0.0 && p->err_u() != 0.0 && !p->err_from_ws() && all_dependents_pars.count(p->name()) &&
+          !sys_set.count(p->name()) && !param_set.count(p->name())) {
         txt_file << format((format("%%-%is param %%g %%g") % sys_str_len).str()) % p->name() % p->val() %
                         ((p->err_u() - p->err_d()) / 2.0);
         if (p->range_d() != std::numeric_limits<double>::lowest() &&

@@ -3,6 +3,7 @@
 lines of a datacard, matches autoMCStats patterns, and rejects the lines it
 can't represent instead of dropping them."""
 
+import math
 import os
 import re
 import subprocess
@@ -71,6 +72,8 @@ def make_workspace(path):
     sig = ROOT.RooGaussian("sig", "sig", x, mean, sigma)
     p1 = ROOT.RooRealVar("p1", "p1", -0.03, -0.1, 0)
     p2 = ROOT.RooRealVar("p2", "p2", -0.01, -0.1, 0)
+    # The error of an earlier fit, as the workspaces of analyses often have
+    p2.setError(0.005)
     exp1 = ROOT.RooExponential("exp1", "exp1", x, p1)
     exp2 = ROOT.RooExponential("exp2", "exp2", x, p2)
     pdf_index = ROOT.RooCategory("pdf_index", "pdf_index")
@@ -188,6 +191,22 @@ with tempfile.TemporaryDirectory() as tmp:
         sig_text = f.read()
     assert "discrete" not in sig_text and "flatParam" not in sig_text, sig_text
 
+    # The error p2 has in the workspace is used by CombineHarvester, but it
+    # isn't written as a param constraint: combine doesn't constrain p2, and
+    # the systematics that combine reads from the written card are checked above
+    assert not re.search(r"^p2\s", text, re.M), text
+    cb = ch_parse(card)
+    p2 = cb.GetParameter("p2")
+    assert p2.err_from_ws() and math.isclose(p2.err_u(), 0.005), (p2.err_from_ws(), p2.err_u())
+    # An error that is set is written
+    p2.set_err_d(-0.005)
+    p2.set_err_u(0.005)
+    out_card = os.path.join(tmp, "p2_constrained.txt")
+    cb.WriteDatacard(out_card, os.path.join(tmp, "p2_constrained.root"))
+    with open(out_card) as f:
+        p2_text = f.read()
+    assert re.search(r"^p2\s+param -0\.01 0\.005$", p2_text, re.M), p2_text
+
     # --- autoMCStats bin patterns
     card = write_card(os.path.join(tmp, "counting_stats.txt"), COUNTING_CARD.format(extra="ch_* autoMCStats 5 1 1\nother autoMCStats 0"))
     cb = ch_parse(card)
@@ -200,13 +219,25 @@ with tempfile.TemporaryDirectory() as tmp:
     # nuisance lines are ignored
     card = write_card(
         os.path.join(tmp, "counting_comments.txt"),
-        COUNTING_CARD.format(extra="xs lnN 1.1 - 1.2 - 1.3 -  # cross sections\nWW gmN 4 - 0.2 - 0.2 - 0.2 0.1"),
+        COUNTING_CARD.format(extra="xs lnN 1.1 - 1.2 - 1.3 -  # cross sections\nWW gmN 50 - 0.2 - 0.4 - 0.6 0.1"),
     )
     cb = ch_parse(card)
     ch_systs = {}
     cb.ForEachSyst(lambda s: ch_systs.__setitem__((s.name(), s.bin(), s.process()), s.value_u()))
     combine_systs = {(name, b, p): v for name, _, _, _, errline in combine_parse(card).systs for b in errline for p, v in errline[b].items() if v != 0}
     assert ch_systs == combine_systs, (ch_systs, combine_systs)
+
+    # --- a counting card is written without shapes lines, unless it had a
+    # "shapes * * FAKE" line
+    out_card = os.path.join(tmp, "counting_comments_out.txt")
+    cb.WriteDatacard(out_card)
+    with open(out_card) as f:
+        assert "shapes" not in f.read()
+    card = write_card(os.path.join(tmp, "counting_fake.txt"), COUNTING_CARD.format(extra="").replace("kmax *\n", "kmax *\nshapes * * FAKE\n"))
+    out_card = os.path.join(tmp, "counting_fake_out.txt")
+    ch_parse(card).WriteDatacard(out_card)
+    with open(out_card) as f:
+        assert re.search(r"^shapes \* \S+ FAKE$", f.read(), re.M), out_card
 
     # --- a constrained rateParam gets one param line, whatever the order of
     # the param and rateParam lines
@@ -221,6 +252,44 @@ with tempfile.TemporaryDirectory() as tmp:
             text = f.read()
         assert len(re.findall(r"^r_bkg\s+param\s", text, re.M)) == 1, text
         assert [s[0] for s in combine_parse(out_card).systs].count("r_bkg") == 1, text
+
+    # --- $CHANNEL, $PROCESS and $MASS are replaced in the shapes file names
+    # too, and a shape systematic with 0 for a process needs no shapes for it
+    for chan, yields in (("a", {"sig": 5, "bkg": 50}), ("b", {"sig": 2, "bkg": 80})):
+        for proc, rate in list(yields.items()) + [("data_obs", 60)]:
+            f = ROOT.TFile.Open(os.path.join(tmp, f"hists_{chan}_{proc}_125.root"), "RECREATE")
+            for name, scale in ((proc, 1), (proc + "_shiftUp", 1.1), (proc + "_shiftDown", 0.9)):
+                if name != proc and proc != "sig":
+                    continue
+                h = ROOT.TH1F(name, name, 2, 0, 2)
+                h.SetBinContent(1, 0.5 * rate * scale)
+                h.SetBinContent(2, 0.5 * rate * scale)
+                h.Write()
+            f.Close()
+    card = write_card(
+        os.path.join(tmp, "file_patterns.txt"),
+        """imax 2
+jmax 1
+kmax *
+shapes * * hists_$CHANNEL_$PROCESS_$MASS.root $PROCESS $PROCESS_$SYSTEMATIC
+bin         a    b
+observation -1   -1
+bin     a   a   b   b
+process sig bkg sig bkg
+process 0   1   0   1
+rate    -1  -1  -1  -1
+shift shape 1 0 1 -
+""",
+    )
+    cb = ch.CombineHarvester()
+    cb.SetVerbosity(0)
+    cb.ParseDatacard(card, "", "", "", 0, "125")
+    rates = {}
+    cb.ForEachProc(lambda p: rates.__setitem__((p.bin(), p.process()), p.rate()))
+    assert rates == {("a", "sig"): 5, ("a", "bkg"): 50, ("b", "sig"): 2, ("b", "bkg"): 80}, rates
+    assert cb.cp().bin(["a"]).GetObservedRate() == 60
+    shift = cb.cp().syst_name(["shift"]).SetFromSysts(lambda s: (s.bin(), s.process()))
+    assert shift == {("a", "sig"), ("b", "sig")}, shift
 
     # --- lines that CombineHarvester can't represent are rejected
     bad = {

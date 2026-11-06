@@ -311,6 +311,9 @@ namespace ch {
     boost::replace_all(mapping.pattern, "$BIN", entry->bin());
     boost::replace_all(mapping.pattern, "$PROCESS", entry->process());
     boost::replace_all(mapping.pattern, "$MASS", entry->mass());
+    if (!mapping.file && !mapping.is_fake) {
+      OpenMappingFile(mapping, entry);
+    }
 
     if (verbosity_ >= 2) {
       LOGLINE(log(), "Resolved Mapping:");
@@ -398,6 +401,9 @@ namespace ch {
     boost::replace_all(mapping.pattern, "$BIN", entry->bin());
     boost::replace_all(mapping.pattern, "$PROCESS", entry->process());
     boost::replace_all(mapping.pattern, "$MASS", entry->mass());
+    if (!mapping.file && !mapping.is_fake) {
+      OpenMappingFile(mapping, entry);
+    }
 
     if (verbosity_ >= 2) {
       LOGLINE(log(), "Resolved Mapping:");
@@ -554,6 +560,9 @@ namespace ch {
     boost::replace_all(mapping.pattern, "$BIN", entry->bin());
     boost::replace_all(mapping.pattern, "$PROCESS", entry->process());
     boost::replace_all(mapping.pattern, "$MASS", entry->mass());
+    if (!mapping.file && !mapping.is_fake) {
+      OpenMappingFile(mapping, entry);
+    }
     std::string p_s = mapping.IsPdf() ? mapping.SystWorkspaceObj() : mapping.syst_pattern;
     boost::replace_all(p_s, "$CHANNEL", entry->bin());
     boost::replace_all(p_s, "$BIN", entry->bin());
@@ -644,6 +653,43 @@ namespace ch {
  *
  * @return A reference to the selected HistMapping object
  */
+  void CombineHarvester::OpenMappingFile(HistMapping& mapping, Object const* entry) {
+    if (!mapping.file_store) {
+      throw std::runtime_error(FNERROR("Mapping has no file store"));
+    }
+    std::string file_name = mapping.file_name;
+    if (entry) {
+      boost::replace_all(file_name, "$CHANNEL", entry->bin());
+      boost::replace_all(file_name, "$BIN", entry->bin());
+      boost::replace_all(file_name, "$PROCESS", entry->process());
+      boost::replace_all(file_name, "$MASS", entry->mass());
+    }
+    auto& file_store = *mapping.file_store;
+    if (!file_store.count(file_name))
+      file_store[file_name] = std::make_shared<TFile>(file_name.c_str());
+    mapping.file = file_store.at(file_name);
+
+    auto get_ws = [&](std::string const& ws_name) {
+      std::string store_key = mapping.file->GetName() + ws_name;
+      if (!ws_store.count(store_key)) {
+        mapping.file->cd();
+        std::shared_ptr<RooWorkspace> ptr(
+            fixRooConstVar(dynamic_cast<RooWorkspace*>(gDirectory->Get(ws_name.c_str()))));
+        if (!ptr) {
+          throw std::runtime_error(FNERROR("Workspace not found in file"));
+        }
+        ws_store[store_key] = ptr;
+      }
+      return SetupWorkspace(*(ws_store[store_key]), true);
+    };
+    if (mapping.IsPdf()) {
+      mapping.ws = get_ws(mapping.WorkspaceName());
+      if (mapping.syst_pattern != "") {
+        mapping.sys_ws = get_ws(mapping.SystWorkspaceName());
+      }
+    }
+  }
+
   HistMapping const& CombineHarvester::ResolveMapping(std::string const& process,
                                                       std::string const& bin,
                                                       std::vector<HistMapping> const& mappings) {
@@ -754,6 +800,7 @@ namespace ch {
           if ((y->hasError() || y->hasAsymError()) && flags_["import-parameter-err"]) {
             par.set_err_d(y->getErrorLo());
             par.set_err_u(y->getErrorHi());
+            par.set_err_from_ws(true);
           } else {
             par.set_err_d(0.);
             par.set_err_u(0.);

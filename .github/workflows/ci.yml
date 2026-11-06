@@ -81,4 +81,5 @@ jobs:
       shell: bash -l {0}
       run: |
         ulimit -s unlimited;
-        ctest --test-dir build/test --output-on-failure
+        # The CombineHarvester round-trip tests run in ch-roundtrip-ci.yml
+        ctest --test-dir build/test --output-on-failure -LE CHRoundTrip
