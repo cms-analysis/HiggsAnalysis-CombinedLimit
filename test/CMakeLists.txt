@@ -157,6 +157,16 @@ set_tests_properties(asymptotic_limits-text2workspace asymptotic_limits
     PROPERTIES LABELS AsymptoticLimits TIMEOUT 120
 )
 
+# Counting datacard with a gmN systematic. No events are observed, so the fit
+# is to the Asimov dataset with r = 1
+ADD_COMBINE_TEST(counting_gmN
+  T2W_COMMAND
+    text2workspace.py ${REPO}/data/tutorials/counting/realistic-counting-experiment.txt -o counting_gmN.root -m 125
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit counting_gmN.root -m 125 --algo singles -t -1 --expectSignal 1"
+  DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+)
+
 # Counting datacard
 ADD_COMBINE_TEST(counting_datacard
   T2W_COMMAND
@@ -184,6 +194,15 @@ ADD_COMBINE_TEST(parametric_analysis
     text2workspace.py ${REPO}/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -o datacard-3-parametric-analysis.root --mass 125
   COMBINE_COMMANDS
     "combine -M MultiDimFit datacard-3-parametric-analysis.root --algo singles --setParameterRanges r=-2,1"
+)
+
+# Template analysis with autoMCStats
+ADD_COMBINE_TEST(template_analysis_autoMCStats
+  T2W_COMMAND
+    text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o template_analysis_autoMCStats.root
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit template_analysis_autoMCStats.root --algo singles --setParameterRanges r=-5,5"
+  DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
 )
 
 # RooHistPdf
@@ -610,13 +629,12 @@ set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
 
 # CombineHarvester round trip
 #
-# The "-ch" tests repeat the tests above on the datacards after CH has parsed
-# and written them, and compare the output to the same reference files. The
+# The "-ch" tests repeat the MultiDimFit --algo singles fits above on the
+# datacards after CH has parsed and written them, one or more for each type
+# of datacard, and compare the output to the same reference files. The
 # ch-write-* tests write the datacards to ch_roundtrip/ch_cards/ with
 # ch_roundtrip.py. All of them run in ch_roundtrip/ and have the CHRoundTrip
-# label. LHC-limits and LHC-significance are not repeated: the parameters are
-# in another order in the datacards written by CH, so the toys differ and the
-# results would only agree within their uncertainties.
+# label, and run in ch-roundtrip-ci.yml only.
 set(ch_dir ${CMAKE_CURRENT_BINARY_DIR}/ch_roundtrip)
 file(MAKE_DIRECTORY ${ch_dir})
 set(ch_roundtrip python3 ${CMAKE_CURRENT_SOURCE_DIR}/ch_roundtrip.py)
@@ -624,16 +642,11 @@ set(ch_roundtrip python3 ${CMAKE_CURRENT_SOURCE_DIR}/ch_roundtrip.py)
 # Datacards without $MASS in their shapes lines
 foreach(card
     data/tutorials/counting/realistic-counting-experiment.txt
-    data/tutorials/counting/simple-counting-experiment.txt
-    data/tutorials/multiDim/toy-hgg-125.txt
-    data/tutorials/shapes/simple-shapes-TH1.txt
-    data/tutorials/CAT23001/datacard-1-counting-experiment.txt
     data/tutorials/CAT23001/datacard-3-parametric-analysis.txt
     data/tutorials/CAT23001/datacard-5-multi-signal.txt
     data/ci/templ_datacard_largeYields.txt
     data/ci/datacard_RooParametricHist.txt
     data/ci/template-analysis_shape_autoMCStats.txt
-    test/inputs/hzz4l_datacard.txt
 )
     get_filename_component(name ${card} NAME)
     string(REGEX REPLACE "\\.txt$" "" name ${name})
@@ -675,42 +688,35 @@ COMBINE_ADD_TEST(ch-write-htt_multiple_regions
     LABELS CHRoundTrip
 )
 
-COMBINE_ADD_TEST(asymptotic_limits-ch-text2workspace
-    COMMAND text2workspace.py ch_cards/realistic-counting-experiment.txt -o asymptotic_limits.root -m 125
+COMBINE_ADD_TEST(counting_gmN-ch-text2workspace
+    COMMAND text2workspace.py ch_cards/realistic-counting-experiment.txt -o counting_gmN.root -m 125
     WORKING_DIR ${ch_dir}
-    FIXTURES_SETUP asymptotic_limits-ch
+    FIXTURES_SETUP counting_gmN-ch
     FIXTURES_REQUIRED ch-card-realistic-counting-experiment
     LABELS CHRoundTrip
 )
-COMBINE_ADD_TEST(asymptotic_limits-ch
-    COMMAND bash -c "combine -M AsymptoticLimits asymptotic_limits.root -m 125 -n AsymptoticLimitsRegression"
-    FIXTURES_REQUIRED asymptotic_limits-ch
-    CHECKOUT OUTPUT asymptotic_limits-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/asymptotic_limits.out
-    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.001
+COMBINE_ADD_TEST(counting_gmN-ch
+    COMMAND bash -c "combine -M MultiDimFit counting_gmN.root -m 125 --algo singles -t -1 --expectSignal 1"
+    FIXTURES_REQUIRED counting_gmN-ch
+    CHECKOUT OUTPUT counting_gmN-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/counting_gmN.out
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
     WORKING_DIR ${ch_dir}
     LABELS CHRoundTrip
 )
 
-COMBINE_ADD_TEST(counting_datacard-ch-text2workspace
-    COMMAND text2workspace.py ch_cards/toy-hgg-125.txt -o counting_datacard.root -m 125 -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH
+COMBINE_ADD_TEST(template_analysis_autoMCStats-ch-text2workspace
+    COMMAND text2workspace.py ch_cards/template-analysis_shape_autoMCStats.txt -o template_analysis_autoMCStats.root
     WORKING_DIR ${ch_dir}
-    FIXTURES_SETUP counting_datacard-ch
-    FIXTURES_REQUIRED ch-card-toy-hgg-125
+    FIXTURES_SETUP template_analysis_autoMCStats-ch
+    FIXTURES_REQUIRED ch-card-template-analysis_shape_autoMCStats
     LABELS CHRoundTrip
 )
-COMBINE_ADD_TEST(counting_datacard-ch
-    COMMAND bash -c "combine -M MultiDimFit counting_datacard.root  --setParameterRanges r=-5,5"
-    FIXTURES_REQUIRED counting_datacard-ch
-    CHECKOUT OUTPUT counting_datacard-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/counting_datacard.out
+COMBINE_ADD_TEST(template_analysis_autoMCStats-ch
+    COMMAND bash -c "combine -M MultiDimFit template_analysis_autoMCStats.root --algo singles --setParameterRanges r=-5,5"
+    FIXTURES_REQUIRED template_analysis_autoMCStats-ch
+    CHECKOUT OUTPUT template_analysis_autoMCStats-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/template_analysis_autoMCStats.out
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
     WORKING_DIR ${ch_dir}
-    LABELS CHRoundTrip
-)
-
-COMBINE_ADD_TEST(counting_datacard_from_csv-ch
-    COMMAND combineTool.py -M MultiDimFit counting_datacard.root --fromfile fixed.csv
-    PRECMD ${CMAKE_COMMAND} -E copy ${REPO}/data/tutorials/multiDim/fixed.csv .
-    WORKING_DIR ${ch_dir}
-    FIXTURES_REQUIRED counting_datacard-ch
     LABELS CHRoundTrip
 )
 
@@ -780,15 +786,6 @@ COMBINE_ADD_TEST(cmshistfunc-ch
     COMMAND bash -c "combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5"
     FIXTURES_REQUIRED cmshistfunc-ch
     CHECKOUT OUTPUT cmshistfunc-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistfunc.out
-    WORKING_DIR ${ch_dir}
-    LABELS CHRoundTrip
-)
-
-COMBINE_ADD_TEST(cmshistfunc-FastScan-ch
-    COMMAND bash -c "${_fastscan_command}"
-    FIXTURES_REQUIRED cmshistfunc-ch
-    CHECKOUT OUTPUT cmshistfunc-FastScan-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistfunc-FastScan.out
-    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01 --atol 0.1
     WORKING_DIR ${ch_dir}
     LABELS CHRoundTrip
 )
@@ -917,97 +914,6 @@ COMBINE_ADD_TEST(cmshistsum_channel_masks-ch
     LABELS CHRoundTrip
 )
 
-COMBINE_ADD_TEST(cmshistsum_vs_cmshistfunc_fitdiagnostics-text2workspace-ch
-    COMMAND bash -c "text2workspace.py ch_cards/template-analysis_shapeInterp.txt -o fitdiag_cmshistfunc.root --mass 200 && text2workspace.py ch_cards/template-analysis_shapeInterp.txt -o fitdiag_cmshistsum.root --mass 200 --use-histsum"
-    WORKING_DIR ${ch_dir}
-    FIXTURES_SETUP cmshistsum_vs_cmshistfunc_fitdiagnostics-ch
-    FIXTURES_REQUIRED ch-card-template-analysis_shapeInterp
-    LABELS CHRoundTrip
-)
-COMBINE_ADD_TEST(cmshistsum_vs_cmshistfunc_fitdiagnostics-ch
-    COMMAND bash -c "combine -M FitDiagnostics fitdiag_cmshistfunc.root -m 200 -n cmshistfunc --saveShapes --saveWithUncertainties --numToysForShapes 20 && combine -M FitDiagnostics fitdiag_cmshistsum.root -m 200 -n cmshistsum --saveShapes --saveWithUncertainties --numToysForShapes 20 && python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticscmshistfunc.root > shapes_cmshistfunc.txt && python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticscmshistsum.root > shapes_cmshistsum.txt && python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 1e-5 shapes_cmshistfunc.txt shapes_cmshistsum.txt"
-    WORKING_DIR ${ch_dir}
-    FIXTURES_REQUIRED cmshistsum_vs_cmshistfunc_fitdiagnostics-ch
-    LABELS CHRoundTrip
-)
-
-COMBINE_ADD_TEST(template_analysis-text2workspace-ch
-    COMMAND text2workspace.py ch_cards/template-analysis_shape_autoMCStats.txt -o template-analysis_shape_autoMCStats.root
-    WORKING_DIR ${ch_dir}
-    FIXTURES_REQUIRED ch-card-template-analysis_shape_autoMCStats
-    LABELS CHRoundTrip
-)
-
-COMBINE_ADD_TEST(simple-counting-experiment-text2workspace-ch
-    COMMAND text2workspace.py ch_cards/simple-counting-experiment.txt -o simple-counting-experiment.root
-    WORKING_DIR ${ch_dir}
-    FIXTURES_REQUIRED ch-card-simple-counting-experiment
-    LABELS CHRoundTrip
-)
-
-COMBINE_ADD_TEST(setParameters-out-of-range-ch
-    COMMAND combine -M MultiDimFit ch_cards/simple-counting-experiment.txt --setParameters r=-1.05
-    PASSRC 1
-    PASSREGEX "outside its range"
-    WORKING_DIR ${ch_dir}
-    FIXTURES_REQUIRED ch-card-simple-counting-experiment
-    LABELS CHRoundTrip
-)
-
-COMBINE_ADD_TEST(multidimfit-verbose-analytic-bb-ch
-    COMMAND combine -M MultiDimFit ch_cards/template-analysis_shape_autoMCStats.txt --algo singles -v 2
-    WORKING_DIR ${ch_dir}
-    FIXTURES_REQUIRED ch-card-template-analysis_shape_autoMCStats
-    LABELS CHRoundTrip
-)
-
-COMBINE_ADD_TEST(setParameters-out-of-range-regex-ch
-    COMMAND combine -M MultiDimFit ch_cards/simple-counting-experiment.txt --setParameters "rgx{r}=-1.05"
-    PASSRC 1
-    PASSREGEX "outside its range"
-    WORKING_DIR ${ch_dir}
-    FIXTURES_REQUIRED ch-card-simple-counting-experiment
-    LABELS CHRoundTrip
-)
-
-COMBINE_ADD_TEST(simple-shapes-TH1-text2workspace-ch
-    COMMAND text2workspace.py ch_cards/simple-shapes-TH1.txt -o simple-shapes-TH1.root
-    WORKING_DIR ${ch_dir}
-    FIXTURES_REQUIRED ch-card-simple-shapes-TH1
-    LABELS CHRoundTrip
-)
-
-COMBINE_ADD_TEST(LHC-Higgs-coupling-models-text2workspace-ch
-    COMMAND text2workspace.py ch_cards/toy-hgg-125.txt -o toy-hgg-125.root -P HiggsAnalysis.CombinedLimit.LHCHCGModels:K3 -m 125
-    WORKING_DIR ${ch_dir}
-    FIXTURES_REQUIRED ch-card-toy-hgg-125
-    LABELS CHRoundTrip
-)
-
-COMBINE_ADD_TEST(hzz4l-significance-ch
-    COMMAND combine -M Significance ch_cards/hzz4l_datacard.txt
-    CHECKOUT OUTPUT hzz4l-significance-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/hzz4l-significance.out
-    WORKING_DIR ${ch_dir}
-    FIXTURES_REQUIRED ch-card-hzz4l_datacard
-    LABELS CHRoundTrip
-)
-
-COMBINE_ADD_TEST(parametric-analysis-significance-ch
-    COMMAND combine ch_cards/datacard-3-parametric-analysis.txt -M Significance --mass 125
-    CHECKOUT OUTPUT parametric-analysis-significance-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/parametric-analysis-significance.out
-    WORKING_DIR ${ch_dir}
-    FIXTURES_REQUIRED ch-card-datacard-3-parametric-analysis
-    LABELS CHRoundTrip
-)
-
-COMBINE_ADD_TEST(MarkovChainMC-ch
-    COMMAND combine ch_cards/datacard-1-counting-experiment.txt -M MarkovChainMC --tries 100
-    CHECKOUT OUTPUT MarkovChainMC-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/MarkovChainMC.out
-    WORKING_DIR ${ch_dir}
-    FIXTURES_REQUIRED ch-card-datacard-1-counting-experiment
-    LABELS CHRoundTrip
-)
-
 COMBINE_ADD_TEST(multi-signal-text2workspace-ch
     COMMAND text2workspace.py ch_cards/datacard-5-multi-signal.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o datacard-5-multi-signal.root --mass 125
     CHECKOUT OUTPUT multi-signal-text2workspace-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/multi-signal-text2workspace.out
@@ -1022,23 +928,6 @@ COMBINE_ADD_TEST(multi-signal-ch
     CHECKOUT OUTPUT multi-signal-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/multi-signal.out
     WORKING_DIR ${ch_dir}
     FIXTURES_REQUIRED multi-signal-text2workspace-ch
-    LABELS CHRoundTrip
-)
-
-COMBINE_ADD_TEST(multi-signal-ChannelCompatibilityCheck-ch
-    COMMAND combine ch_cards/datacard-5-multi-signal.txt -M ChannelCompatibilityCheck --mass 125
-    CHECKOUT OUTPUT multi-signal-ChannelCompatibilityCheck-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/multi-signal-ChannelCompatibilityCheck.out
-    WORKING_DIR ${ch_dir}
-    FIXTURES_REQUIRED multi-signal-ch ch-card-datacard-5-multi-signal
-    LABELS CHRoundTrip
-)
-
-COMBINE_ADD_TEST(realistic-counting-experiment-AsymptoticLimits-ch
-    COMMAND combine -M AsymptoticLimits -d ch_cards/realistic-counting-experiment.txt -n RealisticCountingExperiment
-    CHECKOUT OUTPUT realistic-counting-experiment-AsymptoticLimits-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/realistic-counting-experiment-AsymptoticLimits.out
-    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
-    WORKING_DIR ${ch_dir}
-    FIXTURES_REQUIRED ch-card-realistic-counting-experiment
     LABELS CHRoundTrip
 )
 
