@@ -207,8 +207,9 @@ COMBINE_ADD_TEST(histpdf_variable_binning-text2workspace
   COPY_TO_BUILDDIR ${REPO}/data/ci/datacard_RooHistPdf_variable_binning.txt
   FIXTURES_SETUP histpdf_variable_binning
 )
+# (at shape = +-1 this also covers the FastVerticalInterpHistPdf up/down template caches)
 COMBINE_ADD_TEST(histpdf_variable_binning
-  COMMAND bash -c "combine -M GenerateOnly ws_RooHistPdf_variable_binning.root -t -1 --saveToys --expectSignal 1 -n VariableBinning && python3 ${CMAKE_CURRENT_SOURCE_DIR}/histpdf_variable_binning.py check higgsCombineVariableBinning.GenerateOnly.mH120.123456.root"
+  COMMAND bash -c "for s in 0 1 -1; do combine -M GenerateOnly ws_RooHistPdf_variable_binning.root -t -1 --saveToys --expectSignal 1 --setParameters shape=$s -n VariableBinning$s && python3 ${CMAKE_CURRENT_SOURCE_DIR}/histpdf_variable_binning.py check higgsCombineVariableBinning$s.GenerateOnly.mH120.123456.root $s || exit 1; done"
   FIXTURES_REQUIRED histpdf_variable_binning
 )
 
