@@ -12,14 +12,15 @@
 #include "RooAbsReal.h"
 #include "RooAbsData.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 
 namespace ch {
 
   RooArgSet ParametersByName(RooAbsReal const* pdf, RooArgSet const* dat_vars) {
-    // Get all pdf parameters first
-    // We are expected to manage the memory of the RooArgSet pointer we're given,
-    // so let's use a unique_ptr to ensure it gets cleaned up
-    std::unique_ptr<RooArgSet> all_vars(pdf->getParameters(RooArgSet()));
+    // Get all pdf parameters first. Since ROOT 6.38, getParameters() of a
+    // RooMultiPdf only returns the parameters of the selected pdf, so the
+    // parameters are collected as combine does, for all the candidate pdfs.
+    std::unique_ptr<RooArgSet> all_vars = utils::getAllParameters(*pdf);
     // Get the data variables and fill a set with all the names
     std::set<std::string> names;
     for (auto const* dat_arg : *dat_vars) {
