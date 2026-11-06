@@ -22,7 +22,7 @@ jobs:
         fetch-depth: 0
     - uses: actions/setup-python@v7
       with:
-        python-version: 3.8
+        python-version: 3.15
     - name: Build and deploy documentation
       run: |
         python3 -m pip install mkdocs pymdown-extensions mkdocs-material mike
