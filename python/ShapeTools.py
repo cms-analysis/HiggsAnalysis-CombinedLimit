@@ -251,7 +251,11 @@ class ShapeBuilder(ModelBuilder):
                                 "Poisson",
                                 "%s_In[%d,%f,%f], %s, 1" % (n, nom, minObs, maxObs, n),
                             )
-                            if n.endswith("_prod"):
+                            # the parameters may come as RooProduct wrappers named "<parname>_prod"
+                            # (see CMSHistErrorPropagator): map those back to the actual parameter. A process
+                            # name can itself end in "_prod" (e.g. TTG_2l_prod), so strip the suffix only
+                            # when the parameter really is a RooProduct.
+                            if n.endswith("_prod") and isinstance(arg, ROOT.RooProduct):
                                 parname = n[:-5]
                         binconstraints.add(self.out.pdf("%s_Pdf" % n))
                         self.out.var("%s_In" % n).setConstant(True)
