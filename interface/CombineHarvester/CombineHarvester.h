@@ -359,6 +359,30 @@ namespace ch {
    */
     TH1F GetShapeWithUncertainty(RooFitResult const* fit, unsigned n_samples);
     TH1F GetShapeWithUncertainty(RooFitResult const& fit, unsigned n_samples);
+    /**
+   * The shapes of several groups of processes, with the bin-wise uncertainties
+   * of GetShapeWithUncertainty(RooFitResult const&, unsigned), all from the
+   * same samples of the fit covariance matrix
+   *
+   * \details Each group is a subset of the processes of this instance, made
+   * with cp() and its filters, e.g. a single process or the backgrounds of a
+   * bin. Each process is evaluated only once per sample, however many groups
+   * contain it, so this is much faster than calling GetShapeWithUncertainty
+   * for each group, and the uncertainties of the groups are consistent with
+   * one another.
+   */
+    std::vector<TH1F> GetShapesWithUncertainty(std::vector<CombineHarvester> const& groups,
+                                               RooFitResult const& fit,
+                                               unsigned n_samples);
+    /**
+   * The shapes of several groups of processes, with the bin-wise uncertainties
+   * of GetShapeWithUncertainty(), from the same shifts of the parameters
+   *
+   * \details As for the version with a RooFitResult, each group is a subset of
+   * the processes of this instance, and each process is evaluated only once
+   * per shift of a parameter.
+   */
+    std::vector<TH1F> GetShapesWithUncertainty(std::vector<CombineHarvester> const& groups);
     TH1F GetObservedShape();
 
     TH2F Get2DShapeWithUncertainty(RooFitResult const* fit, unsigned n_samples);
@@ -581,6 +605,12 @@ namespace ch {
     double GetRateInternal(ProcSystMap const& lookup, std::string const& single_sys = "");
 
     TH1F GetShapeInternal(ProcSystMap const& lookup, std::string const& single_sys = "");
+
+    // The shape of process i in proc_shape; false if it has neither a shape nor a pdf
+    bool GetProcessShapeInternal(unsigned i, ProcSystMap const& lookup, TH1F& proc_shape);
+
+    // For each group, the indices in procs_ of its processes
+    std::vector<std::vector<unsigned>> GroupIndices(std::vector<CombineHarvester> const& groups) const;
 
     TH2F Get2DShapeInternal(ProcSystMap const& lookup, std::string const& single_sys = "");
 

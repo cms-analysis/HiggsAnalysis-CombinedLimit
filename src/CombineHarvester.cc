@@ -311,7 +311,9 @@ namespace ch {
     boost::replace_all(mapping.pattern, "$BIN", entry->bin());
     boost::replace_all(mapping.pattern, "$PROCESS", entry->process());
     boost::replace_all(mapping.pattern, "$MASS", entry->mass());
-    if (!mapping.file && !mapping.is_fake) {
+    // Only mappings from the shapes lines of a datacard have a file to open;
+    // others, e.g. those of ParseCombineWorkspace, have their workspace
+    if (!mapping.file && !mapping.is_fake && !mapping.file_name.empty()) {
       OpenMappingFile(mapping, entry);
     }
 
@@ -401,7 +403,9 @@ namespace ch {
     boost::replace_all(mapping.pattern, "$BIN", entry->bin());
     boost::replace_all(mapping.pattern, "$PROCESS", entry->process());
     boost::replace_all(mapping.pattern, "$MASS", entry->mass());
-    if (!mapping.file && !mapping.is_fake) {
+    // Only mappings from the shapes lines of a datacard have a file to open;
+    // others, e.g. those of ParseCombineWorkspace, have their workspace
+    if (!mapping.file && !mapping.is_fake && !mapping.file_name.empty()) {
       OpenMappingFile(mapping, entry);
     }
 
@@ -560,7 +564,9 @@ namespace ch {
     boost::replace_all(mapping.pattern, "$BIN", entry->bin());
     boost::replace_all(mapping.pattern, "$PROCESS", entry->process());
     boost::replace_all(mapping.pattern, "$MASS", entry->mass());
-    if (!mapping.file && !mapping.is_fake) {
+    // Only mappings from the shapes lines of a datacard have a file to open;
+    // others, e.g. those of ParseCombineWorkspace, have their workspace
+    if (!mapping.file && !mapping.is_fake && !mapping.file_name.empty()) {
       OpenMappingFile(mapping, entry);
     }
     std::string p_s = mapping.IsPdf() ? mapping.SystWorkspaceObj() : mapping.syst_pattern;

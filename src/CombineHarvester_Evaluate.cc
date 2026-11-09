@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
+#include <algorithm>
 #include <vector>
 #include <map>
 #include <string>
@@ -32,6 +33,28 @@ namespace {
   // parameter x, the expected number of control region events. For N = 0 the
   // rate is left as given in the datacard.
   double gmNFactor(ch::Systematic const& sys, double x) { return sys.n_events() > 0 ? x / sys.n_events() : 1.0; }
+
+  // Sum the shapes of the processes of a group that were evaluated, in the
+  // order of GetShapeInternal; shape is left empty if there are none
+  void SumShapes(std::vector<unsigned> const& members,
+                 std::vector<TH1F> const& proc_shapes,
+                 std::vector<char> const& evaluated,
+                 TH1F& shape) {
+    bool shape_init = false;
+    for (unsigned i : members) {
+      if (!evaluated[i])
+        continue;
+      if (!shape_init) {
+        proc_shapes[i].Copy(shape);
+        shape.Reset();
+        shape_init = true;
+      }
+      shape.Add(&proc_shapes[i]);
+    }
+    if (!shape_init) {
+      shape = TH1F();
+    }
+  }
 }  // namespace
 
 namespace ch {
@@ -188,6 +211,180 @@ namespace ch {
     }
     this->UpdateParameters(backup);
     return shape;
+  }
+
+  std::vector<std::vector<unsigned>> CombineHarvester::GroupIndices(std::vector<CombineHarvester> const& groups) const {
+    std::map<Process const*, unsigned> index;
+    for (unsigned i = 0; i < procs_.size(); ++i) {
+      index[procs_[i].get()] = i;
+    }
+    std::vector<std::vector<unsigned>> members(groups.size());
+    for (unsigned g = 0; g < groups.size(); ++g) {
+      for (auto const& proc : groups[g].procs_) {
+        auto it = index.find(proc.get());
+        if (it == index.end()) {
+          throw std::runtime_error(FNERROR("Process " + proc->bin() + "," + proc->process() +
+                                           " of a group is not in this CombineHarvester instance"));
+        }
+        members[g].push_back(it->second);
+      }
+    }
+    return members;
+  }
+
+  std::vector<TH1F> CombineHarvester::GetShapesWithUncertainty(std::vector<CombineHarvester> const& groups) {
+    auto lookup = GenerateProcSystMap();
+    auto members = GroupIndices(groups);
+    std::vector<char> needed(procs_.size(), false);
+    for (auto const& m : members) {
+      for (unsigned i : m)
+        needed[i] = true;
+    }
+
+    // The nominal shapes, which the uncertainties are added to
+    std::vector<TH1F> proc_shapes(procs_.size());
+    std::vector<char> evaluated(procs_.size(), false);
+    for (unsigned i = 0; i < procs_.size(); ++i) {
+      if (needed[i])
+        evaluated[i] = GetProcessShapeInternal(i, lookup, proc_shapes[i]);
+    }
+    std::vector<TH1F> shapes(groups.size());
+    std::vector<std::vector<double>> err_sq(groups.size());
+    for (unsigned g = 0; g < groups.size(); ++g) {
+      SumShapes(members[g], proc_shapes, evaluated, shapes[g]);
+      err_sq[g].assign(shapes[g].GetNbinsX(), 0.0);
+    }
+
+    // Each parameter is shifted down and up once, and only the processes it
+    // affects are evaluated again: as in GetShapeWithUncertainty(), those with
+    // a systematic of this name, and all those with a pdf, as we haven't
+    // checked what its parameters are. A group's shift is that of the sum of
+    // its affected processes.
+    std::vector<TH1F> shapes_d(procs_.size()), shapes_u(procs_.size());
+    std::vector<char> shifted(procs_.size(), false);
+    TH1F group_d, group_u;
+    for (auto param_it : params_) {
+      bool any = false;
+      for (unsigned i = 0; i < procs_.size(); ++i) {
+        shifted[i] = evaluated[i] && (procs_[i]->pdf() || ch::any_of(lookup[i], [&](Systematic const* sys) {
+                                        return sys->name() == param_it.first;
+                                      }));
+        any = any || shifted[i];
+      }
+      if (!any)
+        continue;
+      double backup = param_it.second->val();
+      param_it.second->set_val(backup + param_it.second->err_d());
+      for (unsigned i = 0; i < procs_.size(); ++i) {
+        if (shifted[i])
+          GetProcessShapeInternal(i, lookup, shapes_d[i]);
+      }
+      param_it.second->set_val(backup + param_it.second->err_u());
+      for (unsigned i = 0; i < procs_.size(); ++i) {
+        if (shifted[i])
+          GetProcessShapeInternal(i, lookup, shapes_u[i]);
+      }
+      param_it.second->set_val(backup);
+      for (unsigned g = 0; g < groups.size(); ++g) {
+        SumShapes(members[g], shapes_d, shifted, group_d);
+        SumShapes(members[g], shapes_u, shifted, group_u);
+        for (int j = 1; j <= group_d.GetNbinsX() && j <= shapes[g].GetNbinsX(); ++j) {
+          double err = std::fabs(group_u.GetBinContent(j) - group_d.GetBinContent(j)) / 2.0;
+          err_sq[g][j - 1] += err * err;
+        }
+      }
+    }
+    for (unsigned g = 0; g < groups.size(); ++g) {
+      for (int j = 1; j <= shapes[g].GetNbinsX(); ++j) {
+        shapes[g].SetBinError(j, std::sqrt(err_sq[g][j - 1]));
+      }
+    }
+    return shapes;
+  }
+
+  std::vector<TH1F> CombineHarvester::GetShapesWithUncertainty(std::vector<CombineHarvester> const& groups,
+                                                               RooFitResult const& fit,
+                                                               unsigned n_samples) {
+    auto lookup = GenerateProcSystMap();
+    auto members = GroupIndices(groups);
+    std::vector<char> needed(procs_.size(), false);
+    for (auto const& m : members) {
+      for (unsigned i : m)
+        needed[i] = true;
+    }
+
+    // The shape of each process of the groups at the current parameter values;
+    // evaluated[i] is false if process i has neither a shape nor a pdf
+    std::vector<TH1F> proc_shapes(procs_.size());
+    std::vector<char> evaluated(procs_.size(), false);
+    auto evaluate = [&]() {
+      for (unsigned i = 0; i < procs_.size(); ++i) {
+        if (needed[i])
+          evaluated[i] = GetProcessShapeInternal(i, lookup, proc_shapes[i]);
+      }
+    };
+
+    // The nominal shapes, which the uncertainties are added to
+    evaluate();
+    std::vector<TH1F> shapes(groups.size());
+    for (unsigned g = 0; g < groups.size(); ++g) {
+      SumShapes(members[g], proc_shapes, evaluated, shapes[g]);
+    }
+    // For each bin of each group, the sums of the differences of the sampled
+    // yields to the nominal one, and of their squares: the variance around the
+    // mean of the samples follows from these
+    std::vector<std::vector<double>> sum_d(groups.size()), sum_d2(groups.size());
+    for (unsigned g = 0; g < groups.size(); ++g) {
+      sum_d[g].assign(shapes[g].GetNbinsX(), 0.0);
+      sum_d2[g].assign(shapes[g].GetNbinsX(), 0.0);
+    }
+
+    // Create a backup copy of the current parameter values
+    auto backup = GetParameters();
+
+    // Calling randomizePars() ensures that the RooArgList of sampled parameters
+    // is already created within the RooFitResult
+    RooArgList const& rands = fit.randomizePars();
+
+    // Now create two aligned vectors of the RooRealVar parameters and the
+    // corresponding ch::Parameter pointers
+    int n_pars = rands.getSize();
+    std::vector<RooRealVar const*> r_vec(n_pars, nullptr);
+    std::vector<ch::Parameter*> p_vec(n_pars, nullptr);
+    for (unsigned n = 0; n < p_vec.size(); ++n) {
+      r_vec[n] = dynamic_cast<RooRealVar const*>(rands.at(n));
+      p_vec[n] = GetParameter(r_vec[n]->GetName());
+    }
+
+    // Main loop through n_samples: each process is evaluated once per sample,
+    // and all the groups are made from these shapes
+    TH1F rand_shape;
+    for (unsigned i = 0; i < n_samples; ++i) {
+      // Randomise and update values
+      fit.randomizePars();
+      for (int n = 0; n < n_pars; ++n) {
+        if (p_vec[n])
+          p_vec[n]->set_val(r_vec[n]->getVal());
+      }
+      evaluate();
+      for (unsigned g = 0; g < groups.size(); ++g) {
+        SumShapes(members[g], proc_shapes, evaluated, rand_shape);
+        for (int j = 1; j <= rand_shape.GetNbinsX() && j <= shapes[g].GetNbinsX(); ++j) {
+          double d = rand_shape.GetBinContent(j) - shapes[g].GetBinContent(j);
+          sum_d[g][j - 1] += d;
+          sum_d2[g][j - 1] += d * d;
+        }
+      }
+    }
+    for (unsigned g = 0; g < groups.size(); ++g) {
+      for (int j = 1; j <= shapes[g].GetNbinsX(); ++j) {
+        double mean_d = sum_d[g][j - 1] / double(n_samples);
+        double var = sum_d2[g][j - 1] / double(n_samples) - mean_d * mean_d;
+        shapes[g].SetBinError(j, std::sqrt(std::max(var, 0.0)));
+      }
+    }
+    this->UpdateParameters(backup);
+    return shapes;
   }
 
   TH2F CombineHarvester::Get2DShapeWithUncertainty() {
@@ -420,101 +617,103 @@ namespace ch {
           continue;
       }
 
-      double p_rate = procs_[i]->rate();
-      if (procs_[i]->shape() || procs_[i]->data()) {
-        TH1F proc_shape = procs_[i]->ShapeAsTH1F();
-        for (auto sys_it : lookup[i]) {
-          if (sys_it->type() == "rateParam") {
-            continue;  // don't evaluate this for now
-          }
-          auto param_it = params_.find(sys_it->name());
-          if (param_it == params_.end()) {
-            throw std::runtime_error(
-                FNERROR("Parameter " + sys_it->name() + " not found in CombineHarvester instance"));
-          }
-          double x = param_it->second->val();
-          if (sys_it->asymm()) {
-            p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(), sys_it->value_u());
-            if (sys_it->type() == "shape" || sys_it->type() == "shapeN" || sys_it->type() == "shapeN2" ||
-                sys_it->type() == "shapeU") {
-              bool linear = true;
-              if (sys_it->type() == "shapeN2")
-                linear = false;
-              if (sys_it->shape_u() && sys_it->shape_d()) {
-                ShapeDiff(
-                    x * sys_it->scale(), &proc_shape, procs_[i]->shape(), sys_it->shape_d(), sys_it->shape_u(), linear);
-              }
-              if (sys_it->data_u() && sys_it->data_d()) {
-                RooDataHist const* nom = dynamic_cast<RooDataHist const*>(procs_[i]->data());
-                if (nom) {
-                  ShapeDiff(x * sys_it->scale(), &proc_shape, nom, sys_it->data_d(), sys_it->data_u());
-                }
-              }
-            }
-          } else if (sys_it->type() == "gmN") {
-            p_rate *= gmNFactor(*sys_it, x);
-          } else {
-            p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
-          }
-        }
-        for (int b = 1; b <= proc_shape.GetNbinsX(); ++b) {
-          if (proc_shape.GetBinContent(b) < 0.)
-            proc_shape.SetBinContent(b, 0.);
-        }
-        proc_shape.Scale(p_rate);
-        if (!shape_init) {
-          proc_shape.Copy(shape);
-          shape.Reset();
-          shape_init = true;
-        }
-        shape.Add(&proc_shape);
-      } else if (procs_[i]->pdf()) {
-        if (!procs_[i]->observable()) {
-          RooAbsData const* data_obj = FindMatchingData(procs_[i].get());
-          std::string var_name = "CMS_th1x";
-          if (data_obj)
-            var_name = data_obj->get()->first()->GetName();
-          procs_[i]->set_observable((RooRealVar*)procs_[i]->pdf()->findServer(var_name.c_str()));
-        }
-        TH1::AddDirectory(false);
-        TH1F* tmp = (TH1F*)procs_[i]->observable()->createHistogram("");
-        for (int b = 1; b <= tmp->GetNbinsX(); ++b) {
-          procs_[i]->observable()->setVal(tmp->GetBinCenter(b));
-          tmp->SetBinContent(b, tmp->GetBinWidth(b) * procs_[i]->pdf()->getVal());
-        }
-        TH1F proc_shape = *tmp;
-        delete tmp;
-        RooAbsPdf const* aspdf = dynamic_cast<RooAbsPdf const*>(procs_[i]->pdf());
-        if ((aspdf && !aspdf->selfNormalized()) || (!aspdf)) {
-          // LOGLINE(log(), "Have a pdf that is not selfNormalized");
-          // std::cout << "Integral: " << proc_shape.Integral() << "\n";
-          if (proc_shape.Integral() > 0.) {
-            proc_shape.Scale(1. / proc_shape.Integral());
-          }
-        }
-        for (auto sys_it : lookup[i]) {
-          if (sys_it->type() == "rateParam") {
-            continue;  // don't evaluate this for now
-          }
-          double x = params_[sys_it->name()]->val();
-          if (sys_it->asymm()) {
-            p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(), sys_it->value_u());
-          } else if (sys_it->type() == "gmN") {
-            p_rate *= gmNFactor(*sys_it, x);
-          } else {
-            p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
-          }
-        }
-        proc_shape.Scale(p_rate);
-        if (!shape_init) {
-          proc_shape.Copy(shape);
-          shape.Reset();
-          shape_init = true;
-        }
-        shape.Add(&proc_shape);
+      TH1F proc_shape;
+      if (!GetProcessShapeInternal(i, lookup, proc_shape))
+        continue;
+      if (!shape_init) {
+        proc_shape.Copy(shape);
+        shape.Reset();
+        shape_init = true;
       }
+      shape.Add(&proc_shape);
     }
     return shape;
+  }
+
+  bool CombineHarvester::GetProcessShapeInternal(unsigned i, ProcSystMap const& lookup, TH1F& proc_shape) {
+    double p_rate = procs_[i]->rate();
+    if (procs_[i]->shape() || procs_[i]->data()) {
+      proc_shape = procs_[i]->ShapeAsTH1F();
+      for (auto sys_it : lookup[i]) {
+        if (sys_it->type() == "rateParam") {
+          continue;  // don't evaluate this for now
+        }
+        auto param_it = params_.find(sys_it->name());
+        if (param_it == params_.end()) {
+          throw std::runtime_error(FNERROR("Parameter " + sys_it->name() + " not found in CombineHarvester instance"));
+        }
+        double x = param_it->second->val();
+        if (sys_it->asymm()) {
+          p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(), sys_it->value_u());
+          if (sys_it->type() == "shape" || sys_it->type() == "shapeN" || sys_it->type() == "shapeN2" ||
+              sys_it->type() == "shapeU") {
+            bool linear = true;
+            if (sys_it->type() == "shapeN2")
+              linear = false;
+            if (sys_it->shape_u() && sys_it->shape_d()) {
+              ShapeDiff(
+                  x * sys_it->scale(), &proc_shape, procs_[i]->shape(), sys_it->shape_d(), sys_it->shape_u(), linear);
+            }
+            if (sys_it->data_u() && sys_it->data_d()) {
+              RooDataHist const* nom = dynamic_cast<RooDataHist const*>(procs_[i]->data());
+              if (nom) {
+                ShapeDiff(x * sys_it->scale(), &proc_shape, nom, sys_it->data_d(), sys_it->data_u());
+              }
+            }
+          }
+        } else if (sys_it->type() == "gmN") {
+          p_rate *= gmNFactor(*sys_it, x);
+        } else {
+          p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
+        }
+      }
+      for (int b = 1; b <= proc_shape.GetNbinsX(); ++b) {
+        if (proc_shape.GetBinContent(b) < 0.)
+          proc_shape.SetBinContent(b, 0.);
+      }
+      proc_shape.Scale(p_rate);
+      return true;
+    } else if (procs_[i]->pdf()) {
+      if (!procs_[i]->observable()) {
+        RooAbsData const* data_obj = FindMatchingData(procs_[i].get());
+        std::string var_name = "CMS_th1x";
+        if (data_obj)
+          var_name = data_obj->get()->first()->GetName();
+        procs_[i]->set_observable((RooRealVar*)procs_[i]->pdf()->findServer(var_name.c_str()));
+      }
+      TH1::AddDirectory(false);
+      TH1F* tmp = (TH1F*)procs_[i]->observable()->createHistogram("");
+      for (int b = 1; b <= tmp->GetNbinsX(); ++b) {
+        procs_[i]->observable()->setVal(tmp->GetBinCenter(b));
+        tmp->SetBinContent(b, tmp->GetBinWidth(b) * procs_[i]->pdf()->getVal());
+      }
+      proc_shape = *tmp;
+      delete tmp;
+      RooAbsPdf const* aspdf = dynamic_cast<RooAbsPdf const*>(procs_[i]->pdf());
+      if ((aspdf && !aspdf->selfNormalized()) || (!aspdf)) {
+        // LOGLINE(log(), "Have a pdf that is not selfNormalized");
+        // std::cout << "Integral: " << proc_shape.Integral() << "\n";
+        if (proc_shape.Integral() > 0.) {
+          proc_shape.Scale(1. / proc_shape.Integral());
+        }
+      }
+      for (auto sys_it : lookup[i]) {
+        if (sys_it->type() == "rateParam") {
+          continue;  // don't evaluate this for now
+        }
+        double x = params_[sys_it->name()]->val();
+        if (sys_it->asymm()) {
+          p_rate *= logKappaForX(x * sys_it->scale(), sys_it->value_d(), sys_it->value_u());
+        } else if (sys_it->type() == "gmN") {
+          p_rate *= gmNFactor(*sys_it, x);
+        } else {
+          p_rate *= std::pow(sys_it->value_u(), x * sys_it->scale());
+        }
+      }
+      proc_shape.Scale(p_rate);
+      return true;
+    }
+    return false;
   }
 
   TH2F CombineHarvester::Get2DShape() {

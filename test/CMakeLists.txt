@@ -463,6 +463,26 @@ COMBINE_ADD_TEST(combineharvester-validate-datacards
     PASSREGEX "Validation results"
 )
 
+# PostFitShapesFromWorkspace: the pre- and post-fit shapes must agree with
+# those of FitDiagnostics --saveShapes, for each type of datacard
+foreach(case
+    "cmshistfunc data/ci/template-analysis_shapeInterp.txt 200"
+    "parametric data/tutorials/CAT23001/datacard-3-parametric-analysis.txt 125"
+    "counting data/tutorials/CAT23001/datacard-5-multi-signal.txt 125"
+    "autoMCStats data/ci/template-analysis_shape_autoMCStats.txt 125"
+    "multiple_regions data/ci/htt_multiple_regions.txt 125"
+)
+    separate_arguments(case)
+    list(GET case 0 name)
+    list(GET case 1 card)
+    list(GET case 2 mass)
+    COMBINE_ADD_TEST(postfitshapes-${name}
+        COMMAND python3 ${REPO}/test/test_postfitshapes.py ${REPO}/${card} ${mass}
+        PASSREGEX "All checks passed"
+        LABELS PostFitShapes
+    )
+endforeach()
+
 # Copies of the vertical-morphing pdfs must follow their own nuisance parameter
 COMBINE_ADD_TEST(test_morphing_copy_py
     COMMAND python3 ${REPO}/test/test_morphing_copy.py

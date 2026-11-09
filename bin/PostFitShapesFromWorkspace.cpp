@@ -187,18 +187,61 @@ int main(int argc, char* argv[]) {
   //   pre_shapes_tot[<process>]
   map<string, TH1F> pre_shapes_tot;
 
+  // The shapes with uncertainties of a stage, "prefit" or "postfit", keyed by
+  // their path in the output file: the totals of all the bins with
+  // --total-shapes, and of each bin and its processes (unless
+  // --skip-proc-errs). All are made in one go, so each process is evaluated only
+  // once per sample of the fit covariance matrix, or without a fit result once
+  // per shift of each parameter, rather than once per shape it is part of
+  auto shapes_with_uncertainty = [&](string const& stage, RooFitResult const* fit) {
+    vector<string> keys;
+    vector<ch::CombineHarvester> groups;
+    auto add_totals = [&](string const& dir, ch::CombineHarvester& cmb_sel) {
+      keys.push_back(dir + "TotalBkg");
+      groups.push_back(cmb_sel.cp().backgrounds());
+      keys.push_back(dir + "TotalSig");
+      groups.push_back(cmb_sel.cp().signals());
+      keys.push_back(dir + "TotalProcs");
+      groups.push_back(cmb_sel.cp());
+    };
+    if (total_shapes) {
+      add_totals(stage + "/", cmb);
+    }
+    for (auto bin : bins) {
+      ch::CombineHarvester cmb_bin = cmb.cp().bin({bin});
+      if (!skip_proc_errs) {
+        for (auto proc : cmb_bin.process_set()) {
+          keys.push_back(bin + "_" + stage + "/" + proc);
+          groups.push_back(cmb_bin.cp().process({proc}));
+        }
+      }
+      add_totals(bin + "_" + stage + "/", cmb_bin);
+    }
+    std::cout << ">> Doing " << stage << ": " << keys.size() << " shapes with uncertainties";
+    if (fit)
+      std::cout << ", from " << samples << " samples";
+    std::cout << std::endl;
+    vector<TH1F> shapes = fit ? cmb.GetShapesWithUncertainty(groups, *fit, samples) : cmb.GetShapesWithUncertainty(groups);
+    map<string, TH1F> result;
+    for (unsigned i = 0; i < keys.size(); ++i) {
+      result[keys[i]] = shapes[i];
+    }
+    return result;
+  };
+
   // We can always do the prefit version,
   // Loop through the bins writing the shapes to the output file
   if (!skip_prefit) {
+    map<string, TH1F> pre_with_errs = shapes_with_uncertainty("prefit", nullptr);
     if (total_shapes) {
       pre_shapes_tot["data_obs"] = cmb.GetObservedShape();
       // Then fill total signal and total bkg hists
       std::cout << ">> Doing prefit: TotalBkg" << std::endl;
-      pre_shapes_tot["TotalBkg"] = cmb.cp().backgrounds().GetShapeWithUncertainty();
+      pre_shapes_tot["TotalBkg"] = pre_with_errs.at("prefit/TotalBkg");
       std::cout << ">> Doing prefit: TotalSig" << std::endl;
-      pre_shapes_tot["TotalSig"] = cmb.cp().signals().GetShapeWithUncertainty();
+      pre_shapes_tot["TotalSig"] = pre_with_errs.at("prefit/TotalSig");
       std::cout << ">> Doing prefit: TotalProcs" << std::endl;
-      pre_shapes_tot["TotalProcs"] = cmb.cp().GetShapeWithUncertainty();
+      pre_shapes_tot["TotalProcs"] = pre_with_errs.at("prefit/TotalProcs");
 
       if (datacard != "") {
         TH1F ref = cmb_card.cp().GetObservedShape();
@@ -227,20 +270,20 @@ int main(int argc, char* argv[]) {
         if (skip_proc_errs) {
           pre_shapes[bin][proc] = cmb_bin.cp().process({proc}).GetShape();
         } else {
-          pre_shapes[bin][proc] = cmb_bin.cp().process({proc}).GetShapeWithUncertainty();
+          pre_shapes[bin][proc] = pre_with_errs.at(bin + "_prefit/" + proc);
         }
       }
 
       // The fill total signal and total bkg hists
       std::cout << ">> Doing prefit: " << bin << ","
                 << "TotalBkg" << std::endl;
-      pre_shapes[bin]["TotalBkg"] = cmb_bin.cp().backgrounds().GetShapeWithUncertainty();
+      pre_shapes[bin]["TotalBkg"] = pre_with_errs.at(bin + "_prefit/TotalBkg");
       std::cout << ">> Doing prefit: " << bin << ","
                 << "TotalSig" << std::endl;
-      pre_shapes[bin]["TotalSig"] = cmb_bin.cp().signals().GetShapeWithUncertainty();
+      pre_shapes[bin]["TotalSig"] = pre_with_errs.at(bin + "_prefit/TotalSig");
       std::cout << ">> Doing prefit: " << bin << ","
                 << "TotalProcs" << std::endl;
-      pre_shapes[bin]["TotalProcs"] = cmb_bin.cp().GetShapeWithUncertainty();
+      pre_shapes[bin]["TotalProcs"] = pre_with_errs.at(bin + "_prefit/TotalProcs");
 
       if (datacard != "") {
         TH1F ref = cmb_card.cp().bin({bin}).GetObservedShape();
@@ -291,20 +334,20 @@ int main(int argc, char* argv[]) {
 
     map<string, TH1F> post_shapes_tot;
 
+    // All the post-fit shapes are made from the same samples of the fit
+    // covariance matrix, as in FitDiagnostics, or with --no-sampling from the
+    // same shifts of the parameters
+    map<string, TH1F> post_with_errs = shapes_with_uncertainty("postfit", no_sampling ? nullptr : &res);
+
     if (total_shapes) {
       post_shapes_tot["data_obs"] = cmb.GetObservedShape();
       // Fill the total sig. and total bkg. hists
-      auto cmb_bkgs = cmb.cp().backgrounds();
-      auto cmb_sigs = cmb.cp().signals();
       std::cout << ">> Doing postfit: TotalBkg" << std::endl;
-      post_shapes_tot["TotalBkg"] =
-          no_sampling ? cmb_bkgs.GetShapeWithUncertainty() : cmb_bkgs.GetShapeWithUncertainty(res, samples);
+      post_shapes_tot["TotalBkg"] = post_with_errs.at("postfit/TotalBkg");
       std::cout << ">> Doing postfit: TotalSig" << std::endl;
-      post_shapes_tot["TotalSig"] =
-          no_sampling ? cmb_sigs.GetShapeWithUncertainty() : cmb_sigs.GetShapeWithUncertainty(res, samples);
+      post_shapes_tot["TotalSig"] = post_with_errs.at("postfit/TotalSig");
       std::cout << ">> Doing postfit: TotalProcs" << std::endl;
-      post_shapes_tot["TotalProcs"] =
-          no_sampling ? cmb.cp().GetShapeWithUncertainty() : cmb.cp().GetShapeWithUncertainty(res, samples);
+      post_shapes_tot["TotalProcs"] = post_with_errs.at("postfit/TotalProcs");
 
       if (datacard != "") {
         TH1F ref = cmb_card.cp().GetObservedShape();
@@ -324,15 +367,11 @@ int main(int argc, char* argv[]) {
       ch::CombineHarvester cmb_bin = cmb.cp().bin({bin});
       post_shapes[bin]["data_obs"] = cmb_bin.GetObservedShape();
       for (auto proc : cmb_bin.process_set()) {
-        auto cmb_proc = cmb_bin.cp().process({proc});
-        // Method to get the shape uncertainty depends on whether we are using
-        // the sampling method or the "wrong" method (assumes no correlations)
         std::cout << ">> Doing postfit: " << bin << "," << proc << std::endl;
         if (skip_proc_errs) {
-          post_shapes[bin][proc] = cmb_proc.GetShape();
+          post_shapes[bin][proc] = cmb_bin.cp().process({proc}).GetShape();
         } else {
-          post_shapes[bin][proc] =
-              no_sampling ? cmb_proc.GetShapeWithUncertainty() : cmb_proc.GetShapeWithUncertainty(res, samples);
+          post_shapes[bin][proc] = post_with_errs.at(bin + "_postfit/" + proc);
         }
       }
       if (!no_sampling && covariance) {
@@ -340,20 +379,15 @@ int main(int argc, char* argv[]) {
         post_yield_cor[bin] = cmb_bin.GetRateCorrelation(res, samples);
       }
       // Fill the total sig. and total bkg. hists
-      auto cmb_bkgs = cmb_bin.cp().backgrounds();
-      auto cmb_sigs = cmb_bin.cp().signals();
       std::cout << ">> Doing postfit: " << bin << ","
                 << "TotalBkg" << std::endl;
-      post_shapes[bin]["TotalBkg"] =
-          no_sampling ? cmb_bkgs.GetShapeWithUncertainty() : cmb_bkgs.GetShapeWithUncertainty(res, samples);
+      post_shapes[bin]["TotalBkg"] = post_with_errs.at(bin + "_postfit/TotalBkg");
       std::cout << ">> Doing postfit: " << bin << ","
                 << "TotalSig" << std::endl;
-      post_shapes[bin]["TotalSig"] =
-          no_sampling ? cmb_sigs.GetShapeWithUncertainty() : cmb_sigs.GetShapeWithUncertainty(res, samples);
+      post_shapes[bin]["TotalSig"] = post_with_errs.at(bin + "_postfit/TotalSig");
       std::cout << ">> Doing postfit: " << bin << ","
                 << "TotalProcs" << std::endl;
-      post_shapes[bin]["TotalProcs"] =
-          no_sampling ? cmb_bin.cp().GetShapeWithUncertainty() : cmb_bin.cp().GetShapeWithUncertainty(res, samples);
+      post_shapes[bin]["TotalProcs"] = post_with_errs.at(bin + "_postfit/TotalProcs");
 
       if (datacard != "") {
         TH1F ref = cmb_card.cp().bin({bin}).GetObservedShape();
