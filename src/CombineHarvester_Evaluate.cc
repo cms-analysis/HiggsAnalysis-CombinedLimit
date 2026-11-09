@@ -1,5 +1,4 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
-#include <algorithm>
 #include <vector>
 #include <map>
 #include <string>
@@ -160,15 +159,11 @@ namespace ch {
   TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const& fit, unsigned n_samples) {
     auto lookup = GenerateProcSystMap();
     TH1F shape = GetShapeInternal(lookup);
-    TH1F yield_sum;
-    shape.Copy(yield_sum);
     int n_bins = shape.GetNbinsX();
-    std::vector<std::vector<float>> sample_yields_perbin(n_bins, std::vector<float>(n_samples));
-
-    for (int i = 1; i <= n_bins; ++i) {
-      shape.SetBinError(i, 0.0);
-      yield_sum.SetBinContent(i, 0.0);
-    }
+    // The sums of the squared differences of the sampled yields to the nominal
+    // ones: the uncertainty is their RMS, as in FitDiagnostics and for the rates
+    // of GetUncertainty(RooFitResult const&, unsigned)
+    std::vector<double> err_sq(n_bins, 0.0);
     // Create a backup copy of the current parameter values
     auto backup = GetParameters();
 
@@ -195,19 +190,13 @@ namespace ch {
           p_vec[n]->set_val(r_vec[n]->getVal());
       }
       TH1F rand_shape = this->GetShapeInternal(lookup);
-      for (int j = 1; j <= n_bins; ++j) {
-        double yield = rand_shape.GetBinContent(j);
-        sample_yields_perbin[j - 1][i] = yield;
-        yield_sum.SetBinContent(j, yield_sum.GetBinContent(j) + yield);
+      for (int j = 1; j <= n_bins && j <= rand_shape.GetNbinsX(); ++j) {
+        double d = rand_shape.GetBinContent(j) - shape.GetBinContent(j);
+        err_sq[j - 1] += d * d;
       }
     }
-    for (int i = 1; i <= n_bins; ++i) {
-      double yield_mean = yield_sum.GetBinContent(i) / double(n_samples);
-      for (auto x : sample_yields_perbin[i - 1]) {
-        double err = std::fabs(x - yield_mean);
-        shape.SetBinError(i, err * err + shape.GetBinError(i));
-      }
-      shape.SetBinError(i, std::sqrt(shape.GetBinError(i) / double(n_samples)));
+    for (int j = 1; j <= n_bins; ++j) {
+      shape.SetBinError(j, std::sqrt(err_sq[j - 1] / double(n_samples)));
     }
     this->UpdateParameters(backup);
     return shape;
@@ -330,13 +319,12 @@ namespace ch {
     for (unsigned g = 0; g < groups.size(); ++g) {
       SumShapes(members[g], proc_shapes, evaluated, shapes[g]);
     }
-    // For each bin of each group, the sums of the differences of the sampled
-    // yields to the nominal one, and of their squares: the variance around the
-    // mean of the samples follows from these
-    std::vector<std::vector<double>> sum_d(groups.size()), sum_d2(groups.size());
+    // For each bin of each group, the sum of the squared differences of the
+    // sampled yields to the nominal one: the uncertainty is their RMS, as in
+    // GetShapeWithUncertainty(RooFitResult const&, unsigned)
+    std::vector<std::vector<double>> err_sq(groups.size());
     for (unsigned g = 0; g < groups.size(); ++g) {
-      sum_d[g].assign(shapes[g].GetNbinsX(), 0.0);
-      sum_d2[g].assign(shapes[g].GetNbinsX(), 0.0);
+      err_sq[g].assign(shapes[g].GetNbinsX(), 0.0);
     }
 
     // Create a backup copy of the current parameter values
@@ -371,16 +359,13 @@ namespace ch {
         SumShapes(members[g], proc_shapes, evaluated, rand_shape);
         for (int j = 1; j <= rand_shape.GetNbinsX() && j <= shapes[g].GetNbinsX(); ++j) {
           double d = rand_shape.GetBinContent(j) - shapes[g].GetBinContent(j);
-          sum_d[g][j - 1] += d;
-          sum_d2[g][j - 1] += d * d;
+          err_sq[g][j - 1] += d * d;
         }
       }
     }
     for (unsigned g = 0; g < groups.size(); ++g) {
       for (int j = 1; j <= shapes[g].GetNbinsX(); ++j) {
-        double mean_d = sum_d[g][j - 1] / double(n_samples);
-        double var = sum_d2[g][j - 1] / double(n_samples) - mean_d * mean_d;
-        shapes[g].SetBinError(j, std::sqrt(std::max(var, 0.0)));
+        shapes[g].SetBinError(j, std::sqrt(err_sq[g][j - 1] / double(n_samples)));
       }
     }
     this->UpdateParameters(backup);

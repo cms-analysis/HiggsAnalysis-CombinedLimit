@@ -352,6 +352,10 @@ namespace ch {
    * Sum all Process shapes and evaluate bin-wise uncertainty by sampling from
    * the fit convariance matrix
    *
+   * \details The uncertainty of a bin is the RMS of its sampled yields around
+   * the yield at the current parameter values, as in FitDiagnostics
+   * --saveWithUncertainties
+   *
    * \deprecated For consistency and compatibility with the python interface,
    * please use the GetShapeWithUncertainty(RooFitResult const&, unsigned)
    * version of this method instead - this method will be removed in an
