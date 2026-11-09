@@ -361,6 +361,12 @@ COMBINE_ADD_TEST(template_analysis-text2workspace
     FIXTURES_SETUP template_analysis_workspace
 )
 
+# FitDiagnostics on the template analysis workspace, then diffNuisances.py
+COMBINE_ADD_TEST(template_analysis-diffNuisances
+    COMMAND bash -c "combine -M FitDiagnostics template-analysis_shape_autoMCStats.root -n _templateAnalysisWorkspace && python3 ${REPO}/test/diffNuisances.py -a --sortBy impact fitDiagnostics_templateAnalysisWorkspace.root"
+    FIXTURES_REQUIRED template_analysis_workspace
+)
+
 
 if(BUILD_TESTS AND NOT DEFINED standalone_tests)
     COMBINE_ADD_GTEST(hzz4l-readfile
