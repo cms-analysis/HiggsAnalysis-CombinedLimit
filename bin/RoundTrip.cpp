@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
   po::options_description config("Configuration");
   config.add_options()("input,i", po::value<string>(&datacard)->required(), "The datacard .txt file [REQUIRED]")(
       "output,o", po::value<string>(&output)->required(), "Name of the output txt file to create [REQUIRED]")(
-      "root,r ", po::value<string>(&output_file)->required(), "Name of the output root file to create [REQUIRED]")(
+      "root,r", po::value<string>(&output_file)->required(), "Name of the output root file to create [REQUIRED]")(
       "mass,m", po::value<string>(&mass)->default_value(""), "Signal mass point of the input datacard")(
       "print", po::value<bool>(&print)->default_value(print)->implicit_value(true), "Print CombineHarvester instance");
 
