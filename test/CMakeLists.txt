@@ -658,8 +658,14 @@ foreach(card
     )
 endforeach()
 # CH can't read gzipped datacards, so these are unzipped to ch_roundtrip/
-# first, with their shapes files next to them
-foreach(name RooHistPdf RooMultiPdf)
+# first, with their shapes files next to them. Like multipdf, the RooMultiPdf
+# one doesn't run with CMSSW_11: the RooBernsteinFast in its workspace can't
+# be read with ROOT 6.22
+set(ch_gz_cards RooHistPdf)
+if(NOT CMSSW_VERSION MATCHES "^CMSSW_11")
+  list(APPEND ch_gz_cards RooMultiPdf)
+endif()
+foreach(name ${ch_gz_cards})
     COMBINE_ADD_TEST(ch-write-datacard_${name}
         PRECMD sh -c "cp ${REPO}/data/ci/shapes_${name}.root . && gzip -dc ${REPO}/data/ci/datacard_${name}.txt.gz > datacard_${name}.txt"
         COMMAND ${ch_roundtrip} datacard_${name}.txt ch_cards/datacard_${name}.txt
