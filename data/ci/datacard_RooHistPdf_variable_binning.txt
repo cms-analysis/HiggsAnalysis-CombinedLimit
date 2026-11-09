@@ -1,0 +1,19 @@
+# One process described by a RooHistPdf on an observable with variable-width
+# bins, plus one shape systematic (which makes text2workspace build a
+# FastVerticalInterpHistPdf). The workspace is made by
+# test/histpdf_variable_binning.py.
+imax 1
+jmax 0
+kmax 1
+---
+shapes * * shapes_RooHistPdf_variable_binning.root w:$PROCESS w:$PROCESS_$SYSTEMATIC
+---
+bin         ch
+observation -1
+---
+bin         ch
+process     sig
+process     0
+rate        150
+---
+shape shape 1
