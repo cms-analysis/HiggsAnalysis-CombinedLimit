@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
       "workspace,w", po::value<string>(&workspace)->required(), "The input workspace-containing file [REQUIRED]")(
       "dataset", po::value<string>(&data)->default_value(data), "The input dataset name")(
       "datacard,d", po::value<string>(&datacard), "The input datacard, only used for rebinning")(
-      "output,o ", po::value<string>(&output)->required(), "Name of the output root file to create [REQUIRED]")(
+      "output,o", po::value<string>(&output)->required(), "Name of the output root file to create [REQUIRED]")(
       "fitresult,f",
       po::value<string>(&fitresult)->default_value(fitresult),
       "Path to a RooFitResult, only needed for postfit")(
