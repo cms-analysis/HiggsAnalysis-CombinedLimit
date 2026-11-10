@@ -726,6 +726,14 @@ COMBINE_ADD_TEST(ch-write-htt_multiple_regions
     FIXTURES_SETUP ch-card-htt_multiple_regions
     LABELS CHRoundTrip
 )
+# The same datacard written with ch::CardWriter: a datacard for each bin in
+# ch_cards/htt_multiple_regions_split/125/, with their shapes in one file
+COMBINE_ADD_TEST(ch-write-htt_multiple_regions-split
+    COMMAND ${ch_roundtrip} --mass=125 --split ${REPO}/data/ci/htt_multiple_regions.txt ch_cards/htt_multiple_regions_split
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP ch-card-htt_multiple_regions-split
+    LABELS CHRoundTrip
+)
 
 COMBINE_ADD_TEST(counting_gmN-ch-text2workspace
     COMMAND text2workspace.py ch_cards/realistic-counting-experiment.txt -o counting_gmN.root -m 125
@@ -840,6 +848,27 @@ COMBINE_ADD_TEST(cmshistfunc_channel_masks-ch
     COMMAND bash -c "combine -M MultiDimFit ws_template-analysis-channel_masks.root --algo singles  --setParameterRanges r=-5,5 --setParameters mask_htt_tt_2_8TeV=1"
     FIXTURES_REQUIRED cmshistfunc_channel_masks-ch
     CHECKOUT OUTPUT cmshistfunc_channel_masks-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistfunc_channel_masks.out
+    WORKING_DIR ${ch_dir}
+    LABELS CHRoundTrip
+)
+
+# The datacards of the bins written by ch::CardWriter, combined again under
+# the names of the bins: the fit is the same as for the single datacard
+set(_split_cards "")
+foreach(bin htt_tt_0_8TeV htt_tt_1_8TeV htt_tt_2_8TeV)
+    string(APPEND _split_cards " ${bin}=ch_cards/htt_multiple_regions_split/125/${bin}.txt")
+endforeach()
+COMBINE_ADD_TEST(cmshistfunc_channel_masks-ch-split-text2workspace
+    COMMAND bash -c "combineCards.py${_split_cards} > ch_cards/htt_multiple_regions_split.txt && text2workspace.py ch_cards/htt_multiple_regions_split.txt -o ws_template-analysis-channel_masks-split.root --mass 125 --channel-masks"
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP cmshistfunc_channel_masks-ch-split
+    FIXTURES_REQUIRED ch-card-htt_multiple_regions-split
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(cmshistfunc_channel_masks-ch-split
+    COMMAND bash -c "combine -M MultiDimFit ws_template-analysis-channel_masks-split.root --algo singles  --setParameterRanges r=-5,5 --setParameters mask_htt_tt_2_8TeV=1"
+    FIXTURES_REQUIRED cmshistfunc_channel_masks-ch-split
+    CHECKOUT OUTPUT cmshistfunc_channel_masks-ch-split.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistfunc_channel_masks.out
     WORKING_DIR ${ch_dir}
     LABELS CHRoundTrip
 )
