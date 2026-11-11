@@ -213,6 +213,12 @@ COMBINE_ADD_TEST(histpdf_variable_binning
   FIXTURES_REQUIRED histpdf_variable_binning
 )
 
+# text2workspace.py must reject a datacard whose observation does not match the
+# yield of the data histogram, also when that histogram is empty (issue #312)
+COMBINE_ADD_TEST(observed_norm_check
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/observed_norm_check.py
+)
+
 # RooMultiPdf
 if(NOT CMSSW_VERSION MATCHES "^CMSSW_11")
   # This test does not work with the ROOT 6.22 of CMSSW_11; the condition is

@@ -487,6 +487,8 @@ class ShapeBuilder(ModelBuilder):
                     continue
                 shape = self.getShape(b, p)
                 norm = 0
+                # Whether norm is the actual yield of the shape (it stays 0 for counting experiments, TTrees and pdfs)
+                hasNorm = False
                 if not shape:  # counting experiment
                     if not self.out.var("CMS_fakeObs"):
                         self.doVar("CMS_fakeObs[0,1]")
@@ -507,6 +509,7 @@ class ShapeBuilder(ModelBuilder):
                     if channelBinParFlag:
                         self.selfNormBins.append(b)
                     norm = shape.Integral()
+                    hasNorm = True
                     if p == self.options.dataname:
                         if self.options.poisson > 0 and norm > self.options.poisson:
                             self.pdfModes[b] = "poisson"
@@ -524,6 +527,7 @@ class ShapeBuilder(ModelBuilder):
                     # if doPadding: shapeBins[b] = shape.numEntries() --> Not clear this is needed at all for RooDataHists so just ignore
                     shapeObs[self.argSetToString(shape.get())] = shape.get()
                     norm = shape.sumEntries()
+                    hasNorm = True
                     if p == self.options.dataname:
                         if self.options.poisson > 0 and norm > self.options.poisson:
                             self.pdfModes[b] = "poisson"
@@ -533,6 +537,7 @@ class ShapeBuilder(ModelBuilder):
                     shapeTypes.append("RooDataSet")
                     shapeObs[self.argSetToString(shape.get())] = shape.get()
                     norm = shape.sumEntries()
+                    hasNorm = True
                     if p == self.options.dataname:
                         self.pdfModes[b] = "unbinned"
                 elif shape.InheritsFrom("TTree"):
@@ -545,23 +550,23 @@ class ShapeBuilder(ModelBuilder):
                     shapeTypes.append("CMSHistFunc")
                 else:
                     raise RuntimeError("This method currently supports only TH1s, RooDataHists and RooAbsPdfs")
-                if norm != 0:
-                    if p == self.options.dataname:
-                        if len(self.DC.obs):
-                            if self.DC.obs[b] == -1:
-                                self.DC.obs[b] = norm
-                            elif self.DC.obs[b] == 0 and norm > 0.01:
-                                if not self.options.noCheckNorm:
-                                    raise RuntimeError(f"Mismatch in normalizations for observed data in bin {b}: text {self.DC.obs[b]:f}, shape {norm:f}")
-                            elif self.DC.obs[b] > 0 and abs(norm / self.DC.obs[b] - 1) > 0.005:
-                                if not self.options.noCheckNorm:
-                                    raise RuntimeError(f"Mismatch in normalizations for observed data in bin {b}: text {self.DC.obs[b]:f}, shape {norm:f}")
-                    else:
-                        if self.DC.exp[b][p] == -1:
-                            self.DC.exp[b][p] = norm
-                        elif self.DC.exp[b][p] > 0 and abs(norm - self.DC.exp[b][p]) > 0.01 * max(1, self.DC.exp[b][p]):
+                if p == self.options.dataname:
+                    # Also check empty data shapes, so that a non-zero observation in the card is not silently ignored
+                    if hasNorm and len(self.DC.obs):
+                        if self.DC.obs[b] == -1:
+                            self.DC.obs[b] = norm
+                        elif self.DC.obs[b] == 0 and norm > 0.01:
                             if not self.options.noCheckNorm:
-                                raise RuntimeError(f"Mismatch in normalizations for bin {b}, process {p}: rate {self.DC.exp[b][p]:f}, shape {norm:f}")
+                                raise RuntimeError(f"Mismatch in normalizations for observed data in bin {b}: text {self.DC.obs[b]:f}, shape {norm:f}")
+                        elif self.DC.obs[b] > 0 and abs(norm / self.DC.obs[b] - 1) > 0.005:
+                            if not self.options.noCheckNorm:
+                                raise RuntimeError(f"Mismatch in normalizations for observed data in bin {b}: text {self.DC.obs[b]:f}, shape {norm:f}")
+                elif norm != 0:
+                    if self.DC.exp[b][p] == -1:
+                        self.DC.exp[b][p] = norm
+                    elif self.DC.exp[b][p] > 0 and abs(norm - self.DC.exp[b][p]) > 0.01 * max(1, self.DC.exp[b][p]):
+                        if not self.options.noCheckNorm:
+                            raise RuntimeError(f"Mismatch in normalizations for bin {b}, process {p}: rate {self.DC.exp[b][p]:f}, shape {norm:f}")
             if len(databins) > 0:
                 for i in databins.keys():
                     if i not in bgbins:
