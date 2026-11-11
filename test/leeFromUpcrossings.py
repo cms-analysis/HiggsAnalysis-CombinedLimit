@@ -61,7 +61,7 @@ if len(args) == 4:
     mhmin = float(args[2])
     mhmax = float(args[3])
 pvals = [graph.GetY()[i] for i in range(n) if (graph.GetX()[i] >= mhmin and graph.GetX()[i] <= mhmax)]
-valsUp = [graphUp.GetY()[i] for i in range(n) if (graphUp.GetX()[i] >= mhmin and graphUp.GetX()[i] <= mhmax)]
+valsUp = [graphUp.GetY()[i] for i in range(n2) if (graphUp.GetX()[i] >= mhmin and graphUp.GetX()[i] <= mhmax)]
 # print "Selected ",len(pvals)," p-values."
 
 pmin = min(pvals)
