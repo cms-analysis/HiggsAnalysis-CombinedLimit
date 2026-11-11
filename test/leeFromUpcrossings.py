@@ -51,13 +51,15 @@ if options.level == 0:
     if graphUp == None:
         raise RuntimeError("Cannot find %s in %s" % (options.fit, args[0]))
 
-mhmin, mhmax = (0, 999)
+n = graph.GetN()
+n2 = graphUp.GetN()
+
+# By default use the full mass range of the graph
+mhmin = min(graph.GetX()[i] for i in range(n))
+mhmax = max(graph.GetX()[i] for i in range(n))
 if len(args) == 4:
     mhmin = float(args[2])
     mhmax = float(args[3])
-
-n = graph.GetN()
-n2 = graphUp.GetN()
 pvals = [graph.GetY()[i] for i in range(n) if (graph.GetX()[i] >= mhmin and graph.GetX()[i] <= mhmax)]
 valsUp = [graphUp.GetY()[i] for i in range(n) if (graphUp.GetX()[i] >= mhmin and graphUp.GetX()[i] <= mhmax)]
 # print "Selected ",len(pvals)," p-values."
