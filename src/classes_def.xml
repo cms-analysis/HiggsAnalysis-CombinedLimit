@@ -164,6 +164,8 @@
 	<class name="RooSplineND" />
 	<class name="map<vector<int>,int>"/>
 	<class name="RooStarMomentMorph" />
+	<class name="RooTwoSidedCBShape" />
+	<class name="HggBernstein" />
 	<class name="RooStats::HistFactory::RooBSpline" />
 	<class name="RooStats::HistFactory::RooBSplineBases" />
 	<class name="RooStepBernstein" />
