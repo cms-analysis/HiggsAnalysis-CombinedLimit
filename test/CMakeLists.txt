@@ -363,8 +363,13 @@ COMBINE_ADD_TEST(cmshistsum_vs_cmshistfunc_fitdiagnostics_autoMCStats10-text2wor
     COMMAND bash -c "text2workspace.py ${REPO}/data/ci/template-analysis_shapeInterp_autoMCStats10.txt -o fitdiag_autoMCStats10_cmshistfunc.root --mass 200 --default-morphing shapeN && text2workspace.py ${REPO}/data/ci/template-analysis_shapeInterp_autoMCStats10.txt -o fitdiag_autoMCStats10_cmshistsum.root --mass 200 --default-morphing shapeN --use-histsum"
     FIXTURES_SETUP cmshistsum_vs_cmshistfunc_fitdiagnostics_autoMCStats10
 )
+# The post-fit uncertainties differ in the last digits between the two models on
+# some ROOT versions (up to ~2e-3 with ROOT 6.26 and 6.30), so compare floating
+# point numbers with a relative tolerance of 1 %. Without the fix for the Poisson
+# bin shifts, the uncertainties of the low-statistics bins differ by factors of
+# a few, which this still catches.
 COMBINE_ADD_TEST(cmshistsum_vs_cmshistfunc_fitdiagnostics_autoMCStats10
-    COMMAND bash -c "combine -M FitDiagnostics fitdiag_autoMCStats10_cmshistfunc.root -m 200 -n autoMCStats10_cmshistfunc --saveShapes --saveWithUncertainties --numToysForShapes 20 && combine -M FitDiagnostics fitdiag_autoMCStats10_cmshistsum.root -m 200 -n autoMCStats10_cmshistsum --saveShapes --saveWithUncertainties --numToysForShapes 20 && python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticsautoMCStats10_cmshistfunc.root > shapes_autoMCStats10_cmshistfunc.txt && python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticsautoMCStats10_cmshistsum.root > shapes_autoMCStats10_cmshistsum.txt && python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 1e-5 shapes_autoMCStats10_cmshistfunc.txt shapes_autoMCStats10_cmshistsum.txt"
+    COMMAND bash -c "combine -M FitDiagnostics fitdiag_autoMCStats10_cmshistfunc.root -m 200 -n autoMCStats10_cmshistfunc --saveShapes --saveWithUncertainties --numToysForShapes 20 && combine -M FitDiagnostics fitdiag_autoMCStats10_cmshistsum.root -m 200 -n autoMCStats10_cmshistsum --saveShapes --saveWithUncertainties --numToysForShapes 20 && python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticsautoMCStats10_cmshistfunc.root > shapes_autoMCStats10_cmshistfunc.txt && python3 ${REPO}/test/printFitDiagnosticsShapes.py fitDiagnosticsautoMCStats10_cmshistsum.root > shapes_autoMCStats10_cmshistsum.txt && python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01 shapes_autoMCStats10_cmshistfunc.txt shapes_autoMCStats10_cmshistsum.txt"
     FIXTURES_REQUIRED cmshistsum_vs_cmshistfunc_fitdiagnostics_autoMCStats10
 )
 
