@@ -51,6 +51,11 @@ if options.level == 0:
     if graphUp == None:
         raise RuntimeError("Cannot find %s in %s" % (options.fit, args[0]))
 
+# Upcrossings are counted between consecutive points, so order them by mass
+graph.Sort()
+if graphUp is not graph:
+    graphUp.Sort()
+
 n = graph.GetN()
 n2 = graphUp.GetN()
 
