@@ -2,6 +2,13 @@ name: CVMFS CI
 
 on:
   workflow_dispatch:
+  # ch-roundtrip-ci.yml runs the same builds with ch_roundtrip set
+  workflow_call:
+    inputs:
+      ch_roundtrip:
+        description: Run only the CombineHarvester round-trip tests (label CHRoundTrip) instead of all the others
+        type: boolean
+        default: false
   pull_request:
     paths:
       - '**CMakeLists.txt'
@@ -59,6 +66,10 @@ jobs:
       IMAGE: ${{ matrix.IMAGE }}
       LCG_RELEASE: ${{ matrix.LCG_RELEASE }}
       LCG_ARCH: ${{ matrix.LCG_ARCH }}
+      # The CombineHarvester round-trip tests only run when this workflow is
+      # called by ch-roundtrip-ci.yml, and then only they run
+      CTEST_LABELS: ${{ inputs.ch_roundtrip && '-L CHRoundTrip' || '-LE CHRoundTrip' }}
+      CODE_COVERAGE: ${{ matrix.coverage == true && !inputs.ch_roundtrip }}
     steps:
       - uses: actions/checkout@v7
 
@@ -99,7 +110,7 @@ jobs:
           echo "CXX=$(which g++)" >> $GITHUB_ENV
 
       - name: Setup code coverage
-        if: ${{ (matrix.coverage == true) }}
+        if: ${{ env.CODE_COVERAGE == 'true' }}
         run: |
           sudo apt install -y lcov
           # Workaround ubuntu lcov-1.15-1 package bug
@@ -167,7 +178,7 @@ jobs:
         run: >-
           source /cvmfs/sft.cern.ch/lcg/views/${LCG_RELEASE}/${LCG_ARCH}/setup.sh;
           ulimit -s unlimited;
-          ctest --test-dir build/test --output-on-failure -j$(nproc) ${CTEST_EXCLUDE:+-E "$CTEST_EXCLUDE"};
+          ctest --test-dir build/test --output-on-failure -j$(nproc) ${CTEST_LABELS} ${CTEST_EXCLUDE:+-E "$CTEST_EXCLUDE"};
 
       # AlmaLinux 9 job
       - uses: ./.github/actions/run-in-cvmfs
@@ -181,7 +192,7 @@ jobs:
             cmake ../test
             cmake --build . -j"$(nproc)"
             cd ..
-            ctest --test-dir build_test --output-on-failure
+            ctest --test-dir build_test --output-on-failure ${{ env.CTEST_LABELS }}
 
       # CentOS 7 job
       - uses: ./.github/actions/run-in-cvmfs
@@ -198,10 +209,10 @@ jobs:
             cmake3 --build . -j"$(nproc)"
             cd ..
             cd build_test
-            ctest3 --output-on-failure .
+            ctest3 --output-on-failure ${{ env.CTEST_LABELS }} .
 
       - name: Prepare code coverage report
-        if: ${{ success() && (matrix.coverage == true) }}
+        if: ${{ success() && env.CODE_COVERAGE == 'true' }}
         run: |
           # Create lcov report
           # capture coverage info
@@ -220,7 +231,7 @@ jobs:
           lcov --list coverage.info
 
       - name: Upload to codecov.io
-        if: ${{ success() && (matrix.coverage == true) }}
+        if: ${{ success() && env.CODE_COVERAGE == 'true' }}
         uses: codecov/codecov-action@v7
         with:
           files: ./coverage.info

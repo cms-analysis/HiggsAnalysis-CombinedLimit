@@ -12,6 +12,7 @@ nav:
             - Statistical Tests: what_combine_does/statistical_tests.md
         - Setting Up the Analysis:
           - "Preparing the Datacard": part2/settinguptheanalysis.md
+          - "Editing Systematic Uncertainties": part2/editingsystematics.md
           - "Physics Models":
               - "Introduction": part2/physicsmodels.md
               - "SM Higgs Coupling Models": part2/higgscouplings.md

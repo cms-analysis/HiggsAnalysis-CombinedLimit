@@ -157,6 +157,16 @@ set_tests_properties(asymptotic_limits-text2workspace asymptotic_limits
     PROPERTIES LABELS AsymptoticLimits TIMEOUT 120
 )
 
+# Counting datacard with a gmN systematic. No events are observed, so the fit
+# is to the Asimov dataset with r = 1
+ADD_COMBINE_TEST(counting_gmN
+  T2W_COMMAND
+    text2workspace.py ${REPO}/data/tutorials/counting/realistic-counting-experiment.txt -o counting_gmN.root -m 125
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit counting_gmN.root -m 125 --algo singles -t -1 --expectSignal 1"
+  DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+)
+
 # Counting datacard
 ADD_COMBINE_TEST(counting_datacard
   T2W_COMMAND
@@ -184,6 +194,15 @@ ADD_COMBINE_TEST(parametric_analysis
     text2workspace.py ${REPO}/data/tutorials/CAT23001/datacard-3-parametric-analysis.txt -o datacard-3-parametric-analysis.root --mass 125
   COMBINE_COMMANDS
     "combine -M MultiDimFit datacard-3-parametric-analysis.root --algo singles --setParameterRanges r=-2,1"
+)
+
+# Template analysis with autoMCStats
+ADD_COMBINE_TEST(template_analysis_autoMCStats
+  T2W_COMMAND
+    text2workspace.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt -o template_analysis_autoMCStats.root
+  COMBINE_COMMANDS
+    "combine -M MultiDimFit template_analysis_autoMCStats.root --algo singles --setParameterRanges r=-5,5"
+  DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
 )
 
 # RooHistPdf
@@ -459,6 +478,61 @@ COMBINE_ADD_TEST(test_model_tools_py
     COMMAND python3 ${REPO}/test/test_model_tools.py
 )
 
+# CombineHarvester python interface and datacard validation
+COMBINE_ADD_TEST(test_combineharvester_py
+    COMMAND python3 ${REPO}/test/test_combineharvester.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt
+    PASSREGEX "All checks passed"
+)
+COMBINE_ADD_TEST(test_combineharvester_shapes_py
+    COMMAND python3 ${REPO}/test/test_combineharvester_shapes.py ${REPO}/data/ci/template-analysis_shapeInterp.txt
+    PASSREGEX "All checks passed"
+)
+COMBINE_ADD_TEST(test_combineharvester_gmn_py
+    COMMAND python3 ${REPO}/test/test_combineharvester_gmn.py ${REPO}/data/ci/counting_gmN.txt
+    PASSREGEX "All checks passed"
+)
+COMBINE_ADD_TEST(test_combineharvester_directives_py
+    COMMAND python3 ${REPO}/test/test_combineharvester_directives.py
+    PASSREGEX "All checks passed"
+)
+COMBINE_ADD_TEST(test_combineharvester_edit_systematics_py
+    COMMAND python3 ${REPO}/test/test_combineharvester_edit_systematics.py
+    PASSREGEX "All checks passed"
+)
+COMBINE_ADD_TEST(combineharvester-validate-datacards
+    COMMAND ValidateDatacards.py ${REPO}/data/ci/template-analysis_shape_autoMCStats.txt --jsonFile validation.json
+    PASSREGEX "Validation results"
+)
+
+# PostFitShapesFromWorkspace: the pre- and post-fit shapes must agree with
+# those of FitDiagnostics --saveShapes, for each type of datacard. A case is a
+# name, a datacard, a mass and the options of text2workspace.py, if any: those
+# with --use-histsum make a CMSHistSum, with or without the wrappers of the
+# processes. The shapeN datacard has a bin with a yield of 0.08 +- 0.29, whose
+# uncertainty is only stable with more samples than the default 1000.
+foreach(case
+    "cmshistfunc data/ci/template-analysis_shapeInterp.txt 200"
+    "parametric data/tutorials/CAT23001/datacard-3-parametric-analysis.txt 125"
+    "counting data/tutorials/CAT23001/datacard-5-multi-signal.txt 125"
+    "autoMCStats data/ci/template-analysis_shape_autoMCStats.txt 125"
+    "multiple_regions data/ci/htt_multiple_regions.txt 125"
+    "cmshistsum data/ci/template-analysis_shapeInterp.txt 200 --use-histsum"
+    "cmshistsum_no_wrappers data/ci/template-analysis_shape_autoMCStats.txt 125 --for-fits --no-wrappers --use-histsum"
+    "shapeN data/ci/template-analysis_shapeNInterp.txt 200 --samples=5000"
+    "cmshistsum_shapeN data/ci/template-analysis_shapeNInterp.txt 200 --samples=5000 --for-fits --no-wrappers --use-histsum"
+)
+    separate_arguments(case)
+    list(GET case 0 name)
+    list(GET case 1 card)
+    list(GET case 2 mass)
+    list(REMOVE_AT case 0 1 2)
+    COMBINE_ADD_TEST(postfitshapes-${name}
+        COMMAND python3 ${REPO}/test/test_postfitshapes.py ${REPO}/${card} ${mass} ${case}
+        PASSREGEX "All checks passed"
+        LABELS PostFitShapes
+    )
+endforeach()
+
 # Copies of the vertical-morphing pdfs must follow their own nuisance parameter
 COMBINE_ADD_TEST(test_morphing_copy_py
     COMMAND python3 ${REPO}/test/test_morphing_copy.py
@@ -621,6 +695,345 @@ COMBINE_ADD_TEST(realistic-counting-experiment-AsymptoticLimits
 )
 set_property(GLOBAL APPEND PROPERTY ALL_COMBINE_COMMANDS
     "combine -M AsymptoticLimits -d ${REPO}/data/tutorials/counting/realistic-counting-experiment.txt -n RealisticCountingExperiment > references/realistic-counting-experiment-AsymptoticLimits.out"
+)
+
+# CombineHarvester round trip
+#
+# The "-ch" tests repeat the MultiDimFit --algo singles fits above on the
+# datacards after CH has parsed and written them, one or more for each type
+# of datacard, and compare the output to the same reference files. The
+# ch-write-* tests write the datacards to ch_roundtrip/ch_cards/ with
+# ch_roundtrip.py. All of them run in ch_roundtrip/ and have the CHRoundTrip
+# label, and run in ch-roundtrip-ci.yml only.
+set(ch_dir ${CMAKE_CURRENT_BINARY_DIR}/ch_roundtrip)
+file(MAKE_DIRECTORY ${ch_dir})
+set(ch_roundtrip python3 ${CMAKE_CURRENT_SOURCE_DIR}/ch_roundtrip.py)
+
+# Datacards without $MASS in their shapes lines
+foreach(card
+    data/tutorials/counting/realistic-counting-experiment.txt
+    data/tutorials/CAT23001/datacard-3-parametric-analysis.txt
+    data/tutorials/CAT23001/datacard-5-multi-signal.txt
+    data/ci/templ_datacard_largeYields.txt
+    data/ci/datacard_RooParametricHist.txt
+    data/ci/template-analysis_shape_autoMCStats.txt
+)
+    get_filename_component(name ${card} NAME)
+    string(REGEX REPLACE "\\.txt$" "" name ${name})
+    COMBINE_ADD_TEST(ch-write-${name}
+        COMMAND ${ch_roundtrip} ${REPO}/${card} ch_cards/${name}.txt
+        WORKING_DIR ${ch_dir}
+        FIXTURES_SETUP ch-card-${name}
+        LABELS CHRoundTrip
+    )
+endforeach()
+# CH can't read gzipped datacards, so these are unzipped to ch_roundtrip/
+# first, with their shapes files next to them. Like multipdf, the RooMultiPdf
+# one doesn't run with CMSSW_11: the RooBernsteinFast in its workspace can't
+# be read with ROOT 6.22
+set(ch_gz_cards RooHistPdf)
+if(NOT CMSSW_VERSION MATCHES "^CMSSW_11")
+  list(APPEND ch_gz_cards RooMultiPdf)
+endif()
+foreach(name ${ch_gz_cards})
+    COMBINE_ADD_TEST(ch-write-datacard_${name}
+        PRECMD sh -c "cp ${REPO}/data/ci/shapes_${name}.root . && gzip -dc ${REPO}/data/ci/datacard_${name}.txt.gz > datacard_${name}.txt"
+        COMMAND ${ch_roundtrip} datacard_${name}.txt ch_cards/datacard_${name}.txt
+        WORKING_DIR ${ch_dir}
+        FIXTURES_SETUP ch-card-datacard_${name}
+        LABELS CHRoundTrip
+    )
+endforeach()
+# Datacards with $MASS in their shapes lines, written for the mass of the tests
+COMBINE_ADD_TEST(ch-write-template-analysis_shapeInterp
+    COMMAND ${ch_roundtrip} --mass=200 ${REPO}/data/ci/template-analysis_shapeInterp.txt ch_cards/template-analysis_shapeInterp.txt
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP ch-card-template-analysis_shapeInterp
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(ch-write-template-analysis_shapeNInterp
+    COMMAND ${ch_roundtrip} --mass=200 ${REPO}/data/ci/template-analysis_shapeNInterp.txt ch_cards/template-analysis_shapeNInterp.txt
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP ch-card-template-analysis_shapeNInterp
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(ch-write-htt_multiple_regions
+    COMMAND ${ch_roundtrip} --mass=125 ${REPO}/data/ci/htt_multiple_regions.txt ch_cards/htt_multiple_regions.txt
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP ch-card-htt_multiple_regions
+    LABELS CHRoundTrip
+)
+# The same datacard written with ch::CardWriter: a datacard for each bin in
+# ch_cards/htt_multiple_regions_split/125/, with their shapes in one file
+COMBINE_ADD_TEST(ch-write-htt_multiple_regions-split
+    COMMAND ${ch_roundtrip} --mass=125 --split ${REPO}/data/ci/htt_multiple_regions.txt ch_cards/htt_multiple_regions_split
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP ch-card-htt_multiple_regions-split
+    LABELS CHRoundTrip
+)
+
+COMBINE_ADD_TEST(counting_gmN-ch-text2workspace
+    COMMAND text2workspace.py ch_cards/realistic-counting-experiment.txt -o counting_gmN.root -m 125
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP counting_gmN-ch
+    FIXTURES_REQUIRED ch-card-realistic-counting-experiment
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(counting_gmN-ch
+    COMMAND bash -c "combine -M MultiDimFit counting_gmN.root -m 125 --algo singles -t -1 --expectSignal 1"
+    FIXTURES_REQUIRED counting_gmN-ch
+    CHECKOUT OUTPUT counting_gmN-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/counting_gmN.out
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+    WORKING_DIR ${ch_dir}
+    LABELS CHRoundTrip
+)
+
+COMBINE_ADD_TEST(template_analysis_autoMCStats-ch-text2workspace
+    COMMAND text2workspace.py ch_cards/template-analysis_shape_autoMCStats.txt -o template_analysis_autoMCStats.root
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP template_analysis_autoMCStats-ch
+    FIXTURES_REQUIRED ch-card-template-analysis_shape_autoMCStats
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(template_analysis_autoMCStats-ch
+    COMMAND bash -c "combine -M MultiDimFit template_analysis_autoMCStats.root --algo singles --setParameterRanges r=-5,5"
+    FIXTURES_REQUIRED template_analysis_autoMCStats-ch
+    CHECKOUT OUTPUT template_analysis_autoMCStats-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/template_analysis_autoMCStats.out
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+    WORKING_DIR ${ch_dir}
+    LABELS CHRoundTrip
+)
+
+COMBINE_ADD_TEST(parametric_analysis-ch-text2workspace
+    COMMAND text2workspace.py ch_cards/datacard-3-parametric-analysis.txt -o datacard-3-parametric-analysis.root --mass 125
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP parametric_analysis-ch
+    FIXTURES_REQUIRED ch-card-datacard-3-parametric-analysis
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(parametric_analysis-ch
+    COMMAND bash -c "combine -M MultiDimFit datacard-3-parametric-analysis.root --algo singles --setParameterRanges r=-2,1"
+    FIXTURES_REQUIRED parametric_analysis-ch
+    CHECKOUT OUTPUT parametric_analysis-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/parametric_analysis.out
+    WORKING_DIR ${ch_dir}
+    LABELS CHRoundTrip
+)
+
+if(NOT CMSSW_VERSION STREQUAL "CMSSW_11_3_4")
+  COMBINE_ADD_TEST(histpdf-ch-text2workspace
+      COMMAND text2workspace.py ch_cards/datacard_RooHistPdf.txt -o ws_RooHistPdf.root
+      WORKING_DIR ${ch_dir}
+      FIXTURES_SETUP histpdf-ch
+      FIXTURES_REQUIRED ch-card-datacard_RooHistPdf
+      LABELS CHRoundTrip
+  )
+  COMBINE_ADD_TEST(histpdf-ch
+      COMMAND bash -c "combine -M MultiDimFit ws_RooHistPdf.root --algo singles -v -2  --setParameterRanges r=-1,2"
+      FIXTURES_REQUIRED histpdf-ch
+      CHECKOUT OUTPUT histpdf-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/histpdf.out
+      WORKING_DIR ${ch_dir}
+      LABELS CHRoundTrip
+  )
+endif()
+
+if(NOT CMSSW_VERSION MATCHES "^CMSSW_11")
+  COMBINE_ADD_TEST(multipdf-ch-text2workspace
+      COMMAND text2workspace.py ch_cards/datacard_RooMultiPdf.txt -o ws_RooMultiPdf.root
+      WORKING_DIR ${ch_dir}
+      FIXTURES_SETUP multipdf-ch
+      FIXTURES_REQUIRED ch-card-datacard_RooMultiPdf
+      LABELS CHRoundTrip
+  )
+  string(JOIN " && " _multipdf_ch_command
+      "combine -v -1 -M MultiDimFit -m 125.38 --setParameters pdf_index_ggh=2 --freezeParameters MH --cminDefaultMinimizerTolerance 0.001 --cminDefaultMinimizerStrategy 1 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles ws_RooMultiPdf.root"
+      "combine -v -1 -M MultiDimFit -m 125.38 --setParameters pdf_index_ggh=2 --freezeParameters MH --cminDefaultMinimizerTolerance 0.001 --cminDefaultMinimizerStrategy 1 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles --saveFitResult ws_RooMultiPdf.root"
+      "combine -v -1 -M MultiDimFit -m 125.38 --setParameters pdf_index_ggh=0 --freezeParameters MH --cminDefaultMinimizerTolerance 0.001 --cminDefaultMinimizerStrategy 1 --X-rtd FAST_VERTICAL_MORPH --X-rtd MINIMIZER_freezeDisassociatedParams --X-rtd MINIMIZER_multiMin_maskChannels=2 --algo singles ws_RooMultiPdf.root"
+  )
+  COMBINE_ADD_TEST(multipdf-ch
+      COMMAND bash -c "${_multipdf_ch_command}"
+      FIXTURES_REQUIRED multipdf-ch
+      CHECKOUT OUTPUT multipdf-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/multipdf.out
+      DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+      WORKING_DIR ${ch_dir}
+      LABELS CHRoundTrip
+  )
+endif()
+
+COMBINE_ADD_TEST(cmshistfunc-ch-text2workspace
+    COMMAND text2workspace.py ch_cards/template-analysis_shapeInterp.txt -o ws_template-analysis.root --mass 200
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP cmshistfunc-ch
+    FIXTURES_REQUIRED ch-card-template-analysis_shapeInterp
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(cmshistfunc-ch
+    COMMAND bash -c "combine -M MultiDimFit ws_template-analysis.root --algo singles  --setParameterRanges r=-5,5"
+    FIXTURES_REQUIRED cmshistfunc-ch
+    CHECKOUT OUTPUT cmshistfunc-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistfunc.out
+    WORKING_DIR ${ch_dir}
+    LABELS CHRoundTrip
+)
+
+COMBINE_ADD_TEST(cmshistfunc_channel_masks-ch-text2workspace
+    COMMAND text2workspace.py ch_cards/htt_multiple_regions.txt  -o ws_template-analysis-channel_masks.root --mass 125 --channel-masks
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP cmshistfunc_channel_masks-ch
+    FIXTURES_REQUIRED ch-card-htt_multiple_regions
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(cmshistfunc_channel_masks-ch
+    COMMAND bash -c "combine -M MultiDimFit ws_template-analysis-channel_masks.root --algo singles  --setParameterRanges r=-5,5 --setParameters mask_htt_tt_2_8TeV=1"
+    FIXTURES_REQUIRED cmshistfunc_channel_masks-ch
+    CHECKOUT OUTPUT cmshistfunc_channel_masks-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistfunc_channel_masks.out
+    WORKING_DIR ${ch_dir}
+    LABELS CHRoundTrip
+)
+
+# The datacards of the bins written by ch::CardWriter, combined again under
+# the names of the bins: the fit is the same as for the single datacard
+set(_split_cards "")
+foreach(bin htt_tt_0_8TeV htt_tt_1_8TeV htt_tt_2_8TeV)
+    string(APPEND _split_cards " ${bin}=ch_cards/htt_multiple_regions_split/125/${bin}.txt")
+endforeach()
+COMBINE_ADD_TEST(cmshistfunc_channel_masks-ch-split-text2workspace
+    COMMAND bash -c "combineCards.py${_split_cards} > ch_cards/htt_multiple_regions_split.txt && text2workspace.py ch_cards/htt_multiple_regions_split.txt -o ws_template-analysis-channel_masks-split.root --mass 125 --channel-masks"
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP cmshistfunc_channel_masks-ch-split
+    FIXTURES_REQUIRED ch-card-htt_multiple_regions-split
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(cmshistfunc_channel_masks-ch-split
+    COMMAND bash -c "combine -M MultiDimFit ws_template-analysis-channel_masks-split.root --algo singles  --setParameterRanges r=-5,5 --setParameters mask_htt_tt_2_8TeV=1"
+    FIXTURES_REQUIRED cmshistfunc_channel_masks-ch-split
+    CHECKOUT OUTPUT cmshistfunc_channel_masks-ch-split.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistfunc_channel_masks.out
+    WORKING_DIR ${ch_dir}
+    LABELS CHRoundTrip
+)
+
+COMBINE_ADD_TEST(cmshistfunc_shapeN-ch-text2workspace
+    COMMAND text2workspace.py ch_cards/template-analysis_shapeNInterp.txt -o ws_template-analysis-shapeN.root --mass 200
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP cmshistfunc_shapeN-ch
+    FIXTURES_REQUIRED ch-card-template-analysis_shapeNInterp
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(cmshistfunc_shapeN-ch
+    COMMAND bash -c "combine -M MultiDimFit ws_template-analysis-shapeN.root --algo singles  --setParameterRanges r=-5,5"
+    FIXTURES_REQUIRED cmshistfunc_shapeN-ch
+    CHECKOUT OUTPUT cmshistfunc_shapeN-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistfunc_shapeN.out
+    WORKING_DIR ${ch_dir}
+    LABELS CHRoundTrip
+)
+
+COMBINE_ADD_TEST(cmshistsum-ch-text2workspace
+    COMMAND text2workspace.py ch_cards/template-analysis_shapeInterp.txt -o cmshistsum.root --mass 200 --for-fits --no-wrappers --use-histsum
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP cmshistsum-ch
+    FIXTURES_REQUIRED ch-card-template-analysis_shapeInterp
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(cmshistsum-ch
+    COMMAND bash -c "combine -M MultiDimFit cmshistsum.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH"
+    FIXTURES_REQUIRED cmshistsum-ch
+    CHECKOUT OUTPUT cmshistsum-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistsum.out
+    WORKING_DIR ${ch_dir}
+    LABELS CHRoundTrip
+)
+
+COMBINE_ADD_TEST(cmshistsum_shapeN-ch-text2workspace
+    COMMAND text2workspace.py ch_cards/template-analysis_shapeNInterp.txt -o cmshistsum_shapeN.root --mass 200 --for-fits --no-wrappers --use-histsum
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP cmshistsum_shapeN-ch
+    FIXTURES_REQUIRED ch-card-template-analysis_shapeNInterp
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(cmshistsum_shapeN-ch
+    COMMAND bash -c "combine -M MultiDimFit cmshistsum_shapeN.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH"
+    FIXTURES_REQUIRED cmshistsum_shapeN-ch
+    CHECKOUT OUTPUT cmshistsum_shapeN-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistsum_shapeN.out
+    WORKING_DIR ${ch_dir}
+    LABELS CHRoundTrip
+)
+
+COMBINE_ADD_TEST(template_analysis_large_integrals-ch-text2workspace
+    COMMAND text2workspace.py ch_cards/templ_datacard_largeYields.txt -o template_analysis_large_integrals.root
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP template_analysis_large_integrals-ch
+    FIXTURES_REQUIRED ch-card-templ_datacard_largeYields
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(template_analysis_large_integrals-ch
+    COMMAND bash -c "combine -M MultiDimFit template_analysis_large_integrals.root --algo singles  --setParameterRanges r=-5,5"
+    FIXTURES_REQUIRED template_analysis_large_integrals-ch
+    CHECKOUT OUTPUT template_analysis_large_integrals-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/template_analysis_large_integrals.out
+    WORKING_DIR ${ch_dir}
+    LABELS CHRoundTrip
+)
+
+COMBINE_ADD_TEST(template_analysis_large_integrals_cmshistsum-ch-text2workspace
+    COMMAND text2workspace.py ch_cards/templ_datacard_largeYields.txt -o template_analysis_large_integrals_cmshistsum.root  --for-fits --no-wrappers --use-histsum
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP template_analysis_large_integrals_cmshistsum-ch
+    FIXTURES_REQUIRED ch-card-templ_datacard_largeYields
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(template_analysis_large_integrals_cmshistsum-ch
+    COMMAND bash -c "combine -M MultiDimFit template_analysis_large_integrals_cmshistsum.root --algo singles  --setParameterRanges r=-5,5 --X-rtd FAST_VERTICAL_MORPH"
+    FIXTURES_REQUIRED template_analysis_large_integrals_cmshistsum-ch
+    CHECKOUT OUTPUT template_analysis_large_integrals_cmshistsum-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/template_analysis_large_integrals_cmshistsum.out
+    WORKING_DIR ${ch_dir}
+    LABELS CHRoundTrip
+)
+
+# The extArg lines still read shapes_RooParametricHist.root in the working
+# directory
+COMBINE_ADD_TEST(parametric_hist-ch-text2workspace
+    COMMAND text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO map=.*/*hcc*:r[1,-500,500] --PO map=.*/zcc:z[1,-5,5] ch_cards/datacard_RooParametricHist.txt -o ws_RooParametricHist.root
+    PRECMD ${CMAKE_COMMAND} -E copy ${REPO}/data/ci/shapes_RooParametricHist.root .
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP parametric_hist-ch
+    FIXTURES_REQUIRED ch-card-datacard_RooParametricHist
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(parametric_hist-ch
+    COMMAND bash -c "combine -M MultiDimFit ws_RooParametricHist.root --algo singles"
+    FIXTURES_REQUIRED parametric_hist-ch
+    CHECKOUT OUTPUT parametric_hist-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/parametric_hist.out
+    DIFFCMD python3 ${CMAKE_CURRENT_SOURCE_DIR}/numdiff.py --rtol 0.01
+    WORKING_DIR ${ch_dir}
+    LABELS CHRoundTrip
+)
+
+COMBINE_ADD_TEST(cmshistsum_channel_masks-ch-text2workspace
+    COMMAND text2workspace.py ch_cards/htt_multiple_regions.txt  -o ws_template-analysis-channel_masks.root --mass 125 --channel-masks --for-fits --no-wrappers --use-histsum
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP cmshistsum_channel_masks-ch
+    FIXTURES_REQUIRED ch-card-htt_multiple_regions
+    LABELS CHRoundTrip
+)
+COMBINE_ADD_TEST(cmshistsum_channel_masks-ch
+    COMMAND bash -c "combine -M MultiDimFit ws_template-analysis-channel_masks.root --algo singles  --setParameterRanges r=-5,5 --setParameters mask_htt_tt_2_8TeV=1 --X-rtd FAST_VERTICAL_MORPH"
+    FIXTURES_REQUIRED cmshistsum_channel_masks-ch
+    CHECKOUT OUTPUT cmshistsum_channel_masks-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/cmshistsum_channel_masks.out
+    WORKING_DIR ${ch_dir}
+    LABELS CHRoundTrip
+)
+
+COMBINE_ADD_TEST(multi-signal-text2workspace-ch
+    COMMAND text2workspace.py ch_cards/datacard-5-multi-signal.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH -o datacard-5-multi-signal.root --mass 125
+    CHECKOUT OUTPUT multi-signal-text2workspace-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/multi-signal-text2workspace.out
+    WORKING_DIR ${ch_dir}
+    FIXTURES_SETUP multi-signal-text2workspace-ch
+    FIXTURES_REQUIRED ch-card-datacard-5-multi-signal
+    LABELS CHRoundTrip
+)
+
+COMBINE_ADD_TEST(multi-signal-ch
+    COMMAND combine datacard-5-multi-signal.root -M MultiDimFit --algo singles --mass 125
+    CHECKOUT OUTPUT multi-signal-ch.out OUTREF ${CMAKE_CURRENT_SOURCE_DIR}/references/multi-signal.out
+    WORKING_DIR ${ch_dir}
+    FIXTURES_REQUIRED multi-signal-text2workspace-ch
+    LABELS CHRoundTrip
 )
 
 # Check that the combine executable and the executable scripts can at least
