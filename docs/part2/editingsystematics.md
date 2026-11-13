@@ -2,8 +2,8 @@
 
 The systematic uncertainties of an existing datacard are renamed, added, removed or changed with `CombineHarvester`: it reads the datacard, the changes are made through its python or C++ interface, and it writes a new datacard.
 
-!!! info
-    A datacard can also carry [`nuisance edit` lines](settinguptheanalysis.md#nuisance-modifiers), which <span style="font-variant:small-caps;">Combine</span> applies each time it reads the datacard. `CombineHarvester` doesn't apply them: it keeps the `nuisance edit` lines of a datacard as they are and writes them at the end of the datacards it writes. The changes on this page are made to the model itself, so the systematic lines of the new datacard have them. The [table at the end of this page](#equivalents-of-nuisance-edit-lines) gives the equivalent of each `nuisance edit` line.
+!!! warning
+    The [`nuisance edit` lines](settinguptheanalysis.md#nuisance-modifiers) of a datacard are not recommended: it is better to rely on the `CombineHarvester` functionality described on this page. <span style="font-variant:small-caps;">Combine</span> applies `nuisance edit` lines each time it reads the datacard, while the changes on this page are made to the model itself, so the systematic lines of the new datacard have them. `CombineHarvester` doesn't apply the `nuisance edit` lines of a datacard: it keeps them as they are and writes them at the end of the datacards it writes. The [table at the end of this page](#equivalents-of-nuisance-edit-lines) gives the equivalent of each `nuisance edit` line.
 
 ## Reading and writing the datacard
 

@@ -423,6 +423,9 @@ It can often be useful to modify datacards, or the runtime behavior, without hav
 
 #### Nuisance modifiers
 
+!!! warning
+    The `nuisance edit` lines described in this section are not recommended: it is better to rely on the `CombineHarvester` functionality, which makes the same changes to the model itself and writes a new datacard. See [Editing systematic uncertainties](editingsystematics.md).
+
 If a nuisance parameter needs to be renamed for certain processes/channels, it can be done using a single `nuisance edit` directive at the end of a datacard
 
 ```nohighlight
