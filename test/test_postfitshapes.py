@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Check the shapes of PostFitShapesFromWorkspace against FitDiagnostics.
 
-Usage: test_postfitshapes.py CARD MASS [TEXT2WORKSPACE_ARGS ...]
+Usage: test_postfitshapes.py CARD MASS [--samples=N] [TEXT2WORKSPACE_ARGS ...]
 
 The workspace of CARD is fitted with FitDiagnostics --saveShapes, and
 PostFitShapesFromWorkspace makes the pre- and post-fit shapes from the same
@@ -9,9 +9,13 @@ workspace and fit result. Both are computed from the same model, so the
 contents of all the histograms must agree. Both take the post-fit uncertainty
 of a bin as the RMS of its yields around the post-fit one, in samples of the
 fit covariance matrix, but with different random numbers: they only agree
-within the spread of NSAMPLES samples. The pre-fit uncertainties are not
-compared: PostFitShapesFromWorkspace adds the shifts of the parameters in
-quadrature, while FitDiagnostics samples them."""
+within the spread of NSAMPLES samples, or of N with --samples=N. The pre-fit
+uncertainties are not compared: PostFitShapesFromWorkspace adds the shifts of
+the parameters in quadrature, while FitDiagnostics samples them.
+
+More samples are needed for a datacard with a bin whose yield is much smaller
+than its uncertainty: the sampled yields then have a long tail, and their RMS
+in 1000 samples depends on a few of them."""
 
 import os
 import subprocess
@@ -22,7 +26,7 @@ import ROOT
 
 ROOT.gROOT.SetBatch(True)
 
-# Number of samples of the fit covariance matrix, in both programs
+# Default number of samples of the fit covariance matrix, in both programs
 NSAMPLES = 1000
 # Relative tolerance of the contents, and of the post-fit uncertainties. An RMS
 # of N samples is uncertain by about 1/sqrt(2N), so the ratio of two of them by
@@ -36,6 +40,9 @@ TOTALS = {"TotalProcs": "total", "TotalBkg": "total_background", "TotalSig": "to
 
 card, mass = sys.argv[1], sys.argv[2]
 t2w_args = sys.argv[3:]
+nsamples = NSAMPLES
+if t2w_args and t2w_args[0].startswith("--samples="):
+    nsamples = int(t2w_args.pop(0).split("=")[1])
 failures = []
 
 
@@ -116,9 +123,9 @@ card = os.path.abspath(card)
 # the working directory
 with tempfile.TemporaryDirectory() as tmp:
     run(["text2workspace.py", card, "-o", "ws.root", "-m", mass] + t2w_args, tmp)
-    run(["combine", "-M", "FitDiagnostics", "ws.root", "-m", mass, "--saveShapes", "--saveWithUncertainties", "--numToysForShapes", str(NSAMPLES)], tmp)
+    run(["combine", "-M", "FitDiagnostics", "ws.root", "-m", mass, "--saveShapes", "--saveWithUncertainties", "--numToysForShapes", str(nsamples)], tmp)
     pfs = ["PostFitShapesFromWorkspace", "-w", "ws.root", "-d", card, "-m", mass, "-o", "shapes.root", "-f", "fitDiagnosticsTest.root:fit_s"]
-    run(pfs + ["--postfit", "--total-shapes", "--samples", str(NSAMPLES)], tmp)
+    run(pfs + ["--postfit", "--total-shapes", "--samples", str(nsamples)], tmp)
     fd = ROOT.TFile.Open(os.path.join(tmp, "fitDiagnosticsTest.root"))
     pf = ROOT.TFile.Open(os.path.join(tmp, "shapes.root"))
 

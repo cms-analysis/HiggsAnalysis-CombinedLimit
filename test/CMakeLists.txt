@@ -481,20 +481,29 @@ COMBINE_ADD_TEST(combineharvester-validate-datacards
 )
 
 # PostFitShapesFromWorkspace: the pre- and post-fit shapes must agree with
-# those of FitDiagnostics --saveShapes, for each type of datacard
+# those of FitDiagnostics --saveShapes, for each type of datacard. A case is a
+# name, a datacard, a mass and the options of text2workspace.py, if any: those
+# with --use-histsum make a CMSHistSum, with or without the wrappers of the
+# processes. The shapeN datacard has a bin with a yield of 0.08 +- 0.29, whose
+# uncertainty is only stable with more samples than the default 1000.
 foreach(case
     "cmshistfunc data/ci/template-analysis_shapeInterp.txt 200"
     "parametric data/tutorials/CAT23001/datacard-3-parametric-analysis.txt 125"
     "counting data/tutorials/CAT23001/datacard-5-multi-signal.txt 125"
     "autoMCStats data/ci/template-analysis_shape_autoMCStats.txt 125"
     "multiple_regions data/ci/htt_multiple_regions.txt 125"
+    "cmshistsum data/ci/template-analysis_shapeInterp.txt 200 --use-histsum"
+    "cmshistsum_no_wrappers data/ci/template-analysis_shape_autoMCStats.txt 125 --for-fits --no-wrappers --use-histsum"
+    "shapeN data/ci/template-analysis_shapeNInterp.txt 200 --samples=5000"
+    "cmshistsum_shapeN data/ci/template-analysis_shapeNInterp.txt 200 --samples=5000 --for-fits --no-wrappers --use-histsum"
 )
     separate_arguments(case)
     list(GET case 0 name)
     list(GET case 1 card)
     list(GET case 2 mass)
+    list(REMOVE_AT case 0 1 2)
     COMBINE_ADD_TEST(postfitshapes-${name}
-        COMMAND python3 ${REPO}/test/test_postfitshapes.py ${REPO}/${card} ${mass}
+        COMMAND python3 ${REPO}/test/test_postfitshapes.py ${REPO}/${card} ${mass} ${case}
         PASSREGEX "All checks passed"
         LABELS PostFitShapes
     )
