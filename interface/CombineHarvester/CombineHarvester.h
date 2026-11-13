@@ -461,7 +461,10 @@ namespace ch {
 
     /**
    * Rename a systematic from 'old_name' to 'new_name' and add a parameter
-   * 'new_name' to CH instance 'target' if that parameter doesn't exist yet. 
+   * 'new_name' to CH instance 'target' if that parameter doesn't exist yet.
+   * The parameter 'old_name' is removed from 'target', unless 'target' still
+   * has systematics with this name, e.g. when the systematic is renamed for a
+   * part of the processes: 'new_name' is then a copy of it, with its groups.
    * Usage similar to AddSyst()
    */
     void RenameSystematic(CombineHarvester& target, std::string const& old_name, std::string const& new_name);
