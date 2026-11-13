@@ -144,11 +144,28 @@ namespace ch {
   void CombineHarvester::RenameSystematic(CombineHarvester& target,
                                           std::string const& old_name,
                                           std::string const& new_name) {
+    bool renamed = false;
     for (unsigned i = 0; i < systs_.size(); ++i) {
       if (systs_[i]->name() == old_name) {
         systs_[i]->set_name(new_name);
-        target.RenameParameter(old_name, new_name);
+        renamed = true;
       }
+    }
+    if (!renamed)
+      return;
+    // The target may still have systematics with the old name, e.g. for the
+    // other processes or bins. Its parameter is kept then, and the new name
+    // gets a copy of it.
+    bool old_in_use = false;
+    for (auto const& sys : target.systs_) {
+      old_in_use = old_in_use || sys->name() == old_name;
+    }
+    if (!old_in_use) {
+      target.RenameParameter(old_name, new_name);
+    } else if (target.params_.count(old_name) && !target.params_.count(new_name)) {
+      auto param = std::make_shared<Parameter>(*target.params_.at(old_name));
+      param->set_name(new_name);
+      target.params_[new_name] = param;
     }
   }
 
