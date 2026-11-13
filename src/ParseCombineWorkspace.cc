@@ -1,5 +1,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/ParseCombineWorkspace.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CMSHistErrorPropagator.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CMSHistSum.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -94,9 +95,22 @@ namespace ch {
           }
           if (pdfs->getSize() == 1) {
             CMSHistErrorPropagator* err = dynamic_cast<CMSHistErrorPropagator*>(pdfs->at(0));
+            CMSHistSum* hsum = dynamic_cast<CMSHistSum*>(pdfs->at(0));
             if (err) {
               coeffs = &(err->coefList());
               pdfs = new RooArgList(err->wrapperList());
+              delete_pdfs = true;
+            } else if (hsum) {
+              // The shapes of the processes are views of the CMSHistSum. A
+              // workspace made with --no-wrappers has none: they are created
+              // here and imported, to be found by name below.
+              coeffs = &(hsum->coefList());
+              RooArgList wrappers = hsum->wrapperList();
+              for (RooAbsArg* wrapper : wrappers) {
+                if (!ws.function(wrapper->GetName()))
+                  ws.import(*wrapper, RooFit::RecycleConflictNodes(), RooFit::Silence());
+              }
+              pdfs = new RooArgList(wrappers);
               delete_pdfs = true;
             }
           }
