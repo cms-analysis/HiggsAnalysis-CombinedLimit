@@ -28,12 +28,12 @@ public:
 		   RooAbsReal& _x, RooAbsReal& _stepThresh,
 		   const RooArgList& _coefList) ;
 
-  RooStepBernstein(const RooStepBernstein& other, const char* name = 0);
+  RooStepBernstein(const RooStepBernstein& other, const char* name = nullptr);
   TObject* clone(const char* newname) const override { return new RooStepBernstein(*this, newname); }
   inline ~RooStepBernstein() override { }
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override ;
 
 private:
 
@@ -56,13 +56,13 @@ public:
 			const RooArgList& _coefList) ;
 
   RooGaussStepBernstein(const RooGaussStepBernstein& other,
-const char* name = 0);
+const char* name = nullptr);
   TObject* clone(const char* newname) const override
   { return new RooGaussStepBernstein(*this, newname); }
   inline ~RooGaussStepBernstein() override { }
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override ;
 
 private:
 

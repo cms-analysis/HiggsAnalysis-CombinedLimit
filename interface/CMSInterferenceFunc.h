@@ -10,7 +10,7 @@ class _InterferenceEval;
 class CMSInterferenceFunc : public CMSExternalMorph {
   public:
     CMSInterferenceFunc();
-    CMSInterferenceFunc(CMSInterferenceFunc const& other, const char* name = 0);
+    CMSInterferenceFunc(CMSInterferenceFunc const& other, const char* name = nullptr);
     /*
      * For a coefficients list of length n and edges array of length b+1,
      * the binscaling nested vector should have b entries (for b bins) with

@@ -30,7 +30,7 @@ RooAbsData *asimovutils::asimovDatasetNominal(RooStats::ModelConfig *mc, double 
             }
         }
 
-        RooRealVar *weightVar = 0;
+        RooRealVar *weightVar = nullptr;
         RooAbsData *asimov = newToyMC.generateAsimov(weightVar,verbose); 
         delete weightVar;
         return asimov;
@@ -49,7 +49,7 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
                 std::unique_ptr<RooArgSet> params{utils::getAllParameters(*mc->GetPdf(), realdata)};
                 for (RooAbsArg *a : *params) {
                     RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-                    if ( rrv != 0 && rrv->isConstant() == false ) { needsFit &= true; break; }
+                    if ( rrv != nullptr && rrv->isConstant() == false ) { needsFit &= true; break; }
                 } 
             }
             if (needsFit) {
@@ -75,7 +75,7 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
 	}
 
         toymcoptutils::SimPdfGenInfo newToyMC(*mc->GetPdf(), *mc->GetObservables(), false); 
-        RooRealVar *weightVar = 0;
+        RooRealVar *weightVar = nullptr;
         RooAbsData *asimov = newToyMC.generateAsimov(weightVar,verbose); 
         delete weightVar;
 
@@ -91,7 +91,7 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
             RooArgSet nuis(*mc->GetNuisanceParameters());
             std::unique_ptr<RooAbsPdf> nuispdf(utils::makeNuisancePdf(*mc));
             RooProdPdf *prod = dynamic_cast<RooProdPdf *>(nuispdf.get());
-            if (prod == 0) throw std::runtime_error("AsimovUtils: the nuisance pdf is not a RooProdPdf!");
+            if (prod == nullptr) throw std::runtime_error("AsimovUtils: the nuisance pdf is not a RooProdPdf!");
             for (RooAbsArg *a : prod->pdfList()) {
                 RooAbsPdf *cterm = dynamic_cast<RooAbsPdf *>(a); 
                 if (!cterm) throw std::logic_error("AsimovUtils: a factor of the nuisance pdf is not a pdf!");
@@ -104,19 +104,19 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
                 }
                 RooRealVar &rrv = dynamic_cast<RooRealVar &>(*cgobs->first());
 
-                RooAbsReal *match = 0;
+                RooAbsReal *match = nullptr;
                 if (cpars->getSize() == 1) {
                     match = dynamic_cast<RooAbsReal *>(cpars->first());
                 } else {
                     for (RooAbsArg *a2 : *cpars) {
                         RooRealVar *rrv2 = dynamic_cast<RooRealVar *>(a2); 
-                        if (rrv2 != 0 && !rrv2->isConstant()) {
-                            if (match != 0) throw std::runtime_error(Form("AsimovUtils: constraint term %s has multiple floating params", cterm->GetName()));
+                        if (rrv2 != nullptr && !rrv2->isConstant()) {
+                            if (match != nullptr) throw std::runtime_error(Form("AsimovUtils: constraint term %s has multiple floating params", cterm->GetName()));
                             match = rrv2;
                         }
                     }
                 }
-                if (match == 0) {   
+                if (match == nullptr) {   
                     std::cerr << "ERROR: AsimovUtils: can't find nuisance parameter for constraint term " << cterm->GetName() << std::endl;
                     std::cerr << "Parameters: " << std::endl;
                     cpars->Print("V");
@@ -138,16 +138,16 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
                     // best fit x = (k-1)*theta    ---->  k = x/theta + 1
                     RooArgList leaves;
                     cterm->leafNodeServerList(&leaves);
-                    RooAbsReal *match2 = 0;
+                    RooAbsReal *match2 = nullptr;
                     for (RooAbsArg *a2 : leaves) {
                         RooAbsReal *rar = dynamic_cast<RooAbsReal *>(a2);
-                        if (rar == 0 || rar == match || rar == &rrv) continue;
+                        if (rar == nullptr || rar == match || rar == &rrv) continue;
                         if (!rar->isConstant()) throw std::runtime_error(Form("AsimovUtils: extra floating parameter %s of RooGamma %s.", rar->GetName(), cterm->GetName()));
                         if (rar->getVal() == 0) continue; // this could be mu
-                        if (match2 != 0) throw std::runtime_error(Form("AsimovUtils: extra constant non-zero parameter %s of RooGamma %s.", rar->GetName(), cterm->GetName()));
+                        if (match2 != nullptr) throw std::runtime_error(Form("AsimovUtils: extra constant non-zero parameter %s of RooGamma %s.", rar->GetName(), cterm->GetName()));
                         match2 = rar;
                     } 
-                    if (match2 == 0) throw std::runtime_error(Form("AsimovUtils: could not find the scaling term for  RooGamma %s.", cterm->GetName()));
+                    if (match2 == nullptr) throw std::runtime_error(Form("AsimovUtils: could not find the scaling term for  RooGamma %s.", cterm->GetName()));
                     //std::cout << " nuisance "   << match->GetName() << " = x = " << match->getVal() << std::endl;
                     //std::cout << " scaling param "   << match2->GetName() << " = theta = " << match2->getVal() << std::endl;
                     //std::cout << " global obs " << rrv.GetName() << " = kappa = " << rrv.getVal() << std::endl;

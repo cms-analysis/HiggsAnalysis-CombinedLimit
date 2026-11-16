@@ -18,7 +18,7 @@ class ProcessNormalization : public RooAbsReal {
       ProcessNormalization() : nominalValue_(1) {}
       ProcessNormalization(const char *name, const char *title, double nominal=1) ;
       ProcessNormalization(const char *name, const char *title, RooAbsReal &nominal) ;
-      ProcessNormalization(const ProcessNormalization &other, const char *newname = 0) ;
+      ProcessNormalization(const ProcessNormalization &other, const char *newname = nullptr) ;
 
       TObject * clone(const char *newname) const override { return new ProcessNormalization(*this, newname); }
 

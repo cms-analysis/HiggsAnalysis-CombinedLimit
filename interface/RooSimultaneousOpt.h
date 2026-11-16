@@ -13,7 +13,7 @@ public:
         RooSimultaneous(name, title, indexCat),
         _extraConstraints("extraConstraints", "Extra constraint terms independent on the category",this),
         _channelMasks("channelMasks", "Terms or expressions that mask particular channels", this)  {}
-  RooSimultaneousOpt(const RooSimultaneous &any, const char* name=0) :
+  RooSimultaneousOpt(const RooSimultaneous &any, const char* name=nullptr) :
         RooSimultaneous(any, name),
         _extraConstraints("extraConstraints", "Extra constraint terms independent on the category",this),
         _channelMasks("channelMasks", "Terms or expressions that mask particular channels", this)
@@ -21,12 +21,12 @@ public:
             const RooSimultaneousOpt * opt = dynamic_cast<const RooSimultaneousOpt *>(&any);
             if (opt) _extraConstraints.add(opt->extraConstraints(), true);
         }
-  RooSimultaneousOpt(const RooSimultaneousOpt &other, const char* name=0) :
+  RooSimultaneousOpt(const RooSimultaneousOpt &other, const char* name=nullptr) :
         RooSimultaneous(other, name),
         _extraConstraints("extraConstraints", this, other._extraConstraints),
         _channelMasks("channelMasks", this, other._channelMasks)  {}
 
-  RooSimultaneousOpt *clone(const char* name=0) const override { return new RooSimultaneousOpt(*this, name); }
+  RooSimultaneousOpt *clone(const char* name=nullptr) const override { return new RooSimultaneousOpt(*this, name); }
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,30,0)
   RooAbsReal* createNLL(RooAbsData& data, const RooLinkedList& cmdList) override;

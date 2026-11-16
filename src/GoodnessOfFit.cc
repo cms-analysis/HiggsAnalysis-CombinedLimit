@@ -93,7 +93,7 @@ bool GoodnessOfFit::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
     if (!is_init) {
       initKSandAD(mc_s);
       if (makePlots_) {
-        plotDir_ = outputFile ? outputFile->mkdir("GoodnessOfFit") : 0;
+        plotDir_ = outputFile ? outputFile->mkdir("GoodnessOfFit") : nullptr;
       }
       is_init = true;
     }
@@ -109,7 +109,7 @@ void GoodnessOfFit::initKSandAD(RooStats::ModelConfig *mc_s) {
   if (sim) {
     std::unique_ptr<RooAbsCategoryLValue> cat(
         static_cast<RooAbsCategoryLValue *>(sim->indexCat().Clone()));
-    int nbins = cat->numBins((const char *)0);
+    int nbins = cat->numBins((const char *)nullptr);
     binNames_.resize(nbins);
     qVals_.resize(nbins);
     for (int i = 0; i < nbins; ++i) {
@@ -137,14 +137,14 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
 #else
       std::unique_ptr<TList> datasets(data.split(*cat, true));
 #endif
-      int nbins = cat->numBins((const char *)0);
+      int nbins = cat->numBins((const char *)nullptr);
       RooArgSet newPdfs;
       TString satname = TString::Format("%s_saturated", sim->GetName());
       RooSimultaneous *satsim = (typeid(*sim) == typeid(RooSimultaneousOpt)) ? new RooSimultaneousOpt(satname, "", *cat) : new RooSimultaneous(satname, "", *cat); 
       for (int ic = 0, nc = nbins; ic < nc; ++ic) {
           cat->setBin(ic);
           RooAbsPdf *pdfi = sim->getPdf(cat->getLabel());
-          if (pdfi == 0) continue;
+          if (pdfi == nullptr) continue;
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,37,00)
           auto found = std::find_if(datasets.begin(), datasets.end(), [&](auto const &item) {
             return std::string{cat->getLabel()} == item->GetName();
@@ -153,7 +153,7 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
 #else
           RooAbsData *datai = (RooAbsData *) datasets->FindObject(cat->getLabel());
 #endif
-          if (datai == 0) throw std::runtime_error(std::string("Error: missing dataset for category label ")+cat->getLabel());
+          if (datai == nullptr) throw std::runtime_error(std::string("Error: missing dataset for category label ")+cat->getLabel());
           std::unique_ptr<RooArgSet> data_observables(pdfi->getObservables(datai));
           std::unique_ptr<RooAbsData> data_reduced(datai->reduce(*data_observables));
           RooAbsPdf *saturatedPdfi = makeSaturatedPdf(*data_reduced);

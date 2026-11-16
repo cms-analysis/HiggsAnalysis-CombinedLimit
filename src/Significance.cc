@@ -104,7 +104,7 @@ Significance::MinimizerSentry::MinimizerSentry(const std::string &minimizerAlgo,
 Significance::MinimizerSentry::~MinimizerSentry() 
 {
   ROOT::Math::MinimizerOptions::SetDefaultTolerance(minimizerTollBackup);
-  ROOT::Math::MinimizerOptions::SetDefaultMinimizer(minimizerTypeBackup.c_str(),minimizerAlgoBackup.empty() ? 0 : minimizerAlgoBackup.c_str());
+  ROOT::Math::MinimizerOptions::SetDefaultMinimizer(minimizerTypeBackup.c_str(),minimizerAlgoBackup.empty() ? nullptr : minimizerAlgoBackup.c_str());
 }
 
 bool Significance::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -122,7 +122,7 @@ bool Significance::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::M
         r->setMax(rMax*(0.5+RooRandom::uniform()));
         r->setVal((0.1+0.5*RooRandom::uniform())*r->getMax()); 
         if (withSystematics) { 
-            if (nuisancePdf.get() == 0) nuisancePdf.reset(utils::makeNuisancePdf(*mc_s));
+            if (nuisancePdf.get() == nullptr) nuisancePdf.reset(utils::makeNuisancePdf(*mc_s));
             RooArgSet set(*mc_s->GetNuisanceParameters()); 
             RooDataSet *randoms = nuisancePdf->generate(set, 1); 
             set = *randoms->get(0);
@@ -137,7 +137,7 @@ bool Significance::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::M
       if (preFit_) {
         CloseCoutSentry sentry(verbose < 2);
         RooFitResult *res = mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2"));
-        if (res == 0 || res->covQual() != 3 || res->edm() > minimizerTolerance_) {
+        if (res == nullptr || res->covQual() != 3 || res->edm() > minimizerTolerance_) {
             if (verbose > 1) std::cout << "Fit failed (covQual " << (res ? res->covQual() : -1) << ", edm " << (res ? res->edm() : 0) << ")" << std::endl;
             continue;
         }
@@ -209,7 +209,7 @@ bool Significance::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooAbs
         }
     } else {
         plInterval.reset(plcB.GetInterval());
-        if (plInterval.get() == 0) break;
+        if (plInterval.get() == nullptr) break;
         limit = lowerLimit_ ? plInterval->LowerLimit(*r) : plInterval->UpperLimit(*r);
     }
     if (limit >= 0.75*r->getMax()) { 
@@ -273,7 +273,7 @@ bool Significance::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       limit = (q0 > 0 ? sqrt(2*q0) : (uncapped_ ? -sqrt(-2*q0) : 0));
   } else {
       std::unique_ptr<HypoTestResult> result(plcS.GetHypoTest());
-      if (result.get() == 0) return false;
+      if (result.get() == nullptr) return false;
       limit = result->Significance();
       if (uncapped_ && r->getVal() < signalForSignificance_) limit = -limit;
   }
@@ -372,7 +372,7 @@ std::pair<double,double> Significance::upperLimitBruteForce(RooAbsPdf &pdf, RooA
     } while (fabs(rhigh - rlow) > tolerance);
     if (fail) {
         // try do do it in small steps instead
-        std::unique_ptr<RooArgSet> pars(nll->getParameters((const RooArgSet *)0));
+        std::unique_ptr<RooArgSet> pars(nll->getParameters((const RooArgSet *)nullptr));
         double dx = (lowerLimit_ ? -0.05 : +0.05)*poi.getError();
         *pars = start->floatParsFinal();
         rval = poi.getVal() + dx;
@@ -426,7 +426,7 @@ double Significance::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &data, Ro
     std::unique_ptr<RooFitResult> start(minim.save());
     double minnll = nll->getVal(), thisnll = minnll, lastnll = thisnll;
     double rbest = poi.getVal(), rval = rbest;
-    TGraph *points = 0;
+    TGraph *points = nullptr;
     if (verbose) {
         printf("  %-6s  delta(NLL)\n", poi.GetName());
         printf("%8.5f  %8.5f\n", rval, 0.);

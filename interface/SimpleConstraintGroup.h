@@ -9,7 +9,7 @@ class SimpleConstraintGroup : public RooAbsReal {
     public:
         SimpleConstraintGroup() ;
         SimpleConstraintGroup(const char *name, const char *title) ;
-        SimpleConstraintGroup(const SimpleConstraintGroup & other, const char *newname = 0) ;
+        SimpleConstraintGroup(const SimpleConstraintGroup & other, const char *newname = nullptr) ;
         void add(const SimpleGaussianConstraint * gaus) ;
         void add(const SimplePoissonConstraint * pois) ;
         void setZeroPoint() ;

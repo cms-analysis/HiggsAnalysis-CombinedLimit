@@ -21,7 +21,7 @@ public:
 	      RooAbsReal& _p0,
 	      RooAbsReal& _p1,
 	      RooAbsReal& _p2);
-  GaussExp(const GaussExp& other, const char* name=0) ;
+  GaussExp(const GaussExp& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new GaussExp(*this,newname); }
   // inline virtual ~GaussExp() { }
 

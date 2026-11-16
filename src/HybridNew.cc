@@ -379,7 +379,7 @@ bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mode
         case MakeSignificanceTestStatistics:
                                    return runTestStatistics(w, mc_s, mc_b, data, limit, limitErr, hint);
     }
-    assert("Shouldn't get here" == 0);
+    assert("Shouldn't get here" == nullptr);
     return false;
 }
 
@@ -397,7 +397,7 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
             if (verbose) std::cout << "\t1 - Pb = " << hcResult->CLb() << " +/- " << hcResult->CLbError() << std::endl;
         }
     }
-    if (hcResult.get() == 0) {
+    if (hcResult.get() == nullptr) {
         std::cerr << "Hypotest failed" << std::endl;
         return false;
     }
@@ -438,7 +438,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first()); r->setConstant(true);
   w->loadSnapshot("clean");
 
-  if ((hint != 0) && (*hint > r->getMin()) && testStat_ != "Profile") {
+  if ((hint != nullptr) && (*hint > r->getMin()) && testStat_ != "Profile") {
       r->setMax(std::min<double>(3.0 * (*hint), r->getMax()));
       r->setMin(std::max<double>(0.3 * (*hint), r->getMin()));
   }
@@ -463,7 +463,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       if (!gridFile_.empty()) {
         if (grid_.empty()) {
             std::unique_ptr<TFile> gridFile(TFile::Open(gridFile_.c_str()));
-            if (gridFile.get() == 0) throw std::runtime_error(("Can't open grid file "+gridFile_).c_str());
+            if (gridFile.get() == nullptr) throw std::runtime_error(("Can't open grid file "+gridFile_).c_str());
             TDirectory *toyDir = gridFile->GetDirectory("toys");
             if (!toyDir) throw std::logic_error("Cannot use readHypoTestResult: empty toy dir in input file empty");
             readGrid(toyDir, rMinSet_ ? rMin : -99e99, rMaxSet_ ? rMax :+99e99);
@@ -797,7 +797,7 @@ std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooStats::ModelConfig
         bool isProfile = (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile");
         std::unique_ptr<RooStats::HypoTestResult> result(readToysFromFile(rVals));
         std::pair<double, double> ret(-1,-1);
-        assert(result.get() != 0 && "Null result in HybridNew::eval(Workspace,...) after readToysFromFile");
+        assert(result.get() != nullptr && "Null result in HybridNew::eval(Workspace,...) after readToysFromFile");
         if (expectedFromGrid_) {
             applyExpectedQuantile(*result);
             result->SetTestStatisticData(result->GetTestStatisticData() + (isProfile ? -EPS : EPS));
@@ -991,7 +991,7 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
       // The pdf will contain non-const parameters which are not observables
       // and the HybridCalculator will assume they're nuisances and try to generate them
       // to avoid this, we force him to generate a fake nuisance instead
-      if (w->var("__HybridNew_fake_nuis__") == 0) {
+      if (w->var("__HybridNew_fake_nuis__") == nullptr) {
         w->factory("__HybridNew_fake_nuis__[0.5,0,1]");
         w->factory("Uniform::__HybridNew_fake_nuisPdf__(__HybridNew_fake_nuis__)");
       }
@@ -1104,7 +1104,7 @@ std::unique_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, R
       setup.qvar.reset(new BestFitSigmaTestStat(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  params, verbose));
   }
 
-  RooAbsPdf *nuisancePdf = 0;
+  RooAbsPdf *nuisancePdf = nullptr;
   if (withSystematics && (genNuisances_ || (newToyMCSampler_ && genGlobalObs_))) {
     nuisancePdf = utils::makeNuisancePdf(*mc_s);
     if (nuisancePdf) setup.cleanupList.addOwned(*nuisancePdf);
@@ -1194,7 +1194,7 @@ std::pair<double,double>
 HybridNew::eval(RooStats::HybridCalculator &hc, const RooAbsCollection & rVals, bool adaptive, double clsTarget) {
     std::unique_ptr<HypoTestResult> hcResult(evalGeneric(hc));
     if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
-    if (hcResult.get() == 0) {
+    if (hcResult.get() == nullptr) {
         std::cerr << "Hypotest failed" << std::endl;
         return std::pair<double, double>(-1,-1);
     }
@@ -1463,9 +1463,9 @@ RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &h
         if (ret == -1 && errno != ECHILD) throw std::runtime_error("Didn't wait for child");
         for (ich = 0; ich < fork_; ++ich) {
             TFile *f = TFile::Open(TString::Format("%s.%d.root", tmpfile, ich));
-            if (f == 0) throw std::runtime_error(TString::Format("Child didn't leave output file %s.%d.root", tmpfile, ich).Data());
+            if (f == nullptr) throw std::runtime_error(TString::Format("Child didn't leave output file %s.%d.root", tmpfile, ich).Data());
             RooStats::HypoTestResult *res = dynamic_cast<RooStats::HypoTestResult *>(f->Get("result"));
-            if (res == 0)  throw std::runtime_error(TString::Format("Child output file %s.%d.root is corrupted", tmpfile, ich).Data());
+            if (res == nullptr)  throw std::runtime_error(TString::Format("Child output file %s.%d.root is corrupted", tmpfile, ich).Data());
             if (result.get()) result->Append(res); else result.reset(dynamic_cast<RooStats::HypoTestResult *>(res->Clone()));
             f->Close();
             unlink(TString::Format("%s.%d.root",    tmpfile, ich).Data());
@@ -1579,19 +1579,19 @@ RooStats::HypoTestResult * HybridNew::readToysFromFile(const RooAbsCollection & 
     if (verbose) std::cout << std::endl;
     std::unique_ptr<RooStats::HypoTestResult> ret;
     TIter next(toyDir->GetListOfKeys()); TKey *k;
-    while ((k = (TKey *) next()) != 0) {
+    while ((k = (TKey *) next()) != nullptr) {
         if (TString(k->GetName()).Index(prefix1) != 0 && TString(k->GetName()).Index(prefix2) != 0) continue;
         RooStats::HypoTestResult *toy = dynamic_cast<RooStats::HypoTestResult *>(toyDir->Get(k->GetName()));
-        if (toy == 0) continue;
+        if (toy == nullptr) continue;
         if (verbose > 1) std::cout << " - " << k->GetName() << std::endl;
-        if (ret.get() == 0) {
+        if (ret.get() == nullptr) {
             ret.reset(new RooStats::HypoTestResult(*toy));
         } else {
             ret->Append(toy);
         }
     }
 
-    if (ret.get() == 0) {
+    if (ret.get() == nullptr) {
         //std::cout << "ERROR: parameter point not found in input root file.\n";
         CombineLogger::instance().log("HybridNew.cc",__LINE__,"[ERROR] Parameter point not foung in input root file!",__func__);
         rVals.Print("V");
@@ -1622,7 +1622,7 @@ void HybridNew::readGrid(TDirectory *toyDir, double rMin, double rMax) {
     clearGrid();
 
     TIter next(toyDir->GetListOfKeys()); TKey *k; const char *poiName = rValues_.first()->GetName();
-    while ((k = (TKey *) next()) != 0) {
+    while ((k = (TKey *) next()) != nullptr) {
         TString name(k->GetName());
         if (name.Index("HypoTestResult_mh") == 0) {
             if (name.Index(TString::Format("HypoTestResult_mh%g_%s",mass_,poiName)) != 0 || name.Index("_", name.Index("_")+1) == -1) continue;
@@ -1640,7 +1640,7 @@ void HybridNew::readGrid(TDirectory *toyDir, double rMin, double rMax) {
         if (verbose > 2) std::cout << "  Do " << k->GetName() << " -> " << name << " --> " << rVal << std::endl;
         RooStats::HypoTestResult *toy = dynamic_cast<RooStats::HypoTestResult *>(toyDir->Get(k->GetName()));
         RooStats::HypoTestResult *&merge = grid_[rVal];
-        if (merge == 0) merge = new RooStats::HypoTestResult(*toy);
+        if (merge == nullptr) merge = new RooStats::HypoTestResult(*toy);
         else merge->Append(toy);
         merge->ResetBit(1);
     }
@@ -1796,7 +1796,7 @@ void HybridNew::clearGrid() {
 
 std::pair<double,double> HybridNew::interpolateAndUncert(TGraphErrors *gr, double clsTarget){
    TRandom3 *rnd = new TRandom3();
-   double rv = gr->Eval(clsTarget,(TSpline*)0,"S");
+   double rv = gr->Eval(clsTarget,(TSpline*)nullptr,"S");
    double rms=0;
    TGraphErrors *grtoy = (TGraphErrors*) gr->Clone();
 
@@ -1804,7 +1804,7 @@ std::pair<double,double> HybridNew::interpolateAndUncert(TGraphErrors *gr, doubl
 	for (int p=0;p<grtoy->GetN();p++){
 	    grtoy->SetPoint(p,rnd->Gaus(grtoy->GetX()[p],grtoy->GetErrorX(p)),grtoy->GetY()[p]);
 	}
-	double rvtoy =  grtoy->Eval(clsTarget,(TSpline*)0,"S");
+	double rvtoy =  grtoy->Eval(clsTarget,(TSpline*)nullptr,"S");
 	rms+=(rvtoy-rv)*(rvtoy-rv);
    }
    rms = TMath::Sqrt(rms)/50;

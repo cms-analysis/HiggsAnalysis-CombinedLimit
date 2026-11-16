@@ -21,7 +21,7 @@ class CMSExternalMorph : public RooAbsReal {
         RooRealVar& x,
         const std::vector<double>& edges
     );
-    CMSExternalMorph(CMSExternalMorph const& other, const char* name = 0);
+    CMSExternalMorph(CMSExternalMorph const& other, const char* name = nullptr);
     ~CMSExternalMorph() override;
 
     /* Batch accessor for CMSHistFunc / CMSHistSum, to be overridden by concrete

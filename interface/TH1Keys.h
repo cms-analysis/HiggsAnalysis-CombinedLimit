@@ -33,7 +33,7 @@ class TH1Keys : public TH1 {
        void     AddBinContent(Int_t bin, Double_t w) override { dont("AddBinContent"); }
        void     Copy(TObject &hnew) const override { dont("Copy"); }
 
-       virtual TH1     *DrawCopy(Option_t *option="") const { dont("DrawCopy"); return 0; }
+       virtual TH1     *DrawCopy(Option_t *option="") const { dont("DrawCopy"); return nullptr; }
 
        Double_t GetBinContent(Int_t bin) const override { return GetHisto()->GetBinContent(bin); }
        Double_t GetBinContent(Int_t bin, Int_t) const override { return GetHisto()->GetBinContent(bin); }

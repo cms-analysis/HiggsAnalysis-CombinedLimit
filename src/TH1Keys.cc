@@ -6,11 +6,11 @@
 #include <vector>
 
 TH1Keys::TH1Keys() :
-    x_(0),
-    dataset_(0),
+    x_(nullptr),
+    dataset_(nullptr),
     underflow_(0.0), overflow_(0.0),
     globalScale_(1.0),
-    cache_(0),
+    cache_(nullptr),
     isCacheGood_(false)
 {
 }
@@ -33,7 +33,7 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,Double_t xlow,D
     vars.add(*w_);
     dataset_ = new RooDataSet(name, title, vars, RooFit::WeightVar("w"));
 
-    cache_->SetDirectory(0);
+    cache_->SetDirectory(nullptr);
     fDimension = 1;
     x_->setBins(nbinsx);
 }
@@ -56,7 +56,7 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Float_t  
     vars.add(*w_);
     dataset_ = new RooDataSet(name, title, vars, RooFit::WeightVar("w"));
 
-    cache_->SetDirectory(0);
+    cache_->SetDirectory(nullptr);
     fDimension = 1;
     std::vector<Double_t> boundaries(nbinsx+1);
     for (Int_t i = 0; i <= nbinsx; ++i) boundaries[i] = xbins[i];
@@ -81,7 +81,7 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Double_t 
     vars.add(*w_);
     dataset_ = new RooDataSet(name, title, vars, RooFit::WeightVar("w"));
 
-    cache_->SetDirectory(0);
+    cache_->SetDirectory(nullptr);
     fDimension = 1;
     x_->setBinning(RooBinning(nbinsx, xbins));
 }
@@ -147,7 +147,7 @@ Bool_t TH1Keys::Add(const TH1 *h1, Double_t c1)
 {
     if (c1 != 1.0) dont("Add with constant != 1");
     const TH1Keys *other = dynamic_cast<const TH1Keys *>(h1);
-    if (other == 0) dont("Add with a non TH1Keys");
+    if (other == nullptr) dont("Add with a non TH1Keys");
     dataset_->append(const_cast<RooDataSet&>(*other->dataset_));
     isCacheGood_ = false;
 #if ROOT_VERSION_CODE >=  ROOT_VERSION(5,34,00)

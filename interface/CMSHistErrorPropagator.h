@@ -32,7 +32,7 @@ public:
   CMSHistErrorPropagator(const char* name, const char* title, RooRealVar& x,
                          RooArgList const& funcs, RooArgList const& coeffs);
 
-  CMSHistErrorPropagator(CMSHistErrorPropagator const& other, const char* name = 0);
+  CMSHistErrorPropagator(CMSHistErrorPropagator const& other, const char* name = nullptr);
 
   TObject* clone(const char* newname) const override {
     return new CMSHistErrorPropagator(*this, newname);
@@ -52,9 +52,9 @@ public:
                       TString indent) const override;
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
-                              const char* rangeName = 0) const override;
+                              const char* rangeName = nullptr) const override;
 
-  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const override;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName = nullptr) const override;
 
   void setData(RooAbsData const& data) const;
 

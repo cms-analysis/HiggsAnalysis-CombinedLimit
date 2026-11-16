@@ -17,11 +17,11 @@ public:
   RooParametricHist2D() {} ;
   RooParametricHist2D (const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _y, RooArgList& _pars, const TH2 &_shape);
   
-  RooParametricHist2D(const RooParametricHist2D& other, const char* name=0);
+  RooParametricHist2D(const RooParametricHist2D& other, const char* name=nullptr);
   TObject* clone(const char* newname) const override { return new RooParametricHist2D(*this,newname); }
   inline ~RooParametricHist2D () override{};
-  Int_t getAnalyticalIntegral(RooArgSet &allVars, RooArgSet &analVars, const char* rangeName=0) const override ;
-  Double_t analyticalIntegral(Int_t, const char* rangeName=0) const override ;   
+  Int_t getAnalyticalIntegral(RooArgSet &allVars, RooArgSet &analVars, const char* rangeName=nullptr) const override ;
+  Double_t analyticalIntegral(Int_t, const char* rangeName=nullptr) const override ;   
   
   //RooAddition & getYieldVar(){return sum;};
   

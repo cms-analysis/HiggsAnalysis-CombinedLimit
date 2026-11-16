@@ -163,7 +163,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   }
 
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
-  TCanvas *c1 = 0;
+  TCanvas *c1 = nullptr;
   if (makePlots_) {
       utils::tdrStyle();
       c1 = new TCanvas("c1","c1");
@@ -188,7 +188,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_prefit");
           ToySampler sampler(&*nuisancePdf, nuis);
-          getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms, sampler, currentToy_<1 ? fitOut.get() : 0, "_prefit",data);
+          getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms, sampler, currentToy_<1 ? fitOut.get() : nullptr, "_prefit",data);
           delete norms;
       }
       if (withSystematics)	{
@@ -297,7 +297,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
       resetFitResultTrees(withSystematics);
   }
  
-  RooFitResult *res_b = 0, *res_s = 0;
+  RooFitResult *res_b = nullptr, *res_s = nullptr;
   const RooCmdArg &constCmdArg_s = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg{}; // use something dummy 
   //const RooCmdArg &minosCmdArg = minos_ == "poi" ?  RooFit::Minos(*mc_s->GetParametersOfInterest())   : RooFit::Minos(minos_ != "none");  //--> dont use fitTo!
   w->loadSnapshot("clean");
@@ -388,7 +388,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_fit_b");
           CovarianceReSampler sampler(res_b);
-          getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms, sampler, currentToy_<1 ? fitOut.get() : 0, "_fit_b",data);
+          getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms, sampler, currentToy_<1 ? fitOut.get() : nullptr, "_fit_b",data);
           delete norms;
       }
 
@@ -517,7 +517,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_fit_s");
           CovarianceReSampler sampler(res_s);
-          getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms, sampler, currentToy_<1 ? fitOut.get() : 0, "_fit_s",data);
+          getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms, sampler, currentToy_<1 ? fitOut.get() : nullptr, "_fit_s",data);
 	  delete norms;
       }
 
@@ -598,7 +598,7 @@ bool FitDiagnostics::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 	}
 
   } 
-  bool fitreturn = (res_s!=0);
+  bool fitreturn = (res_s!=nullptr);
   delete res_s;
 
   /*
@@ -627,9 +627,9 @@ void FitDiagnostics::getNormalizationsSimple(RooAbsPdf *pdf, const RooArgSet &ob
 }
 void FitDiagnostics::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std::map<std::string,ShapeAndNorm> &out, const std::string &channel) {
     RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(pdf);
-    if (sim != 0) {
+    if (sim != nullptr) {
         RooAbsCategoryLValue &cat = const_cast<RooAbsCategoryLValue &>(sim->indexCat());
-        for (int i = 0, n = cat.numBins((const char *)0); i < n; ++i) {
+        for (int i = 0, n = cat.numBins((const char *)nullptr); i < n; ++i) {
             cat.setBin(i);
             RooAbsPdf *pdfi = sim->getPdf(cat.getLabel());
             if (pdfi) getShapesAndNorms(pdfi, obs, out, cat.getLabel());
@@ -637,7 +637,7 @@ void FitDiagnostics::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std
         return;
     }
     RooProdPdf *prod = dynamic_cast<RooProdPdf *>(pdf);
-    if (prod != 0) {
+    if (prod != nullptr) {
         RooArgList list(prod->pdfList());
         for (int i = 0, n = list.getSize(); i < n; ++i) {
             RooAbsPdf *pdfi = (RooAbsPdf *) list.at(i);
@@ -646,7 +646,7 @@ void FitDiagnostics::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std
         return;
     }
     RooAddPdf *add = dynamic_cast<RooAddPdf *>(pdf);
-    if (add != 0) {
+    if (add != nullptr) {
         RooArgList clist(add->coefList());
         RooArgList plist(add->pdfList());
         for (int i = 0, n = clist.getSize(); i < n; ++i) {
@@ -658,7 +658,7 @@ void FitDiagnostics::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std
             ns.pdf = (RooAbsPdf*) plist.at(i);
             ns.channel = (coeff->getStringAttribute("combine.channel") ? coeff->getStringAttribute("combine.channel") : channel.c_str());
             ns.process = (coeff->getStringAttribute("combine.process") ? coeff->getStringAttribute("combine.process") : ns.norm->GetName());
-            ns.signal  = (coeff->getStringAttribute("combine.process") ? coeff->getAttribute("combine.signal") : (strstr(ns.norm->GetName(),"shapeSig") != 0));
+            ns.signal  = (coeff->getStringAttribute("combine.process") ? coeff->getAttribute("combine.signal") : (strstr(ns.norm->GetName(),"shapeSig") != nullptr));
             std::unique_ptr<RooArgSet> myobs(ns.pdf->getObservables(obs));
             ns.obs.add(*myobs);
             ns.isfunc = false;
@@ -666,7 +666,7 @@ void FitDiagnostics::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std
         return;
     }
     RooRealSumPdf *sum = dynamic_cast<RooRealSumPdf *>(pdf);
-    if (sum != 0) {
+    if (sum != nullptr) {
       RooArgList clist(sum->coefList());
       RooArgList plist(sum->funcList());
       if (plist.getSize() == 1) {
@@ -708,7 +708,7 @@ void FitDiagnostics::getShapesAndNorms(RooAbsPdf *pdf, const RooArgSet &obs, std
         ns.norm = normProd;
         ns.channel = (coeff->getStringAttribute("combine.channel") ? coeff->getStringAttribute("combine.channel") : channel.c_str());
         ns.process = (coeff->getStringAttribute("combine.process") ? coeff->getStringAttribute("combine.process") : ns.norm->GetName());
-        ns.signal  = (coeff->getStringAttribute("combine.process") ? coeff->getAttribute("combine.signal") : (strstr(ns.norm->GetName(),"shapeSig") != 0));
+        ns.signal  = (coeff->getStringAttribute("combine.process") ? coeff->getAttribute("combine.signal") : (strstr(ns.norm->GetName(),"shapeSig") != nullptr));
         ns.obs.add(*myobs);
         ns.isfunc = true;
       }
@@ -725,7 +725,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 	typedef std::map<std::string, TGraphAsymmErrors *>::const_iterator IG;
 	typedef std::map<std::string, TH2 *>::const_iterator IH2;
 	// create directory structure for shapes
-	TDirectory *shapeDir = fOut && saveShapes_ ? fOut->mkdir((std::string("shapes") + postfix).c_str()) : 0;
+	TDirectory *shapeDir = fOut && saveShapes_ ? fOut->mkdir((std::string("shapes") + postfix).c_str()) : nullptr;
 	std::map<std::string, TDirectory *> shapesByChannel;
 	std::map<std::string, TGraphAsymmErrors *> datByCh;
 	if (shapeDir)
@@ -733,7 +733,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 		for (IT it = snm.begin(), ed = snm.end(); it != ed; ++it)
 		{
 			TDirectory *&sub = shapesByChannel[it->second.channel];
-			if (sub == 0)
+			if (sub == nullptr)
 			{
 				sub = shapeDir->mkdir(it->second.channel.c_str());
 				RooRealVar *x = (RooRealVar *)it->second.obs.at(0);
@@ -748,7 +748,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 	}
 	// now let's start with the central values
 	std::vector<double> vals(snm.size(), 0.), sumx2(snm.size(), 0.);
-	std::vector<TH1 *> shapes(snm.size(), 0), shapes2(snm.size(), 0);
+	std::vector<TH1 *> shapes(snm.size(), nullptr), shapes2(snm.size(), nullptr);
 	std::vector<int> bins(snm.size(), 0), sig(snm.size(), 0);
 	std::map<std::string, TH1 *> totByCh, totByCh2, sigByCh, sigByCh2, bkgByCh, bkgByCh2,  widthByCh;
 	std::map<std::string, TH2 *> totByCh2Covar;
@@ -768,7 +768,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 		else
 			norm_bkg.find(pair->second.channel) == norm_bkg.end() ? norm_bkg[pair->second.channel] = vals[i] : norm_bkg[pair->second.channel] += vals[i];
 		// out.addOwned(*(new RooConstVar(pair->first.c_str(), "", pair->second.norm->getVal())));
-		if (fOut != 0 && saveShapes_ && pair->second.obs.getSize() == 1)
+		if (fOut != nullptr && saveShapes_ && pair->second.obs.getSize() == 1)
 		{
 			RooRealVar *x = (RooRealVar *)pair->second.obs.at(0);
 			TH1 *hist = pair->second.pdf->createHistogram("", *x, pair->second.isfunc ? RooFit::Extended(false) : RooCmdArg::none(), RooFit::Scaling(false));
@@ -782,11 +782,11 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 			shapes[i] = hist;
 			// if (saveWithUncertainties_) {
 			shapes2[i] = (TH1 *)hist->Clone();
-			shapes2[i]->SetDirectory(0);
+			shapes2[i]->SetDirectory(nullptr);
 			shapes2[i]->Reset();
 			bins[i] = hist->GetNbinsX();
 			TH1 *&htot = totByCh[pair->second.channel];
-			if (htot == 0)
+			if (htot == nullptr)
 			{
 				htot = (TH1 *)hist->Clone();
 				htot->SetName("total");
@@ -794,14 +794,14 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 				htot->SetDirectory(shapesByChannel[pair->second.channel]);
 				TH1 *htot2 = (TH1 *)hist->Clone();
 				htot2->Reset();
-				htot2->SetDirectory(0);
+				htot2->SetDirectory(nullptr);
 				totByCh2[pair->second.channel] = htot2;
 
 				TH2F *htot2covar = new TH2F("total_covar", "Covariance signal+background", bins[i], 0, bins[i], bins[i], 0, bins[i]);
 				htot2covar->GetXaxis()->SetTitle("Bin number");
 				htot2covar->GetYaxis()->SetTitle("Bin number");
 				htot2covar->GetZaxis()->SetTitle(Form("covar (%s)", hist->GetYaxis()->GetTitle()));
-				htot2covar->SetDirectory(0);
+				htot2covar->SetDirectory(nullptr);
 				totByCh2Covar[pair->second.channel] = htot2covar;
 
 				// The bin width is stored so that
@@ -821,7 +821,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 			}
 			sig[i] = pair->second.signal;
 			TH1 *&hpart = (sig[i] ? sigByCh : bkgByCh)[pair->second.channel];
-			if (hpart == 0)
+			if (hpart == nullptr)
 			{
 				hpart = (TH1 *)hist->Clone();
 				hpart->SetName((sig[i] ? "total_signal" : "total_background"));
@@ -829,7 +829,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 				hpart->SetDirectory(shapesByChannel[pair->second.channel]);
 				TH1 *hpart2 = (TH1 *)hist->Clone();
 				hpart2->Reset();
-				hpart2->SetDirectory(0);
+				hpart2->SetDirectory(nullptr);
 				(sig[i] ? sigByCh2 : bkgByCh2)[pair->second.channel] = hpart2;
 			}
 			else
@@ -853,26 +853,26 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 	TH2D *totOverall2Covar = new TH2D("overall_total_covar", "Covariance signal+background", totalBins, 0, totalBins, totalBins, 0, totalBins);
 	totOverall2Covar->GetXaxis()->SetTitle("Bin number");
 	totOverall2Covar->GetYaxis()->SetTitle("Bin number");
-	totOverall2Covar->SetDirectory(0);
+	totOverall2Covar->SetDirectory(nullptr);
 
 	// Need to keep track of 3 summed quantities to properly compute mean, covariance and 3rd moments 
 	TH1D *totM1 = new TH1D("overall_total_M1","total M1 = 1/N sum(xi)",totalBins, 0, totalBins); totM1->GetXaxis()->SetTitle("Bin number"); 
 	TH1D *totM3 = new TH1D("overall_total_M3","total M3 = 1/N sum((xi-E[x])^3)",totalBins, 0, totalBins); totM3->GetXaxis()->SetTitle("Bin number"); 	
 	TH2D *totM2 = new TH2D("overall_total_M2","total M2 = 1/N sum( (xi-E[xi])(xj-E[xj])",totalBins, 0, totalBins, totalBins, 0, totalBins); totM2->GetXaxis()->SetTitle("Bin number"); totM2->GetYaxis()->SetTitle("Bin number"); 
-	totM1->SetDirectory(0); totM2->SetDirectory(0); totM3->SetDirectory(0);
+	totM1->SetDirectory(nullptr); totM2->SetDirectory(nullptr); totM3->SetDirectory(nullptr);
 
 
 	// Total background
 	TH1D *totOverall = new TH1D("total_overall", "signal+background", totalBins, 0, totalBins);
-	totOverall->SetDirectory(0);
+	totOverall->SetDirectory(nullptr);
 	TH1D *wdtOverall = new TH1D("total_bin_width", "Bin widths", totalBins, 0, totalBins);
-	wdtOverall->SetDirectory(0);
+	wdtOverall->SetDirectory(nullptr);
 	TH1D *bkgOverall = new TH1D("total_background", "Total background", totalBins, 0, totalBins);
-	bkgOverall->SetDirectory(0);
+	bkgOverall->SetDirectory(nullptr);
 	TH1D *sigOverall = new TH1D("total_signal", "Total signal", totalBins, 0, totalBins);
-	sigOverall->SetDirectory(0);
+	sigOverall->SetDirectory(nullptr);
 	TH1D *datOverallHist = new TH1D("total_data", "Total data", totalBins, 0, totalBins);
-	datOverallHist->SetDirectory(0);
+	datOverallHist->SetDirectory(nullptr);
 
 	int iBinOverall = 1;
 	// Map to hold info on bins across channels
@@ -1078,7 +1078,7 @@ void FitDiagnostics::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, Roo
 					shapes[i]->SetBinError(b, std::sqrt(shapes2[i]->GetBinContent(b) / ntoys));
 				}
 				delete shapes2[i];
-				shapes2[i] = 0;
+				shapes2[i] = nullptr;
 			}
 		}
 

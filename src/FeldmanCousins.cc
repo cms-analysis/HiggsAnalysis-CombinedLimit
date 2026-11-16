@@ -31,7 +31,7 @@ bool FeldmanCousins::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   RooArgSet  poi(*mc_s->GetParametersOfInterest());
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
 
-  if ((hint != 0) && (*hint > r->getMin())) {
+  if ((hint != nullptr) && (*hint > r->getMin())) {
     r->setMax(std::min<double>(3*(*hint), r->getMax()));
   }
 
@@ -48,7 +48,7 @@ bool FeldmanCousins::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   do { 
       if (verbose > 1) std::cout << "Scan in range [" << r->getMin() << ", " << r->getMax() << "]" << std::endl;
       std::unique_ptr<RooStats::PointSetInterval> fcInterval((RooStats::PointSetInterval *)fc.GetInterval());
-      if (fcInterval.get() == 0) return false;
+      if (fcInterval.get() == nullptr) return false;
       if (verbose > 1) fcInterval->GetParameterPoints()->Print("V"); 
       RooDataHist* parameterScan = (RooDataHist*) fc.GetPointsToScan();
       int found = -1; 

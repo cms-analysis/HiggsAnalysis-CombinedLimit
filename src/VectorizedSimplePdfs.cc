@@ -32,7 +32,7 @@ void VectorizedExponential::fill(std::vector<Double_t> &out) const {
 VectorizedPower::VectorizedPower(const RooPower &pdf, const RooAbsData &data, bool includeZeroWeights)
 {
     RooArgSet obs(*data.get());
-    if (obs.find(pdf.base()) == 0) throw std::invalid_argument("Dataset does not depend on the base of the power");
+    if (obs.find(pdf.base()) == nullptr) throw std::invalid_argument("Dataset does not depend on the base of the power");
     x_ = dynamic_cast<const RooRealVar*>(obs.first());
     exponent_ = &pdf.exponent();
 

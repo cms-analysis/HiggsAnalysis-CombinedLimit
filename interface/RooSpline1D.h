@@ -18,11 +18,11 @@ END_HTML
 class RooSpline1D : public RooAbsReal {
 
    public:
-      RooSpline1D() : interp_(0) {}
+      RooSpline1D() : interp_(nullptr) {}
       RooSpline1D(const char *name, const char *title, RooAbsReal &xvar, const char *path, const unsigned short xcol, const unsigned short ycol, const unsigned short skipLines=0, const char *algo="CSPLINE") ;
       RooSpline1D(const char *name, const char *title, RooAbsReal &xvar, unsigned int npoints, const double *xvals, const double *yvals, const char *algo="CSPLINE") ;
       RooSpline1D(const char *name, const char *title, RooAbsReal &xar, unsigned int npoints, const float *xvals, const float *yvals, const char *algo="CSPLINE") ;
-      RooSpline1D(const RooSpline1D &other, const char *newname=0) ;
+      RooSpline1D(const RooSpline1D &other, const char *newname=nullptr) ;
       ~RooSpline1D() override ;
 
       TObject * clone(const char *newname) const override ;

@@ -277,7 +277,7 @@ RooTH1DPdf::RooTH1DPdf(const char *name, const char *title,
   hist(_hist),
   interpolate(_interpolate)
 { 
-  hist.SetDirectory(0);
+  hist.SetDirectory(nullptr);
 } 
 
 
@@ -287,7 +287,7 @@ RooTH1DPdf::RooTH1DPdf(const RooTH1DPdf& other, const char* name) :
   hist(other.hist),
   interpolate(other.interpolate)
 { 
-  hist.SetDirectory(0);
+  hist.SetDirectory(nullptr);
 } 
 
 

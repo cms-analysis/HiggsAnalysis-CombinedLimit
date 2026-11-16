@@ -169,14 +169,14 @@ double RooCB::evaluate() const
    Int_t code=0;
 
    RooArgSet deps_x, deps_xp, deps_mean, deps_width, deps_alpha1, deps_alpha2, deps_n1, deps_n2;
-   RooRealVar* rrv_x = dynamic_cast<RooRealVar*>(x.absArg()); if (!rrv_x && x.absArg()) x.absArg()->leafNodeServerList(&deps_x, 0, true);
-   RooRealVar* rrv_xp = dynamic_cast<RooRealVar*>(xp.absArg()); if (!rrv_xp && xp.absArg()) xp.absArg()->leafNodeServerList(&deps_xp, 0, true);
-   RooRealVar* rrv_mean = dynamic_cast<RooRealVar*>(mean.absArg()); if (!rrv_mean) mean.absArg()->leafNodeServerList(&deps_mean, 0, true);
-   RooRealVar* rrv_width = dynamic_cast<RooRealVar*>(width.absArg()); if (!rrv_width) width.absArg()->leafNodeServerList(&deps_width, 0, true);
-   RooRealVar* rrv_alpha1 = dynamic_cast<RooRealVar*>(alpha1.absArg()); if (!rrv_alpha1) alpha1.absArg()->leafNodeServerList(&deps_alpha1, 0, true);
-   RooRealVar* rrv_alpha2 = dynamic_cast<RooRealVar*>(alpha2.absArg()); if (!rrv_alpha2) alpha2.absArg()->leafNodeServerList(&deps_alpha2, 0, true);
-   RooRealVar* rrv_n1 = dynamic_cast<RooRealVar*>(n1.absArg()); if (!rrv_n1) n1.absArg()->leafNodeServerList(&deps_n1, 0, true);
-   RooRealVar* rrv_n2 = dynamic_cast<RooRealVar*>(n2.absArg()); if (!rrv_n2) n2.absArg()->leafNodeServerList(&deps_n2, 0, true);
+   RooRealVar* rrv_x = dynamic_cast<RooRealVar*>(x.absArg()); if (!rrv_x && x.absArg()) x.absArg()->leafNodeServerList(&deps_x, nullptr, true);
+   RooRealVar* rrv_xp = dynamic_cast<RooRealVar*>(xp.absArg()); if (!rrv_xp && xp.absArg()) xp.absArg()->leafNodeServerList(&deps_xp, nullptr, true);
+   RooRealVar* rrv_mean = dynamic_cast<RooRealVar*>(mean.absArg()); if (!rrv_mean) mean.absArg()->leafNodeServerList(&deps_mean, nullptr, true);
+   RooRealVar* rrv_width = dynamic_cast<RooRealVar*>(width.absArg()); if (!rrv_width) width.absArg()->leafNodeServerList(&deps_width, nullptr, true);
+   RooRealVar* rrv_alpha1 = dynamic_cast<RooRealVar*>(alpha1.absArg()); if (!rrv_alpha1) alpha1.absArg()->leafNodeServerList(&deps_alpha1, nullptr, true);
+   RooRealVar* rrv_alpha2 = dynamic_cast<RooRealVar*>(alpha2.absArg()); if (!rrv_alpha2) alpha2.absArg()->leafNodeServerList(&deps_alpha2, nullptr, true);
+   RooRealVar* rrv_n1 = dynamic_cast<RooRealVar*>(n1.absArg()); if (!rrv_n1) n1.absArg()->leafNodeServerList(&deps_n1, nullptr, true);
+   RooRealVar* rrv_n2 = dynamic_cast<RooRealVar*>(n2.absArg()); if (!rrv_n2) n2.absArg()->leafNodeServerList(&deps_n2, nullptr, true);
 
    if (rrv_x){
      if (

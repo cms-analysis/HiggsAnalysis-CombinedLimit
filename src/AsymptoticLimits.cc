@@ -173,7 +173,7 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
   hasFloatParams_ = false;
   for (RooAbsArg *a : *params_) {
       RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-      if ( rrv != 0 && rrv != r && rrv->isConstant() == false ) { hasFloatParams_ = true; break; }
+      if ( rrv != nullptr && rrv != r && rrv->isConstant() == false ) { hasFloatParams_ = true; break; }
   }
 
   RooArgSet constraints; if (withSystematics) constraints.add(*mc_s->GetNuisanceParameters());

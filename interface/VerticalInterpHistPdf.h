@@ -22,7 +22,7 @@ public:
 
   VerticalInterpHistPdf() = default;
   VerticalInterpHistPdf(const char *name, const char *title, const RooRealVar &x, const RooArgList& funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) ;
-  VerticalInterpHistPdf(const VerticalInterpHistPdf& other, const char* name=0) ;
+  VerticalInterpHistPdf(const VerticalInterpHistPdf& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new VerticalInterpHistPdf(*this,newname) ; }
 
   Bool_t selfNormalized() const override { return kTRUE; }
@@ -74,7 +74,7 @@ public:
 
   FastVerticalInterpHistPdfBase() ;
   FastVerticalInterpHistPdfBase(const char *name, const char *title, const RooArgSet &obs, const RooArgList& funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) ;
-  FastVerticalInterpHistPdfBase(const FastVerticalInterpHistPdfBase& other, const char* name=0) ;
+  FastVerticalInterpHistPdfBase(const FastVerticalInterpHistPdfBase& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override = 0; 
   ~FastVerticalInterpHistPdfBase() override ;
 
@@ -143,7 +143,7 @@ public:
   FastVerticalInterpHistPdf(const char *name, const char *title, const RooRealVar &x, const RooArgList& funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) :
     FastVerticalInterpHistPdfBase(name,title,RooArgSet(x),funcList,coefList,smoothRegion,smoothAlgo),
     _x("x","Independent variable",this,const_cast<RooRealVar&>(x)) {}
-  FastVerticalInterpHistPdf(const FastVerticalInterpHistPdf& other, const char* name=0) :
+  FastVerticalInterpHistPdf(const FastVerticalInterpHistPdf& other, const char* name=nullptr) :
     FastVerticalInterpHistPdfBase(other, name),
     _x("x",this,other._x),
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
@@ -205,7 +205,7 @@ public:
     _x("x","Independent variable",this,const_cast<RooRealVar&>(x)),
     _y("y","Independent variable",this,const_cast<RooRealVar&>(y)),
     _conditional(conditional) {}
-  FastVerticalInterpHistPdf2D(const FastVerticalInterpHistPdf2D& other, const char* name=0) :
+  FastVerticalInterpHistPdf2D(const FastVerticalInterpHistPdf2D& other, const char* name=nullptr) :
     FastVerticalInterpHistPdfBase(other, name),
     _x("x",this,other._x), _y("y",this,other._y), _conditional(other._conditional),
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
@@ -249,8 +249,8 @@ public:
 
   FastVerticalInterpHistPdf2Base() ;
   FastVerticalInterpHistPdf2Base(const char *name, const char *title, const RooArgSet &obs, const TList & funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) ;
-  FastVerticalInterpHistPdf2Base(const FastVerticalInterpHistPdf2Base& other, const char* name=0) ;
-  explicit FastVerticalInterpHistPdf2Base(const FastVerticalInterpHistPdfBase& other, const char* name=0) ;
+  FastVerticalInterpHistPdf2Base(const FastVerticalInterpHistPdf2Base& other, const char* name=nullptr) ;
+  explicit FastVerticalInterpHistPdf2Base(const FastVerticalInterpHistPdfBase& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override = 0; 
   ~FastVerticalInterpHistPdf2Base() override ;
 
@@ -327,11 +327,11 @@ public:
   FastVerticalInterpHistPdf2() : FastVerticalInterpHistPdf2Base() {}
   FastVerticalInterpHistPdf2(const char *name, const char *title, const RooRealVar &x, const TList & funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) ;
 
-  FastVerticalInterpHistPdf2(const FastVerticalInterpHistPdf2& other, const char* name=0) :
+  FastVerticalInterpHistPdf2(const FastVerticalInterpHistPdf2& other, const char* name=nullptr) :
     FastVerticalInterpHistPdf2Base(other, name),
     _x("x",this,other._x),
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
-  explicit FastVerticalInterpHistPdf2(const FastVerticalInterpHistPdf& other, const char* name=0) ;
+  explicit FastVerticalInterpHistPdf2(const FastVerticalInterpHistPdf& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new FastVerticalInterpHistPdf2(*this,newname) ; }
 
   const RooRealVar & x() const { return dynamic_cast<const RooRealVar &>(_x.arg()); }
@@ -386,11 +386,11 @@ public:
   FastVerticalInterpHistPdf2D2() : FastVerticalInterpHistPdf2Base() {}
   FastVerticalInterpHistPdf2D2(const char *name, const char *title, const RooRealVar &x, const RooRealVar &y, bool conditional, const TList & funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) ;
 
-  FastVerticalInterpHistPdf2D2(const FastVerticalInterpHistPdf2D2& other, const char* name=0) :
+  FastVerticalInterpHistPdf2D2(const FastVerticalInterpHistPdf2D2& other, const char* name=nullptr) :
     FastVerticalInterpHistPdf2Base(other, name),
     _x("x",this,other._x), _y("y",this,other._y), _conditional(other._conditional),
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
-  explicit FastVerticalInterpHistPdf2D2(const FastVerticalInterpHistPdf2D& other, const char* name=0) ;
+  explicit FastVerticalInterpHistPdf2D2(const FastVerticalInterpHistPdf2D& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new FastVerticalInterpHistPdf2D2(*this,newname) ; }
 
   const RooRealVar & x() const { return dynamic_cast<const RooRealVar &>(_x.arg()); }
@@ -436,7 +436,7 @@ public:
     _y("y","Independent variable",this,const_cast<RooRealVar&>(y)),
     _z("z","Independent variable",this,const_cast<RooRealVar&>(z)),
     _conditional(conditional) {}
-  FastVerticalInterpHistPdf3D(const FastVerticalInterpHistPdf3D& other, const char* name=0) :
+  FastVerticalInterpHistPdf3D(const FastVerticalInterpHistPdf3D& other, const char* name=nullptr) :
     FastVerticalInterpHistPdfBase(other, name),
     _x("x",this,other._x), _y("y",this,other._y), _z("z",this,other._z), _conditional(other._conditional),
     _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}

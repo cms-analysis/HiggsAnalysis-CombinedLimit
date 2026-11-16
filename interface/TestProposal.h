@@ -14,7 +14,7 @@ class TestProposal : public RooStats::ProposalFunction {
 
    public:
       TestProposal() : RooStats::ProposalFunction() {}
-      TestProposal(double divisor, const RooRealVar *alwaysStepMe=0) ;
+      TestProposal(double divisor, const RooRealVar *alwaysStepMe=nullptr) ;
       TestProposal(double divisor, const RooArgList &alwaysStepMe) ;
 
       void setDiscreteModels(RooRealVar *indicatorVar, RooArgSet vars, const std::vector<RooArgSet> &points) {

@@ -73,7 +73,7 @@ class RooMorphingPdf : public RooAbsPdf {
                  std::vector<double> const& masses, bool const& can_morph,
                  TAxis const& target_axis, TAxis const& morph_axis);
   // Copy constructor
-  RooMorphingPdf(const RooMorphingPdf& other, const char* name = 0);
+  RooMorphingPdf(const RooMorphingPdf& other, const char* name = nullptr);
   // Destructor
   ~RooMorphingPdf() override {}
   // Clone method

@@ -43,7 +43,7 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooSta
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
   double rMax = r->getMax();
   std::unique_ptr<RooStats::ModelConfig> mc_noNuis(nullptr);
-  if (!withSystematics && mc_s->GetNuisanceParameters() != 0) {
+  if (!withSystematics && mc_s->GetNuisanceParameters() != nullptr) {
     mc_noNuis.reset(new RooStats::ModelConfig(w));
     mc_noNuis->SetPdf(*mc_s->GetPdf());
     mc_noNuis->SetObservables(*mc_s->GetObservables());
@@ -56,7 +56,7 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooSta
     bcalc.SetLeftSideTailFraction(0);
     bcalc.SetConfidenceLevel(cl); 
     std::unique_ptr<SimpleInterval> bcInterval(bcalc.GetInterval());
-    if (bcInterval.get() == 0) return false;
+    if (bcInterval.get() == nullptr) return false;
     limit = bcInterval->UpperLimit();
     if (limit >= 0.5*r->getMax()) { 
       std::cout << "Limit " << r->GetName() << " < " << limit << "; " << r->GetName() << " max < " << r->getMax() << std::endl;

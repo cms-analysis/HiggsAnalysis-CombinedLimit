@@ -13,7 +13,7 @@ namespace cacheutils {
             ~VectorizedHistFunc() override {}
             const std::vector<Double_t> & eval(const RooAbsData &data) override ;
             const RooAbsReal *pdf() const override { return pdf_; };
-            void  setDataDirty() override { data_ = 0; }
+            void  setDataDirty() override { data_ = nullptr; }
             void  setIncludeZeroWeights(bool includeZeroWeights) override { includeZeroWeights_ = includeZeroWeights; }
         private:
             const RooHistFunc * pdf_;

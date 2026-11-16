@@ -47,12 +47,12 @@ public:
     Int_t nLinearVariations_=0
     );
 
-	HZZ4L_RooCTauPdf_1D_Expanded(const HZZ4L_RooCTauPdf_1D_Expanded& other, const char* name = 0);
+	HZZ4L_RooCTauPdf_1D_Expanded(const HZZ4L_RooCTauPdf_1D_Expanded& other, const char* name = nullptr);
 	TObject* clone(const char* newname) const override { return new HZZ4L_RooCTauPdf_1D_Expanded(*this, newname); }
 	inline ~HZZ4L_RooCTauPdf_1D_Expanded() override { }
 
-	Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName = 0) const override;
-	Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const override;
+	Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName = nullptr) const override;
+	Double_t analyticalIntegral(Int_t code, const char* rangeName = nullptr) const override;
   const RooArgList& funcList() const { return _funcList; }
   const RooArgList& coefList() const { return _coefList; }
 

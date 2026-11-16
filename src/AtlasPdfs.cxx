@@ -429,7 +429,7 @@ RooBSpline::RooBSpline(const char* name, const char* title,
 
   //bool even = fabs(_n/2-_n/2.) < 0.0000000001;
   bool first=1;
-  RooAbsArg* lastPoint=NULL ;
+  RooAbsArg* lastPoint=nullptr ;
   for (RooAbsArg * point : controlPoints) {
     if (!dynamic_cast<RooAbsReal*>(point)) {
       coutE(InputArguments) << "RooBSpline::ctor(" << GetName() << ") ERROR: control point " << point->GetName() 
@@ -540,7 +540,7 @@ void RooBSpline::setWeights(const RooArgList& weights)
 {
   _weights.removeAll();
   bool first=1;
-  RooAbsArg* lastPoint=NULL ;
+  RooAbsArg* lastPoint=nullptr ;
   for (RooAbsArg *point : weights) {
     if (!dynamic_cast<RooAbsReal*>(point)) {
       coutE(InputArguments) << "RooBSpline::ctor(" << GetName() << ") ERROR: control point " << point->GetName() 
@@ -611,7 +611,7 @@ Int_t RooBSpline::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& analVar
       // check if we already have integrals for this combination of factors
       Int_t sterileIndex(-1);
       CacheElem* cache = (CacheElem*) _cacheMgr.getObj(&analVars,&analVars,&sterileIndex,RooNameReg::ptr(rangeName));
-      if (cache==0) {
+      if (cache==nullptr) {
          // we don't, so we make it right here....
          cache = new CacheElem;         
          for (int i=0;i<_m-_n-1;i++) {
@@ -678,7 +678,7 @@ Double_t RooBSpline::analyticalIntegralWN(Int_t code, const RooArgSet* /*normSet
    
      // note: rangeName implicit encoded in code: see _cacheMgr.setObj in getPartIntList...
      CacheElem *cache = (CacheElem*) _cacheMgr.getObjByIndex(code-2);
-     if (cache==0) {
+     if (cache==nullptr) {
        // cache got sterilized, trigger repopulation of this slot, then try again...
        //std::cout << "Cache got sterilized" << std::endl;
        std::unique_ptr<RooArgSet> vars( getParameters(RooArgSet()) );
@@ -695,7 +695,7 @@ Double_t RooBSpline::analyticalIntegralWN(Int_t code, const RooArgSet* /*normSet
        assert(code==code2); // must have revived the right (sterilized) slot...
        return analyticalIntegral(code2,rangeName);
      }
-     assert(cache!=0);
+     assert(cache!=nullptr);
    
 
 
@@ -851,8 +851,8 @@ ClassImp(RooParamKeysPdf)
 
 //_____________________________________________________________________________
   RooParamKeysPdf::RooParamKeysPdf() : _centralValue(0.0), 
-                             _nEvents(0), _dataPts(0), _dataWgts(0), _weights(0), _sumWgt(0), _normVal(0), _nPoints(1000),
-			     _lookupTable(0), _mirrorLeft(kFALSE), _mirrorRight(kFALSE), 
+                             _nEvents(0), _dataPts(nullptr), _dataWgts(nullptr), _weights(nullptr), _sumWgt(0), _normVal(0), _nPoints(1000),
+			     _lookupTable(nullptr), _mirrorLeft(kFALSE), _mirrorRight(kFALSE), 
 			     _asymLeft(kFALSE), _asymRight(kFALSE)
 { 
   // coverity[UNINIT_CTOR]
@@ -870,9 +870,9 @@ RooParamKeysPdf::RooParamKeysPdf(const char *name, const char *title,
   _centralValue(0.0),
   
   _nEvents(0),
-  _dataPts(0),
-  _dataWgts(0),
-  _weights(0),
+  _dataPts(nullptr),
+  _dataWgts(nullptr),
+  _weights(nullptr),
   
   _nPoints(nPoints),
   _lookupTable(new Double_t[_nPoints]),
@@ -907,9 +907,9 @@ RooParamKeysPdf::RooParamKeysPdf(const char *name, const char *title,
   _multiplicativeShift("multiplicativeShift","Dependent",this,multiplicativeShift),
   
   _nEvents(0),
-  _dataPts(0),
-  _dataWgts(0),
-  _weights(0),
+  _dataPts(nullptr),
+  _dataWgts(nullptr),
+  _weights(nullptr),
 
   _nPoints(nPoints),
   _lookupTable(new Double_t[_nPoints]),
@@ -940,7 +940,7 @@ RooParamKeysPdf::RooParamKeysPdf(const RooParamKeysPdf& other, const char* name)
   _centralValue(other._centralValue),
   _multiplicativeShift("multiplicativeShift",this,other._multiplicativeShift),
   _nEvents(other._nEvents),
-  _dataPts(0), _dataWgts(0), _weights(0), _sumWgt(0), _normVal(other._normVal),
+  _dataPts(nullptr), _dataWgts(nullptr), _weights(nullptr), _sumWgt(0), _normVal(other._normVal),
   _nPoints(other._nPoints), _lookupTable(new Double_t[_nPoints]),
   _mirrorLeft( other._mirrorLeft ), _mirrorRight( other._mirrorRight ),
   _asymLeft(other._asymLeft), _asymRight(other._asymRight),
@@ -1205,8 +1205,8 @@ ClassImp(RooStarMomentMorph)
 
 //_____________________________________________________________________________
 RooStarMomentMorph::RooStarMomentMorph() : 
-  _curNormSet(0), 
-  _M(0), 
+  _curNormSet(nullptr), 
+  _M(nullptr), 
   _setting(RooStarMomentMorph::Linear), 
   _nnuisvar(0),
   _useHorizMorph(true)
@@ -1236,7 +1236,7 @@ RooStarMomentMorph::RooStarMomentMorph(const char *name, const char *title,
   _pdfList("pdfList","List of pdfs",this),
   _nnuis(nnuispoints),
   _nref(nrefpoints),
-  _M(0),
+  _M(nullptr),
   _setting(setting),
   _nnuisvar(0),
   _useHorizMorph(true)
@@ -1279,13 +1279,13 @@ RooStarMomentMorph::RooStarMomentMorph(const char *name, const char *title,
 RooStarMomentMorph::RooStarMomentMorph(const RooStarMomentMorph& other, const char* name) :  
   RooAbsPdf(other,name), 
   _cacheMgr(other._cacheMgr,this),
-  _curNormSet(0),
+  _curNormSet(nullptr),
   _parList("parList",this,other._parList),
   _obsList("obsList",this,other._obsList),
   _pdfList("pdfList",this,other._pdfList),
   _nnuis(other._nnuis),
   _nref(other._nref),
-  _M(0),
+  _M(nullptr),
   _setting(other._setting),
   _nnuisvar(other._nnuisvar),
   _useHorizMorph(other._useHorizMorph)
@@ -1369,7 +1369,7 @@ void RooStarMomentMorph::initialize()
 //_____________________________________________________________________________
 RooStarMomentMorph::CacheElem* RooStarMomentMorph::getCache(const RooArgSet* /*nset*/) const
 {
-  CacheElem* cache = (CacheElem*) _cacheMgr.getObj(0,(RooArgSet*)0) ;
+  CacheElem* cache = (CacheElem*) _cacheMgr.getObj(nullptr,static_cast<RooArgSet*>(nullptr)) ;
   if (cache) {
     return cache ;
   }
@@ -1378,7 +1378,7 @@ RooStarMomentMorph::CacheElem* RooStarMomentMorph::getCache(const RooArgSet* /*n
   Int_t nObs = _obsList.getSize();
   Int_t nPdf = _pdfList.getSize();
 
-  RooAbsReal* null = 0 ;
+  RooAbsReal* null = nullptr ;
   std::vector<RooAbsReal*> meanrv(nPdf*nObs,null);
   std::vector<RooAbsReal*> sigmarv(nPdf*nObs,null); 
   std::vector<RooAbsReal*> myrms(nObs,null);      
@@ -1529,7 +1529,7 @@ RooStarMomentMorph::CacheElem* RooStarMomentMorph::getCache(const RooArgSet* /*n
 
   // Store it in the cache
   cache = new CacheElem(*theSumPdf,*tracker,fracl) ;
-  _cacheMgr.setObj(0,0,cache,0) ;
+  _cacheMgr.setObj(nullptr,nullptr,cache,nullptr) ;
 
   //const_cast<RooStarMomentMorph*>(this)->addServer(*theSumPdf,kFALSE,kFALSE) ;
   coutI(InputArguments) << "RooStarMorphPdf::getCache("<< GetName() << ") created cache element"<< endl ;

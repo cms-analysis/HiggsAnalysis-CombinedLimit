@@ -20,12 +20,12 @@ public:
 
   RooParametricHist() {} ;
   RooParametricHist (const char *name, const char *title, RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape);
-  RooParametricHist(const RooParametricHist& other, const char* name=0);
+  RooParametricHist(const RooParametricHist& other, const char* name=nullptr);
   TObject* clone(const char* newname) const override { return new RooParametricHist(*this,newname); }
   inline ~RooParametricHist () override{};
 
-  Int_t getAnalyticalIntegral(RooArgSet &allVars, RooArgSet &analVars, const char* rangeName=0) const override ;
-  Double_t analyticalIntegral(Int_t, const char* rangeName=0) const override ;
+  Int_t getAnalyticalIntegral(RooArgSet &allVars, RooArgSet &analVars, const char* rangeName=nullptr) const override ;
+  Double_t analyticalIntegral(Int_t, const char* rangeName=nullptr) const override ;
 
   RooAbsArg  & getBinVar(const int i) const ;
   RooArgList & getAllBinVars() const ;

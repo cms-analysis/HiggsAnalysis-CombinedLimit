@@ -43,7 +43,7 @@ namespace cacheutils {
         public:
             ReminderSum() {}
             ReminderSum(const char *name, const char *title, const RooArgList& sumSet) ;
-            ReminderSum(const ReminderSum &other, const char* name = 0) :
+            ReminderSum(const ReminderSum &other, const char* name = nullptr) :
                 RooAbsReal(other, name),
                 list_("deps",this,other.list_),
                 terms_(other.terms_) {} 
@@ -376,7 +376,7 @@ cacheutils::CachingAddNLL::CachingAddNLL(const char *name, const char *title, Ro
     catParams_("catParams","RooCategory parameters",this),
     includeZeroWeights_(includeZeroWeights)
 {
-    if (pdf == 0) throw std::invalid_argument(std::string("Pdf passed to ")+name+" is null");
+    if (pdf == nullptr) throw std::invalid_argument(std::string("Pdf passed to ")+name+" is null");
     setData(*data);
     setup_();
     propagateData();
@@ -412,7 +412,7 @@ void cacheutils::CachingAddNLL::addPdfs_(RooAddPdf *addpdf, bool recursive, cons
 {
     int npdf = addpdf->pdfList().getSize();
     //std::cout << "Unpacking RooAddPdf " << addpdf->GetName() << " with " << npdf << " components:" << std::endl;
-    RooAbsReal *lastcoeff = 0;
+    RooAbsReal *lastcoeff = nullptr;
     if (npdf == addpdf->coefList().getSize()) {
         lastcoeff =  dynamic_cast<RooAbsReal*>(addpdf->coefList().at(npdf-1));
     } else {
@@ -512,12 +512,12 @@ cacheutils::CachingAddNLL::setup_()
     fastExit_ = !runtimedef::get("NO_ADDNLL_FASTEXIT");
     for (int i = 0, n = integrals_.size(); i < n; ++i) delete integrals_[i];
     integrals_.clear(); pdfs_.clear(); coeffs_.clear(); prods_.clear();
-    RooAddPdf *addpdf = 0;
-    RooRealSumPdf *sumpdf = 0;
-    if ((addpdf = dynamic_cast<RooAddPdf *>(pdf_)) != 0) {
+    RooAddPdf *addpdf = nullptr;
+    RooRealSumPdf *sumpdf = nullptr;
+    if ((addpdf = dynamic_cast<RooAddPdf *>(pdf_)) != nullptr) {
         isRooRealSum_ = false; basicIntegrals_ = 0;
         addPdfs_(addpdf, runtimedef::get("ADDNLL_RECURSIVE"), RooArgList());
-    } else if ((sumpdf = dynamic_cast<RooRealSumPdf *>(pdf_)) != 0) {
+    } else if ((sumpdf = dynamic_cast<RooRealSumPdf *>(pdf_)) != nullptr) {
         const RooArgSet *obs = data_->get();
         isRooRealSum_ = true;  basicIntegrals_ = canBasicIntegrals_;
         int npdf = sumpdf->coefList().getSize();
@@ -529,8 +529,8 @@ cacheutils::CachingAddNLL::setup_()
             RooAbsReal * funci = dynamic_cast<RooAbsReal*>(sumpdf->funcList().at(i));
             static int tryfactor = runtimedef::get("ADDNLL_ROOREALSUM_FACTOR"); 
             static int cheapprod = runtimedef::get("ADDNLL_ROOREALSUM_CHEAPPROD"); 
-            RooProduct *prodi = 0;
-            if (tryfactor && ((prodi = dynamic_cast<RooProduct *>(funci)) != 0)) {
+            RooProduct *prodi = nullptr;
+            if (tryfactor && ((prodi = dynamic_cast<RooProduct *>(funci)) != nullptr)) {
                 RooArgList newcoeffs(*coeff), newfuncs; 
                 utils::factorizeFunc(*obs, *funci, newfuncs, newcoeffs);
 
@@ -764,10 +764,10 @@ cacheutils::CachingAddNLL::setData(RooAbsData &data, bool cloneData)
         itp->setDataDirty();
     }
     binWidths_.clear(); canBasicIntegrals_ = 0;
-    if (dynamic_cast<RooRealSumPdf *>(pdf_) != 0 && runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") > 0) {
+    if (dynamic_cast<RooRealSumPdf *>(pdf_) != nullptr && runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") > 0) {
         const RooArgSet *obs = data_->get();
         RooRealVar *xvar = dynamic_cast<RooRealVar *>(obs->first());
-        if (obs->getSize() == 1 && xvar != 0 && xvar->numBins() == data_->numEntries()) {
+        if (obs->getSize() == 1 && xvar != nullptr && xvar->numBins() == data_->numEntries()) {
             const RooAbsBinning &bins = xvar->getBinning();
             binWidths_.resize(xvar->numBins());
             bool all_equal = true;
@@ -973,27 +973,27 @@ cacheutils::CachingSimNLL::setup_()
 
 
     std::unique_ptr<RooAbsCategoryLValue> catClone((RooAbsCategoryLValue*) simpdf->indexCat().Clone());
-    pdfs_.resize(catClone->numBins(NULL), 0);
+    pdfs_.resize(catClone->numBins(nullptr), nullptr);
     //dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));
-    datasets_.resize(pdfs_.size(), 0);
+    datasets_.resize(pdfs_.size(), nullptr);
     splitWithWeights(*dataOriginal_, simpdf->indexCat(), true);
     //std::cout << "Pdf " << simpdf->GetName() <<" is a SimPdf over category " << catClone->GetName() << ", with " << pdfs_.size() << " bins" << std::endl;
     unsigned int nchannels = 0;
     for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
         catClone->setBin(ib);
         RooAbsPdf *pdf = simpdf->getPdf(catClone->getLabel());
-        if (pdf != 0) {
+        if (pdf != nullptr) {
             RooAbsData *data = (RooAbsData *) datasets_[ib]; //dataSets_->FindObject(catClone->getLabel());
             //RooAbsData *data = (RooAbsData *) dataSets_->FindObject(catClone->getLabel());
             //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has pdf " << pdf->GetName() << " of type " << pdf->ClassName() << " and " << (data ? data->numEntries() : -1) << " dataset entries" << std::endl;
-            if (data == 0) { throw std::logic_error("Error: no data"); }
-            bool includeZeroWeights = (runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") && runtimedef::get("ADDNLL_ROOREALSUM_KEEPZEROS") && (dynamic_cast<RooRealSumPdf*>(pdf)!=0));
+            if (data == nullptr) { throw std::logic_error("Error: no data"); }
+            bool includeZeroWeights = (runtimedef::get("ADDNLL_ROOREALSUM_BASICINT") && runtimedef::get("ADDNLL_ROOREALSUM_KEEPZEROS") && (dynamic_cast<RooRealSumPdf*>(pdf)!=nullptr));
             pdfs_[ib] = new CachingAddNLL(catClone->getLabel(), "", pdf, data, includeZeroWeights);
             params_.add(pdfs_[ib]->params(), /*silent=*/true); 
             catParams_.add(pdfs_[ib]->catParams(), /*silent=*/true); 
             ++nchannels;
         } else { 
-            pdfs_[ib] = 0; 
+            pdfs_[ib] = nullptr; 
             //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has no pdf" << std::endl;
         }
     }   
@@ -1101,10 +1101,10 @@ cacheutils::CachingSimNLL::setData(RooAbsData &data, bool cloneData)
     splitWithWeights(*dataOriginal_, pdfOriginal_->indexCat(), true);
     for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
         CachingAddNLL *canll = pdfs_[ib];
-        if (canll == 0) continue;
+        if (canll == nullptr) continue;
         RooAbsData *data = datasets_[ib];
         //RooAbsData *data = (RooAbsData *) dataSets_->FindObject(canll->GetName());
-        if (data == 0) { throw std::logic_error("Error: no data"); }
+        if (data == nullptr) { throw std::logic_error("Error: no data"); }
         //std::cout << "   bin " << ib << " (label " << canll->GetName() << ") has pdf " << canll->pdf()->GetName() << " of type " << canll->pdf()->ClassName() <<
         //             " and " << (data ? data->numEntries() : -1) << " dataset entries (sumw " << data->sumEntries() << ", weighted " << data->isWeighted() << ")" << std::endl;
         canll->setData(*data);
@@ -1114,9 +1114,9 @@ cacheutils::CachingSimNLL::setData(RooAbsData &data, bool cloneData)
 
 void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const RooAbsCategory& splitCat, Bool_t createEmptyDataSets) {
     RooCategory *cat = dynamic_cast<RooCategory *>(data.get()->find(splitCat.GetName()));
-    if (cat == 0) throw std::logic_error("Error: no category");
+    if (cat == nullptr) throw std::logic_error("Error: no category");
     std::unique_ptr<RooAbsCategoryLValue> catClone((RooAbsCategoryLValue*) splitCat.Clone());
-    int nb = cat->numBins((const char *)0), ne = data.numEntries();
+    int nb = cat->numBins((const char *)nullptr), ne = data.numEntries();
     RooArgSet obs(*data.get()); obs.remove(*cat, true, true);
     RooRealVar weight("_weight_","",1);
     RooArgSet obsplus(obs); obsplus.add(weight);
@@ -1126,14 +1126,14 @@ void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const R
         for (int ib = 0; ib < nb; ++ib) {
             catClone->setBin(ib);
             RooAbsPdf *pdf = factorizedPdf_->getPdf(catClone->getLabel());
-            if (dynamic_cast<RooRealSumPdf*>(pdf)!=0) {
+            if (dynamic_cast<RooRealSumPdf*>(pdf)!=nullptr) {
                 includeZeroWeights[ib] = 1;
                 includeZeroWeightsAny = true;
             }
         }
     }
     for (int ib = 0; ib < nb; ++ib) {
-        if (datasets_[ib] == 0) {
+        if (datasets_[ib] == nullptr) {
             catClone->setBin(ib);
             RooAbsPdf *pdf = pdfOriginal_->getPdf(catClone->getLabel());
             if (pdf) {
@@ -1151,7 +1151,7 @@ void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const R
     //utils::printRDH((RooAbsData*)&data);
     for (int i = 0; i < ne; ++i) {
         data.get(i); if (data.weight() == 0 && !includeZeroWeightsAny) continue;
-        int ib = cat->getBin((const char*) 0);
+        int ib = cat->getBin((const char*) nullptr);
         //std::cout << "Event " << i << " of weight " << data.weight() << " is in bin " << ib << " label " << cat->getLabel() << std::endl;
         if (data.weight() > 0 || includeZeroWeights[ib]) datasets_[ib]->add(obs, data.weight());
     }

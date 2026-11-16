@@ -10,9 +10,9 @@ namespace toymcoptutils {
     class SinglePdfGenInfo {
         public:
             enum Mode { Binned, BinnedNoWorkaround, Poisson, Unbinned, Counting };
-            SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0, bool canUseSpec = true) ;
+            SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = nullptr, int forceEvents = 0, bool canUseSpec = true) ;
             ~SinglePdfGenInfo() ;
-            RooAbsData *generate(const RooDataSet* protoData = NULL, int forceEvents = 0) ;
+            RooAbsData *generate(const RooDataSet* protoData = nullptr, int forceEvents = 0) ;
             RooDataSet *generateAsimov(RooRealVar *&weightVar, double weightScale = 1.0, int verbose = 0) ;
             RooDataSet *generatePseudoAsimov(RooRealVar *&weightVar, int nPoints, double weightScale = 1.0, int verbose = 0) ;
             const RooAbsPdf * pdf() const { return pdf_; }
@@ -34,9 +34,9 @@ namespace toymcoptutils {
     };
     class SimPdfGenInfo {
         public:
-            SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0, bool canUseSpec = true) ;
+            SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = nullptr, int forceEvents = 0, bool canUseSpec = true) ;
             ~SimPdfGenInfo() ;
-            RooAbsData *generate(RooRealVar *&weightVar, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
+            RooAbsData *generate(RooRealVar *&weightVar, const RooDataSet* protoData = nullptr, int forceEvents = 0) ;
             RooAbsData *generateAsimov(RooRealVar *&weightVar, int verbose = 0 ) ;
             RooAbsData *generateEpsilon(RooRealVar *&weightVar) ;
             void setCopyData(bool copyData) { copyData_ = copyData; }
@@ -56,7 +56,7 @@ namespace toymcoptutils {
 
 class ToyMCSamplerOpt : public RooStats::ToyMCSampler{
     public:
-        ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAbsPdf *globalObsPdf = 0, bool generateNuisances = false) ;
+        ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAbsPdf *globalObsPdf = nullptr, bool generateNuisances = false) ;
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,24,0)
 // A private std::unique_ptr was introduced in RooStats::ToyMCSampler, disallowing copy construction
         ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) ;
@@ -70,7 +70,7 @@ class ToyMCSamplerOpt : public RooStats::ToyMCSampler{
     private:
         RooAbsData* GenerateToyDataWithImportanceSampling(RooArgSet& /*nullPOI*/, double& weight) const ;
 
-        RooAbsData* Generate(RooAbsPdf& pdf, RooArgSet& observables, const RooDataSet* protoData = NULL, int forceEvents = 0) const ;
+        RooAbsData* Generate(RooAbsPdf& pdf, RooArgSet& observables, const RooDataSet* protoData = nullptr, int forceEvents = 0) const ;
         RooAbsPdf *globalObsPdf_;
         mutable RooDataSet *globalObsValues_ = nullptr;
         mutable int globalObsIndex_ = -1;

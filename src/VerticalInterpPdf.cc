@@ -150,7 +150,7 @@ Int_t VerticalInterpPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& 
 
   // Check if this configuration was created before
   Int_t sterileIdx(-1) ;
-  CacheElem* cache = (CacheElem*) _normIntMgr.getObj(normSet.get(),&analVars,&sterileIdx,(const char *)0);
+  CacheElem* cache = (CacheElem*) _normIntMgr.getObj(normSet.get(),&analVars,&sterileIdx,(const char *)nullptr);
   if (cache) {
     return _normIntMgr.lastIndex()+1 ;
   }
@@ -176,7 +176,7 @@ Int_t VerticalInterpPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& 
   }
 
   // Store cache element
-  Int_t code = _normIntMgr.setObj(normSet.get(),&analVars,(RooAbsCacheElement*)cache,0) ;
+  Int_t code = _normIntMgr.setObj(normSet.get(),&analVars,(RooAbsCacheElement*)cache,nullptr) ;
 
   return code+1 ; 
 }
