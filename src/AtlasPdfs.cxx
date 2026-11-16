@@ -19,7 +19,7 @@ END_HTML
 
 #include "RooFit.h"
 
-#include <math.h>
+#include <cmath>
 #include "TMath.h"
 
 #include "RooAbsReal.h"
@@ -380,7 +380,7 @@ END_HTML
 
 #include "RooFit.h"
 
-#include <math.h>
+#include <cmath>
 #include <memory>
 #include "TMath.h"
 
@@ -816,7 +816,7 @@ RooBSpline::CacheElem::~CacheElem()
  *****************************************************************************/
 #include "RooFit.h"
 
-#include <math.h>
+#include <cmath>
 #include "TMath.h"
 
 //#include "RooParamKeysPdf.h"

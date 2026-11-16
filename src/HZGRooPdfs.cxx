@@ -25,7 +25,7 @@
 
 #include "RooFit.h"
 
-#include <math.h>
+#include <cmath>
 #include "TMath.h"
 #include "Math/SpecFunc.h"
 #include "../interface/HZGRooPdfs.h"

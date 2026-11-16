@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <errno.h>
+#include <cerrno>
 
 #include "../interface/HybridNew.h"
 #include "../interface/CascadeMinimizer.h" // must be early

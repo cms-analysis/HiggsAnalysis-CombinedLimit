@@ -1,5 +1,5 @@
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include "TMath.h"
 
 //#include "../interface/RooDoubleCB.h"

@@ -1,9 +1,9 @@
 #include "../interface/ProfilingTools.h"
 
 // we try to stick to pure C within the signal handlers
-#include <stdio.h>
+#include <cstdio>
 #include <dlfcn.h>
-#include <signal.h>
+#include <csignal>
 #include <sys/types.h>
 #include <unistd.h>
 

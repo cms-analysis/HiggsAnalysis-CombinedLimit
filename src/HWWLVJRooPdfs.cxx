@@ -8,7 +8,7 @@
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
 #include "RooExponential.h" 
-#include <math.h> 
+#include <cmath> 
 #include "TMath.h" 
 
 #include <algorithm>

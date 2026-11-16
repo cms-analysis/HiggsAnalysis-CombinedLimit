@@ -2,7 +2,7 @@
 #include "RooAbsReal.h" 
 //#include "RooAbsCategory.h" 
 #include "RooMath.h"
-#include <math.h> 
+#include <cmath> 
 #include "TMath.h" 
 #include "TFile.h"
 
