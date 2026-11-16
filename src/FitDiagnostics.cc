@@ -17,7 +17,6 @@
 #include "RooProduct.h"
 #include "RooConstVar.h"
 #include "RooPlot.h"
-#include <RooMinimizer.h>
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TH2.h"

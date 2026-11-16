@@ -26,7 +26,6 @@ END_HTML
 #include "RooRealVar.h"
 #include "RooArgList.h"
 #include "RooMsgService.h"
-#include "TMath.h"
 
 #include "../interface/AtlasPdfs.h"
 
@@ -378,17 +377,9 @@ END_HTML
 */
 //
 
-#include "RooFit.h"
 
-#include <cmath>
 #include <memory>
-#include "TMath.h"
 
-#include "RooAbsReal.h"
-#include "RooRealVar.h"
-#include "RooArgList.h"
-#include "RooMsgService.h"
-#include "TMath.h"
 
 //#include "RooBSpline.h"
 
@@ -814,14 +805,9 @@ RooBSpline::CacheElem::~CacheElem()
  * with or without modification, are permitted according to the terms        *
  * listed in LICENSE (http://roofit.sourceforge.net/license.txt)             *
  *****************************************************************************/
-#include "RooFit.h"
 
-#include <cmath>
-#include "TMath.h"
 
 //#include "RooParamKeysPdf.h"
-#include "RooAbsReal.h"
-#include "RooRealVar.h"
 #include "RooRandom.h"
 #include "RooDataSet.h"
 
@@ -1182,7 +1168,6 @@ Double_t RooParamKeysPdf::analyticalIntegral(Int_t code, const char* /*rangeName
 #include "RooAbsCategory.h" 
 #include "RooRealIntegral.h"
 #include "RooRealConstant.h"
-#include "RooRealVar.h"
 #include "RooFormulaVar.h"
 #include "RooCustomizer.h"
 #include "RooAddPdf.h"
@@ -1197,7 +1182,6 @@ Double_t RooParamKeysPdf::analyticalIntegral(Int_t code, const char* /*rangeName
 #include "RooNumIntConfig.h"
 #include "RooHistPdf.h"
 
-#include "TMath.h"
 #include "TVector.h"
 
 ClassImp(RooStarMomentMorph) 

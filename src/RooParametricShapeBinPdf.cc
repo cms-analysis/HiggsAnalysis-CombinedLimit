@@ -4,7 +4,6 @@
 #include <TMath.h>
 #include <cassert>
 #include <cmath>
-#include <cmath>
 
 #include "../interface/RooParametricShapeBinPdf.h"
 #include "RooRealVar.h"

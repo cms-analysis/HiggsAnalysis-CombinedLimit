@@ -14,7 +14,6 @@
 #include <stdexcept>
 #include <algorithm>
 #include <unistd.h>
-#include <cerrno>
 #include <sstream>
 
 #include <TCanvas.h>

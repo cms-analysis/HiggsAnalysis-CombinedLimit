@@ -3,7 +3,6 @@
 #include "../interface/Combine.h"
 #include <RooRealVar.h>
 #include <RooArgSet.h>
-#include <RooArgSet.h>
 #include <RooWorkspace.h>
 #include <RooDataHist.h>
 #include <RooStats/ModelConfig.h>

@@ -11,7 +11,6 @@
 #include "RooStats/SimpleInterval.h"
 #include "RooStats/ModelConfig.h"
 
-#include <stdexcept>
 #include <iostream>
 
 using namespace RooStats;
