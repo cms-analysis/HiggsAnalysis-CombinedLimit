@@ -15,14 +15,14 @@ Double_t ProfiledLikelihoodRatioTestStat::Evaluate(RooAbsData& data, RooArgSet& 
     *paramsNull_ = snapNull_;
     *paramsNull_ = nullPOI;
 
-    pdfNull_->fitTo(data, RooFit::Constrain(nuisances_), RooFit::Hesse(0), RooFit::PrintLevel(-1), RooFit::PrintEvalErrors(-1));
+    pdfNull_->fitTo(data, RooFit::Constrain(nuisances_), RooFit::Hesse(false), RooFit::PrintLevel(-1), RooFit::PrintEvalErrors(-1));
     double nullNLL = pdfNull_->getVal();
 
     *paramsAlt_ = *entry;
     *paramsAlt_ = nuisances_;
     *paramsAlt_ = snapAlt_;
 
-    pdfAlt_->fitTo(data, RooFit::Constrain(nuisances_), RooFit::Hesse(0), RooFit::PrintLevel(-1), RooFit::PrintEvalErrors(-1));
+    pdfAlt_->fitTo(data, RooFit::Constrain(nuisances_), RooFit::Hesse(false), RooFit::PrintLevel(-1), RooFit::PrintEvalErrors(-1));
 
     double altNLL = pdfAlt_->getVal();
     return -log(nullNLL/altNLL);

@@ -136,7 +136,7 @@ bool Significance::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::M
       }
       if (preFit_) {
         CloseCoutSentry sentry(verbose < 2);
-        RooFitResult *res = mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2"));
+        RooFitResult *res = mc_s->GetPdf()->fitTo(data, RooFit::Save(true), RooFit::Minimizer("Minuit2"));
         if (res == nullptr || res->covQual() != 3 || res->edm() > minimizerTolerance_) {
             if (verbose > 1) std::cout << "Fit failed (covQual " << (res ? res->covQual() : -1) << ", edm " << (res ? res->edm() : 0) << ")" << std::endl;
             continue;

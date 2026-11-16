@@ -428,7 +428,7 @@ RooBSpline::RooBSpline(const char* name, const char* title,
   }
 
   //bool even = fabs(_n/2-_n/2.) < 0.0000000001;
-  bool first=1;
+  bool first=true;
   RooAbsArg* lastPoint=nullptr ;
   for (RooAbsArg * point : controlPoints) {
     if (!dynamic_cast<RooAbsReal*>(point)) {
@@ -539,7 +539,7 @@ Double_t RooBSpline::evaluate() const
 void RooBSpline::setWeights(const RooArgList& weights)
 {
   _weights.removeAll();
-  bool first=1;
+  bool first=true;
   RooAbsArg* lastPoint=nullptr ;
   for (RooAbsArg *point : weights) {
     if (!dynamic_cast<RooAbsReal*>(point)) {

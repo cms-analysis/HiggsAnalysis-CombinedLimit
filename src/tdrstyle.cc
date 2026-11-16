@@ -7,7 +7,7 @@ void utils::tdrStyle() {
     gStyle->SetPadLeftMargin(0.16);
     gStyle->SetPadRightMargin(0.04);
     gStyle->SetPalette(1);
-    gStyle->SetHistMinimumZero(1);
+    gStyle->SetHistMinimumZero(true);
     gStyle->SetCanvasBorderMode(0);
     gStyle->SetCanvasColor(kWhite);
     gStyle->SetPadBorderMode(0);

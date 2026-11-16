@@ -83,11 +83,11 @@ TDirectory *writeToysHere = nullptr;
 TDirectory *readToysFromHere = nullptr;
 int verbose = 1;
 int pickToy_ = 0;
-bool withSystematics = 1;
+bool withSystematics = true;
 bool expectSignalSet_ = false;
-bool doSignificance_ = 0;
-bool expectSignalSet = 0;
-bool lowerLimit_ = 0;
+bool doSignificance_ = false;
+bool expectSignalSet = false;
+bool lowerLimit_ = false;
 float cl = 0.95;
 bool bypassFrequentistFit_ = false;
 bool g_fillTree_ = true;
@@ -231,10 +231,10 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
 	
   if (method == "MultiDimFit" || ( method == "FitDiagnostics" && vm.count("justFit")) || method == "MarkovChainMC") {
     //CMSDAS new default,
-    if (vm["noMCbonly"].defaulted()) noMCbonly_ = 1;
-    if (vm["noDefaultPrior"].defaulted()) noDefaultPrior_ = 1;
+    if (vm["noMCbonly"].defaulted()) noMCbonly_ = true;
+    if (vm["noDefaultPrior"].defaulted()) noDefaultPrior_ = true;
   }
-  if (!vm["prior"].defaulted()) noDefaultPrior_ = 0;
+  if (!vm["prior"].defaulted()) noDefaultPrior_ = false;
 
   if( vm.count("LoadLibrary") ) {
     librariesToLoad_ = vm["LoadLibrary"].as<std::vector<std::string> >();
@@ -610,7 +610,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       for (RooAbsArg *arg : newPOIs) {
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(arg);
         if (rrv == nullptr) { std::cerr << "MultiDimFit: Parameter of interest " << arg->GetName() << " which is not a RooRealVar will be ignored" << std::endl; continue; }
-	rrv->setConstant(0);
+	rrv->setConstant(false);
 	// also set ignoreConstraint flag for constraint PDF 
 	if ( w->pdf(Form("%s_Pdf",arg->GetName())) ) w->pdf(Form("%s_Pdf",arg->GetName()))->setAttribute("ignoreConstraint");
       }
@@ -622,7 +622,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   // Always reset the POIs to floating (post-fit workspaces can actually have them frozen in some cases, in any case they can be re-frozen in the next step 
   for (RooAbsArg *arg : *POI) {
-      static_cast<RooRealVar*>(arg)->setConstant(0);
+      static_cast<RooRealVar*>(arg)->setConstant(false);
   }
 
   // The parameters named in a --floatParameters/--freezeParameters list: comma-separated names after
@@ -806,7 +806,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   RooRealVar *weightVar_ = nullptr; // will be needed for toy generation in some cases
   if (guessGenMode_ && genPdf && genPdf->InheritsFrom("RooSimultaneous") && (dobs != nullptr)) {
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc->GetPdf()), *dobs, verbose);
-      if (mc_bonly) utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, 0);
+      if (mc_bonly) utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, false);
   }
   if (!genAsBinned_.empty() || !genAsUnbinned_.empty()) {
     RooSimultaneous *sim = dynamic_cast<RooSimultaneous*>(genPdf);
@@ -943,7 +943,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
     if (MH) MH->setVal(mass_);    
     if (verbose > (isExtended ? 3 : 2)) utils::printRAD(dobs);
-    if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) commitPoint(0,g_quantileExpected_); //tree->Fill();
+    if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) commitPoint(false,g_quantileExpected_); //tree->Fill();
 
      // Set the global flag to write output to the tree again since some Methods overwrite this to avoid the fill above. 
      toggleGlobalFillTree(true);
@@ -1059,7 +1059,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (toysFrequentist_ && makeToyGenSnapshot_) w->saveSnapshot("toyGenSnapshot",utils::returnAllVars(w));
       //if (verbose > 1) utils::printPdf(w, "model_b");
       if (mklimit(w,mc,mc_bonly,*absdata_toy,limit,limitErr)) {
-	commitPoint(0,g_quantileExpected_);//tree->Fill();
+	commitPoint(false,g_quantileExpected_);//tree->Fill();
 	++nLimits;
 	expLimit += limit; 
         limitHistory.push_back(limit);

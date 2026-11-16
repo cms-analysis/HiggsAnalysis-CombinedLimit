@@ -229,7 +229,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
 
 
     if (vm.count("frequentist")) {
-        genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
+        genNuisances_ = false; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
         if (vm["testStat"].defaulted()) testStat_ = "LHC";
         if (vm["toys"].as<int>() > 0 and vm.count("toysFrequentist")) {
             if (vm["fitNuisances"].defaulted() && withSystematics) {
@@ -245,14 +245,14 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     mode_ = vm["LHCmode"].as<std::string>();
     if ( ! vm["LHCmode"].defaulted() ){
 	if (mode_=="LHC-limits"){
-          genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
+          genNuisances_ = false; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
           testStat_ = "LHC";
 	} else if (mode_=="LHC-significance"){
-          genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
+          genNuisances_ = false; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
           testStat_ = "LHC";
 	  doSignificance_=true;
 	} else if (mode_=="LHC-feldman-cousins"){
-          genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
+          genNuisances_ = false; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
           testStat_ = "PL";
 	  rule_ = "Pmu";
 	  doFC_ = true;

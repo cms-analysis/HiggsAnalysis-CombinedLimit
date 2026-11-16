@@ -97,8 +97,8 @@ bool GoodnessOfFit::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
       }
       is_init = true;
     }
-    if (algo_ == "AD") return runKSandAD(w, mc_s, mc_b, data, limit, limitErr, hint, 0);
-    if (algo_ == "KS") return runKSandAD(w, mc_s, mc_b, data, limit, limitErr, hint, 1);
+    if (algo_ == "AD") return runKSandAD(w, mc_s, mc_b, data, limit, limitErr, hint, false);
+    if (algo_ == "KS") return runKSandAD(w, mc_s, mc_b, data, limit, limitErr, hint, true);
   }
 
   return false;  
