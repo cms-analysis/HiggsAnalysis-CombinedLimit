@@ -16,7 +16,7 @@ class RooCB : public RooAbsPdf {
         RooAbsReal& _n,
         RooAbsReal& _theta
 	);
-  RooCB(const RooCB& other, const char* name=0) ;
+  RooCB(const RooCB& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new RooCB(*this,newname); }
   inline ~RooCB() override { }
 
@@ -59,11 +59,11 @@ public:
         RooAbsReal& _alpha2,
         RooAbsReal& _n2
   );
-  RooDoubleCB(const RooDoubleCB& other, const char* name=0) ;
+  RooDoubleCB(const RooDoubleCB& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new RooDoubleCB(*this,newname); }
   inline ~RooDoubleCB() override { }
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override ;
 
 protected:
 
@@ -91,7 +91,7 @@ public:
             RooAbsReal& _cutOff,
 	   RooAbsReal& _beta
 	   );
-  RooFermi(const RooFermi& other, const char* name=0) ;
+  RooFermi(const RooFermi& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new RooFermi(*this,newname); }
   inline ~RooFermi() override { }
 
@@ -117,7 +117,7 @@ public:
 	   RooAbsReal& _width,
 	   RooAbsReal& _n
 	   );
-  RooRelBW(const RooRelBW& other, const char* name=0) ;
+  RooRelBW(const RooRelBW& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new RooRelBW(*this,newname); }
   inline ~RooRelBW() override { }
 
@@ -146,13 +146,13 @@ public:
 	   RooAbsReal& _stop
 	   );	
   
-  Triangle(const Triangle& other, const char* name = 0);
+  Triangle(const Triangle& other, const char* name = nullptr);
   TObject* clone(const char* newname) const override { 
     return new Triangle(*this,newname); }
 
   inline ~Triangle() override { }
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override ;
 
 protected:
 
@@ -181,7 +181,7 @@ class RooLevelledExp : public RooAbsPdf {
 		 RooAbsReal& _theta
 		);
 
-  RooLevelledExp(const RooLevelledExp& other, const char* name=0) ;
+  RooLevelledExp(const RooLevelledExp& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new RooLevelledExp(*this,newname); }
   inline ~RooLevelledExp() override { }
 

@@ -145,8 +145,8 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
         // search for this poi in the parameters and in the snapshot
         RooAbsArg *ps = snap_.find(a->GetName());   
         RooAbsArg *pp = params_->find(a->GetName());
-        if (pp == 0) { std::cerr << "WARNING: NLL does not depend on POI " << a->GetName() << ", cannot profile" << std::endl; continue; }
-        if (ps == 0) { std::cerr << "WARNING: no snapshot for POI " << a->GetName() << ", cannot profile"  << std::endl; continue; }
+        if (pp == nullptr) { std::cerr << "WARNING: NLL does not depend on POI " << a->GetName() << ", cannot profile" << std::endl; continue; }
+        if (ps == nullptr) { std::cerr << "WARNING: no snapshot for POI " << a->GetName() << ", cannot profile"  << std::endl; continue; }
         poi_.add(*ps);
         poiParams_.add(*pp);
     }
@@ -197,7 +197,7 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     double thisNLL = nullNLL;
 
     // Check number of floating parameters 
-    int nfloatingpars = utils::countFloating(*(nll_->getParameters( (const RooArgSet*) 0)));
+    int nfloatingpars = utils::countFloating(*(nll_->getParameters( (const RooArgSet*) nullptr)));
     if (initialR == 0 || oneSided_ != oneSidedDef || bestFitR < initialR) { 
         // must do constrained fit (if there's something to fit besides XS)
         //std::cout << "PERFORMING CONSTRAINED FIT " << r->GetName() << " == " << r->getVal() << std::endl;
@@ -287,7 +287,7 @@ std::vector<Double_t> ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, 
         r->setVal(initialR); 
         r->setConstant(true);
         double thisNLL = nullNLL, sign = +1.0;
-    	int nfloatingpars = utils::countFloating(*(nll_->getParameters( (const RooArgSet*) 0)));
+    	int nfloatingpars = utils::countFloating(*(nll_->getParameters( (const RooArgSet*) nullptr)));
         if (initialR == 0 || oneSided_ != oneSidedDef || bestFitR < initialR) { 
             // must do constrained fit (if there's something to fit besides XS)
             //std::cout << "PERFORMING CONSTRAINED FIT " << r->GetName() << " == " << r->getVal() << std::endl;
@@ -407,7 +407,7 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosit
             std::unique_ptr<RooFitResult> res(minim.save());
             //PerfCounter::add("Minimizer.save() called for false minimum"); 
             DBG(DBG_PLTestStat_main, (printf("\n  --> false minimum, status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal())))
-            if (pars.get() == 0) pars.reset(nll.getParameters((const RooArgSet*)0));
+            if (pars.get() == nullptr) pars.reset(nll.getParameters((const RooArgSet*)nullptr));
             *pars = res->floatParsInit();
             if (tries == 0) {
                 COUNT_ONE("nllutils::robustMinimize: false minimum (first try)")
@@ -445,7 +445,7 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosit
             ret = true;
             break;
         } else if (tries != maxtries) {
-            std::unique_ptr<RooFitResult> res(do_debug ? minim.save() : 0);
+            std::unique_ptr<RooFitResult> res(do_debug ? minim.save() : nullptr);
             //PerfCounter::add("Minimizer.save() called for failed minimization"); 
             if (tries > 0 && res->edm() < 0.05*ROOT::Math::MinimizerOptions::DefaultTolerance()) {
                 DBG(DBG_PLTestStat_main, (printf("\n  --> acceptable: status %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal())))
@@ -469,7 +469,7 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosit
                 minim.setStrategy(2);
             }
         } else {
-            std::unique_ptr<RooFitResult> res(do_debug ? minim.save() : 0);
+            std::unique_ptr<RooFitResult> res(do_debug ? minim.save() : nullptr);
             DBG(DBG_PLTestStat_main, (printf("\n  --> final fail: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal())))
             if (do_debug) printf("\n  --> final fail: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
             COUNT_ONE("nllutils::robustMinimize: final fail")

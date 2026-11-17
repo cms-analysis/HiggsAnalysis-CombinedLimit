@@ -1,7 +1,7 @@
 #include "../interface/HZZ4L_RooSpinZeroPdf_1D.h"
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
-#include <math.h>
+#include <cmath>
 #include "TMath.h"
 #include "TH3F.h"
 #include "TAxis.h"

@@ -27,14 +27,14 @@ public:
     const RooArgList& inCoefList
     );
 
-  VBFHZZ4L_RooSpinZeroPdf_fast(const VBFHZZ4L_RooSpinZeroPdf_fast& other, const char* name=0);
+  VBFHZZ4L_RooSpinZeroPdf_fast(const VBFHZZ4L_RooSpinZeroPdf_fast& other, const char* name=nullptr);
   TObject* clone(const char* newname) const override { return new VBFHZZ4L_RooSpinZeroPdf_fast(*this, newname); }
   inline ~VBFHZZ4L_RooSpinZeroPdf_fast() override{}
 
-  Float_t interpolateFcn(Int_t code, const char* rangeName=0) const;
+  Float_t interpolateFcn(Int_t code, const char* rangeName=nullptr) const;
   Double_t evaluate() const override;
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override;
 
 protected:
   ClassDefOverride(VBFHZZ4L_RooSpinZeroPdf_fast, 1)

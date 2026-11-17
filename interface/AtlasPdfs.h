@@ -127,8 +127,8 @@ namespace HistFactory{
     void setWeights(const RooArgList& weights);
 
     Bool_t setBinIntegrator(RooArgSet& allVars) ;
-    Int_t getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& analVars, const RooArgSet* normSet,const char* rangeName=0) const override ;
-    Double_t analyticalIntegralWN(Int_t code, const RooArgSet* normSet, const char* rangeName=0) const override ;
+    Int_t getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& analVars, const RooArgSet* normSet,const char* rangeName=nullptr) const override ;
+    Double_t analyticalIntegralWN(Int_t code, const RooArgSet* normSet, const char* rangeName=nullptr) const override ;
 
     const RooArgList& getControlPoints() const {return _controlPoints;}
 
@@ -208,14 +208,14 @@ public:
     RooAbsReal& x, RooAbsReal& deltax, double centralValue, RooAbsReal& multiplicativeShift,
     RooDataSet& data, Mirror mirror= NoMirror, Double_t rho=1, Int_t nPoints=1000
   );
-  RooParamKeysPdf(const RooParamKeysPdf& other, const char* name=0);
+  RooParamKeysPdf(const RooParamKeysPdf& other, const char* name=nullptr);
   TObject* clone(const char* newname) const override {return new RooParamKeysPdf(*this,newname); }
   ~RooParamKeysPdf() override;
   
   void LoadDataSet( RooDataSet& data);
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override ;
 
 protected:
   
@@ -302,7 +302,7 @@ public:
 		     const std::vector<double>& nrefpoints, 
 		     const Setting& setting = NonLinearPosFractions );
 
-  RooStarMomentMorph(const RooStarMomentMorph& other, const char* name=0) ;
+  RooStarMomentMorph(const RooStarMomentMorph& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooStarMomentMorph(*this,newname); }
 
@@ -317,7 +317,7 @@ public:
     return kTRUE ; 
   }
 
-  virtual Double_t getVal(const RooArgSet* set=0) const ;
+  virtual Double_t getVal(const RooArgSet* set=nullptr) const ;
   RooAbsPdf* sumPdf(const RooArgSet* nset) ;
 
   Bool_t setBinIntegrator(RooArgSet& allVars);

@@ -4,7 +4,6 @@
 #include <TMath.h>
 #include <cassert>
 #include <cmath>
-#include <math.h>
 
 #include "../interface/RooParametricShapeBinPdf.h"
 #include "RooRealVar.h"
@@ -98,12 +97,12 @@ void RooParametricShapeBinPdf::setTH1Binning(const TH1 &_Hnominal){
 //---------------------------------------------------------------------------
 /// Return the parametric p.d.f
 RooAbsPdf* RooParametricShapeBinPdf::getPdf() const {
-  return mypdf ? ((RooAbsPdf*)mypdf.absArg()) : 0 ;
+  return mypdf ? ((RooAbsPdf*)mypdf.absArg()) : nullptr ;
 }
 //---------------------------------------------------------------------------
 /// Return the bin-by-bin integrals
 RooAbsReal* RooParametricShapeBinPdf::getIntegral(int index) const {
-  return myintegrals.at(index) ? ((RooAbsReal*)myintegrals.at(index)) : 0;
+  return myintegrals.at(index) ? ((RooAbsReal*)myintegrals.at(index)) : nullptr;
 }
 //---------------------------------------------------------------------------
 Double_t RooParametricShapeBinPdf::evaluate() const

@@ -20,15 +20,15 @@ public:
    RooParametricShapeBinPdf(const char *name, const char *title,  RooAbsReal& _pdf, 
 		  RooAbsReal& _x, RooArgList& _pars, const TH1 &_shape );
    RooParametricShapeBinPdf(const RooParametricShapeBinPdf& other,
-      const char* name = 0);
+      const char* name = nullptr);
    void setTH1Binning(const TH1& _Hnominal);
    RooAbsPdf* getPdf() const;
    RooAbsReal* getIntegral(int index) const;
    TObject* clone(const char* newname) const override { return new RooParametricShapeBinPdf(*this,newname); }
    inline ~RooParametricShapeBinPdf() override { }
 
-   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override;
-   Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override;
+   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override;
+   Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override;
 
    //accessors
    RooRealProxy const& getX() const { return x; }

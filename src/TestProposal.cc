@@ -10,7 +10,7 @@ TestProposal::TestProposal(double divisor, const RooRealVar *alwaysStepMe) :
     RooStats::ProposalFunction(),
     divisor_(1./divisor),
     poiDivisor_(divisor_),
-    discreteModelIndicator_(0)
+    discreteModelIndicator_(nullptr)
 {
     alwaysStepMe_.add(*alwaysStepMe);
 }
@@ -20,7 +20,7 @@ TestProposal::TestProposal(double divisor, const RooArgList &alwaysStepMe) :
     divisor_(1./divisor),
     poiDivisor_(divisor_),
     alwaysStepMe_(alwaysStepMe),
-    discreteModelIndicator_(0)
+    discreteModelIndicator_(nullptr)
 {
     if (alwaysStepMe.getSize() > 1) poiDivisor_ /= sqrt(double(alwaysStepMe.getSize()));
 }
@@ -31,12 +31,12 @@ void TestProposal::Propose(RooArgSet& xPrime, RooArgSet& x )
 {
    RooStats::SetParameters(&x, &xPrime);
    int n = xPrime.getSize(), j = floor(RooRandom::uniform()*n);
-   const RooRealVar *indicatorPrime = discreteModelIndicator_ ? (RooRealVar*)xPrime.find(discreteModelIndicator_->GetName()) : 0;
+   const RooRealVar *indicatorPrime = discreteModelIndicator_ ? (RooRealVar*)xPrime.find(discreteModelIndicator_->GetName()) : nullptr;
    for (int i = 0; i < xPrime.getSize(); ++i) {
       RooRealVar* var = static_cast<RooRealVar*>(xPrime[i]);
       if (i == j) {
         if (alwaysStepMe_.contains(*var)) break; // don't step twice
-        if (discreteModelIndicator_ != 0) {
+        if (discreteModelIndicator_ != nullptr) {
             if (var == indicatorPrime) {
                 int k = floor(RooRandom::uniform()*discreteModelPoints_.size());
                 xPrime.assignValueOnly(discreteModelPoints_[k]); 
@@ -55,12 +55,12 @@ void TestProposal::Propose(RooArgSet& xPrime, RooArgSet& x )
    }
    for (RooAbsArg *poi : alwaysStepMe_) {
         RooRealVar *var = (RooRealVar*) xPrime.find(poi->GetName());
-        if (var == 0) {
+        if (var == nullptr) {
             std::cout << "ERROR: missing POI " << poi->GetName() << " in xPrime" << std::endl;
             xPrime.Print("V");
             throw std::logic_error("Missing POI in ArgSet");
         }
-        if (discreteModelIndicator_ != 0) {
+        if (discreteModelIndicator_ != nullptr) {
             if (var == indicatorPrime) {
                 int k = floor(RooRandom::uniform()*discreteModelPoints_.size());
                 xPrime.assignValueOnly(discreteModelPoints_[k]); 

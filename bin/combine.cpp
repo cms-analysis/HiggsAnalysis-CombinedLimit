@@ -197,7 +197,7 @@ int main(int argc, char **argv) {
   if (seed == -1) {
     if (verbose > 0) std::cout << ">>> Using OpenSSL to get a truly random seed " << std::endl;
     FILE *rpipe = popen("openssl rand 8", "r");
-    if (rpipe == 0) { std::cout << "Error when running 'openssl rand 8'" << std::endl; return 2101; }
+    if (rpipe == nullptr) { std::cout << "Error when running 'openssl rand 8'" << std::endl; return 2101; }
     if (fread(&seed, sizeof(int), 1, rpipe) != 1) {
         std::cout << "Error when reading from 'openssl rand 8'" << std::endl; return 2102; 
     }

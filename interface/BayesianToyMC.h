@@ -32,7 +32,7 @@ private:
   static float hintSafetyFactor_;
 
   static std::vector<std::string> twoPoints_;
-  std::pair<double,double> priorPredictiveDistribution(RooStats::ModelConfig *mc, RooAbsData &data, const RooArgSet *point=0, double *offset=0);
+  std::pair<double,double> priorPredictiveDistribution(RooStats::ModelConfig *mc, RooAbsData &data, const RooArgSet *point=nullptr, double *offset=nullptr);
 };
 
 #endif

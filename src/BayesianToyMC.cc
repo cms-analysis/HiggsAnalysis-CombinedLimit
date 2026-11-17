@@ -56,13 +56,13 @@ bool BayesianToyMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
   RooArgSet  poi(*mc_s->GetParametersOfInterest());
 
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
-  if ((hint != 0) && (*hint > r->getMin())) {
+  if ((hint != nullptr) && (*hint > r->getMin())) {
     r->setMax(hintSafetyFactor_*(*hint));
   }
   double rMax = r->getMax();
   
   std::unique_ptr<RooStats::ModelConfig> mc_noNuis(nullptr);
-  if (!withSystematics && mc_s->GetNuisanceParameters() != 0) {
+  if (!withSystematics && mc_s->GetNuisanceParameters() != nullptr) {
     mc_noNuis.reset(new RooStats::ModelConfig(w));
     mc_noNuis->SetPdf(*mc_s->GetPdf());
     mc_noNuis->SetObservables(*mc_s->GetObservables());
@@ -80,7 +80,7 @@ bool BayesianToyMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
         if (!integrationType_.empty()) bcalc.SetIntegrationType(integrationType_.c_str());
         if (numIters_) bcalc.SetNumIters(numIters_);
         if (integrationType_ == "toymc") {
-            if (nuisancePdf.get() == 0)  nuisancePdf.reset(utils::makeNuisancePdf(*mc_s));
+            if (nuisancePdf.get() == nullptr)  nuisancePdf.reset(utils::makeNuisancePdf(*mc_s));
             bcalc.ForceNuisancePdf(*nuisancePdf);
             // turn off optimization of constraint terms in the NLL, otherwise
             // it does not divide properly by the nuisance pdf
@@ -88,7 +88,7 @@ bool BayesianToyMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
         }
         // get the interval
         std::unique_ptr<SimpleInterval> bcInterval(bcalc.GetInterval());
-        if (bcInterval.get() == 0) return false;
+        if (bcInterval.get() == nullptr) return false;
         double lim = bcInterval->UpperLimit();
         // check against bound
         if (lim >= 0.5*r->getMax()) { 
@@ -122,8 +122,8 @@ bool BayesianToyMC::runBayesFactor(RooWorkspace *w, RooStats::ModelConfig *mc_s,
     std::pair<double,double> ppS, ppB;
     double offset = std::numeric_limits<double>::quiet_NaN();
     if (twoPoints_.empty()) {
-        ppS = priorPredictiveDistribution(mc_s,data,0,&offset);
-        ppB = priorPredictiveDistribution(mc_b,data,0,&offset);
+        ppS = priorPredictiveDistribution(mc_s,data,nullptr,&offset);
+        ppB = priorPredictiveDistribution(mc_b,data,nullptr,&offset);
     } else {
         RooArgSet POI(*mc_s->GetParametersOfInterest());
         RooArgSet points[2]; 
@@ -165,7 +165,7 @@ std::pair<double,double> BayesianToyMC::priorPredictiveDistribution(RooStats::Mo
   // Determine which POIs we have to generate, if any
   RooArgSet poiToGen; 
   if (mc->GetParametersOfInterest()) poiToGen.add(*mc->GetParametersOfInterest());
-  if (point != 0) poiToGen.remove(*point, false, true);
+  if (point != nullptr) poiToGen.remove(*point, false, true);
   if (verbose && poiToGen.getSize()) { std::cout << "POI to generate:"; poiToGen.Print(); }
 
   // Determine what other floating parameters besides POI and nuisances we have to generate
@@ -176,7 +176,7 @@ std::pair<double,double> BayesianToyMC::priorPredictiveDistribution(RooStats::Mo
   if (verbose && otherParams.getSize()) { std::cout << "Other unnamed parameters to generate:"; otherParams.Print(); }
 
   // Set the point we're running at
-  if (point != 0) params->assignValueOnly(*point);
+  if (point != nullptr) params->assignValueOnly(*point);
 
   // start running
   std::vector<double> results; double sum = 0;
@@ -184,12 +184,12 @@ std::pair<double,double> BayesianToyMC::priorPredictiveDistribution(RooStats::Mo
       std::unique_ptr<RooDataSet> nuisanceValues, poiValues;
       if (withSystematics) nuisanceValues.reset(nuisancePdf->generate(*mc->GetNuisanceParameters(), numIters_));
       if (poiToGen.getSize() > 0) {
-        if (mc->GetPriorPdf() == 0) throw std::logic_error(std::string("Missing prior in model: ")+ mc->GetName());
+        if (mc->GetPriorPdf() == nullptr) throw std::logic_error(std::string("Missing prior in model: ")+ mc->GetName());
         poiValues.reset(mc->GetPriorPdf()->generate(poiToGen, numIters_));
       }
       for (int i = 0; i < numIters_; ++i) {
-        if (nuisanceValues.get() != 0) *params = *nuisanceValues->get(i);
-        if (poiValues.get() != 0) *params = *poiValues->get(i);
+        if (nuisanceValues.get() != nullptr) *params = *nuisanceValues->get(i);
+        if (poiValues.get() != nullptr) *params = *poiValues->get(i);
         if (otherParams.getSize()) RooStats::RandomizeCollection(otherParams);
         if (verbose > 2) { std::cout << "\n\n==== POINT "<< t << ","<<i<<" ====" << std::endl; params->Print("V"); }
         double nllVal = nll->getVal();

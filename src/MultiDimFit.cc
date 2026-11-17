@@ -183,7 +183,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     for (RooAbsArg *a : *mc_s->GetParametersOfInterest()) {
         if (poiList_.contains(*a)) continue;
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-        if (rrv == 0) { std::cerr << "MultiDimFit: Parameter of interest " << a->GetName() << " which is not a RooRealVar will be ignored" << std::endl; continue; }
+        if (rrv == nullptr) { std::cerr << "MultiDimFit: Parameter of interest " << a->GetName() << " which is not a RooRealVar will be ignored" << std::endl; continue; }
         rrv->setConstant(!floatOtherPOIs_);
 	if (!floatOtherPOIs_) {
 	 setConstPOI+=std::string(rrv->GetName())+", ";
@@ -332,13 +332,13 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
     for (std::vector<std::string>::const_iterator it = poi_.begin(), ed = poi_.end(); it != ed; ++it) {
         RooAbsArg *a = mcPoi.find(it->c_str());
 	bool isPoi=true;
-        if (a == 0) { 
+        if (a == nullptr) { 
 		a = w->arg(it->c_str());  // look for the parameter elsewhere, but remember to clear its optimizeBounds attribute 
 		isPoi = false;
 	}
-        if (a == 0) throw std::invalid_argument(std::string("Parameter of interest ")+*it+" not in model.");
+        if (a == nullptr) throw std::invalid_argument(std::string("Parameter of interest ")+*it+" not in model.");
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-        if (rrv == 0) throw std::invalid_argument(std::string("Parameter of interest ")+*it+" not a RooRealVar.");
+        if (rrv == nullptr) throw std::invalid_argument(std::string("Parameter of interest ")+*it+" not a RooRealVar.");
 	if (!isPoi) {
 		if (rrv->getAttribute("optimizeBounds") ) {
             rrv->setAttribute("optimizeBounds",false);
@@ -356,14 +356,14 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 	    char* token = strtok(tmp,",") ;
 	    while(token) {
 		    RooAbsArg *a = w->arg(token);
-		    if (a == 0) throw std::invalid_argument(std::string("function ")+token+" not in model.");
+		    if (a == nullptr) throw std::invalid_argument(std::string("function ")+token+" not in model.");
 		    RooAbsReal *rrv = dynamic_cast<RooAbsReal*>(a);
-		    if (rrv == 0) throw std::invalid_argument(std::string("function ")+token+" not a RooAbsReal.");
+		    if (rrv == nullptr) throw std::invalid_argument(std::string("function ")+token+" not a RooAbsReal.");
 		    specifiedFuncNames_.push_back(token);
 		    specifiedFunc_.push_back(rrv);
 		    specifiedFuncVals_.push_back(rrv->getVal());
 		    specifiedFuncList_.add(*rrv);
-		    token = strtok(0,",") ; 
+		    token = strtok(nullptr,",") ; 
 	    }
     }
     if(saveSpecifiedIndex_!=""){
@@ -372,12 +372,12 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 	    char* token = strtok(tmp,",") ;
 	    while(token) {
 		    RooCategory *rrv = w->cat(token);
-		    if (rrv == 0) throw std::invalid_argument(std::string("function ")+token+" not a RooCategory.");
+		    if (rrv == nullptr) throw std::invalid_argument(std::string("function ")+token+" not a RooCategory.");
 		    specifiedCatNames_.push_back(token);
 		    specifiedCat_.push_back(rrv);
 		    specifiedCatVals_.push_back(rrv->getIndex());
 		    specifiedCatList_.add(*rrv);
-		    token = strtok(0,",") ; 
+		    token = strtok(nullptr,",") ; 
 	    }
     }
 
@@ -402,15 +402,15 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
 			    }else if (!poiList_.find(token)){
 				    specifiedNuis_.push_back(token);
 			    }
-			    token = strtok(0,",") ; 
+			    token = strtok(nullptr,",") ; 
 		    }
 	    }
 	    for (std::vector<std::string>::const_iterator it = specifiedNuis_.begin(), ed = specifiedNuis_.end(); it != ed; ++it) {
 		    RooAbsArg *a = mcNuis.find(it->c_str());
-		    if (a == 0) throw std::invalid_argument(std::string("Nuisance parameter ")+*it+" not in model.");
+		    if (a == nullptr) throw std::invalid_argument(std::string("Nuisance parameter ")+*it+" not in model.");
 		    if (poiList_.contains(*a)) continue;
 		    RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-		    if (rrv == 0) throw std::invalid_argument(std::string("Nuisance parameter ")+*it+" not a RooRealVar.");
+		    if (rrv == nullptr) throw std::invalid_argument(std::string("Nuisance parameter ")+*it+" not a RooRealVar.");
 		    specifiedVars_.push_back(rrv);
 		    specifiedVals_.push_back(rrv->getVal());
 		    specifiedList_.add(*rrv);
@@ -508,7 +508,7 @@ void MultiDimFit::doImpact(RooFitResult &res, RooAbsReal &nll) {
   std::cout << "Parameter impacts: " << std::endl;
 
   // Save the initial parameters here to reset between NPs
-  std::unique_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
+  std::unique_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)nullptr));
   RooArgSet init_snap;
   params->snapshot(init_snap);
 
@@ -616,7 +616,7 @@ void MultiDimFit::doGrid(RooWorkspace *w, RooAbsReal &nll)
     if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
     if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
     //minim.setStrategy(minimizerStrategy_);
-    std::unique_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
+    std::unique_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)nullptr));
     RooArgSet snap; params->snapshot(snap);
     if (verbose > 1) {
         std::cout << "Print snap: " << std::endl;

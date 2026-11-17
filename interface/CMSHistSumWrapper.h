@@ -20,7 +20,7 @@ class CMSHistSumWrapper : public RooAbsReal {
   CMSHistSumWrapper(const char* name, const char* title, RooAbsReal& x,
                     CMSHistSum& sum, unsigned idx);
 
-  CMSHistSumWrapper(CMSHistSumWrapper const& other, const char* name = 0);
+  CMSHistSumWrapper(CMSHistSumWrapper const& other, const char* name = nullptr);
 
   TObject* clone(const char* newname) const override {
     return new CMSHistSumWrapper(*this, newname);
@@ -39,9 +39,9 @@ class CMSHistSumWrapper : public RooAbsReal {
   }
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
-                              const char* rangeName = 0) const override;
+                              const char* rangeName = nullptr) const override;
 
-  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const override;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName = nullptr) const override;
 
   void updateCache() const;
 

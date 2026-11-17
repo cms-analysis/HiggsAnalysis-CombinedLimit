@@ -14,15 +14,15 @@ public:
 
   VerticalInterpPdf() = default;
   VerticalInterpPdf(const char *name, const char *title, const RooArgList& funcList, const RooArgList& coefList, Double_t quadraticRegion=0., Int_t quadraticAlgo=0) ;
-  VerticalInterpPdf(const VerticalInterpPdf& other, const char* name=0) ;
+  VerticalInterpPdf(const VerticalInterpPdf& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new VerticalInterpPdf(*this,newname) ; }
 
   Double_t evaluate() const override ;
   Bool_t checkObservables(const RooArgSet* nset) const override ;	
 
   Bool_t forceAnalyticalInt(const RooAbsArg&) const override { return kTRUE ; }
-  Int_t getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& numVars, const RooArgSet* normSet, const char* rangeName=0) const override ;
-  Double_t analyticalIntegralWN(Int_t code, const RooArgSet* normSet, const char* rangeName=0) const override ;
+  Int_t getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& numVars, const RooArgSet* normSet, const char* rangeName=nullptr) const override ;
+  Double_t analyticalIntegralWN(Int_t code, const RooArgSet* normSet, const char* rangeName=nullptr) const override ;
 
   const RooArgList& funcList() const { return _funcList ; }
   const RooArgList& funcIntListFromCache() const;

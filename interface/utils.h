@@ -88,17 +88,17 @@ namespace utils {
     void tdrStyle() ;
     
     /// make plots, if possible
-    std::vector<RooPlot *> makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signalSel=0, const char *backgroundSel=0, float rebinFactor=1.0, RooFitResult *fitRes=0);
+    std::vector<RooPlot *> makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signalSel=nullptr, const char *backgroundSel=nullptr, float rebinFactor=1.0, RooFitResult *fitRes=nullptr);
 
     struct CheapValueSnapshot {
         public:
-            CheapValueSnapshot() : src_(0) {}
-            CheapValueSnapshot(const RooAbsCollection &src) : src_(0), values_() { readFrom(src); }
+            CheapValueSnapshot() : src_(nullptr) {}
+            CheapValueSnapshot(const RooAbsCollection &src) : src_(nullptr), values_() { readFrom(src); }
             void readFrom(const RooAbsCollection &) ;
             void writeTo(const RooAbsCollection &) const ;
-            void clear() { src_ = 0; values_.clear(); }
+            void clear() { src_ = nullptr; values_.clear(); }
             const RooAbsCollection &src() const { return *src_; }
-            bool  empty() const { return src_ == 0; }
+            bool  empty() const { return src_ == nullptr; }
             void  Print(const char *fmt) const ;
         private:
             const RooAbsCollection *src_;

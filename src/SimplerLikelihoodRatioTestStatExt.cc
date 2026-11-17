@@ -15,13 +15,13 @@ SimplerLikelihoodRatioTestStatOpt::SimplerLikelihoodRatioTestStatOpt(
     // factorize away constraints
     RooArgList constraints;
     pdfNull_ = factorize ? utils::factorizePdf(obs, *cloneNull, constraints) : cloneNull;
-    if (pdfNull_ == 0) throw std::invalid_argument("SimplerLikelihoodRatioTestStatOpt:: pdf does not depend on observables");
+    if (pdfNull_ == nullptr) throw std::invalid_argument("SimplerLikelihoodRatioTestStatOpt:: pdf does not depend on observables");
     if (pdfNull_ != cloneNull) pdfNullOwned_.reset(pdfNull_); // if new, then take ownership of it
     if (cloneNull == cloneAlt) {
         pdfAlt_ = pdfNull_;
     } else {
         pdfAlt_  = factorize ? utils::factorizePdf(obs, *cloneAlt,  constraints) : cloneAlt;
-        if (pdfAlt_ == 0) throw std::invalid_argument("SimplerLikelihoodRatioTestStatOpt:: pdf does not depend on observables");
+        if (pdfAlt_ == nullptr) throw std::invalid_argument("SimplerLikelihoodRatioTestStatOpt:: pdf does not depend on observables");
         if (pdfAlt_ != cloneAlt)  pdfAltOwned_.reset(pdfAlt_); // if new, then take ownership of it
     }
 
@@ -88,7 +88,7 @@ SimplerLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& nullPOI
 void SimplerLikelihoodRatioTestStatOpt::unrollSimPdf(RooSimultaneous *simpdf, std::vector<RooAbsPdf *> &out) {
     // get a clone of the pdf category, so that I can use it to enumerate the pdf states
     std::unique_ptr<RooAbsCategoryLValue> catClone((RooAbsCategoryLValue*) simpdf->indexCat().Clone());
-    out.resize(catClone->numBins(NULL), 0);
+    out.resize(catClone->numBins(nullptr), nullptr);
     //std::cout << "Pdf " << pdf->GetName() <<" is a SimPdf over category " << catClone->GetName() << ", with " << out.size() << " bins" << std::endl;
 
     // loop on the category state and fetch the pdfs
@@ -96,7 +96,7 @@ void SimplerLikelihoodRatioTestStatOpt::unrollSimPdf(RooSimultaneous *simpdf, st
         catClone->setBin(ib);
         RooAbsPdf *pdfi = simpdf->getPdf(catClone->getLabel());
         pdfi->optimizeCacheMode(*obs_);
-        if (pdfi != 0) {
+        if (pdfi != nullptr) {
             //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has pdf " << pdfi->GetName() << " of type " << pdfi->ClassName() << std::endl;
             out[ib] = pdfi;
         }
@@ -110,11 +110,11 @@ double SimplerLikelihoodRatioTestStatOpt::evalSimNLL(RooAbsData &data,  RooSimul
     int i, n = data.numEntries(); 
 
     // must fetch the category, from the dataset first, if it's not empty
-    RooAbsCategoryLValue *cat = 0;
+    RooAbsCategoryLValue *cat = nullptr;
     if (n) {
         const RooArgSet *entry = data.get(0);
         cat = dynamic_cast<RooAbsCategoryLValue *>(entry->find(pdf->indexCat().GetName()));
-        assert(cat != 0 && "Didn't find category in dataset");
+        assert(cat != nullptr && "Didn't find category in dataset");
     }
 
     // now loop on the dataset, and dispatch the request to the appropriate pdf
@@ -122,9 +122,9 @@ double SimplerLikelihoodRatioTestStatOpt::evalSimNLL(RooAbsData &data,  RooSimul
     for (i = 0; i < n; ++i) {
         data.get(i); 
         double w = data.weight(); if (w == 0) continue;
-        int bin = cat->getBin((const char*) 0);
+        int bin = cat->getBin((const char*) nullptr);
         assert(bin < int(components.size()) && "Bin outside range");
-        if (components[bin] == 0) continue;
+        if (components[bin] == nullptr) continue;
         sum  += -w*components[bin]->getLogVal(obs_);
         sumw[bin] +=  w;
     }

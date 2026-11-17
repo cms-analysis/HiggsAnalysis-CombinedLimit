@@ -9,7 +9,7 @@ RooSpline1D::RooSpline1D(const char *name, const char *title, RooAbsReal &xvar, 
         RooAbsReal(name,title),
         xvar_("xvar","Variable", this, xvar),
         x_(), y_(), type_(algo),
-        interp_(0)
+        interp_(nullptr)
 {
         std::ifstream file( path, std::ios::in);
         std::string line;
@@ -34,7 +34,7 @@ RooSpline1D::RooSpline1D(const char *name, const char *title, RooAbsReal &xvar, 
         RooAbsReal(name,title),
         xvar_("xvar","Variable", this, xvar), 
         x_(npoints), y_(npoints), type_(algo),
-        interp_(0)
+        interp_(nullptr)
 { 
     for (unsigned int i = 0; i < npoints; ++i) {
         x_[i] = xvals[i];
@@ -46,7 +46,7 @@ RooSpline1D::RooSpline1D(const char *name, const char *title, RooAbsReal &xvar, 
         RooAbsReal(name,title),
         xvar_("xvar","Variable", this, xvar), 
         x_(npoints), y_(npoints), type_(algo),
-        interp_(0)
+        interp_(nullptr)
 { 
     for (unsigned int i = 0; i < npoints; ++i) {
         x_[i] = xvals[i];
@@ -58,7 +58,7 @@ RooSpline1D::RooSpline1D(const RooSpline1D &other, const char *newname) :
     RooAbsReal(other,newname),
     xvar_("xvar",this,other.xvar_),
     x_(other.x_), y_(other.y_), type_(other.type_),
-    interp_(0)
+    interp_(nullptr)
 {
 }
 
@@ -85,7 +85,7 @@ void RooSpline1D::init() const {
 }
 
 Double_t RooSpline1D::evaluate() const {
-    if (interp_ == 0) init();
+    if (interp_ == nullptr) init();
     return interp_->Eval(xvar_);
 }
 

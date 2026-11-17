@@ -18,7 +18,7 @@ class RooTaylorExpansion : public RooAbsReal {
                      std::vector<std::vector<int>> const& trackers,
                      const std::vector<double>& terms);
 
-  RooTaylorExpansion(const RooTaylorExpansion& other, const char* name = 0);
+  RooTaylorExpansion(const RooTaylorExpansion& other, const char* name = nullptr);
   TObject* clone(const char* newname) const override {
     return new RooTaylorExpansion(*this, newname);
   }

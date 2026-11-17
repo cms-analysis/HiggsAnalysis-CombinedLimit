@@ -198,7 +198,7 @@ std::list<Double_t>* SimpleProdPdf::binBoundaries(RooAbsRealLValue& obs, Double_
     }
   }
 
-  return 0;
+  return nullptr;
 }
 
 ClassImp(SimpleProdPdf)

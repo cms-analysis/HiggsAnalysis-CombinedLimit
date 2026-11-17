@@ -56,7 +56,7 @@ RooSplineND::RooSplineND(const char *name, const char *title, RooArgList &vars, 
   }
   //std::cout << "... N(selected) = " << nselect << std::endl;
   keep_points->Reset();
-  tree->SetEventList(0);
+  tree->SetEventList(nullptr);
   // Try to re-scale axis to even out dimensions.
   axis_pts_ = TMath::Power(M_,1./ndim_);
   eps_= eps;

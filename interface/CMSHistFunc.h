@@ -81,7 +81,7 @@ class CMSHistFunc : public RooAbsReal {
   CMSHistFunc(const char* name, const char* title, RooRealVar& x,
               TH1 const& hist, bool divideByWidth = true);
 
-  CMSHistFunc(CMSHistFunc const& other, const char* name = 0);
+  CMSHistFunc(CMSHistFunc const& other, const char* name = nullptr);
 
   TObject* clone(const char* newname) const override {
     return new CMSHistFunc(*this, newname);
@@ -109,9 +109,9 @@ class CMSHistFunc : public RooAbsReal {
                       TString indent) const override;
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
-                              const char* rangeName = 0) const override;
+                              const char* rangeName = nullptr) const override;
 
-  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const override;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName = nullptr) const override;
 
   inline void setMorphStrategy(unsigned strategy) {
     morph_strategy_ = strategy;

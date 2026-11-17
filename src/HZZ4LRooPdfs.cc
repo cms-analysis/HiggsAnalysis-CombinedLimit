@@ -5,7 +5,7 @@
 #include "RooGenericPdf.h"
 #include "RooMath.h"
 #include "RooAbsCategory.h"
-#include <math.h>
+#include <cmath>
 #include "TMath.h"
 #include "TComplex.h"
 #include "RtypesCore.h"

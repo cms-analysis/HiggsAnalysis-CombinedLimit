@@ -68,7 +68,7 @@ private:
   float calculateLimitFromGrid(RooRealVar *, double, double);
 
   RooAbsData *asimovDataset(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, bool overwrite=false);
-  double getCLs(RooRealVar &r, double rVal, bool getAlsoExpected=false, double *limit=0, double *limitErr=0);
+  double getCLs(RooRealVar &r, double rVal, bool getAlsoExpected=false, double *limit=nullptr, double *limitErr=nullptr);
   
   TFile *gridFile_;
   TTree *limitsTree_;

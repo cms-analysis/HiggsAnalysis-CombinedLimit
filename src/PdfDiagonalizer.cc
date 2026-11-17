@@ -31,7 +31,7 @@ PdfDiagonalizer::PdfDiagonalizer(const char *name, RooWorkspace *w, RooFitResult
     }
     // put them in a list, with a one at the end to set the mean
     RooArgList eigvVarsPlusOne(eigenVars_);
-    if (w->var("_one_") == 0) w->factory("_one_[1]");
+    if (w->var("_one_") == nullptr) w->factory("_one_[1]");
     eigvVarsPlusOne.add(*w->var("_one_"));
 
     // then go create the linear combinations
@@ -53,7 +53,7 @@ PdfDiagonalizer::PdfDiagonalizer(const char *name, RooWorkspace *w, RooFitResult
 
 RooAbsPdf *PdfDiagonalizer::diagonalize(RooAbsPdf &pdf)
 {
-    if (!pdf.dependsOn(parameters_)) return 0;
+    if (!pdf.dependsOn(parameters_)) return nullptr;
 
     // now do the customization
     RooCustomizer custom(pdf, name_.c_str());

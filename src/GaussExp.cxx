@@ -11,7 +11,7 @@
 #include "../interface/GaussExp.h" 
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
-#include <math.h> 
+#include <cmath> 
 #include "TMath.h" 
 
 ClassImp(GaussExp) 

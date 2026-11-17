@@ -8,7 +8,7 @@
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
 #include "RooExponential.h" 
-#include <math.h> 
+#include <cmath> 
 #include "TMath.h" 
 
 #include <algorithm>
@@ -33,15 +33,8 @@
 #include "RooDataSet.h"
 #include "RooDataHist.h"
 #include "RooRealProxy.h"
-#include "RooAbsReal.h"
 #include "RooExtendPdf.h"
-#include "RooRealVar.h"
-#include "RooDataSet.h"
-#include "RooDataHist.h"
 #include "RooGaussian.h"
-#include "TCanvas.h"
-#include "RooPlot.h"
-#include "TTree.h"
 #include "TH1D.h"
 #include "TRandom.h"
 #include "TGraph.h"

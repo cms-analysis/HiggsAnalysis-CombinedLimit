@@ -63,10 +63,10 @@ bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConf
   else          { r->setVal(preFitValue_); r->setConstant(false); }
 
   RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(mc_s->GetPdf());
-  if (sim == 0) throw std::logic_error("Cannot use ChannelCompatibilityCheck if the pdf is not a RooSimultaneous");
+  if (sim == nullptr) throw std::logic_error("Cannot use ChannelCompatibilityCheck if the pdf is not a RooSimultaneous");
 
   RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
-  int nbins = cat->numBins((const char *)0);
+  int nbins = cat->numBins((const char *)nullptr);
   TString satname = TString::Format("%s_freeform", sim->GetName());
   std::unique_ptr<RooSimultaneous> newsim((typeid(*sim) == typeid(RooSimultaneousOpt)) ? new RooSimultaneousOpt(satname, "", *cat) : new RooSimultaneous(satname, "", *cat)); 
   std::map<std::string,std::string> rs;
@@ -74,14 +74,14 @@ bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConf
   for (int ic = 0, nc = nbins; ic < nc; ++ic) {
       cat->setBin(ic);
       RooAbsPdf *pdfi = sim->getPdf(cat->getLabel());
-      if (pdfi == 0) continue;
+      if (pdfi == nullptr) continue;
       RooCustomizer customizer(*pdfi, "freeform");
       std::string label = nameForLabel(cat->getLabel());
       TString riName = TString::Format("_ChannelCompatibilityCheck_%s_%s", r->GetName(), label.c_str());
       rs.insert(std::pair<std::string,std::string>(label, riName.Data()));
       std::pair<double,double> range = {r->getMin(),r->getMax()};
       if (groupRanges_.find(TString(label)) != groupRanges_.end()) range = groupRanges_[label];
-      if (w->var(riName) == 0) {
+      if (w->var(riName) == nullptr) {
         w->factory(TString::Format("%s[%g,%g]", riName.Data(), range.first, range.second));
       }
       customizer.replaceArg(*r, *w->var(riName));
@@ -109,8 +109,8 @@ bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConf
   double nll_freeform   = nll->getVal();
   sentry.clear();
 
-  if (result_nominal.get()  == 0) return false;
-  if (result_freeform.get() == 0) return false;
+  if (result_nominal.get()  == nullptr) return false;
+  if (result_freeform.get() == nullptr) return false;
 
   //double nll_nominal   = result_nominal->minNll();
   //double nll_freeform = result_freeform->minNll();
@@ -134,7 +134,7 @@ bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConf
   }
   for (std::map<std::string,std::string>::const_iterator it = rs.begin(), ed = rs.end(); it != ed; ++it) {
       RooRealVar *ri = (RooRealVar*) result_freeform->floatParsFinal().find(it->second.c_str());
-      if (ri == NULL){
+      if (ri == nullptr){
       printf("Parameter %s not found in channel %s. Does this region contain signal templates?\n", r->GetName(), it->first.c_str());
       } else if (runMinos_ && do95_) {
 	  printf("Alternate fit: %s = %7.4f  %+6.4f/%+6.4f (68%% CL) in channel %s\n", r->GetName(), ri->getVal(), ri->getAsymErrorLo(), ri->getAsymErrorHi(), it->first.c_str());

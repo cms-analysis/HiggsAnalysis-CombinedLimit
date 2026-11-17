@@ -14,7 +14,7 @@ class RooEFTScalingFunction : public RooAbsReal {
     public:
         RooEFTScalingFunction() {}
         RooEFTScalingFunction(const char *name, const char *title, const std::map<std::string,double> &coeffs, const RooArgList &terms);
-        RooEFTScalingFunction(const RooEFTScalingFunction& other, const char* name=0);
+        RooEFTScalingFunction(const RooEFTScalingFunction& other, const char* name=nullptr);
         ~RooEFTScalingFunction() override {}
         TObject *clone(const char *newname) const override { return new RooEFTScalingFunction(*this,newname); } 
         const std::map<std::string,double> & coeffs() const { return coeffs_; }
