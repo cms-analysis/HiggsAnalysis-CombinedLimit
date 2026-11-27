@@ -65,3 +65,17 @@
 
 #include "HiggsAnalysis/CombinedLimit/interface/CombineCodegenImpl.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CombineUtils.h"
+
+// CombineHarvester
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CombineHarvester.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Observation.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Parameter.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CardWriter.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/BinByBin.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/AutoRebin.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CopyTools.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/Utilities.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/ValidationToolsNoJSON.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/ParseCombineWorkspace.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/MorphFunctions.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CombineHarvester/CMSHistFuncFactory.h"

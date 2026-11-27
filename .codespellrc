@@ -1,4 +1,4 @@
 [codespell]
 ignore-words = .codespell-ignore
-skip = *.lock,*.pdf
+skip = *.lock,*.pdf,json.h,json-forwards.h,json.cc
 ignore-regex = <I>nclusion
