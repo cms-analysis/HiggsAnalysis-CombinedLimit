@@ -71,7 +71,7 @@ CMSHistFunc::CMSHistFunc(const char* name, const char* title, RooRealVar& x,
                  "rebinning will be enabled\n";
     rebin_ = true;
     TH1F tmp("tmp", "", x.getBins(), x.getBinning().array());
-    tmp.SetDirectory(0);
+    tmp.SetDirectory(nullptr);
     rebin_cache_ = FastHisto(tmp);
     for (unsigned i = 0; i < cache_.size(); ++i) {
       unsigned target_bin = rebin_cache_.FindBin((cache_.GetEdge(i) + cache_.GetEdge(i+1)) / 2.);

@@ -30,7 +30,7 @@ QuantileCalculator::QuantileCalculator(const RooAbsData &data, const char *varNa
     if (lastEntry == -1) lastEntry = data.numEntries();
     const RooArgSet  *set = data.get();
     const RooRealVar *x   = dynamic_cast<const RooRealVar *>(set->find(varName)); 
-    if (x == 0) {
+    if (x == nullptr) {
      set->Print("V");
      throw std::logic_error("Parameter of interest not in the dataset");
     }

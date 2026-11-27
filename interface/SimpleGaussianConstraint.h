@@ -9,7 +9,7 @@ class SimpleGaussianConstraint : public RooGaussian {
         SimpleGaussianConstraint(const char *name, const char *title,
                 RooAbsReal& _x, RooAbsReal& _mean, RooAbsReal& _sigma):
             RooGaussian(name,title,_x,_mean,_sigma) { init(); }
-        SimpleGaussianConstraint(const SimpleGaussianConstraint& other, const char* name=0) :
+        SimpleGaussianConstraint(const SimpleGaussianConstraint& other, const char* name=nullptr) :
             RooGaussian(other, name) { init(); }
         SimpleGaussianConstraint(const RooGaussian &g) : RooGaussian(g, "") { init(); }
 

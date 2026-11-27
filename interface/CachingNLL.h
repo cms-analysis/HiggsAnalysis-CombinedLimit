@@ -81,14 +81,14 @@ class CachingPdf : public CachingPdfBase {
         ~CachingPdf() override ;
         const std::vector<Double_t> & eval(const RooAbsData &data) override ;
         const RooAbsReal *pdf() const override { return pdf_; }
-        void  setDataDirty() override { lastData_ = 0; }
+        void  setDataDirty() override { lastData_ = nullptr; }
         void  setIncludeZeroWeights(bool includeZeroWeights) override { includeZeroWeights_ = includeZeroWeights;  setDataDirty(); }
     protected:
         const RooArgSet *obs_;
         RooAbsReal *pdfOriginal_;
         RooArgSet  pdfPieces_;
         RooAbsReal *pdf_;
-        const RooAbsData *lastData_ = 0;
+        const RooAbsData *lastData_ = nullptr;
         ValuesCache cache_;
         std::vector<uint8_t> nonZeroW_;
         bool                 includeZeroWeights_ = false;
@@ -100,7 +100,7 @@ template <typename PdfT, typename VPdfT>
 class OptimizedCachingPdfT : public CachingPdf {
     public:
         OptimizedCachingPdfT(RooAbsReal *pdf, const RooArgSet *obs) :
-            CachingPdf(pdf,obs), vpdf_(0) {}
+            CachingPdf(pdf,obs), vpdf_(nullptr) {}
         OptimizedCachingPdfT(const OptimizedCachingPdfT &other) : 
             CachingPdf(other), vpdf_(0) {}
         ~OptimizedCachingPdfT() override { delete vpdf_; }
@@ -115,9 +115,9 @@ CachingPdfBase * makeCachingPdf(RooAbsReal *pdf, const RooArgSet *obs) ;
 class CachingAddNLL : public RooAbsReal {
     public:
         CachingAddNLL(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data, bool includeZeroWeights = false) ;
-        CachingAddNLL(const CachingAddNLL &other, const char *name = 0) ;
+        CachingAddNLL(const CachingAddNLL &other, const char *name = nullptr) ;
         ~CachingAddNLL() override ;
-        CachingAddNLL *clone(const char *name = 0) const override ;
+        CachingAddNLL *clone(const char *name = nullptr) const override ;
         Double_t evaluate() const override ;
         Bool_t isDerived() const override { return kTRUE; }
         Double_t defaultErrorLevel() const override { return 0.5; }
@@ -161,13 +161,13 @@ class CachingAddNLL : public RooAbsReal {
 
 class CachingSimNLL  : public SimNLLBase {
     public:
-        CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, const RooArgSet *nuis=0) ;
-        CachingSimNLL(const CachingSimNLL &other, const char *name = 0) ;
+        CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, const RooArgSet *nuis=nullptr) ;
+        CachingSimNLL(const CachingSimNLL &other, const char *name = nullptr) ;
         ~CachingSimNLL() override ;
         CachingSimNLL &operator=(const CachingSimNLL &) = delete;
         CachingSimNLL(CachingSimNLL &&) = delete;
         CachingSimNLL &operator=(CachingSimNLL &&) = delete;
-        CachingSimNLL *clone(const char *name = 0) const override ;
+        CachingSimNLL *clone(const char *name = nullptr) const override ;
         Double_t evaluate() const override ;
         Bool_t isDerived() const override { return kTRUE; }
         Double_t defaultErrorLevel() const override { return 0.5; }

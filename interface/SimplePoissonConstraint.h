@@ -10,7 +10,7 @@ class SimplePoissonConstraint : public RooPoisson {
         SimplePoissonConstraint(const char *name, const char *title,
                 RooAbsReal& _x, RooAbsReal& _mean, bool noRounding = false ):
             RooPoisson(name,title,_x,_mean, noRounding) { init(); }
-        SimplePoissonConstraint(const SimplePoissonConstraint& other, const char* name=0) :
+        SimplePoissonConstraint(const SimplePoissonConstraint& other, const char* name=nullptr) :
             RooPoisson(other, name) { init(); }
         SimplePoissonConstraint(const RooPoisson &g) : RooPoisson(g, "") { init(); }
 

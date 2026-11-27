@@ -53,7 +53,7 @@ public:
 			   RooAbsReal& _b2,
 			   RooAbsReal& _b3,
 			   RooAbsReal& _frac);
-	RooqqZZPdf(const RooqqZZPdf& other, const char* name=0) ;
+	RooqqZZPdf(const RooqqZZPdf& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooqqZZPdf(*this,newname); }
 	inline ~RooqqZZPdf() override { }
 	
@@ -89,7 +89,7 @@ public:
 			   RooAbsReal& _b2,
 			   RooAbsReal& _b3,
 			   RooAbsReal& _frac);
-	RooggZZPdf(const RooggZZPdf& other, const char* name=0) ;
+	RooggZZPdf(const RooggZZPdf& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooggZZPdf(*this,newname); }
 	inline ~RooggZZPdf() override { }
 	
@@ -135,7 +135,7 @@ public:
 			   RooAbsReal& _a13
 			   
 			   );
-	RooqqZZPdf_v2(const RooqqZZPdf_v2& other, const char* name=0) ;
+	RooqqZZPdf_v2(const RooqqZZPdf_v2& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooqqZZPdf_v2(*this,newname); }
 	inline ~RooqqZZPdf_v2() override { }
 
@@ -196,7 +196,7 @@ public:
 		           RooAbsReal& _a15,
 			   RooAbsReal& _a16
 			   );
-	RooVBFZZPdf(const RooVBFZZPdf& other, const char* name=0) ;
+	RooVBFZZPdf(const RooVBFZZPdf& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooVBFZZPdf(*this,newname); }
 	inline ~RooVBFZZPdf() override { }
 	
@@ -253,7 +253,7 @@ public:
 		           RooAbsReal& _a15,
 			   RooAbsReal& _a16
 			   );
-	RooVBFZZPdf_v2(const RooVBFZZPdf_v2& other, const char* name=0) ;
+	RooVBFZZPdf_v2(const RooVBFZZPdf_v2& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooVBFZZPdf_v2(*this,newname); }
 	inline ~RooVBFZZPdf_v2() override { }
 	
@@ -302,7 +302,7 @@ public:
 			   RooAbsReal& _a9
 			   
 			   );
-	RooggZZPdf_v2(const RooggZZPdf_v2& other, const char* name=0) ;
+	RooggZZPdf_v2(const RooggZZPdf_v2& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooggZZPdf_v2(*this,newname); }
 	inline ~RooggZZPdf_v2() override { }
 
@@ -348,7 +348,7 @@ public:
 				   RooAbsReal& _f,
 				   RooAbsReal& _f0
 				   );
-	RooBetaFunc_v2(const RooBetaFunc_v2& other, const char* name=0) ;
+	RooBetaFunc_v2(const RooBetaFunc_v2& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooBetaFunc_v2(*this,newname); }
 	inline ~RooBetaFunc_v2() override { }
 	
@@ -382,7 +382,7 @@ public:
 					  RooAbsReal& _mZZ,	     
 					  RooAbsReal& _channelVal	     
 					  );
-	Roo4lMasses2D_Bkg(const Roo4lMasses2D_Bkg& other, const char* name=0) ;
+	Roo4lMasses2D_Bkg(const Roo4lMasses2D_Bkg& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new Roo4lMasses2D_Bkg(*this,newname); }
 	inline ~Roo4lMasses2D_Bkg() override { }
 	
@@ -409,7 +409,7 @@ public:
 					  RooAbsReal& _mZZ,	     
 					  RooAbsReal& _channelVal	     
 					  );
-	Roo4lMasses2D_BkgGGZZ(const Roo4lMasses2D_BkgGGZZ& other, const char* name=0) ;
+	Roo4lMasses2D_BkgGGZZ(const Roo4lMasses2D_BkgGGZZ& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new Roo4lMasses2D_BkgGGZZ(*this,newname); }
 	inline ~Roo4lMasses2D_BkgGGZZ() override { }
 	
@@ -450,7 +450,7 @@ public:
 				  RooAbsReal& _CBalpha,        
 				  RooAbsReal& _CBn             
 				  );
-	Roo4lMasses2D(const Roo4lMasses2D& other, const char* name=0) ;
+	Roo4lMasses2D(const Roo4lMasses2D& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new Roo4lMasses2D(*this,newname); }
 	inline ~Roo4lMasses2D() override { }
 	
@@ -483,7 +483,7 @@ public:
 	RooFourMuMassShapePdf2(const char *name, const char *title,
 						   RooAbsReal& _m4l,
 						   RooAbsReal& _mH);
-	RooFourMuMassShapePdf2(const RooFourMuMassShapePdf2& other, const char* name=0) ;
+	RooFourMuMassShapePdf2(const RooFourMuMassShapePdf2& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooFourMuMassShapePdf2(*this,newname); }
 	inline ~RooFourMuMassShapePdf2() override { }
 	
@@ -507,7 +507,7 @@ public:
 	RooFourEMassShapePdf2(const char *name, const char *title,
 						  RooAbsReal& _m4l,
 						  RooAbsReal& _mH);
-	RooFourEMassShapePdf2(const RooFourEMassShapePdf2& other, const char* name=0) ;
+	RooFourEMassShapePdf2(const RooFourEMassShapePdf2& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooFourEMassShapePdf2(*this,newname); }
 	inline ~RooFourEMassShapePdf2() override { }
 	
@@ -532,7 +532,7 @@ public:
 	RooTwoETwoMuMassShapePdf2(const char *name, const char *title,
 							  RooAbsReal& _m4l,
 							  RooAbsReal& _mH);
-	RooTwoETwoMuMassShapePdf2(const RooTwoETwoMuMassShapePdf2& other, const char* name=0) ;
+	RooTwoETwoMuMassShapePdf2(const RooTwoETwoMuMassShapePdf2& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooTwoETwoMuMassShapePdf2(*this,newname); }
 	inline ~RooTwoETwoMuMassShapePdf2() override { }
 	
@@ -556,7 +556,7 @@ public:
 	RooFourMuMassRes(const char *name, const char *title,
 					 RooAbsReal& _m4l,
 					 RooAbsReal& _mH);
-	RooFourMuMassRes(const RooFourMuMassRes& other, const char* name=0) ;
+	RooFourMuMassRes(const RooFourMuMassRes& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooFourMuMassRes(*this,newname); }
 	inline ~RooFourMuMassRes() override { }
 	
@@ -578,7 +578,7 @@ public:
 	RooFourEMassRes(const char *name, const char *title,
 					RooAbsReal& _m4l,
 					RooAbsReal& _mH);
-	RooFourEMassRes(const RooFourEMassRes& other, const char* name=0) ;
+	RooFourEMassRes(const RooFourEMassRes& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooFourEMassRes(*this,newname); }
 	inline ~RooFourEMassRes() override { }
 	
@@ -601,7 +601,7 @@ public:
 	RooTwoETwoMuMassRes(const char *name, const char *title,
 						RooAbsReal& _m4l,
 						RooAbsReal& _mH);
-	RooTwoETwoMuMassRes(const RooTwoETwoMuMassRes& other, const char* name=0) ;
+	RooTwoETwoMuMassRes(const RooTwoETwoMuMassRes& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooTwoETwoMuMassRes(*this,newname); }
 	inline ~RooTwoETwoMuMassRes() override { }
 	
@@ -625,7 +625,7 @@ public:
 			  RooAbsReal& _m,
 			  RooAbsReal& _mean,
 			  RooAbsReal& _gamma);
-	RooRelBW1(const RooRelBW1& other, const char* name=0) ;
+	RooRelBW1(const RooRelBW1& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooRelBW1(*this,newname); }
 	inline ~RooRelBW1() override { }
 	
@@ -650,7 +650,7 @@ public:
 	RooRelBWUF(const char *name, const char *title,
 			  RooAbsReal& _m4l,
 			  RooAbsReal& _mH);
-	RooRelBWUF(const RooRelBWUF& other, const char* name=0) ;
+	RooRelBWUF(const RooRelBWUF& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooRelBWUF(*this,newname); }
 	inline ~RooRelBWUF() override { }
 	
@@ -675,7 +675,7 @@ public:
 	RooRelBWUF_SM4(const char *name, const char *title,
 			  RooAbsReal& _m4l,
 			  RooAbsReal& _mH);
-	RooRelBWUF_SM4(const RooRelBWUF_SM4& other, const char* name=0) ;
+	RooRelBWUF_SM4(const RooRelBWUF_SM4& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooRelBWUF_SM4(*this,newname); }
 	inline ~RooRelBWUF_SM4() override { }
 	
@@ -701,7 +701,7 @@ public:
 					RooAbsReal& _m4l,
 					RooAbsReal& _mH,
 					RooAbsReal& _width);
-	RooRelBWUFParamWidth(const RooRelBWUFParamWidth& other, const char* name=0) ;
+	RooRelBWUFParamWidth(const RooRelBWUFParamWidth& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooRelBWUFParamWidth(*this,newname); }
 	inline ~RooRelBWUFParamWidth() override { }
 	
@@ -728,7 +728,7 @@ public:
 			RooAbsReal& _scaleParam,
 			Double_t _widthSF=1.
 			);
-	RooRelBWUFParam(const RooRelBWUFParam& other, const char* name=0) ;
+	RooRelBWUFParam(const RooRelBWUFParam& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooRelBWUFParam(*this,newname); }
 	inline ~RooRelBWUFParam() override { }
 	
@@ -755,7 +755,7 @@ public:
 					RooAbsReal& _m4l,
 					RooAbsReal& _mH,
 					RooAbsReal& _gamma);
-	RooRelBWHighMass(const RooRelBWHighMass& other, const char* name=0) ;
+	RooRelBWHighMass(const RooRelBWHighMass& other, const char* name=nullptr) ;
 	TObject* clone(const char* newname) const override { return new RooRelBWHighMass(*this,newname); }
 	inline ~RooRelBWHighMass() override { }
 	
@@ -787,7 +787,7 @@ public:
 	          RooAbsReal& _T,
 	          RooAbsReal& _fexp);
 
-  RooTsallis(const RooTsallis& other, const char* name=0) ;
+  RooTsallis(const RooTsallis& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new RooTsallis(*this,newname); }
   inline ~RooTsallis() override { }
   /* Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
@@ -832,7 +832,7 @@ class RooaDoubleCBxBW : public RooAbsPdf {
         RooAbsReal& _thetaR,
         bool _computeActualCB
     );
-  RooaDoubleCBxBW(const RooaDoubleCBxBW& other, const char* name=0) ;
+  RooaDoubleCBxBW(const RooaDoubleCBxBW& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new RooaDoubleCBxBW(*this,newname); }
   inline ~RooaDoubleCBxBW() override { }
 
@@ -876,7 +876,7 @@ public:
 	      RooAbsReal& _IntStr,
 	      RooAbsReal& _WidthScl,
 	      Bool_t is8TeV);
-  RooCPSHighMassGGH(const RooCPSHighMassGGH& other, const char* name=0) ;
+  RooCPSHighMassGGH(const RooCPSHighMassGGH& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new RooCPSHighMassGGH(*this,newname); }
   Double_t Spline(Double_t xx) const;
   inline ~RooCPSHighMassGGH() override {  }
@@ -927,7 +927,7 @@ public:
 	      RooAbsReal& _BRnew,
 	      RooAbsReal& _IntStr,
 	      Bool_t is8TeV);
-  RooBWHighMassGGH(const RooBWHighMassGGH& other, const char* name=0) ;
+  RooBWHighMassGGH(const RooBWHighMassGGH& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new RooBWHighMassGGH(*this,newname); }
   inline ~RooBWHighMassGGH() override {  }
 
@@ -976,7 +976,7 @@ public:
 	      RooAbsReal& _KPrime,
 	      RooAbsReal& _BRnew,
 	      Bool_t is8TeV);
-  RooCPSHighMassGGHNoInterf(const RooCPSHighMassGGHNoInterf& other, const char* name=0) ;
+  RooCPSHighMassGGHNoInterf(const RooCPSHighMassGGHNoInterf& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new RooCPSHighMassGGHNoInterf(*this,newname); }
   Double_t Spline(Double_t xx) const;
   inline ~RooCPSHighMassGGHNoInterf() override {  }
@@ -1021,7 +1021,7 @@ public:
 	      RooAbsReal& _IntStr,
 	      RooAbsReal& _WidthScl,
 	      Bool_t is8TeV);
-  RooCPSHighMassVBF(const RooCPSHighMassVBF& other, const char* name=0) ;
+  RooCPSHighMassVBF(const RooCPSHighMassVBF& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new RooCPSHighMassVBF(*this,newname); }
   Double_t Spline(Double_t xx) const;
   inline ~RooCPSHighMassVBF() override {  }
@@ -1070,7 +1070,7 @@ public:
 	      RooAbsReal& _KPrime,
 	      RooAbsReal& _BRnew,
 	      Bool_t is8TeV);
-  RooCPSHighMassVBFNoInterf(const RooCPSHighMassVBFNoInterf& other, const char* name=0) ;
+  RooCPSHighMassVBFNoInterf(const RooCPSHighMassVBFNoInterf& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new RooCPSHighMassVBFNoInterf(*this,newname); }
   Double_t Spline(Double_t xx) const;
   inline ~RooCPSHighMassVBFNoInterf() override {  }
@@ -1116,7 +1116,7 @@ public:
 	      RooAbsReal& _alpha,
 	      RooAbsReal& _beta,
 	      RooAbsReal& _r);
-  RooSigPlusInt(const RooSigPlusInt& other, const char* name=0) ;
+  RooSigPlusInt(const RooSigPlusInt& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new RooSigPlusInt(*this,newname); }
   inline ~RooSigPlusInt() override { }
   Double_t Spline(Double_t xx) const;

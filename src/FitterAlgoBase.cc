@@ -164,11 +164,11 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       std::unique_ptr<RooArgSet> params{utils::getAllParameters(*mc_s->GetPdf(), data)};
       for (RooAbsArg *a : *params) {
           RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-          if (rrv == 0 || rrv->isConstant()) continue;
-          if (profileMode_ == ProfileUnconstrained && mc_s->GetNuisanceParameters()->find(*rrv) != 0) {
+          if (rrv == nullptr || rrv->isConstant()) continue;
+          if (profileMode_ == ProfileUnconstrained && mc_s->GetNuisanceParameters()->find(*rrv) != nullptr) {
               // freeze if it's a constrained nuisance parameter
               parametersToFreeze_.add(*rrv);
-          } else if (profileMode_ == ProfilePOI && mc_s->GetParametersOfInterest()->find(*rrv) == 0) {
+          } else if (profileMode_ == ProfilePOI && mc_s->GetParametersOfInterest()->find(*rrv) == nullptr) {
               // freeze if it's not a parameter of interest
               parametersToFreeze_.add(*rrv);
           } else if (profileMode_ == NoProfiling) {
@@ -181,7 +181,7 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   std::unique_ptr<toymcoptutils::SimPdfGenInfo> generator;
   std::unique_ptr<RooAbsData> generatedData;
   if (protectUnbinnedChannels_) {
-      RooRealVar *weightVar = 0;
+      RooRealVar *weightVar = nullptr;
       generator.reset(new toymcoptutils::SimPdfGenInfo(*mc_s->GetPdf(), *mc_s->GetObservables(), false));
       generatedData.reset(generator->generateEpsilon(weightVar));
       theData = &*generatedData;
@@ -227,8 +227,8 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar
 }
 
 RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse, int ndim, bool reuseNLL, bool saveFitResult) {
-    RooFitResult *ret = 0;
-    if (reuseNLL && nll.get() != 0 && !forceRecreateNLL_) {
+    RooFitResult *ret = nullptr;
+    if (reuseNLL && nll.get() != nullptr && !forceRecreateNLL_) {
       nll->setData(data, /*cloneData=*/false);  // reuse nll but swap out the data
     } else {
         nll.reset(); // first delete the old one, to avoid using more memory, even if temporarily
@@ -242,7 +242,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     }
     double delta68 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.68,ndim);
     double delta95 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.95,ndim);
-    CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained, rs.getSize() ? dynamic_cast<RooRealVar*>(rs.first()) : 0);
+    CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained, rs.getSize() ? dynamic_cast<RooRealVar*>(rs.first()) : nullptr);
     //minim.setStrategy(minimizerStrategy_);
     minim.setErrorLevel(delta68);
     if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
@@ -268,12 +268,12 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     if (!ok && !keepFailures_) { 
         std::cout << "Initial minimization failed. Aborting." << std::endl; 
         CombineLogger::instance().log("FitterAlgoBase.cc",__LINE__,"Initial minimization failed. Aborting.",__func__); 
-        return 0; 
+        return nullptr; 
     }
     if (doHesse) minim.hesse();
     sentry.clear();
     ret = (saveFitResult || rs.getSize() ? minim.save() : new RooFitResult("dummy","success"));
-    if (verbose > 1 && ret != 0 && (saveFitResult || rs.getSize())) { ret->Print("V");  }
+    if (verbose > 1 && ret != nullptr && (saveFitResult || rs.getSize())) { ret->Print("V");  }
 
     std::unique_ptr<RooArgSet> allpars{utils::getAllParameters(pdf, data)};
     RooArgSet* bestFitPars = (RooArgSet*)allpars->snapshot() ;
@@ -372,7 +372,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
             if (!autoBoundsPOIs_.empty()) minim.setAutoBounds(&autoBoundsPOISet_); 
             if (!autoMaxPOIs_.empty()) minim.setAutoMax(&autoMaxPOISet_); 
 
-            std::unique_ptr<RooArgSet> allpars(nll->getParameters((const RooArgSet *)0));
+            std::unique_ptr<RooArgSet> allpars(nll->getParameters((const RooArgSet *)nullptr));
 
             double nll0 = nll->getVal();
             double threshold68 = nll0 + delta68;
@@ -455,7 +455,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
 		return NAN; 
 	    }
             RooArgSet oldparams(checkpoint->floatParsFinal());
-            if (allpars.get() == 0) allpars.reset(nll.getParameters((const RooArgSet *)0));
+            if (allpars.get() == nullptr) allpars.reset(nll.getParameters((const RooArgSet *)nullptr));
             *allpars = oldparams;
             rStart -= rInc; rInc *= 0.5; 
             continue;
@@ -488,14 +488,14 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
             } else {
                 rInc *= 0.3;
             }
-            if (allpars.get() == 0) allpars.reset(nll.getParameters((const RooArgSet *)0));
+            if (allpars.get() == nullptr) allpars.reset(nll.getParameters((const RooArgSet *)nullptr));
             if (checkpoint.get()) {
                 RooArgSet oldparams(checkpoint->floatParsFinal());
                 *allpars = oldparams;
             }
         } else if ((here-there)*(level-there) < 0 && // went wrong
                    fabs(here-there) > 0.1) {         // by more than roundoff
-            if (allpars.get() == 0) allpars.reset(nll.getParameters((const RooArgSet *)0));
+            if (allpars.get() == nullptr) allpars.reset(nll.getParameters((const RooArgSet *)nullptr));
             RooArgSet oldparams(checkpoint->floatParsFinal());
             *allpars = oldparams;
             rStart -= rInc; rInc *= 0.5;
@@ -686,23 +686,23 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
 }
 
 void FitterAlgoBase::optimizeBounds(const RooWorkspace *w, const RooStats::ModelConfig *mc) {
-    if (runtimedef::get("UNBOUND_GAUSSIANS") && mc->GetNuisanceParameters() != 0) {
+    if (runtimedef::get("UNBOUND_GAUSSIANS") && mc->GetNuisanceParameters() != nullptr) {
         for (RooAbsArg *a : *mc->GetNuisanceParameters()) {
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-            if (rrv != 0) {
+            if (rrv != nullptr) {
                 RooAbsPdf *pdf = w->pdf((std::string(a->GetName())+"_Pdf").c_str());
-                if (pdf != 0 && dynamic_cast<RooGaussian *>(pdf) != 0) {
+                if (pdf != nullptr && dynamic_cast<RooGaussian *>(pdf) != nullptr) {
                     rrv->removeMin();
                     rrv->removeMax();
                 }
             }
         } 
     }
-    if (runtimedef::get("OPTIMIZE_BOUNDS") && mc->GetNuisanceParameters() != 0) {
+    if (runtimedef::get("OPTIMIZE_BOUNDS") && mc->GetNuisanceParameters() != nullptr) {
         for (RooAbsArg *a : *mc->GetNuisanceParameters()) {
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
             //std::cout << (rrv ? "Var" : "Arg") << ": " << a->GetName()  << ": " << a->getAttribute("optimizeBounds") << std::endl;
-            if (rrv != 0 && rrv->getAttribute("optimizeBounds")) {
+            if (rrv != nullptr && rrv->getAttribute("optimizeBounds")) {
                 //std::cout << "Unboud " << rrv->GetName() << std::endl;
                 rrv->setRange("optimizeBoundRange", rrv->getMin(), rrv->getMax());
                 rrv->removeMin();
@@ -712,10 +712,10 @@ void FitterAlgoBase::optimizeBounds(const RooWorkspace *w, const RooStats::Model
     } 
 }
 void FitterAlgoBase::restoreBounds(const RooWorkspace *w, const RooStats::ModelConfig *mc) {
-    if (runtimedef::get("OPTIMIZE_BOUNDS") && mc->GetNuisanceParameters() != 0) {
+    if (runtimedef::get("OPTIMIZE_BOUNDS") && mc->GetNuisanceParameters() != nullptr) {
         for (RooAbsArg *a : *mc->GetNuisanceParameters()) {
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-            if (rrv != 0 && rrv->getAttribute("optimizeBounds")) {
+            if (rrv != nullptr && rrv->getAttribute("optimizeBounds")) {
                 rrv->setRange(rrv->getMin("optimizeBoundRange"), rrv->getMax("optimizeBoundRange"));
             }
         } 

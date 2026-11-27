@@ -160,13 +160,13 @@ static RooArgSet freezeDiscParams() {
 void CascadeMinimizer::setAutoBounds(const RooArgSet *pois) 
 {
     poisForAutoBounds_ = pois;
-    autoBounds_ = (poisForAutoBounds_ != 0 || poisForAutoMax_ != 0);
+    autoBounds_ = (poisForAutoBounds_ != nullptr || poisForAutoMax_ != nullptr);
 }
 
 void CascadeMinimizer::setAutoMax(const RooArgSet *pois) 
 {
     poisForAutoMax_ = pois;
-    autoBounds_ = (poisForAutoBounds_ != 0 || poisForAutoMax_ != 0);
+    autoBounds_ = (poisForAutoBounds_ != nullptr || poisForAutoMax_ != nullptr);
 }
 
 
@@ -469,7 +469,7 @@ bool CascadeMinimizer::iterativeMinimize(double &minimumNLL,int verbose, bool ca
    utils::setAllConstant(frozen, /*constant=*/true);
 
    RooArgSet reallyCleanParameters;
-   std::unique_ptr<RooArgSet> nllParams(nll_.getParameters((const RooArgSet*)0));
+   std::unique_ptr<RooArgSet> nllParams(nll_.getParameters((const RooArgSet*)nullptr));
    nllParams->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
    RooStats::RemoveConstantParameters(&*nllParams);
    (nllParams)->snapshot(reallyCleanParameters);
@@ -570,7 +570,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
 
       // clean parameters before minimization but dont include the pdf indices of course!
       RooArgSet reallyCleanParameters;
-      std::unique_ptr<RooArgSet> nllParams(nll_.getParameters((const RooArgSet*)0));
+      std::unique_ptr<RooArgSet> nllParams(nll_.getParameters((const RooArgSet*)nullptr));
       nllParams->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
       nllParams->snapshot(reallyCleanParameters);  // should remove also the nuisance parameters from here!
       // Before each step, reset the parameters back to their prefit state!
@@ -612,7 +612,7 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     }
 
     // Check boundaries
-    std::unique_ptr<RooArgSet> nllParams(nll_.getParameters((const RooArgSet*)0));
+    std::unique_ptr<RooArgSet> nllParams(nll_.getParameters((const RooArgSet*)nullptr));
     RooStats::RemoveConstantParameters(&*nllParams);
     nllParams->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
     nllParams->remove(CascadeMinimizerGlobalConfigs::O().parametersOfInterest);
@@ -685,7 +685,7 @@ bool CascadeMinimizer::multipleMinimize(const RooArgSet &reallyCleanParameters, 
 
     // keep hold of best fitted parameters! 
     std::unique_ptr<RooArgSet> params;
-    params.reset(nll_.getParameters((const RooArgSet *)0) );
+    params.reset(nll_.getParameters((const RooArgSet *)nullptr) );
     params->remove(CascadeMinimizerGlobalConfigs::O().pdfCategories);
 
     //take a snapshot of those parameters

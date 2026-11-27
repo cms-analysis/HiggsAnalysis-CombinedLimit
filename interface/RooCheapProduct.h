@@ -8,7 +8,7 @@ class RooCheapProduct : public RooAbsReal {
     public:
         RooCheapProduct() {}
         RooCheapProduct(const char *name, const char *title, const RooArgList &terms, bool pruneConstants=false);
-        RooCheapProduct(const RooCheapProduct& other, const char* name=0);
+        RooCheapProduct(const RooCheapProduct& other, const char* name=nullptr);
         ~RooCheapProduct() override {}
         TObject *clone(const char *newname) const override { return new RooCheapProduct(*this,newname); } 
         const RooArgList & components() const { return terms_; }

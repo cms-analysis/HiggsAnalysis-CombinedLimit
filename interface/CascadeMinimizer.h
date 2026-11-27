@@ -12,7 +12,7 @@ class RooRealVar;
 class CascadeMinimizer {
     public:
         enum Mode { Constrained, Unconstrained };
-        CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi=0) ;
+        CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi=nullptr) ;
         // do a new minimization, assuming the initial state is random
         bool minimize(int verbose=0, bool cascade=true);
         // run minos

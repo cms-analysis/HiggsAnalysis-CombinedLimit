@@ -191,11 +191,11 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   RooArgList poi(*mc_s->GetParametersOfInterest());
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
 
-  if ((hint != 0) && (*hint > r->getMin())) {
+  if ((hint != nullptr) && (*hint > r->getMin())) {
     r->setMax(hintSafetyFactor_*(*hint));
   }
 
-  if (withSystematics && (mc_s->GetNuisanceParameters() == 0)) {
+  if (withSystematics && (mc_s->GetNuisanceParameters() == nullptr)) {
     throw std::logic_error("MarkovChainMC: running with systematics enabled, but nuisance parameters not defined.");
   }
   
@@ -205,7 +205,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
       CloseCoutSentry coutSentry(verbose <= 1); // close standard output and error, so that we don't flood them with minuit messages
       fit.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(), RooFit::Minos(runMinos_)));
       coutSentry.clear();
-      if (fit.get() == 0) { std::cerr << "Fit failed." << std::endl; return false; }
+      if (fit.get() == nullptr) { std::cerr << "Fit failed." << std::endl; return false; }
       if (verbose > 1) fit->Print("V");
       if (!noReset_) w->loadSnapshot("clean");
   }
@@ -232,7 +232,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   }
 
   std::unique_ptr<ProposalFunction> ownedPdfProp; 
-  ProposalFunction* pdfProp = 0;
+  ProposalFunction* pdfProp = nullptr;
   ProposalHelper ph;
   switch (proposalType_) {
     case UniformP:  
@@ -277,7 +277,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
       if (proposalHelperUniformFraction_ > 0) ph.SetUniformFraction(proposalHelperUniformFraction_);
   }
 
-  std::unique_ptr<DebugProposal> pdfDebugProp(debugProposal_ > 0 ? new DebugProposal(pdfProp, mc_s->GetPdf(), &data, debugProposal_) : 0);
+  std::unique_ptr<DebugProposal> pdfDebugProp(debugProposal_ > 0 ? new DebugProposal(pdfProp, mc_s->GetPdf(), &data, debugProposal_) : nullptr);
 
   // If the prior pdf is uniform, we're not going to use if during the
   // construction of the MCMCCalculator because it's redundant.
@@ -302,9 +302,9 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   try {  
       mcInt.reset((MCMCInterval*)mc.GetInterval()); 
   } catch (std::length_error &ex) {
-      mcInt.reset(0);
+      mcInt.reset(nullptr);
   }
-  if (mcInt.get() == 0) return false;
+  if (mcInt.get() == nullptr) return false;
 
   // MCMCCalculator calls SetConfidenceLevel on MCMCInterval when creating it
   // SetConfidenceLevel calls DetermineInterval, which compute the interval from the Markov Chain
@@ -415,7 +415,7 @@ RooStats::MarkovChain *MarkovChainMC::mergeChains(const RooArgSet &poi, const st
     TIter iter(&chains_);
     int index = 0;
     for (RooStats::MarkovChain *other = (RooStats::MarkovChain *) iter.Next();
-         other != 0;
+         other != nullptr;
          other = (RooStats::MarkovChain *) iter.Next(), ++index) {
         if (limits[index] < lmin || limits[index] > lmax) continue;
         int burninSteps = adaptiveBurnIn_ ? guessBurnInSteps(*other) : max<int>(burnInSteps_, other->Size() * burnInFraction_);
@@ -441,10 +441,10 @@ void MarkovChainMC::readChains(const RooArgSet &poi, std::vector<double> &limits
     if (!toyDir) throw std::logic_error("Cannot use readChains: empty toy dir in input file empty");
     TString prefix = TString::Format("MarkovChain_mh%g_",mass_);
     TIter next(toyDir->GetListOfKeys()); TKey *k;
-    while ((k = (TKey *) next()) != 0) {
+    while ((k = (TKey *) next()) != nullptr) {
         if (TString(k->GetName()).Index(prefix) != 0) continue;
         RooStats::MarkovChain *toy = dynamic_cast<RooStats::MarkovChain *>(toyDir->Get(k->GetName()));
-        if (toy == 0) continue;
+        if (toy == nullptr) continue;
         limitFromChain(mylim, myerr, poi, *toy);
         if (verbose > 1) std::cout << " limit " << mylim << " +/- " << myerr << std::endl;
         // vvvvv ---- begin convergence test, still being developed, not recommended yet.

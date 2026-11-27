@@ -36,7 +36,7 @@ HZZ4L_RooSpinZeroPdf_1D_fast::HZZ4L_RooSpinZeroPdf_1D_fast(
   }
 
   for (RooAbsArg *coef : inCoefList) {
-    if (dynamic_cast<FastTemplateFunc_f*>(coef)==0 && dynamic_cast<FastTemplateFunc_d*>(coef)==0){
+    if (dynamic_cast<FastTemplateFunc_f*>(coef)==nullptr && dynamic_cast<FastTemplateFunc_d*>(coef)==nullptr){
       coutE(InputArguments) << "HZZ4L_RooSpinZeroPdf_1D_fast(" << GetName() << ") component " << coef->GetName() << " is not of type FastTemplateFunc_f" << endl;
       assert(0);
     }
@@ -91,8 +91,8 @@ Double_t HZZ4L_RooSpinZeroPdf_1D_fast::evaluate() const{
 Int_t HZZ4L_RooSpinZeroPdf_1D_fast::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName) const{
   Int_t code = 0;
   if (coefList.getSize()>0){
-    if (dynamic_cast<const FastTemplateFunc_f*>(coefList.at(0))!=0) code = dynamic_cast<const FastTemplateFunc_f*>(coefList.at(0))->getAnalyticalIntegral(allVars, analVars, rangeName);
-    else if (dynamic_cast<const FastTemplateFunc_d*>(coefList.at(0))!=0) code = dynamic_cast<const FastTemplateFunc_d*>(coefList.at(0))->getAnalyticalIntegral(allVars, analVars, rangeName);
+    if (dynamic_cast<const FastTemplateFunc_f*>(coefList.at(0))!=nullptr) code = dynamic_cast<const FastTemplateFunc_f*>(coefList.at(0))->getAnalyticalIntegral(allVars, analVars, rangeName);
+    else if (dynamic_cast<const FastTemplateFunc_d*>(coefList.at(0))!=nullptr) code = dynamic_cast<const FastTemplateFunc_d*>(coefList.at(0))->getAnalyticalIntegral(allVars, analVars, rangeName);
   }
   return code;
 }

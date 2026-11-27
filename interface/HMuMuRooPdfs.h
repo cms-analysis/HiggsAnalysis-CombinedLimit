@@ -20,7 +20,7 @@ class RooModZPdf : public RooAbsPdf {
   RooModZPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a, RooAbsReal& _b, RooAbsReal& _c, RooAbsReal& _m, RooAbsReal& _w); // BWZRedux with BW mean and width as parameters
   RooModZPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a, const RooArgList& _coef); // BWZ x Bernstein with mean and width fixed to Z-boson
   RooModZPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a, RooAbsReal& _b, RooAbsReal& _c, const RooArgList& _coef); // BWZRedux x Bernstein with mean and width fixed to Z-boson 
-  RooModZPdf(const RooModZPdf& other, const char* name=0) ;
+  RooModZPdf(const RooModZPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override {
     return new RooModZPdf(*this,newname);
@@ -51,7 +51,7 @@ class RooExpPdf : public RooAbsPdf {
   RooExpPdf() {};  
   RooExpPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a1, const bool & _offset = true);   // standard exponential centered at Z-boson mass
   RooExpPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a1, RooAbsReal& _m);  // exponential with free parameters for center x0
-  RooExpPdf(const RooExpPdf& other, const char* name=0) ;
+  RooExpPdf(const RooExpPdf& other, const char* name=nullptr) ;
   
   TObject* clone(const char* newname) const override {
     return new RooExpPdf(*this, newname);
@@ -60,8 +60,8 @@ class RooExpPdf : public RooAbsPdf {
   inline ~RooExpPdf() override {
   }
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override;
   
  protected:
   RooRealProxy x;
@@ -83,7 +83,7 @@ class RooSumTwoExpPdf : public RooAbsPdf {
   RooSumTwoExpPdf() {};  
   RooSumTwoExpPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a1, RooAbsReal& _a2, RooAbsReal& _f, const bool & _offset = true);
   RooSumTwoExpPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a1, RooAbsReal& _a2, RooAbsReal& _f, RooAbsReal& _m);  
-  RooSumTwoExpPdf(const RooSumTwoExpPdf& other, const char* name=0) ;
+  RooSumTwoExpPdf(const RooSumTwoExpPdf& other, const char* name=nullptr) ;
   
   TObject* clone(const char* newname) const override {
     return new RooSumTwoExpPdf(*this, newname);
@@ -92,8 +92,8 @@ class RooSumTwoExpPdf : public RooAbsPdf {
   inline ~RooSumTwoExpPdf() override {
   }
     
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override;
 
  protected:
   RooRealProxy x;
@@ -116,7 +116,7 @@ class RooPowerLawPdf : public RooAbsPdf {
   RooPowerLawPdf() {};  
   RooPowerLawPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a1, const bool & _offset = true);  
   RooPowerLawPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a1, RooAbsReal& _m);  
-  RooPowerLawPdf(const RooPowerLawPdf& other, const char* name=0) ;
+  RooPowerLawPdf(const RooPowerLawPdf& other, const char* name=nullptr) ;
   
   TObject* clone(const char* newname) const override {
     return new RooPowerLawPdf(*this, newname);
@@ -125,8 +125,8 @@ class RooPowerLawPdf : public RooAbsPdf {
   inline ~RooPowerLawPdf() override {
   }
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override;
   
  protected:
   RooRealProxy x;
@@ -147,7 +147,7 @@ class RooSumTwoPowerLawPdf : public RooAbsPdf {
   RooSumTwoPowerLawPdf() {};  
   RooSumTwoPowerLawPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a1, RooAbsReal& _a2, RooAbsReal& _f, const bool & _offset = true);
   RooSumTwoPowerLawPdf(const char *name, const char *title, RooAbsReal& _x, RooAbsReal& _a1, RooAbsReal& _a2, RooAbsReal& _f, RooAbsReal& _m);
-  RooSumTwoPowerLawPdf(const RooSumTwoPowerLawPdf& other, const char* name=0) ;
+  RooSumTwoPowerLawPdf(const RooSumTwoPowerLawPdf& other, const char* name=nullptr) ;
   
   TObject* clone(const char* newname) const override {
     return new RooSumTwoPowerLawPdf(*this, newname);
@@ -156,8 +156,8 @@ class RooSumTwoPowerLawPdf : public RooAbsPdf {
   inline ~RooSumTwoPowerLawPdf() override {
   }
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override;
     
  protected:
   RooRealProxy x;

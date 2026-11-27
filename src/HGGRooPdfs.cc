@@ -24,7 +24,7 @@
 #include "RooAbsPdf.h"
 #include "RooFit.h"
 
-#include <math.h>
+#include <cmath>
 #include <cassert>
 
 #include "../interface/HGGRooPdfs.h"

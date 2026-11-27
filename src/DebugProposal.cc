@@ -79,7 +79,7 @@ void DebugProposal::tracePdf(RooAbsReal *pdf) {
    for (int i = 0, n = deps.getSize(); i < n; ++i) {
       RooAbsReal *rar = dynamic_cast<RooAbsReal *>(deps.at(i));
       if (typeid(*rar) == typeid(RooRealVar) || rar->isConstant()) continue;
-      if (rar != 0) {
+      if (rar != nullptr) {
         std::cout << "   " << rar->GetName() << " = " << rar->getVal() << std::endl;
       }
    }

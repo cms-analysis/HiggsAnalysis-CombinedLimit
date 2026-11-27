@@ -25,7 +25,7 @@
 
 #include "RooFit.h"
 
-#include <math.h>
+#include <cmath>
 #include "TMath.h"
 #include "Math/SpecFunc.h"
 #include "../interface/HZGRooPdfs.h"
@@ -759,7 +759,7 @@ Double_t RooGaussStepBernstein::evaluate() const
   double beta = 0.0;
   // iterate through each
   Double_t result = 0.0;
-  RooAbsReal* coef = NULL;
+  RooAbsReal* coef = nullptr;
   for(Int_t i = 0; i <= degree; ++i) {
     // coef is the bernstein polynomial coefficient
     coef = &(RooAbsReal &)_coefList[i]; 

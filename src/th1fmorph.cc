@@ -78,11 +78,11 @@ TH1_t *th1fmorph_(const char *chname,
   // Return right away if one of the input histograms doesn't exist.
   if(!hist1) {
     cout << "ERROR! th1morph says first input histogram doesn't exist." << endl;
-    return(0);
+    return(nullptr);
   }
   if(!hist2) {
     cout << "ERROR! th1morph says second input histogram doesn't exist." << endl;
-    return(0);
+    return(nullptr);
   }
   
   // Extract bin parameters of input histograms 1 and 2. 

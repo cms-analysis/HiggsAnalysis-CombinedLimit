@@ -5,7 +5,7 @@
 #include "RooAbsPdf.h"
 #include "../interface/RooParametricHist2D.h" 
 
-#include <math.h> 
+#include <cmath> 
 #include "TMath.h" 
 #include "RooFormulaVar.h"
 #include "RooAbsReal.h"

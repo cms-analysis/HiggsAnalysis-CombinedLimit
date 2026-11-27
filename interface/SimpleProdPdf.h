@@ -24,7 +24,7 @@ class SimpleProdPdf : public RooAbsPdf {
   SimpleProdPdf(const char* name, const char* title, RooProdPdf const& prodPdf);
   SimpleProdPdf(const char* name, const char* title, RooArgList& pdfList,
                 std::vector<int> const& pdfSettings);
-  SimpleProdPdf(const SimpleProdPdf& other, const char* name = 0);
+  SimpleProdPdf(const SimpleProdPdf& other, const char* name = nullptr);
   TObject* clone(const char* newname) const override { return new SimpleProdPdf(*this, newname); }
   inline ~SimpleProdPdf() override {}
 

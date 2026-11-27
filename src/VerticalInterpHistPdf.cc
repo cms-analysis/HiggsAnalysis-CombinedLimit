@@ -33,7 +33,7 @@ namespace {
             for (int i = 0; i < 2; ++i) {
                 const RooRealVar *v = (i ? &y : &x);
                 RooRealVar* lvarg = dynamic_cast<RooRealVar*>(dataHist.get()->find(v->GetName()));
-                const RooAbsBinning* binning = lvarg->getBinningPtr(0);
+                const RooAbsBinning* binning = lvarg->getBinningPtr(nullptr);
                 if (binning->numBins() != lvarg->numBins() || 
                     binning->binLow(0) != lvarg->getMin()  ||
                     binning->binHigh(binning->numBins()-1) != lvarg->getMax()) {
@@ -47,8 +47,8 @@ namespace {
             if (!ok) {
                 std::cout << "BINNED DATASET: " << std::endl;
                 utils::printRDH(&dataHist);
-                const RooAbsBinning* xbinning = x.getBinningPtr(0);
-                const RooAbsBinning* ybinning = y.getBinningPtr(0);
+                const RooAbsBinning* xbinning = x.getBinningPtr(nullptr);
+                const RooAbsBinning* ybinning = y.getBinningPtr(nullptr);
                 if (x.numBins() != xbinning->numBins()) assert(0);
                 if (y.numBins() != ybinning->numBins()) assert(0);
                 double xdelta = x.getMin() - xbinning->binLow(0);
@@ -59,7 +59,7 @@ namespace {
                 for (double &xe : xbins) xe += xdelta;
                 for (double &ye : ybins) ye += ydelta;
                 std::unique_ptr<TH1> hist(new TH2F("","",x.numBins(),&xbins[0],y.numBins(),&ybins[0]));
-                TH2F *h2d = static_cast<TH2F*>(hist.get()); h2d->SetDirectory(0);
+                TH2F *h2d = static_cast<TH2F*>(hist.get()); h2d->SetDirectory(nullptr);
                 TAxis *xaxis = h2d->GetXaxis(), * yaxis = h2d->GetYaxis();
                 for (unsigned int id = 0, nd = dataHist.numEntries(); id < nd; ++id) {
                     const RooArgSet *point = dataHist.get(id);
@@ -176,7 +176,7 @@ void VerticalInterpHistPdf::syncComponent(int i) const {
     RooAbsPdf *pdfi = dynamic_cast<RooAbsPdf *>(_funcList.at(i));
     _cacheSingle[i] = std::unique_ptr<TH1>{
         pdfi->createHistogram("", dynamic_cast<const RooRealVar &>(_x.arg()), RooFit::Scaling(false))};
-    _cacheSingle[i]->SetDirectory(0);
+    _cacheSingle[i]->SetDirectory(nullptr);
     if (_cacheSingle[i]->Integral("width")) { _cacheSingle[i]->Scale(1.0/_cacheSingle[i]->Integral("width")); }
     if (i > 0) {
         for (int b = 1, nb = _cacheSingle[i]->GetNbinsX(); b <= nb; ++b) {
@@ -236,7 +236,7 @@ void VerticalInterpHistPdf::syncTotal() const {
 void VerticalInterpHistPdf::setupCaches() const {
     int ndim = _coefList.getSize();
     _cacheTotal = std::unique_ptr<TH1>{(dynamic_cast<const RooRealVar &>(_x.arg())).createHistogram("total")};
-    _cacheTotal->SetDirectory(0);
+    _cacheTotal->SetDirectory(nullptr);
     _cacheSingle.resize(2*ndim+1);
     _cacheSingleGood.resize(2*ndim+1);
     for (int i = 0; i < 2*ndim+1; ++i) { 
@@ -381,7 +381,7 @@ void FastVerticalInterpHistPdf::syncNominal() const {
     RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(_funcList.at(0));
     const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
     std::unique_ptr<TH1> hist(pdf->createHistogram("", x, RooFit::Scaling(false)));
-    hist->SetDirectory(0); 
+    hist->SetDirectory(nullptr); 
     _cacheNominal = FastHisto(*hist);
     _cacheNominal.Normalize();
     if (_smoothAlgo < 0) {
@@ -401,7 +401,7 @@ void FastVerticalInterpHistPdf2D::syncNominal() const {
     const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
     std::unique_ptr<TH1> hist(pdf->createHistogram("", x, RooFit::YVar(y), cond, RooFit::Scaling(false)));
 #endif
-    hist->SetDirectory(0); 
+    hist->SetDirectory(nullptr); 
     _cacheNominal = FastHisto2D(dynamic_cast<TH2F&>(*hist), _conditional);
     if (_conditional) _cacheNominal.NormalizeXSlices(); 
     else              _cacheNominal.Normalize(); 
@@ -422,7 +422,7 @@ void FastVerticalInterpHistPdf3D::syncNominal() const {
     const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
     std::unique_ptr<TH1> hist(
         pdf->createHistogram("", x, RooFit::YVar(y), RooFit::ZVar(z), cond, RooFit::Scaling(false)));
-    hist->SetDirectory(0); 
+    hist->SetDirectory(nullptr); 
     _cacheNominal = FastHisto3D(dynamic_cast<TH3F&>(*hist), _conditional);
     if (_conditional) _cacheNominal.NormalizeXSlices(); 
     else              _cacheNominal.Normalize(); 
@@ -467,8 +467,8 @@ void FastVerticalInterpHistPdf2D::syncComponents(int dim) const {
     const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
     const RooRealVar &y = dynamic_cast<const RooRealVar &>(_y.arg());
 #ifdef PATCH_FOR_HZZ_TEMPLATES
-    std::unique_ptr<TH1> histHi(::safeCreateHist2D(pdfHi,x,y,_conditional)); histHi->SetDirectory(0);
-    std::unique_ptr<TH1> histLo(::safeCreateHist2D(pdfLo,x,y,_conditional)); histLo->SetDirectory(0);
+    std::unique_ptr<TH1> histHi(::safeCreateHist2D(pdfHi,x,y,_conditional)); histHi->SetDirectory(nullptr);
+    std::unique_ptr<TH1> histLo(::safeCreateHist2D(pdfLo,x,y,_conditional)); histLo->SetDirectory(nullptr);
 #else
     const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
     std::unique_ptr<TH1> histHi(pdfHi->createHistogram("", x, RooFit::YVar(y), cond, RooFit::Scaling(false)));
@@ -960,7 +960,7 @@ void FastVerticalInterpHistPdf2::initNominal(TObject *templ) {
         RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(templ);
         const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
         std::unique_ptr<TH1> hist{pdf->createHistogram("", x, RooFit::Scaling(false))};
-        hist->SetDirectory(0); 
+        hist->SetDirectory(nullptr); 
         _cacheNominal = FastHisto(*hist);
     }
     _cacheNominal.Normalize();
@@ -981,7 +981,7 @@ void FastVerticalInterpHistPdf2D2::initNominal(TObject *templ) {
         const RooRealVar &y = dynamic_cast<const RooRealVar &>(_y.arg());
         const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
         std::unique_ptr<TH1> hist{pdf->createHistogram("", x, RooFit::YVar(y), cond, RooFit::Scaling(false))};
-        hist->SetDirectory(0); 
+        hist->SetDirectory(nullptr); 
         _cacheNominal = FastHisto2D(dynamic_cast<TH2&>(*hist), _conditional);
     }
     if (_conditional) _cacheNominal.NormalizeXSlices(); 

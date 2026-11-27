@@ -1,9 +1,9 @@
 #include "../interface/ProfilingTools.h"
 
 // we try to stick to pure C within the signal handlers
-#include <stdio.h>
+#include <cstdio>
 #include <dlfcn.h>
-#include <signal.h>
+#include <csignal>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -22,7 +22,7 @@ void igProfDumpNow(int) {
 }
 
 bool setupIgProfDumpHook() {
-    if (void *sym = dlsym(0, "igprof_dump_now")) {
+    if (void *sym = dlsym(nullptr, "igprof_dump_now")) {
         igProfRequestDump_ = __extension__ (void(*)(const char *)) sym;
         fprintf(stderr, "IgProf dump hook enabled. Do kill -USR2 %d to request a dump.\n", int(getpid())); fflush(stderr);
     } else {

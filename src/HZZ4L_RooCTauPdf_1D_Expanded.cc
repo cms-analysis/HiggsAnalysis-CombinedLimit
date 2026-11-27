@@ -1,7 +1,7 @@
 #include "../interface/HZZ4L_RooCTauPdf_1D_Expanded.h" 
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include "TMath.h"
 #include "TH3F.h"

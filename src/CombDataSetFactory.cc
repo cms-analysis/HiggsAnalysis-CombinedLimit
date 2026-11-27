@@ -4,7 +4,7 @@
 #include <cmath>
 
 CombDataSetFactory::CombDataSetFactory(const RooArgSet &vars, RooCategory &cat) :
-    vars_(vars), cat_(&cat), weight_(0)
+    vars_(vars), cat_(&cat), weight_(nullptr)
 {
     if (vars_.contains(cat)) vars_.remove(cat);
 }
@@ -16,7 +16,7 @@ void CombDataSetFactory::addSetBin(const char *label, RooDataHist *set) {
 }
 
 void CombDataSetFactory::addSetAny(const char *label, RooDataHist *set) {
-    if (weight_ == 0) weight_ = new RooRealVar("_weight_","",1);
+    if (weight_ == nullptr) weight_ = new RooRealVar("_weight_","",1);
     RooDataSet *data = new RooDataSet(TString(set->GetName())+"_unbin", "", {*set->get(), *weight_}, RooFit::WeightVar("_weight_"));
     for (int i = 0, n = set->numEntries(); i < n; ++i) {
         const RooArgSet *entry = set->get(i);
@@ -27,7 +27,7 @@ void CombDataSetFactory::addSetAny(const char *label, RooDataHist *set) {
 
 
 void CombDataSetFactory::addSetAny(const char *label, RooDataSet *set) {
-    if (set->isWeighted() && weight_ == 0) weight_ = new RooRealVar("_weight_","",1);
+    if (set->isWeighted() && weight_ == nullptr) weight_ = new RooRealVar("_weight_","",1);
     mapUB_[label] = set;
 }
 
@@ -39,7 +39,7 @@ RooDataHist *CombDataSetFactory::done(const char *name, const char *title) {
 
 RooDataSet *CombDataSetFactory::doneUnbinned(const char *name, const char *title) {
     using namespace RooFit; 
-    RooDataSet *ret = 0;
+    RooDataSet *ret = nullptr;
     if (weight_) {
 #if 0   // This works most of the time, but sometimes weights end up wrong.
         // I don't knopw why the @$^#&^# this happens, but it nevertheless 

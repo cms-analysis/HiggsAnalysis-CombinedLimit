@@ -8,7 +8,7 @@ multiplied by a very large g1_prime2^4.
 #include "../interface/VBFHZZ4L_RooSpinZeroPdf.h"
 #include "RooAbsReal.h"
 #include "RooAbsCategory.h"
-#include <math.h>
+#include <cmath>
 #include "TMath.h"
 #include "TH3F.h"
 #include "TAxis.h"

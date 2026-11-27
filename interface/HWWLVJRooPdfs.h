@@ -26,14 +26,14 @@ class RooErfExpPdf : public RooAbsPdf {
 	      RooAbsReal& _offset, // offset of the erf
 	      RooAbsReal& _width); // width of the erf
 
-  RooErfExpPdf(const RooErfExpPdf& other, const char* name=0) ; // ctor
+  RooErfExpPdf(const RooErfExpPdf& other, const char* name=nullptr) ; // ctor
 
   TObject* clone(const char* newname) const override { return new RooErfExpPdf(*this,newname); } // clone 
 
   inline ~RooErfExpPdf() override { } // dtor
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ; // analytic integral
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override ; // analytic integral
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override ;
 
 protected:
 
@@ -66,7 +66,7 @@ class RooAlpha : public RooAbsPdf {
                                     Double_t _xmin,
                                     Double_t _xmax);
 
-	RooAlpha(const RooAlpha& other, const char* name=0) ;
+	RooAlpha(const RooAlpha& other, const char* name=nullptr) ;
 
 	TObject* clone(const char* newname) const override { return new RooAlpha(*this,newname); }
 
@@ -104,7 +104,7 @@ class RooAlphaExp : public RooAbsPdf {
                                               Double_t _xmin,
                                               Double_t _xmax);
 
-		RooAlphaExp(const RooAlphaExp& other, const char* name=0) ;
+		RooAlphaExp(const RooAlphaExp& other, const char* name=nullptr) ;
 
 		TObject* clone(const char* newname) const override { return new RooAlphaExp(*this,newname); }
 
@@ -135,7 +135,7 @@ public:
 	      RooAbsReal& _mean,
 	      RooAbsReal& _width);
 
-  RooBWRunPdf(const RooBWRunPdf& other, const char* name=0) ;
+  RooBWRunPdf(const RooBWRunPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooBWRunPdf(*this,newname); }
 
@@ -168,7 +168,7 @@ public:
 	      RooAbsReal& _offset,
 	      RooAbsReal& _width);
 
-  RooErfPow2Pdf(const RooErfPow2Pdf& other, const char* name=0) ;
+  RooErfPow2Pdf(const RooErfPow2Pdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooErfPow2Pdf(*this,newname); }
 
@@ -206,7 +206,7 @@ public:
 	      RooAbsReal& _offseta,
 	      RooAbsReal& _widtha);
 
-  RooAlpha4ErfPow2Pdf(const RooAlpha4ErfPow2Pdf& other, const char* name=0) ;
+  RooAlpha4ErfPow2Pdf(const RooAlpha4ErfPow2Pdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooAlpha4ErfPow2Pdf(*this,newname); }
 
@@ -248,7 +248,7 @@ public:
 	      RooAbsReal& _offset,
 	      RooAbsReal& _width);
 
-  RooErfPowExpPdf(const RooErfPowExpPdf& other, const char* name=0) ;
+  RooErfPowExpPdf(const RooErfPowExpPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooErfPowExpPdf(*this,newname); }
 
@@ -286,7 +286,7 @@ public:
 	      RooAbsReal& _offseta,
 	      RooAbsReal& _widtha);
 
-  RooAlpha4ErfPowExpPdf(const RooAlpha4ErfPowExpPdf& other, const char* name=0) ;
+  RooAlpha4ErfPowExpPdf(const RooAlpha4ErfPowExpPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooAlpha4ErfPowExpPdf(*this,newname); }
 
@@ -325,7 +325,7 @@ public:
 	      RooAbsReal& _mean,
 	      RooAbsReal& _sigma);
 
-  RooGausExpPdf(const RooGausExpPdf& other, const char* name=0) ;
+  RooGausExpPdf(const RooGausExpPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooGausExpPdf(*this,newname); }
 
@@ -360,7 +360,7 @@ public:
 	      RooAbsReal& _meana,
 	      RooAbsReal& _sigmaa);
 
-  RooAlpha4GausExpPdf(const RooAlpha4GausExpPdf& other, const char* name=0) ;
+  RooAlpha4GausExpPdf(const RooAlpha4GausExpPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooAlpha4GausExpPdf(*this,newname); }
 
@@ -398,7 +398,7 @@ public:
 	      RooAbsReal& _offset,
 	      RooAbsReal& _width);
 
-  RooErfPowPdf(const RooErfPowPdf& other, const char* name=0) ;
+  RooErfPowPdf(const RooErfPowPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooErfPowPdf(*this,newname); }
 
@@ -432,7 +432,7 @@ public:
 	      RooAbsReal& _offseta,
 	      RooAbsReal& _widtha);
 
-  RooAlpha4ErfPowPdf(const RooAlpha4ErfPowPdf& other, const char* name=0) ;
+  RooAlpha4ErfPowPdf(const RooAlpha4ErfPowPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooAlpha4ErfPowPdf(*this,newname); }
 
@@ -466,7 +466,7 @@ public:
 	      RooAbsReal& _p1
           );
 
-  RooPow2Pdf(const RooPow2Pdf& other, const char* name=0) ;
+  RooPow2Pdf(const RooPow2Pdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooPow2Pdf(*this,newname); }
 
@@ -493,7 +493,7 @@ public:
 	      RooAbsReal& _x,
 	      RooAbsReal& _p0);
 
-  RooPowPdf(const RooPowPdf& other, const char* name=0) ;
+  RooPowPdf(const RooPowPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooPowPdf(*this,newname); }
 
@@ -522,7 +522,7 @@ public:
 	      RooAbsReal& _p1,
 	      RooAbsReal& _p2);
 
-  RooQCDPdf(const RooQCDPdf& other, const char* name=0) ;
+  RooQCDPdf(const RooQCDPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooQCDPdf(*this,newname); }
 
@@ -553,7 +553,7 @@ public:
 	      RooAbsReal& _p1
           );
 
-  RooUser1Pdf(const RooUser1Pdf& other, const char* name=0) ;
+  RooUser1Pdf(const RooUser1Pdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooUser1Pdf(*this,newname); }
 
@@ -584,7 +584,7 @@ public:
 	      RooAbsReal& _c,
 	      RooAbsReal& _n);
 
-  RooExpNPdf(const RooExpNPdf& other, const char* name=0) ;
+  RooExpNPdf(const RooExpNPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooExpNPdf(*this,newname); }
 
@@ -614,7 +614,7 @@ public:
 	      RooAbsReal& _c1,
 	      RooAbsReal& _n1);
 
-  RooAlpha4ExpNPdf(const RooAlpha4ExpNPdf& other, const char* name=0) ;
+  RooAlpha4ExpNPdf(const RooAlpha4ExpNPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooAlpha4ExpNPdf(*this,newname); }
 
@@ -647,7 +647,7 @@ public:
 	      RooAbsReal& _s,
 	      RooAbsReal& _a);
 
-  RooExpTailPdf(const RooExpTailPdf& other, const char* name=0) ;
+  RooExpTailPdf(const RooExpTailPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooExpTailPdf(*this,newname); }
 
@@ -677,7 +677,7 @@ public:
 	      RooAbsReal& _s1,
 	      RooAbsReal& _a1);
 
-  RooAlpha4ExpTailPdf(const RooAlpha4ExpTailPdf& other, const char* name=0) ;
+  RooAlpha4ExpTailPdf(const RooAlpha4ExpTailPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooAlpha4ExpTailPdf(*this,newname); }
 
@@ -711,7 +711,7 @@ public:
 	      RooAbsReal& _c1,
 	      RooAbsReal& _frac);
 
-  Roo2ExpPdf(const Roo2ExpPdf& other, const char* name=0) ;
+  Roo2ExpPdf(const Roo2ExpPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new Roo2ExpPdf(*this,newname); }
 
@@ -744,7 +744,7 @@ public:
 	      RooAbsReal& _c11,
 	      RooAbsReal& _frac1);
 
-  RooAlpha42ExpPdf(const RooAlpha42ExpPdf& other, const char* name=0) ;
+  RooAlpha42ExpPdf(const RooAlpha42ExpPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooAlpha42ExpPdf(*this,newname); }
 
@@ -777,15 +777,15 @@ public:
 	      RooAbsReal& _c,
 	      RooAbsReal& _n);
 
-  RooAnaExpNPdf(const RooAnaExpNPdf& other, const char* name=0) ;
+  RooAnaExpNPdf(const RooAnaExpNPdf& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooAnaExpNPdf(*this,newname); }
 
   inline ~RooAnaExpNPdf() override { }
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override ;
 
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override ;
 
 protected:
 
@@ -814,15 +814,15 @@ class RooDoubleCrystalBall : public RooAbsPdf {
 	      RooAbsReal& _n2
 	      );
 
-  RooDoubleCrystalBall(const RooDoubleCrystalBall& other, const char* name=0) ;
+  RooDoubleCrystalBall(const RooDoubleCrystalBall& other, const char* name=nullptr) ;
 
   TObject* clone(const char* newname) const override { return new RooDoubleCrystalBall(*this,newname); }
 
   inline ~RooDoubleCrystalBall() override { }
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override ;
 
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override ;
 
  protected:
 

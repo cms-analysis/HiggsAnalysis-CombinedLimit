@@ -1,6 +1,6 @@
 #include "RooFit.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "../interface/RooTaylorExpansion.h"
 #include "RooAbsReal.h"

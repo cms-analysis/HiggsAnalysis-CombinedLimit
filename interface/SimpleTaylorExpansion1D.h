@@ -21,7 +21,7 @@ class SimpleTaylorExpansion1D : public RooAbsReal {
 
       SimpleTaylorExpansion1D() {}
       SimpleTaylorExpansion1D(const char *name, const char *title, RooAbsReal & func, RooRealVar & xvar, double dx, int order=2) ;
-      SimpleTaylorExpansion1D(const SimpleTaylorExpansion1D &other, const char *newname=0) ;
+      SimpleTaylorExpansion1D(const SimpleTaylorExpansion1D &other, const char *newname=nullptr) ;
 
       ~SimpleTaylorExpansion1D() override ;
 

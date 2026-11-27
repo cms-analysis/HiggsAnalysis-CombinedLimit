@@ -134,12 +134,12 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
             RooAbsPdf *pdfi = (RooAbsPdf *) list.at(i);
             RooAbsPdf *newpdf = factorizePdf(observables, *pdfi, constraints);
             //std::cout << "    for " << pdfi->GetName() << "   newpdf  " << (newpdf == 0 ? "null" : (newpdf == pdfi ? "old" : "new"))  << std::endl;
-            if (newpdf == 0) { needNew = true; continue; }
+            if (newpdf == nullptr) { needNew = true; continue; }
             if (newpdf != pdfi) { needNew = true; newOwned.add(*newpdf); }
             newFactors.add(*newpdf);
         }
         if (!needNew && newFactors.getSize() > 1) { copyAttributes(pdf, *prod); return prod; }
-        else if (newFactors.getSize() == 0) return 0;
+        else if (newFactors.getSize() == 0) return nullptr;
         else if (newFactors.getSize() == 1) {
             RooAbsPdf *ret = (RooAbsPdf *) newFactors.first()->Clone(TString::Format("%s_obsOnly", pdf.GetName()));
             copyAttributes(pdf, *ret);
@@ -152,7 +152,7 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
     } else if (id == typeid(RooSimultaneous) || id == typeid(RooSimultaneousOpt)) {
         RooSimultaneous *sim  = dynamic_cast<RooSimultaneous *>(&pdf);
         RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
-        int nbins = cat->numBins((const char *)0);
+        int nbins = cat->numBins((const char *)nullptr);
         TObjArray factorizedPdfs(nbins); RooArgSet newOwned;
         bool needNew = false;
         for (int ic = 0, nc = nbins; ic < nc; ++ic) {
@@ -160,7 +160,7 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
             RooAbsPdf *pdfi = sim->getPdf(cat->getLabel());
             RooAbsPdf *newpdf = factorizePdf(observables, *pdfi, constraints);
             factorizedPdfs[ic] = newpdf;
-            if (newpdf == 0) { throw std::runtime_error(std::string("ERROR: channel ") + cat->getLabel() + " factorized to zero."); }
+            if (newpdf == nullptr) { throw std::runtime_error(std::string("ERROR: channel ") + cat->getLabel() + " factorized to zero."); }
             if (newpdf != pdfi) { needNew = true; newOwned.add(*newpdf); }
         }
         if (id == typeid(RooSimultaneousOpt)) {
@@ -191,7 +191,7 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
         return &pdf;
     } else {
         if (!constraints.contains(pdf) && (!pdf.getAttribute("ignoreConstraint"))) constraints.add(pdf);
-        return 0;
+        return nullptr;
     }
 
 }
@@ -218,10 +218,10 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
         }
         RooSimultaneous *sim  = dynamic_cast<RooSimultaneous *>(&pdf);
         RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
-        for (int ic = 0, nc = cat->numBins((const char *)0); ic < nc; ++ic) {
+        for (int ic = 0, nc = cat->numBins((const char *)nullptr); ic < nc; ++ic) {
             cat->setBin(ic);
             RooAbsPdf *pdfi = sim->getPdf(cat->getLabel());
-            if (pdfi != 0) factorizePdf(observables, *pdfi, obsTerms, constraints);
+            if (pdfi != nullptr) factorizePdf(observables, *pdfi, obsTerms, constraints);
         }
         delete cat;
     } else if (pdf.dependsOn(observables)) {
@@ -234,7 +234,7 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
 
 void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArgList &obsTerms, RooArgList &constraints, bool keepDuplicate, bool debug) {
     RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(&func);
-    if (pdf != 0) { 
+    if (pdf != nullptr) { 
         factorizePdf(observables, *pdf, obsTerms, constraints, debug); 
         return; 
     }
@@ -266,7 +266,7 @@ RooAbsPdf *utils::makeNuisancePdf(RooAbsPdf &pdf, const RooArgSet &observables, 
     //assert(&pdf);
     RooArgList obsTerms, constraints;
     factorizePdf(observables, pdf, obsTerms, constraints);
-    if (constraints.getSize() == 0) return 0;
+    if (constraints.getSize() == 0) return nullptr;
     return new RooProdPdf(name,"", constraints);
 }
 
@@ -354,16 +354,16 @@ TString utils::printRooArgAsString(RooAbsArg *a){
 bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
     bool ok = true; std::ostringstream errors; 
     std::unique_ptr<TIterator> iter;
-    RooAbsPdf *pdf = model.GetPdf(); if (pdf == 0) throw std::invalid_argument("Model without Pdf");
+    RooAbsPdf *pdf = model.GetPdf(); if (pdf == nullptr) throw std::invalid_argument("Model without Pdf");
     RooArgSet allowedToFloat; 
-    if (model.GetObservables() == 0) { 
+    if (model.GetObservables() == nullptr) { 
         ok = false; errors << "ERROR: model does not define observables.\n"; 
         std::cout << errors.str() << std::endl;
         if (throwOnFail) throw std::invalid_argument(errors.str()); else return false; 
     } else {
         allowedToFloat.add(*model.GetObservables());
     }
-    if (model.GetParametersOfInterest() == 0) { 
+    if (model.GetParametersOfInterest() == nullptr) { 
         ok = false; errors << "ERROR: model does not define parameters of interest.\n";  
     } else {
         for (RooAbsArg *a : *model.GetParametersOfInterest()) {
@@ -374,7 +374,7 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
             allowedToFloat.add(*v);
         }
     }
-    if (model.GetNuisanceParameters() != 0) { 
+    if (model.GetNuisanceParameters() != nullptr) { 
         for (RooAbsArg *a : *model.GetNuisanceParameters()) {
             RooRealVar *v = dynamic_cast<RooRealVar *>(a);
             if (!v) { ok = false; errors << "ERROR: nuisance parameter " << a->GetName() << " is a " << a->ClassName() << " and not a RooRealVar\n"; continue; }
@@ -383,7 +383,7 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
             allowedToFloat.add(*v);
         }
     }
-    if (model.GetGlobalObservables() != 0) { 
+    if (model.GetGlobalObservables() != nullptr) { 
         for (RooAbsArg *a : *model.GetGlobalObservables()) {
             RooRealVar *v = dynamic_cast<RooRealVar *>(a);
             if (!v) { ok = false; errors << "ERROR: global observable " << a->GetName() << " is a " << a->ClassName() << " and not a RooRealVar\n"; continue; }
@@ -408,16 +408,16 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
             errors << "WARNING: pdf parameter " << a->GetName() << " (type " << a->ClassName() << ") is not allowed to float (it's not nuisance, poi, observable or global observable\n"; 
         }
         RooRealVar *v = dynamic_cast<RooRealVar *>(a);
-        if (v != 0 && !v->isConstant() && (v->getVal() < v->getMin() || v->getVal() > v->getMax())) {
+        if (v != nullptr && !v->isConstant() && (v->getVal() < v->getMin() || v->getVal() > v->getMax())) {
             ok = false; errors << "ERROR: parameter " << a->GetName() << " has value " << v->getVal() << " outside range [ " << v->getMin() << " , " << v->getMax() << " ]\n"; 
         }
     }
     iter.reset();
 
-    if (model.GetNuisanceParameters() != 0) {
+    if (model.GetNuisanceParameters() != nullptr) {
         RooArgList constraints;
         std::unique_ptr<RooAbsPdf> factorizedPdf(utils::factorizePdf(*model.GetObservables(), *model.GetPdf(), constraints));
-        if (factorizedPdf.get() == 0 || factorizedPdf.get() == model.GetPdf()) {
+        if (factorizedPdf.get() == nullptr || factorizedPdf.get() == model.GetPdf()) {
             factorizedPdf.release();
             ok = false; errors << "ERROR: have nuisance parameters, but can't factorize the pdf\n";
         }
@@ -436,16 +436,16 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
 RooSimultaneous * utils::rebuildSimPdf(const RooArgSet &observables, RooSimultaneous *sim) {
     RooArgList constraints;
     RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
-    int nbins = cat->numBins((const char *)0);
+    int nbins = cat->numBins((const char *)nullptr);
     TObjArray factorizedPdfs(nbins); 
     RooArgSet newOwned;
     for (int ic = 0, nc = nbins; ic < nc; ++ic) {
         cat->setBin(ic);
         RooAbsPdf *pdfi = sim->getPdf(cat->getLabel());
-        if (pdfi == 0) { factorizedPdfs[ic] = 0; continue; }
+        if (pdfi == nullptr) { factorizedPdfs[ic] = nullptr; continue; }
         RooAbsPdf *newpdf = factorizePdf(observables, *pdfi, constraints);
         factorizedPdfs[ic] = newpdf;
-        if (newpdf == 0) { continue; }
+        if (newpdf == nullptr) { continue; }
         if (newpdf != pdfi) { newOwned.add(*newpdf);  }
     }
     RooSimultaneous *ret = new RooSimultaneous(TString::Format("%s_reloaded", sim->GetName()), "", (RooAbsCategoryLValue&) sim->indexCat());
@@ -493,7 +493,7 @@ void utils::guessChannelMode(RooSimultaneous &simPdf, RooAbsData &simData, bool 
     std::unique_ptr<TList> split{simData.split(cat, kTRUE)};
     split->SetOwner();
 #endif
-    for (int i = 0, n = cat.numBins((const char *)0); i < n; ++i) {
+    for (int i = 0, n = cat.numBins((const char *)nullptr); i < n; ++i) {
         cat.setBin(i);
         RooAbsPdf *pdf = simPdf.getPdf(cat.getLabel());
         if (pdf->getAttribute("forceGenBinned") || pdf->getAttribute("forceGenUnbinned")) {
@@ -508,7 +508,7 @@ void utils::guessChannelMode(RooSimultaneous &simPdf, RooAbsData &simData, bool 
 #else
         RooAbsData *spl = (RooAbsData *) split->FindObject(cat.getLabel());
 #endif
-        if (spl == 0) { 
+        if (spl == nullptr) { 
             if (verbose) std::cout << " - " << cat.getLabel() << " has no dataset, cannot guess" << std::endl; 
             continue;
         }
@@ -529,7 +529,7 @@ utils::setChannelGenModes(RooSimultaneous &simPdf, const std::string &binned, co
     std::smatch match;
 
     RooAbsCategoryLValue &cat = const_cast<RooAbsCategoryLValue &>(simPdf.indexCat());
-    for (int i = 0, n = cat.numBins((const char *)0); i < n; ++i) {
+    for (int i = 0, n = cat.numBins((const char *)nullptr); i < n; ++i) {
         cat.setBin(i);
         const std::string & label = cat.getLabel();
         RooAbsPdf *pdf = simPdf.getPdf(label.c_str());
@@ -616,7 +616,7 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
             if (obs->getSize() == 0) break;
         for (RooAbsArg *a : *obs) {
 	      RooRealVar *x = dynamic_cast<RooRealVar *>(a);
-	      if (x == 0) continue;
+	      if (x == nullptr) continue;
 	      int nbins = x->numBins(); if (nbins == 0) nbins = 100;
 	      if (nbins/rebinFactor > 6) nbins = ceil(nbins/rebinFactor);
 	      if (rebinFactor > 1) ret.push_back(x->frame(RooFit::Title(ds->GetName()), RooFit::Bins(nbins)));
@@ -638,7 +638,7 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
 
     for (RooAbsArg *a : *obs) {
           RooRealVar *x = dynamic_cast<RooRealVar *>(a);
-	  if (x != 0) {
+	  if (x != nullptr) {
 	      ret.push_back(x->frame());
 	      ret.back()->SetName(Form("data_%s",x->GetName()));
 	      data.plotOn(ret.back(), RooFit::DataError(RooAbsData::Poisson));
@@ -664,9 +664,9 @@ void utils::CheapValueSnapshot::readFrom(const RooAbsCollection &src) {
     for (int i = 0; i < src.getSize(); ++i) {
         RooAbsArg *a = src[i];
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-        if (rrv == 0) {
+        if (rrv == nullptr) {
           RooCategory *rc = dynamic_cast<RooCategory *>(a);
-	  if (rc == 0){
+	  if (rc == nullptr){
 		throw std::invalid_argument("Collection to read from contains a non-RooRealVar/RooCategory");
 	  } 
 	  values_[i] = (double)rc->getIndex();
@@ -681,7 +681,7 @@ void utils::CheapValueSnapshot::writeTo(const RooAbsCollection &src) const {
         for (int i = 0; i < src.getSize(); ++i) {
             RooAbsArg *a = src[i];
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-	    if (rrv!=0) rrv->setVal(values_[i]);
+	    if (rrv!=nullptr) rrv->setVal(values_[i]);
 	    else {
 		RooCategory *rc = dynamic_cast<RooCategory *>(a);
 		rc->setIndex((int)values_[i]);
@@ -690,9 +690,9 @@ void utils::CheapValueSnapshot::writeTo(const RooAbsCollection &src) const {
     } else {
         for (int i = 0; i < src_->getSize(); ++i) {
             RooAbsArg *a = (*src_)[i];
-            RooAbsArg *a2 = src.find(a->GetName()); if (a2 == 0) continue;
+            RooAbsArg *a2 = src.find(a->GetName()); if (a2 == nullptr) continue;
             RooRealVar *rrv = dynamic_cast<RooRealVar *>(a2);
-            if (rrv!=0) rrv->setVal(values_[i]);
+            if (rrv!=nullptr) rrv->setVal(values_[i]);
 	    else {
 		RooCategory *rc = dynamic_cast<RooCategory *>(a2);
 		rc->setIndex((int)values_[i]);
@@ -702,7 +702,7 @@ void utils::CheapValueSnapshot::writeTo(const RooAbsCollection &src) const {
 }
 
 void utils::CheapValueSnapshot::Print(const char *fmt) const {
-    if (src_ == 0) { printf("<NIL>\n"); return; }
+    if (src_ == nullptr) { printf("<NIL>\n"); return; }
     if (fmt[0] == 'V') {
         for (int i = 0; i < src_->getSize(); ++i) {
             RooAbsArg *a = (*src_)[i];
@@ -896,7 +896,7 @@ void utils::createSnapshotFromString( const std::string expression, const RooArg
         if (allvars.getSize() != 1) throw std::invalid_argument(std::string("Error: the argument to ")+context+" is a single value, but there are multiple variables to choose from");
         allvars.snapshot(output);
         errno = 0; // check for errors in str->float conversion
-        ((RooRealVar*)output.first())->setVal(strtod(expression.c_str(),NULL));
+        ((RooRealVar*)output.first())->setVal(strtod(expression.c_str(),nullptr));
         if (errno != 0) std::invalid_argument(std::string("Error: the argument to ")+context+" is not a valid number.");
     } else {
         std::string::size_type eqidx = 0, colidx = 0, colidx2;
@@ -909,10 +909,10 @@ void utils::createSnapshotFromString( const std::string expression, const RooArg
             std::string poiName = expression.substr(colidx, eqidx-colidx);
             std::string poiVal  = expression.substr(eqidx+1, (colidx2 == std::string::npos ? std::string::npos : colidx2 - eqidx - 1));
             RooAbsArg *poi = allvars.find(poiName.c_str());
-            if (poi == 0) throw std::invalid_argument(std::string("Error: unknown parameter '")+poiName+"' passed to "+context+".");
+            if (poi == nullptr) throw std::invalid_argument(std::string("Error: unknown parameter '")+poiName+"' passed to "+context+".");
             output.addClone(*poi);
             errno = 0;
-            output.setRealValue(poi->GetName(), strtod(poiVal.c_str(),NULL));
+            output.setRealValue(poi->GetName(), strtod(poiVal.c_str(),nullptr));
             if (errno != 0) throw std::invalid_argument(std::string("Error: invalid value '")+poiVal+"' for parameter '"+poiName+"' passed to "+context+".");
             colidx = colidx2+1;
         } while (colidx2 != std::string::npos);

@@ -7,7 +7,7 @@
 #include "../interface/RooParametricHist.h"
 #include "../interface/CombineMathFuncs.h"
 
-#include <math.h>
+#include <cmath>
 #include "TMath.h"
 #include "RooFormulaVar.h"
 #include "RooRealVar.h"

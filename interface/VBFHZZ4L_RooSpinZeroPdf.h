@@ -43,12 +43,12 @@ public:
                        RooAbsReal& _ai,
                        const RooArgList& inCoefList);
 
-  VBFHZZ4L_RooSpinZeroPdf(const VBFHZZ4L_RooSpinZeroPdf& other, const char* name=0) ;
+  VBFHZZ4L_RooSpinZeroPdf(const VBFHZZ4L_RooSpinZeroPdf& other, const char* name=nullptr) ;
   TObject* clone(const char* newname) const override { return new VBFHZZ4L_RooSpinZeroPdf(*this,newname); }
   inline ~VBFHZZ4L_RooSpinZeroPdf() override {}
 
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const override ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const override ;
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=nullptr) const override ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=nullptr) const override ;
   const RooArgList& coefList() const { return _coefList ; }
 
   double Integral_T1;
