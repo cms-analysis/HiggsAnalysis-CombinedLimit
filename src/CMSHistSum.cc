@@ -196,7 +196,10 @@ CMSHistSum::CMSHistSum(
       external_morphs_("external_morphs", this, other.external_morphs_),
       external_morph_indices_(other.external_morph_indices_)
 {
-      initialize();
+  // initialize() is left to the first evaluation, as for an object read from
+  // a file: when a workspace is copied, the proxies of the copy point to the
+  // parameters of the original workspace until RooFit redirects them, and
+  // initialize() keeps pointers to the parameters and adds them to the sentries
 }
 
 void CMSHistSum::initialize() const {

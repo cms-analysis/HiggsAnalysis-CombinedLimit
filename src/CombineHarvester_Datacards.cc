@@ -107,6 +107,17 @@ namespace ch {
     // or which starts with a "#" or "-" character. The lines after the rate
     // line may also end with a comment.
     std::vector<std::vector<std::string>> words;
+    // The name and the id of the process in column p. The two "process" lines
+    // above the rate line can be in either order. An exception is thrown only
+    // if neither has an integer in this column: this is looked up for every
+    // process and every systematic effect, and throwing for each of them takes
+    // most of the time of a large datacard.
+    auto process_name_and_id = [&](unsigned rate_line, unsigned p) {
+      int process_id;
+      if (boost::conversion::try_lexical_convert(words[rate_line - 2][p], process_id))
+        return std::make_pair(words[rate_line - 1][p], process_id);
+      return std::make_pair(words[rate_line - 2][p], boost::lexical_cast<int>(words[rate_line - 1][p]));
+    };
     bool after_rate = false;
     for (unsigned i = 0; i < lines.size(); ++i) {
       if (after_rate) {
@@ -283,15 +294,9 @@ namespace ch {
             auto proc = std::make_shared<Process>();
             proc->set_bin(words[i - 3][p]);
             bin_names.insert(words[i - 3][p]);
-            try {
-              int process_id = boost::lexical_cast<int>(words[i - 2][p]);
-              proc->set_signal(process_id <= 0);
-              proc->set_process(words[i - 1][p]);
-            } catch (boost::bad_lexical_cast&) {
-              int process_id = boost::lexical_cast<int>(words[i - 1][p]);
-              proc->set_signal(process_id <= 0);
-              proc->set_process(words[i - 2][p]);
-            }
+            auto name_and_id = process_name_and_id(i, p);
+            proc->set_signal(name_and_id.second <= 0);
+            proc->set_process(name_and_id.first);
             proc->set_rate(boost::lexical_cast<double>(words[i][p]));
             proc->set_analysis(analysis);
             proc->set_era(era);
@@ -408,17 +413,10 @@ namespace ch {
         for (unsigned p = 1; p < words[r].size(); ++p) {
           bool matches_bin = false;
           bool matches_proc = false;
-          int process_id;
-          std::string process;
           std::string bin = words[r - 3][p];
-          // Not great that we repeat this below
-          try {
-            process_id = boost::lexical_cast<int>(words[r - 2][p]);
-            process = words[r - 1][p];
-          } catch (boost::bad_lexical_cast&) {
-            process_id = boost::lexical_cast<int>(words[r - 1][p]);
-            process = words[r - 2][p];
-          }
+          auto name_and_id = process_name_and_id(r, p);
+          std::string const& process = name_and_id.first;
+          int process_id = name_and_id.second;
           // if (words[i][2] == "*" || words[i][2] == bin) {
           if (words[i][2] == "*" || fnmatch(words[i][2].c_str(), bin.c_str(), 0) == 0) {
             matches_bin = true;
@@ -543,15 +541,9 @@ namespace ch {
         unsigned col = p - n_lead + 1;  // column in the bin, process and rate lines
         auto sys = std::make_shared<Systematic>();
         sys->set_bin(words[r - 3][col]);
-        try {
-          int process_id = boost::lexical_cast<int>(words[r - 2][col]);
-          sys->set_signal(process_id <= 0);
-          sys->set_process(words[r - 1][col]);
-        } catch (boost::bad_lexical_cast&) {
-          int process_id = boost::lexical_cast<int>(words[r - 1][col]);
-          sys->set_signal(process_id <= 0);
-          sys->set_process(words[r - 2][col]);
-        }
+        auto name_and_id = process_name_and_id(r, col);
+        sys->set_signal(name_and_id.second <= 0);
+        sys->set_process(name_and_id.first);
         sys->set_name(words[i][0]);
         sys->set_type(type);
         sys->set_analysis(analysis);

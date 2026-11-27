@@ -750,7 +750,7 @@ namespace ch {
         wspaces_[std::string(ws.GetName())] =
             std::shared_ptr<RooWorkspace>(reinterpret_cast<RooWorkspace*>(ws.Clone(ws.GetName())));
       } else {
-        wspaces_[std::string(ws.GetName())] = std::make_shared<RooWorkspace>(RooWorkspace(ws));
+        wspaces_[std::string(ws.GetName())] = std::make_shared<RooWorkspace>(ws);
       }
       return wspaces_.at(ws.GetName());
     }
@@ -784,7 +784,7 @@ namespace ch {
     if (GetFlag("workspaces-use-clone")) {
       new_wsp = std::shared_ptr<RooWorkspace>(reinterpret_cast<RooWorkspace*>(ws.Clone(new_name.c_str())));
     } else {
-      new_wsp = std::make_shared<RooWorkspace>(RooWorkspace(ws));
+      new_wsp = std::make_shared<RooWorkspace>(ws);
     }
     new_wsp->SetName(new_name.c_str());
     wspaces_[new_name] = new_wsp;

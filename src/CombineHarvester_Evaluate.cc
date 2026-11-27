@@ -5,6 +5,7 @@
 #include <iostream>
 #include <utility>
 #include <set>
+#include <unordered_map>
 #include <fstream>
 #include "boost/lexical_cast.hpp"
 #include "boost/algorithm/string.hpp"
@@ -59,12 +60,25 @@ namespace {
 namespace ch {
 
   CombineHarvester::ProcSystMap CombineHarvester::GenerateProcSystMap() {
+    // The processes are found through a map of the properties that
+    // MatchingProcess compares: comparing every systematic with every process
+    // takes a time that grows with the square of the size of the model
+    auto key = [](Object const& obj) {
+      std::string const sep(1, '\x1f');
+      return obj.bin() + sep + obj.process() + sep + (obj.signal() ? "1" : "0") + sep + obj.analysis() + sep +
+             obj.era() + sep + obj.channel() + sep + std::to_string(obj.bin_id()) + sep + obj.mass();
+    };
+    std::unordered_map<std::string, std::vector<unsigned>> procs_by_key;
+    for (unsigned j = 0; j < procs_.size(); ++j) {
+      procs_by_key[key(*(procs_[j]))].push_back(j);
+    }
     ProcSystMap lookup(procs_.size());
     for (unsigned i = 0; i < systs_.size(); ++i) {
-      for (unsigned j = 0; j < procs_.size(); ++j) {
-        if (MatchingProcess(*(systs_[i]), *(procs_[j]))) {
-          lookup[j].push_back(systs_[i].get());
-        }
+      auto it = procs_by_key.find(key(*(systs_[i])));
+      if (it == procs_by_key.end())
+        continue;
+      for (unsigned j : it->second) {
+        lookup[j].push_back(systs_[i].get());
       }
     }
     return lookup;
